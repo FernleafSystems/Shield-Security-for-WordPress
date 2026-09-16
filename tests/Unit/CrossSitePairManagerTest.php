@@ -830,6 +830,14 @@ class CrossSitePairManagerTest extends TestCase {
 		$manager = new CrossSitePairManager();
 		$before = $this->waitingExportQueueState();
 		$after = $this->postExportQueueState();
+		$before[ 'rows' ][ 0 ][ 'meta' ][ 'sync_observations' ] = [
+			'notification' => [ 'result' => 'http_response_received' ],
+		];
+		$after[ 'rows' ][ 0 ][ 'meta' ][ 'sync_observations' ] = [
+			'notification' => [ 'result' => 'http_response_received' ],
+			'verification' => [ 'result' => 'verification_passed' ],
+			'export'       => [ 'result' => 'export_served' ],
+		];
 
 		$this->invokePrivate( $manager, 'assertPublicQueueTransition', [ $before, $after ] );
 

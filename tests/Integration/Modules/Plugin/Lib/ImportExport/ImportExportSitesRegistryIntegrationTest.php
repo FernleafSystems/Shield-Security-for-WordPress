@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Record
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\SyncObservation;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\{
@@ -1263,11 +1264,25 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 				'last_export_success_at' => $start,
 			] );
 		}
+		$priorObservation = null;
+		if ( $failedWrite === 'recordNotifyDispatched' ) {
+			$priorObservation = SyncObservation::create( $start - 1, SyncObservation::PHASE_NOTIFICATION,
+				SyncObservation::RESULT_NO_HTTP_RESPONSE, SyncObservation::VERIFICATION_NOT_APPLICABLE );
+			$this->assertTrue( $repo->saveObservation( $row, SyncObservation::PHASE_NOTIFICATION, $priorObservation ) );
+			$row = $repo->findById( $row->id, true );
+		}
 		$targetBefore = $repo->findById( $row->id, true )->getRawData();
 
 		$repo->failedWrite = $failedWrite;
 		$repo->failedRecordID = $row->id;
-		$sender = new ImportExportPingSenderTestDouble( true, 204, '' );
+		$sender = new ImportExportPingSenderTestDouble( true, 204, '', null, static fn() :array => [
+			'success'     => true,
+			'http_code'   => 204,
+			'error'       => '',
+			'observation' => SyncObservation::create( $start, SyncObservation::PHASE_NOTIFICATION,
+				SyncObservation::RESULT_HTTP_RESPONSE_RECEIVED, SyncObservation::VERIFICATION_NOT_APPLICABLE,
+				[ 'http_status' => 204 ] ),
+		] );
 		$processor = new ImportExportQueueProcessorTestDouble( $sender, null, $repo );
 		$processor->runFromCron();
 
@@ -1283,6 +1298,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			$this->assertSame( $start, $target->picked_at );
 			$this->assertSame( $start + 60, $target->lock_until );
 			$this->assertSame( 1, ( new NotificationMetadata() )->attemptsStarted( $target->meta ) );
+			$this->assertSame( $priorObservation, $repo->readObservation( $target, SyncObservation::PHASE_NOTIFICATION ) );
 		}
 		else {
 			$this->assertSame( $targetBefore, $target->getRawData() );
@@ -1828,6 +1844,86 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 0, $repo->startInviteAttempt( $claimed, Services::Request()->ts() ) );
 	}
 
+	public function test_sync_observation_slots_replace_independently_and_preserve_existing_metadata() :void {
+		$repo = $this->repo();
+		$row = $repo->upsertActive( 'https://diagnostic-slots.example.com', SitesDB::SOURCE_MANUAL );
+		$this->assertInstanceOf( Record::class, $row );
+		$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
+			'meta' => $this->requireController()->db_con->import_export_sites->getRecord()->arrayDataWrap( [
+				'preserved' => 'value',
+			] ) ?? '',
+		] );
+
+		$row = $repo->findById( $row->id, true );
+		$notification = SyncObservation::create( 100, SyncObservation::PHASE_NOTIFICATION,
+			SyncObservation::RESULT_NO_HTTP_RESPONSE, SyncObservation::VERIFICATION_NOT_APPLICABLE );
+		$verification = SyncObservation::create( 200, SyncObservation::PHASE_VERIFICATION,
+			SyncObservation::RESULT_MISSING_ID, SyncObservation::VERIFICATION_FAILED );
+		$newNotification = SyncObservation::create( 300, SyncObservation::PHASE_NOTIFICATION,
+			SyncObservation::RESULT_HTTP_RESPONSE_RECEIVED, SyncObservation::VERIFICATION_NOT_APPLICABLE,
+			[ 'http_status' => 204 ] );
+
+		$this->assertTrue( $repo->saveObservation( $row, SyncObservation::PHASE_NOTIFICATION, $notification ) );
+		$this->assertTrue( $repo->saveObservation( $row, SyncObservation::PHASE_VERIFICATION, $verification ) );
+		$this->assertTrue( $repo->saveObservation( $row, SyncObservation::PHASE_NOTIFICATION, $newNotification ) );
+
+		$fresh = $repo->findById( $row->id, true );
+		$this->assertSame( 'value', $fresh->meta[ 'preserved' ] );
+		$this->assertSame( $newNotification, $repo->readObservation( $fresh, SyncObservation::PHASE_NOTIFICATION ) );
+		$this->assertSame( $verification, $repo->readObservation( $fresh, SyncObservation::PHASE_VERIFICATION ) );
+	}
+
+	public function test_sync_observation_read_rejects_phase_mismatched_to_slot() :void {
+		$repo = $this->repo();
+		$row = $repo->upsertActive( 'https://observation-phase-mismatch.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$meta = $row->meta;
+		$meta[ 'sync_observations' ][ SyncObservation::PHASE_NOTIFICATION ] = SyncObservation::create(
+			100,
+			SyncObservation::PHASE_EXPORT,
+			SyncObservation::RESULT_EXPORT_SERVED,
+			SyncObservation::VERIFICATION_ESTABLISHED
+		);
+
+		$row->meta = $meta;
+
+		$this->assertNull( $repo->readObservation( $row, SyncObservation::PHASE_NOTIFICATION ) );
+	}
+
+	public function test_sync_observation_write_rejects_deleted_rows_and_wrong_slots() :void {
+		$repo = $this->repo();
+		$row = $repo->upsertActive( 'https://diagnostic-deleted.example.com', SitesDB::SOURCE_MANUAL );
+		$observation = SyncObservation::create( 100, SyncObservation::PHASE_NOTIFICATION,
+			SyncObservation::RESULT_NO_HTTP_RESPONSE, SyncObservation::VERIFICATION_NOT_APPLICABLE );
+
+		$this->assertFalse( $repo->saveObservation( $row, SyncObservation::PHASE_EXPORT, $observation ) );
+		$repo->softDeleteUrl( $row->url );
+		$this->assertFalse( $repo->saveObservation( $row, SyncObservation::PHASE_NOTIFICATION, $observation ) );
+	}
+
+	public function test_sync_observation_save_preserves_newer_persisted_metadata_without_mutating_caller_snapshot() :void {
+		$repo = $this->repo();
+		$row = $repo->upsertActive( 'https://diagnostic-stale-caller.example.com', SitesDB::SOURCE_MANUAL );
+		$this->assertInstanceOf( Record::class, $row );
+		$callerMeta = $row->meta;
+		$servedAt = Services::Request()->ts();
+		$persistedMeta = \is_array( $callerMeta ) ? $callerMeta : [];
+		$persistedMeta[ 'export_served_at' ] = $servedAt;
+		$persistedMeta[ 'newer_value' ] = 'preserved';
+		$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
+			'meta' => $this->requireController()->db_con->import_export_sites->getRecord()->arrayDataWrap( $persistedMeta ) ?? '',
+		] );
+		$observation = SyncObservation::create( $servedAt, SyncObservation::PHASE_VERIFICATION,
+			SyncObservation::RESULT_VERIFICATION_PASSED, SyncObservation::VERIFICATION_ESTABLISHED );
+
+		$this->assertTrue( $repo->saveObservation( $row, SyncObservation::PHASE_VERIFICATION, $observation ) );
+
+		$this->assertSame( $callerMeta, $row->meta );
+		$fresh = $repo->findById( $row->id, true );
+		$this->assertSame( $servedAt, $fresh->meta[ 'export_served_at' ] );
+		$this->assertSame( 'preserved', $fresh->meta[ 'newer_value' ] );
+		$this->assertSame( $observation, $repo->readObservation( $fresh, SyncObservation::PHASE_VERIFICATION ) );
+	}
+
 	public function test_upserts_repair_invalid_existing_profile_refs() :void {
 		$profile = ( new ProfileRepository() )->ensureDefaultProfile();
 		$this->assertNotEmpty( $profile );
@@ -1916,8 +2012,21 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 	public function test_queue_processor_records_attempted_notify_without_response_as_waiting_for_export() :void {
 		$repo = $this->repo();
 		$row = $repo->upsertActive( 'https://notify-no-response.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$observation = SyncObservation::create( Services::Request()->ts(), SyncObservation::PHASE_NOTIFICATION,
+			SyncObservation::RESULT_NO_HTTP_RESPONSE, SyncObservation::VERIFICATION_NOT_APPLICABLE );
 
-		( new ImportExportQueueProcessorTestDouble( new ImportExportPingSenderTestDouble( true, 0, '' ) ) )->runFromCron();
+		( new ImportExportQueueProcessorTestDouble( new ImportExportPingSenderTestDouble(
+			true,
+			0,
+			'',
+			null,
+			static fn() :array => [
+				'success'     => true,
+				'http_code'   => 0,
+				'error'       => '',
+				'observation' => $observation,
+			]
+		) ) )->runFromCron();
 
 		$row = $repo->findById( $row->id, true );
 		$this->assertSame( SitesDB::QUEUE_WAITING_EXPORT, $row->queue_status );
@@ -1926,6 +2035,74 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( '', $row->last_ping_error );
 		$this->assertGreaterThan( Services::Request()->ts(), $row->expected_export_by );
 		$this->assertSame( 0, $row->last_export_failure_at );
+		$this->assertSame( $observation, $repo->readObservation( $row, SyncObservation::PHASE_NOTIFICATION ) );
+	}
+
+	/**
+	 * @dataProvider provideQueueNotificationOutcomes
+	 */
+	public function test_queue_processor_persists_notification_outcome_without_changing_queue_semantics(
+		string $case,
+		bool $success,
+		int $httpCode,
+		string $error,
+		string $result,
+		bool $throws
+	) :void {
+		$now = 1712620800;
+		$this->setRequestTimestamp( $now );
+		$repo = $this->repo();
+		$row = $repo->upsertActive( "https://notify-outcome-{$case}.example.com", SitesDB::SOURCE_MANUAL, '', true );
+		$observation = SyncObservation::create(
+			$now,
+			SyncObservation::PHASE_NOTIFICATION,
+			$result,
+			SyncObservation::VERIFICATION_NOT_APPLICABLE,
+			$httpCode > 0 ? [ 'http_status' => $httpCode ] : []
+		);
+		$sender = new ImportExportPingSenderTestDouble(
+			$success,
+			$httpCode,
+			$error,
+			null,
+			$throws
+				? static function () :array {
+					throw new \RuntimeException( 'sender detail must not escape' );
+				}
+				: static fn() :array => [
+					'success'     => $success,
+					'http_code'   => $httpCode,
+					'error'       => $error,
+					'observation' => $observation,
+				]
+		);
+
+		( new ImportExportQueueProcessorTestDouble( $sender, null, $repo ) )->runFromCron();
+
+		$fresh = $repo->findById( $row->id, true );
+		$this->assertCount( 1, $sender->urls );
+		$this->assertSame( $success && !$throws ? SitesDB::QUEUE_WAITING_EXPORT : SitesDB::QUEUE_QUEUED, $fresh->queue_status );
+		$this->assertSame( $throws ? 0 : $httpCode, $fresh->last_ping_http_code );
+		$this->assertSame( $success && !$throws ? '' : ( $throws ? 'Notification sender failed.' : $error ), $fresh->last_ping_error );
+		$this->assertSame( $success && !$throws ? $now : 0, $fresh->last_ping_success_at );
+		$this->assertSame( $success && !$throws ? 0 : $now, $fresh->last_ping_failure_at );
+		$this->assertSame( $success && !$throws ? 0 : 1, $fresh->consecutive_failures );
+		$this->assertSame( $success && !$throws ? $now + QueueProcessor::EXPORT_GRACE : 0, $fresh->expected_export_by );
+		$this->assertSame( $success && !$throws ? $now : $now + 15*\MINUTE_IN_SECONDS, $fresh->next_ping_at );
+		$stored = $repo->readObservation( $fresh, SyncObservation::PHASE_NOTIFICATION );
+		$this->assertSame( $result, $stored[ 'result' ] ?? null );
+		$this->assertSame( $httpCode > 0 && !$throws ? $httpCode : null, $stored[ 'http_status' ] ?? null );
+	}
+
+	public static function provideQueueNotificationOutcomes() :array {
+		return [
+			'http 200'       => [ '200', true, 200, '', SyncObservation::RESULT_HTTP_RESPONSE_RECEIVED, false ],
+			'http 403'       => [ '403', true, 403, '', SyncObservation::RESULT_HTTP_RESPONSE_RECEIVED, false ],
+			'http 500'       => [ '500', true, 500, '', SyncObservation::RESULT_HTTP_RESPONSE_RECEIVED, false ],
+			'no response'    => [ 'no-response', true, 0, '', SyncObservation::RESULT_NO_HTTP_RESPONSE, false ],
+			'invalid target' => [ 'invalid-target', false, 0, 'invalid_url', SyncObservation::RESULT_LOCAL_TARGET_VALIDATION_FAILED, false ],
+			'sender exception' => [ 'sender-exception', false, 0, '', SyncObservation::RESULT_SENDER_EXCEPTION, true ],
+		];
 	}
 
 	/**
@@ -1937,7 +2114,10 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$repo = $this->repo();
 		$row = $repo->upsertActive( 'https://late-notification-'.$outcome.'.example.com', SitesDB::SOURCE_MANUAL, 'import-id', true );
 		$meta = $row->meta;
+		$priorObservation = SyncObservation::create( $now - 1, SyncObservation::PHASE_NOTIFICATION,
+			SyncObservation::RESULT_NO_HTTP_RESPONSE, SyncObservation::VERIFICATION_NOT_APPLICABLE );
 		$meta[ 'preserve_this' ] = 'preserved';
+		$meta[ 'sync_observations' ][ SyncObservation::PHASE_NOTIFICATION ] = $priorObservation;
 		$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
 			'meta' => $this->requireController()->db_con->import_export_sites->getRecord()->arrayDataWrap( $meta ) ?? '',
 		] );
@@ -1953,7 +2133,14 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 				? static function () :array {
 					throw new \RuntimeException( 'sender failed after export completed' );
 				}
-				: null
+				: static fn() :array => [
+					'success'     => $outcome === 'success',
+					'http_code'   => $outcome === 'success' ? 204 : 503,
+					'error'       => $outcome === 'failure' ? 'service unavailable' : '',
+					'observation' => SyncObservation::create( $now, SyncObservation::PHASE_NOTIFICATION,
+						SyncObservation::RESULT_HTTP_RESPONSE_RECEIVED, SyncObservation::VERIFICATION_NOT_APPLICABLE,
+						[ 'http_status' => $outcome === 'success' ? 204 : 503 ] ),
+				]
 		);
 
 		( new ImportExportQueueProcessorTestDouble( $sender, null, $repo ) )->runFromCron();
@@ -1967,6 +2154,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( $now + \DAY_IN_SECONDS, $completed->next_ping_at );
 		$this->assertSame( 'preserved', $completed->meta[ 'preserve_this' ] ?? null );
 		$this->assertSame( 1, ( new NotificationMetadata() )->attemptsStarted( $completed->meta ) );
+		$this->assertSame( $priorObservation, $repo->readObservation( $completed, SyncObservation::PHASE_NOTIFICATION ) );
 	}
 
 	public static function provideLateNotificationOutcomes() :array {
@@ -3605,13 +3793,14 @@ class ImportExportPingSenderTestDouble extends PingSender {
 		if ( \is_callable( $this->resultProvider ) ) {
 			$result = ( $this->resultProvider )( $url );
 			if ( \is_array( $result ) ) {
-				return $result;
+				return $result + [ 'observation' => null ];
 			}
 		}
 		return [
-			'success'   => $this->success,
-			'http_code' => $this->httpCode,
-			'error'     => $this->error,
+			'success'     => $this->success,
+			'http_code'   => $this->httpCode,
+			'error'       => $this->error,
+			'observation' => null,
 		];
 	}
 }

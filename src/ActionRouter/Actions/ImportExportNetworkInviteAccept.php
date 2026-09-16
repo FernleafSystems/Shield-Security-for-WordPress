@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\ObservationPresenter;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
@@ -16,6 +17,8 @@ class ImportExportNetworkInviteAccept extends BaseAction {
 
 	protected function exec() {
 		$repo = new NetworkInviteRepository();
+		$import = null;
+		$importCompleted = false;
 		try {
 			$form = $this->formData();
 			if ( ( $form[ 'confirm' ] ?? '' ) !== 'Y' ) {
@@ -33,14 +36,18 @@ class ImportExportNetworkInviteAccept extends BaseAction {
 				throw new \RuntimeException( __( 'Network invite was not found.', 'wp-simple-firewall' ) );
 			}
 
-			( new Import() )->fromSite( (string)$invite[ 'master_url' ], '', true, Import::REQUEST_SAFETY_TRUSTED_SYNC );
+			$import = new Import();
+			$import->fromSite( (string)$invite[ 'master_url' ], '', true, Import::REQUEST_SAFETY_TRUSTED_SYNC );
+			$importCompleted = true;
 			$repo->clear( (string)$invite[ 'id' ] );
 			$success = true;
 			$message = __( 'Network invite accepted.', 'wp-simple-firewall' );
 		}
 		catch ( \Throwable $e ) {
 			$success = false;
-			$message = $e->getMessage();
+			$message = $import instanceof Import && !$importCompleted
+				? ( new ObservationPresenter() )->failureMessage( $import->latestObservation(), $e->getMessage() )
+				: $e->getMessage();
 		}
 
 		$this->response()->setPayload( [

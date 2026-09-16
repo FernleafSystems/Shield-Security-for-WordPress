@@ -12,6 +12,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Export as PluginImportExportExportAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\{
+	ObservationStore,
+	SyncObservation
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
@@ -661,6 +665,8 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$row = ( new SiteRepository() )->findByUrl( self::SLAVE_URL );
 		$this->assertInstanceOf( SiteRecord::class, $row );
 		$this->assertSame( self::SLAVE_IMPORT_ID, $row->import_id );
+		$this->assertSame( SyncObservation::RESULT_EXPORT_SERVED,
+			( new SiteRepository() )->readObservation( $row, SyncObservation::PHASE_EXPORT )[ 'result' ] ?? null );
 		$this->assertSame( [], $con->opts->optGet( 'import_url_ids' ) );
 		$this->assertSame( [], $con->opts->optGet( 'importexport_whitelist' ) );
 		$this->assertSame( [], $con->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
@@ -684,6 +690,34 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $this->getCapturedEventsByKey( 'whitelist_site_removed' ) );
 	}
 
+	public function test_secret_only_export_preserves_existing_row_diagnostic_observation() :void {
+		$con = $this->requireController();
+		$con->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$repo = new SiteRepository();
+		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$priorObservation = SyncObservation::create(
+			Services::Request()->ts() - 1,
+			SyncObservation::PHASE_EXPORT,
+			SyncObservation::RESULT_EXPORT_COOLDOWN,
+			SyncObservation::VERIFICATION_ESTABLISHED
+		);
+		$this->assertTrue( $repo->saveObservation( $row, SyncObservation::PHASE_EXPORT, $priorObservation ) );
+
+		$payload = $this->captureExportJson( [
+			'url'    => self::MANUAL_PUBLIC_URL,
+			'secret' => $con->comps->import_export->getImportExportSecretKey(),
+		] );
+
+		$this->assertExportJsonPayload( $payload );
+		$fresh = $repo->findById( $row->id, true );
+		$this->assertInstanceOf( SiteRecord::class, $fresh );
+		$this->assertSame( $priorObservation,
+			$repo->readObservation( $fresh, SyncObservation::PHASE_EXPORT ) );
+		$this->assertGreaterThan( 0, $fresh->last_export_success_at );
+		$this->assertSame( SitesDB::EXPORT_RESULT_SUCCESS, $fresh->last_export_result_code );
+		$this->assertGreaterThan( 0, (int)( $fresh->meta[ 'export_served_at' ] ?? 0 ) );
+	}
+
 	public function test_export_json_succeeds_through_active_sync_site_import_id_without_secret() :void {
 		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
 		$this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
@@ -694,6 +728,11 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 
 		$this->assertExportJsonPayload( $payload );
+		$fresh = ( new SiteRepository() )->findByUrl( self::MANUAL_PUBLIC_URL );
+		$this->assertSame( SyncObservation::RESULT_VERIFICATION_PASSED,
+			$fresh->meta[ 'sync_observations' ][ SyncObservation::PHASE_VERIFICATION ][ 'result' ] );
+		$this->assertSame( SyncObservation::RESULT_EXPORT_SERVED,
+			$fresh->meta[ 'sync_observations' ][ SyncObservation::PHASE_EXPORT ][ 'result' ] );
 	}
 
 	public function test_export_json_no_id_legacy_sync_site_learns_import_id_after_handshake() :void {
@@ -733,6 +772,99 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( self::SLAVE_IMPORT_ID, ( new SiteRepository() )->findById( $row->id, true )->import_id );
 	}
 
+	/**
+	 * @dataProvider provideHandshakeCallbackOutcomes
+	 */
+	public function test_export_json_records_callback_outcome_without_changing_handshake_predicate(
+		string $case,
+		?string $body,
+		int $httpStatus,
+		string $expectedResult,
+		bool $verified
+	) :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$repo = new SiteRepository();
+		$row = $this->seedActiveSyncSite(
+			"https://93.184.216.71/callback-{$case}",
+			SitesDB::SOURCE_MANUAL
+		);
+		$priorExport = SyncObservation::create(
+			Services::Request()->ts() - 1,
+			SyncObservation::PHASE_EXPORT,
+			SyncObservation::RESULT_EXPORT_COOLDOWN,
+			SyncObservation::VERIFICATION_ESTABLISHED
+		);
+		$this->assertTrue( $repo->saveObservation( $row, SyncObservation::PHASE_EXPORT, $priorExport ) );
+		$url = $row->url;
+		$filter = static function ( $preempt, array $args, string $requestUrl ) use ( $url, $body, $httpStatus ) {
+			if ( \str_starts_with( $requestUrl, $url ) ) {
+				return $body === null
+					? new \WP_Error( 'transport', 'bounded transport failure' )
+					: [
+						'headers'  => [],
+						'body'     => $body,
+						'response' => [
+							'code'    => $httpStatus,
+							'message' => 'Callback response',
+						],
+						'cookies'  => [],
+						'filename' => null,
+					];
+			}
+			return $preempt;
+		};
+		\add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		try {
+			$attempt = $this->captureExportAttempt( [
+				'url' => $url,
+				'id'  => self::SLAVE_IMPORT_ID,
+			] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter, 10 );
+		}
+
+		$fresh = $repo->findById( $row->id, true );
+		$verification = $repo->readObservation( $fresh, SyncObservation::PHASE_VERIFICATION );
+		$this->assertSame( $expectedResult, $verification[ 'result' ] ?? null );
+		$this->assertSame( $verified ? SyncObservation::VERIFICATION_ESTABLISHED : SyncObservation::VERIFICATION_FAILED,
+			$verification[ 'verification' ] ?? null );
+		$this->assertSame( $body === null ? null : $httpStatus, $verification[ 'http_status' ] ?? null );
+		$this->assertSame( $verified ? self::SLAVE_IMPORT_ID : '', $fresh->import_id );
+		if ( $verified ) {
+			$this->assertTrue( $attempt[ 'terminated' ] );
+			$this->assertCapturedExportStatus( $attempt );
+			$this->assertIsArray( $attempt[ 'payload' ] );
+			$this->assertTrue( (bool)( $attempt[ 'payload' ][ 'success' ] ?? false ) );
+			$this->assertSame( SyncObservation::RESULT_EXPORT_SERVED,
+				$repo->readObservation( $fresh, SyncObservation::PHASE_EXPORT )[ 'result' ] ?? null );
+		}
+		else {
+			$this->assertFalse( $attempt[ 'terminated' ] );
+			$this->assertSame( '', \trim( $attempt[ 'output' ] ) );
+			$this->assertNull( $attempt[ 'payload' ] );
+			$this->assertNull( $attempt[ 'status' ] );
+			$this->assertSame( $priorExport, $repo->readObservation( $fresh, SyncObservation::PHASE_EXPORT ) );
+		}
+	}
+
+	public static function provideHandshakeCallbackOutcomes() :array {
+		return [
+			'no response'             => [ 'no-response', null, 0, SyncObservation::RESULT_CALLBACK_TRANSPORT_FAILURE, false ],
+			'empty response'          => [ 'empty', '', 200, SyncObservation::RESULT_CALLBACK_INVALID_RESPONSE, false ],
+			'malformed json'          => [ 'malformed', '{not-json', 200, SyncObservation::RESULT_CALLBACK_INVALID_RESPONSE, false ],
+			'json null'               => [ 'null', 'null', 200, SyncObservation::RESULT_CALLBACK_INVALID_RESPONSE, false ],
+			'json scalar'             => [ 'scalar', '"value"', 200, SyncObservation::RESULT_CALLBACK_INVALID_RESPONSE, false ],
+			'empty array'             => [ 'empty-array', '[]', 200, SyncObservation::RESULT_CALLBACK_DID_NOT_CONFIRM, false ],
+			'missing success'         => [ 'missing-success', '{"ready":true}', 200, SyncObservation::RESULT_CALLBACK_DID_NOT_CONFIRM, false ],
+			'success null'            => [ 'success-null', '{"success":null}', 200, SyncObservation::RESULT_CALLBACK_DID_NOT_CONFIRM, false ],
+			'success false'           => [ 'success-false', '{"success":false}', 200, SyncObservation::RESULT_CALLBACK_DID_NOT_CONFIRM, false ],
+			'success string true'     => [ 'success-string', '{"success":"true"}', 200, SyncObservation::RESULT_CALLBACK_DID_NOT_CONFIRM, false ],
+			'boolean true over 403'   => [ 'success-true', '{"success":true}', 403, SyncObservation::RESULT_VERIFICATION_PASSED, true ],
+		];
+	}
+
 	public function test_export_json_row_with_import_id_silently_rejects_missing_id_without_handshake() :void {
 		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
 		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
@@ -758,6 +890,8 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 0, $handshakeRequests );
 		$this->assertExportFailureStateUnchanged( $before, $repo->findById( $row->id, true ) );
+		$this->assertSame( SyncObservation::RESULT_MISSING_ID,
+			$repo->readObservation( $repo->findById( $row->id, true ), SyncObservation::PHASE_VERIFICATION )[ 'result' ] );
 	}
 
 	public function test_export_json_row_with_import_id_silently_rejects_wrong_id_without_handshake() :void {
@@ -786,6 +920,8 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 0, $handshakeRequests );
 		$this->assertExportFailureStateUnchanged( $before, $repo->findById( $row->id, true ) );
+		$this->assertSame( SyncObservation::RESULT_MISMATCHED_ID,
+			$repo->readObservation( $repo->findById( $row->id, true ), SyncObservation::PHASE_VERIFICATION )[ 'result' ] );
 	}
 
 	public function test_export_json_silently_rejects_unknown_url() :void {
@@ -795,6 +931,19 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			'url' => self::UNKNOWN_PUBLIC_URL,
 			'id'  => self::SLAVE_IMPORT_ID,
 		] );
+		$this->assertSame( SyncObservation::RESULT_NO_AUTHORIZED_ROW,
+			( new ObservationStore() )->readUnassociatedRejection()[ 'result' ] );
+	}
+
+	public function test_export_json_silently_rejects_invalid_claimed_url_with_bounded_observation() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+
+		$this->assertExportSilentRejection( [
+			'url' => 'not-a-url',
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+		$this->assertSame( SyncObservation::RESULT_INVALID_CLAIMED_URL,
+			( new ObservationStore() )->readUnassociatedRejection()[ 'result' ] );
 	}
 
 	public function test_export_authorization_is_revoked_after_managed_site_removal() :void {
@@ -871,7 +1020,14 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		}
 
 		$this->assertSame( 1, $handshakeRequests );
-		$this->assertExportFailureStateUnchanged( $before, $repo->findById( $row->id, true ) );
+		$fresh = $repo->findById( $row->id, true );
+		$this->assertExportFailureStateUnchanged( $before, $fresh );
+		$observation = $repo->readObservation( $fresh, SyncObservation::PHASE_VERIFICATION );
+		$this->assertSame( SyncObservation::RESULT_CALLBACK_COOLDOWN, $observation[ 'result' ] );
+		$this->assertSame(
+			$fresh->meta[ 'handshake_attempt_at' ] + 300,
+			$observation[ 'eligible_at' ]
+		);
 	}
 
 	public function test_export_json_repeated_valid_export_inside_cooldown_is_cheap_rejected() :void {
@@ -997,12 +1153,45 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_export_json_rejects_manual_private_sync_site_even_with_matching_import_id() :void {
 		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
-		$this->seedActiveSyncSite( self::MANUAL_PRIVATE_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$row = $this->seedActiveSyncSite( self::MANUAL_PRIVATE_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
 
 		$this->assertExportSilentRejection( [
 			'url' => self::MANUAL_PRIVATE_URL,
 			'id'  => self::SLAVE_IMPORT_ID,
 		] );
+		$row = ( new SiteRepository() )->findById( $row->id, true );
+		$this->assertSame( SyncObservation::RESULT_TRUSTED_TARGET_VALIDATION_FAILED,
+			( new SiteRepository() )->readObservation( $row, SyncObservation::PHASE_VERIFICATION )[ 'result' ] ?? null );
+	}
+
+	public function test_export_json_records_bounded_export_exception_without_changing_response_contract() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$filter = static function () :bool {
+			throw new \RuntimeException( 'bounded export failure' );
+		};
+		\add_filter( 'shield/export_include_ip_rules', $filter );
+
+		try {
+			$attempt = $this->captureExportAttempt( [
+				'url' => self::MANUAL_PUBLIC_URL,
+				'id'  => self::SLAVE_IMPORT_ID,
+			] );
+		}
+		finally {
+			\remove_filter( 'shield/export_include_ip_rules', $filter );
+		}
+
+		$this->assertTrue( $attempt[ 'terminated' ] );
+		$this->assertCapturedExportStatus( $attempt );
+		$this->assertFalse( (bool)( $attempt[ 'payload' ][ 'success' ] ?? true ) );
+		$this->assertSame( 4, $attempt[ 'payload' ][ 'code' ] ?? null );
+		$fresh = ( new SiteRepository() )->findById( $row->id, true );
+		$this->assertSame( SyncObservation::RESULT_VERIFICATION_PASSED,
+			( new SiteRepository() )->readObservation( $fresh, SyncObservation::PHASE_VERIFICATION )[ 'result' ] ?? null );
+		$observation = ( new SiteRepository() )->readObservation( $fresh, SyncObservation::PHASE_EXPORT );
+		$this->assertSame( SyncObservation::RESULT_EXPORT_EXCEPTION, $observation[ 'result' ] ?? null );
+		$this->assertSame( SyncObservation::ERROR_REMOTE_EXPORT_EXCEPTION, $observation[ 'error_category' ] ?? null );
 	}
 
 	public function test_export_json_rejects_manual_private_sync_site_before_handshake() :void {
@@ -1136,6 +1325,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $attempt[ 'terminated' ], 'Expected export request to return silently.' );
 		$this->assertSame( '', \trim( $attempt[ 'output' ] ) );
 		$this->assertNull( $attempt[ 'payload' ] );
+		$this->assertNull( $attempt[ 'status' ] );
 	}
 
 	private function assertExportFailureStateUnchanged( ?SiteRecord $before, ?SiteRecord $after ) :void {
@@ -1146,6 +1336,15 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $before->last_export_result_code, $after->last_export_result_code );
 		$this->assertSame( $before->last_export_error, $after->last_export_error );
 		$this->assertSame( $before->consecutive_failures, $after->consecutive_failures );
+	}
+
+	private function assertCapturedExportStatus( array $attempt ) :void {
+		if ( $attempt[ 'status' ] === null ) {
+			$this->assertTrue( \headers_sent(), 'status_header must only be unavailable after the test runner has sent headers.' );
+		}
+		else {
+			$this->assertSame( 403, $attempt[ 'status' ] );
+		}
 	}
 
 	private function backdateExportServedAt( SiteRecord $row, int $seconds ) :void {
@@ -1181,11 +1380,12 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( $attempt[ 'terminated' ], 'Expected export JSON to terminate through wp_die().' );
 		$this->assertIsArray( $attempt[ 'payload' ] );
+		$this->assertCapturedExportStatus( $attempt );
 		return $attempt[ 'payload' ];
 	}
 
 	/**
-	 * @return array{terminated:bool,output:string,payload:?array}
+	 * @return array{terminated:bool,output:string,payload:?array,status:?int}
 	 */
 	private function captureExportAttempt( array $query ) :array {
 		$this->applyCurrentRequestState( [
@@ -1194,6 +1394,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		], $query );
 
 		$caught = false;
+		$status = null;
 		$level = \ob_get_level();
 		$ajaxFilter = '__return_true';
 		$filter = static fn() => static function () :void {
@@ -1201,6 +1402,11 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		};
 		\add_filter( 'wp_doing_ajax', $ajaxFilter );
 		\add_filter( 'wp_die_ajax_handler', $filter );
+		$statusFilter = static function ( string $header, int $code ) use ( &$status ) :string {
+			$status = $code;
+			return $header;
+		};
+		\add_filter( 'status_header', $statusFilter, 10, 2 );
 		\ob_start();
 
 		try {
@@ -1210,6 +1416,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			$caught = true;
 		}
 		finally {
+			\remove_filter( 'status_header', $statusFilter, 10 );
 			\remove_filter( 'wp_die_ajax_handler', $filter );
 			\remove_filter( 'wp_doing_ajax', $ajaxFilter );
 			$output = \ob_get_level() > $level ? (string)\ob_get_clean() : '';
@@ -1220,6 +1427,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			'terminated' => $caught,
 			'output'     => $output,
 			'payload'    => \is_array( $decoded ) ? $decoded : null,
+			'status'     => $status,
 		];
 	}
 

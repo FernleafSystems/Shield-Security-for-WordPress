@@ -6,7 +6,11 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
+	Handler as ImportExportSitesDB,
+	Record as ImportExportSiteRecord
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\ObservationStore;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
@@ -120,6 +124,7 @@ class ImportExportController {
 	public function disconnectMasterSite() :void {
 		$this->assertSyncAvailable();
 		self::con()->opts->optSet( 'importexport_masterurl', '' )->store();
+		( new ObservationStore() )->deleteClientImport();
 	}
 
 	public function queueSitesForSync( array $ids ) :int {
@@ -259,10 +264,12 @@ class ImportExportController {
 		return self::con()->opts->optGet( 'importexport_masterurl' );
 	}
 
-	public function addSyncSiteExportUrl( string $url, string $importID = '' ) :void {
-		if ( ( new SiteRepository() )->upsertActive( $url, ImportExportSitesDB::SOURCE_EXPORT, $importID, true ) ) {
+	public function addSyncSiteExportUrl( string $url, string $importID = '' ) :?ImportExportSiteRecord {
+		$row = ( new SiteRepository() )->upsertActive( $url, ImportExportSitesDB::SOURCE_EXPORT, $importID, true );
+		if ( $row instanceof ImportExportSiteRecord ) {
 			( new NetworkInviteRepository() )->clearAll();
 		}
+		return $row;
 	}
 
 	public function removeSyncSiteExportUrl( string $url ) :void {

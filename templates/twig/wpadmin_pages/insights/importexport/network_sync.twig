@@ -24,6 +24,30 @@
 		</div>
 	</div>
 
+	{% if network_sync.diagnostics.client_import %}
+		{% set diagnostic = network_sync.diagnostics.client_import %}
+		<div class="alert alert-light">
+			<strong>{{ diagnostic.label|e }}</strong>
+			<small class="d-block">{{ diagnostic.observed_at_display|e }}</small>
+			{% if diagnostic.http_status is not null %}<small class="d-block">HTTP: {{ diagnostic.http_status|e }}</small>{% endif %}
+			{% if diagnostic.eligible_at_display is not null %}<small class="d-block">{{ diagnostic.eligible_at_display|e }}</small>{% endif %}
+			<p class="mb-1">{{ diagnostic.explanation|e }}</p>
+			<small>{{ diagnostic.next_check|e }}</small>
+		</div>
+	{% endif %}
+
+	{% if network_sync.diagnostics.unassociated_rejection %}
+		{% set diagnostic = network_sync.diagnostics.unassociated_rejection %}
+		<div class="alert alert-light">
+			<strong>{{ diagnostic.label|e }}</strong>
+			<small class="d-block">{{ diagnostic.observed_at_display|e }}</small>
+			{% if diagnostic.http_status is not null %}<small class="d-block">HTTP: {{ diagnostic.http_status|e }}</small>{% endif %}
+			{% if diagnostic.eligible_at_display is not null %}<small class="d-block">{{ diagnostic.eligible_at_display|e }}</small>{% endif %}
+			<p class="mb-1">{{ diagnostic.explanation|e }}</p>
+			<small>{{ diagnostic.next_check|e }}</small>
+		</div>
+	{% endif %}
+
 	{% if network_sync.is_disabled %}
 		<div class="import-export-network-disabled" data-import-export-network-disabled="1">
 			<i class="bi bi-toggle-off" aria-hidden="true"></i>

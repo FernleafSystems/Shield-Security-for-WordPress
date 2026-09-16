@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Record
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\SyncObservation;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\BackgroundProcessing\BackgroundProcess;
 
@@ -164,12 +165,26 @@ class QueueProcessor extends BackgroundProcess {
 			$result = $this->pingSender()->send( $row->url, self::NOTIFY_TIMEOUT, (string)$row->import_id );
 		}
 		catch ( \Throwable $e ) {
-			return $repo->recordPingFailure( $row, 0, 'Notification sender failed.' );
+			$transition = $repo->recordPingFailure( $row, 0, 'Notification sender failed.' );
+			$observation = SyncObservation::create(
+				Services::Request()->ts(),
+				SyncObservation::PHASE_NOTIFICATION,
+				SyncObservation::RESULT_SENDER_EXCEPTION,
+				SyncObservation::VERIFICATION_NOT_APPLICABLE
+			);
+			if ( $transition === 1 && $observation !== null ) {
+				$repo->saveObservation( $row, SyncObservation::PHASE_NOTIFICATION, $observation );
+			}
+			return $transition;
 		}
 
-		return $result[ 'success' ]
+		$transition = $result[ 'success' ]
 			? $repo->recordNotifyDispatched( $row, (int)$result[ 'http_code' ], Services::Request()->ts() + self::EXPORT_GRACE )
 			: $repo->recordPingFailure( $row, (int)$result[ 'http_code' ], (string)$result[ 'error' ] );
+		if ( $transition === 1 && $result[ 'observation' ] !== null ) {
+			$repo->saveObservation( $row, SyncObservation::PHASE_NOTIFICATION, $result[ 'observation' ] );
+		}
+		return $transition;
 	}
 
 	/** @phpstan-impure */

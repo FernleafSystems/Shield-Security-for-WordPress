@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Record
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\SyncObservation;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\WhitelistNotifyQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -21,6 +22,12 @@ class SiteRepository {
 	public const OLD_QUEUE_ACTION = 'whitelist_notify_urls';
 	private const META_EXPORT_SERVED_AT = 'export_served_at';
 	private const META_HANDSHAKE_ATTEMPT_AT = 'handshake_attempt_at';
+	private const META_SYNC_OBSERVATIONS = 'sync_observations';
+	private const OBSERVATION_SLOTS = [
+		SyncObservation::PHASE_NOTIFICATION,
+		SyncObservation::PHASE_VERIFICATION,
+		SyncObservation::PHASE_EXPORT,
+	];
 	private const META_WRITE_ATTEMPTS = 3;
 	private const SQL_BATCH_SIZE = 20;
 	private ?int $defaultProfileRef = null;
@@ -413,6 +420,53 @@ class SiteRepository {
 
 	public function recordExportServed( Record $row ) :void {
 		$this->setMetaTimestamp( $row, self::META_EXPORT_SERVED_AT );
+	}
+
+	public function readObservation( Record $row, string $slot ) :?array {
+		if ( !\in_array( $slot, self::OBSERVATION_SLOTS, true ) ) {
+			return null;
+		}
+		$root = \is_array( $row->meta ) ? ( $row->meta[ self::META_SYNC_OBSERVATIONS ] ?? null ) : null;
+		$observation = \is_array( $root ) ? SyncObservation::normalize( $root[ $slot ] ?? null ) : null;
+		return $observation !== null && $observation[ 'phase' ] === $slot ? $observation : null;
+	}
+
+	public function saveObservation( Record $row, string $slot, array $observation ) :bool {
+		$observation = SyncObservation::normalize( $observation );
+		if ( $observation === null
+			 || !\in_array( $slot, self::OBSERVATION_SLOTS, true )
+			 || $observation[ 'phase' ] !== $slot ) {
+			return false;
+		}
+
+		try {
+			$current = $this->findById( $row->id, true );
+			for ( $attempt = 0; $attempt < self::META_WRITE_ATTEMPTS; $attempt++ ) {
+				if ( !$current instanceof Record
+					 || $current->status !== SitesDB::STATUS_ACTIVE
+					 || $current->deleted_at !== 0 ) {
+					return false;
+				}
+
+				$meta = \is_array( $current->meta ) ? $current->meta : [];
+				$root = \is_array( $meta[ self::META_SYNC_OBSERVATIONS ] ?? null )
+					? $meta[ self::META_SYNC_OBSERVATIONS ]
+					: [];
+				$root[ $slot ] = $observation;
+				$meta[ self::META_SYNC_OBSERVATIONS ] = $root;
+				$result = $this->conditionalMetadataUpdate( $current, [ 'meta' => $meta ], false, null );
+				if ( $result === 1 ) {
+					return true;
+				}
+				if ( $result === false ) {
+					return false;
+				}
+				$current = $this->findById( $row->id, true );
+			}
+		}
+		catch ( \Throwable $e ) {
+		}
+		return false;
 	}
 
 	public function handshakeCooldownActive( Record $row, int $cooldown ) :bool {
