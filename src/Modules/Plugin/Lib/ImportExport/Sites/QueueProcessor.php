@@ -144,7 +144,7 @@ class QueueProcessor extends BackgroundProcess {
 				'http_status' => 0,
 			];
 		}
-		$result = $repo->recordInviteResult( $row, (string)$outcome[ 'result' ], (int)$outcome[ 'http_status' ] );
+		$result = $repo->recordInviteResult( $row, $outcome[ 'result' ], $outcome[ 'http_status' ] );
 		return $result === false ? false : ( $result === 1 ? true : null );
 	}
 
@@ -162,7 +162,7 @@ class QueueProcessor extends BackgroundProcess {
 		}
 
 		try {
-			$result = $this->pingSender()->send( $row->url, self::NOTIFY_TIMEOUT, (string)$row->import_id );
+			$result = $this->pingSender()->send( $row->url, self::NOTIFY_TIMEOUT, $row->import_id );
 		}
 		catch ( \Throwable $e ) {
 			$transition = $repo->recordPingFailure( $row, 0, 'Notification sender failed.' );
@@ -179,8 +179,8 @@ class QueueProcessor extends BackgroundProcess {
 		}
 
 		$transition = $result[ 'success' ]
-			? $repo->recordNotifyDispatched( $row, (int)$result[ 'http_code' ], Services::Request()->ts() + self::EXPORT_GRACE )
-			: $repo->recordPingFailure( $row, (int)$result[ 'http_code' ], (string)$result[ 'error' ] );
+			? $repo->recordNotifyDispatched( $row, $result[ 'http_code' ], Services::Request()->ts() + self::EXPORT_GRACE )
+			: $repo->recordPingFailure( $row, $result[ 'http_code' ], $result[ 'error' ] );
 		if ( $transition === 1 && $result[ 'observation' ] !== null ) {
 			$repo->saveObservation( $row, SyncObservation::PHASE_NOTIFICATION, $result[ 'observation' ] );
 		}

@@ -597,22 +597,18 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		ServicesState::mergeItems( [
 			'service_request' => new ImportExportSitesExportRequestStub( [], 1712707200 ),
 		] );
-		$queuedCount = 0;
-		$queries = $this->captureImportExportSiteQueries( function () use ( $repo, $activeIds, $deleted, &$queuedCount ) :void {
-			$queuedCount = $repo->queueSiteIds( \array_merge( $activeIds, [ $deleted->id, 9999999 ] ) );
-		} );
+		$queuedCount = $repo->queueSiteIds( \array_merge( $activeIds, [ $deleted->id, 9999999 ] ) );
 
 		$this->assertSame( 21, $queuedCount );
 		foreach ( $activeIds as $id ) {
 			$row = $repo->findById( $id, true );
 			$this->assertSame( SitesDB::QUEUE_QUEUED, $row->queue_status );
-			$this->assertSame( 1712620800, $row->queued_at );
-			$this->assertSame( 1712620800, $row->next_ping_at );
+			$this->assertSame( 1712707200, $row->queued_at );
+			$this->assertSame( 1712707200, $row->next_ping_at );
 		}
 		$deleted = $repo->findById( $deleted->id, true );
 		$this->assertSame( SitesDB::STATUS_DELETED, $deleted->status );
 		$this->assertSame( SitesDB::QUEUE_IDLE, $deleted->queue_status );
-		$this->assertSame( 21, $this->queryFamilyCount( $queries, 'queue_update' ) );
 	}
 
 	public function test_repeated_queue_requests_coalesce_queued_rows_and_preserve_in_flight_rows() :void {
@@ -668,6 +664,11 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( SitesDB::QUEUE_QUEUED, $idleAfter->queue_status );
 		$this->assertSame( $second, $idleAfter->queued_at );
 		$this->assertSame( $second, $idleAfter->next_ping_at );
+		foreach ( [ $queued, $queuedDue ] as $row ) {
+			$preserved[ $row->id ][ 'queued_at' ] = $second;
+			$preserved[ $row->id ][ 'next_ping_at' ] = $second;
+			$preserved[ $row->id ][ 'updated_at' ] = $second;
+		}
 		foreach ( $preserved as $id => $raw ) {
 			$this->assertSame( $raw, $repo->findById( $id, true )->getRawData() );
 		}
@@ -708,11 +709,12 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$table = $this->requireController()->db_con->import_export_sites->getTable();
 		$interleaved = false;
 		$winnerState = null;
-		$filter = function ( string $query ) use ( $repo, $row, $table, $winningState, $now, &$interleaved, &$winnerState ) :string {
+		$updateState = \strpos( $case, 'retry-' ) === 0 ? SitesDB::QUEUE_QUEUED : SitesDB::QUEUE_IDLE;
+		$filter = function ( string $query ) use ( $repo, $row, $table, $winningState, $updateState, $now, &$interleaved, &$winnerState ) :string {
 			if ( !$interleaved
 				 && \strpos( $query, "UPDATE `{$table}`" ) !== false
 				 && \strpos( $query, "WHERE `id`={$row->id} AND" ) !== false
-				 && \strpos( $query, "`queue_status`='idle'" ) !== false ) {
+				 && \strpos( $query, "AND `queue_status`='{$updateState}'" ) !== false ) {
 				$interleaved = true;
 				$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
 					'queue_status'       => $winningState,
@@ -738,6 +740,10 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( $expectedCount, $count );
 		$persisted = $repo->findById( $row->id, true );
 		$this->assertSame( $expectedFinalState, $persisted->queue_status );
+		if ( $winningState === SitesDB::QUEUE_QUEUED ) {
+			$winnerState[ 'queued_at' ] = $now;
+			$winnerState[ 'next_ping_at' ] = $now;
+		}
 		if ( $winningState !== SitesDB::QUEUE_IDLE ) {
 			$this->assertSame( $winnerState, $persisted->getRawData() );
 		}
@@ -745,6 +751,8 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 
 	public static function queueMutationRaceProvider() :array {
 		return [
+			'queued retry becomes processing' => [ 'retry-processing', SitesDB::QUEUE_QUEUED, SitesDB::QUEUE_PROCESSING, 0, SitesDB::QUEUE_PROCESSING ],
+			'queued retry becomes waiting' => [ 'retry-waiting', SitesDB::QUEUE_QUEUED, SitesDB::QUEUE_WAITING_EXPORT, 0, SitesDB::QUEUE_WAITING_EXPORT ],
 			'idle becomes processing' => [ 'idle-processing', SitesDB::QUEUE_IDLE, SitesDB::QUEUE_PROCESSING, 0, SitesDB::QUEUE_PROCESSING ],
 			'idle becomes waiting' => [ 'idle-waiting', SitesDB::QUEUE_IDLE, SitesDB::QUEUE_WAITING_EXPORT, 0, SitesDB::QUEUE_WAITING_EXPORT ],
 			'idle loses to another queue request' => [ 'idle-queued', SitesDB::QUEUE_IDLE, SitesDB::QUEUE_QUEUED, 1, SitesDB::QUEUE_QUEUED ],
@@ -756,7 +764,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		];
 	}
 
-	public function test_controller_counts_existing_future_queue_and_schedules_without_rewriting_it() :void {
+	public function test_manual_queue_brings_future_retry_forward_and_preserves_history() :void {
 		$now = 1712620800;
 		$this->setRequestTimestamp( $now );
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
@@ -769,13 +777,40 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			'queued_at'            => $now - 100,
 			'next_ping_at'         => $now + 3600,
 			'consecutive_failures' => 2,
+			'last_export_failure_at' => $now,
+			'last_export_result_code' => SitesDB::EXPORT_RESULT_TIMEOUT,
+			'last_export_error' => 'export_not_requested_before_grace_window',
 		] );
 		$before = $repo->findById( $row->id, true )->getRawData();
+		$problem = $this->retrieveImportExportSitesTableData( 'queue-controller-existing', [
+			'sync_state' => [ SiteSyncStatusBuilder::STATE_PROBLEM ],
+		] );
+		$this->assertSame( [ $row->id ], \array_column( $problem[ 'data' ], 'rid' ) );
+
+		$this->assertSame( 1, $repo->queueAllActive() );
+		$this->assertSame( $before, $repo->findById( $row->id, true )->getRawData() );
+		$unselected = $repo->upsertActive( 'https://queue-unselected.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $unselected->id, [
+			'next_ping_at' => $now + 3600,
+		] );
+		$unselectedBefore = $repo->findById( $unselected->id, true )->getRawData();
 
 		$this->assertSame( 1, ( new ImportExportController() )->queueSitesForSync( [ $row->id ] ) );
 
+		$before[ 'queued_at' ] = $now;
+		$before[ 'next_ping_at' ] = $now;
 		$this->assertSame( $before, $repo->findById( $row->id, true )->getRawData() );
+		$this->assertSame( $unselectedBefore, $repo->findById( $unselected->id, true )->getRawData() );
 		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+		$pending = $this->retrieveImportExportSitesTableData( 'queue-controller-existing', [
+			'sync_state' => [ SiteSyncStatusBuilder::STATE_PENDING ],
+		] );
+		$this->assertSame( [ $row->id ], \array_column( $pending[ 'data' ], 'rid' ) );
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PENDING, $pending[ 'data' ][ 0 ][ 'sync_state' ] );
+		$problem = $this->retrieveImportExportSitesTableData( 'queue-controller-existing', [
+			'sync_state' => [ SiteSyncStatusBuilder::STATE_PROBLEM ],
+		] );
+		$this->assertSame( 0, (int)$problem[ 'recordsFiltered' ] );
 	}
 
 	public function test_queue_request_does_not_count_failed_idle_update() :void {
@@ -2875,6 +2910,34 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$repo->recordExportSuccess( $broken->url, SitesDB::EXPORT_RESULT_SUCCESS, 'fresh-id' );
 
 		$this->assertSame( 'fresh-id', $this->requireSite( $brokenUrl, true )->import_id );
+	}
+
+	public function test_manual_queue_retry_prevents_stale_repair_until_another_failure() :void {
+		ServicesState::mergeItems( [
+			'service_request' => new ImportExportSitesExportRequestStub( [], 1712620800 ),
+		] );
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$repo = $this->repo();
+		$row = $repo->upsertActive( 'https://repair-after-manual-retry.example.com', SitesDB::SOURCE_MANUAL, 'existing-id', true );
+		$statusBuilder = new SiteSyncStatusBuilder( Services::Request()->ts() );
+		$repo->recordExportFailure( $row->url, SitesDB::EXPORT_RESULT_VERIFY_FAILED, 'verify failed' );
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PROBLEM, $statusBuilder->stateForRecord( $this->requireSite( $row->url, true ) ) );
+		$this->assertSame( 1, $repo->queueSiteIds( [ $row->id ] ) );
+		$queued = $this->requireSite( $row->url, true );
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PENDING, $statusBuilder->stateForRecord( $queued ) );
+		$before = $queued->getRawData();
+
+		$this->execTableAction( new ImportExportSitesTableAction( [
+			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_REPAIR_CONNECTION,
+			'rids'       => [ $row->id ],
+		] ) );
+
+		$this->assertSame( $before, $this->requireSite( $row->url, true )->getRawData() );
+		$repo->recordExportFailure( $row->url, SitesDB::EXPORT_RESULT_VERIFY_FAILED, 'retry failed' );
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PROBLEM, $statusBuilder->stateForRecord( $this->requireSite( $row->url, true ) ) );
+		$this->assertSame( 1, $repo->repairConnectionsByIds( [ $row->id ] ) );
+		$this->assertSame( '', $this->requireSite( $row->url, true )->import_id );
 	}
 
 	public function test_manual_repair_action_ignores_non_problem_deleted_and_missing_rows() :void {

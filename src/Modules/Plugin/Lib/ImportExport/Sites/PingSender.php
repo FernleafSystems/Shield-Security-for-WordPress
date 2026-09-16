@@ -40,7 +40,7 @@ class PingSender {
 		}
 		$targetUrl = self::con()->plugin_urls->noncedPluginAction(
 			PluginImportExport_UpdateNotified::class,
-			(string)$url,
+			$url,
 			$aux
 		);
 		return ( new ScopedTargetHostRequest() )->run( $targetUrl, static function () use ( $targetUrl, $timeout ) :array {

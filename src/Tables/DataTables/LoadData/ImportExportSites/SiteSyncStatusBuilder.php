@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\{
 	ExportWaitState,
 	InvitationMetadata,
+	QueuedSyncState,
 	SiteRepository
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\{
@@ -105,12 +106,12 @@ class SiteSyncStatusBuilder {
 
 		if ( $record->queue_status === SitesDB::QUEUE_PROCESSING
 			 || $record->queue_status === SitesDB::QUEUE_WAITING_EXPORT
-			 || ( $record->queue_status === SitesDB::QUEUE_QUEUED && !$this->hasQueuedOrIdleProblem( $record ) ) ) {
+			 || ( $record->queue_status === SitesDB::QUEUE_QUEUED && !QueuedSyncState::hasProblem( $record ) ) ) {
 			return self::STATE_PENDING;
 		}
 
 		if ( \in_array( $record->queue_status, [ SitesDB::QUEUE_QUEUED, SitesDB::QUEUE_IDLE ], true )
-			 && $this->hasQueuedOrIdleProblem( $record ) ) {
+			 && QueuedSyncState::hasProblem( $record ) ) {
 			return self::STATE_PROBLEM;
 		}
 
@@ -311,8 +312,8 @@ class SiteSyncStatusBuilder {
 			$this->detailRow( $this->text( 'Last export request' ), $this->formatTimestamp( $record->last_export_request_at ) ),
 			$this->detailRow( $this->text( 'Last export served' ), $this->formatTimestamp( $record->last_export_success_at ) ),
 			$this->detailRow( $this->text( 'Last export failure' ), $this->formatTimestamp( $record->last_export_failure_at ) ),
-			$this->detailRow( $this->text( 'Export result' ), $this->exportResultLabel( $record->last_export_result_code, $record->last_export_error ) ),
-			$this->detailRow( $this->text( 'Export details' ), $this->displayExportError( $record ) ),
+			$this->detailRow( $this->text( 'Last export result' ), $this->exportResultLabel( $record->last_export_result_code, $record->last_export_error ) ),
+			$this->detailRow( $this->text( 'Last export details' ), $this->displayExportError( $record ) ),
 			$this->detailRow( $this->text( 'Expected export by' ), $this->formatTimestamp( $record->expected_export_by ) ),
 			$this->detailRow( $this->text( 'Next ping due' ), $this->formatTimestamp( $record->next_ping_at ) ),
 		];
@@ -539,15 +540,6 @@ class SiteSyncStatusBuilder {
 		return ExportWaitState::isExpired( $record, $this->now );
 	}
 
-	private function hasQueuedOrIdleProblem( Record $record ) :bool {
-		return \in_array( $record->queue_status, [ SitesDB::QUEUE_QUEUED, SitesDB::QUEUE_IDLE ], true )
-			   && ( $record->consecutive_failures > 0 || $this->hasFailureNewerThanExportSuccess( $record ) );
-	}
-
-	private function hasFailureNewerThanExportSuccess( Record $record ) :bool {
-		return \max( $record->last_ping_failure_at, $record->last_export_failure_at ) > $record->last_export_success_at;
-	}
-
 	private function stateBadgeTone( string $state ) :string {
 		return [
 				   self::STATE_PROBLEM      => 'danger',
@@ -574,7 +566,7 @@ class SiteSyncStatusBuilder {
 				return \sprintf( '(%s AND (%s OR %s))',
 					$this->sqlActive(),
 					$this->sqlExpiredWaitingExportProblem(),
-					$this->sqlQueuedOrIdleProblem()
+					QueuedSyncState::sqlHasProblem()
 				);
 			case self::STATE_PENDING:
 				return \sprintf( '(%s AND (`queue_status` IN (%s,%s) OR `queue_status`=%s OR (`queue_status`=%s AND NOT (%s)) OR (`queue_status`=%s AND NOT (%s))))',
@@ -585,19 +577,19 @@ class SiteSyncStatusBuilder {
 					$this->sqlValue( SitesDB::QUEUE_WAITING_EXPORT ),
 					$this->sqlExpiredWaitingExportProblem(),
 					$this->sqlValue( SitesDB::QUEUE_QUEUED ),
-					$this->sqlQueuedOrIdleProblem()
+					QueuedSyncState::sqlHasProblem()
 				);
 			case self::STATE_WORKING:
 				return \sprintf( '(%s AND `queue_status`=%s AND `last_export_success_at`>0 AND NOT (%s))',
 					$this->sqlActive(),
 					$this->sqlValue( SitesDB::QUEUE_IDLE ),
-					$this->sqlQueuedOrIdleProblem()
+					QueuedSyncState::sqlHasProblem()
 				);
 			case self::STATE_NEVER_SYNCED:
 				return \sprintf( '(%s AND `queue_status`=%s AND `last_export_success_at`<=0 AND NOT (%s))',
 					$this->sqlActive(),
 					$this->sqlValue( SitesDB::QUEUE_IDLE ),
-					$this->sqlQueuedOrIdleProblem()
+					QueuedSyncState::sqlHasProblem()
 				);
 			default:
 				return '';
@@ -610,14 +602,6 @@ class SiteSyncStatusBuilder {
 			$this->sqlValue( SitesDB::QUEUE_WAITING_EXPORT ),
 			$this->now,
 			ExportWaitState::sqlUnsatisfiedSuccess()
-		);
-	}
-
-	private function sqlQueuedOrIdleProblem() :string {
-		return \sprintf(
-			'(`queue_status` IN (%s,%s) AND (`consecutive_failures`>0 OR `last_ping_failure_at`>`last_export_success_at` OR `last_export_failure_at`>`last_export_success_at`))',
-			$this->sqlValue( SitesDB::QUEUE_QUEUED ),
-			$this->sqlValue( SitesDB::QUEUE_IDLE )
 		);
 	}
 

@@ -188,6 +188,23 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertSame( SiteSyncStatusBuilder::STATE_WORKING, $this->builder()->stateForRecord( $record ) );
 	}
 
+	public function test_manual_retry_is_pending_but_a_new_failure_is_problem() :void {
+		$record = $this->record( [
+			'queue_status'           => SitesDB::QUEUE_QUEUED,
+			'queued_at'              => self::NOW,
+			'next_ping_at'           => self::NOW,
+			'last_export_failure_at' => self::NOW,
+			'last_export_result_code' => SitesDB::EXPORT_RESULT_TIMEOUT,
+			'consecutive_failures'   => 7,
+		] );
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PENDING, $this->builder()->stateForRecord( $record ) );
+		$record->next_ping_at = self::NOW + 900;
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PROBLEM, $this->builder()->stateForRecord( $record ) );
+		$record->next_ping_at = self::NOW;
+		$record->last_ping_failure_at = self::NOW + 1;
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PROBLEM, $this->builder()->stateForRecord( $record ) );
+	}
+
 	public function test_inactive_rows_are_inactive() :void {
 		$record = $this->record( [
 			'status'       => SitesDB::STATUS_DELETED,

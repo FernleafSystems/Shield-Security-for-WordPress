@@ -37,9 +37,9 @@ class ImportExportNetworkInviteAccept extends BaseAction {
 			}
 
 			$import = new Import();
-			$import->fromSite( (string)$invite[ 'master_url' ], '', true, Import::REQUEST_SAFETY_TRUSTED_SYNC );
+			$import->fromSite( $invite[ 'master_url' ], '', true, Import::REQUEST_SAFETY_TRUSTED_SYNC );
 			$importCompleted = true;
-			$repo->clear( (string)$invite[ 'id' ] );
+			$repo->clear( $invite[ 'id' ] );
 			$success = true;
 			$message = __( 'Network invite accepted.', 'wp-simple-firewall' );
 		}

@@ -72,8 +72,8 @@ class Export {
 
 		$row = $verification[ 'row' ];
 		$diagnosticRow = $row;
-		if ( $row instanceof ImportExportSiteRecord && !(bool)$verification[ 'secret' ] ) {
-			$cooldown = (bool)$verification[ 'import_id_verified' ] ? self::IMPORT_ID_EXPORT_COOLDOWN : self::EXPORT_COOLDOWN;
+		if ( $row instanceof ImportExportSiteRecord && !$verification[ 'secret' ] ) {
+			$cooldown = $verification[ 'import_id_verified' ] ? self::IMPORT_ID_EXPORT_COOLDOWN : self::EXPORT_COOLDOWN;
 			if ( $repo->exportCooldownActive( $row, $cooldown ) ) {
 				$servedAt = (int)( \is_array( $row->meta ) ? ( $row->meta[ 'export_served_at' ] ?? 0 ) : 0 );
 				$this->saveRowObservation( $repo, $row, SyncObservation::PHASE_EXPORT,
@@ -280,7 +280,7 @@ class Export {
 			return $this->verifyResult( self::VERIFY_FAILED, $row );
 		}
 
-		if ( (string)$row->import_id !== '' ) {
+		if ( $row->import_id !== '' ) {
 			if ( $id === '' ) {
 				$this->saveRowObservation( $repo, $row, SyncObservation::PHASE_VERIFICATION,
 					SyncObservation::RESULT_MISSING_ID,
@@ -288,7 +288,7 @@ class Export {
 				);
 				return $this->verifyResult( self::VERIFY_FAILED, $row );
 			}
-			if ( !\hash_equals( (string)$row->import_id, $id ) ) {
+			if ( !\hash_equals( $row->import_id, $id ) ) {
 				$this->saveRowObservation( $repo, $row, SyncObservation::PHASE_VERIFICATION,
 					SyncObservation::RESULT_MISMATCHED_ID,
 					SyncObservation::VERIFICATION_FAILED
@@ -313,7 +313,7 @@ class Export {
 		}
 		$repo->recordHandshakeAttempt( $row );
 
-		$handshake = $this->handshake( $url, (string)$row->source === ImportExportSitesDB::SOURCE_MANUAL );
+		$handshake = $this->handshake( $url, $row->source === ImportExportSitesDB::SOURCE_MANUAL );
 		$this->saveRowObservation( $repo, $row, SyncObservation::PHASE_VERIFICATION,
 			$handshake[ 'result' ],
 			$handshake[ 'verified' ]
@@ -344,7 +344,7 @@ class Export {
 	}
 
 	private function syncSiteRowAllowsExportTrust( ImportExportSiteRecord $row, string $url ) :bool {
-		if ( (string)$row->source !== ImportExportSitesDB::SOURCE_MANUAL ) {
+		if ( $row->source !== ImportExportSitesDB::SOURCE_MANUAL ) {
 			return true;
 		}
 

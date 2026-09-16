@@ -172,7 +172,7 @@ class SiteRepository {
 	}
 
 	public function queueSiteIds( array $ids ) :int {
-		return $this->queueRows( $this->findActiveByIds( $ids ) );
+		return $this->queueRows( $this->findActiveByIds( $ids ), true );
 	}
 
 	public function repairConnectionsByIds( array $ids ) :int {
@@ -939,7 +939,7 @@ class SiteRepository {
 		$base = $this->buildActiveInsertData( $url, $source, '', false, $now );
 		return \array_merge(
 			$base,
-			$this->buildPendingClientSiteUpsertData( null, $url, $source, $sendInvite, $now, (int)$base[ 'profile_ref' ] )
+			$this->buildPendingClientSiteUpsertData( null, $url, $source, $sendInvite, $now, $base[ 'profile_ref' ] )
 		);
 	}
 
@@ -977,7 +977,7 @@ class SiteRepository {
 		return $this->defaultProfileRef();
 	}
 
-	private function queueRows( array $rows ) :int {
+	private function queueRows( array $rows, bool $retryNow = false ) :int {
 		if ( empty( $rows ) ) {
 			return 0;
 		}
@@ -1002,11 +1002,28 @@ class SiteRepository {
 				continue;
 			}
 
+			if ( $retryNow ) {
+				// Manual retries bring queued work forward without interrupting an active sync.
+				$result = $this->conditionalRowUpdate(
+					[ 'queued_at' => $now, 'next_ping_at' => $now ],
+					'`id`=%d AND `status`=%s AND `deleted_at`=0 AND `queue_status`=%s',
+					[ $row->id, SitesDB::STATUS_ACTIVE, SitesDB::QUEUE_QUEUED ]
+				);
+				if ( $result === false ) {
+					continue;
+				}
+				if ( $result === 1 ) {
+					$count++;
+					continue;
+				}
+			}
+
 			$current = $this->readRowForTransition( $row->id );
 			if ( $current instanceof Record
 				 && $current->status === SitesDB::STATUS_ACTIVE
 				 && $current->deleted_at === 0
-				 && $current->queue_status === SitesDB::QUEUE_QUEUED ) {
+				 && $current->queue_status === SitesDB::QUEUE_QUEUED
+				 && ( !$retryNow || $current->next_ping_at <= $now ) ) {
 				$count++;
 			}
 		}
@@ -1125,11 +1142,11 @@ class SiteRepository {
 				SitesDB::STATUS_ACTIVE,
 				SitesDB::QUEUE_IDLE,
 				SitesDB::QUEUE_QUEUED,
-				(int)$now,
+				$now,
 				SitesDB::QUEUE_PENDING_INVITE,
-				(int)$now,
-				(int)$now,
-				\max( 1, (int)$limit ),
+				$now,
+				$now,
+				\max( 1, $limit ),
 			]
 		) );
 	}
@@ -1153,8 +1170,8 @@ class SiteRepository {
 			[
 				SitesDB::STATUS_ACTIVE,
 				SitesDB::QUEUE_PROCESSING,
-				(int)$now,
-				\max( 1, (int)$limit ),
+				$now,
+				\max( 1, $limit ),
 			]
 		) );
 	}
@@ -1180,8 +1197,8 @@ class SiteRepository {
 			[
 				SitesDB::STATUS_ACTIVE,
 				SitesDB::QUEUE_WAITING_EXPORT,
-				(int)$now,
-				\max( 1, (int)$limit ),
+				$now,
+				\max( 1, $limit ),
 			]
 		) );
 	}
@@ -1205,7 +1222,7 @@ class SiteRepository {
 			[
 				SitesDB::STATUS_ACTIVE,
 				SitesDB::QUEUE_WAITING_EXPORT,
-				\max( 1, (int)$limit ),
+				\max( 1, $limit ),
 			]
 		) );
 	}
@@ -1640,13 +1657,7 @@ class SiteRepository {
 
 	private function isRepairableConnectionRow( Record $row, int $now ) :bool {
 		return $row->status === SitesDB::STATUS_ACTIVE
-			   && ( ExportWaitState::isExpired( $row, $now ) || $this->hasQueuedOrIdleProblem( $row ) );
-	}
-
-	private function hasQueuedOrIdleProblem( Record $row ) :bool {
-		return \in_array( $row->queue_status, [ SitesDB::QUEUE_QUEUED, SitesDB::QUEUE_IDLE ], true )
-			   && ( $row->consecutive_failures > 0
-					|| \max( $row->last_ping_failure_at, $row->last_export_failure_at ) > $row->last_export_success_at );
+			   && ( ExportWaitState::isExpired( $row, $now ) || QueuedSyncState::hasProblem( $row ) );
 	}
 
 	private function metaTimestampWithinCooldown( Record $row, string $key, int $cooldown ) :bool {
