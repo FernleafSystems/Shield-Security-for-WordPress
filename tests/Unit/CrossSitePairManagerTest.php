@@ -112,6 +112,50 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->invokePrivate( $manager, 'assertB2StoredIdExchange', [ $evidence ] );
 	}
 
+	public function testB2ExpiredCallbackEvidenceAcceptsOneNonconfirmingCallbackWithoutCompletion() :void {
+		$manager = new CrossSitePairManager();
+		$before = $this->b2ExpiredCallbackSnapshots();
+		$after = $before;
+		$after[ 'master' ][ 'row' ][ 'handshake_attempt_at' ] = 101;
+		$after[ 'master' ][ 'row' ][ 'verification' ] = [
+			'result' => 'callback_invalid_response',
+			'http_status' => 200,
+		];
+		$after[ 'client' ][ 'callback_observer' ][ 'count' ] = 1;
+		$action = $this->b2ExpiredExportAction();
+
+		$evidence = $this->invokePrivate( $manager, 'buildB2ExpiredCallbackEvidence', [ $before, $action, $after ] );
+		$this->invokePrivate( $manager, 'assertB2ExpiredCallbackRejection', [ $evidence ] );
+
+		$this->assertSame( 'B2-07', $evidence[ 'case' ] );
+		$this->assertSame( 1, $evidence[ 'callback_observer' ][ 'observed_count' ] );
+		$this->assertSame( 'callback_invalid_response', $evidence[ 'callback_response' ][ 'class' ] );
+		$this->assertSame( 200, $evidence[ 'callback_response' ][ 'http_status' ] );
+		$this->assertFalse( $evidence[ 'export_completed' ] );
+		$this->assertFalse( $evidence[ 'client_import_completed' ] );
+	}
+
+	public function testB2ExpiredCallbackEvidenceRejectsEligibilityAtSendBoundary() :void {
+		$manager = new CrossSitePairManager();
+		$before = $this->b2ExpiredCallbackSnapshots();
+		$after = $before;
+		$after[ 'master' ][ 'row' ][ 'handshake_attempt_at' ] = 101;
+		$after[ 'master' ][ 'row' ][ 'verification' ] = [
+			'result' => 'callback_invalid_response',
+			'http_status' => 200,
+		];
+		$after[ 'client' ][ 'callback_observer' ][ 'count' ] = 1;
+		$action = $this->b2ExpiredExportAction();
+		$action[ 'send_boundary' ][ 'handshake_expires_at' ] = 102;
+		$action[ 'send_boundary' ][ 'handshake_eligible' ] = true;
+		$evidence = $this->invokePrivate( $manager, 'buildB2ExpiredCallbackEvidence', [ $before, $action, $after ] );
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'B2-07 expired callback rejection did not satisfy the current contract.' );
+
+		$this->invokePrivate( $manager, 'assertB2ExpiredCallbackRejection', [ $evidence ] );
+	}
+
 	public function testProvisionCommandUsesInternalMasterUrlAndExistingProvisionScript() :void {
 		$command = $this->invokePrivate(
 			new CrossSitePairManager(),
@@ -1391,6 +1435,33 @@ class CrossSitePairManagerTest extends TestCase {
 				],
 				'client_import' => [],
 			],
+		];
+	}
+
+	/**
+	 * @return array{master:array<string,mixed>,client:array<string,mixed>}
+	 */
+	private function b2ExpiredCallbackSnapshots() :array {
+		$snapshots = $this->b2StoredIdSnapshots();
+		$snapshots[ 'master' ][ 'row' ][ 'stored_import_id_present' ] = false;
+		$snapshots[ 'master' ][ 'row' ][ 'export' ] = null;
+		$snapshots[ 'client' ][ 'client_import' ] = null;
+		return $snapshots;
+	}
+
+	/** @return array<string,mixed> */
+	private function b2ExpiredExportAction() :array {
+		return [
+			'send_boundary' => [
+				'handshake_expires_at' => 99,
+				'sent_at' => 100,
+				'handshake_eligible' => false,
+			],
+			'submitted_import_id_present' => true,
+			'has_response' => true,
+			'http_status' => 200,
+			'response_class' => 'non_json_response',
+			'duration_ms' => 25,
 		];
 	}
 

@@ -62,7 +62,7 @@ class CrossSitePairManager {
 	private const QUEUE_WAITING_EXPORT = 'waiting_export';
 	private const EXPORT_RESULT_SUCCESS = 'success';
 	private const WP_CLI_INVALID_CRON_EVENT = 'Invalid cron event';
-	private const B2_CASES = [ 'B2-01', 'B2-02' ];
+	private const B2_CASES = [ 'B2-01', 'B2-02', 'B2-07' ];
 
 	private ProcessRunner $processRunner;
 
@@ -368,8 +368,11 @@ class CrossSitePairManager {
 		if ( $case === 'B2-01' ) {
 			$this->runB2HistoricalNoIdCase( $rootDir );
 		}
-		else {
+		elseif ( $case === 'B2-02' ) {
 			$this->runCurrentImportExportExchange( $rootDir );
+		}
+		else {
+			$this->runB2ExpiredCallbackCase( $rootDir );
 		}
 	}
 
@@ -413,12 +416,7 @@ class CrossSitePairManager {
 
 	private function runCurrentImportExportExchange( string $rootDir ) :void {
 		$this->stage( 'reset B2-02 callback observer' );
-		$observer = $this->runHelper( $rootDir, self::SLAVE, 'b2-reset-callback-observer' );
-		if ( empty( $observer[ 'active' ] )
-			 || (int)( $observer[ 'positive_control_count' ] ?? 0 ) !== 1
-			 || (int)( $observer[ 'count' ] ?? -1 ) !== 0 ) {
-			throw new \RuntimeException( 'B2-02 callback observer was not active and reset.' );
-		}
+		$observer = $this->resetB2CallbackObserver( $rootDir, 'B2-02' );
 		$b2Before = $this->b2Snapshots( $rootDir );
 		$b2Before[ 'client' ][ 'callback_observer' ][ 'positive_control_count' ] =
 			(int)$observer[ 'positive_control_count' ];
@@ -459,6 +457,35 @@ class CrossSitePairManager {
 		$evidence = $this->buildB2Evidence( $before, $action, $after );
 		$this->lastDiagnostics[ 'b2_01' ] = $evidence;
 		$this->assertB2HistoricalNoId( $evidence );
+	}
+
+	private function runB2ExpiredCallbackCase( string $rootDir ) :void {
+		$this->stage( 'B2-07 prepare historical no-ID state' );
+		$this->runHelper( $rootDir, self::MASTER, 'b2-prepare-master-row' );
+		$this->runHelper( $rootDir, self::SLAVE, 'b2-prepare-client' );
+
+		$this->stage( 'B2-07 reset callback observer' );
+		$observer = $this->resetB2CallbackObserver( $rootDir, 'B2-07' );
+		$before = $this->b2Snapshots( $rootDir );
+		$before[ 'client' ][ 'callback_observer' ][ 'positive_control_count' ] =
+			(int)$observer[ 'positive_control_count' ];
+
+		$this->stage( 'B2-07 send export request with expired callback eligibility' );
+		$action = $this->runHelper( $rootDir, self::SLAVE, 'b2-expired-export-request' );
+		$evidence = $this->buildB2ExpiredCallbackEvidence( $before, $action, $this->b2Snapshots( $rootDir ) );
+		$this->lastDiagnostics[ 'b2_07' ] = $evidence;
+		$this->assertB2ExpiredCallbackRejection( $evidence );
+	}
+
+	/** @return array<string,mixed> */
+	private function resetB2CallbackObserver( string $rootDir, string $case ) :array {
+		$observer = $this->runHelper( $rootDir, self::SLAVE, 'b2-reset-callback-observer' );
+		if ( empty( $observer[ 'active' ] )
+			 || (int)( $observer[ 'positive_control_count' ] ?? 0 ) !== 1
+			 || (int)( $observer[ 'count' ] ?? -1 ) !== 0 ) {
+			throw new \RuntimeException( $case.' callback observer was not active and reset.' );
+		}
+		return $observer;
 	}
 
 	/**
@@ -577,6 +604,65 @@ class CrossSitePairManager {
 			 || (string)( $evidence[ 'after' ][ 'client' ][ 'client_import' ][ 'result' ] ?? '' ) !== 'network_import_completed'
 			 || (int)( $evidence[ 'after' ][ 'client' ][ 'client_import' ][ 'http_status' ] ?? 0 ) !== 403 ) {
 			throw new \RuntimeException( 'B2-02 matching stored-ID exchange did not satisfy the current contract.' );
+		}
+	}
+
+	/**
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $before
+	 * @param array<string,mixed> $action
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $after
+	 * @return array<string,mixed>
+	 */
+	private function buildB2ExpiredCallbackEvidence( array $before, array $action, array $after ) :array {
+		$beforeObserver = (array)( $before[ 'client' ][ 'callback_observer' ] ?? [] );
+		$afterObserver = (array)( $after[ 'client' ][ 'callback_observer' ] ?? [] );
+		$verification = (array)( $after[ 'master' ][ 'row' ][ 'verification' ] ?? [] );
+
+		return [
+			'case' => 'B2-07',
+			'before' => $before,
+			'action' => $action,
+			'after' => $after,
+			'callback_observer' => [
+				'target_class' => 'client_handshake_confirm',
+				'positive_control_count' => (int)( $beforeObserver[ 'positive_control_count' ] ?? 0 ),
+				'active_before' => !empty( $beforeObserver[ 'active' ] ),
+				'active_after' => !empty( $afterObserver[ 'active' ] ),
+				'observed_count' => (int)( $afterObserver[ 'count' ] ?? -1 )
+					- (int)( $beforeObserver[ 'count' ] ?? -1 ),
+			],
+			'callback_response' => [
+				'class' => (string)( $verification[ 'result' ] ?? '' ),
+				'http_status' => (int)( $verification[ 'http_status' ] ?? 0 ),
+			],
+			'export_completed' => (string)( $after[ 'master' ][ 'row' ][ 'export' ][ 'result' ] ?? '' ) === 'export_served',
+			'client_import_completed' => (string)( $after[ 'client' ][ 'client_import' ][ 'result' ] ?? '' )
+				=== 'network_import_completed',
+		];
+	}
+
+	/** @param array<string,mixed> $evidence */
+	private function assertB2ExpiredCallbackRejection( array $evidence ) :void {
+		$this->assertB2ActiveAssociatedPrecondition( $evidence );
+		$boundary = (array)( $evidence[ 'action' ][ 'send_boundary' ] ?? [] );
+		$observer = (array)( $evidence[ 'callback_observer' ] ?? [] );
+		$callback = (array)( $evidence[ 'callback_response' ] ?? [] );
+		if ( !empty( $evidence[ 'before' ][ 'master' ][ 'row' ][ 'stored_import_id_present' ] )
+			 || empty( $evidence[ 'action' ][ 'submitted_import_id_present' ] )
+			 || !empty( $boundary[ 'handshake_eligible' ] )
+			 || (int)( $boundary[ 'handshake_expires_at' ] ?? 0 ) > (int)( $boundary[ 'sent_at' ] ?? 0 )
+			 || empty( $evidence[ 'action' ][ 'has_response' ] )
+			 || (int)( $evidence[ 'action' ][ 'http_status' ] ?? 0 ) < 100
+			 || (string)( $evidence[ 'action' ][ 'response_class' ] ?? '' ) !== 'non_json_response'
+			 || empty( $observer[ 'active_before' ] )
+			 || empty( $observer[ 'active_after' ] )
+			 || (int)( $observer[ 'positive_control_count' ] ?? 0 ) !== 1
+			 || (int)( $observer[ 'observed_count' ] ?? 0 ) !== 1
+			 || (string)( $callback[ 'class' ] ?? '' ) !== 'callback_invalid_response'
+			 || (int)( $callback[ 'http_status' ] ?? 0 ) < 100
+			 || !empty( $evidence[ 'export_completed' ] )
+			 || !empty( $evidence[ 'client_import_completed' ] ) ) {
+			throw new \RuntimeException( 'B2-07 expired callback rejection did not satisfy the current contract.' );
 		}
 	}
 

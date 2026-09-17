@@ -2,6 +2,7 @@
 // WP-CLI eval-file wraps helpers before execution, so this file cannot declare strict_types first.
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	PluginImportExport_Export,
 	PluginImportExport_HandshakeConfirm,
 	PluginImportExport_UpdateNotified
 };
@@ -14,12 +15,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\{
 	Import
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\{
+	HttpOutcome,
 	ObservationStore,
 	SyncObservation
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileOptionsCatalog;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\ScopedTargetHostRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\WhitelistNotifyQueue;
@@ -96,6 +99,8 @@ try {
 					);
 				case 'b2-pull':
 					return $this->b2Pull();
+				case 'b2-expired-export-request':
+					return $this->b2ExpiredExportRequest();
 				default:
 					throw new \RuntimeException( 'Unknown cross-site runtime action: '.$action );
 			}
@@ -659,6 +664,80 @@ try {
 				'error_code'    => $errorCode,
 				'client_import' => $import->latestObservation(),
 			];
+		}
+
+		/**
+		 * Send the existing export action without Import::fromSite(), which would renew
+		 * callback eligibility before the request.
+		 *
+		 * @return array<string,mixed>
+		 */
+		private function b2ExpiredExportRequest() :array {
+			$con = RuntimeTestState::controller();
+			$expiresAt = Services::Request()->ts() - 1;
+			$con->opts
+				->optSet( 'importexport_handshake_expires_at', $expiresAt )
+				->store();
+
+			$masterUrl = ( new SyncSiteUrlValidator() )->validateTrustedSyncUrl(
+				(string)$con->opts->optGet( 'importexport_masterurl' )
+			);
+			$importID = \trim( (string)$con->opts->optGet( 'import_id' ) );
+			$targetUrl = $con->plugin_urls->noncedPluginAction(
+				PluginImportExport_Export::class,
+				$masterUrl,
+				[
+					'url' => Services::WpGeneral()->getHomeUrl(),
+					'id' => $importID,
+					'method' => 'json',
+					'uniq' => wp_generate_password( 4, false ),
+				]
+			);
+
+			$sentAt = Services::Request()->ts();
+			$storedExpiresAt = (int)$con->opts->optGet( 'importexport_handshake_expires_at' );
+			if ( $storedExpiresAt > $sentAt ) {
+				throw new \RuntimeException( 'B2 expired callback request was eligible at the send boundary.' );
+			}
+			$sendBoundary = [
+				'handshake_expires_at' => $storedExpiresAt,
+				'sent_at' => $sentAt,
+				'handshake_eligible' => false,
+			];
+
+			$startedAt = \hrtime( true );
+			$http = Services::HttpRequest();
+			try {
+				$body = ( new ScopedTargetHostRequest() )->run(
+					$targetUrl,
+					static fn() :string => $http->getContent( $targetUrl, [
+						'reject_unsafe_urls' => true,
+					] )
+				);
+				$outcome = HttpOutcome::fromRequest( $body, $http );
+				$decoded = @\json_decode( $body, true );
+				$responseClass = $body === '' ? 'empty_response' : ( \is_array( $decoded ) ? 'json_object' : 'non_json_response' );
+
+				return [
+					'send_boundary' => $sendBoundary,
+					'submitted_import_id_present' => $importID !== '',
+					'has_response' => $outcome->hasResponse(),
+					'http_status' => $outcome->status(),
+					'response_class' => $responseClass,
+					'duration_ms' => (int)\round( ( \hrtime( true ) - $startedAt ) / 1000000 ),
+				];
+			}
+			catch ( \Throwable $e ) {
+				return [
+					'send_boundary' => $sendBoundary,
+					'submitted_import_id_present' => $importID !== '',
+					'has_response' => false,
+					'http_status' => null,
+					'response_class' => 'transport_exception',
+					'error_class' => \get_class( $e ),
+					'duration_ms' => (int)\round( ( \hrtime( true ) - $startedAt ) / 1000000 ),
+				];
+			}
 		}
 
 		/**

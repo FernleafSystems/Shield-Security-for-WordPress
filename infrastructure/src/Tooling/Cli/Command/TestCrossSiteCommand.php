@@ -35,7 +35,7 @@ class TestCrossSiteCommand extends Command {
 				'b2-case',
 				null,
 				InputOption::VALUE_REQUIRED,
-				'Run the fixed B2-01 remote evidence case.'
+				'Run a supported named B2 remote evidence case.'
 			);
 	}
 
