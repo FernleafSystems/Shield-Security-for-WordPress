@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Record
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\SyncObservation;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\BackgroundProcessing\BackgroundProcess;
 
@@ -50,7 +51,7 @@ class QueueProcessor extends BackgroundProcess {
 	protected function handle() {
 		$this->processingStartedAt = $this->now();
 		$this->lock_process();
-		$progress = false;
+		$workHandled = false;
 		$halt = false;
 
 		try {
@@ -60,12 +61,15 @@ class QueueProcessor extends BackgroundProcess {
 			}
 
 			if ( !$halt ) {
-				foreach ( $repo->selectExpiredWaitingExportRows( self::EXPORT_MAINTENANCE_LIMIT ) as $row ) {
-					if ( !$repo->recordExportTimeout( $row ) ) {
+				foreach ( $repo->selectExportMaintenanceRows( self::EXPORT_MAINTENANCE_LIMIT ) as $row ) {
+					$result = ExportWaitState::isReconcilable( $row )
+						? $repo->recordExportReconciliation( $row )
+						: $repo->recordExportTimeout( $row );
+					if ( $result === false ) {
 						$halt = true;
 						break;
 					}
-					$progress = true;
+					$workHandled = true;
 				}
 			}
 
@@ -87,20 +91,25 @@ class QueueProcessor extends BackgroundProcess {
 
 				if ( $row->queue_status === SitesDB::QUEUE_PENDING_INVITE ) {
 					$result = $this->processInvitation( $repo, $row );
+					if ( $result === false ) {
+						$halt = true;
+					}
+					elseif ( $result === true ) {
+						$workHandled = true;
+					}
+					else {
+						$workHandled = true;
+						break;
+					}
 				}
 				else {
 					$result = $this->processNotification( $repo, $row, $interrupted instanceof Record );
-				}
-
-				if ( $result === false ) {
-					$halt = true;
-				}
-				elseif ( $result === true ) {
-					$progress = true;
-				}
-				else {
-					$progress = true;
-					break;
+					if ( $result === false ) {
+						$halt = true;
+					}
+					else {
+						$workHandled = true;
+					}
 				}
 			}
 		}
@@ -108,7 +117,7 @@ class QueueProcessor extends BackgroundProcess {
 			$this->unlock_process();
 		}
 
-		if ( !$halt && $progress && $this->canRun() && $this->repository()->hasActionableWork() ) {
+		if ( !$halt && $workHandled && $this->canRun() && $this->repository()->hasActionableWork() ) {
 			$this->dispatch();
 		}
 		return null;
@@ -135,11 +144,14 @@ class QueueProcessor extends BackgroundProcess {
 				'http_status' => 0,
 			];
 		}
-		$result = $repo->recordInviteResult( $row, (string)$outcome[ 'result' ], (int)$outcome[ 'http_status' ] );
+		$result = $repo->recordInviteResult( $row, $outcome[ 'result' ], $outcome[ 'http_status' ] );
 		return $result === false ? false : ( $result === 1 ? true : null );
 	}
 
-	private function processNotification( SiteRepository $repo, Record $row, bool $recovery ) :bool {
+	/**
+	 * @return false|int
+	 */
+	private function processNotification( SiteRepository $repo, Record $row, bool $recovery ) {
 		$metadata = new NotificationMetadata();
 		if ( $recovery && $metadata->attemptsStarted( $row->meta ) >= NotificationMetadata::MAX_ATTEMPTS ) {
 			return $repo->recordInterruptedNotificationExhaustion( $row );
@@ -150,15 +162,29 @@ class QueueProcessor extends BackgroundProcess {
 		}
 
 		try {
-			$result = $this->pingSender()->send( $row->url, self::NOTIFY_TIMEOUT, (string)$row->import_id );
+			$result = $this->pingSender()->send( $row->url, self::NOTIFY_TIMEOUT, $row->import_id );
 		}
 		catch ( \Throwable $e ) {
-			return $repo->recordPingFailure( $row, 0, 'Notification sender failed.' );
+			$transition = $repo->recordPingFailure( $row, 0, 'Notification sender failed.' );
+			$observation = SyncObservation::create(
+				Services::Request()->ts(),
+				SyncObservation::PHASE_NOTIFICATION,
+				SyncObservation::RESULT_SENDER_EXCEPTION,
+				SyncObservation::VERIFICATION_NOT_APPLICABLE
+			);
+			if ( $transition === 1 && $observation !== null ) {
+				$repo->saveObservation( $row, SyncObservation::PHASE_NOTIFICATION, $observation );
+			}
+			return $transition;
 		}
 
-		return $result[ 'success' ]
-			? $repo->recordNotifyDispatched( $row, (int)$result[ 'http_code' ], Services::Request()->ts() + self::EXPORT_GRACE )
-			: $repo->recordPingFailure( $row, (int)$result[ 'http_code' ], (string)$result[ 'error' ] );
+		$transition = $result[ 'success' ]
+			? $repo->recordNotifyDispatched( $row, $result[ 'http_code' ], Services::Request()->ts() + self::EXPORT_GRACE )
+			: $repo->recordPingFailure( $row, $result[ 'http_code' ], $result[ 'error' ] );
+		if ( $transition === 1 && $result[ 'observation' ] !== null ) {
+			$repo->saveObservation( $row, SyncObservation::PHASE_NOTIFICATION, $result[ 'observation' ] );
+		}
+		return $transition;
 	}
 
 	/** @phpstan-impure */

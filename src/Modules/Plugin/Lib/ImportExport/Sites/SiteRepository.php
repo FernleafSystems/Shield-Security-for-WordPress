@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Record
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\SyncObservation;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\WhitelistNotifyQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -21,6 +22,12 @@ class SiteRepository {
 	public const OLD_QUEUE_ACTION = 'whitelist_notify_urls';
 	private const META_EXPORT_SERVED_AT = 'export_served_at';
 	private const META_HANDSHAKE_ATTEMPT_AT = 'handshake_attempt_at';
+	private const META_SYNC_OBSERVATIONS = 'sync_observations';
+	private const OBSERVATION_SLOTS = [
+		SyncObservation::PHASE_NOTIFICATION,
+		SyncObservation::PHASE_VERIFICATION,
+		SyncObservation::PHASE_EXPORT,
+	];
 	private const META_WRITE_ATTEMPTS = 3;
 	private const SQL_BATCH_SIZE = 20;
 	private ?int $defaultProfileRef = null;
@@ -165,7 +172,7 @@ class SiteRepository {
 	}
 
 	public function queueSiteIds( array $ids ) :int {
-		return $this->queueRows( $this->findActiveByIds( $ids ) );
+		return $this->queueRows( $this->findActiveByIds( $ids ), true );
 	}
 
 	public function repairConnectionsByIds( array $ids ) :int {
@@ -239,14 +246,24 @@ class SiteRepository {
 		$now = $now ?? Services::Request()->ts();
 		return $this->selectNextInterruptedNotification( $now ) instanceof Record
 			   || $this->selectNextDueWork( $now ) instanceof Record
-			   || !empty( $this->selectExpiredWaitingExportRowsWithSql( $now, 1 ) );
+			   || !empty( $this->selectExpiredWaitingExportRowsWithSql( $now, 1 ) )
+			   || !empty( $this->selectReconcilableWaitingExportRowsWithSql( 1 ) );
 	}
 
 	/**
 	 * @return Record[]
 	 */
-	public function selectExpiredWaitingExportRows( int $limit ) :array {
-		return $this->selectExpiredWaitingExportRowsWithSql( Services::Request()->ts(), $limit );
+	public function selectExportMaintenanceRows( int $limit ) :array {
+		$limit = \max( 0, $limit );
+		if ( $limit === 0 ) {
+			return [];
+		}
+
+		$rows = $this->selectExpiredWaitingExportRowsWithSql( Services::Request()->ts(), $limit );
+		$remaining = $limit - \count( $rows );
+		return $remaining > 0
+			? \array_merge( $rows, $this->selectReconcilableWaitingExportRowsWithSql( $remaining ) )
+			: $rows;
 	}
 
 	/**
@@ -358,32 +375,44 @@ class SiteRepository {
 	public function startNotificationAttempt( Record $row, int $startedAt, bool $recovery = false ) :bool {
 		$metadata = new NotificationMetadata();
 		$meta = $recovery ? $metadata->increment( $row->meta ) : $metadata->startFreshCycle( $row->meta );
-		return $this->updateById( $row->id, [
+		$data = [
 			'queue_status'        => SitesDB::QUEUE_PROCESSING,
 			'picked_at'           => $startedAt,
 			'lock_until'          => $startedAt + \MINUTE_IN_SECONDS,
 			'last_ping_attempt_at' => $startedAt,
 			'ping_attempts_total'  => $row->ping_attempts_total + 1,
 			'meta'                 => $meta,
-		] );
+		];
+		$result = $this->updateById( $row->id, $data );
+		if ( $result ) {
+			foreach ( $data as $key => $value ) {
+				$row->{$key} = $value;
+			}
+		}
+		return $result;
 	}
 
-	public function recordNotifyDispatched( Record $row, int $httpCode, int $expectedExportBy ) :bool {
+	/**
+	 * @return false|int
+	 */
+	public function recordNotifyDispatched( Record $row, int $httpCode, int $expectedExportBy ) {
 		$now = Services::Request()->ts();
-		return $this->updateById( $row->id, [
-			'queue_status'          => SitesDB::QUEUE_WAITING_EXPORT,
-			'last_ping_success_at'  => $now,
-			'last_ping_http_code'   => $httpCode,
-			'last_ping_error'       => '',
-			'expected_export_by'    => $expectedExportBy,
-			'lock_until'            => 0,
-			'picked_at'             => 0,
-			'meta'                  => ( new NotificationMetadata() )->reset( $row->meta ),
-		] );
+		return $this->recordNotificationResult( $row, static function ( Record $current ) use ( $httpCode, $expectedExportBy, $now ) :array {
+			return [
+				'queue_status'         => SitesDB::QUEUE_WAITING_EXPORT,
+				'last_ping_success_at' => $now,
+				'last_ping_http_code'  => $httpCode,
+				'last_ping_error'      => '',
+				'expected_export_by'   => $expectedExportBy,
+				'lock_until'           => 0,
+				'picked_at'            => 0,
+				'meta'                 => ( new NotificationMetadata() )->reset( $current->meta ),
+			];
+		} );
 	}
 
 	public function exportCooldownActive( Record $row, int $cooldown ) :bool {
-		if ( $this->isAwaitingExpectedExport( $row ) ) {
+		if ( ExportWaitState::isCooldownBypassed( $row, Services::Request()->ts() ) ) {
 			return false;
 		}
 		return $this->metaTimestampWithinCooldown( $row, self::META_EXPORT_SERVED_AT, $cooldown );
@@ -391,6 +420,53 @@ class SiteRepository {
 
 	public function recordExportServed( Record $row ) :void {
 		$this->setMetaTimestamp( $row, self::META_EXPORT_SERVED_AT );
+	}
+
+	public function readObservation( Record $row, string $slot ) :?array {
+		if ( !\in_array( $slot, self::OBSERVATION_SLOTS, true ) ) {
+			return null;
+		}
+		$root = \is_array( $row->meta ) ? ( $row->meta[ self::META_SYNC_OBSERVATIONS ] ?? null ) : null;
+		$observation = \is_array( $root ) ? SyncObservation::normalize( $root[ $slot ] ?? null ) : null;
+		return $observation !== null && $observation[ 'phase' ] === $slot ? $observation : null;
+	}
+
+	public function saveObservation( Record $row, string $slot, array $observation ) :bool {
+		$observation = SyncObservation::normalize( $observation );
+		if ( $observation === null
+			 || !\in_array( $slot, self::OBSERVATION_SLOTS, true )
+			 || $observation[ 'phase' ] !== $slot ) {
+			return false;
+		}
+
+		try {
+			$current = $this->findById( $row->id, true );
+			for ( $attempt = 0; $attempt < self::META_WRITE_ATTEMPTS; $attempt++ ) {
+				if ( !$current instanceof Record
+					 || $current->status !== SitesDB::STATUS_ACTIVE
+					 || $current->deleted_at !== 0 ) {
+					return false;
+				}
+
+				$meta = \is_array( $current->meta ) ? $current->meta : [];
+				$root = \is_array( $meta[ self::META_SYNC_OBSERVATIONS ] ?? null )
+					? $meta[ self::META_SYNC_OBSERVATIONS ]
+					: [];
+				$root[ $slot ] = $observation;
+				$meta[ self::META_SYNC_OBSERVATIONS ] = $root;
+				$result = $this->conditionalMetadataUpdate( $current, [ 'meta' => $meta ], false, null );
+				if ( $result === 1 ) {
+					return true;
+				}
+				if ( $result === false ) {
+					return false;
+				}
+				$current = $this->findById( $row->id, true );
+			}
+		}
+		catch ( \Throwable $e ) {
+		}
+		return false;
 	}
 
 	public function handshakeCooldownActive( Record $row, int $cooldown ) :bool {
@@ -401,43 +477,35 @@ class SiteRepository {
 		$this->setMetaTimestamp( $row, self::META_HANDSHAKE_ATTEMPT_AT );
 	}
 
-	public function recordPingFailure( Record $row, int $httpCode, string $error ) :bool {
-		$failures = $row->consecutive_failures + 1;
-		return $this->updateById( $row->id, [
-			'queue_status'          => SitesDB::QUEUE_QUEUED,
-			'last_ping_failure_at'  => Services::Request()->ts(),
-			'last_ping_http_code'   => $httpCode,
-			'last_ping_error'       => $this->trimError( $error ),
-			'consecutive_failures'  => $failures,
-			'next_ping_at'          => $this->nextRetryAt( $failures ),
-			'lock_until'            => 0,
-			'picked_at'             => 0,
-			'expected_export_by'    => 0,
-			'meta'                  => ( new NotificationMetadata() )->reset( $row->meta ),
-		] );
+	/**
+	 * @return false|int
+	 */
+	public function recordPingFailure( Record $row, int $httpCode, string $error ) {
+		return $this->recordNotificationFailure( $row, $httpCode, $error );
 	}
 
-	public function recordInterruptedNotificationExhaustion( Record $row ) :bool {
-		$failures = $row->consecutive_failures + 1;
-		return $this->updateById( $row->id, [
-			'queue_status'         => SitesDB::QUEUE_QUEUED,
-			'last_ping_failure_at' => Services::Request()->ts(),
-			'last_ping_http_code'  => 0,
-			'last_ping_error'      => 'Notification interrupted three times; retry deferred.',
-			'consecutive_failures' => $failures,
-			'next_ping_at'         => $this->nextRetryAt( $failures ),
-			'lock_until'           => 0,
-			'picked_at'            => 0,
-			'expected_export_by'   => 0,
-			'meta'                 => ( new NotificationMetadata() )->reset( $row->meta ),
-		] );
+	/**
+	 * @return false|int
+	 */
+	public function recordInterruptedNotificationExhaustion( Record $row ) {
+		$now = Services::Request()->ts();
+		return $this->recordNotificationFailure(
+			$row,
+			0,
+			'Notification interrupted three times; retry deferred.',
+			$now
+		);
 	}
 
-	public function recordExportTimeout( Record $row ) :bool {
+	/**
+	 * @return false|int
+	 */
+	public function recordExportTimeout( Record $row ) {
 		$failures = $row->consecutive_failures + 1;
-		return $this->updateById( $row->id, [
+		$now = Services::Request()->ts();
+		return $this->conditionalRowUpdate( [
 			'queue_status'             => SitesDB::QUEUE_QUEUED,
-			'last_export_failure_at'   => Services::Request()->ts(),
+			'last_export_failure_at'   => $now,
 			'last_export_result_code'  => SitesDB::EXPORT_RESULT_TIMEOUT,
 			'last_export_error'        => 'export_not_requested_before_grace_window',
 			'consecutive_failures'     => $failures,
@@ -445,6 +513,33 @@ class SiteRepository {
 			'expected_export_by'       => 0,
 			'lock_until'               => 0,
 			'picked_at'                => 0,
+		], '`id`=%d AND `status`=%s AND `deleted_at`=0 AND `queue_status`=%s AND `expected_export_by`=%d AND `last_ping_success_at`=%d AND `expected_export_by`>0 AND `expected_export_by`<=%d AND '.ExportWaitState::sqlUnsatisfiedSuccess(), [
+			$row->id,
+			SitesDB::STATUS_ACTIVE,
+			SitesDB::QUEUE_WAITING_EXPORT,
+			$row->expected_export_by,
+			$row->last_ping_success_at,
+			$now,
+		] );
+	}
+
+	/**
+	 * @return false|int
+	 */
+	public function recordExportReconciliation( Record $row ) {
+		return $this->conditionalRowUpdate( [
+			'queue_status'       => SitesDB::QUEUE_IDLE,
+			'next_ping_at'       => $row->last_export_success_at + \DAY_IN_SECONDS,
+			'expected_export_by' => 0,
+			'lock_until'         => 0,
+			'picked_at'          => 0,
+		], '`id`=%d AND `status`=%s AND `deleted_at`=0 AND `queue_status`=%s AND `expected_export_by`=%d AND `last_ping_success_at`=%d AND `last_export_success_at`=%d AND '.ExportWaitState::sqlQualifyingSuccess(), [
+			$row->id,
+			SitesDB::STATUS_ACTIVE,
+			SitesDB::QUEUE_WAITING_EXPORT,
+			$row->expected_export_by,
+			$row->last_ping_success_at,
+			$row->last_export_success_at,
 		] );
 	}
 
@@ -844,7 +939,7 @@ class SiteRepository {
 		$base = $this->buildActiveInsertData( $url, $source, '', false, $now );
 		return \array_merge(
 			$base,
-			$this->buildPendingClientSiteUpsertData( null, $url, $source, $sendInvite, $now, (int)$base[ 'profile_ref' ] )
+			$this->buildPendingClientSiteUpsertData( null, $url, $source, $sendInvite, $now, $base[ 'profile_ref' ] )
 		);
 	}
 
@@ -882,27 +977,58 @@ class SiteRepository {
 		return $this->defaultProfileRef();
 	}
 
-	private function queueRows( array $rows ) :int {
+	private function queueRows( array $rows, bool $retryNow = false ) :int {
 		if ( empty( $rows ) ) {
 			return 0;
 		}
 
-		$syncRows = [];
+		$now = Services::Request()->ts();
+		$count = 0;
 		foreach ( $rows as $row ) {
-			if ( \in_array( $row->queue_status, [ SitesDB::QUEUE_PENDING_INVITE, SitesDB::QUEUE_PENDING_CONNECTION ], true ) ) {
+			if ( !$row instanceof Record ) {
 				continue;
 			}
 
-			$syncRows[] = $row;
+			$result = $this->conditionalRowUpdate(
+				$this->buildQueueDueData( $now ),
+				'`id`=%d AND `status`=%s AND `deleted_at`=0 AND `queue_status`=%s',
+				[ $row->id, SitesDB::STATUS_ACTIVE, SitesDB::QUEUE_IDLE ]
+			);
+			if ( $result === false ) {
+				continue;
+			}
+			if ( $result === 1 ) {
+				$count++;
+				continue;
+			}
+
+			if ( $retryNow ) {
+				// Manual retries bring queued work forward without interrupting an active sync.
+				$result = $this->conditionalRowUpdate(
+					[ 'queued_at' => $now, 'next_ping_at' => $now ],
+					'`id`=%d AND `status`=%s AND `deleted_at`=0 AND `queue_status`=%s',
+					[ $row->id, SitesDB::STATUS_ACTIVE, SitesDB::QUEUE_QUEUED ]
+				);
+				if ( $result === false ) {
+					continue;
+				}
+				if ( $result === 1 ) {
+					$count++;
+					continue;
+				}
+			}
+
+			$current = $this->readRowForTransition( $row->id );
+			if ( $current instanceof Record
+				 && $current->status === SitesDB::STATUS_ACTIVE
+				 && $current->deleted_at === 0
+				 && $current->queue_status === SitesDB::QUEUE_QUEUED
+				 && ( !$retryNow || $current->next_ping_at <= $now ) ) {
+				$count++;
+			}
 		}
 
-		$now = Services::Request()->ts();
-		$this->bulkUpdateRowsByIds(
-			\array_map( static fn( Record $row ) :int => $row->id, $syncRows ),
-			$this->buildQueueDueData( $now )
-		);
-
-		return \count( $syncRows );
+		return $count;
 	}
 
 	private function bulkInsertRows( array $rows ) :bool {
@@ -993,37 +1119,6 @@ class SiteRepository {
 		return $success;
 	}
 
-	private function bulkUpdateRowsByIds( array $ids, array $data ) :bool {
-		$ids = \array_values( \array_unique( \array_filter( \array_map( '\intval', $ids ), static fn( int $id ) :bool => $id > 0 ) ) );
-		if ( empty( $ids ) || empty( $data ) ) {
-			return true;
-		}
-
-		$data = $this->withUpdatedAt( $data, Services::Request()->ts() );
-		$sets = [];
-		$values = [];
-		foreach ( $data as $column => $value ) {
-			$value = $this->normaliseSqlValue( $value );
-			$sets[] = sprintf( '`%s`=%s', $this->sqlColumnName( $column ), $this->sqlPlaceholder( $value ) );
-			$values[] = $value;
-		}
-
-		$success = true;
-		foreach ( \array_chunk( $ids, self::SQL_BATCH_SIZE ) as $chunk ) {
-			$success = $this->executePreparedSql(
-				sprintf(
-					'UPDATE `%s` SET %s WHERE `id` IN (%s);',
-					$this->db()->getTable(),
-					\implode( ',', $sets ),
-					$this->sqlPlaceholders( $chunk, '%d' )
-				),
-				\array_merge( $values, $chunk )
-			) && $success;
-		}
-
-		return $success;
-	}
-
 	/**
 	 * @return Record[]
 	 */
@@ -1047,11 +1142,11 @@ class SiteRepository {
 				SitesDB::STATUS_ACTIVE,
 				SitesDB::QUEUE_IDLE,
 				SitesDB::QUEUE_QUEUED,
-				(int)$now,
+				$now,
 				SitesDB::QUEUE_PENDING_INVITE,
-				(int)$now,
-				(int)$now,
-				\max( 1, (int)$limit ),
+				$now,
+				$now,
+				\max( 1, $limit ),
 			]
 		) );
 	}
@@ -1075,8 +1170,8 @@ class SiteRepository {
 			[
 				SitesDB::STATUS_ACTIVE,
 				SitesDB::QUEUE_PROCESSING,
-				(int)$now,
-				\max( 1, (int)$limit ),
+				$now,
+				\max( 1, $limit ),
 			]
 		) );
 	}
@@ -1087,22 +1182,47 @@ class SiteRepository {
 	private function selectExpiredWaitingExportRowsWithSql( int $now, int $limit ) :array {
 		return $this->selectRowsWithSql( $this->prepareSql(
 			sprintf(
-				"SELECT * FROM `%s`
+				"SELECT * FROM `%s` FORCE INDEX (`waiting_export`)
 				 WHERE `deleted_at`=0
 				   AND `status`=%%s
 				   AND `queue_status`=%%s
 				   AND `expected_export_by`>0
 				   AND `expected_export_by`<=%%d
-				   AND (`last_export_success_at`=0 OR `last_export_success_at`<`last_ping_success_at`)
+				   AND %s
 				 ORDER BY `expected_export_by` ASC, `id` ASC
 				 LIMIT %%d",
-				$this->db()->getTable()
+				$this->db()->getTable(),
+				ExportWaitState::sqlUnsatisfiedSuccess()
 			),
 			[
 				SitesDB::STATUS_ACTIVE,
 				SitesDB::QUEUE_WAITING_EXPORT,
-				(int)$now,
-				\max( 1, (int)$limit ),
+				$now,
+				\max( 1, $limit ),
+			]
+		) );
+	}
+
+	/**
+	 * @return Record[]
+	 */
+	private function selectReconcilableWaitingExportRowsWithSql( int $limit ) :array {
+		return $this->selectRowsWithSql( $this->prepareSql(
+			sprintf(
+				"SELECT * FROM `%s` FORCE INDEX (`waiting_export`)
+				 WHERE `deleted_at`=0
+				   AND `status`=%%s
+				   AND `queue_status`=%%s
+				   AND %s
+				 ORDER BY `expected_export_by` ASC, `id` ASC
+				 LIMIT %%d",
+				$this->db()->getTable(),
+				ExportWaitState::sqlQualifyingSuccess()
+			),
+			[
+				SitesDB::STATUS_ACTIVE,
+				SitesDB::QUEUE_WAITING_EXPORT,
+				\max( 1, $limit ),
 			]
 		) );
 	}
@@ -1235,6 +1355,179 @@ class SiteRepository {
 		return $column;
 	}
 
+	/**
+	 * @return false|int
+	 */
+	private function recordNotificationResult(
+		Record $operation,
+		callable $dataBuilder,
+		?int $exhaustedAt = null
+	) {
+		if ( !$this->isNotificationResultApplicable( $operation, $operation, $exhaustedAt ) ) {
+			return 0;
+		}
+		$result = $this->conditionalNotificationResultUpdate(
+			$operation,
+			$operation,
+			$dataBuilder( $operation ),
+			$exhaustedAt
+		);
+		if ( $result === false || $result === 1 ) {
+			return $result;
+		}
+
+		$current = $this->readRowForTransition( $operation->id );
+		if ( $current === false ) {
+			return false;
+		}
+		if ( !$current instanceof Record
+			 || !$this->isNotificationResultApplicable( $current, $operation, $exhaustedAt ) ) {
+			return 0;
+		}
+
+		$result = $this->conditionalNotificationResultUpdate(
+			$current,
+			$operation,
+			$dataBuilder( $current ),
+			$exhaustedAt
+		);
+		if ( $result === false || $result === 1 ) {
+			return $result;
+		}
+
+		$current = $this->readRowForTransition( $operation->id );
+		if ( $current === false ) {
+			return false;
+		}
+		return $current instanceof Record
+			   && $this->isNotificationResultApplicable( $current, $operation, $exhaustedAt ) ? false : 0;
+	}
+
+	/**
+	 * @return false|int
+	 */
+	private function recordNotificationFailure(
+		Record $row,
+		int $httpCode,
+		string $error,
+		?int $exhaustedAt = null
+	) {
+		$now = $exhaustedAt ?? Services::Request()->ts();
+		$error = $this->trimError( $error );
+		return $this->recordNotificationResult( $row, function ( Record $current ) use ( $httpCode, $error, $now ) :array {
+			$failures = $current->consecutive_failures + 1;
+			return [
+				'queue_status'         => SitesDB::QUEUE_QUEUED,
+				'last_ping_failure_at' => $now,
+				'last_ping_http_code'  => $httpCode,
+				'last_ping_error'      => $error,
+				'consecutive_failures' => $failures,
+				'next_ping_at'         => $this->nextRetryAt( $failures ),
+				'lock_until'           => 0,
+				'picked_at'            => 0,
+				'expected_export_by'   => 0,
+				'meta'                 => ( new NotificationMetadata() )->reset( $current->meta ),
+			];
+		}, $exhaustedAt );
+	}
+
+	/**
+	 * @return false|int
+	 */
+	private function conditionalNotificationResultUpdate(
+		Record $metadataSource,
+		Record $operation,
+		array $data,
+		?int $exhaustedAt = null
+	) {
+		$rawMeta = (string)( $metadataSource->getRawData()[ 'meta' ] ?? '' );
+		$where = '`id`=%d AND `status`=%s AND `deleted_at`=0 AND `queue_status`=%s AND `picked_at`=%d AND `lock_until`=%d AND `last_ping_attempt_at`=%d AND BINARY `meta`=BINARY %s';
+		$whereValues = [
+			$operation->id,
+			SitesDB::STATUS_ACTIVE,
+			SitesDB::QUEUE_PROCESSING,
+			$operation->picked_at,
+			$operation->lock_until,
+			$operation->last_ping_attempt_at,
+			$rawMeta,
+		];
+		if ( $exhaustedAt !== null ) {
+			$where .= ' AND `lock_until`>0 AND `lock_until`<=%d';
+			$whereValues[] = $exhaustedAt;
+		}
+		return $this->conditionalRowUpdate(
+			$data,
+			$where,
+			$whereValues
+		);
+	}
+
+	private function isNotificationResultApplicable( Record $current, Record $operation, ?int $exhaustedAt ) :bool {
+		if ( !$this->isSameNotificationOperation( $current, $operation ) ) {
+			return false;
+		}
+		return $exhaustedAt === null
+			   || ( $current->lock_until > 0
+					&& $current->lock_until <= $exhaustedAt
+					&& ( new NotificationMetadata() )->attemptsStarted( $current->meta ) >= NotificationMetadata::MAX_ATTEMPTS );
+	}
+
+	private function isSameNotificationOperation( Record $current, Record $operation ) :bool {
+		$metadata = new NotificationMetadata();
+		return $current->status === SitesDB::STATUS_ACTIVE
+			   && $current->deleted_at === 0
+			   && $current->queue_status === SitesDB::QUEUE_PROCESSING
+			   && $current->picked_at === $operation->picked_at
+			   && $current->lock_until === $operation->lock_until
+			   && $current->last_ping_attempt_at === $operation->last_ping_attempt_at
+			   && $metadata->attemptsStarted( $current->meta ) === $metadata->attemptsStarted( $operation->meta );
+	}
+
+	/**
+	 * @return false|Record|null
+	 */
+	private function readRowForTransition( int $id ) {
+		$wpdb = Services::WpDb()->loadWpdb();
+		$wpdb->last_error = '';
+		$rows = Services::WpDb()->selectCustom( $this->prepareSql(
+			sprintf( 'SELECT * FROM `%s` WHERE `id`=%%d LIMIT 1', $this->db()->getTable() ),
+			[ $id ]
+		) );
+		if ( !\is_array( $rows ) || $this->wpDbLastError() !== '' ) {
+			return false;
+		}
+		$row = \reset( $rows );
+		return \is_array( $row ) ? $this->db()->getRecord()->applyFromArray( $row ) : null;
+	}
+
+	private function wpDbLastError() :string {
+		return (string)Services::WpDb()->loadWpdb()->last_error;
+	}
+
+	/**
+	 * @return false|int
+	 */
+	private function conditionalRowUpdate( array $data, string $where, array $whereValues ) {
+		$dbh = $this->dbOrNull();
+		if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() || empty( $data ) ) {
+			return false;
+		}
+
+		$data = $this->withUpdatedAt( $data, Services::Request()->ts() );
+		$sets = [];
+		$values = [];
+		foreach ( $data as $column => $value ) {
+			$value = $this->normaliseSqlValue( $value );
+			$sets[] = \sprintf( '`%s`=%s', $this->sqlColumnName( $column ), $this->sqlPlaceholder( $value ) );
+			$values[] = $value;
+		}
+
+		return Services::WpDb()->doSql( $this->prepareSql(
+			\sprintf( 'UPDATE `%s` SET %s WHERE %s;', $dbh->getTable(), \implode( ',', $sets ), $where ),
+			\array_merge( $values, $whereValues )
+		) );
+	}
+
 	private function prepareSql( string $sql, array $values ) :string {
 		if ( empty( $values ) ) {
 			return $sql;
@@ -1257,20 +1550,6 @@ class SiteRepository {
 		bool $requireClaim = false,
 		?string $expectedQueueStatus = SitesDB::QUEUE_PENDING_INVITE
 	) {
-		$dbh = $this->dbOrNull();
-		if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() || empty( $data ) ) {
-			return false;
-		}
-
-		$data = $this->withUpdatedAt( $data, Services::Request()->ts() );
-		$sets = [];
-		$values = [];
-		foreach ( $data as $column => $value ) {
-			$value = $this->normaliseSqlValue( $value );
-			$sets[] = \sprintf( '`%s`=%s', $this->sqlColumnName( $column ), $this->sqlPlaceholder( $value ) );
-			$values[] = $value;
-		}
-
 		$rawMeta = (string)( $row->getRawData()[ 'meta' ] ?? '' );
 		$where = '`id`=%d AND `status`=%s AND `deleted_at`=0';
 		$whereValues = [ $row->id, SitesDB::STATUS_ACTIVE ];
@@ -1286,10 +1565,7 @@ class SiteRepository {
 			$whereValues[] = $row->lock_until;
 		}
 
-		return Services::WpDb()->doSql( $this->prepareSql(
-			\sprintf( 'UPDATE `%s` SET %s WHERE %s;', $dbh->getTable(), \implode( ',', $sets ), $where ),
-			\array_merge( $values, $whereValues )
-		) );
+		return $this->conditionalRowUpdate( $data, $where, $whereValues );
 	}
 
 	private function updateById( int $id, array $data ) :bool {
@@ -1379,28 +1655,9 @@ class SiteRepository {
 		return \substr( \trim( $error ), 0, 1000 );
 	}
 
-	private function isAwaitingExpectedExport( Record $row ) :bool {
-		return $row->queue_status === SitesDB::QUEUE_WAITING_EXPORT
-			   && $row->expected_export_by >= Services::Request()->ts()
-			   && $row->last_export_success_at <= $row->last_ping_success_at;
-	}
-
 	private function isRepairableConnectionRow( Record $row, int $now ) :bool {
 		return $row->status === SitesDB::STATUS_ACTIVE
-			   && ( $this->isExpiredWaitingExportProblem( $row, $now ) || $this->hasQueuedOrIdleProblem( $row ) );
-	}
-
-	private function isExpiredWaitingExportProblem( Record $row, int $now ) :bool {
-		return $row->queue_status === SitesDB::QUEUE_WAITING_EXPORT
-			   && $row->expected_export_by > 0
-			   && $row->expected_export_by <= $now
-			   && $row->last_export_success_at <= $row->last_ping_success_at;
-	}
-
-	private function hasQueuedOrIdleProblem( Record $row ) :bool {
-		return \in_array( $row->queue_status, [ SitesDB::QUEUE_QUEUED, SitesDB::QUEUE_IDLE ], true )
-			   && ( $row->consecutive_failures > 0
-					|| \max( $row->last_ping_failure_at, $row->last_export_failure_at ) > $row->last_export_success_at );
+			   && ( ExportWaitState::isExpired( $row, $now ) || QueuedSyncState::hasProblem( $row ) );
 	}
 
 	private function metaTimestampWithinCooldown( Record $row, string $key, int $cooldown ) :bool {

@@ -64,7 +64,7 @@ class ProfileOptionsFormViewBuilder {
 			$options = \array_map(
 				fn( array $option ) :array => \array_merge( $option, [
 					'search_text' => $this->searchText( [
-						$option[ 'search_text' ] ?? '',
+						$option[ 'search_text' ],
 						$groups[ $module ][ 'title' ],
 						$groups[ $module ][ 'subtitle' ],
 					] ),
@@ -80,7 +80,7 @@ class ProfileOptionsFormViewBuilder {
 				$sectionTitle,
 				$sectionTitleShort,
 				\array_map(
-					static fn( array $option ) :string => (string)( $option[ 'search_text' ] ?? '' ),
+					static fn( array $option ) :string => $option[ 'search_text' ],
 					$options
 				),
 			] );
@@ -97,7 +97,7 @@ class ProfileOptionsFormViewBuilder {
 			foreach ( $options as $option ) {
 				$groups[ $module ][ 'option_keys' ][] = (string)$option[ 'key' ];
 				$groups[ $module ][ 'option_count' ]++;
-				if ( (bool)$option[ 'is_sync_included' ] ) {
+				if ( $option[ 'is_sync_included' ] ) {
 					$groups[ $module ][ 'included_count' ]++;
 				}
 			}
@@ -184,8 +184,8 @@ class ProfileOptionsFormViewBuilder {
 	}
 
 	private function finaliseGroup( array $group ) :array {
-		$optionCount = (int)$group[ 'option_count' ];
-		$includedCount = (int)$group[ 'included_count' ];
+		$optionCount = $group[ 'option_count' ];
+		$includedCount = $group[ 'included_count' ];
 		$excludedCount = \max( 0, $optionCount - $includedCount );
 		$isIncluded = $excludedCount === 0;
 
@@ -200,13 +200,13 @@ class ProfileOptionsFormViewBuilder {
 			$includedCount,
 			$optionCount
 		);
-		$group[ 'keys_csv' ] = \implode( ',', \array_map( '\strval', (array)$group[ 'option_keys' ] ) );
+		$group[ 'keys_csv' ] = \implode( ',', $group[ 'option_keys' ] );
 		$group[ 'search_text' ] = $this->searchText( [
 			$group[ 'title' ],
 			$group[ 'subtitle' ],
 			\array_map(
-				static fn( array $section ) :string => (string)( $section[ 'search_text' ] ?? '' ),
-				(array)$group[ 'sections' ]
+				static fn( array $section ) :string => $section[ 'search_text' ],
+				$group[ 'sections' ]
 			),
 		] );
 

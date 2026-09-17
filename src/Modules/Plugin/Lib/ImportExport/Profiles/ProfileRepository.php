@@ -135,7 +135,7 @@ class ProfileRepository {
 		}
 
 		$labels = $this->labelsById( \array_map(
-			static fn( SiteRecord $site ) :int => (int)$site->profile_ref,
+			static fn( SiteRecord $site ) :int => $site->profile_ref,
 			$sites
 		) );
 

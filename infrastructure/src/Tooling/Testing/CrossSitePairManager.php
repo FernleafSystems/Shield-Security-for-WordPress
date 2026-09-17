@@ -895,7 +895,12 @@ class CrossSitePairManager {
 			 || $afterMeta[ 'export_served_at' ] <= 0 ) {
 			throw new \RuntimeException( 'Public master queue transition did not record a successful export-served marker.' );
 		}
-		unset( $beforeMeta[ 'export_served_at' ], $afterMeta[ 'export_served_at' ] );
+		unset(
+			$beforeMeta[ 'export_served_at' ],
+			$afterMeta[ 'export_served_at' ],
+			$beforeMeta[ 'sync_observations' ],
+			$afterMeta[ 'sync_observations' ]
+		);
 		$this->sortRecursive( $beforeMeta );
 		$this->sortRecursive( $afterMeta );
 		$beforeRow[ 'meta' ] = $beforeMeta;

@@ -10,6 +10,21 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 	run() {
 		super.run();
 		this.bindSyncDetailsPopovers();
+		this.startAutoRefresh();
+	}
+
+	startAutoRefresh() {
+		const container = this.resolveTableContainer();
+		if ( container !== null ) {
+			const timer = window.setInterval( () => {
+				if ( !document.hidden && document.hasFocus()
+					 && this.$el.is( ':visible' )
+					 && container.getAttribute( 'aria-busy' ) !== 'true' ) {
+					this.tableReload( null, { resetPaging: false } );
+				}
+			}, 60000 );
+			this.$table.one( 'destroy.dt.shieldAutoRefresh', () => window.clearInterval( timer ) );
+		}
 	}
 
 	getButtons() {

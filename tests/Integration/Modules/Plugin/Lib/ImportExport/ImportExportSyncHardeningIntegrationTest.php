@@ -4,7 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Plug
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_UpdateNotified;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Export;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\ObservationStore;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\SyncObservation;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Core\General;
@@ -35,6 +40,7 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 		$this->notifyCronHook = $this->requireController()->prefix( PluginImportExport_UpdateNotified::SLUG );
 		\wp_clear_scheduled_hook( $this->notifyCronHook );
 		$this->deleteNotifyCooldown( self::CONFIGURED_MASTER_URL );
+		\delete_option( $this->clientObservationOptionKey() );
 	}
 
 	public function tear_down() {
@@ -44,6 +50,7 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 		}
 		\wp_clear_scheduled_hook( $this->notifyCronHook );
 		$this->deleteNotifyCooldown( self::CONFIGURED_MASTER_URL );
+		\delete_option( $this->clientObservationOptionKey() );
 		$this->restoreSelectedOptions( $this->optionsSnapshot );
 		ServicesState::restore( $this->servicesSnapshot );
 		parent::tear_down();
@@ -121,6 +128,98 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 
 		$this->assertSame( 'Y', (string)$con->opts->optGet( 'importexport_enable' ) );
 		$this->assertSame( $privateMaster, (string)$con->opts->optGet( 'importexport_masterurl' ) );
+	}
+
+	public function test_disconnect_clears_client_observation_after_master_url_is_stored() :void {
+		$con = $this->requireController();
+		$con->opts->optSet( 'importexport_masterurl', self::CONFIGURED_MASTER_URL )->store();
+		\add_option( $this->clientObservationOptionKey(), SyncObservation::create(
+			\time(),
+			SyncObservation::PHASE_CLIENT_IMPORT,
+			SyncObservation::RESULT_NETWORK_IMPORT_COMPLETED,
+			SyncObservation::VERIFICATION_NOT_APPLICABLE,
+			[ 'target_fingerprint' => SyncObservation::targetFingerprint( self::CONFIGURED_MASTER_URL ) ]
+		), '', false );
+
+		( new ImportExportController() )->disconnectMasterSite();
+
+		$this->assertSame( '', (string)$con->opts->optGet( 'importexport_masterurl' ) );
+		$this->assertFalse( \get_option( $this->clientObservationOptionKey(), false ) );
+	}
+
+	public function test_auto_import_swallows_failed_outcome_and_persists_diagnostic() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', self::CONFIGURED_MASTER_URL )
+			->store();
+		$this->stubRawImportResponse( \wp_json_encode( [
+			'success' => false,
+			'code'    => 3,
+			'message' => 'retry later',
+		] ), 429 );
+
+		$result = ( new Import() )->autoImportFromMaster();
+
+		$this->assertNull( $result );
+		$observation = ( new ObservationStore() )->readClientImport();
+		$this->assertIsArray( $observation );
+		$this->assertSame( SyncObservation::RESULT_PARSED_REJECTION, $observation[ 'result' ] ?? null );
+		$this->assertSame( 429, $observation[ 'http_status' ] ?? null );
+		$this->assertSame( SyncObservation::ERROR_REMOTE_COOLDOWN, $observation[ 'error_category' ] ?? null );
+	}
+
+	public function test_multisite_keeps_observation_options_blog_local_and_registry_network_wide() :void {
+		if ( !\is_multisite() ) {
+			$this->markTestSkipped( 'Multisite-only observation isolation proof.' );
+		}
+		$this->assertTrue( \is_multisite() );
+
+		$sitesDb = $this->requireDb( SitesDB::DB_KEY );
+		$store = new ObservationStore();
+		$repo = new SiteRepository();
+		$originalBlogId = \get_current_blog_id();
+		$originalObservation = SyncObservation::create(
+			\time(),
+			SyncObservation::PHASE_CLIENT_IMPORT,
+			SyncObservation::RESULT_EMPTY_RESPONSE,
+			SyncObservation::VERIFICATION_NOT_APPLICABLE
+		);
+		$secondaryObservation = SyncObservation::create(
+			\time() + 1,
+			SyncObservation::PHASE_CLIENT_IMPORT,
+			SyncObservation::RESULT_INVALID_RESPONSE,
+			SyncObservation::VERIFICATION_NOT_APPLICABLE
+		);
+		$secondaryBlogId = (int)self::factory()->blog->create();
+
+		try {
+			$row = $repo->upsertActive( 'https://network-client.example.com', SitesDB::SOURCE_MANUAL );
+			$this->assertNotNull( $row );
+			$tableName = $sitesDb->getTableSchema()->table;
+			$this->assertTrue( $store->saveClientImport( $originalObservation ) );
+			\switch_to_blog( $secondaryBlogId );
+			$store->deleteClientImport();
+			$this->assertTrue( $store->saveClientImport( $secondaryObservation ) );
+			$this->assertSame( $secondaryObservation, $store->readClientImport() );
+			$this->assertSame( $tableName, $sitesDb->getTableSchema()->table );
+			$this->assertSame( $row->id, $repo->findById( $row->id, true )->id ?? null );
+
+			\restore_current_blog();
+			$this->assertSame( $originalBlogId, \get_current_blog_id() );
+			$this->assertSame( $originalObservation, $store->readClientImport() );
+			$this->assertSame( $tableName, $sitesDb->getTableSchema()->table );
+			$this->assertSame( $row->id, $repo->findById( $row->id, true )->id ?? null );
+		}
+		finally {
+			while ( \get_current_blog_id() !== $originalBlogId && \restore_current_blog() ) {
+			}
+			\switch_to_blog( $secondaryBlogId );
+			$store->deleteClientImport();
+			\restore_current_blog();
+			$store->deleteClientImport();
+			\wpmu_delete_blog( $secondaryBlogId, true );
+		}
 	}
 
 	public function test_notify_noops_when_local_sync_is_disabled() :void {
@@ -256,11 +355,21 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 	}
 
 	private function stubImportResponse( array $options ) :void {
+		$this->stubRawImportResponse( \wp_json_encode( [
+			'success' => true,
+			'data'    => [
+				'options' => $options,
+				'ip_rules' => [],
+			],
+		] ) );
+	}
+
+	private function stubRawImportResponse( string $body, int $status = 200 ) :void {
 		if ( \is_callable( $this->httpStub ) ) {
 			remove_filter( 'pre_http_request', $this->httpStub, 10 );
 		}
 
-		$this->httpStub = static function ( $pre, $args, $url ) use ( $options ) {
+		$this->httpStub = static function ( $pre, $args, $url ) use ( $body, $status ) {
 			if ( !\is_string( $url ) ) {
 				return $pre;
 			}
@@ -272,16 +381,10 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 
 			return [
 				'headers'  => [],
-				'body'     => \wp_json_encode( [
-					'success' => true,
-					'data'    => [
-						'options' => $options,
-						'ip_rules' => [],
-					],
-				] ),
+				'body'     => $body,
 				'response' => [
-					'code'    => 200,
-					'message' => 'OK',
+					'code'    => $status,
+					'message' => $status >= 400 ? 'Error' : 'OK',
 				],
 				'cookies'  => [],
 				'filename' => null,
@@ -303,5 +406,9 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 			$this->requireController()->prefix( 'importexport_updatenotified_' )
 			.\hash( 'sha256', \strtolower( \trim( $masterUrl ) ) )
 		);
+	}
+
+	private function clientObservationOptionKey() :string {
+		return $this->requireController()->prefix( 'importexport_client_observation', '_' );
 	}
 }

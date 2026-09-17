@@ -12,6 +12,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExp
 	SiteSyncStatusBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\InvitationMetadata;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\{
+	ObservationPresenter,
+	SyncObservation
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	ServicesState,
@@ -66,6 +70,37 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$status = $this->builder()->build( $record );
 
 		$this->assertSame( SiteSyncStatusBuilder::STATE_PROBLEM, $status[ 'state_key' ] );
+	}
+
+	/**
+	 * @dataProvider waitingExportBoundaryProvider
+	 */
+	public function test_waiting_export_expiry_boundary(
+		int $deadline,
+		int $pingSuccess,
+		int $exportSuccess,
+		string $expectedState
+	) :void {
+		$record = $this->record( [
+			'queue_status'           => SitesDB::QUEUE_WAITING_EXPORT,
+			'expected_export_by'     => $deadline,
+			'last_ping_success_at'   => $pingSuccess,
+			'last_export_success_at' => $exportSuccess,
+		] );
+
+		$this->assertSame( $expectedState, $this->builder()->stateForRecord( $record ) );
+	}
+
+	public static function waitingExportBoundaryProvider() :array {
+		return [
+			'absent deadline' => [ 0, self::NOW - 10, 0, SiteSyncStatusBuilder::STATE_PENDING ],
+			'before deadline without success' => [ self::NOW + 1, self::NOW - 10, 0, SiteSyncStatusBuilder::STATE_PENDING ],
+			'at deadline without success' => [ self::NOW, self::NOW - 10, 0, SiteSyncStatusBuilder::STATE_PROBLEM ],
+			'after deadline with equal positive success' => [ self::NOW - 1, self::NOW - 10, self::NOW - 10, SiteSyncStatusBuilder::STATE_PENDING ],
+			'after deadline with both timestamps zero' => [ self::NOW - 1, 0, 0, SiteSyncStatusBuilder::STATE_PROBLEM ],
+			'after deadline with older success' => [ self::NOW - 1, self::NOW - 10, self::NOW - 11, SiteSyncStatusBuilder::STATE_PROBLEM ],
+			'after deadline with newer success' => [ self::NOW - 1, self::NOW - 10, self::NOW - 9, SiteSyncStatusBuilder::STATE_PENDING ],
+		];
 	}
 
 	public function test_summary_uses_explicit_last_export_request_label() :void {
@@ -153,6 +188,23 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertSame( SiteSyncStatusBuilder::STATE_WORKING, $this->builder()->stateForRecord( $record ) );
 	}
 
+	public function test_manual_retry_is_pending_but_a_new_failure_is_problem() :void {
+		$record = $this->record( [
+			'queue_status'           => SitesDB::QUEUE_QUEUED,
+			'queued_at'              => self::NOW,
+			'next_ping_at'           => self::NOW,
+			'last_export_failure_at' => self::NOW,
+			'last_export_result_code' => SitesDB::EXPORT_RESULT_TIMEOUT,
+			'consecutive_failures'   => 7,
+		] );
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PENDING, $this->builder()->stateForRecord( $record ) );
+		$record->next_ping_at = self::NOW + 900;
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PROBLEM, $this->builder()->stateForRecord( $record ) );
+		$record->next_ping_at = self::NOW;
+		$record->last_ping_failure_at = self::NOW + 1;
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PROBLEM, $this->builder()->stateForRecord( $record ) );
+	}
+
 	public function test_inactive_rows_are_inactive() :void {
 		$record = $this->record( [
 			'status'       => SitesDB::STATUS_DELETED,
@@ -168,6 +220,168 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		] ) );
 
 		$this->assertStringContainsString( 'secret-import-id', $status[ 'details_html' ] );
+	}
+
+	public function test_diagnostic_contract_exposes_three_independent_empty_slots() :void {
+		$status = $this->builder()->build( $this->record() );
+
+		$this->assertSame( [ 'notification', 'verification', 'export' ], \array_keys( $status[ 'diagnostics' ] ) );
+		foreach ( $status[ 'diagnostics' ] as $diagnostic ) {
+			$this->assertFalse( $diagnostic[ 'has_result' ] );
+		}
+	}
+
+	public function test_diagnostic_contract_preserves_machine_results_and_qualifies_failed_claim() :void {
+		$status = $this->builder()->build( $this->record( [
+			'queue_status' => SitesDB::QUEUE_IDLE,
+			'meta'         => [
+				'sync_observations' => [
+					'notification' => SyncObservation::create(
+						self::NOW - 30,
+						SyncObservation::PHASE_NOTIFICATION,
+						SyncObservation::RESULT_HTTP_RESPONSE_RECEIVED,
+						SyncObservation::VERIFICATION_NOT_APPLICABLE,
+						[ 'http_status' => 202 ]
+					),
+					'verification' => SyncObservation::create(
+						self::NOW - 20,
+						SyncObservation::PHASE_VERIFICATION,
+						SyncObservation::RESULT_MISMATCHED_ID,
+						SyncObservation::VERIFICATION_FAILED
+					),
+					'export'       => SyncObservation::create(
+						self::NOW - 10,
+						SyncObservation::PHASE_EXPORT,
+						SyncObservation::RESULT_EXPORT_SERVED,
+						SyncObservation::VERIFICATION_ESTABLISHED,
+						[ 'http_status' => 403 ]
+					),
+				],
+			],
+		] ) );
+
+		$this->assertSame( SiteSyncStatusBuilder::STATE_NEVER_SYNCED, $status[ 'state_key' ] );
+		$this->assertSame(
+			[
+				SyncObservation::RESULT_HTTP_RESPONSE_RECEIVED,
+				SyncObservation::RESULT_MISMATCHED_ID,
+				SyncObservation::RESULT_EXPORT_SERVED,
+			],
+			\array_column( $status[ 'diagnostics' ], 'result' )
+		);
+		$this->assertNotEmpty( $status[ 'diagnostics' ][ 'verification' ][ 'qualification' ] );
+		$this->assertSame( 202, $status[ 'diagnostics' ][ 'notification' ][ 'http_status' ] );
+		$this->assertSame( 403, $status[ 'diagnostics' ][ 'export' ][ 'http_status' ] );
+	}
+
+	public function test_remote_import_cooldown_does_not_claim_unknown_eligibility_time() :void {
+		$presented = ( new ObservationPresenter() )->present( SyncObservation::create(
+			self::NOW,
+			SyncObservation::PHASE_CLIENT_IMPORT,
+			SyncObservation::RESULT_PARSED_REJECTION,
+			SyncObservation::VERIFICATION_FAILED,
+			[ 'error_category' => SyncObservation::ERROR_REMOTE_COOLDOWN ]
+		) );
+
+		$this->assertNull( $presented[ 'eligible_at' ] );
+		$this->assertNull( $presented[ 'eligible_at_display' ] );
+		$this->assertNotSame( '', $presented[ 'next_check' ] );
+
+		$knownEligibility = ( new ObservationPresenter() )->present( SyncObservation::create(
+			self::NOW,
+			SyncObservation::PHASE_EXPORT,
+			SyncObservation::RESULT_EXPORT_COOLDOWN,
+			SyncObservation::VERIFICATION_ESTABLISHED,
+			[ 'eligible_at' => self::NOW + 60 ]
+		) );
+		$this->assertSame( self::NOW + 60, $knownEligibility[ 'eligible_at' ] );
+		$this->assertNotNull( $knownEligibility[ 'eligible_at_display' ] );
+		$this->assertNotSame( '', $knownEligibility[ 'next_check' ] );
+		$this->assertNotSame( $presented[ 'next_check' ], $knownEligibility[ 'next_check' ] );
+	}
+
+	public function test_remote_export_exception_has_distinct_bounded_guidance_and_manual_message() :void {
+		$presenter = new ObservationPresenter();
+		$remoteExport = SyncObservation::create(
+			self::NOW,
+			SyncObservation::PHASE_CLIENT_IMPORT,
+			SyncObservation::RESULT_PARSED_REJECTION,
+			SyncObservation::VERIFICATION_FAILED,
+			[ 'error_category' => SyncObservation::ERROR_REMOTE_EXPORT_EXCEPTION ]
+		);
+		$genericRejection = SyncObservation::create(
+			self::NOW,
+			SyncObservation::PHASE_CLIENT_IMPORT,
+			SyncObservation::RESULT_PARSED_REJECTION,
+			SyncObservation::VERIFICATION_FAILED
+		);
+		$localException = SyncObservation::create(
+			self::NOW,
+			SyncObservation::PHASE_CLIENT_IMPORT,
+			SyncObservation::RESULT_LOCAL_IMPORT_EXCEPTION,
+			SyncObservation::VERIFICATION_FAILED
+		);
+
+		$remote = $presenter->present( $remoteExport );
+		$generic = $presenter->present( $genericRejection );
+		$local = $presenter->present( $localException );
+		$this->assertNotSame( $generic[ 'label' ], $remote[ 'label' ] );
+		$this->assertNotSame( $generic[ 'explanation' ], $remote[ 'explanation' ] );
+		$this->assertNotSame( '', $remote[ 'next_check' ] );
+		$this->assertNotSame( $generic[ 'next_check' ], $remote[ 'next_check' ] );
+
+		$manual = $presenter->failureMessage( $remoteExport, 'unsafe remote fallback' );
+		$this->assertStringContainsString( $remote[ 'explanation' ], $manual );
+		$this->assertStringContainsString( $remote[ 'next_check' ], $manual );
+		$this->assertStringNotContainsString( 'unsafe remote fallback', $manual );
+		$this->assertNotSame( $local[ 'explanation' ], $remote[ 'explanation' ] );
+	}
+
+	public function test_callback_guidance_and_response_failure_messages_preserve_result_semantics() :void {
+		$presenter = new ObservationPresenter();
+		$presented = [];
+		foreach ( [
+			SyncObservation::RESULT_CALLBACK_TRANSPORT_FAILURE,
+			SyncObservation::RESULT_CALLBACK_INVALID_RESPONSE,
+			SyncObservation::RESULT_CALLBACK_DID_NOT_CONFIRM,
+			SyncObservation::RESULT_INVALID_RESPONSE,
+			SyncObservation::RESULT_EMPTY_RESPONSE,
+		] as $result ) {
+			$isCallback = \in_array( $result, [
+				SyncObservation::RESULT_CALLBACK_TRANSPORT_FAILURE,
+				SyncObservation::RESULT_CALLBACK_INVALID_RESPONSE,
+				SyncObservation::RESULT_CALLBACK_DID_NOT_CONFIRM,
+			], true );
+			$presented[ $result ] = $presenter->present( SyncObservation::create(
+				self::NOW,
+				$isCallback ? SyncObservation::PHASE_VERIFICATION : SyncObservation::PHASE_CLIENT_IMPORT,
+				$result,
+				$isCallback ? SyncObservation::VERIFICATION_FAILED : SyncObservation::VERIFICATION_NOT_APPLICABLE
+			) );
+		}
+
+		$callbackNextCheck = $presented[ SyncObservation::RESULT_CALLBACK_TRANSPORT_FAILURE ][ 'next_check' ];
+		$this->assertSame( $callbackNextCheck, $presented[ SyncObservation::RESULT_CALLBACK_INVALID_RESPONSE ][ 'next_check' ] );
+		$this->assertSame( $callbackNextCheck, $presented[ SyncObservation::RESULT_CALLBACK_DID_NOT_CONFIRM ][ 'next_check' ] );
+		$this->assertNotSame( $callbackNextCheck, $presented[ SyncObservation::RESULT_INVALID_RESPONSE ][ 'next_check' ] );
+
+		$messages = [];
+		foreach ( [ SyncObservation::RESULT_EMPTY_RESPONSE, SyncObservation::RESULT_INVALID_RESPONSE ] as $result ) {
+			$observation = SyncObservation::create(
+				self::NOW,
+				SyncObservation::PHASE_CLIENT_IMPORT,
+				$result,
+				SyncObservation::VERIFICATION_NOT_APPLICABLE
+			);
+			$messages[ $result ] = $presenter->failureMessage( $observation, 'fallback' );
+			$this->assertStringContainsString( $presented[ $result ][ 'explanation' ], $messages[ $result ] );
+			$this->assertStringContainsString( $presented[ $result ][ 'next_check' ], $messages[ $result ] );
+		}
+		$this->assertSame(
+			$presented[ SyncObservation::RESULT_EMPTY_RESPONSE ][ 'next_check' ],
+			$presented[ SyncObservation::RESULT_INVALID_RESPONSE ][ 'next_check' ]
+		);
+		$this->assertNotSame( $messages[ SyncObservation::RESULT_EMPTY_RESPONSE ], $messages[ SyncObservation::RESULT_INVALID_RESPONSE ] );
 	}
 
 	public function test_table_row_contract_uses_summary_fields_without_raw_metadata() :void {
