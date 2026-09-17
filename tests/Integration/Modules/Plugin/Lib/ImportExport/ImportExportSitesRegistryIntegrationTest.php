@@ -1276,6 +1276,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 	public function test_failed_notification_write_stops_worker_without_redispatch( string $failedWrite ) :void {
 		$repo = new ImportExportFailedNotificationWriteRepositoryTestDouble();
 		$start = Services::Request()->ts();
+		$this->setRequestTimestamp( $start );
 		$prior = $failedWrite === 'recordNotifyDispatched'
 			? $repo->upsertActive( 'https://notification-write-prior.example.com', SitesDB::SOURCE_MANUAL, '', true )
 			: null;
