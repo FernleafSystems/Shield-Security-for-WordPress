@@ -156,6 +156,43 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->invokePrivate( $manager, 'assertB2ExpiredCallbackRejection', [ $evidence ] );
 	}
 
+	public function testB2RetryAfterCooldownEvidenceAcceptsSuccessfulSyncSettingsNowPull() :void {
+		$manager = new CrossSitePairManager();
+		$before = $this->b2ExpiredCallbackSnapshots();
+		$before[ 'master' ][ 'observed_at' ] = 400;
+		$before[ 'master' ][ 'row' ][ 'handshake_attempt_at' ] = 100;
+		$before[ 'master' ][ 'row' ][ 'callback_eligible_at' ] = 400;
+		$before[ 'master' ][ 'row' ][ 'callback_cooldown_active' ] = false;
+		$after = $before;
+		$after[ 'master' ][ 'row' ][ 'handshake_attempt_at' ] = 401;
+		$after[ 'master' ][ 'row' ][ 'stored_import_id_present' ] = true;
+		$after[ 'master' ][ 'row' ][ 'verification' ] = [ 'result' => 'verification_passed' ];
+		$after[ 'master' ][ 'row' ][ 'export' ] = [ 'result' => 'export_served' ];
+		$after[ 'client' ][ 'callback_observer' ][ 'count' ] = 1;
+		$after[ 'client' ][ 'client_import' ] = [
+			'result' => 'network_import_completed',
+			'http_status' => 403,
+		];
+		$action = [
+			'success' => true,
+			'duration_ms' => 25,
+		];
+
+		$evidence = $this->invokePrivate( $manager, 'buildB2Evidence', [ $before, $action, $after ] );
+		$evidence[ 'case' ] = 'B2-09';
+		$evidence[ 'retry_action' ] = 'Sync settings now';
+		$evidence[ 'callback_observer' ] = $this->invokePrivate(
+			$manager,
+			'buildB2CallbackObserverEvidence',
+			[ $before, $after ]
+		);
+
+		$this->invokePrivate( $manager, 'assertB2RetryAfterCooldown', [ $evidence ] );
+		$this->assertSame( 'B2-09', $evidence[ 'case' ] );
+		$this->assertSame( 'Sync settings now', $evidence[ 'retry_action' ] );
+		$this->assertSame( 1, $evidence[ 'callback_observer' ][ 'observed_count' ] );
+	}
+
 	public function testProvisionCommandUsesInternalMasterUrlAndExistingProvisionScript() :void {
 		$command = $this->invokePrivate(
 			new CrossSitePairManager(),

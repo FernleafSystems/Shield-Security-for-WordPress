@@ -90,6 +90,8 @@ try {
 					return $this->b2PrepareMasterRow();
 				case 'b2-prepare-client':
 					return $this->b2PrepareClient();
+				case 'b2-prepare-retry-after-cooldown':
+					return $this->b2PrepareRetryAfterCooldown();
 				case 'b2-reset-callback-observer':
 					return $this->b2ResetCallbackObserver();
 				case 'b2-snapshot':
@@ -521,6 +523,33 @@ try {
 		}
 
 		/**
+		 * @return array<string,mixed>
+		 */
+		private function b2PrepareRetryAfterCooldown() :array {
+			$prepared = $this->b2PrepareMasterRow();
+			$repo = new SiteRepository();
+			$row = $repo->findByUrl( (string)( $prepared[ 'row' ][ 'url' ] ?? '' ), true );
+			if ( !$row instanceof ImportExportSiteRecord ) {
+				throw new \RuntimeException( 'B2 retry preparation could not reload the client row.' );
+			}
+
+			$meta = \is_array( $row->meta ) ? $row->meta : [];
+			$meta[ 'handshake_attempt_at' ] = Services::Request()->ts() - 300;
+			$dbh = RuntimeTestState::controller()->db_con->import_export_sites;
+			$dbh->getQueryUpdater()->updateById( $row->id, [
+				'meta' => $dbh->getRecord()->arrayDataWrap( $meta ) ?? '',
+			] );
+
+			$snapshot = $this->b2Snapshot( 'master', $row->url );
+			if ( !empty( $snapshot[ 'row' ][ 'stored_import_id_present' ] )
+				 || !empty( $snapshot[ 'row' ][ 'callback_cooldown_active' ] )
+				 || (int)( $snapshot[ 'row' ][ 'callback_eligible_at' ] ?? 0 ) > (int)( $snapshot[ 'observed_at' ] ?? 0 ) ) {
+				throw new \RuntimeException( 'Could not prepare the B2 retry after callback cooldown.' );
+			}
+			return $snapshot;
+		}
+
+		/**
 		 * @return array{active:bool,count:int,positive_control_count:int}
 		 */
 		private function b2ResetCallbackObserver() :array {
@@ -612,6 +641,10 @@ try {
 				'trusted_target'          => $trustedTarget,
 				'stored_import_id_present' => \trim( $row->import_id ) !== '',
 				'handshake_attempt_at'    => (int)( $meta[ 'handshake_attempt_at' ] ?? 0 ),
+				'callback_eligible_at'    => (int)( $meta[ 'handshake_attempt_at' ] ?? 0 ) > 0
+					? (int)$meta[ 'handshake_attempt_at' ] + 300
+					: 0,
+				'callback_cooldown_active' => $repo->handshakeCooldownActive( $row, 300 ),
 				'export_served_at'        => (int)( $meta[ 'export_served_at' ] ?? 0 ),
 				'last_export_request_at'  => $row->last_export_request_at,
 				'last_export_success_at'  => $row->last_export_success_at,

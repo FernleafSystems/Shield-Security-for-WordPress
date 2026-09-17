@@ -62,7 +62,7 @@ class CrossSitePairManager {
 	private const QUEUE_WAITING_EXPORT = 'waiting_export';
 	private const EXPORT_RESULT_SUCCESS = 'success';
 	private const WP_CLI_INVALID_CRON_EVENT = 'Invalid cron event';
-	private const B2_CASES = [ 'B2-01', 'B2-02', 'B2-07' ];
+	private const B2_CASES = [ 'B2-01', 'B2-02', 'B2-07', 'B2-09' ];
 
 	private ProcessRunner $processRunner;
 
@@ -371,8 +371,11 @@ class CrossSitePairManager {
 		elseif ( $case === 'B2-02' ) {
 			$this->runCurrentImportExportExchange( $rootDir );
 		}
-		else {
+		elseif ( $case === 'B2-07' ) {
 			$this->runB2ExpiredCallbackCase( $rootDir );
+		}
+		else {
+			$this->runB2RetryAfterCooldownCase( $rootDir );
 		}
 	}
 
@@ -488,6 +491,27 @@ class CrossSitePairManager {
 		return $observer;
 	}
 
+	private function runB2RetryAfterCooldownCase( string $rootDir ) :void {
+		$this->stage( 'B2-09 prepare cleared callback cooldown' );
+		$this->runHelper( $rootDir, self::MASTER, 'b2-prepare-retry-after-cooldown' );
+		$this->runHelper( $rootDir, self::SLAVE, 'b2-prepare-client' );
+
+		$this->stage( 'B2-09 reset callback observer' );
+		$observer = $this->resetB2CallbackObserver( $rootDir, 'B2-09' );
+		$before = $this->b2Snapshots( $rootDir );
+		$before[ 'client' ][ 'callback_observer' ][ 'positive_control_count' ] =
+			(int)$observer[ 'positive_control_count' ];
+
+		$this->stage( 'B2-09 run Sync settings now production pull' );
+		$action = $this->runHelper( $rootDir, self::SLAVE, 'b2-pull' );
+		$evidence = $this->buildB2Evidence( $before, $action, $this->b2Snapshots( $rootDir ) );
+		$evidence[ 'case' ] = 'B2-09';
+		$evidence[ 'retry_action' ] = 'Sync settings now';
+		$evidence[ 'callback_observer' ] = $this->buildB2CallbackObserverEvidence( $before, $evidence[ 'after' ] );
+		$this->lastDiagnostics[ 'b2_09' ] = $evidence;
+		$this->assertB2RetryAfterCooldown( $evidence );
+	}
+
 	/**
 	 * @return array{master:array<string,mixed>,client:array<string,mixed>}
 	 */
@@ -530,7 +554,7 @@ class CrossSitePairManager {
 	}
 
 	/** @param array<string,mixed> $evidence */
-	private function assertB2HistoricalNoId( array $evidence ) :void {
+	private function assertB2HistoricalNoId( array $evidence, string $case = 'B2-01' ) :void {
 		$this->assertB2ActiveAssociatedPrecondition( $evidence );
 		if ( !empty( $evidence[ 'before' ][ 'master' ][ 'row' ][ 'stored_import_id_present' ] )
 			 || empty( $evidence[ 'action' ][ 'success' ] )
@@ -541,7 +565,7 @@ class CrossSitePairManager {
 			 || (string)( $evidence[ 'after' ][ 'master' ][ 'row' ][ 'export' ][ 'result' ] ?? '' ) !== 'export_served'
 			 || (string)( $evidence[ 'after' ][ 'client' ][ 'client_import' ][ 'result' ] ?? '' ) !== 'network_import_completed'
 			 || (int)( $evidence[ 'after' ][ 'client' ][ 'client_import' ][ 'http_status' ] ?? 0 ) !== 403 ) {
-			throw new \RuntimeException( 'B2-01 historical no-ID exchange did not satisfy the current contract.' );
+			throw new \RuntimeException( $case.' historical no-ID exchange did not satisfy the current contract.' );
 		}
 	}
 
@@ -582,6 +606,24 @@ class CrossSitePairManager {
 		];
 	}
 
+	/**
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $before
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $after
+	 * @return array<string,mixed>
+	 */
+	private function buildB2CallbackObserverEvidence( array $before, array $after ) :array {
+		$beforeObserver = (array)( $before[ 'client' ][ 'callback_observer' ] ?? [] );
+		$afterObserver = (array)( $after[ 'client' ][ 'callback_observer' ] ?? [] );
+		return [
+			'target_class' => 'client_handshake_confirm',
+			'positive_control_count' => (int)( $beforeObserver[ 'positive_control_count' ] ?? 0 ),
+			'active_before' => !empty( $beforeObserver[ 'active' ] ),
+			'active_after' => !empty( $afterObserver[ 'active' ] ),
+			'observed_count' => (int)( $afterObserver[ 'count' ] ?? -1 )
+				- (int)( $beforeObserver[ 'count' ] ?? -1 ),
+		];
+	}
+
 	/** @param array<string,mixed> $evidence */
 	private function assertB2StoredIdExchange( array $evidence ) :void {
 		$this->assertB2ActiveAssociatedPrecondition( $evidence );
@@ -614,8 +656,6 @@ class CrossSitePairManager {
 	 * @return array<string,mixed>
 	 */
 	private function buildB2ExpiredCallbackEvidence( array $before, array $action, array $after ) :array {
-		$beforeObserver = (array)( $before[ 'client' ][ 'callback_observer' ] ?? [] );
-		$afterObserver = (array)( $after[ 'client' ][ 'callback_observer' ] ?? [] );
 		$verification = (array)( $after[ 'master' ][ 'row' ][ 'verification' ] ?? [] );
 
 		return [
@@ -623,14 +663,7 @@ class CrossSitePairManager {
 			'before' => $before,
 			'action' => $action,
 			'after' => $after,
-			'callback_observer' => [
-				'target_class' => 'client_handshake_confirm',
-				'positive_control_count' => (int)( $beforeObserver[ 'positive_control_count' ] ?? 0 ),
-				'active_before' => !empty( $beforeObserver[ 'active' ] ),
-				'active_after' => !empty( $afterObserver[ 'active' ] ),
-				'observed_count' => (int)( $afterObserver[ 'count' ] ?? -1 )
-					- (int)( $beforeObserver[ 'count' ] ?? -1 ),
-			],
+			'callback_observer' => $this->buildB2CallbackObserverEvidence( $before, $after ),
 			'callback_response' => [
 				'class' => (string)( $verification[ 'result' ] ?? '' ),
 				'http_status' => (int)( $verification[ 'http_status' ] ?? 0 ),
@@ -663,6 +696,23 @@ class CrossSitePairManager {
 			 || !empty( $evidence[ 'export_completed' ] )
 			 || !empty( $evidence[ 'client_import_completed' ] ) ) {
 			throw new \RuntimeException( 'B2-07 expired callback rejection did not satisfy the current contract.' );
+		}
+	}
+
+	/** @param array<string,mixed> $evidence */
+	private function assertB2RetryAfterCooldown( array $evidence ) :void {
+		$this->assertB2HistoricalNoId( $evidence, 'B2-09' );
+		$beforeRow = (array)( $evidence[ 'before' ][ 'master' ][ 'row' ] ?? [] );
+		$observer = (array)( $evidence[ 'callback_observer' ] ?? [] );
+		if ( (string)( $evidence[ 'retry_action' ] ?? '' ) !== 'Sync settings now'
+			 || !empty( $beforeRow[ 'callback_cooldown_active' ] )
+			 || (int)( $beforeRow[ 'handshake_attempt_at' ] ?? 0 ) <= 0
+			 || (int)( $beforeRow[ 'callback_eligible_at' ] ?? 0 ) > (int)( $evidence[ 'before' ][ 'master' ][ 'observed_at' ] ?? 0 )
+			 || empty( $observer[ 'active_before' ] )
+			 || empty( $observer[ 'active_after' ] )
+			 || (int)( $observer[ 'positive_control_count' ] ?? 0 ) !== 1
+			 || (int)( $observer[ 'observed_count' ] ?? 0 ) !== 1 ) {
+			throw new \RuntimeException( 'B2-09 retry after callback cooldown did not satisfy the current contract.' );
 		}
 	}
 
