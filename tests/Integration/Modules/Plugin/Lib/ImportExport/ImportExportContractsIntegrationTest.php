@@ -24,6 +24,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Services;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -772,9 +773,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( self::SLAVE_IMPORT_ID, ( new SiteRepository() )->findById( $row->id, true )->import_id );
 	}
 
-	/**
-	 * @dataProvider provideHandshakeCallbackOutcomes
-	 */
+	#[DataProvider( 'provideHandshakeCallbackOutcomes' )]
 	public function test_export_json_records_callback_outcome_without_changing_handshake_predicate(
 		string $case,
 		?string $body,

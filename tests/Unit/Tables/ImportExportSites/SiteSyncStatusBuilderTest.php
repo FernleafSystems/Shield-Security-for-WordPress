@@ -21,6 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	ServicesState,
 	UnitTestRequest
 };
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class SiteSyncStatusBuilderTest extends BaseUnitTest {
 
@@ -72,9 +73,7 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertSame( SiteSyncStatusBuilder::STATE_PROBLEM, $status[ 'state_key' ] );
 	}
 
-	/**
-	 * @dataProvider waitingExportBoundaryProvider
-	 */
+	#[DataProvider( 'waitingExportBoundaryProvider' )]
 	public function test_waiting_export_expiry_boundary(
 		int $deadline,
 		int $pingSuccess,
@@ -134,9 +133,7 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertSame( SiteSyncStatusBuilder::STATE_PENDING, $this->builder()->stateForRecord( $record ) );
 	}
 
-	/**
-	 * @dataProvider invitationPresentationStateProvider
-	 */
+	#[DataProvider( 'invitationPresentationStateProvider' )]
 	public function test_invitation_metadata_maps_to_stable_presentation_state(
 		string $queueStatus,
 		array $invitation,

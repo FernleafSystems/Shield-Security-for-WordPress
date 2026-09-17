@@ -39,6 +39,7 @@ use FernleafSystems\Wordpress\Services\Core\Request;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpHttpResponseVo;
 use FernleafSystems\Wordpress\Services\Utilities\HttpRequest;
 use FernleafSystems\Wordpress\Services\Utilities\Data;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ImportExportSyncHardeningTest extends BaseUnitTest {
 
@@ -152,9 +153,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( 'secret', $this->httpRequest->lastRequestedUrl() );
 	}
 
-	/**
-	 * @dataProvider clientImportObservationProvider
-	 */
+	#[DataProvider( 'clientImportObservationProvider' )]
 	public function test_from_site_records_bounded_client_import_observation(
 		string $body,
 		int $httpCode,
@@ -459,9 +458,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertSame( 'https://93.184.216.35', $this->httpRequest->lastPostArgs()[ 'body' ][ 'master_url' ] ?? '' );
 	}
 
-	/**
-	 * @dataProvider inviteSenderResultProvider
-	 */
+	#[DataProvider( 'inviteSenderResultProvider' )]
 	public function test_invite_sender_classifies_sanitized_outcomes(
 		int $httpCode,
 		bool $success,
@@ -871,9 +868,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'master_url=https://local.example.com/Master', $requestedUrl );
 	}
 
-	/**
-	 * @dataProvider providePingSenderOutcomes
-	 */
+	#[DataProvider( 'providePingSenderOutcomes' )]
 	public function test_ping_sender_records_bounded_outcome_without_changing_dispatch_semantics(
 		string $url,
 		int $httpCode,

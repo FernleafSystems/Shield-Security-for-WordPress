@@ -40,6 +40,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Core\Request;
 use FernleafSystems\Wordpress\Services\Services;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -684,9 +685,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		}
 	}
 
-	/**
-	 * @dataProvider queueMutationRaceProvider
-	 */
+	#[DataProvider( 'queueMutationRaceProvider' )]
 	public function test_queue_request_evaluates_state_at_update_time(
 		string $case,
 		string $selectedState,
@@ -1049,10 +1048,8 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 1, $processor->dispatches );
 	}
 
-	/**
-	 * @dataProvider provideNonExecutingDispatchResults
-	 */
-	public function test_scheduler_recovers_when_successor_dispatch_does_not_execute( $dispatchResult ) :void {
+	#[DataProvider( 'provideNonExecutingDispatchResults' )]
+	public function test_scheduler_recovers_when_successor_dispatch_does_not_execute( string $dispatchResult ) :void {
 		$repo = $this->repo();
 		$first = $repo->upsertActive( 'https://dispatch-first.example.com', SitesDB::SOURCE_MANUAL, 'first', true );
 		$second = $repo->upsertActive( 'https://dispatch-second.example.com', SitesDB::SOURCE_MANUAL, 'second', true );
@@ -1066,7 +1063,9 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			}
 		);
 		$firstProcessor = new ImportExportQueueProcessorTestDouble( $sender, null, $repo, static fn() :float => $clock->now );
-		$firstProcessor->dispatchResult = $dispatchResult;
+		$firstProcessor->dispatchResult = $dispatchResult === 'rejected'
+			? new \WP_Error( 'dispatch_rejected' )
+			: [ 'response' => [ 'code' => 202 ] ];
 		$recoveryProcessor = new ImportExportQueueProcessorTestDouble( $sender, null, $repo, static fn() :float => $clock->now );
 		$scheduler = new QueueScheduler( static fn() :bool => true, fn() => $recoveryProcessor->runFromCron() );
 		$scheduler->setup();
@@ -1085,12 +1084,10 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertNotFalse( \wp_next_scheduled( $scheduler->hook() ) );
 	}
 
-	public function provideNonExecutingDispatchResults() :array {
+	public static function provideNonExecutingDispatchResults() :array {
 		return [
-			'rejected' => [ new \WP_Error( 'dispatch_rejected' ) ],
-			'accepted but not executed' => [ [
-				'response' => [ 'code' => 202 ],
-			] ],
+			'rejected'                 => [ 'rejected' ],
+			'accepted but not executed' => [ 'accepted' ],
 		];
 	}
 
@@ -1165,9 +1162,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 0, ( new NotificationMetadata() )->attemptsStarted( $interrupted->meta ) );
 	}
 
-	/**
-	 * @dataProvider provideInterruptedNotificationBackoff
-	 */
+	#[DataProvider( 'provideInterruptedNotificationBackoff' )]
 	public function test_interrupted_notification_exhaustion_uses_existing_bounded_backoff(
 		int $priorFailures,
 		int $expectedDelay
@@ -1194,12 +1189,12 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 0, ( new NotificationMetadata() )->attemptsStarted( $row->meta ) );
 	}
 
-	public function provideInterruptedNotificationBackoff() :array {
+	public static function provideInterruptedNotificationBackoff() :array {
 		return [
-			'15 minutes' => [ 0, 15*\MINUTE_IN_SECONDS ],
-			'30 minutes' => [ 1, 30*\MINUTE_IN_SECONDS ],
-			'60 minutes' => [ 2, 60*\MINUTE_IN_SECONDS ],
-			'one-day cap' => [ 7, \DAY_IN_SECONDS ],
+			'15 minutes' => [ 0, 900 ],
+			'30 minutes' => [ 1, 1800 ],
+			'60 minutes' => [ 2, 3600 ],
+			'one-day cap' => [ 7, 86400 ],
 		];
 	}
 
@@ -1270,9 +1265,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 0, ( new NotificationMetadata() )->attemptsStarted( $exception->meta ) );
 	}
 
-	/**
-	 * @dataProvider provideFailedNotificationWrites
-	 */
+	#[DataProvider( 'provideFailedNotificationWrites' )]
 	public function test_failed_notification_write_stops_worker_without_redispatch( string $failedWrite ) :void {
 		$repo = new ImportExportFailedNotificationWriteRepositoryTestDouble();
 		$start = Services::Request()->ts();
@@ -1340,7 +1333,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		}
 	}
 
-	public function provideFailedNotificationWrites() :array {
+	public static function provideFailedNotificationWrites() :array {
 		return [
 			'start' => [ 'startNotificationAttempt' ],
 			'result' => [ 'recordNotifyDispatched' ],
@@ -1678,9 +1671,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $row->queue_status );
 	}
 
-	/**
-	 * @dataProvider provideCooldownMetadataWriters
-	 */
+	#[DataProvider( 'provideCooldownMetadataWriters' )]
 	public function test_stale_cooldown_metadata_writer_preserves_final_attempt_and_prevents_fourth_send(
 		string $writer,
 		string $cooldownKey
@@ -1731,7 +1722,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 3, ( new InvitationMetadata() )->normalize( $settled->meta )[ 'attempts_started' ] );
 	}
 
-	public function provideCooldownMetadataWriters() :array {
+	public static function provideCooldownMetadataWriters() :array {
 		return [
 			'handshake attempt' => [ 'recordHandshakeAttempt', 'handshake_attempt_at' ],
 			'export served'     => [ 'recordExportServed', 'export_served_at' ],
@@ -2073,9 +2064,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( $observation, $repo->readObservation( $row, SyncObservation::PHASE_NOTIFICATION ) );
 	}
 
-	/**
-	 * @dataProvider provideQueueNotificationOutcomes
-	 */
+	#[DataProvider( 'provideQueueNotificationOutcomes' )]
 	public function test_queue_processor_persists_notification_outcome_without_changing_queue_semantics(
 		string $case,
 		bool $success,
@@ -2140,9 +2129,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		];
 	}
 
-	/**
-	 * @dataProvider provideLateNotificationOutcomes
-	 */
+	#[DataProvider( 'provideLateNotificationOutcomes' )]
 	public function test_completed_export_survives_late_notification_result( string $outcome ) :void {
 		$now = 1712620800;
 		$this->setRequestTimestamp( $now );
@@ -2348,9 +2335,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 0, $persisted->consecutive_failures );
 	}
 
-	/**
-	 * @dataProvider notificationRefreshFailureProvider
-	 */
+	#[DataProvider( 'notificationRefreshFailureProvider' )]
 	public function test_notification_result_treats_conflict_refresh_query_failure_as_write_failure( int $failedSelect ) :void {
 		global $wpdb;
 		$now = 1712620800;
@@ -2455,9 +2440,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( SitesDB::QUEUE_WAITING_EXPORT, $repo->findById( $second->id, true )->queue_status );
 	}
 
-	/**
-	 * @dataProvider supersededMaintenanceProvider
-	 */
+	#[DataProvider( 'supersededMaintenanceProvider' )]
 	public function test_superseded_timeout_or_exhaustion_continues_to_later_work( string $transition, string $transitionFieldSql ) :void {
 		$now = 1712620800;
 		$this->setRequestTimestamp( $now );
