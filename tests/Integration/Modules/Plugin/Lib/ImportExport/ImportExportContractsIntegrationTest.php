@@ -20,7 +20,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Impo
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\{
+	SiteRepository,
+	SyncSiteUrlValidator
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Services;
@@ -770,6 +773,96 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertExportJsonPayload( $payload );
 		$this->assertSame( 1, $handshakeRequests );
 		$this->assertSame( self::SLAVE_IMPORT_ID, ( new SiteRepository() )->findById( $row->id, true )->import_id );
+	}
+
+	public function test_export_json_no_id_export_source_scopes_callback_to_stored_trusted_target() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$repo = new SiteRepository();
+		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_EXPORT );
+		$storedUrl = $row->url;
+		$targetHost = (string)\wp_parse_url( $storedUrl, \PHP_URL_HOST );
+		$observed = [];
+		$filter = static function ( $preempt, array $args, string $requestUrl ) use ( &$observed, $storedUrl, $targetHost ) {
+			if ( \str_starts_with( $requestUrl, $storedUrl ) ) {
+				$observed[] = [
+					'canonical_target' => ( new SyncSiteUrlValidator() )->canonicalize( $requestUrl ),
+					'reject_unsafe_urls' => $args[ 'reject_unsafe_urls' ] ?? null,
+					'target_allowed' => \apply_filters( 'http_request_host_is_external', false, $targetHost, $requestUrl ),
+					'other_denied' => \apply_filters( 'http_request_host_is_external', false, 'other.example.com', $requestUrl ),
+					'other_preserved' => \apply_filters( 'http_request_host_is_external', true, 'other.example.com', $requestUrl ),
+				];
+				return [
+					'headers'  => [],
+					'body'     => \wp_json_encode( [ 'success' => true ] ),
+					'response' => [
+						'code'    => 200,
+						'message' => 'OK',
+					],
+					'cookies'  => [],
+					'filename' => null,
+				];
+			}
+			return $preempt;
+		};
+		\add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		try {
+			$payload = $this->captureExportJson( [
+				'url' => 'HTTPS://93.184.216.71:443/manual-public-slave/',
+				'id'  => self::SLAVE_IMPORT_ID,
+			] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter, 10 );
+		}
+
+		$this->assertExportJsonPayload( $payload );
+		$this->assertSame( [ [
+			'canonical_target' => $storedUrl,
+			'reject_unsafe_urls' => true,
+			'target_allowed' => true,
+			'other_denied' => false,
+			'other_preserved' => true,
+		] ], $observed );
+		$this->assertFalse( \apply_filters( 'http_request_host_is_external', false, $targetHost, $storedUrl ) );
+		$fresh = $repo->findById( $row->id, true );
+		$this->assertSame( self::SLAVE_IMPORT_ID, $fresh->import_id );
+		$this->assertSame( SyncObservation::RESULT_VERIFICATION_PASSED,
+			$repo->readObservation( $fresh, SyncObservation::PHASE_VERIFICATION )[ 'result' ] ?? null );
+		$this->assertSame( SyncObservation::RESULT_EXPORT_SERVED,
+			$repo->readObservation( $fresh, SyncObservation::PHASE_EXPORT )[ 'result' ] ?? null );
+	}
+
+	public function test_export_json_no_id_export_source_rejects_literal_private_target_before_callback() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$repo = new SiteRepository();
+		$row = $this->seedActiveSyncSite( self::EXPORT_PRIVATE_URL, SitesDB::SOURCE_EXPORT );
+		$callbackRequests = 0;
+		$filter = static function ( $preempt, array $args, string $requestUrl ) use ( &$callbackRequests ) {
+			if ( \str_contains( $requestUrl, '10.0.0.27' ) ) {
+				$callbackRequests++;
+			}
+			return $preempt;
+		};
+		\add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		try {
+			$this->assertExportSilentRejection( [
+				'url' => self::EXPORT_PRIVATE_URL,
+				'id'  => self::SLAVE_IMPORT_ID,
+			] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter, 10 );
+		}
+
+		$this->assertSame( 0, $callbackRequests );
+		$fresh = $repo->findById( $row->id, true );
+		$this->assertSame( '', $fresh->import_id );
+		$this->assertSame( 0, (int)( $fresh->meta[ 'handshake_attempt_at' ] ?? 0 ) );
+		$this->assertSame( SyncObservation::RESULT_TRUSTED_TARGET_VALIDATION_FAILED,
+			$repo->readObservation( $fresh, SyncObservation::PHASE_VERIFICATION )[ 'result' ] ?? null );
+		$this->assertNull( $repo->readObservation( $fresh, SyncObservation::PHASE_EXPORT ) );
 	}
 
 	/**

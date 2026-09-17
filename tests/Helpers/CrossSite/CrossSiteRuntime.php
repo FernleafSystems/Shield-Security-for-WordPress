@@ -6,11 +6,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Record as ImportExportProfileRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record as ImportExportSiteRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\{
+	Export,
+	Import
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\{
+	ObservationStore,
+	SyncObservation
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileOptionsCatalog;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\WhitelistNotifyQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Services\Services;
@@ -72,6 +80,17 @@ try {
 					return $this->cronState();
 				case 'export-options':
 					return $this->exportOptions();
+				case 'b2-prepare-master-row':
+					return $this->b2PrepareMasterRow();
+				case 'b2-prepare-client':
+					return $this->b2PrepareClient();
+				case 'b2-snapshot':
+					return $this->b2Snapshot(
+						(string)( $payload[ 'role' ] ?? '' ),
+						(string)( $payload[ 'expected_url' ] ?? '' )
+					);
+				case 'b2-pull':
+					return $this->b2Pull();
 				default:
 					throw new \RuntimeException( 'Unknown cross-site runtime action: '.$action );
 			}
@@ -442,6 +461,143 @@ try {
 				'queue_scheduled' => \wp_next_scheduled( $this->queueHook() ) !== false,
 				'master_url' => $masterUrl,
 				'import_id' => (string)$con->opts->optGet( 'import_id' ),
+			];
+		}
+
+		/**
+		 * @return array<string,mixed>
+		 */
+		private function b2PrepareMasterRow() :array {
+			$repo = new SiteRepository();
+			$rows = $repo->selectActiveRows();
+			if ( \count( $rows ) !== 1 || !$rows[ 0 ] instanceof ImportExportSiteRecord ) {
+				throw new \RuntimeException( 'B2 master-row preparation requires one active client row.' );
+			}
+
+			$row = $rows[ 0 ];
+			$meta = \is_array( $row->meta ) ? $row->meta : [];
+			unset( $meta[ 'export_served_at' ], $meta[ 'handshake_attempt_at' ], $meta[ 'sync_observations' ] );
+
+			$dbh = RuntimeTestState::controller()->db_con->import_export_sites;
+			$dbh->getQueryUpdater()->updateById( $row->id, [
+				'import_id'               => '',
+				'last_export_request_at'  => 0,
+				'last_export_success_at'  => 0,
+				'last_export_failure_at'  => 0,
+				'last_export_result_code' => '',
+				'last_export_error'       => '',
+				'meta'                    => $dbh->getRecord()->arrayDataWrap( $meta ) ?? '',
+			] );
+			$snapshot = $this->b2Snapshot( 'master', $row->url );
+			if ( !empty( $snapshot[ 'row' ][ 'stored_import_id_present' ] )
+				 || (int)( $snapshot[ 'row' ][ 'handshake_attempt_at' ] ?? 0 ) !== 0 ) {
+				throw new \RuntimeException( 'Could not prepare the B2 master row.' );
+			}
+
+			return $snapshot;
+		}
+
+		/**
+		 * @return array<string,mixed>
+		 */
+		private function b2PrepareClient() :array {
+			( new ObservationStore() )->deleteClientImport();
+			$con = RuntimeTestState::controller();
+			$con->opts
+				->optSet( 'importexport_handshake_expires_at', 0 )
+				->store();
+
+			return $this->b2Snapshot( 'client', '' );
+		}
+
+		/**
+		 * @return array<string,mixed>
+		 */
+		private function b2Snapshot( string $role, string $expectedUrl ) :array {
+			if ( !\in_array( $role, [ 'master', 'client' ], true ) ) {
+				throw new \RuntimeException( 'Unsupported B2 snapshot role.' );
+			}
+
+			$con = RuntimeTestState::controller();
+			$now = Services::Request()->ts();
+			$handshakeExpiresAt = (int)$con->opts->optGet( 'importexport_handshake_expires_at' );
+			$snapshot = [
+				'role'                  => $role,
+				'home_url'              => ( new SyncSiteUrlValidator() )->canonicalize( Services::WpGeneral()->getHomeUrl() ),
+				'master_url'            => ( new SyncSiteUrlValidator() )->canonicalize( (string)$con->opts->optGet( 'importexport_masterurl' ) ),
+				'observed_at'           => $now,
+				'local_import_id_present' => \trim( (string)$con->opts->optGet( 'import_id' ) ) !== '',
+				'handshake_expires_at'  => $handshakeExpiresAt,
+				'handshake_eligible'    => $handshakeExpiresAt > $now,
+				'client_import'         => ( new ObservationStore() )->readClientImport(),
+			];
+
+			if ( $role === 'client' ) {
+				return $snapshot;
+			}
+
+			$repo = new SiteRepository();
+			$canonicalExpectedUrl = $repo->canonicalizeUrl( $expectedUrl );
+			$row = $canonicalExpectedUrl === '' ? null : $repo->findByUrl( $canonicalExpectedUrl, true );
+			$trustedTarget = false;
+			if ( $row instanceof ImportExportSiteRecord ) {
+				try {
+					( new SyncSiteUrlValidator() )->validateTrustedSyncUrl( $row->url );
+					$trustedTarget = true;
+				}
+				catch ( \Throwable $e ) {
+				}
+			}
+
+			$meta = $row instanceof ImportExportSiteRecord && \is_array( $row->meta ) ? $row->meta : [];
+			$snapshot[ 'expected_url' ] = $canonicalExpectedUrl;
+			$snapshot[ 'row' ] = $row instanceof ImportExportSiteRecord ? [
+				'associated'              => true,
+				'url'                     => $row->url,
+				'status'                  => $row->status,
+				'not_deleted'             => $row->deleted_at === 0,
+				'source'                  => $row->source,
+				'trusted_target'          => $trustedTarget,
+				'stored_import_id_present' => \trim( $row->import_id ) !== '',
+				'handshake_attempt_at'    => (int)( $meta[ 'handshake_attempt_at' ] ?? 0 ),
+				'export_served_at'        => (int)( $meta[ 'export_served_at' ] ?? 0 ),
+				'last_export_request_at'  => $row->last_export_request_at,
+				'last_export_success_at'  => $row->last_export_success_at,
+				'last_export_failure_at'  => $row->last_export_failure_at,
+				'last_export_result_code' => $row->last_export_result_code,
+				'verification'            => $repo->readObservation( $row, SyncObservation::PHASE_VERIFICATION ),
+				'export'                  => $repo->readObservation( $row, SyncObservation::PHASE_EXPORT ),
+			] : [
+				'associated' => false,
+			];
+			$snapshot[ 'unassociated_rejection' ] = ( new ObservationStore() )->readUnassociatedRejection();
+			return $snapshot;
+		}
+
+		/**
+		 * @return array<string,mixed>
+		 */
+		private function b2Pull() :array {
+			$startedAt = \hrtime( true );
+			$import = new Import();
+			$success = false;
+			$errorClass = null;
+			$errorCode = null;
+			try {
+				$import->fromSite( '', '', null, Import::REQUEST_SAFETY_TRUSTED_SYNC );
+				$success = true;
+			}
+			catch ( \Throwable $e ) {
+				$errorClass = \get_class( $e );
+				$errorCode = (int)$e->getCode();
+			}
+
+			return [
+				'success'       => $success,
+				'duration_ms'   => (int)\round( ( \hrtime( true ) - $startedAt ) / 1000000 ),
+				'error_class'   => $errorClass,
+				'error_code'    => $errorCode,
+				'client_import' => $import->latestObservation(),
 			];
 		}
 

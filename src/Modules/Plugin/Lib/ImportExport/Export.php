@@ -311,9 +311,19 @@ class Export {
 			);
 			return $this->verifyResult( self::VERIFY_COOLDOWN, $row );
 		}
+		try {
+			$callbackUrl = ( new SyncSiteUrlValidator() )->validateTrustedSyncUrl( $row->url );
+		}
+		catch ( \InvalidArgumentException $e ) {
+			$this->saveRowObservation( $repo, $row, SyncObservation::PHASE_VERIFICATION,
+				SyncObservation::RESULT_TRUSTED_TARGET_VALIDATION_FAILED,
+				SyncObservation::VERIFICATION_FAILED
+			);
+			return $this->verifyResult( self::VERIFY_FAILED, $row );
+		}
 		$repo->recordHandshakeAttempt( $row );
 
-		$handshake = $this->handshake( $url, $row->source === ImportExportSitesDB::SOURCE_MANUAL );
+		$handshake = $this->handshake( $callbackUrl );
 		$this->saveRowObservation( $repo, $row, SyncObservation::PHASE_VERIFICATION,
 			$handshake[ 'result' ],
 			$handshake[ 'verified' ]
@@ -360,14 +370,14 @@ class Export {
 	/**
 	 * @return array{verified:bool,result:string,fields:array}
 	 */
-	private function handshake( string $url, bool $rejectUnsafeUrls = false ) :array {
+	private function handshake( string $url ) :array {
 		$targetUrl = URL::Build( $url, ActionData::Build( PluginImportExport_HandshakeConfirm::class, false, [], true ) );
-		$request = static function () use ( $targetUrl, $rejectUnsafeUrls ) :HttpOutcome {
+		$request = static function () use ( $targetUrl ) :HttpOutcome {
 			$http = Services::HttpRequest();
-			$body = $http->getContent( $targetUrl, $rejectUnsafeUrls ? [ 'reject_unsafe_urls' => true ] : [] );
+			$body = $http->getContent( $targetUrl, [ 'reject_unsafe_urls' => true ] );
 			return HttpOutcome::fromRequest( $body, $http );
 		};
-		$outcome = $rejectUnsafeUrls ? ( new ScopedTargetHostRequest() )->run( $targetUrl, $request ) : $request();
+		$outcome = ( new ScopedTargetHostRequest() )->run( $targetUrl, $request );
 		if ( !$outcome->hasResponse() ) {
 			return [
 				'verified' => false,

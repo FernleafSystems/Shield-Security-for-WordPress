@@ -59,6 +59,7 @@ class CrossSitePairManager {
 	private const QUEUE_WAITING_EXPORT = 'waiting_export';
 	private const EXPORT_RESULT_SUCCESS = 'success';
 	private const WP_CLI_INVALID_CRON_EVENT = 'Invalid cron event';
+	private const B2_CASES = [ 'B2-01' ];
 
 	private ProcessRunner $processRunner;
 
@@ -346,6 +347,23 @@ class CrossSitePairManager {
 	}
 
 	public function runImportExportScenario( string $rootDir ) :void {
+		$this->setupCurrentConnectedPair( $rootDir, true );
+		$this->runCurrentImportExportExchange( $rootDir );
+
+		$this->stage( 'verify Group C HTTP continuation and recovery' );
+		$this->runGroupCQueueLifecycleEvidence( $rootDir );
+	}
+
+	public function runB2Case( string $rootDir, string $case ) :void {
+		if ( !\in_array( $case, self::B2_CASES, true ) ) {
+			throw new \InvalidArgumentException( 'Unsupported B2 cross-site case: '.$case );
+		}
+
+		$this->setupCurrentConnectedPair( $rootDir, false );
+		$this->runB2HistoricalNoIdCase( $rootDir );
+	}
+
+	private function setupCurrentConnectedPair( string $rootDir, bool $retainLegacyDiagnostics ) :void {
 		$this->stage( 'setup cross-site runtime state' );
 		$this->runHelper( $rootDir, self::MASTER, 'setup', [ 'role' => self::MASTER ] );
 		$this->runHelper( $rootDir, self::SLAVE, 'setup', [ 'role' => self::SLAVE ] );
@@ -371,7 +389,9 @@ class CrossSitePairManager {
 			'master' => $this->runHelper( $rootDir, self::MASTER, 'state' ),
 			'slave'  => $this->runHelper( $rootDir, self::SLAVE, 'state' ),
 		];
-		$this->lastDiagnostics[ 'network' ] = $network;
+		if ( $retainLegacyDiagnostics ) {
+			$this->lastDiagnostics[ 'network' ] = $network;
+		}
 		$masterState = $network[ 'master' ];
 		$slaveState = $network[ 'slave' ];
 		if ( !\is_array( $masterState )
@@ -382,7 +402,9 @@ class CrossSitePairManager {
 		if ( !\is_array( $slaveState ) || ( $slaveState[ 'master_url' ] ?? '' ) !== self::MASTER_INTERNAL_URL ) {
 			throw new \RuntimeException( 'Slave master URL was not set to the master internal URL.' );
 		}
+	}
 
+	private function runCurrentImportExportExchange( string $rootDir ) :void {
 		$this->stage( 'apply master option corpus' );
 		$corpus = $this->runHelper( $rootDir, self::MASTER, 'apply-corpus' );
 		$this->lastDiagnostics[ 'corpus' ] = $this->summariseCorpusDiagnostics( $corpus );
@@ -399,9 +421,90 @@ class CrossSitePairManager {
 
 		$this->stage( 'compare exported option payloads' );
 		$this->assertExportsMatch( $rootDir );
+	}
 
-		$this->stage( 'verify Group C HTTP continuation and recovery' );
-		$this->runGroupCQueueLifecycleEvidence( $rootDir );
+	private function runB2HistoricalNoIdCase( string $rootDir ) :void {
+		$this->stage( 'B2-01 prepare historical no-ID state' );
+		$before = [
+			'master' => $this->runHelper( $rootDir, self::MASTER, 'b2-prepare-master-row' ),
+			'client' => $this->runHelper( $rootDir, self::SLAVE, 'b2-prepare-client' ),
+		];
+
+		$this->stage( 'B2-01 run production client pull' );
+		$action = $this->runHelper( $rootDir, self::SLAVE, 'b2-pull' );
+		$after = $this->b2Snapshots( $rootDir );
+		$evidence = $this->buildB2Evidence( $before, $action, $after );
+		$this->lastDiagnostics[ 'b2_01' ] = $evidence;
+		$this->assertB2HistoricalNoId( $evidence );
+	}
+
+	/**
+	 * @return array{master:array<string,mixed>,client:array<string,mixed>}
+	 */
+	private function b2Snapshots( string $rootDir ) :array {
+		return [
+			'master' => $this->runHelper( $rootDir, self::MASTER, 'b2-snapshot', [
+				'role' => 'master',
+				'expected_url' => self::SLAVE_INTERNAL_URL,
+			] ),
+			'client' => $this->runHelper( $rootDir, self::SLAVE, 'b2-snapshot', [
+				'role' => 'client',
+			] ),
+		];
+	}
+
+	/**
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $before
+	 * @param array<string,mixed> $action
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $after
+	 * @return array<string,mixed>
+	 */
+	private function buildB2Evidence( array $before, array $action, array $after ) :array {
+		$beforeAttempt = (int)( $before[ 'master' ][ 'row' ][ 'handshake_attempt_at' ] ?? 0 );
+		$afterAttempt = (int)( $after[ 'master' ][ 'row' ][ 'handshake_attempt_at' ] ?? 0 );
+		$verificationResult = (string)( $after[ 'master' ][ 'row' ][ 'verification' ][ 'result' ] ?? '' );
+		$callbackBranchObserved = $afterAttempt > $beforeAttempt && \in_array( $verificationResult, [
+			'verification_passed',
+			'callback_transport_failure',
+			'callback_invalid_response',
+			'callback_did_not_confirm',
+		], true );
+
+		return [
+			'case' => 'B2-01',
+			'before' => $before,
+			'action' => $action,
+			'after' => $after,
+			'callback_branch_observed' => $callbackBranchObserved,
+		];
+	}
+
+	/** @param array<string,mixed> $evidence */
+	private function assertB2HistoricalNoId( array $evidence ) :void {
+		$this->assertB2ActiveAssociatedPrecondition( $evidence );
+		if ( !empty( $evidence[ 'before' ][ 'master' ][ 'row' ][ 'stored_import_id_present' ] )
+			 || empty( $evidence[ 'action' ][ 'success' ] )
+			 || (int)( $evidence[ 'action' ][ 'duration_ms' ] ?? -1 ) < 0
+			 || empty( $evidence[ 'callback_branch_observed' ] )
+			 || empty( $evidence[ 'after' ][ 'master' ][ 'row' ][ 'stored_import_id_present' ] )
+			 || (string)( $evidence[ 'after' ][ 'master' ][ 'row' ][ 'verification' ][ 'result' ] ?? '' ) !== 'verification_passed'
+			 || (string)( $evidence[ 'after' ][ 'master' ][ 'row' ][ 'export' ][ 'result' ] ?? '' ) !== 'export_served'
+			 || (string)( $evidence[ 'after' ][ 'client' ][ 'client_import' ][ 'result' ] ?? '' ) !== 'network_import_completed'
+			 || (int)( $evidence[ 'after' ][ 'client' ][ 'client_import' ][ 'http_status' ] ?? 0 ) !== 403 ) {
+			throw new \RuntimeException( 'B2-01 historical no-ID exchange did not satisfy the current contract.' );
+		}
+	}
+
+	/** @param array<string,mixed> $evidence */
+	private function assertB2ActiveAssociatedPrecondition( array $evidence ) :void {
+		$row = $evidence[ 'before' ][ 'master' ][ 'row' ] ?? [];
+		if ( !\is_array( $row )
+			 || empty( $row[ 'associated' ] )
+			 || ( $row[ 'status' ] ?? '' ) !== self::STATUS_ACTIVE
+			 || empty( $row[ 'not_deleted' ] )
+			 || empty( $row[ 'trusted_target' ] ) ) {
+			throw new \RuntimeException( 'B2 case did not start from an active trusted client row.' );
+		}
 	}
 
 	public function lastStage() :string {

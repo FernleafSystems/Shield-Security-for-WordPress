@@ -33,6 +33,16 @@ class CrossSitePairManagerTest extends TestCase {
 		parent::tearDown();
 	}
 
+	public function testRejectsUnsupportedB2CrossSiteCaseBeforeRunningCommands() :void {
+		$runner = RecordingProcessRunner::strict( [] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'Unsupported B2 cross-site case: B2-03' );
+
+		$manager->runB2Case( '', 'B2-03' );
+	}
+
 	public function testProvisionCommandUsesInternalMasterUrlAndExistingProvisionScript() :void {
 		$command = $this->invokePrivate(
 			new CrossSitePairManager(),

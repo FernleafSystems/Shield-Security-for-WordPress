@@ -53,6 +53,24 @@ class CrossSiteTestLaneTest extends TestCase {
 		], $manager->calls );
 	}
 
+	public function testRunsOneSelectedB2CaseOnCurrentRuntimeOnly() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-lane-b2-' );
+		$manager = new CrossSiteLifecycleRecordingPairManager();
+
+		$exitCode = $this->runQuietly( static fn() :int => ( new CrossSiteTestLane( $manager ) )->run(
+			$root,
+			[ 'b2_case' => 'B2-01' ]
+		) );
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertSame( [
+			'prepare',
+			'prepare-current',
+			'run-b2:B2-01',
+			'cleanup',
+		], $manager->calls );
+	}
+
 	public function testFinalizesAfterAPrimaryScenarioFailure() :void {
 		$root = $this->createTrackedTempDir( 'shield-cross-site-lane-primary-failure-' );
 		$manager = new CrossSiteLifecycleRecordingPairManager();
@@ -154,6 +172,10 @@ class CrossSiteLifecycleRecordingPairManager extends CrossSitePairManager {
 
 	public function runImportExportScenario( string $rootDir ) :void {
 		$this->calls[] = 'run-current';
+	}
+
+	public function runB2Case( string $rootDir, string $case ) :void {
+		$this->calls[] = 'run-b2:'.$case;
 	}
 
 	public function cleanupRun( string $rootDir ) :void {

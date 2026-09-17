@@ -30,6 +30,12 @@ class TestCrossSiteCommand extends Command {
 				null,
 				InputOption::VALUE_NONE,
 				'Show Docker and setup command output during cross-site preparation.'
+			)
+			->addOption(
+				'b2-case',
+				null,
+				InputOption::VALUE_REQUIRED,
+				'Run the fixed B2-01 remote evidence case.'
 			);
 	}
 
@@ -37,6 +43,7 @@ class TestCrossSiteCommand extends Command {
 		try {
 			return $this->lane->run( $this->projectRoot, [
 				'show_setup_output' => (bool)$input->getOption( 'show-setup-output' ),
+				'b2_case' => $input->getOption( 'b2-case' ),
 			] );
 		}
 		catch ( \Throwable $throwable ) {

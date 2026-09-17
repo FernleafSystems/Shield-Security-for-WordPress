@@ -16,22 +16,29 @@ class CrossSiteTestLane {
 	}
 
 	/**
-	 * @param array{show_setup_output?:bool} $options
+	 * @param array{show_setup_output?:bool,b2_case?:?string} $options
 	 */
 	public function run( string $rootDir, array $options = [] ) :int {
 		$showSetupOutput = (bool)( $options[ 'show_setup_output' ] ?? false );
+		$b2Case = \trim( (string)( $options[ 'b2_case' ] ?? '' ) );
 
 		try {
 			$exitCode = $this->withLock(
 				$rootDir,
-				function () use ( $rootDir, $showSetupOutput ) :int {
+				function () use ( $rootDir, $showSetupOutput, $b2Case ) :int {
 					$scenarioFailure = null;
 					try {
 						$this->pairManager->prepare( $rootDir, $showSetupOutput );
-						$this->pairManager->preparePublicRuntimeScenario( $rootDir, $showSetupOutput );
-						$this->pairManager->runPublicUpgradeScenario( $rootDir );
-						$this->pairManager->prepareCurrentRuntimeScenario( $rootDir, $showSetupOutput );
-						$this->pairManager->runImportExportScenario( $rootDir );
+						if ( $b2Case === '' ) {
+							$this->pairManager->preparePublicRuntimeScenario( $rootDir, $showSetupOutput );
+							$this->pairManager->runPublicUpgradeScenario( $rootDir );
+							$this->pairManager->prepareCurrentRuntimeScenario( $rootDir, $showSetupOutput );
+							$this->pairManager->runImportExportScenario( $rootDir );
+						}
+						else {
+							$this->pairManager->prepareCurrentRuntimeScenario( $rootDir, $showSetupOutput );
+							$this->pairManager->runB2Case( $rootDir, $b2Case );
+						}
 						return 0;
 					}
 					catch ( \Throwable $throwable ) {
