@@ -785,6 +785,65 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			$repo->readObservation( $fresh, SyncObservation::PHASE_EXPORT )[ 'result' ] ?? null );
 	}
 
+	public function test_export_json_one_path_segment_difference_is_unassociated_without_handshake_or_export() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$repo = new SiteRepository();
+		$validator = new SyncSiteUrlValidator();
+		$storedUrl = self::MANUAL_PUBLIC_URL;
+		$claimedUrl = 'https://93.184.216.71/manual-public-neighbor';
+		$row = $this->seedActiveSyncSite( $storedUrl, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$storedCanonical = $validator->canonicalize( $storedUrl );
+		$claimedCanonical = $validator->canonicalize( $claimedUrl );
+		$storedParts = \wp_parse_url( $storedCanonical );
+		$claimedParts = \wp_parse_url( $claimedCanonical );
+		$this->assertIsArray( $storedParts );
+		$this->assertIsArray( $claimedParts );
+		$storedSegments = \explode( '/', \trim( $storedParts[ 'path' ], '/' ) );
+		$claimedSegments = \explode( '/', \trim( $claimedParts[ 'path' ], '/' ) );
+		$before = $row->getRawData();
+
+		$this->assertSame( [ 'path' => $claimedParts[ 'path' ] ], \array_diff_assoc( $claimedParts, $storedParts ) );
+		$this->assertSame( [ 'path' => $storedParts[ 'path' ] ], \array_diff_assoc( $storedParts, $claimedParts ) );
+		$this->assertCount( 1, $storedSegments );
+		$this->assertCount( 1, $claimedSegments );
+		$this->assertNotSame( $storedSegments[ 0 ], $claimedSegments[ 0 ] );
+		$this->assertSame( $storedCanonical, $row->url );
+		$this->assertNull( $repo->findByUrl( $claimedCanonical ) );
+
+		$handshakeRequests = 0;
+		$filter = static function ( $preempt, array $args, string $requestUrl ) use ( &$handshakeRequests ) {
+			if ( \str_contains( $requestUrl, '93.184.216.71' ) ) {
+				$handshakeRequests++;
+			}
+			return $preempt;
+		};
+		\add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		try {
+			$this->assertExportSilentRejection( [
+				'url' => $claimedUrl,
+				'id'  => self::SLAVE_IMPORT_ID,
+			] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter, 10 );
+		}
+
+		$this->assertSame( 0, $handshakeRequests );
+		$this->assertNull( $repo->findByUrl( $claimedCanonical ) );
+		$fresh = $repo->findById( $row->id, true );
+		$this->assertInstanceOf( SiteRecord::class, $fresh );
+		$this->assertSame( $before, $fresh->getRawData() );
+		$this->assertSame( $storedCanonical, $fresh->url );
+		$this->assertNull( $repo->readObservation( $fresh, SyncObservation::PHASE_EXPORT ) );
+		$observation = ( new ObservationStore() )->readUnassociatedRejection();
+		$this->assertIsArray( $observation );
+		$this->assertSame( [ 'observed_at', 'phase', 'result', 'verification' ], \array_keys( $observation ) );
+		$this->assertSame( SyncObservation::PHASE_VERIFICATION, $observation[ 'phase' ] );
+		$this->assertSame( SyncObservation::RESULT_NO_AUTHORIZED_ROW, $observation[ 'result' ] );
+		$this->assertSame( SyncObservation::VERIFICATION_FAILED, $observation[ 'verification' ] );
+	}
+
 	public function test_export_json_no_id_legacy_sync_site_learns_import_id_after_handshake() :void {
 		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
 		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL );
