@@ -276,7 +276,7 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->enableSync();
 		$repo = $this->repo();
 		$row = $repo->upsertActive( self::EXISTING, SitesDB::SOURCE_MANUAL, '', true );
-		$repo->recordExportSuccess( $row->url, SitesDB::EXPORT_RESULT_SUCCESS );
+		$repo->recordExportSuccess( $row, SitesDB::EXPORT_RESULT_SUCCESS );
 		$this->clearQueueSchedule();
 		$this->inviteHttp->clearRequests();
 

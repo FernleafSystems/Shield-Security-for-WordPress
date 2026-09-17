@@ -1,16 +1,31 @@
 <?php
 // WP-CLI eval-file wraps helpers before execution, so this file cannot declare strict_types first.
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_UpdateNotified;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	PluginImportExport_Export,
+	PluginImportExport_HandshakeConfirm,
+	PluginImportExport_UpdateNotified
+};
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ImportExportProfilesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Record as ImportExportProfileRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record as ImportExportSiteRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\{
+	Export,
+	Import
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\{
+	HttpOutcome,
+	ObservationStore,
+	SyncObservation
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileOptionsCatalog;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\ScopedTargetHostRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\WhitelistNotifyQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Services\Services;
@@ -72,6 +87,29 @@ try {
 					return $this->cronState();
 				case 'export-options':
 					return $this->exportOptions();
+				case 'b2-prepare-master-row':
+					return $this->b2PrepareMasterRow();
+				case 'b2-prepare-client':
+					return $this->b2PrepareClient();
+				case 'b2-prepare-retry-after-cooldown':
+					return $this->b2PrepareRetryAfterCooldown();
+				case 'b2-reset-callback-observer':
+					return $this->b2ResetCallbackObserver();
+				case 'b2-snapshot':
+					return $this->b2Snapshot(
+						(string)( $payload[ 'role' ] ?? '' ),
+						(string)( $payload[ 'expected_url' ] ?? '' )
+					);
+				case 'b2-pull':
+					return $this->b2Pull();
+				case 'b2-expired-export-request':
+					return $this->b2ExpiredExportRequest();
+				case 'e-configure-export-success-failures':
+					return $this->eConfigureExportSuccessFailures( (int)( $payload[ 'failures' ] ?? 0 ) );
+				case 'e-export-success-fixture-state':
+					return $this->eExportSuccessFixtureState();
+				case 'e-expire-export-wait':
+					return $this->eExpireExportWait( (string)( $payload[ 'expected_url' ] ?? '' ) );
 				default:
 					throw new \RuntimeException( 'Unknown cross-site runtime action: '.$action );
 			}
@@ -442,6 +480,360 @@ try {
 				'queue_scheduled' => \wp_next_scheduled( $this->queueHook() ) !== false,
 				'master_url' => $masterUrl,
 				'import_id' => (string)$con->opts->optGet( 'import_id' ),
+			];
+		}
+
+		/**
+		 * @return array<string,mixed>
+		 */
+		private function b2PrepareMasterRow() :array {
+			$repo = new SiteRepository();
+			$rows = $repo->selectActiveRows();
+			if ( \count( $rows ) !== 1 || !$rows[ 0 ] instanceof ImportExportSiteRecord ) {
+				throw new \RuntimeException( 'B2 master-row preparation requires one active client row.' );
+			}
+
+			$row = $rows[ 0 ];
+			$meta = \is_array( $row->meta ) ? $row->meta : [];
+			unset( $meta[ 'export_served_at' ], $meta[ 'handshake_attempt_at' ], $meta[ 'sync_observations' ] );
+
+			$dbh = RuntimeTestState::controller()->db_con->import_export_sites;
+			$dbh->getQueryUpdater()->updateById( $row->id, [
+				'import_id'               => '',
+				'last_export_request_at'  => 0,
+				'last_export_success_at'  => 0,
+				'last_export_failure_at'  => 0,
+				'last_export_result_code' => '',
+				'last_export_error'       => '',
+				'meta'                    => $dbh->getRecord()->arrayDataWrap( $meta ) ?? '',
+			] );
+			$snapshot = $this->b2Snapshot( 'master', $row->url );
+			if ( !empty( $snapshot[ 'row' ][ 'stored_import_id_present' ] )
+				 || (int)( $snapshot[ 'row' ][ 'handshake_attempt_at' ] ?? 0 ) !== 0 ) {
+				throw new \RuntimeException( 'Could not prepare the B2 master row.' );
+			}
+
+			return $snapshot;
+		}
+
+		/**
+		 * @return array<string,mixed>
+		 */
+		private function b2PrepareClient() :array {
+			( new ObservationStore() )->deleteClientImport();
+			$con = RuntimeTestState::controller();
+			$con->opts
+				->optSet( 'importexport_handshake_expires_at', 0 )
+				->store();
+
+			return $this->b2Snapshot( 'client', '' );
+		}
+
+		/**
+		 * @return array<string,mixed>
+		 */
+		private function b2PrepareRetryAfterCooldown() :array {
+			$prepared = $this->b2PrepareMasterRow();
+			$repo = new SiteRepository();
+			$row = $repo->findByUrl( (string)( $prepared[ 'row' ][ 'url' ] ?? '' ), true );
+			if ( !$row instanceof ImportExportSiteRecord ) {
+				throw new \RuntimeException( 'B2 retry preparation could not reload the client row.' );
+			}
+
+			$meta = \is_array( $row->meta ) ? $row->meta : [];
+			$meta[ 'handshake_attempt_at' ] = Services::Request()->ts() - 300;
+			$dbh = RuntimeTestState::controller()->db_con->import_export_sites;
+			$dbh->getQueryUpdater()->updateById( $row->id, [
+				'meta' => $dbh->getRecord()->arrayDataWrap( $meta ) ?? '',
+			] );
+
+			$snapshot = $this->b2Snapshot( 'master', $row->url );
+			if ( !empty( $snapshot[ 'row' ][ 'stored_import_id_present' ] )
+				 || !empty( $snapshot[ 'row' ][ 'callback_cooldown_active' ] )
+				 || (int)( $snapshot[ 'row' ][ 'callback_eligible_at' ] ?? 0 ) > (int)( $snapshot[ 'observed_at' ] ?? 0 ) ) {
+				throw new \RuntimeException( 'Could not prepare the B2 retry after callback cooldown.' );
+			}
+			return $snapshot;
+		}
+
+		/**
+		 * @return array{active:bool,count:int,positive_control_count:int}
+		 */
+		private function b2ResetCallbackObserver() :array {
+			$observer = $this->b2CallbackObserver();
+			if ( !$observer[ 'active' ] ) {
+				throw new \RuntimeException( 'B2 callback observer fixture is not active.' );
+			}
+			update_option( SHIELD_CROSS_SITE_B2_CALLBACK_COUNT_OPTION, 0, false );
+
+			$probe = wp_remote_get(
+				RuntimeTestState::controller()->plugin_urls->noncedPluginAction(
+					PluginImportExport_HandshakeConfirm::class,
+					home_url(),
+					[ 'uniq' => wp_generate_password( 8, false ) ]
+				),
+				[
+					'timeout' => 5,
+					'redirection' => 0,
+					'reject_unsafe_urls' => false,
+				]
+			);
+			if ( is_wp_error( $probe ) ) {
+				throw new \RuntimeException( 'B2 callback observer positive control failed: '.$probe->get_error_message() );
+			}
+
+			wp_cache_delete( SHIELD_CROSS_SITE_B2_CALLBACK_COUNT_OPTION, 'options' );
+			$positiveControl = $this->b2CallbackObserver();
+			if ( $positiveControl[ 'count' ] !== 1 ) {
+				throw new \RuntimeException( 'B2 callback observer did not record its HTTP positive control.' );
+			}
+
+			update_option( SHIELD_CROSS_SITE_B2_CALLBACK_COUNT_OPTION, 0, false );
+			$reset = $this->b2CallbackObserver();
+			if ( $reset[ 'count' ] !== 0 ) {
+				throw new \RuntimeException( 'B2 callback observer did not reset after its positive control.' );
+			}
+			$reset[ 'positive_control_count' ] = $positiveControl[ 'count' ];
+			return $reset;
+		}
+
+		/**
+		 * @return array<string,mixed>
+		 */
+		private function b2Snapshot( string $role, string $expectedUrl ) :array {
+			if ( !\in_array( $role, [ 'master', 'client' ], true ) ) {
+				throw new \RuntimeException( 'Unsupported B2 snapshot role.' );
+			}
+
+			$con = RuntimeTestState::controller();
+			$now = Services::Request()->ts();
+			$handshakeExpiresAt = (int)$con->opts->optGet( 'importexport_handshake_expires_at' );
+			$snapshot = [
+				'role'                  => $role,
+				'home_url'              => ( new SyncSiteUrlValidator() )->canonicalize( Services::WpGeneral()->getHomeUrl() ),
+				'master_url'            => ( new SyncSiteUrlValidator() )->canonicalize( (string)$con->opts->optGet( 'importexport_masterurl' ) ),
+				'observed_at'           => $now,
+				'local_import_id_present' => \trim( (string)$con->opts->optGet( 'import_id' ) ) !== '',
+				'handshake_expires_at'  => $handshakeExpiresAt,
+				'handshake_eligible'    => $handshakeExpiresAt > $now,
+				'client_import'         => ( new ObservationStore() )->readClientImport(),
+			];
+
+			if ( $role === 'client' ) {
+				$snapshot[ 'callback_observer' ] = $this->b2CallbackObserver();
+				return $snapshot;
+			}
+
+			$repo = new SiteRepository();
+			$canonicalExpectedUrl = $repo->canonicalizeUrl( $expectedUrl );
+			$row = $canonicalExpectedUrl === '' ? null : $repo->findByUrl( $canonicalExpectedUrl, true );
+			$trustedTarget = false;
+			if ( $row instanceof ImportExportSiteRecord ) {
+				try {
+					( new SyncSiteUrlValidator() )->validateTrustedSyncUrl( $row->url );
+					$trustedTarget = true;
+				}
+				catch ( \Throwable $e ) {
+				}
+			}
+
+			$meta = $row instanceof ImportExportSiteRecord && \is_array( $row->meta ) ? $row->meta : [];
+			$snapshot[ 'expected_url' ] = $canonicalExpectedUrl;
+			$snapshot[ 'row' ] = $row instanceof ImportExportSiteRecord ? [
+				'associated'              => true,
+				'url'                     => $row->url,
+				'status'                  => $row->status,
+				'not_deleted'             => $row->deleted_at === 0,
+				'source'                  => $row->source,
+				'trusted_target'          => $trustedTarget,
+				'stored_import_id_present' => \trim( $row->import_id ) !== '',
+				'handshake_attempt_at'    => (int)( $meta[ 'handshake_attempt_at' ] ?? 0 ),
+				'callback_eligible_at'    => (int)( $meta[ 'handshake_attempt_at' ] ?? 0 ) > 0
+					? (int)$meta[ 'handshake_attempt_at' ] + 300
+					: 0,
+				'callback_cooldown_active' => $repo->handshakeCooldownActive( $row, 300 ),
+				'export_served_at'        => (int)( $meta[ 'export_served_at' ] ?? 0 ),
+				'last_export_request_at'  => $row->last_export_request_at,
+				'last_export_success_at'  => $row->last_export_success_at,
+				'last_export_failure_at'  => $row->last_export_failure_at,
+				'last_export_result_code' => $row->last_export_result_code,
+				'verification'            => $repo->readObservation( $row, SyncObservation::PHASE_VERIFICATION ),
+				'export'                  => $repo->readObservation( $row, SyncObservation::PHASE_EXPORT ),
+			] : [
+				'associated' => false,
+			];
+			$snapshot[ 'unassociated_rejection' ] = ( new ObservationStore() )->readUnassociatedRejection();
+			return $snapshot;
+		}
+
+		/**
+		 * @return array{active:bool,count:int}
+		 */
+		private function b2CallbackObserver() :array {
+			$active = \defined( 'SHIELD_CROSS_SITE_B2_CALLBACK_OBSERVER_ACTIVE' )
+				&& SHIELD_CROSS_SITE_B2_CALLBACK_OBSERVER_ACTIVE === true
+				&& \defined( 'SHIELD_CROSS_SITE_B2_CALLBACK_COUNT_OPTION' );
+			return [
+				'active' => $active,
+				'count' => $active ? \max( 0, (int)get_option( SHIELD_CROSS_SITE_B2_CALLBACK_COUNT_OPTION, 0 ) ) : 0,
+			];
+		}
+
+		/**
+		 * @return array<string,mixed>
+		 */
+		private function b2Pull() :array {
+			$startedAt = \hrtime( true );
+			$import = new Import();
+			$success = false;
+			$errorClass = null;
+			$errorCode = null;
+			try {
+				$import->fromSite( '', '', null, Import::REQUEST_SAFETY_TRUSTED_SYNC );
+				$success = true;
+			}
+			catch ( \Throwable $e ) {
+				$errorClass = \get_class( $e );
+				$errorCode = (int)$e->getCode();
+			}
+
+			return [
+				'success'       => $success,
+				'duration_ms'   => (int)\round( ( \hrtime( true ) - $startedAt ) / 1000000 ),
+				'error_class'   => $errorClass,
+				'error_code'    => $errorCode,
+				'client_import' => $import->latestObservation(),
+			];
+		}
+
+		/**
+		 * Send the existing export action without Import::fromSite(), which would renew
+		 * callback eligibility before the request.
+		 *
+		 * @return array<string,mixed>
+		 */
+		private function b2ExpiredExportRequest() :array {
+			$con = RuntimeTestState::controller();
+			$expiresAt = Services::Request()->ts() - 1;
+			$con->opts
+				->optSet( 'importexport_handshake_expires_at', $expiresAt )
+				->store();
+
+			$masterUrl = ( new SyncSiteUrlValidator() )->validateTrustedSyncUrl(
+				(string)$con->opts->optGet( 'importexport_masterurl' )
+			);
+			$importID = \trim( (string)$con->opts->optGet( 'import_id' ) );
+			$targetUrl = $con->plugin_urls->noncedPluginAction(
+				PluginImportExport_Export::class,
+				$masterUrl,
+				[
+					'url' => Services::WpGeneral()->getHomeUrl(),
+					'id' => $importID,
+					'method' => 'json',
+					'uniq' => wp_generate_password( 4, false ),
+				]
+			);
+
+			$sentAt = Services::Request()->ts();
+			$storedExpiresAt = (int)$con->opts->optGet( 'importexport_handshake_expires_at' );
+			if ( $storedExpiresAt > $sentAt ) {
+				throw new \RuntimeException( 'B2 expired callback request was eligible at the send boundary.' );
+			}
+			$sendBoundary = [
+				'handshake_expires_at' => $storedExpiresAt,
+				'sent_at' => $sentAt,
+				'handshake_eligible' => false,
+			];
+
+			$startedAt = \hrtime( true );
+			$http = Services::HttpRequest();
+			try {
+				$body = ( new ScopedTargetHostRequest() )->run(
+					$targetUrl,
+					static fn() :string => $http->getContent( $targetUrl, [
+						'reject_unsafe_urls' => true,
+					] )
+				);
+				$outcome = HttpOutcome::fromRequest( $body, $http );
+				$decoded = @\json_decode( $body, true );
+				$responseClass = $body === '' ? 'empty_response' : ( \is_array( $decoded ) ? 'json_object' : 'non_json_response' );
+
+				return [
+					'send_boundary' => $sendBoundary,
+					'submitted_import_id_present' => $importID !== '',
+					'has_response' => $outcome->hasResponse(),
+					'http_status' => $outcome->status(),
+					'response_class' => $responseClass,
+					'duration_ms' => (int)\round( ( \hrtime( true ) - $startedAt ) / 1000000 ),
+				];
+			}
+			catch ( \Throwable $e ) {
+				return [
+					'send_boundary' => $sendBoundary,
+					'submitted_import_id_present' => $importID !== '',
+					'has_response' => false,
+					'http_status' => null,
+					'response_class' => 'transport_exception',
+					'error_class' => \get_class( $e ),
+					'duration_ms' => (int)\round( ( \hrtime( true ) - $startedAt ) / 1000000 ),
+				];
+			}
+		}
+
+		/** @return array<string,mixed> */
+		private function eConfigureExportSuccessFailures( int $failures ) :array {
+			if ( !\defined( 'SHIELD_CROSS_SITE_EXPORT_SUCCESS_FAILURE_ACTIVE' ) ) {
+				throw new \RuntimeException( 'Group E export-success failure fixture is not active.' );
+			}
+			\update_option( SHIELD_CROSS_SITE_EXPORT_SUCCESS_FAILURE_LIMIT_OPTION, \max( 0, $failures ), false );
+			\update_option( SHIELD_CROSS_SITE_EXPORT_SUCCESS_ATTEMPTS_OPTION, 0, false );
+			\update_option( SHIELD_CROSS_SITE_EXPORT_SUCCESS_FAILURE_ENABLED_OPTION, true, false );
+			return $this->eExportSuccessFixtureState();
+		}
+
+		/** @return array<string,mixed> */
+		private function eExportSuccessFixtureState() :array {
+			return [
+				'active'        => \defined( 'SHIELD_CROSS_SITE_EXPORT_SUCCESS_FAILURE_ACTIVE' ),
+				'enabled'       => (bool)\get_option( SHIELD_CROSS_SITE_EXPORT_SUCCESS_FAILURE_ENABLED_OPTION, false ),
+				'failure_limit' => \max( 0, (int)\get_option( SHIELD_CROSS_SITE_EXPORT_SUCCESS_FAILURE_LIMIT_OPTION, 0 ) ),
+				'attempts'      => \max( 0, (int)\get_option( SHIELD_CROSS_SITE_EXPORT_SUCCESS_ATTEMPTS_OPTION, 0 ) ),
+			];
+		}
+
+		/** @return array<string,mixed> */
+		private function eExpireExportWait( string $expectedUrl ) :array {
+			$repo = new SiteRepository();
+			$row = $repo->findByUrl( $expectedUrl, true );
+			if ( !$row instanceof ImportExportSiteRecord
+				 || $row->queue_status !== ImportExportSitesDB::QUEUE_WAITING_EXPORT ) {
+				throw new \RuntimeException( 'Group E expiry requires one waiting export row.' );
+			}
+			$before = $this->normaliseRegistryRow( $row );
+			RuntimeTestState::controller()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
+				'expected_export_by' => Services::Request()->ts() - \MINUTE_IN_SECONDS,
+			] );
+			$expired = $repo->findById( $row->id, true );
+			if ( !$expired instanceof ImportExportSiteRecord ) {
+				throw new \RuntimeException( 'Group E expiry lost the registry row.' );
+			}
+			$selectedCount = \count( $repo->selectExportMaintenanceRows( 5 ) );
+			$processor = new class( static fn() :bool => true ) extends QueueProcessor {
+				public function runForEvidence() :void {
+					$this->handle();
+				}
+			};
+			$processor->runForEvidence();
+			$after = $repo->findById( $row->id, true );
+			if ( !$after instanceof ImportExportSiteRecord ) {
+				throw new \RuntimeException( 'Group E maintenance lost the registry row.' );
+			}
+			return [
+				'before'  => $before,
+				'expired' => $this->normaliseRegistryRow( $expired ),
+				'selected_count' => $selectedCount,
+				'after'   => $this->normaliseRegistryRow( $after ),
+				'queue'   => $this->queueState(),
 			];
 		}
 

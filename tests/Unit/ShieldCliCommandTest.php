@@ -250,7 +250,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertStringContainsString( '--show-setup-output', $output );
 	}
 
-	public function testCrossSiteCommandIncludesHarnessOptions() :void {
+	public function testCrossSiteCommandExposesDiagnosticAndNamedCaseOptions() :void {
 		$this->skipIfPackageScriptUnavailable();
 		$command = new TestCrossSiteCommand(
 			$this->getPluginRoot(),
@@ -258,9 +258,65 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		);
 
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-setup-output' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'b2-case' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'e-case' ) );
 		$this->assertFalse( $command->getDefinition()->hasOption( 'clean' ) );
 		$this->assertFalse( $command->getDefinition()->hasOption( 'warm' ) );
 		$this->assertFalse( $command->getDefinition()->hasOption( 'teardown' ) );
+	}
+
+	public function testCrossSiteCommandForwardsDiagnosticSetupOutput() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$lane = $this->createMock( CrossSiteTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), [
+				'show_setup_output' => true,
+				'b2_case' => null,
+				'e_case' => null,
+			] )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestCrossSiteCommand( $this->getPluginRoot(), $lane ) );
+		$this->assertSame( 0, $tester->execute( [
+			'--show-setup-output' => true,
+		] ) );
+	}
+
+	public function testCrossSiteCommandForwardsBoundedB2Case() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$lane = $this->createMock( CrossSiteTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), [
+				'show_setup_output' => false,
+				'b2_case' => 'B2-01',
+				'e_case' => null,
+			] )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestCrossSiteCommand( $this->getPluginRoot(), $lane ) );
+		$this->assertSame( 0, $tester->execute( [
+			'--b2-case' => 'B2-01',
+		] ) );
+	}
+
+	public function testCrossSiteCommandForwardsGroupECase() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$lane = $this->createMock( CrossSiteTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), [
+				'show_setup_output' => false,
+				'b2_case' => null,
+				'e_case' => 'E-02',
+			] )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestCrossSiteCommand( $this->getPluginRoot(), $lane ) );
+		$this->assertSame( 0, $tester->execute( [
+			'--e-case' => 'E-02',
+		] ) );
 	}
 
 	public function testDockerCleanupCommandIncludesAuditOptions() :void {
