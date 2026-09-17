@@ -617,6 +617,10 @@
 	width: 100% !important;
 }
 
+.import-export-sync-details-popover {
+	max-width: min(42rem, calc(100vw - 2rem));
+}
+
 .import-export-sites-table td.actions,
 .import-export-sites-table th.actions {
 	max-width: 3rem;

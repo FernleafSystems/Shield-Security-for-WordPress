@@ -22,6 +22,7 @@ add_filter(
 			return $preempt;
 		}
 
+		\delete_transient( 'doing_cron' );
 		return new \WP_Error(
 			'shield_cross_site_automatic_cron_blocked',
 			'Automatic WordPress cron loopbacks are disabled for this cross-site test.'

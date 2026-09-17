@@ -10,6 +10,21 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 	run() {
 		super.run();
 		this.bindSyncDetailsPopovers();
+		this.startAutoRefresh();
+	}
+
+	startAutoRefresh() {
+		const container = this.resolveTableContainer();
+		if ( container !== null ) {
+			const timer = window.setInterval( () => {
+				if ( !document.hidden && document.hasFocus()
+					 && this.$el.is( ':visible' )
+					 && container.getAttribute( 'aria-busy' ) !== 'true' ) {
+					this.tableReload( null, { resetPaging: false } );
+				}
+			}, 60000 );
+			this.$table.one( 'destroy.dt.shieldAutoRefresh', () => window.clearInterval( timer ) );
+		}
 	}
 
 	getButtons() {
@@ -19,6 +34,11 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 			name: 'queue-sync',
 			className: 'action selected-action queue-sync btn-outline-primary mb-2',
 			action: () => this.bulkTableAction( 'queue_sync' )
+		}, {
+			text: this._base_data.strings.retry_invitation_label,
+			name: 'retry-invitation',
+			className: 'action selected-action retry-invitation btn-outline-primary mb-2',
+			action: () => this.bulkTableAction( 'retry_invitation' )
 		}, {
 			text: 'Bulk Remove',
 			name: 'bulk-remove',
@@ -168,7 +188,7 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 
 	syncSelectedActionButtons() {
 		const hasSelection = this.$table.rows( { selected: true } ).count() > 0;
-		[ 'queue-sync:name', 'bulk-remove:name' ].forEach( ( selector ) => {
+		[ 'queue-sync:name', 'retry-invitation:name', 'bulk-remove:name' ].forEach( ( selector ) => {
 			if ( hasSelection ) {
 				this.$table.buttons( selector ).enable();
 			}

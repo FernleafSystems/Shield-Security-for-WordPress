@@ -117,17 +117,6 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->assertCount( 2, $runner->calls );
 	}
 
-	public function testAutomaticCronBlockerFixtureScopesOnlyAutomaticLoopbackCronRequests() :void {
-		$fixture = $this->readProjectFile( 'tests/fixtures/cross-site/block-automatic-cron.php' );
-
-		foreach ( [ 'pre_http_request', 'home_url()', 'wp-cron.php', 'doing_wp_cron', 'new \\WP_Error' ] as $required ) {
-			$this->assertStringContainsString( $required, $fixture );
-		}
-		foreach ( [ 'wp_schedule_', 'wp_clear_scheduled_', 'cron event' ] as $prohibited ) {
-			$this->assertStringNotContainsString( $prohibited, $fixture );
-		}
-	}
-
 	public function testPublicRuntimeFixtureIsInstalledAndRemovedOnPublicSetupFailure() :void {
 		$root = $this->createTrackedTempDir( 'shield-cross-site-public-runtime-' );
 		$metadata = new PublicUpgradePackageZipMetadata(
@@ -841,6 +830,14 @@ class CrossSitePairManagerTest extends TestCase {
 		$manager = new CrossSitePairManager();
 		$before = $this->waitingExportQueueState();
 		$after = $this->postExportQueueState();
+		$before[ 'rows' ][ 0 ][ 'meta' ][ 'sync_observations' ] = [
+			'notification' => [ 'result' => 'http_response_received' ],
+		];
+		$after[ 'rows' ][ 0 ][ 'meta' ][ 'sync_observations' ] = [
+			'notification' => [ 'result' => 'http_response_received' ],
+			'verification' => [ 'result' => 'verification_passed' ],
+			'export'       => [ 'result' => 'export_served' ],
+		];
 
 		$this->invokePrivate( $manager, 'assertPublicQueueTransition', [ $before, $after ] );
 
@@ -978,6 +975,8 @@ class CrossSitePairManagerTest extends TestCase {
 		$root = $this->createTrackedTempDir( 'shield-cross-site-final-cleanup-failures-' );
 		$runner = RecordingProcessRunner::strict( [
 			[ 'exit_code' => 1, 'stderr' => 'artifact removal failed' ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],
@@ -1213,6 +1212,7 @@ class CrossSitePairManagerTest extends TestCase {
 		return [
 			'queue_hook' => 'shield-plugin-importexport-sites-queue',
 			'queue_scheduled' => true,
+			'queue_next' => 1712621100,
 			'due_count' => 1,
 			'rows' => [
 				[

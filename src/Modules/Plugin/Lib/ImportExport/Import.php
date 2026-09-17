@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Export;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Handler as IpRulesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\HttpOutcome;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\ObservationStore;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\SyncObservation;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\ScopedTargetHostRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -17,6 +20,12 @@ class Import {
 	public const REQUEST_SAFETY_LEGACY_PRIVATE_ALLOWED = 'legacy_private_allowed';
 	public const REQUEST_SAFETY_PUBLIC_ONLY = 'public_only';
 	public const REQUEST_SAFETY_TRUSTED_SYNC = 'trusted_sync';
+
+	private ?array $latestObservation = null;
+
+	public function latestObservation() :?array {
+		return $this->latestObservation;
+	}
 
 	/**
 	 * @throws \Exception
@@ -58,7 +67,7 @@ class Import {
 			}
 		}
 
-		$this->processDataImport( $data, __( 'import file', 'wp-simple-firewall' ) );
+		$this->applyDataImport( $this->normaliseImportData( $data ), __( 'import file', 'wp-simple-firewall' ) );
 	}
 
 	/**
@@ -113,104 +122,167 @@ class Import {
 		?bool $enableNetwork = null,
 		string $requestSafety = self::REQUEST_SAFETY_LEGACY_PRIVATE_ALLOWED
 	) :void {
+		$this->latestObservation = null;
 		$con = self::con();
 		$optsCon = $con->opts;
 		$originalImportExportEnabled = (string)$optsCon->optGet( 'importexport_enable' );
 		$originalMasterSiteURL = (string)$optsCon->optGet( 'importexport_masterurl' );
-		$requestSafety = $this->normaliseRequestSafety( $requestSafety );
+		try {
+			$requestSafety = $this->normaliseRequestSafety( $requestSafety );
 
-		if ( empty( $masterURL ) ) {
-			$masterURL = $con->comps->import_export->getImportExportMasterImportUrl();
 			if ( empty( $masterURL ) ) {
-				throw new \Exception( "No Master Site URL provided.", 4 );
+				$masterURL = $con->comps->import_export->getImportExportMasterImportUrl();
+				if ( empty( $masterURL ) ) {
+					throw new \Exception( "No Master Site URL provided.", 4 );
+				}
 			}
+
+			$secretKey = sanitize_key( $secretKey );
+
+			if ( !empty( $secretKey ) && \strlen( $secretKey ) !== 40 ) {
+				throw new \Exception( "Secret key isn't of the correct format", 2 );
+			}
+
+			$masterURL = $this->validateMasterUrlForImport( $masterURL, $requestSafety );
+		}
+		catch ( \Throwable $e ) {
+			$this->recordObservation( SyncObservation::RESULT_LOCAL_INPUT_VALIDATION_FAILED );
+			throw $e;
 		}
 
-		$secretKey = sanitize_key( $secretKey );
+		$canonicalMasterURL = ( new SyncSiteUrlValidator() )->canonicalize( $masterURL );
 
-		if ( !empty( $secretKey ) && \strlen( $secretKey ) !== 40 ) {
-			throw new \Exception( "Secret key isn't of the correct format", 2 );
-		}
-
-		$masterURL = $this->validateMasterUrlForImport( $masterURL, $requestSafety );
-
-		// Begin the handshake process.
-		$optsCon->optSet(
-			'importexport_handshake_expires_at',
-			Services::Request()->carbon()->addMinutes( 20 )->timestamp
-		);
-
-		$optsCon->store();
-
-		// Don't send the network setup request if it's the cron.
-		$data = [
-			'url'    => Services::WpGeneral()->getHomeUrl(),
-			'id'     => $this->getImportID(),
-			'method' => 'json',
-		];
-		if ( !empty( $secretKey ) ) {
-			$data[ 'secret' ] = $secretKey;
-		}
-		if ( !\is_null( $enableNetwork ) && !Services::WpGeneral()->isCron() ) {
-			$data[ 'network' ] = $enableNetwork ? 'Y' : 'N';
-		}
-
-		// Bust caches on the target export site
-		$data[ 'uniq' ] = wp_generate_password( 4, false );
-
-		{ // Send the export request
-			$targetExportURL = $con->plugin_urls->noncedPluginAction(
-				PluginImportExport_Export::class,
-				$masterURL,
-				$data
+		try {
+			// Begin the handshake process.
+			$optsCon->optSet(
+				'importexport_handshake_expires_at',
+				Services::Request()->carbon()->addMinutes( 20 )->timestamp
 			);
 
-			$response = @\json_decode( $this->fetchExportContent( $targetExportURL, $requestSafety ), true );
+			$optsCon->store();
+
+			// Don't send the network setup request if it's the cron.
+			$data = [
+				'url'    => Services::WpGeneral()->getHomeUrl(),
+				'id'     => $this->getImportID(),
+				'method' => 'json',
+			];
+			if ( !empty( $secretKey ) ) {
+				$data[ 'secret' ] = $secretKey;
+			}
+			if ( !\is_null( $enableNetwork ) && !Services::WpGeneral()->isCron() ) {
+				$data[ 'network' ] = $enableNetwork ? 'Y' : 'N';
+			}
+
+			// Bust caches on the target export site
+			$data[ 'uniq' ] = wp_generate_password( 4, false );
+		}
+		catch ( \Throwable $e ) {
+			$this->recordObservation( SyncObservation::RESULT_LOCAL_IMPORT_EXCEPTION, $canonicalMasterURL );
+			throw $e;
+		}
+
+		{ // Send the export request
+			try {
+				$targetExportURL = $con->plugin_urls->noncedPluginAction(
+					PluginImportExport_Export::class,
+					$masterURL,
+					$data
+				);
+			}
+			catch ( \Throwable $e ) {
+				$this->recordObservation( SyncObservation::RESULT_LOCAL_IMPORT_EXCEPTION, $canonicalMasterURL );
+				throw $e;
+			}
+
+			try {
+				$outcome = $this->fetchExportOutcome( $targetExportURL, $requestSafety );
+			}
+			catch ( \Throwable $e ) {
+				$this->recordObservation( SyncObservation::RESULT_TRANSPORT_FAILURE, $canonicalMasterURL );
+				throw $e;
+			}
+
+			if ( !$outcome->hasResponse() ) {
+				$this->recordObservation( SyncObservation::RESULT_TRANSPORT_FAILURE, $canonicalMasterURL, $outcome );
+				throw new \Exception( "Request failed as we couldn't parse the response.", 5 );
+			}
+			if ( $outcome->body() === '' ) {
+				$this->recordObservation( SyncObservation::RESULT_EMPTY_RESPONSE, $canonicalMasterURL, $outcome );
+				throw new \Exception( "Request failed as we couldn't parse the response.", 5 );
+			}
+
+			$response = @\json_decode( $outcome->body(), true );
 			if ( empty( $response ) || !\is_array( $response ) ) {
+				$this->recordObservation( SyncObservation::RESULT_INVALID_RESPONSE, $canonicalMasterURL, $outcome );
 				throw new \Exception( "Request failed as we couldn't parse the response.", 5 );
 			}
 		}
 
 		if ( empty( $response[ 'success' ] ) ) {
+			$optional = [];
+			if ( ( $response[ 'code' ] ?? null ) === 3 ) {
+				$optional[ 'error_category' ] = SyncObservation::ERROR_REMOTE_COOLDOWN;
+			}
+			elseif ( ( $response[ 'code' ] ?? null ) === 4 ) {
+				$optional[ 'error_category' ] = SyncObservation::ERROR_REMOTE_EXPORT_EXCEPTION;
+			}
+			$this->recordObservation( SyncObservation::RESULT_PARSED_REJECTION, $canonicalMasterURL, $outcome, $optional );
 			$message = $response[ 'message' ] ?? null;
 			if ( !\is_string( $message ) || empty( $message ) ) {
 				throw new \Exception( "Request failed with no error message from the source site.", 6 );
 			}
 			else {
-				throw new \Exception( $message, 7 );
+				throw new \Exception( "The source site rejected the import request.", 7 );
 			}
 		}
 
 		if ( empty( $response[ 'data' ] ) || !\is_array( $response[ 'data' ] ) ) {
+			$this->recordObservation( SyncObservation::RESULT_INVALID_EXPORT_DATA, $canonicalMasterURL, $outcome );
 			throw new \Exception( "Response data was empty", 8 );
 		}
 
-		$this->processDataImport( $response[ 'data' ], $masterURL );
-
-		$optsCon->optSet( 'importexport_enable', Services::WpGeneral()->isCron() ? $originalImportExportEnabled : 'Y' );
-
-		// Restore local sync state after imported options have been applied.
-		if ( $enableNetwork === true ) {
-			$optsCon->optSet( 'importexport_masterurl', $masterURL );
-			$con->comps->events->fireEvent(
-				'master_url_set',
-				[ 'audit_params' => [ 'site' => $masterURL ] ]
-			);
+		try {
+			$importData = $this->normaliseImportData( $response[ 'data' ] );
 		}
-		elseif ( $enableNetwork === false ) {
-			$optsCon->optSet( 'importexport_masterurl', '' );
-		}
-		else {
-			// restore the original setting
-			$optsCon->optSet( 'importexport_masterurl', $originalMasterSiteURL );
+		catch ( \Throwable $e ) {
+			$this->recordObservation( SyncObservation::RESULT_INVALID_EXPORT_DATA, $canonicalMasterURL, $outcome );
+			throw $e;
 		}
 
-		// store & clean the master URL
-		$optsCon->store();
+		try {
+			$this->applyDataImport( $importData, $masterURL );
+
+			$optsCon->optSet( 'importexport_enable', Services::WpGeneral()->isCron() ? $originalImportExportEnabled : 'Y' );
+
+			// Restore local sync state after imported options have been applied.
+			if ( $enableNetwork === true ) {
+				$optsCon->optSet( 'importexport_masterurl', $masterURL );
+				$con->comps->events->fireEvent(
+					'master_url_set',
+					[ 'audit_params' => [ 'site' => $masterURL ] ]
+				);
+			}
+			elseif ( $enableNetwork === false ) {
+				$optsCon->optSet( 'importexport_masterurl', '' );
+			}
+			else {
+				// restore the original setting
+				$optsCon->optSet( 'importexport_masterurl', $originalMasterSiteURL );
+			}
+
+			// store & clean the master URL
+			$optsCon->store();
+		}
+		catch ( \Throwable $e ) {
+			$this->recordObservation( SyncObservation::RESULT_LOCAL_IMPORT_EXCEPTION, $canonicalMasterURL, $outcome );
+			throw $e;
+		}
+
+		$this->recordObservation( SyncObservation::RESULT_NETWORK_IMPORT_COMPLETED, $canonicalMasterURL, $outcome );
 	}
 
-	private function processDataImport( array $data, string $source = 'unspecified' ) {
-		$data = $this->normaliseImportData( $data );
+	private function applyDataImport( array $data, string $source ) :void {
 		$con = self::con();
 		$opts = $con->opts;
 
@@ -325,27 +397,61 @@ class Import {
 		return $masterURL;
 	}
 
-	private function fetchExportContent( string $targetExportURL, string $requestSafety ) :string {
+	private function fetchExportOutcome( string $targetExportURL, string $requestSafety ) :HttpOutcome {
+		$http = Services::HttpRequest();
 		if ( $requestSafety === self::REQUEST_SAFETY_PUBLIC_ONLY ) {
-			return Services::HttpRequest()->getContent( $targetExportURL, [
+			$body = $http->getContent( $targetExportURL, [
 				'reject_unsafe_urls' => true,
 			] );
+			return HttpOutcome::fromRequest( $body, $http );
 		}
 		if ( $requestSafety === self::REQUEST_SAFETY_TRUSTED_SYNC ) {
-			return ( new ScopedTargetHostRequest() )->run(
+			$body = ( new ScopedTargetHostRequest() )->run(
 				$targetExportURL,
-				static fn() :string => Services::HttpRequest()->getContent( $targetExportURL, [
+				static fn() :string => $http->getContent( $targetExportURL, [
 					'reject_unsafe_urls' => true,
 				] )
 			);
+			return HttpOutcome::fromRequest( $body, $http );
 		}
 
 		add_filter( 'http_request_host_is_external', '\__return_true', 11 );
 		try {
-			return Services::HttpRequest()->getContent( $targetExportURL );
+			$body = $http->getContent( $targetExportURL );
+			return HttpOutcome::fromRequest( $body, $http );
 		}
 		finally {
 			remove_filter( 'http_request_host_is_external', '\__return_true', 11 );
+		}
+	}
+
+	private function recordObservation(
+		string $result,
+		string $canonicalMasterURL = '',
+		?HttpOutcome $outcome = null,
+		array $optional = []
+	) :void {
+		try {
+			if ( $outcome !== null ) {
+				$optional = \array_merge( $outcome->observationFields(), $optional );
+			}
+			if ( $canonicalMasterURL !== '' ) {
+				$optional[ 'target_fingerprint' ] = SyncObservation::targetFingerprint( $canonicalMasterURL );
+			}
+
+			$observation = SyncObservation::create(
+				Services::Request()->ts(),
+				SyncObservation::PHASE_CLIENT_IMPORT,
+				$result,
+				SyncObservation::VERIFICATION_NOT_APPLICABLE,
+				$optional
+			);
+			if ( $observation !== null ) {
+				$this->latestObservation = $observation;
+				( new ObservationStore() )->saveClientImport( $observation );
+			}
+		}
+		catch ( \Throwable $e ) {
 		}
 	}
 

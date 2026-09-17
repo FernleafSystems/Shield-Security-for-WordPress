@@ -8,6 +8,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record as ImportExportSiteRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\{
+	HttpOutcome,
+	ObservationStore,
+	SyncObservation
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Record as ImportExportProfileRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
@@ -66,9 +71,19 @@ class Export {
 		}
 
 		$row = $verification[ 'row' ];
-		if ( $row instanceof ImportExportSiteRecord && !(bool)$verification[ 'secret' ] ) {
-			$cooldown = (bool)$verification[ 'import_id_verified' ] ? self::IMPORT_ID_EXPORT_COOLDOWN : self::EXPORT_COOLDOWN;
+		$diagnosticRow = $row;
+		if ( $row instanceof ImportExportSiteRecord && !$verification[ 'secret' ] ) {
+			$cooldown = $verification[ 'import_id_verified' ] ? self::IMPORT_ID_EXPORT_COOLDOWN : self::EXPORT_COOLDOWN;
 			if ( $repo->exportCooldownActive( $row, $cooldown ) ) {
+				$servedAt = (int)( \is_array( $row->meta ) ? ( $row->meta[ 'export_served_at' ] ?? 0 ) : 0 );
+				$this->saveRowObservation( $repo, $row, SyncObservation::PHASE_EXPORT,
+					SyncObservation::RESULT_EXPORT_COOLDOWN,
+					SyncObservation::VERIFICATION_ESTABLISHED,
+					\array_filter( [
+						'error_category' => SyncObservation::ERROR_REMOTE_COOLDOWN,
+						'eligible_at'    => $servedAt > 0 ? $servedAt + $cooldown : null,
+					], static fn( $value ) :bool => $value !== null )
+				);
 				wp_send_json( [
 					'success' => false,
 					'code'    => 3,
@@ -93,13 +108,20 @@ class Export {
 			);
 
 			if ( $networkOpt === 'Y' ) {
-				$ieCon->addSyncSiteExportUrl( $url, $id );
+				$enrolledRow = $ieCon->addSyncSiteExportUrl( $url, $id );
+				if ( $enrolledRow instanceof ImportExportSiteRecord ) {
+					$diagnosticRow = $enrolledRow;
+				}
 			}
 
 			$repo->recordExportSuccess( $url, ImportExportSitesDB::EXPORT_RESULT_SUCCESS, $id );
 			$servedRow = $repo->findByUrl( $url, true );
 			if ( $servedRow instanceof ImportExportSiteRecord ) {
 				$repo->recordExportServed( $servedRow );
+			}
+			if ( $diagnosticRow instanceof ImportExportSiteRecord ) {
+				$this->saveRowObservation( $repo, $diagnosticRow, SyncObservation::PHASE_EXPORT,
+					SyncObservation::RESULT_EXPORT_SERVED, SyncObservation::VERIFICATION_ESTABLISHED );
 			}
 
 			if ( $networkOpt === 'Y' ) {
@@ -122,6 +144,13 @@ class Export {
 			$data = [];
 			$msg = $e->getMessage();
 			$repo->recordExportFailure( $url, ImportExportSitesDB::EXPORT_RESULT_EXCEPTION, $msg );
+			if ( $diagnosticRow instanceof ImportExportSiteRecord ) {
+				$this->saveRowObservation( $repo, $diagnosticRow, SyncObservation::PHASE_EXPORT,
+					SyncObservation::RESULT_EXPORT_EXCEPTION,
+					SyncObservation::VERIFICATION_ESTABLISHED,
+					[ 'error_category' => SyncObservation::ERROR_REMOTE_EXPORT_EXCEPTION ]
+				);
+			}
 		}
 
 		/**
@@ -230,6 +259,7 @@ class Export {
 	 */
 	private function verifyUrl( SiteRepository $repo, string $url, string $id, string $secret ) :array {
 		if ( empty( $url ) ) {
+			$this->saveUnassociatedObservation( SyncObservation::RESULT_INVALID_CLAIMED_URL );
 			return $this->verifyResult( self::VERIFY_FAILED );
 		}
 
@@ -238,22 +268,60 @@ class Export {
 		}
 
 		$row = $repo->findByUrl( $url );
-		if ( !$row instanceof ImportExportSiteRecord || !$this->syncSiteRowAllowsExportTrust( $row, $url ) ) {
+		if ( !$row instanceof ImportExportSiteRecord ) {
+			$this->saveUnassociatedObservation( SyncObservation::RESULT_NO_AUTHORIZED_ROW );
+			return $this->verifyResult( self::VERIFY_FAILED, $row );
+		}
+		if ( !$this->syncSiteRowAllowsExportTrust( $row, $url ) ) {
+			$this->saveRowObservation( $repo, $row, SyncObservation::PHASE_VERIFICATION,
+				SyncObservation::RESULT_TRUSTED_TARGET_VALIDATION_FAILED,
+				SyncObservation::VERIFICATION_FAILED
+			);
 			return $this->verifyResult( self::VERIFY_FAILED, $row );
 		}
 
-		if ( (string)$row->import_id !== '' ) {
-			return $id !== '' && \hash_equals( (string)$row->import_id, $id )
-				? $this->verifyResult( self::VERIFY_OK, $row, false, true )
-				: $this->verifyResult( self::VERIFY_FAILED, $row );
+		if ( $row->import_id !== '' ) {
+			if ( $id === '' ) {
+				$this->saveRowObservation( $repo, $row, SyncObservation::PHASE_VERIFICATION,
+					SyncObservation::RESULT_MISSING_ID,
+					SyncObservation::VERIFICATION_FAILED
+				);
+				return $this->verifyResult( self::VERIFY_FAILED, $row );
+			}
+			if ( !\hash_equals( $row->import_id, $id ) ) {
+				$this->saveRowObservation( $repo, $row, SyncObservation::PHASE_VERIFICATION,
+					SyncObservation::RESULT_MISMATCHED_ID,
+					SyncObservation::VERIFICATION_FAILED
+				);
+				return $this->verifyResult( self::VERIFY_FAILED, $row );
+			}
+			$this->saveRowObservation( $repo, $row, SyncObservation::PHASE_VERIFICATION,
+				SyncObservation::RESULT_VERIFICATION_PASSED,
+				SyncObservation::VERIFICATION_ESTABLISHED
+			);
+			return $this->verifyResult( self::VERIFY_OK, $row, false, true );
 		}
 
 		if ( $repo->handshakeCooldownActive( $row, self::HANDSHAKE_COOLDOWN ) ) {
+			$attemptedAt = (int)( \is_array( $row->meta ) ? ( $row->meta[ 'handshake_attempt_at' ] ?? 0 ) : 0 );
+			$this->saveRowObservation( $repo, $row, SyncObservation::PHASE_VERIFICATION,
+				SyncObservation::RESULT_CALLBACK_COOLDOWN,
+				SyncObservation::VERIFICATION_FAILED,
+				$attemptedAt > 0 ? [ 'eligible_at' => $attemptedAt + self::HANDSHAKE_COOLDOWN ] : []
+			);
 			return $this->verifyResult( self::VERIFY_COOLDOWN, $row );
 		}
 		$repo->recordHandshakeAttempt( $row );
 
-		return $this->handshake( $url, (string)$row->source === ImportExportSitesDB::SOURCE_MANUAL )
+		$handshake = $this->handshake( $url, $row->source === ImportExportSitesDB::SOURCE_MANUAL );
+		$this->saveRowObservation( $repo, $row, SyncObservation::PHASE_VERIFICATION,
+			$handshake[ 'result' ],
+			$handshake[ 'verified' ]
+				? SyncObservation::VERIFICATION_ESTABLISHED
+				: SyncObservation::VERIFICATION_FAILED,
+			$handshake[ 'fields' ]
+		);
+		return $handshake[ 'verified' ]
 			? $this->verifyResult( self::VERIFY_OK, $row )
 			: $this->verifyResult( self::VERIFY_FAILED, $row );
 	}
@@ -276,7 +344,7 @@ class Export {
 	}
 
 	private function syncSiteRowAllowsExportTrust( ImportExportSiteRecord $row, string $url ) :bool {
-		if ( (string)$row->source !== ImportExportSitesDB::SOURCE_MANUAL ) {
+		if ( $row->source !== ImportExportSitesDB::SOURCE_MANUAL ) {
 			return true;
 		}
 
@@ -289,14 +357,65 @@ class Export {
 		}
 	}
 
-	private function handshake( string $url, bool $rejectUnsafeUrls = false ) :bool {
+	/**
+	 * @return array{verified:bool,result:string,fields:array}
+	 */
+	private function handshake( string $url, bool $rejectUnsafeUrls = false ) :array {
 		$targetUrl = URL::Build( $url, ActionData::Build( PluginImportExport_HandshakeConfirm::class, false, [], true ) );
-		$request = static fn() :string => Services::HttpRequest()->getContent(
-			$targetUrl,
-			$rejectUnsafeUrls ? [ 'reject_unsafe_urls' => true ] : []
+		$request = static function () use ( $targetUrl, $rejectUnsafeUrls ) :HttpOutcome {
+			$http = Services::HttpRequest();
+			$body = $http->getContent( $targetUrl, $rejectUnsafeUrls ? [ 'reject_unsafe_urls' => true ] : [] );
+			return HttpOutcome::fromRequest( $body, $http );
+		};
+		$outcome = $rejectUnsafeUrls ? ( new ScopedTargetHostRequest() )->run( $targetUrl, $request ) : $request();
+		if ( !$outcome->hasResponse() ) {
+			return [
+				'verified' => false,
+				'result'   => SyncObservation::RESULT_CALLBACK_TRANSPORT_FAILURE,
+				'fields'   => $outcome->observationFields(),
+			];
+		}
+		$dec = @\json_decode( $outcome->body(), true );
+		if ( !\is_array( $dec ) ) {
+			return [
+				'verified' => false,
+				'result'   => SyncObservation::RESULT_CALLBACK_INVALID_RESPONSE,
+				'fields'   => $outcome->observationFields(),
+			];
+		}
+		$verified = isset( $dec[ 'success' ] ) && $dec[ 'success' ] === true;
+		return [
+			'verified' => $verified,
+			'result'   => $verified
+				? SyncObservation::RESULT_VERIFICATION_PASSED
+				: SyncObservation::RESULT_CALLBACK_DID_NOT_CONFIRM,
+			'fields'   => $outcome->observationFields(),
+		];
+	}
+
+	private function saveRowObservation(
+		SiteRepository $repo,
+		ImportExportSiteRecord $row,
+		string $phase,
+		string $result,
+		string $verification,
+		array $optional = []
+	) :void {
+		$observation = SyncObservation::create( Services::Request()->ts(), $phase, $result, $verification, $optional );
+		if ( $observation !== null ) {
+			$repo->saveObservation( $row, $phase, $observation );
+		}
+	}
+
+	private function saveUnassociatedObservation( string $result ) :void {
+		$observation = SyncObservation::create(
+			Services::Request()->ts(),
+			SyncObservation::PHASE_VERIFICATION,
+			$result,
+			SyncObservation::VERIFICATION_FAILED
 		);
-		$raw = $rejectUnsafeUrls ? ( new ScopedTargetHostRequest() )->run( $targetUrl, $request ) : $request();
-		$dec = @\json_decode( $raw, true );
-		return \is_array( $dec ) && isset( $dec[ 'success' ] ) && ( $dec[ 'success' ] === true );
+		if ( $observation !== null ) {
+			( new ObservationStore() )->saveUnassociatedRejection( $observation );
+		}
 	}
 }
