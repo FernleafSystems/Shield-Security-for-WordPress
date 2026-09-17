@@ -1,7 +1,10 @@
 <?php
 // WP-CLI eval-file wraps helpers before execution, so this file cannot declare strict_types first.
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_UpdateNotified;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	PluginImportExport_HandshakeConfirm,
+	PluginImportExport_UpdateNotified
+};
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ImportExportProfilesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Record as ImportExportProfileRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
@@ -84,6 +87,8 @@ try {
 					return $this->b2PrepareMasterRow();
 				case 'b2-prepare-client':
 					return $this->b2PrepareClient();
+				case 'b2-reset-callback-observer':
+					return $this->b2ResetCallbackObserver();
 				case 'b2-snapshot':
 					return $this->b2Snapshot(
 						(string)( $payload[ 'role' ] ?? '' ),
@@ -511,6 +516,47 @@ try {
 		}
 
 		/**
+		 * @return array{active:bool,count:int,positive_control_count:int}
+		 */
+		private function b2ResetCallbackObserver() :array {
+			$observer = $this->b2CallbackObserver();
+			if ( !$observer[ 'active' ] ) {
+				throw new \RuntimeException( 'B2 callback observer fixture is not active.' );
+			}
+			update_option( SHIELD_CROSS_SITE_B2_CALLBACK_COUNT_OPTION, 0, false );
+
+			$probe = wp_remote_get(
+				RuntimeTestState::controller()->plugin_urls->noncedPluginAction(
+					PluginImportExport_HandshakeConfirm::class,
+					home_url(),
+					[ 'uniq' => wp_generate_password( 8, false ) ]
+				),
+				[
+					'timeout' => 5,
+					'redirection' => 0,
+					'reject_unsafe_urls' => false,
+				]
+			);
+			if ( is_wp_error( $probe ) ) {
+				throw new \RuntimeException( 'B2 callback observer positive control failed: '.$probe->get_error_message() );
+			}
+
+			wp_cache_delete( SHIELD_CROSS_SITE_B2_CALLBACK_COUNT_OPTION, 'options' );
+			$positiveControl = $this->b2CallbackObserver();
+			if ( $positiveControl[ 'count' ] !== 1 ) {
+				throw new \RuntimeException( 'B2 callback observer did not record its HTTP positive control.' );
+			}
+
+			update_option( SHIELD_CROSS_SITE_B2_CALLBACK_COUNT_OPTION, 0, false );
+			$reset = $this->b2CallbackObserver();
+			if ( $reset[ 'count' ] !== 0 ) {
+				throw new \RuntimeException( 'B2 callback observer did not reset after its positive control.' );
+			}
+			$reset[ 'positive_control_count' ] = $positiveControl[ 'count' ];
+			return $reset;
+		}
+
+		/**
 		 * @return array<string,mixed>
 		 */
 		private function b2Snapshot( string $role, string $expectedUrl ) :array {
@@ -533,6 +579,7 @@ try {
 			];
 
 			if ( $role === 'client' ) {
+				$snapshot[ 'callback_observer' ] = $this->b2CallbackObserver();
 				return $snapshot;
 			}
 
@@ -572,6 +619,19 @@ try {
 			];
 			$snapshot[ 'unassociated_rejection' ] = ( new ObservationStore() )->readUnassociatedRejection();
 			return $snapshot;
+		}
+
+		/**
+		 * @return array{active:bool,count:int}
+		 */
+		private function b2CallbackObserver() :array {
+			$active = \defined( 'SHIELD_CROSS_SITE_B2_CALLBACK_OBSERVER_ACTIVE' )
+				&& SHIELD_CROSS_SITE_B2_CALLBACK_OBSERVER_ACTIVE === true
+				&& \defined( 'SHIELD_CROSS_SITE_B2_CALLBACK_COUNT_OPTION' );
+			return [
+				'active' => $active,
+				'count' => $active ? \max( 0, (int)get_option( SHIELD_CROSS_SITE_B2_CALLBACK_COUNT_OPTION, 0 ) ) : 0,
+			];
 		}
 
 		/**

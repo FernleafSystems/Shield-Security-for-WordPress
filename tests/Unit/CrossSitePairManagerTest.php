@@ -43,6 +43,75 @@ class CrossSitePairManagerTest extends TestCase {
 		$manager->runB2Case( '', 'B2-03' );
 	}
 
+	public function testB2StoredIdEvidenceRequiresAgreementWithoutCallbackBranch() :void {
+		$manager = new CrossSitePairManager();
+		$before = $this->b2StoredIdSnapshots();
+		$after = $before;
+		$after[ 'master' ][ 'row' ][ 'verification' ] = [ 'result' => 'verification_passed' ];
+		$after[ 'master' ][ 'row' ][ 'export' ] = [ 'result' => 'export_served' ];
+		$after[ 'client' ][ 'client_import' ] = [
+			'result' => 'network_import_completed',
+			'http_status' => 403,
+		];
+
+		$evidence = $this->invokePrivate( $manager, 'buildB2StoredIdEvidence', [ $before, $after ] );
+		$this->invokePrivate( $manager, 'assertB2StoredIdExchange', [ $evidence ] );
+
+		$this->assertSame( 'B2-02', $evidence[ 'case' ] );
+		$this->assertTrue( $evidence[ 'stored_import_id_present' ] );
+		$this->assertTrue( $evidence[ 'submitted_import_id_present' ] );
+		$this->assertTrue( $evidence[ 'id_agreement_established' ] );
+		$this->assertTrue( $evidence[ 'handshake_attempt_unchanged' ] );
+		$this->assertFalse( $evidence[ 'callback_branch_observed' ] );
+		$this->assertSame( [
+			'target_class' => 'client_handshake_confirm',
+			'positive_control_count' => 1,
+			'active_before' => true,
+			'active_after' => true,
+			'before_count' => 0,
+			'after_count' => 0,
+			'observed_count' => 0,
+		], $evidence[ 'callback_observer' ] );
+	}
+
+	public function testB2StoredIdEvidenceRejectsARecordedCallbackAttempt() :void {
+		$manager = new CrossSitePairManager();
+		$before = $this->b2StoredIdSnapshots();
+		$after = $before;
+		$after[ 'master' ][ 'row' ][ 'handshake_attempt_at' ] = 101;
+		$after[ 'master' ][ 'row' ][ 'verification' ] = [ 'result' => 'verification_passed' ];
+		$after[ 'master' ][ 'row' ][ 'export' ] = [ 'result' => 'export_served' ];
+		$after[ 'client' ][ 'client_import' ] = [
+			'result' => 'network_import_completed',
+			'http_status' => 403,
+		];
+		$evidence = $this->invokePrivate( $manager, 'buildB2StoredIdEvidence', [ $before, $after ] );
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'B2-02 matching stored-ID exchange did not satisfy the current contract.' );
+
+		$this->invokePrivate( $manager, 'assertB2StoredIdExchange', [ $evidence ] );
+	}
+
+	public function testB2StoredIdEvidenceRejectsAnObservedCallbackRequest() :void {
+		$manager = new CrossSitePairManager();
+		$before = $this->b2StoredIdSnapshots();
+		$after = $before;
+		$after[ 'master' ][ 'row' ][ 'verification' ] = [ 'result' => 'verification_passed' ];
+		$after[ 'master' ][ 'row' ][ 'export' ] = [ 'result' => 'export_served' ];
+		$after[ 'client' ][ 'client_import' ] = [
+			'result' => 'network_import_completed',
+			'http_status' => 403,
+		];
+		$after[ 'client' ][ 'callback_observer' ][ 'count' ] = 1;
+		$evidence = $this->invokePrivate( $manager, 'buildB2StoredIdEvidence', [ $before, $after ] );
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'B2-02 matching stored-ID exchange did not satisfy the current contract.' );
+
+		$this->invokePrivate( $manager, 'assertB2StoredIdExchange', [ $evidence ] );
+	}
+
 	public function testProvisionCommandUsesInternalMasterUrlAndExistingProvisionScript() :void {
 		$command = $this->invokePrivate(
 			new CrossSitePairManager(),
@@ -125,6 +194,22 @@ class CrossSitePairManagerTest extends TestCase {
 			$this->assertContains( 'root', $copy[ 'command' ] );
 		}
 		$this->assertCount( 2, $runner->calls );
+	}
+
+	public function testB2CallbackObserverFixtureIsInstalledOnlyOnTheClient() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-b2-callback-observer-' );
+		$runner = RecordingProcessRunner::strict( [ [ 'exit_code' => 0 ] ] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$this->invokePrivate( $manager, 'installB2CallbackObserverFixture', [ $root ] );
+
+		$this->assertCount( 1, $runner->calls );
+		$command = $runner->calls[ 0 ][ 'command' ];
+		$this->assertContains( 'wp-cli-slave', $command );
+		$this->assertStringContainsString(
+			'cp /app/tests/fixtures/cross-site/b2-callback-observer.php /var/www/html/wp-content/mu-plugins/shield-cross-site-b2-callback-observer.php',
+			\implode( ' ', $command )
+		);
 	}
 
 	public function testPublicRuntimeFixtureIsInstalledAndRemovedOnPublicSetupFailure() :void {
@@ -929,7 +1014,7 @@ class CrossSitePairManagerTest extends TestCase {
 	public function testCurrentScenarioRestoresAutomaticCronBlockerBeforeScheduledImport() :void {
 		$root = $this->createTrackedTempDir( 'shield-cross-site-current-runtime-ready-' );
 		$runner = RecordingProcessRunner::strict( \array_merge(
-			\array_fill( 0, 21, [ 'exit_code' => 0 ] ),
+			\array_fill( 0, 27, [ 'exit_code' => 0 ] ),
 			[
 				$this->helperSuccessProcess( $this->waitingExportQueueState() ),
 				$this->helperSuccessProcess( $this->slaveCronState( true, true ) ),
@@ -985,6 +1070,8 @@ class CrossSitePairManagerTest extends TestCase {
 		$root = $this->createTrackedTempDir( 'shield-cross-site-final-cleanup-failures-' );
 		$runner = RecordingProcessRunner::strict( [
 			[ 'exit_code' => 1, 'stderr' => 'artifact removal failed' ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],
@@ -1272,6 +1359,38 @@ class CrossSitePairManagerTest extends TestCase {
 			'queue_scheduled' => false,
 			'master_url' => self::MASTER_INTERNAL_URL,
 			'import_id' => 'slave-import-id',
+		];
+	}
+
+	/**
+	 * @return array{master:array<string,mixed>,client:array<string,mixed>}
+	 */
+	private function b2StoredIdSnapshots() :array {
+		return [
+			'master' => [
+				'row' => [
+					'associated' => true,
+					'url' => self::SLAVE_INTERNAL_URL,
+					'status' => 'active',
+					'not_deleted' => true,
+					'trusted_target' => true,
+					'stored_import_id_present' => true,
+					'handshake_attempt_at' => 100,
+					'verification' => [],
+					'export' => [],
+				],
+			],
+			'client' => [
+				'home_url' => self::SLAVE_INTERNAL_URL,
+				'master_url' => self::MASTER_INTERNAL_URL,
+				'local_import_id_present' => true,
+				'callback_observer' => [
+					'active' => true,
+					'count' => 0,
+					'positive_control_count' => 1,
+				],
+				'client_import' => [],
+			],
 		];
 	}
 

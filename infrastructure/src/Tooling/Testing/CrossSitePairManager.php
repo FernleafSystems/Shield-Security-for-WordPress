@@ -38,6 +38,8 @@ class CrossSitePairManager {
 	private const PUBLIC_RUNTIME_SITE_SECRET = '0123456789abcdef0123456789abcdef01234567';
 	private const AUTOMATIC_CRON_BLOCKER_FIXTURE = '/app/tests/fixtures/cross-site/block-automatic-cron.php';
 	private const AUTOMATIC_CRON_BLOCKER_TARGET = '/var/www/html/wp-content/mu-plugins/shield-cross-site-block-automatic-cron.php';
+	private const B2_CALLBACK_OBSERVER_FIXTURE = '/app/tests/fixtures/cross-site/b2-callback-observer.php';
+	private const B2_CALLBACK_OBSERVER_TARGET = '/var/www/html/wp-content/mu-plugins/shield-cross-site-b2-callback-observer.php';
 	private const GROUP_C_QUEUE_FIXTURE = '/app/tests/fixtures/cross-site/group-c-queue.php';
 	private const GROUP_C_QUEUE_TARGET = '/var/www/html/wp-content/mu-plugins/shield-cross-site-group-c-queue.php';
 	private const UPDATE_PROVIDER_FIXTURE = '/app/tests/fixtures/upgrade-public/update-provider.php';
@@ -47,6 +49,7 @@ class CrossSitePairManager {
 	private const ARCHIVE_WORKSPACE = 'tmp/cross-site-test-lane/archive-workspace';
 	private const SITE_ARTIFACTS = [
 		self::AUTOMATIC_CRON_BLOCKER_TARGET,
+		self::B2_CALLBACK_OBSERVER_TARGET,
 		self::GROUP_C_QUEUE_TARGET,
 		self::PUBLIC_RUNTIME_TARGET,
 		'/var/www/html/wp-content/mu-plugins/shield-upgrade-test-update-provider.php',
@@ -59,7 +62,7 @@ class CrossSitePairManager {
 	private const QUEUE_WAITING_EXPORT = 'waiting_export';
 	private const EXPORT_RESULT_SUCCESS = 'success';
 	private const WP_CLI_INVALID_CRON_EVENT = 'Invalid cron event';
-	private const B2_CASES = [ 'B2-01' ];
+	private const B2_CASES = [ 'B2-01', 'B2-02' ];
 
 	private ProcessRunner $processRunner;
 
@@ -167,6 +170,8 @@ class CrossSitePairManager {
 		$this->refreshCheckoutRuntimeWithEnvironment( $rootDir, $envOverrides, $onOutput );
 		$this->stage( 'install current automatic cron blocker fixture' );
 		$this->installAutomaticCronBlockerFixture( $rootDir );
+		$this->stage( 'install B2 callback observer fixture' );
+		$this->installB2CallbackObserverFixture( $rootDir );
 		$this->stage( 'install Group C queue fixture' );
 		$this->installGroupCQueueFixture( $rootDir );
 	}
@@ -347,7 +352,7 @@ class CrossSitePairManager {
 	}
 
 	public function runImportExportScenario( string $rootDir ) :void {
-		$this->setupCurrentConnectedPair( $rootDir, true );
+		$this->setupCurrentConnectedPair( $rootDir );
 		$this->runCurrentImportExportExchange( $rootDir );
 
 		$this->stage( 'verify Group C HTTP continuation and recovery' );
@@ -359,11 +364,16 @@ class CrossSitePairManager {
 			throw new \InvalidArgumentException( 'Unsupported B2 cross-site case: '.$case );
 		}
 
-		$this->setupCurrentConnectedPair( $rootDir, false );
-		$this->runB2HistoricalNoIdCase( $rootDir );
+		$this->setupCurrentConnectedPair( $rootDir );
+		if ( $case === 'B2-01' ) {
+			$this->runB2HistoricalNoIdCase( $rootDir );
+		}
+		else {
+			$this->runCurrentImportExportExchange( $rootDir );
+		}
 	}
 
-	private function setupCurrentConnectedPair( string $rootDir, bool $retainLegacyDiagnostics ) :void {
+	private function setupCurrentConnectedPair( string $rootDir ) :void {
 		$this->stage( 'setup cross-site runtime state' );
 		$this->runHelper( $rootDir, self::MASTER, 'setup', [ 'role' => self::MASTER ] );
 		$this->runHelper( $rootDir, self::SLAVE, 'setup', [ 'role' => self::SLAVE ] );
@@ -389,9 +399,6 @@ class CrossSitePairManager {
 			'master' => $this->runHelper( $rootDir, self::MASTER, 'state' ),
 			'slave'  => $this->runHelper( $rootDir, self::SLAVE, 'state' ),
 		];
-		if ( $retainLegacyDiagnostics ) {
-			$this->lastDiagnostics[ 'network' ] = $network;
-		}
 		$masterState = $network[ 'master' ];
 		$slaveState = $network[ 'slave' ];
 		if ( !\is_array( $masterState )
@@ -405,6 +412,17 @@ class CrossSitePairManager {
 	}
 
 	private function runCurrentImportExportExchange( string $rootDir ) :void {
+		$this->stage( 'reset B2-02 callback observer' );
+		$observer = $this->runHelper( $rootDir, self::SLAVE, 'b2-reset-callback-observer' );
+		if ( empty( $observer[ 'active' ] )
+			 || (int)( $observer[ 'positive_control_count' ] ?? 0 ) !== 1
+			 || (int)( $observer[ 'count' ] ?? -1 ) !== 0 ) {
+			throw new \RuntimeException( 'B2-02 callback observer was not active and reset.' );
+		}
+		$b2Before = $this->b2Snapshots( $rootDir );
+		$b2Before[ 'client' ][ 'callback_observer' ][ 'positive_control_count' ] =
+			(int)$observer[ 'positive_control_count' ];
+
 		$this->stage( 'apply master option corpus' );
 		$corpus = $this->runHelper( $rootDir, self::MASTER, 'apply-corpus' );
 		$this->lastDiagnostics[ 'corpus' ] = $this->summariseCorpusDiagnostics( $corpus );
@@ -421,6 +439,11 @@ class CrossSitePairManager {
 
 		$this->stage( 'compare exported option payloads' );
 		$this->assertExportsMatch( $rootDir );
+
+		$this->stage( 'assert B2-02 matching stored-ID exchange' );
+		$b2Evidence = $this->buildB2StoredIdEvidence( $b2Before, $this->b2Snapshots( $rootDir ) );
+		$this->lastDiagnostics[ 'b2_02' ] = $b2Evidence;
+		$this->assertB2StoredIdExchange( $b2Evidence );
 	}
 
 	private function runB2HistoricalNoIdCase( string $rootDir ) :void {
@@ -492,6 +515,68 @@ class CrossSitePairManager {
 			 || (string)( $evidence[ 'after' ][ 'client' ][ 'client_import' ][ 'result' ] ?? '' ) !== 'network_import_completed'
 			 || (int)( $evidence[ 'after' ][ 'client' ][ 'client_import' ][ 'http_status' ] ?? 0 ) !== 403 ) {
 			throw new \RuntimeException( 'B2-01 historical no-ID exchange did not satisfy the current contract.' );
+		}
+	}
+
+	/**
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $before
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $after
+	 * @return array<string,mixed>
+	 */
+	private function buildB2StoredIdEvidence( array $before, array $after ) :array {
+		$beforeAttempt = (int)( $before[ 'master' ][ 'row' ][ 'handshake_attempt_at' ] ?? 0 );
+		$afterAttempt = (int)( $after[ 'master' ][ 'row' ][ 'handshake_attempt_at' ] ?? 0 );
+		$handshakeAttemptUnchanged = $afterAttempt === $beforeAttempt;
+		$verificationPassed = (string)( $after[ 'master' ][ 'row' ][ 'verification' ][ 'result' ] ?? '' )
+			=== 'verification_passed';
+		$beforeObserver = (array)( $before[ 'client' ][ 'callback_observer' ] ?? [] );
+		$afterObserver = (array)( $after[ 'client' ][ 'callback_observer' ] ?? [] );
+		$beforeCallbackCount = (int)( $beforeObserver[ 'count' ] ?? -1 );
+		$afterCallbackCount = (int)( $afterObserver[ 'count' ] ?? -1 );
+
+		return [
+			'case' => 'B2-02',
+			'before' => $before,
+			'after' => $after,
+			'stored_import_id_present' => !empty( $before[ 'master' ][ 'row' ][ 'stored_import_id_present' ] ),
+			'submitted_import_id_present' => !empty( $before[ 'client' ][ 'local_import_id_present' ] ),
+			'id_agreement_established' => $handshakeAttemptUnchanged && $verificationPassed,
+			'handshake_attempt_unchanged' => $handshakeAttemptUnchanged,
+			'callback_branch_observed' => $afterAttempt > $beforeAttempt,
+			'callback_observer' => [
+				'target_class' => 'client_handshake_confirm',
+				'positive_control_count' => (int)( $beforeObserver[ 'positive_control_count' ] ?? 0 ),
+				'active_before' => !empty( $beforeObserver[ 'active' ] ),
+				'active_after' => !empty( $afterObserver[ 'active' ] ),
+				'before_count' => $beforeCallbackCount,
+				'after_count' => $afterCallbackCount,
+				'observed_count' => $afterCallbackCount - $beforeCallbackCount,
+			],
+		];
+	}
+
+	/** @param array<string,mixed> $evidence */
+	private function assertB2StoredIdExchange( array $evidence ) :void {
+		$this->assertB2ActiveAssociatedPrecondition( $evidence );
+		$observer = (array)( $evidence[ 'callback_observer' ] ?? [] );
+		if ( empty( $evidence[ 'stored_import_id_present' ] )
+			 || empty( $evidence[ 'submitted_import_id_present' ] )
+			 || empty( $evidence[ 'id_agreement_established' ] )
+			 || empty( $evidence[ 'handshake_attempt_unchanged' ] )
+			 || !empty( $evidence[ 'callback_branch_observed' ] )
+			 || empty( $observer[ 'active_before' ] )
+			 || empty( $observer[ 'active_after' ] )
+			 || (int)( $observer[ 'positive_control_count' ] ?? 0 ) !== 1
+			 || (int)( $observer[ 'before_count' ] ?? -1 ) !== 0
+			 || (int)( $observer[ 'observed_count' ] ?? -1 ) !== 0
+			 || (string)( $evidence[ 'before' ][ 'master' ][ 'row' ][ 'url' ] ?? '' ) !== self::SLAVE_INTERNAL_URL
+			 || (string)( $evidence[ 'before' ][ 'client' ][ 'home_url' ] ?? '' ) !== self::SLAVE_INTERNAL_URL
+			 || (string)( $evidence[ 'before' ][ 'client' ][ 'master_url' ] ?? '' ) !== self::MASTER_INTERNAL_URL
+			 || (string)( $evidence[ 'after' ][ 'master' ][ 'row' ][ 'verification' ][ 'result' ] ?? '' ) !== 'verification_passed'
+			 || (string)( $evidence[ 'after' ][ 'master' ][ 'row' ][ 'export' ][ 'result' ] ?? '' ) !== 'export_served'
+			 || (string)( $evidence[ 'after' ][ 'client' ][ 'client_import' ][ 'result' ] ?? '' ) !== 'network_import_completed'
+			 || (int)( $evidence[ 'after' ][ 'client' ][ 'client_import' ][ 'http_status' ] ?? 0 ) !== 403 ) {
+			throw new \RuntimeException( 'B2-02 matching stored-ID exchange did not satisfy the current contract.' );
 		}
 	}
 
@@ -651,6 +736,15 @@ class CrossSitePairManager {
 				.' && cp '.self::AUTOMATIC_CRON_BLOCKER_FIXTURE.' '.self::AUTOMATIC_CRON_BLOCKER_TARGET
 			);
 		}
+	}
+
+	private function installB2CallbackObserverFixture( string $rootDir ) :void {
+		$this->runSiteShell(
+			$rootDir,
+			self::SLAVE,
+			'mkdir -p /var/www/html/wp-content/mu-plugins'
+			.' && cp '.self::B2_CALLBACK_OBSERVER_FIXTURE.' '.self::B2_CALLBACK_OBSERVER_TARGET
+		);
 	}
 
 	private function installGroupCQueueFixture( string $rootDir ) :void {
