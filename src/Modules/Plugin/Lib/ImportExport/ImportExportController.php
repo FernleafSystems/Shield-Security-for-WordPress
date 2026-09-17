@@ -6,10 +6,15 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
+	Handler as ImportExportSitesDB,
+	Record as ImportExportSiteRecord
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\ObservationStore;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Services\Services;
@@ -23,6 +28,8 @@ class ImportExportController {
 	public const SYNC_STATE_DISABLED = 'disabled';
 	public const SYNC_STATE_ENABLED = 'enabled';
 	public const UPDATE_NOTIFY_COOLDOWN = 300;
+	private ?QueueProcessor $queueProcessor = null;
+	private ?QueueScheduler $queueScheduler = null;
 
 	protected function canRun(): bool {
 		$scheduler = $this->queueScheduler();
@@ -32,6 +39,7 @@ class ImportExportController {
 	}
 
 	protected function run() {
+		$this->queueProcessor();
 		$scheduler = $this->queueScheduler();
 		if ( $this->isSyncAvailable() || $scheduler->hasScheduledEvent() ) {
 			$scheduler->setup();
@@ -109,12 +117,14 @@ class ImportExportController {
 		else {
 			$this->assertSyncAvailable();
 			self::con()->opts->optSet( 'importexport_enable', 'N' )->store();
+			$this->queueScheduler()->clear();
 		}
 	}
 
 	public function disconnectMasterSite() :void {
 		$this->assertSyncAvailable();
 		self::con()->opts->optSet( 'importexport_masterurl', '' )->store();
+		( new ObservationStore() )->deleteClientImport();
 	}
 
 	public function queueSitesForSync( array $ids ) :int {
@@ -141,6 +151,19 @@ class ImportExportController {
 			$this->scheduleQueueSoonIfSyncEnabled();
 		}
 		return $count;
+	}
+
+	/**
+	 * @return array{queued_count:int,skipped_count:int,failed_count:int}
+	 */
+	public function restartSiteInvitationsByIds( array $ids ) :array {
+		$this->assertSyncEnabled();
+
+		$result = ( new SiteRepository() )->restartInvitationsByIds( $ids );
+		if ( $result[ 'queued_count' ] > 0 ) {
+			$this->scheduleQueueSoonIfSyncEnabled();
+		}
+		return $result;
 	}
 
 	public function queueAllActiveSitesForSync() :int {
@@ -241,10 +264,12 @@ class ImportExportController {
 		return self::con()->opts->optGet( 'importexport_masterurl' );
 	}
 
-	public function addSyncSiteExportUrl( string $url, string $importID = '' ) :void {
-		if ( ( new SiteRepository() )->upsertActive( $url, ImportExportSitesDB::SOURCE_EXPORT, $importID, true ) ) {
+	public function addSyncSiteExportUrl( string $url, string $importID = '' ) :?ImportExportSiteRecord {
+		$row = ( new SiteRepository() )->upsertActive( $url, ImportExportSitesDB::SOURCE_EXPORT, $importID, true );
+		if ( $row instanceof ImportExportSiteRecord ) {
 			( new NetworkInviteRepository() )->clearAll();
 		}
+		return $row;
 	}
 
 	public function removeSyncSiteExportUrl( string $url ) :void {
@@ -333,7 +358,20 @@ class ImportExportController {
 	}
 
 	private function queueScheduler() :QueueScheduler {
-		return new QueueScheduler( fn() :bool => $this->isSyncEnabled() );
+		if ( !$this->queueScheduler instanceof QueueScheduler ) {
+			$this->queueScheduler = new QueueScheduler(
+				fn() :bool => $this->isSyncEnabled(),
+				fn() => $this->queueProcessor()->runFromCron()
+			);
+		}
+		return $this->queueScheduler;
+	}
+
+	private function queueProcessor() :QueueProcessor {
+		if ( !$this->queueProcessor instanceof QueueProcessor ) {
+			$this->queueProcessor = new QueueProcessor( fn() :bool => $this->isSyncEnabled() );
+		}
+		return $this->queueProcessor;
 	}
 
 	private function notifyingMasterMatchesConfiguredMaster( string $notifyingMasterUrl, string $configuredMasterUrl ) :bool {

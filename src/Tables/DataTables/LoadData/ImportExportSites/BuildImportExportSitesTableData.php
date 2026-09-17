@@ -109,7 +109,7 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 	 * @param array<int,string> $profileLabels
 	 */
 	private function profileLabelForRecord( Record $record, array $profileLabels ) :string {
-		return esc_html( $profileLabels[ (int)$record->profile_ref ] );
+		return esc_html( $profileLabels[ $record->profile_ref ] );
 	}
 
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {

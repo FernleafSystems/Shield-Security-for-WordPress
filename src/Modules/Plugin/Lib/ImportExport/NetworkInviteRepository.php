@@ -80,7 +80,7 @@ class NetworkInviteRepository {
 		}
 
 		$invite = $this->firstStoredInvite();
-		return $invite !== null && (string)$invite[ 'id' ] === $id ? $this->withReviewUrl( $invite ) : null;
+		return $invite !== null && $invite[ 'id' ] === $id ? $this->withReviewUrl( $invite ) : null;
 	}
 
 	public function hasPendingInvite() :bool {
@@ -218,7 +218,7 @@ class NetworkInviteRepository {
 	 * @return PendingNetworkInviteWithReviewUrl
 	 */
 	private function withReviewUrl( array $invite ) :array {
-		$invite[ 'review_url' ] = $this->reviewUrl( (string)$invite[ 'id' ] );
+		$invite[ 'review_url' ] = $this->reviewUrl( $invite[ 'id' ] );
 		return $invite;
 	}
 

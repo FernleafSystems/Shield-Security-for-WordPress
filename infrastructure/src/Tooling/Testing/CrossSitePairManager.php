@@ -38,6 +38,8 @@ class CrossSitePairManager {
 	private const PUBLIC_RUNTIME_SITE_SECRET = '0123456789abcdef0123456789abcdef01234567';
 	private const AUTOMATIC_CRON_BLOCKER_FIXTURE = '/app/tests/fixtures/cross-site/block-automatic-cron.php';
 	private const AUTOMATIC_CRON_BLOCKER_TARGET = '/var/www/html/wp-content/mu-plugins/shield-cross-site-block-automatic-cron.php';
+	private const GROUP_C_QUEUE_FIXTURE = '/app/tests/fixtures/cross-site/group-c-queue.php';
+	private const GROUP_C_QUEUE_TARGET = '/var/www/html/wp-content/mu-plugins/shield-cross-site-group-c-queue.php';
 	private const UPDATE_PROVIDER_FIXTURE = '/app/tests/fixtures/upgrade-public/update-provider.php';
 	private const UPDATE_CONFIG_FIXTURE = '/app/tests/fixtures/upgrade-public/write-update-config.php';
 	private const UPDATE_PACKAGE_DIR = '/var/www/html/wp-content/uploads/shield-cross-site-upgrade';
@@ -45,6 +47,7 @@ class CrossSitePairManager {
 	private const ARCHIVE_WORKSPACE = 'tmp/cross-site-test-lane/archive-workspace';
 	private const SITE_ARTIFACTS = [
 		self::AUTOMATIC_CRON_BLOCKER_TARGET,
+		self::GROUP_C_QUEUE_TARGET,
 		self::PUBLIC_RUNTIME_TARGET,
 		'/var/www/html/wp-content/mu-plugins/shield-upgrade-test-update-provider.php',
 		'/var/www/html/wp-content/shield-upgrade-test',
@@ -163,6 +166,8 @@ class CrossSitePairManager {
 		$this->refreshCheckoutRuntimeWithEnvironment( $rootDir, $envOverrides, $onOutput );
 		$this->stage( 'install current automatic cron blocker fixture' );
 		$this->installAutomaticCronBlockerFixture( $rootDir );
+		$this->stage( 'install Group C queue fixture' );
+		$this->installGroupCQueueFixture( $rootDir );
 	}
 
 	public function cleanupRun( string $rootDir ) :void {
@@ -394,6 +399,9 @@ class CrossSitePairManager {
 
 		$this->stage( 'compare exported option payloads' );
 		$this->assertExportsMatch( $rootDir );
+
+		$this->stage( 'verify Group C HTTP continuation and recovery' );
+		$this->runGroupCQueueLifecycleEvidence( $rootDir );
 	}
 
 	public function lastStage() :string {
@@ -540,6 +548,15 @@ class CrossSitePairManager {
 				.' && cp '.self::AUTOMATIC_CRON_BLOCKER_FIXTURE.' '.self::AUTOMATIC_CRON_BLOCKER_TARGET
 			);
 		}
+	}
+
+	private function installGroupCQueueFixture( string $rootDir ) :void {
+		$this->runSiteShell(
+			$rootDir,
+			self::MASTER,
+			'mkdir -p /var/www/html/wp-content/mu-plugins'
+			.' && cp '.self::GROUP_C_QUEUE_FIXTURE.' '.self::GROUP_C_QUEUE_TARGET
+		);
 	}
 
 	private function installPublicRuntimeFixture( string $rootDir ) :void {
@@ -878,7 +895,12 @@ class CrossSitePairManager {
 			 || $afterMeta[ 'export_served_at' ] <= 0 ) {
 			throw new \RuntimeException( 'Public master queue transition did not record a successful export-served marker.' );
 		}
-		unset( $beforeMeta[ 'export_served_at' ], $afterMeta[ 'export_served_at' ] );
+		unset(
+			$beforeMeta[ 'export_served_at' ],
+			$afterMeta[ 'export_served_at' ],
+			$beforeMeta[ 'sync_observations' ],
+			$afterMeta[ 'sync_observations' ]
+		);
 		$this->sortRecursive( $beforeMeta );
 		$this->sortRecursive( $afterMeta );
 		$beforeRow[ 'meta' ] = $beforeMeta;
@@ -955,9 +977,141 @@ class CrossSitePairManager {
 		$this->wpCapture( $rootDir, self::MASTER, [ 'cron', 'event', 'run', $queueHook ] );
 	}
 
-	/**
-	 * @return array<string,mixed>
-	 */
+	private function triggerWebCron( string $rootDir, string $defaultPort ) :void {
+		$port = (string)( \getenv( 'SHIELD_CROSS_SITE_MASTER_PORT' ) ?: $defaultPort );
+		$url = sprintf( 'http://127.0.0.1:%s/wp-cron.php', $port );
+		$process = $this->processRunner->run(
+			[
+				'curl', '--fail', '--silent', '--show-error', '--max-time', '30',
+				'--header', 'Host: wordpress-master.shield-cross-site.example.com',
+				'--write-out', '%{http_code}', $url,
+			],
+			$rootDir,
+			static function () :void {}
+		);
+		if ( ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			throw new \RuntimeException( 'The real HTTP wp-cron.php request failed: '.trim( $process->getErrorOutput() ) );
+		}
+		if ( \trim( $process->getOutput() ) !== '200' ) {
+			throw new \RuntimeException( 'The real HTTP wp-cron.php request did not reach the canonical site.' );
+		}
+	}
+
+	private function runGroupCQueueLifecycleEvidence( string $rootDir ) :void {
+		$this->startGroupCQueueScenario( $rootDir, 'healthy' );
+		$healthy = $this->waitForGroupCQueueState( $rootDir, 'healthy', 2 );
+		if ( (int)( $healthy[ 'cron_entries' ] ?? 0 ) !== 1
+			 || (int)( $healthy[ 'dispatch_attempts' ] ?? 0 ) !== 1
+			 || !empty( $healthy[ 'dispatch_blocking' ] )
+			 || (int)( $healthy[ 'ajax_entries' ] ?? 0 ) !== 1
+			 || empty( $healthy[ 'future_event_observed' ] )
+			 || (int)( $healthy[ 'queue_next' ] ?? 0 ) <= \time()
+			 || (array)( $healthy[ 'attempt_counters' ] ?? [] ) !== [ 1, 1 ]
+			 || $this->countGroupCStatus( $healthy, 'waiting_export' ) !== 2
+			 || !empty( $healthy[ 'processor_running' ] ) ) {
+			throw new \RuntimeException( 'Healthy Group C continuation did not produce one nonblocking successor from real cron and settle both rows.' );
+		}
+		$this->assertGroupCDispatchUrl( $healthy );
+
+		$interrupted = $this->startGroupCQueueScenario( $rootDir, 'terminated' );
+		if ( (int)( $interrupted[ 'cron_entries' ] ?? 0 ) !== 1
+			 || (int)( $interrupted[ 'dispatch_attempts' ] ?? 0 ) !== 0
+			 || (int)( $interrupted[ 'ajax_entries' ] ?? 0 ) !== 0
+			 || (int)( $interrupted[ 'notification_starts' ] ?? 0 ) !== 1
+			 || empty( $interrupted[ 'future_event_observed' ] )
+			 || empty( $interrupted[ 'processor_running' ] )
+			 || $this->countGroupCStatus( $interrupted, 'processing' ) !== 1
+			 || (array)( $interrupted[ 'attempt_counters' ] ?? [] ) !== [ 1 ] ) {
+			throw new \RuntimeException( 'Terminated Group C worker did not preserve its health event, marker, and processing row.' );
+		}
+		$this->runHelper( $rootDir, self::MASTER, 'advance-queue-event' );
+		$this->triggerWebCron( $rootDir, self::MASTER_HOST_PORT );
+		$beforeExpiry = $this->runHelper( $rootDir, self::MASTER, 'group-c-state', [ 'mode' => 'terminated' ] );
+		if ( (int)( $beforeExpiry[ 'cron_entries' ] ?? 0 ) !== 2
+			 || (int)( $beforeExpiry[ 'notification_starts' ] ?? 0 ) !== 1
+			 || (int)( $beforeExpiry[ 'dispatch_attempts' ] ?? 0 ) !== 0
+			 || (int)( $beforeExpiry[ 'ajax_entries' ] ?? 0 ) !== 0
+			 || $this->countGroupCStatus( $beforeExpiry, 'processing' ) !== 1 ) {
+			throw new \RuntimeException( 'Group C replayed an interrupted notification before marker/deadline expiry.' );
+		}
+
+		$this->runHelper( $rootDir, self::MASTER, 'group-c-recover' );
+		$this->triggerWebCron( $rootDir, self::MASTER_HOST_PORT );
+		$recovered = $this->waitForGroupCQueueState( $rootDir, 'terminated', 2 );
+		if ( (int)( $recovered[ 'cron_entries' ] ?? 0 ) !== 3
+			 || (int)( $recovered[ 'notification_starts' ] ?? 0 ) !== 3
+			 || (int)( $recovered[ 'dispatch_attempts' ] ?? 0 ) !== 0
+			 || (int)( $recovered[ 'ajax_entries' ] ?? 0 ) !== 0
+			 || (array)( $recovered[ 'attempt_counters' ] ?? [] ) !== [ 1, 2, 1 ]
+			 || $this->countGroupCStatus( $recovered, 'waiting_export' ) !== 2
+			 || !empty( $recovered[ 'processor_running' ] ) ) {
+			throw new \RuntimeException( 'Interrupted Group C recovery did not produce exactly one retry and one later-site send.' );
+		}
+		$this->lastDiagnostics[ 'group_c_queue_lifecycle' ] = [
+			'healthy' => $healthy,
+			'interrupted_recovery' => $recovered,
+		];
+	}
+
+	private function assertGroupCDispatchUrl( array $state ) :void {
+		$actual = \parse_url( (string)( $state[ 'dispatch_url' ] ?? '' ) );
+		$expected = \parse_url( self::MASTER_INTERNAL_URL.'/wp-admin/admin-ajax.php' );
+		if ( !\is_array( $actual ) || !\is_array( $expected ) ) {
+			throw new \RuntimeException( 'Healthy Group C successor did not use a parseable admin-ajax.php URL.' );
+		}
+
+		foreach ( [ 'scheme', 'host', 'port', 'path' ] as $part ) {
+			if ( (string)( $actual[ $part ] ?? '' ) !== (string)( $expected[ $part ] ?? '' ) ) {
+				throw new \RuntimeException( 'Healthy Group C successor did not target the canonical master admin-ajax.php URL.' );
+			}
+		}
+
+		\parse_str( (string)( $actual[ 'query' ] ?? '' ), $query );
+		$expectedAction = \trim( (string)( $state[ 'expected_ajax_action' ] ?? '' ) );
+		if ( $expectedAction === ''
+			 || (string)( $query[ 'action' ] ?? '' ) !== $expectedAction
+			 || \trim( (string)( $query[ 'nonce' ] ?? '' ) ) === '' ) {
+			throw new \RuntimeException( 'Healthy Group C successor did not carry the exact processor action and a nonce.' );
+		}
+	}
+
+	private function startGroupCQueueScenario( string $rootDir, string $mode ) :array {
+		$setup = $this->runHelper( $rootDir, self::MASTER, 'group-c-setup', [ 'mode' => $mode ] );
+		if ( \count( (array)( $setup[ 'rows' ] ?? [] ) ) !== 2 || (int)( $setup[ 'queue_next' ] ?? 0 ) <= 0 ) {
+			throw new \RuntimeException( 'Group C fixture did not create two due rows and a production queue event for '.$mode.'.' );
+		}
+		$advanced = $this->runHelper( $rootDir, self::MASTER, 'advance-queue-event' );
+		if ( (int)( $advanced[ 'original_timestamp' ] ?? 0 ) !== (int)$setup[ 'queue_next' ] ) {
+			throw new \RuntimeException( 'Group C fixture replaced the production queue event before '.$mode.'.' );
+		}
+		if ( empty( $advanced[ 'cron_lock_cleared' ] ) ) {
+			throw new \RuntimeException( 'Group C could not clear the test-owned cron lock before '.$mode.'.' );
+		}
+		$this->triggerWebCron( $rootDir, self::MASTER_HOST_PORT );
+		return $this->runHelper( $rootDir, self::MASTER, 'group-c-state', [ 'mode' => $mode ] );
+	}
+
+	private function waitForGroupCQueueState( string $rootDir, string $mode, int $waitingCount ) :array {
+		$startedAt = \microtime( true );
+		do {
+			$state = $this->runHelper( $rootDir, self::MASTER, 'group-c-state', [ 'mode' => $mode ] );
+			$this->lastDiagnostics[ 'group_c_'.$mode.'_poll' ] = $state;
+			if ( $this->countGroupCStatus( $state, 'waiting_export' ) === $waitingCount
+				 && empty( $state[ 'processor_running' ] ) ) {
+				return $state;
+			}
+			\usleep( 200000 );
+		} while ( \microtime( true ) - $startedAt < 20.0 );
+		throw new \RuntimeException( 'Timed out waiting for Group C '.$mode.' queue state: '.\json_encode( $state ) );
+	}
+
+	private function countGroupCStatus( array $state, string $status ) :int {
+		return \count( \array_filter(
+			(array)( $state[ 'rows' ] ?? [] ),
+			static fn( array $row ) :bool => (string)( $row[ 'queue_status' ] ?? '' ) === $status
+		) );
+	}
+
 	/**
 	 * @return array<string,mixed>
 	 */

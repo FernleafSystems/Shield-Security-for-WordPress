@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\ObservationPresenter;
 
 class ConfigImport extends BaseCmd {
 
@@ -57,6 +58,7 @@ class ConfigImport extends BaseCmd {
 
 	public function runCmd() :void {
 		$args = \is_array( $this->execCmdArgs ) ? $this->execCmdArgs : [];
+		$networkImport = null;
 
 		$source = $args[ 'source' ] ?? '';
 		if ( empty( $source ) ) {
@@ -79,7 +81,8 @@ class ConfigImport extends BaseCmd {
 					}
 				}
 
-				( new Lib\ImportExport\Import() )->fromSite(
+				$networkImport = new Lib\ImportExport\Import();
+				$networkImport->fromSite(
 					$source,
 					(string)$secret,
 					$slave === 'add' ? true : ( $slave === 'remove' ? false : null )
@@ -93,7 +96,9 @@ class ConfigImport extends BaseCmd {
 			\WP_CLI::error_multi_line(
 				[
 					__( 'The import encountered an error.', 'wp-simple-firewall' ),
-					$e->getMessage(),
+					$networkImport === null
+						? $e->getMessage()
+						: ( new ObservationPresenter() )->failureMessage( $networkImport->latestObservation(), $e->getMessage() ),
 				]
 			);
 			\WP_CLI::halt( $e->getCode() );

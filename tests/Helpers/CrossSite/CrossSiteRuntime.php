@@ -56,6 +56,14 @@ try {
 					return $this->runNotifyHook();
 				case 'queue-state':
 					return $this->queueState();
+				case 'advance-queue-event':
+					return $this->advanceQueueEvent();
+				case 'group-c-setup':
+					return $this->groupCSetup( (string)( $payload[ 'mode' ] ?? '' ) );
+				case 'group-c-state':
+					return $this->groupCState( (string)( $payload[ 'mode' ] ?? '' ) );
+				case 'group-c-recover':
+					return $this->groupCRecover();
 				case 'legacy-migration-check':
 					return $this->legacyMigrationCheck( $payload );
 				case 'migration-state':
@@ -294,9 +302,12 @@ try {
 		private function queueState() :array {
 			$rows = $this->registryRows();
 			$now = Services::Request()->ts();
+			$queueNext = \wp_next_scheduled( $this->queueHook() );
 			return [
 				'queue_hook' => $this->queueHook(),
-				'queue_scheduled' => \wp_next_scheduled( $this->queueHook() ) !== false,
+				'queue_scheduled' => $queueNext !== false,
+				'queue_next' => $queueNext === false ? 0 : (int)$queueNext,
+				'processor_running' => \get_site_transient( $this->processorMarkerKey() ) !== false,
 				'active_count' => \count( $rows ),
 				'due_count' => \count( \array_filter(
 					$rows,
@@ -312,6 +323,106 @@ try {
 				) ),
 				'rows' => $rows,
 			];
+		}
+
+		private function advanceQueueEvent() :array {
+			$hook = $this->queueHook();
+			$scheduled = \wp_next_scheduled( $hook );
+			if ( $scheduled === false ) {
+				throw new \RuntimeException( 'Cannot advance a missing production queue event.' );
+			}
+			\wp_unschedule_event( (int)$scheduled, $hook );
+			$advanced = Services::Request()->ts() - \MINUTE_IN_SECONDS;
+			if ( !\wp_schedule_single_event( $advanced, $hook ) ) {
+				throw new \RuntimeException( 'Could not advance the production queue event.' );
+			}
+			\delete_transient( 'doing_cron' );
+			return [
+				'queue_hook' => $hook,
+				'original_timestamp' => (int)$scheduled,
+				'advanced_timestamp' => $advanced,
+				'cron_lock_cleared' => \get_transient( 'doing_cron' ) === false,
+			];
+		}
+
+		private function groupCSetup( string $mode ) :array {
+			if ( !\in_array( $mode, [ 'healthy', 'terminated' ], true ) ) {
+				throw new \RuntimeException( 'Unsupported Group C queue mode.' );
+			}
+			$repo = new SiteRepository();
+			$oldIDs = [];
+			$targetBaseUrl = '';
+			foreach ( $repo->selectActiveRows() as $row ) {
+				if ( \strpos( $row->url, 'group-c-queue-' ) !== false ) {
+					$oldIDs[] = $row->id;
+				}
+				elseif ( $targetBaseUrl === '' ) {
+					$targetBaseUrl = \rtrim( $row->url, '/' );
+				}
+			}
+			if ( $targetBaseUrl === '' ) {
+				throw new \RuntimeException( 'Group C queue evidence requires the configured slave site.' );
+			}
+			$repo->deleteByIds( $oldIDs );
+			\update_option( 'shield_group_c_queue_state', [
+				'mode' => $mode,
+				'ajax_entries' => 0,
+				'cron_entries' => 0,
+				'dispatch_attempts' => 0,
+				'notification_starts' => 0,
+				'attempt_counters' => [],
+				'future_event_observed' => false,
+			], false );
+			foreach ( [ 'one', 'two' ] as $suffix ) {
+				$url = sprintf( '%s/group-c-queue-%s-%s', $targetBaseUrl, $mode, $suffix );
+				if ( !$repo->upsertActive( $url, ImportExportSitesDB::SOURCE_MANUAL, 'group-c-'.$suffix, true ) instanceof ImportExportSiteRecord ) {
+					throw new \RuntimeException( 'Could not seed Group C queue row.' );
+				}
+			}
+			RuntimeTestState::controller()->comps->import_export->scheduleQueueSoonIfSyncEnabled( 1 );
+			return $this->groupCState( $mode );
+		}
+
+		private function groupCState( string $mode ) :array {
+			$state = \get_option( 'shield_group_c_queue_state', [] );
+			$rows = \array_values( \array_filter(
+				$this->registryRows(),
+				static fn( array $row ) :bool => \strpos( (string)( $row[ 'url' ] ?? '' ), 'group-c-queue-'.$mode.'-' ) !== false
+			) );
+			return [
+				'mode' => $mode,
+				'queue_hook' => $this->queueHook(),
+				'queue_next' => (int)( \wp_next_scheduled( $this->queueHook() ) ?: 0 ),
+				'expected_ajax_action' => $this->processorIdentifier(),
+				'processor_running' => \get_site_transient( $this->processorMarkerKey() ) !== false,
+				'rows' => $rows,
+				'ajax_entries' => \is_array( $state ) ? (int)( $state[ 'ajax_entries' ] ?? 0 ) : 0,
+				'cron_entries' => \is_array( $state ) ? (int)( $state[ 'cron_entries' ] ?? 0 ) : 0,
+				'dispatch_attempts' => \is_array( $state ) ? (int)( $state[ 'dispatch_attempts' ] ?? 0 ) : 0,
+				'dispatch_blocking' => \is_array( $state ) && !empty( $state[ 'dispatch_blocking' ] ),
+				'dispatch_url' => \is_array( $state ) ? (string)( $state[ 'dispatch_url' ] ?? '' ) : '',
+				'notification_starts' => \is_array( $state ) ? (int)( $state[ 'notification_starts' ] ?? 0 ) : 0,
+				'attempt_counters' => \is_array( $state ) ? (array)( $state[ 'attempt_counters' ] ?? [] ) : [],
+				'future_event_observed' => \is_array( $state ) && !empty( $state[ 'future_event_observed' ] ),
+			];
+		}
+
+		private function groupCRecover() :array {
+			$state = \get_option( 'shield_group_c_queue_state', [] );
+			$state = \is_array( $state ) ? $state : [];
+			$state[ 'mode' ] = 'recovery';
+			\update_option( 'shield_group_c_queue_state', $state, false );
+			\delete_site_transient( $this->processorMarkerKey() );
+			$repo = new SiteRepository();
+			foreach ( $repo->selectActiveRows() as $row ) {
+				if ( $row->queue_status === ImportExportSitesDB::QUEUE_PROCESSING
+					 && \strpos( $row->url, 'group-c-queue-' ) !== false ) {
+					RuntimeTestState::controller()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
+						'lock_until' => Services::Request()->ts() - 1,
+					] );
+				}
+			}
+			return $this->advanceQueueEvent();
 		}
 
 		/**
@@ -667,6 +778,15 @@ try {
 
 		private function queueHook() :string {
 			return RuntimeTestState::controller()->prefix( QueueScheduler::HOOK );
+		}
+
+		private function processorIdentifier() :string {
+			return RuntimeTestState::controller()->getPluginPrefix( '_' )
+				   .'_importexport_sites_queue_'.\get_current_blog_id();
+		}
+
+		private function processorMarkerKey() :string {
+			return $this->processorIdentifier().'_process_lock';
 		}
 
 		private function legacyQueueHook() :string {

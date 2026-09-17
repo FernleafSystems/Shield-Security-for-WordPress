@@ -4,6 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_UpdateNotified;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\{
+	HttpOutcome,
+	SyncObservation
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class PingSender {
@@ -17,14 +21,16 @@ class PingSender {
 	}
 
 	/**
-	 * @return array{success:bool,http_code:int,error:string}
+	 * @return array{success:bool,http_code:int,error:string,observation:?array}
 	 */
 	public function send( string $url, int $timeout = 5, string $importID = '' ) :array {
 		try {
 			$url = $this->urlValidator->validateTrustedSyncUrl( $url );
 		}
 		catch ( \InvalidArgumentException $e ) {
-			return self::result( false, 0, 'invalid_url' );
+			return self::result( false, 0, 'invalid_url', self::observation(
+				SyncObservation::RESULT_LOCAL_TARGET_VALIDATION_FAILED
+			) );
 		}
 
 		$masterUrl = $this->canonicalMasterUrl();
@@ -34,7 +40,7 @@ class PingSender {
 		}
 		$targetUrl = self::con()->plugin_urls->noncedPluginAction(
 			PluginImportExport_UpdateNotified::class,
-			(string)$url,
+			$url,
 			$aux
 		);
 		return ( new ScopedTargetHostRequest() )->run( $targetUrl, static function () use ( $targetUrl, $timeout ) :array {
@@ -43,8 +49,18 @@ class PingSender {
 				'timeout'            => $timeout,
 				'reject_unsafe_urls' => true,
 			] );
-			$code = $http->lastResponse ? (int)$http->lastResponse->getCode() : 0;
-			return self::result( true, $code, '' );
+			$outcome = HttpOutcome::fromRequest( '', $http );
+			return self::result(
+				true,
+				$outcome->status() ?? 0,
+				'',
+				self::observation(
+					$outcome->hasResponse()
+						? SyncObservation::RESULT_HTTP_RESPONSE_RECEIVED
+						: SyncObservation::RESULT_NO_HTTP_RESPONSE,
+					$outcome->observationFields()
+				)
+			);
 		} );
 	}
 
@@ -53,13 +69,24 @@ class PingSender {
 	}
 
 	/**
-	 * @return array{success:bool,http_code:int,error:string}
+	 * @return array{success:bool,http_code:int,error:string,observation:?array}
 	 */
-	private static function result( bool $success, int $httpCode, string $error ) :array {
+	private static function result( bool $success, int $httpCode, string $error, ?array $observation ) :array {
 		return [
 			'success'   => $success,
 			'http_code' => $httpCode,
 			'error'     => $error,
+			'observation' => $observation,
 		];
+	}
+
+	private static function observation( string $result, array $optional = [] ) :?array {
+		return SyncObservation::create(
+			Services::Request()->ts(),
+			SyncObservation::PHASE_NOTIFICATION,
+			$result,
+			SyncObservation::VERIFICATION_NOT_APPLICABLE,
+			$optional
+		);
 	}
 }

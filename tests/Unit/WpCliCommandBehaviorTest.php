@@ -39,6 +39,13 @@ namespace {
 				];
 			}
 
+			public static function error_multi_line( array $lines ) :void {
+				self::$events[] = [
+					'type'  => 'error_multi_line',
+					'lines' => \array_map( 'strval', $lines ),
+				];
+			}
+
 			public static function error( $message ) :void {
 				self::$events[] = [
 					'type'    => 'error',
@@ -103,18 +110,34 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 	use Brain\Monkey\Functions;
 	use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
 	use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
+	use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\{
+		ObservationPresenter,
+		SyncObservation
+	};
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 		PluginControllerInstaller,
 		ServicesState,
 		UnitTestControllerFactory
 	};
 	use FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds\{
+		ConfigImport,
 		ConfigOptGet,
 		ConfigOptSet,
 		ConfigOptsList,
 		PluginReset,
 		ScansRun
 	};
+	use FernleafSystems\Wordpress\Services\Core\{
+		Fs,
+		General,
+		Request
+	};
+	use FernleafSystems\Wordpress\Services\Core\VOs\WpHttpResponseVo;
+	use FernleafSystems\Wordpress\Services\Utilities\{
+		Data,
+		HttpRequest
+	};
+	use Carbon\Carbon;
 
 	class WpCliCommandBehaviorTest extends BaseUnitTest {
 
@@ -125,6 +148,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 			\WP_CLI::reset();
 			\WP_CLI\Utils\Recorder::reset();
 			Functions\when( '__' )->returnArg();
+			Functions\when( 'wp_date' )->alias( static fn( string $format, int $timestamp ) :string => \gmdate( $format, $timestamp ) );
 			Functions\when( 'delete_transient' )->justReturn( true );
 			$this->servicesSnapshot = ServicesState::snapshot();
 		}
@@ -202,6 +226,88 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 				'wp_cli_test_option',
 				\WP_CLI\Utils\Recorder::$formattedItems[ 0 ][ 'items' ][ 0 ][ 'key' ] ?? null
 			);
+		}
+
+		public function test_config_import_bounds_hostile_network_rejection_through_command_path() :void {
+			$hostile = '<script>remote-secret-marker</script>';
+			$this->installImportFixture( (string)\json_encode( [
+				'success' => false,
+				'code'    => 4,
+				'message' => $hostile,
+			] ), 403 );
+
+			$this->assertConfigImportHaltsWith( 'https://source-master.example.com', 7 );
+
+			$lines = $this->errorMultiLineOutput();
+			$expected = SyncObservation::create(
+				1712620800,
+				SyncObservation::PHASE_CLIENT_IMPORT,
+				SyncObservation::RESULT_PARSED_REJECTION,
+				SyncObservation::VERIFICATION_NOT_APPLICABLE,
+				[ 'error_category' => SyncObservation::ERROR_REMOTE_EXPORT_EXCEPTION ]
+			);
+			$this->assertSame( ( new ObservationPresenter() )->failureMessage( $expected, '' ), $lines[ 1 ] ?? null );
+			$this->assertStringNotContainsString( 'remote-secret-marker', \implode( "\n", $lines ) );
+			$this->assertNotContains( 'success', \array_column( \WP_CLI::$events, 'type' ) );
+		}
+
+		public function test_config_import_distinguishes_empty_and_invalid_responses_through_presenter() :void {
+			$messages = [];
+			foreach ( [
+				'empty'     => [ '', SyncObservation::RESULT_EMPTY_RESPONSE ],
+				'malformed' => [ '{"success":', SyncObservation::RESULT_INVALID_RESPONSE ],
+				'scalar'    => [ '"scalar"', SyncObservation::RESULT_INVALID_RESPONSE ],
+			] as $case => [ $body, $result ] ) {
+				\WP_CLI::reset();
+				$this->installImportFixture( $body );
+				$this->assertConfigImportHaltsWith( 'https://source-master.example.com', 5 );
+				$messages[ $case ] = $this->errorMultiLineOutput()[ 1 ] ?? '';
+
+				$expected = SyncObservation::create(
+					1712620800,
+					SyncObservation::PHASE_CLIENT_IMPORT,
+					$result,
+					SyncObservation::VERIFICATION_NOT_APPLICABLE
+				);
+				$this->assertSame( ( new ObservationPresenter() )->failureMessage( $expected, '' ), $messages[ $case ] );
+			}
+
+			$this->assertNotSame( $messages[ 'empty' ], $messages[ 'malformed' ] );
+			$this->assertSame( $messages[ 'malformed' ], $messages[ 'scalar' ] );
+			$this->assertStringContainsString( 'invalid or unusable response', $messages[ 'scalar' ] );
+			$this->assertStringNotContainsString( 'could not be parsed', $messages[ 'scalar' ] );
+		}
+
+		public function test_config_import_accepts_http_403_success_through_command_path() :void {
+			$this->installImportFixture( '{"success":true,"data":{"options":[],"ip_rules":[]}}', 403 );
+
+			( new ConfigImport() )->execCmd( [], [
+				'source' => 'https://source-master.example.com',
+				'force'  => true,
+			] );
+
+			$this->assertContains( 'success', \array_column( \WP_CLI::$events, 'type' ) );
+			$this->assertNotContains( 'error_multi_line', \array_column( \WP_CLI::$events, 'type' ) );
+		}
+
+		public function test_config_import_preserves_file_failure_message_through_command_path() :void {
+			$this->installImportFixture();
+			ServicesState::mergeItems( [
+				'service_wpfs' => new class extends Fs {
+					public function isAccessibleFile( string $path ) :bool {
+						unset( $path );
+						return false;
+					}
+				},
+			] );
+
+			$this->assertConfigImportHaltsWith( 'Z:/missing/import.json', 0 );
+
+			$this->assertSame(
+				"The import file specified isn't a valid file.",
+				$this->errorMultiLineOutput()[ 1 ] ?? null
+			);
+			$this->assertNotContains( 'success', \array_column( \WP_CLI::$events, 'type' ) );
 		}
 
 		public function test_reset_force_bypasses_confirmation_and_runs_reset_contract() :void {
@@ -351,6 +457,76 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 			];
 		}
 
+		private function installImportFixture(
+			string $body = '{"success":true,"data":{"options":[],"ip_rules":[]}}',
+			int $httpCode = 200
+		) :void {
+			Functions\when( 'sanitize_key' )->alias(
+				static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
+			);
+			Functions\when( 'wp_parse_url' )->alias(
+				static fn( string $url, int $component = -1 ) => $component === -1
+					? ( \parse_url( $url ) ?: false )
+					: \parse_url( $url, $component )
+			);
+			Functions\when( 'wp_generate_password' )->justReturn( 'uniq' );
+			Functions\when( 'add_filter' )->justReturn( true );
+			Functions\when( 'remove_filter' )->justReturn( true );
+
+			$opts = new WpCliImportOptions();
+			UnitTestControllerFactory::install( null, null, (object)[
+				'cfg'  => (object)[
+					'properties' => [
+						'slug_parent' => 'icwp',
+						'slug_plugin' => 'wpsf',
+					],
+				],
+				'opts' => $opts,
+				'comps' => (object)[
+					'events' => new class {
+						public function fireEvent( string $event, array $meta = [] ) :void {
+							unset( $event, $meta );
+						}
+					},
+					'opts_lookup' => new class {
+						public function getXferExcluded() :array {
+							return [];
+						}
+					},
+				],
+			] );
+
+			$http = new WpCliImportHttpRequest( $body, $httpCode );
+			ServicesState::mergeItems( [
+				'service_request' => new WpCliImportRequest(),
+				'service_data' => new Data(),
+				'service_httprequest' => $http,
+				'service_wpgeneral' => new WpCliImportGeneral(),
+			] );
+		}
+
+		private function assertConfigImportHaltsWith( string $source, int $code ) :void {
+			try {
+				( new ConfigImport() )->execCmd( [], [
+					'source' => $source,
+					'force'  => true,
+				] );
+				$this->fail( 'Expected the config import command to halt.' );
+			}
+			catch ( \WP_CLI\ExitException $e ) {
+				$this->assertSame( $code, $e->getCode() );
+			}
+		}
+
+		private function errorMultiLineOutput() :array {
+			$events = \array_values( \array_filter(
+				\WP_CLI::$events,
+				static fn( array $event ) :bool => ( $event[ 'type' ] ?? '' ) === 'error_multi_line'
+			) );
+			$this->assertCount( 1, $events );
+			return $events[ 0 ][ 'lines' ] ?? [];
+		}
+
 		private function installResetServices() :void {
 			ServicesState::mergeItems( [
 				'service_wpgeneral' => new class extends \FernleafSystems\Wordpress\Services\Core\General {
@@ -417,6 +593,91 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 			}
 
 			return $dbCon;
+		}
+	}
+
+	class WpCliImportOptions {
+
+		private array $values = [
+			'importexport_enable'               => 'N',
+			'importexport_masterurl'            => '',
+			'importexport_handshake_expires_at' => 0,
+			'import_id'                         => '',
+		];
+
+		private bool $hasChanges = false;
+
+		public function optGet( string $key ) {
+			return $this->values[ $key ] ?? null;
+		}
+
+		public function optSet( string $key, $value ) :self {
+			if ( !\array_key_exists( $key, $this->values ) || $this->values[ $key ] !== $value ) {
+				$this->hasChanges = true;
+			}
+			$this->values[ $key ] = $value;
+			return $this;
+		}
+
+		public function hasChanges() :bool {
+			return $this->hasChanges;
+		}
+
+		public function store() :self {
+			$this->hasChanges = false;
+			return $this;
+		}
+	}
+
+	class WpCliImportHttpRequest extends HttpRequest {
+
+		private string $body;
+		private int $httpCode;
+
+		public function __construct( string $body, int $httpCode ) {
+			$this->body = $body;
+			$this->httpCode = $httpCode;
+		}
+
+		public function getContent( string $url, $args = [] ) :string {
+			unset( $url, $args );
+			$this->lastResponse = ( new WpHttpResponseVo() )->applyFromArray( [
+				'headers'  => [],
+				'body'     => $this->body,
+				'response' => [
+					'code'    => $this->httpCode,
+					'message' => 'OK',
+				],
+				'cookies'  => [],
+				'filename' => null,
+			] );
+			$this->lastError = null;
+			return $this->body;
+		}
+	}
+
+	class WpCliImportRequest extends Request {
+
+		public function carbon( $setTimezone = false, bool $userLocale = true ) :Carbon {
+			unset( $setTimezone, $userLocale );
+			return Carbon::createFromTimestampUTC( $this->ts() );
+		}
+
+		public function ts( bool $update = true ) :int {
+			unset( $update );
+			return 1712620800;
+		}
+	}
+
+	class WpCliImportGeneral extends General {
+
+		public function getHomeUrl( string $path = '', bool $wpms = false ) :string {
+			unset( $path, $wpms );
+			return 'https://local.example.com';
+		}
+
+		public function isCron() :bool {
+			return false;
 		}
 	}
 

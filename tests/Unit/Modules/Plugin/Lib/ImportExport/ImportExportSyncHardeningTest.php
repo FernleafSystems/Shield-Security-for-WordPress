@@ -19,10 +19,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\SyncObservation;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\PingSender;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\{
+	QueueProcessor,
+	QueueScheduler
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteInviteSender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\InvitationMetadata;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -145,6 +150,111 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertSame( 'https://current-master.example.com', (string)$this->opts->optGet( 'importexport_masterurl' ) );
 		$this->assertStringContainsString( 'importexport_export', $this->httpRequest->lastRequestedUrl() );
 		$this->assertStringNotContainsString( 'secret', $this->httpRequest->lastRequestedUrl() );
+	}
+
+	/**
+	 * @dataProvider clientImportObservationProvider
+	 */
+	public function test_from_site_records_bounded_client_import_observation(
+		string $body,
+		int $httpCode,
+		bool $httpSuccess,
+		string $expectedResult,
+		?int $expectedExceptionCode,
+		?string $expectedErrorCategory = null
+	) :void {
+		$this->httpRequest->setGetResponse( $body, $httpCode, $httpSuccess );
+		$import = new Import();
+
+		try {
+			$import->fromSite( 'https://source-master.example.com' );
+			$this->assertNull( $expectedExceptionCode );
+		}
+		catch ( \Exception $e ) {
+			$this->assertSame( $expectedExceptionCode, $e->getCode() );
+		}
+
+		$observation = $import->latestObservation();
+		$this->assertSame( $expectedResult, $observation[ 'result' ] ?? null );
+		$this->assertSame( SyncObservation::PHASE_CLIENT_IMPORT, $observation[ 'phase' ] ?? null );
+		$this->assertSame(
+			SyncObservation::targetFingerprint( 'https://source-master.example.com' ),
+			$observation[ 'target_fingerprint' ] ?? null
+		);
+		$this->assertSame( $httpCode > 0 ? $httpCode : null, $observation[ 'http_status' ] ?? null );
+		$this->assertSame( $expectedErrorCategory, $observation[ 'error_category' ] ?? null );
+	}
+
+	public static function clientImportObservationProvider() :array {
+		return [
+			'generic transport failure' => [ '', 0, false, SyncObservation::RESULT_TRANSPORT_FAILURE, 5 ],
+			'empty response' => [ '', 200, true, SyncObservation::RESULT_EMPTY_RESPONSE, 5 ],
+			'HTML response' => [ '<html><body>Upstream error</body></html>', 502, true, SyncObservation::RESULT_INVALID_RESPONSE, 5 ],
+			'malformed JSON response' => [ '{"success":', 200, true, SyncObservation::RESULT_INVALID_RESPONSE, 5 ],
+			'invalid response' => [ '"scalar"', 200, true, SyncObservation::RESULT_INVALID_RESPONSE, 5 ],
+			'parsed rejection' => [ '{"success":false,"code":3,"message":"remote secret"}', 403, true, SyncObservation::RESULT_PARSED_REJECTION, 7, SyncObservation::ERROR_REMOTE_COOLDOWN ],
+			'unknown parsed rejection' => [ '{"success":false,"code":999,"message":"remote secret"}', 403, true, SyncObservation::RESULT_PARSED_REJECTION, 7 ],
+			'invalid export data' => [ '{"success":true,"data":[]}', 200, true, SyncObservation::RESULT_INVALID_EXPORT_DATA, 8 ],
+			'invalid nested options' => [ '{"success":true,"data":{"options":"invalid","ip_rules":[]}}', 200, true, SyncObservation::RESULT_INVALID_EXPORT_DATA, 0 ],
+			'invalid nested IP rule' => [ '{"success":true,"data":{"options":[],"ip_rules":["invalid"]}}', 200, true, SyncObservation::RESULT_INVALID_EXPORT_DATA, 0 ],
+			'http 403 success' => [ '{"success":true,"data":{"options":[],"ip_rules":[]}}', 403, true, SyncObservation::RESULT_NETWORK_IMPORT_COMPLETED, null ],
+			'completed' => [ '{"success":true,"data":{"options":[],"ip_rules":[]}}', 200, true, SyncObservation::RESULT_NETWORK_IMPORT_COMPLETED, null ],
+		];
+	}
+
+	public function test_from_site_records_genuine_local_application_exception() :void {
+		$this->httpRequest->setGetResponse( '{"success":true,"data":{"options":{"test_option":"value"},"ip_rules":[]}}' );
+		$this->events->throwOn( 'options_imported', new \RuntimeException( 'local application failed' ) );
+		$import = new Import();
+
+		try {
+			$import->fromSite( 'https://source-master.example.com' );
+			$this->fail( 'Expected local application failure.' );
+		}
+		catch ( \RuntimeException $e ) {
+			$this->assertSame( 'local application failed', $e->getMessage() );
+		}
+
+		$this->assertSame( SyncObservation::RESULT_LOCAL_IMPORT_EXCEPTION, $import->latestObservation()[ 'result' ] ?? null );
+	}
+
+	public function test_parsed_rejection_observation_keeps_allowlisted_category_without_remote_message() :void {
+		$hostile = '<script>remote secret</script>';
+		$this->httpRequest->setGetResponse( (string)\json_encode( [
+			'success' => false,
+			'code'    => 4,
+			'message' => $hostile,
+		] ), 403 );
+		$import = new Import();
+
+		try {
+			$import->fromSite( 'https://source-master.example.com' );
+			$this->fail( 'Expected parsed rejection.' );
+		}
+		catch ( \Exception $e ) {
+			$this->assertSame( 7, $e->getCode() );
+			$this->assertSame( 'The source site rejected the import request.', $e->getMessage() );
+			$this->assertStringNotContainsString( 'remote secret', $e->getMessage() );
+		}
+
+		$observation = $import->latestObservation();
+		$this->assertSame( SyncObservation::ERROR_REMOTE_EXPORT_EXCEPTION, $observation[ 'error_category' ] ?? null );
+		$this->assertStringNotContainsString( 'remote secret', (string)\json_encode( $observation ) );
+	}
+
+	public function test_local_validation_observation_has_no_unvalidated_target_fingerprint() :void {
+		$import = new Import();
+		try {
+			$import->fromSite( 'not a URL' );
+			$this->fail( 'Expected URL validation failure.' );
+		}
+		catch ( \Exception $e ) {
+			$this->assertSame( 4, $e->getCode() );
+		}
+
+		$this->assertSame( SyncObservation::RESULT_LOCAL_INPUT_VALIDATION_FAILED, $import->latestObservation()[ 'result' ] ?? null );
+		$this->assertArrayNotHasKey( 'target_fingerprint', $import->latestObservation() ?? [] );
+		$this->assertSame( '', $this->httpRequest->lastRequestedUrl() );
 	}
 
 	public function test_cron_import_preserves_local_sync_state_and_master_url() :void {
@@ -339,11 +449,52 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 
 		$result = ( new SyncSiteInviteSender() )->send( 'https://93.184.216.36/client-site' );
 
-		$this->assertTrue( $result[ 'success' ] ?? false );
+		$this->assertSame(
+			\FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\InvitationMetadata::RESULT_HTTP_RESPONSE,
+			$result[ 'result' ] ?? ''
+		);
 		$this->assertScopedExternalHostFilterEvents( $events, 'http_post' );
 		$this->assertStringContainsString( PluginImportExport_NetworkInviteRequest::SLUG, $this->httpRequest->lastPostRequestedUrl() );
 		$this->assertTrue( (bool)( $this->httpRequest->lastPostArgs()[ 'reject_unsafe_urls' ] ?? false ) );
 		$this->assertSame( 'https://93.184.216.35', $this->httpRequest->lastPostArgs()[ 'body' ][ 'master_url' ] ?? '' );
+	}
+
+	/**
+	 * @dataProvider inviteSenderResultProvider
+	 */
+	public function test_invite_sender_classifies_sanitized_outcomes(
+		int $httpCode,
+		bool $success,
+		?\Throwable $exception,
+		string $expectedResult
+	) :void {
+		$this->wpGeneral->setHomeUrl( 'https://93.184.216.35' );
+		$this->httpRequest->setPostOutcome( $httpCode, $success, $exception );
+
+		$result = ( new SyncSiteInviteSender() )->send( 'https://93.184.216.36/client-site' );
+
+		$this->assertSame( $expectedResult, $result[ 'result' ] );
+		$this->assertSame( $httpCode, $result[ 'http_status' ] );
+		$this->assertSame( [ 'result', 'http_status' ], \array_keys( $result ) );
+	}
+
+	public static function inviteSenderResultProvider() :array {
+		return [
+			'http 200'        => [ 200, true, null, InvitationMetadata::RESULT_HTTP_RESPONSE ],
+			'http 204'        => [ 204, true, null, InvitationMetadata::RESULT_HTTP_RESPONSE ],
+			'http 403'        => [ 403, false, null, InvitationMetadata::RESULT_HTTP_FAILURE ],
+			'http 429'        => [ 429, false, null, InvitationMetadata::RESULT_HTTP_FAILURE ],
+			'http 500'        => [ 500, false, null, InvitationMetadata::RESULT_HTTP_FAILURE ],
+			'transport error' => [ 0, false, null, InvitationMetadata::RESULT_TRANSPORT_FAILURE ],
+			'sender exception' => [ 0, false, new \RuntimeException( 'secret diagnostic' ), InvitationMetadata::RESULT_SENDER_FAILURE ],
+		];
+	}
+
+	public function test_invite_sender_rejects_unsafe_url_without_http() :void {
+		$result = ( new SyncSiteInviteSender() )->send( 'https://127.0.0.1/client-site' );
+
+		$this->assertSame( InvitationMetadata::RESULT_URL_VALIDATION_FAILURE, $result[ 'result' ] );
+		$this->assertSame( '', $this->httpRequest->lastPostRequestedUrl() );
 	}
 
 	public function test_from_site_rejects_unknown_request_safety_mode_without_mutation() :void {
@@ -618,6 +769,45 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertSame( 1712620845, $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
 	}
 
+	public function test_queue_scheduler_recreates_health_event_before_running_worker() :void {
+		$callbacks = [];
+		Functions\when( 'add_action' )->alias( static function ( string $hook, callable $callback ) use ( &$callbacks ) :bool {
+			$callbacks[ $hook ] = $callback;
+			return true;
+		} );
+		$hook = $this->queueCronHook();
+		$workerRan = false;
+		$scheduler = new QueueScheduler(
+			static fn() :bool => true,
+			function () use ( &$workerRan, $hook ) :void {
+				$this->assertSame( 1712621100, $this->scheduledEvents[ $hook ] ?? false );
+				$workerRan = true;
+			}
+		);
+		$scheduler->setup();
+		unset( $this->scheduledEvents[ $hook ] );
+
+		$callbacks[ $hook ]();
+
+		$this->assertTrue( $workerRan );
+	}
+
+	public function test_queue_processor_identity_is_specific_to_current_blog() :void {
+		$blogID = 17;
+		Functions\when( 'get_current_blog_id' )->alias( static function () use ( &$blogID ) :int {
+			return $blogID;
+		} );
+		Functions\when( 'add_action' )->justReturn( true );
+
+		$first = ( new ImportExportQueueProcessorIdentityTestDouble() )->identifierForTest();
+		$blogID = 29;
+		$second = ( new ImportExportQueueProcessorIdentityTestDouble() )->identifierForTest();
+
+		$this->assertNotSame( $first, $second );
+		$this->assertStringEndsWith( 'importexport_sites_queue_17', $first );
+		$this->assertStringEndsWith( 'importexport_sites_queue_29', $second );
+	}
+
 	public function test_schedule_queue_soon_schedules_when_enabled_and_available() :void {
 		$this->opts->optSet( 'importexport_enable', 'Y' )->store();
 
@@ -635,6 +825,16 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
 	}
 
+	public function test_disabling_sync_clears_existing_queue_health_event() :void {
+		$this->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$this->scheduledEvents[ $this->queueCronHook() ] = 1712620900;
+
+		( new ImportExportController() )->setAutomaticImportExportEnabled( false );
+
+		$this->assertSame( 'N', $this->opts->optGet( 'importexport_enable' ) );
+		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
+	}
+
 	public function test_ping_sender_uses_trusted_sync_policy_for_private_resolved_hosts() :void {
 		$events = [];
 		$sender = $this->buildPingSenderWithRecordedFilters( $events );
@@ -646,7 +846,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 
 		$result = $sender->send( 'https://client.example.com' );
 
-		$this->assertPingResult( true, 200, '', $result );
+		$this->assertPingResult( true, 200, '', SyncObservation::RESULT_HTTP_RESPONSE_RECEIVED, 200, $result );
 		$this->assertScopedExternalHostFilterEvents( $events );
 		$this->assertStringContainsString( PluginImportExport_UpdateNotified::SLUG, $this->httpRequest->lastGetRequestedUrl() );
 		$this->assertStringContainsString( 'master_url=', $this->httpRequest->lastGetRequestedUrl() );
@@ -671,33 +871,41 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'master_url=https://local.example.com/Master', $requestedUrl );
 	}
 
-	public function test_ping_sender_ignores_response_body() :void {
-		$this->httpRequest->setGetResponse( '{not-json', 500, true );
+	/**
+	 * @dataProvider providePingSenderOutcomes
+	 */
+	public function test_ping_sender_records_bounded_outcome_without_changing_dispatch_semantics(
+		string $url,
+		int $httpCode,
+		bool $httpSuccess,
+		bool $expectedSuccess,
+		string $expectedError,
+		string $expectedResult,
+		?int $expectedStatus,
+		bool $requestExpected
+	) :void {
+		$this->httpRequest->setGetResponse( '{not-json', $httpCode, $httpSuccess, 'Operation timed out' );
 
-		$result = $this->buildPingSender()->send( 'https://client.example.com', 5 );
+		$result = $this->buildPingSender()->send( $url, 5 );
 
-		$this->assertPingResult( true, 500, '', $result );
+		$this->assertPingResult( $expectedSuccess, $httpCode, $expectedError, $expectedResult, $expectedStatus, $result );
+		$this->assertSame( $requestExpected, $this->httpRequest->lastGetRequestedUrl() !== '' );
 	}
 
-	public function test_ping_sender_treats_transport_timeout_as_dispatched() :void {
-		$this->httpRequest->setGetResponse( '', 0, false, 'Operation timed out' );
-
-		$result = $this->buildPingSender()->send( 'https://client.example.com', 5 );
-
-		$this->assertPingResult( true, 0, '', $result );
-	}
-
-	public function test_ping_sender_rejects_invalid_target_url_before_request() :void {
-		$result = $this->buildPingSender()->send( 'not-a-url', 5 );
-
-		$this->assertPingResult( false, 0, 'invalid_url', $result );
-		$this->assertSame( '', $this->httpRequest->lastGetRequestedUrl() );
+	public static function providePingSenderOutcomes() :array {
+		return [
+			'http 200'       => [ 'https://client.example.com', 200, true, true, '', SyncObservation::RESULT_HTTP_RESPONSE_RECEIVED, 200, true ],
+			'http 403'       => [ 'https://client.example.com', 403, true, true, '', SyncObservation::RESULT_HTTP_RESPONSE_RECEIVED, 403, true ],
+			'http 500'       => [ 'https://client.example.com', 500, true, true, '', SyncObservation::RESULT_HTTP_RESPONSE_RECEIVED, 500, true ],
+			'no response'    => [ 'https://client.example.com', 0, false, true, '', SyncObservation::RESULT_NO_HTTP_RESPONSE, null, true ],
+			'invalid target' => [ 'not-a-url', 0, true, false, 'invalid_url', SyncObservation::RESULT_LOCAL_TARGET_VALIDATION_FAILED, null, false ],
+		];
 	}
 
 	public function test_ping_sender_rejects_literal_private_ip_before_request() :void {
 		$result = $this->buildPingSender()->send( 'https://10.0.0.25', 5 );
 
-		$this->assertPingResult( false, 0, 'invalid_url', $result );
+		$this->assertPingResult( false, 0, 'invalid_url', SyncObservation::RESULT_LOCAL_TARGET_VALIDATION_FAILED, null, $result );
 		$this->assertSame( '', $this->httpRequest->lastGetRequestedUrl() );
 	}
 
@@ -774,12 +982,22 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		return new PingSender( new SyncSiteUrlValidator( static fn() :array => $resolvedIps ) );
 	}
 
-	private function assertPingResult( bool $success, int $httpCode, string $error, array $result ) :void {
-		$this->assertSame( [
-			'success'   => $success,
-			'http_code' => $httpCode,
-			'error'     => $error,
-		], $result );
+	private function assertPingResult(
+		bool $success,
+		int $httpCode,
+		string $error,
+		string $observationResult,
+		?int $httpStatus,
+		array $result
+	) :void {
+		$this->assertSame( $success, $result[ 'success' ] );
+		$this->assertSame( $httpCode, $result[ 'http_code' ] );
+		$this->assertSame( $error, $result[ 'error' ] );
+		$this->assertIsArray( $result[ 'observation' ] );
+		$this->assertSame( SyncObservation::PHASE_NOTIFICATION, $result[ 'observation' ][ 'phase' ] );
+		$this->assertSame( SyncObservation::VERIFICATION_NOT_APPLICABLE, $result[ 'observation' ][ 'verification' ] );
+		$this->assertSame( $observationResult, $result[ 'observation' ][ 'result' ] );
+		$this->assertSame( $httpStatus, $result[ 'observation' ][ 'http_status' ] ?? null );
 	}
 
 	private function recordExternalHostFilterEvents( array &$events, string $probeTargetHost = '' ) :void {
@@ -859,6 +1077,17 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 
 }
 
+class ImportExportQueueProcessorIdentityTestDouble extends QueueProcessor {
+
+	public function __construct() {
+		parent::__construct( static fn() :bool => true );
+	}
+
+	public function identifierForTest() :string {
+		return $this->identifier;
+	}
+}
+
 class ImportExportOptsStoreStub {
 
 	private array $values;
@@ -898,8 +1127,17 @@ class ImportExportEventsRecorderStub {
 
 	/** @var array<int,array{event:string,meta:array}> */
 	public array $fired = [];
+	/** @var array<string,\Throwable> */
+	private array $exceptions = [];
+
+	public function throwOn( string $event, \Throwable $exception ) :void {
+		$this->exceptions[ $event ] = $exception;
+	}
 
 	public function fireEvent( string $event, array $meta = [] ) :void {
+		if ( isset( $this->exceptions[ $event ] ) ) {
+			throw $this->exceptions[ $event ];
+		}
 		$this->fired[] = [
 			'event' => $event,
 			'meta'  => $meta,
@@ -933,6 +1171,9 @@ class ImportExportHttpRequestStub extends HttpRequest {
 	private $onGet = null;
 	private $onGetContent = null;
 	private $onPost = null;
+	private int $postResponseCode = 200;
+	private bool $postSuccess = true;
+	private ?\Throwable $postException = null;
 
 	public function setResponseOptions( array $options ) :void {
 		$this->responseOptions = $options;
@@ -993,6 +1234,12 @@ class ImportExportHttpRequestStub extends HttpRequest {
 		$this->onPost = $callback;
 	}
 
+	public function setPostOutcome( int $httpCode, bool $success, ?\Throwable $exception = null ) :void {
+		$this->postResponseCode = $httpCode;
+		$this->postSuccess = $success;
+		$this->postException = $exception;
+	}
+
 	public function get( $url, $args = [] ) :bool {
 		$this->lastGetRequestedUrl = (string)$url;
 		$this->lastGetArgs = \is_array( $args ) ? $args : [];
@@ -1002,7 +1249,7 @@ class ImportExportHttpRequestStub extends HttpRequest {
 		if ( $this->getException !== null ) {
 			throw $this->getException;
 		}
-		$this->lastResponse = ( new WpHttpResponseVo() )->applyFromArray( [
+		$this->lastResponse = !$this->getSuccess && $this->getResponseCode <= 0 ? null : ( new WpHttpResponseVo() )->applyFromArray( [
 			'headers'  => [],
 			'body'     => $this->getResponseBody(),
 			'response' => [
@@ -1036,13 +1283,36 @@ class ImportExportHttpRequestStub extends HttpRequest {
 			throw $this->getContentException;
 		}
 
-		return (string)\json_encode( $this->contentResponse ?? [
+		$body = $this->getResponseBody ?? (string)\json_encode( $this->contentResponse ?? [
 			'success' => true,
 			'data'    => [
 				'options'  => $this->responseOptions,
 				'ip_rules' => [],
 			],
 		] );
+		$this->lastResponse = $this->getResponseCode > 0 ? ( new WpHttpResponseVo() )->applyFromArray( [
+			'headers'  => [],
+			'body'     => $body,
+			'response' => [
+				'code'    => $this->getResponseCode,
+				'message' => 'OK',
+			],
+			'cookies'  => [],
+			'filename' => null,
+		] ) : null;
+		$this->lastError = $this->getSuccess ? null : new class( $this->getError ) {
+			private string $message;
+
+			public function __construct( string $message ) {
+				$this->message = $message;
+			}
+
+			public function get_error_message() :string {
+				return $this->message;
+			}
+		};
+
+		return $body;
 	}
 
 	public function post( string $url, $args = [] ) :bool {
@@ -1051,17 +1321,20 @@ class ImportExportHttpRequestStub extends HttpRequest {
 		if ( \is_callable( $this->onPost ) ) {
 			( $this->onPost )( $url, $args );
 		}
-		$this->lastResponse = ( new WpHttpResponseVo() )->applyFromArray( [
+		if ( $this->postException !== null ) {
+			throw $this->postException;
+		}
+		$this->lastResponse = $this->postResponseCode > 0 ? ( new WpHttpResponseVo() )->applyFromArray( [
 			'headers'  => [],
 			'body'     => '',
 			'response' => [
-				'code'    => 200,
+				'code'    => $this->postResponseCode,
 				'message' => 'OK',
 			],
 			'cookies'  => [],
 			'filename' => null,
-		] );
-		return true;
+		] ) : null;
+		return $this->postSuccess;
 	}
 
 	private function getResponseBody() :string {

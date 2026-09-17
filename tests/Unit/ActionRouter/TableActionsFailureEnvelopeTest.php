@@ -101,6 +101,7 @@ class TableActionsFailureEnvelopeTest extends BaseUnitTest {
 					ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC,
 					ImportExportSitesTableAction::SUB_ACTION_DELETE_SITE,
 					ImportExportSitesTableAction::SUB_ACTION_REPAIR_CONNECTION,
+					ImportExportSitesTableAction::SUB_ACTION_RETRY_INVITATION,
 				],
 			],
 			[
