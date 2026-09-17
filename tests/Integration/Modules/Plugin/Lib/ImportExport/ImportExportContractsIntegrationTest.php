@@ -738,6 +738,53 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			$fresh->meta[ 'sync_observations' ][ SyncObservation::PHASE_EXPORT ][ 'result' ] );
 	}
 
+	public function test_export_json_trailing_slash_only_resolves_same_import_id_site_without_handshake() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$repo = new SiteRepository();
+		$validator = new SyncSiteUrlValidator();
+		$storedUrl = self::MANUAL_PUBLIC_URL;
+		$claimedUrl = $storedUrl.'/';
+		$row = $this->seedActiveSyncSite( $storedUrl, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$storedCanonical = $validator->canonicalize( $storedUrl );
+		$claimedCanonical = $validator->canonicalize( $claimedUrl );
+
+		$this->assertNotSame( $storedUrl, $claimedUrl );
+		$this->assertSame( '/', \substr( $claimedUrl, \strlen( $storedUrl ) ) );
+		$this->assertSame( $storedCanonical, $claimedCanonical );
+		$this->assertSame( $storedCanonical, $row->url );
+
+		$handshakeRequests = 0;
+		$filter = static function ( $preempt, array $args, string $requestUrl ) use ( &$handshakeRequests ) {
+			if ( \str_contains( $requestUrl, '93.184.216.71' ) ) {
+				$handshakeRequests++;
+			}
+			return $preempt;
+		};
+		\add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		try {
+			$payload = $this->captureExportJson( [
+				'url' => $claimedUrl,
+				'id'  => self::SLAVE_IMPORT_ID,
+			] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter, 10 );
+		}
+
+		$this->assertExportJsonPayload( $payload );
+		$this->assertSame( 0, $handshakeRequests );
+		$fresh = $repo->findByUrl( $claimedUrl );
+		$this->assertInstanceOf( SiteRecord::class, $fresh );
+		$this->assertSame( $row->id, $fresh->id );
+		$this->assertSame( $storedCanonical, $fresh->url );
+		$this->assertSame( self::SLAVE_IMPORT_ID, $fresh->import_id );
+		$this->assertSame( SyncObservation::RESULT_VERIFICATION_PASSED,
+			$repo->readObservation( $fresh, SyncObservation::PHASE_VERIFICATION )[ 'result' ] ?? null );
+		$this->assertSame( SyncObservation::RESULT_EXPORT_SERVED,
+			$repo->readObservation( $fresh, SyncObservation::PHASE_EXPORT )[ 'result' ] ?? null );
+	}
+
 	public function test_export_json_no_id_legacy_sync_site_learns_import_id_after_handshake() :void {
 		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
 		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL );
