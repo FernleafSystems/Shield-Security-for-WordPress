@@ -36,6 +36,12 @@ class TestCrossSiteCommand extends Command {
 				null,
 				InputOption::VALUE_REQUIRED,
 				'Run a supported named B2 remote evidence case (B2-01, B2-02, B2-07, or B2-09).'
+			)
+			->addOption(
+				'e-case',
+				null,
+				InputOption::VALUE_REQUIRED,
+				'Run a supported Group E export-success persistence case (E-01 or E-02).'
 			);
 	}
 
@@ -44,6 +50,7 @@ class TestCrossSiteCommand extends Command {
 			return $this->lane->run( $this->projectRoot, [
 				'show_setup_output' => (bool)$input->getOption( 'show-setup-output' ),
 				'b2_case' => $input->getOption( 'b2-case' ),
+				'e_case' => $input->getOption( 'e-case' ),
 			] );
 		}
 		catch ( \Throwable $throwable ) {

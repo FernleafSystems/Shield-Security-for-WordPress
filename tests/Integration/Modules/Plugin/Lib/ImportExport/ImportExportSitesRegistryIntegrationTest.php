@@ -133,6 +133,44 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( [], ( new WhitelistNotifyQueue( SiteRepository::OLD_QUEUE_ACTION, $con->prefix() ) )->get_batches() );
 	}
 
+	public function test_delete_by_ids_uses_bounded_batches_and_counts_existing_rows() :void {
+		$repo = $this->repo();
+		$ids = [];
+		foreach ( \range( 1, 21 ) as $position ) {
+			$ids[] = $repo->upsertActive(
+				"https://delete-batch-{$position}.example.com",
+				SitesDB::SOURCE_MANUAL
+			)->id;
+		}
+
+		$table = $this->requireController()->db_con->import_export_sites->getTable();
+		$deletes = 0;
+		$selects = 0;
+		$filter = static function ( string $query ) use ( $table, &$deletes, &$selects ) :string {
+			if ( \strpos( $query, "DELETE FROM `{$table}` WHERE `id` IN (" ) === 0 ) {
+				$deletes++;
+			}
+			elseif ( \strpos( $query, "SELECT * FROM `{$table}`" ) === 0 ) {
+				$selects++;
+			}
+			return $query;
+		};
+		\add_filter( 'query', $filter, 1000 );
+		try {
+			$deleted = $repo->deleteByIds( \array_merge( $ids, [ $ids[ 0 ], 0, -1, 9999999 ] ) );
+		}
+		finally {
+			\remove_filter( 'query', $filter, 1000 );
+		}
+
+		$this->assertSame( 21, $deleted );
+		$this->assertSame( 2, $deletes );
+		$this->assertSame( 0, $selects );
+		foreach ( $ids as $id ) {
+			$this->assertNull( $repo->findById( $id, true ) );
+		}
+	}
+
 	public function test_legacy_import_insert_failure_preserves_marker_and_old_queue_for_retry() :void {
 		$url = 'https://legacy-insert-retry.example.com';
 		$this->setLegacyImportOptions( [ $url ] );
@@ -617,7 +655,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->setRequestTimestamp( $first );
 		$repo = $this->repo();
 		$idle = $repo->upsertActive( 'https://queue-coalesce-idle.example.com', SitesDB::SOURCE_MANUAL, 'idle-id', true );
-		$repo->recordExportSuccess( $idle->url, SitesDB::EXPORT_RESULT_SUCCESS, 'idle-id' );
+		$repo->recordExportSuccess( $idle, SitesDB::EXPORT_RESULT_SUCCESS, 'idle-id' );
 		$idle = $repo->findById( $idle->id, true );
 
 		$queued = $repo->upsertActive( 'https://queue-coalesce-queued.example.com', SitesDB::SOURCE_MANUAL, 'queued-id', true );
@@ -819,7 +857,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->setRequestTimestamp( $now );
 		$repo = $this->repo();
 		$row = $repo->upsertActive( 'https://queue-write-failure.example.com', SitesDB::SOURCE_MANUAL, '', true );
-		$repo->recordExportSuccess( $row->url, SitesDB::EXPORT_RESULT_SUCCESS );
+		$repo->recordExportSuccess( $row, SitesDB::EXPORT_RESULT_SUCCESS );
 		$before = $repo->findById( $row->id, true )->getRawData();
 		$table = $this->requireController()->db_con->import_export_sites->getTable();
 		$failed = false;
@@ -846,6 +884,203 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertTrue( $failed );
 		$this->assertSame( 0, $count );
 		$this->assertSame( $before, $repo->findById( $row->id, true )->getRawData() );
+	}
+
+	public function test_export_success_retries_one_transient_database_failure() :void {
+		global $wpdb;
+		$now = 1712620800;
+		$this->setRequestTimestamp( $now );
+		$repo = $this->repo();
+		$row = $repo->upsertActive( 'https://export-success-retry.example.com', SitesDB::SOURCE_MANUAL, 'retry-id', true );
+		$this->assertTrue( $repo->startNotificationAttempt( $row, $now ) );
+		$started = $repo->findById( $row->id, true );
+		$this->assertSame( 1, $repo->recordNotifyDispatched( $started, 204, $now + QueueProcessor::EXPORT_GRACE ) );
+		$waiting = $repo->findById( $row->id, true );
+		$table = $this->requireController()->db_con->import_export_sites->getTable();
+		$attempts = 0;
+		$filter = function ( string $query ) use ( $table, &$attempts ) :string {
+			if ( $this->isExportSuccessUpdate( $query, $table ) ) {
+				$attempts++;
+				if ( $attempts === 1 ) {
+					return 'UPDATE intentionally_invalid_export_success_sql';
+				}
+			}
+			return $query;
+		};
+		$previousSuppressErrors = $wpdb->suppress_errors( true );
+		\add_filter( 'query', $filter, 1000 );
+		try {
+			$result = $repo->recordExportSuccess( $waiting, SitesDB::EXPORT_RESULT_SUCCESS, 'retry-id' );
+		}
+		finally {
+			\remove_filter( 'query', $filter, 1000 );
+			$wpdb->suppress_errors( $previousSuppressErrors );
+		}
+
+		$this->assertSame( 2, $attempts );
+		$this->assertSame( 1, $result );
+		$persisted = $repo->findById( $row->id, true );
+		$this->assertSame( SitesDB::QUEUE_IDLE, $persisted->queue_status );
+		$this->assertSame( $now, $persisted->last_export_success_at );
+		$this->assertSame( SitesDB::EXPORT_RESULT_SUCCESS, $persisted->last_export_result_code );
+
+		$this->setRequestTimestamp( $waiting->expected_export_by );
+		$this->assertSame( [], $repo->selectExportMaintenanceRows( 5 ) );
+		$sender = new ImportExportPingSenderTestDouble( true, 204, '' );
+		( new ImportExportQueueProcessorTestDouble( $sender, null, $repo ) )->runFromCron();
+		$this->assertSame( [], $sender->urls );
+		$afterGrace = $repo->findById( $row->id, true );
+		$this->assertSame( SitesDB::QUEUE_IDLE, $afterGrace->queue_status );
+		$this->assertSame( SitesDB::EXPORT_RESULT_SUCCESS, $afterGrace->last_export_result_code );
+		$this->assertSame( 0, $afterGrace->consecutive_failures );
+	}
+
+	public function test_export_request_marker_uses_supplied_active_row_without_lookup() :void {
+		$repo = $this->repo();
+		$row = $repo->upsertActive( 'https://export-request-marker.example.com', SitesDB::SOURCE_MANUAL );
+		$table = $this->requireController()->db_con->import_export_sites->getTable();
+		$updates = 0;
+		$selects = 0;
+		$filter = static function ( string $query ) use ( $table, &$updates, &$selects ) :string {
+			if ( \strpos( $query, "UPDATE `{$table}` SET `last_export_request_at`=" ) === 0 ) {
+				$updates++;
+			}
+			elseif ( \strpos( $query, "SELECT * FROM `{$table}`" ) === 0 ) {
+				$selects++;
+			}
+			return $query;
+		};
+
+		$this->setRequestTimestamp( 1712620800 );
+		\add_filter( 'query', $filter, 1000 );
+		try {
+			$repo->recordExportRequested( $row );
+		}
+		finally {
+			\remove_filter( 'query', $filter, 1000 );
+		}
+
+		$this->assertSame( 1, $updates );
+		$this->assertSame( 0, $selects );
+		$persisted = $repo->findById( $row->id, true );
+		$this->assertSame( 1712620800, $persisted->last_export_request_at );
+
+		$repo->softDeleteUrl( $row->url );
+		$this->setRequestTimestamp( 1712620900 );
+		$repo->recordExportRequested( $row );
+		$this->assertSame( 1712620800, $repo->findById( $row->id, true )->last_export_request_at );
+	}
+
+	public function test_export_success_persistent_database_failure_keeps_timeout_recovery() :void {
+		global $wpdb;
+		$now = 1712620800;
+		$this->setRequestTimestamp( $now );
+		$repo = $this->repo();
+		$row = $repo->upsertActive( 'https://export-success-persistent-failure.example.com', SitesDB::SOURCE_MANUAL, 'persistent-id', true );
+		$this->assertTrue( $repo->startNotificationAttempt( $row, $now ) );
+		$started = $repo->findById( $row->id, true );
+		$deadline = $now + QueueProcessor::EXPORT_GRACE;
+		$this->assertSame( 1, $repo->recordNotifyDispatched( $started, 204, $deadline ) );
+		$waiting = $repo->findById( $row->id, true );
+		$table = $this->requireController()->db_con->import_export_sites->getTable();
+		$attempts = 0;
+		$filter = function ( string $query ) use ( $table, &$attempts ) :string {
+			if ( $this->isExportSuccessUpdate( $query, $table ) ) {
+				$attempts++;
+				return 'UPDATE intentionally_invalid_export_success_sql';
+			}
+			return $query;
+		};
+		$previousSuppressErrors = $wpdb->suppress_errors( true );
+		\add_filter( 'query', $filter, 1000 );
+		try {
+			$result = $repo->recordExportSuccess( $waiting, SitesDB::EXPORT_RESULT_SUCCESS, 'persistent-id' );
+		}
+		finally {
+			\remove_filter( 'query', $filter, 1000 );
+			$wpdb->suppress_errors( $previousSuppressErrors );
+		}
+
+		$this->assertFalse( $result );
+		$this->assertSame( 2, $attempts );
+		$persisted = $repo->findById( $row->id, true );
+		$this->assertSame( SitesDB::QUEUE_WAITING_EXPORT, $persisted->queue_status );
+		$this->assertSame( 0, $persisted->last_export_success_at );
+
+		$this->setRequestTimestamp( $deadline );
+		$maintenance = $repo->selectExportMaintenanceRows( 5 );
+		$this->assertSame( [ $row->id ], \array_map( static fn( Record $item ) :int => $item->id, $maintenance ) );
+		$this->assertSame( 1, $repo->recordExportTimeout( $maintenance[ 0 ] ) );
+		$timedOut = $repo->findById( $row->id, true );
+		$this->assertSame( SitesDB::QUEUE_QUEUED, $timedOut->queue_status );
+		$this->assertSame( SitesDB::EXPORT_RESULT_TIMEOUT, $timedOut->last_export_result_code );
+		$this->assertSame( 1, $timedOut->consecutive_failures );
+		$this->assertSame( $deadline + 15*\MINUTE_IN_SECONDS, $timedOut->next_ping_at );
+		$this->assertNull( $repo->selectNextDueWork( $timedOut->next_ping_at - 1 ) );
+	}
+
+	public function test_export_success_retry_does_not_overwrite_newer_queue_operations() :void {
+		global $wpdb;
+		$base = 1712620800;
+		foreach ( [ 'manual-retry', 'replacement-wait', 'case-only-import-id' ] as $offset => $case ) {
+			$now = $base + $offset*7200;
+			$this->setRequestTimestamp( $now );
+			$repo = $this->repo();
+			$row = $repo->upsertActive( "https://export-success-stale-{$case}.example.com", SitesDB::SOURCE_MANUAL, 'original-id', true );
+			$this->assertTrue( $repo->startNotificationAttempt( $row, $now ) );
+			$started = $repo->findById( $row->id, true );
+			$this->assertSame( 1, $repo->recordNotifyDispatched( $started, 204, $now + QueueProcessor::EXPORT_GRACE ) );
+			$waiting = $repo->findById( $row->id, true );
+			$table = $this->requireController()->db_con->import_export_sites->getTable();
+			$attempts = 0;
+			$winner = null;
+			$interleaving = false;
+			$filter = function ( string $query ) use ( $case, $now, $repo, $waiting, $table, &$attempts, &$winner, &$interleaving ) :string {
+				if ( $interleaving || !$this->isExportSuccessUpdate( $query, $table ) ) {
+					return $query;
+				}
+				$attempts++;
+				if ( $attempts === 1 ) {
+					return 'UPDATE intentionally_invalid_export_success_sql';
+				}
+				$interleaving = true;
+				if ( $case === 'manual-retry' ) {
+					$this->setRequestTimestamp( $waiting->expected_export_by );
+					$this->assertSame( 1, $repo->recordExportTimeout( $waiting ) );
+					$this->assertSame( 1, $repo->queueSiteIds( [ $waiting->id ] ) );
+				}
+				elseif ( $case === 'replacement-wait' ) {
+					$this->setRequestTimestamp( $now + 60 );
+					$replacement = $repo->upsertActive( $waiting->url, SitesDB::SOURCE_EXPORT, 'replacement-id', true );
+					$this->assertInstanceOf( Record::class, $replacement );
+					$this->assertTrue( $repo->startNotificationAttempt( $replacement, $now + 60 ) );
+					$replacementStarted = $repo->findById( $waiting->id, true );
+					$this->assertSame( 1, $repo->recordNotifyDispatched( $replacementStarted, 204, $now + 660 ) );
+				}
+				else {
+					$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $waiting->id, [
+						'import_id' => 'ORIGINAL-ID',
+					] );
+				}
+				$winner = $repo->findById( $waiting->id, true )->getRawData();
+				$interleaving = false;
+				return $query;
+			};
+			$previousSuppressErrors = $wpdb->suppress_errors( true );
+			\add_filter( 'query', $filter, 1000 );
+			try {
+				$result = $repo->recordExportSuccess( $waiting, SitesDB::EXPORT_RESULT_SUCCESS, 'original-id' );
+			}
+			finally {
+				\remove_filter( 'query', $filter, 1000 );
+				$wpdb->suppress_errors( $previousSuppressErrors );
+			}
+
+			$this->assertSame( 2, $attempts, $case );
+			$this->assertSame( 0, $result, $case );
+			$this->assertIsArray( $winner, $case );
+			$this->assertSame( $winner, $repo->findById( $waiting->id, true )->getRawData(), $case );
+		}
 	}
 
 	public function test_due_work_selection_returns_one_row_without_claiming_it() :void {
@@ -1856,7 +2091,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			$rows[ $case ] = $claimed;
 		}
 
-		$repo->recordExportSuccess( $rows[ 'pull' ]->url, SitesDB::EXPORT_RESULT_SUCCESS, 'fresh-id' );
+		$repo->recordExportSuccess( $rows[ 'pull' ], SitesDB::EXPORT_RESULT_SUCCESS, 'fresh-id' );
 		$repo->softDeleteUrl( $rows[ 'delete' ]->url );
 		$this->assertSame( 1, $repo->recordInviteResult( $rows[ 'cycle' ], InvitationMetadata::RESULT_HTTP_RESPONSE, 200 ) );
 		$this->assertSame( 1, $repo->restartInvitationsByIds( [ $rows[ 'cycle' ]->id ] )[ 'queued_count' ] );
@@ -2163,7 +2398,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			$outcome === 'success' ? 204 : 503,
 			$outcome === 'failure' ? 'service unavailable' : '',
 			static function () use ( $repo, $row ) :void {
-				$repo->recordExportSuccess( $row->url, SitesDB::EXPORT_RESULT_SUCCESS, 'completed-id' );
+				$repo->recordExportSuccess( $repo->findById( $row->id, true ), SitesDB::EXPORT_RESULT_SUCCESS, 'completed-id' );
 			},
 			$outcome === 'exception'
 				? static function () :array {
@@ -2218,7 +2453,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertTrue( $repo->startNotificationAttempt( $completedTimeout, $now ) );
 		$this->assertSame( 1, $repo->recordNotifyDispatched( $completedTimeout, 204, $now - 1 ) );
 		$selectedTimeout = $repo->findById( $completedTimeout->id, true );
-		$repo->recordExportSuccess( $completedTimeout->url, SitesDB::EXPORT_RESULT_SUCCESS, 'completed-timeout-id' );
+		$repo->recordExportSuccess( $selectedTimeout, SitesDB::EXPORT_RESULT_SUCCESS, 'completed-timeout-id' );
 		$this->assertSame( 0, $repo->recordExportTimeout( $selectedTimeout ) );
 		$completedTimeout = $repo->findById( $completedTimeout->id, true );
 		$this->assertSame( SitesDB::QUEUE_IDLE, $completedTimeout->queue_status );
@@ -2235,7 +2470,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$completedExhaustion = $repo->upsertActive( 'https://completed-exhaustion.example.com', SitesDB::SOURCE_MANUAL, '', true );
 		$this->startExhaustedNotification( $repo, $completedExhaustion, $now );
 		$selectedExhaustion = $repo->findById( $completedExhaustion->id, true );
-		$repo->recordExportSuccess( $completedExhaustion->url, SitesDB::EXPORT_RESULT_SUCCESS, 'completed-exhaustion-id' );
+		$repo->recordExportSuccess( $selectedExhaustion, SitesDB::EXPORT_RESULT_SUCCESS, 'completed-exhaustion-id' );
 		$this->assertSame( 0, $repo->recordInterruptedNotificationExhaustion( $selectedExhaustion ) );
 		$completedExhaustion = $repo->findById( $completedExhaustion->id, true );
 		$this->assertSame( SitesDB::QUEUE_IDLE, $completedExhaustion->queue_status );
@@ -2444,7 +2679,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			'',
 			static function ( int $count ) use ( $repo, $first ) :void {
 				if ( $count === 1 ) {
-					$repo->recordExportSuccess( $first->url, SitesDB::EXPORT_RESULT_SUCCESS );
+					$repo->recordExportSuccess( $repo->findById( $first->id, true ), SitesDB::EXPORT_RESULT_SUCCESS );
 				}
 			}
 		);
@@ -2480,7 +2715,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 				 && \strpos( $query, $transitionFieldSql ) !== false
 				 && \strpos( $query, "WHERE `id`={$target->id} AND" ) !== false ) {
 				$interleaved = true;
-				$repo->recordExportSuccess( $target->url, SitesDB::EXPORT_RESULT_SUCCESS );
+				$repo->recordExportSuccess( $repo->findById( $target->id, true ), SitesDB::EXPORT_RESULT_SUCCESS );
 			}
 			return $query;
 		};
@@ -2750,8 +2985,8 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$repo = $this->repo();
 		$first = $repo->upsertActive( 'https://manual-one.example.com', SitesDB::SOURCE_MANUAL, '', true );
 		$second = $repo->upsertActive( 'https://manual-two.example.com', SitesDB::SOURCE_MANUAL, '', true );
-		$repo->recordExportSuccess( $first->url, SitesDB::EXPORT_RESULT_SUCCESS );
-		$repo->recordExportSuccess( $second->url, SitesDB::EXPORT_RESULT_SUCCESS );
+		$repo->recordExportSuccess( $first, SitesDB::EXPORT_RESULT_SUCCESS );
+		$repo->recordExportSuccess( $second, SitesDB::EXPORT_RESULT_SUCCESS );
 		$this->assertSame( SitesDB::QUEUE_IDLE, $repo->findById( $first->id, true )->queue_status );
 		$this->assertSame( SitesDB::QUEUE_IDLE, $repo->findById( $second->id, true )->queue_status );
 
@@ -2832,8 +3067,8 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$pendingConnection = $repo->upsertPendingClientSite( 'https://manual-queue-pending-connection.example.com', SitesDB::SOURCE_MANUAL, false );
 		$eligible = $repo->upsertActive( 'https://manual-queue-eligible.example.com', SitesDB::SOURCE_MANUAL );
 		$control = $repo->upsertActive( 'https://manual-queue-control.example.com', SitesDB::SOURCE_MANUAL );
-		$repo->recordExportSuccess( $eligible->url, SitesDB::EXPORT_RESULT_SUCCESS );
-		$repo->recordExportSuccess( $control->url, SitesDB::EXPORT_RESULT_SUCCESS );
+		$repo->recordExportSuccess( $eligible, SitesDB::EXPORT_RESULT_SUCCESS );
+		$repo->recordExportSuccess( $control, SitesDB::EXPORT_RESULT_SUCCESS );
 
 		$action = new ImportExportSitesTableAction( [
 			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC,
@@ -2869,8 +3104,8 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$brokenUrl = 'https://repair-broken.example.com';
 		$working = $repo->upsertActive( $workingUrl, SitesDB::SOURCE_MANUAL, 'working-id', true );
 		$broken = $repo->upsertActive( $brokenUrl, SitesDB::SOURCE_MANUAL, 'stale-id', true );
-		$repo->recordExportSuccess( $working->url, SitesDB::EXPORT_RESULT_SUCCESS, 'working-id' );
-		$repo->recordExportSuccess( $broken->url, SitesDB::EXPORT_RESULT_SUCCESS, 'stale-id' );
+		$repo->recordExportSuccess( $working, SitesDB::EXPORT_RESULT_SUCCESS, 'working-id' );
+		$repo->recordExportSuccess( $broken, SitesDB::EXPORT_RESULT_SUCCESS, 'stale-id' );
 		$broken = $this->requireSite( $brokenUrl, true );
 		$repo->recordExportServed( $broken );
 		$repo->recordHandshakeAttempt( $broken );
@@ -2908,7 +3143,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 
-		$repo->recordExportSuccess( $broken->url, SitesDB::EXPORT_RESULT_SUCCESS, 'fresh-id' );
+		$repo->recordExportSuccess( $broken, SitesDB::EXPORT_RESULT_SUCCESS, 'fresh-id' );
 
 		$this->assertSame( 'fresh-id', $this->requireSite( $brokenUrl, true )->import_id );
 	}
@@ -2955,7 +3190,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$pending = $repo->upsertActive( 'https://repair-pending.example.com', SitesDB::SOURCE_MANUAL, 'pending-id', true );
 		$deleted = $repo->upsertActive( 'https://repair-deleted.example.com', SitesDB::SOURCE_MANUAL, 'deleted-id', true );
 		$broken = $repo->upsertActive( 'https://repair-only-broken.example.com', SitesDB::SOURCE_MANUAL, 'stale-id', true );
-		$repo->recordExportSuccess( $working->url, SitesDB::EXPORT_RESULT_SUCCESS, 'healthy-id' );
+		$repo->recordExportSuccess( $working, SitesDB::EXPORT_RESULT_SUCCESS, 'healthy-id' );
 		$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $neverSynced->id, [
 			'queue_status' => SitesDB::QUEUE_IDLE,
 			'queued_at'    => 0,
@@ -2966,7 +3201,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			'next_ping_at' => 0,
 		] );
 		$repo->softDeleteUrl( $deleted->url );
-		$repo->recordExportSuccess( $broken->url, SitesDB::EXPORT_RESULT_SUCCESS, 'stale-id' );
+		$repo->recordExportSuccess( $broken, SitesDB::EXPORT_RESULT_SUCCESS, 'stale-id' );
 		$repo->recordExportFailure( $broken->url, SitesDB::EXPORT_RESULT_VERIFY_FAILED, 'verify failed' );
 		$working = $this->requireSite( $working->url, true );
 		$neverSynced = $this->requireSite( $neverSynced->url, true );
@@ -3071,7 +3306,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 		$repo = $this->repo();
 		$row = $repo->upsertActive( 'https://manual-disabled.example.com', SitesDB::SOURCE_MANUAL, '', true );
-		$repo->recordExportSuccess( $row->url, SitesDB::EXPORT_RESULT_SUCCESS );
+		$repo->recordExportSuccess( $row, SitesDB::EXPORT_RESULT_SUCCESS );
 
 		$action = new ImportExportSitesTableAction( [
 			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC,
@@ -3097,8 +3332,8 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$second = $repo->upsertActive( 'https://all-active-two.example.com', SitesDB::SOURCE_MANUAL, '', true );
 		$pendingInvite = $repo->upsertPendingClientSite( 'https://all-active-pending-invite.example.com', SitesDB::SOURCE_MANUAL, true );
 		$pendingConnection = $repo->upsertPendingClientSite( 'https://all-active-pending-connection.example.com', SitesDB::SOURCE_MANUAL, false );
-		$repo->recordExportSuccess( $first->url, SitesDB::EXPORT_RESULT_SUCCESS );
-		$repo->recordExportSuccess( $second->url, SitesDB::EXPORT_RESULT_SUCCESS );
+		$repo->recordExportSuccess( $first, SitesDB::EXPORT_RESULT_SUCCESS );
+		$repo->recordExportSuccess( $second, SitesDB::EXPORT_RESULT_SUCCESS );
 
 		$count = ( new ImportExportController() )->queueAllActiveSitesForSync();
 
@@ -3116,7 +3351,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 		$repo = $this->repo();
 		$row = $repo->upsertActive( 'https://all-active-disabled.example.com', SitesDB::SOURCE_MANUAL, '', true );
-		$repo->recordExportSuccess( $row->url, SitesDB::EXPORT_RESULT_SUCCESS );
+		$repo->recordExportSuccess( $row, SitesDB::EXPORT_RESULT_SUCCESS );
 
 		try {
 			( new ImportExportController() )->queueAllActiveSitesForSync();
@@ -3412,6 +3647,15 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		return new SiteRepository();
 	}
 
+	private function isExportSuccessUpdate( string $query, string $table ) :bool {
+		$successColumn = \strpos( $query, '`last_export_success_at`=' );
+		$where = \strpos( $query, ' WHERE ' );
+		return \strpos( $query, "UPDATE `{$table}` SET " ) === 0
+			   && $successColumn !== false
+			   && $where !== false
+			   && $successColumn < $where;
+	}
+
 	private function startExhaustedNotification( SiteRepository $repo, Record $row, int $now ) :void {
 		$this->assertTrue( $repo->startNotificationAttempt( $row, $now - 180 ) );
 		$this->assertTrue( $repo->startNotificationAttempt( $row, $now - 120, true ) );
@@ -3447,7 +3691,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 	private function seedSearchPaneImportExportSites() :array {
 		$repo = $this->repo();
 		$working = $repo->upsertActive( 'https://sync-pane-filter-working.example.com', SitesDB::SOURCE_MANUAL, '', true );
-		$repo->recordExportSuccess( $working->url, SitesDB::EXPORT_RESULT_SUCCESS );
+		$repo->recordExportSuccess( $working, SitesDB::EXPORT_RESULT_SUCCESS );
 
 		$problem = $repo->upsertActive( 'https://sync-pane-filter-problem.example.com', SitesDB::SOURCE_MANUAL, '', true );
 		$this->assertTrue( $repo->startNotificationAttempt( $problem, Services::Request()->ts() ) );
@@ -3966,7 +4210,7 @@ class ImportExportCompletedAfterRecoverySelectionRepositoryTestDouble extends Si
 		$row = parent::selectNextInterruptedNotification( $now );
 		if ( !$this->completed && $row instanceof Record && $row->id === $this->completeAfterSelectingID ) {
 			$this->completed = true;
-			parent::recordExportSuccess( $row->url, SitesDB::EXPORT_RESULT_SUCCESS );
+			parent::recordExportSuccess( $row, SitesDB::EXPORT_RESULT_SUCCESS );
 		}
 		return $row;
 	}

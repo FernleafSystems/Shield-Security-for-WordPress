@@ -43,6 +43,16 @@ class CrossSitePairManagerTest extends TestCase {
 		$manager->runB2Case( '', 'B2-03' );
 	}
 
+	public function testRejectsUnsupportedGroupECrossSiteCaseBeforeRunningCommands() :void {
+		$runner = RecordingProcessRunner::strict( [] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'Unsupported Group E cross-site case: E-03' );
+
+		$manager->runECase( '', 'E-03' );
+	}
+
 	public function testB2StoredIdEvidenceRequiresAgreementWithoutCallbackBranch() :void {
 		$manager = new CrossSitePairManager();
 		$before = $this->b2StoredIdSnapshots();
@@ -289,6 +299,22 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->assertContains( 'wp-cli-slave', $command );
 		$this->assertStringContainsString(
 			'cp /app/tests/fixtures/cross-site/b2-callback-observer.php /var/www/html/wp-content/mu-plugins/shield-cross-site-b2-callback-observer.php',
+			\implode( ' ', $command )
+		);
+	}
+
+	public function testExportSuccessFailureFixtureIsInstalledOnlyOnTheMaster() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-export-success-failure-' );
+		$runner = RecordingProcessRunner::strict( [ [ 'exit_code' => 0 ] ] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$this->invokePrivate( $manager, 'installExportSuccessFailureFixture', [ $root ] );
+
+		$this->assertCount( 1, $runner->calls );
+		$command = $runner->calls[ 0 ][ 'command' ];
+		$this->assertContains( 'wp-cli-master', $command );
+		$this->assertStringContainsString(
+			'cp /app/tests/fixtures/cross-site/export-success-write-failure.php /var/www/html/wp-content/mu-plugins/shield-cross-site-export-success-write-failure.php',
 			\implode( ' ', $command )
 		);
 	}
@@ -1151,6 +1177,8 @@ class CrossSitePairManagerTest extends TestCase {
 		$root = $this->createTrackedTempDir( 'shield-cross-site-final-cleanup-failures-' );
 		$runner = RecordingProcessRunner::strict( [
 			[ 'exit_code' => 1, 'stderr' => 'artifact removal failed' ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],

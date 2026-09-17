@@ -721,6 +721,154 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThan( 0, (int)( $fresh->meta[ 'export_served_at' ] ?? 0 ) );
 	}
 
+	public function test_secret_only_export_without_existing_row_remains_rowless() :void {
+		$con = $this->requireController();
+		$con->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$url = 'https://93.184.216.71/secret-rowless';
+
+		$payload = $this->captureExportJson( [
+			'url'    => $url,
+			'secret' => $con->comps->import_export->getImportExportSecretKey(),
+		] );
+
+		$this->assertExportJsonPayload( $payload );
+		$this->assertNull( ( new SiteRepository() )->findByUrl( $url, true ) );
+	}
+
+	public function test_network_enrollment_existing_row_uses_returned_operation_snapshot() :void {
+		$con = $this->requireController();
+		$con->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, 'old-id' );
+
+		$payload = $this->captureExportJson( [
+			'url'     => self::MANUAL_PUBLIC_URL,
+			'id'      => self::SLAVE_IMPORT_ID,
+			'secret'  => $con->comps->import_export->getImportExportSecretKey(),
+			'network' => 'Y',
+		] );
+
+		$this->assertExportJsonPayload( $payload );
+		$fresh = ( new SiteRepository() )->findById( $row->id, true );
+		$this->assertSame( self::SLAVE_IMPORT_ID, $fresh->import_id );
+		$this->assertSame( SitesDB::QUEUE_IDLE, $fresh->queue_status );
+		$this->assertGreaterThan( 0, $fresh->last_export_success_at );
+	}
+
+	/** @dataProvider provideExportSuccessWriteFailures */
+	public function test_export_json_success_survives_export_success_write_failure( int $failures ) :void {
+		global $wpdb;
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$table = $this->requireController()->db_con->import_export_sites->getTable();
+		$attempts = 0;
+		$filter = function ( string $query ) use ( $failures, $table, &$attempts ) :string {
+			if ( $this->isExportSuccessUpdate( $query, $table ) ) {
+				$attempts++;
+				if ( $attempts <= $failures ) {
+					return 'UPDATE intentionally_invalid_export_success_sql';
+				}
+			}
+			return $query;
+		};
+		$previousSuppressErrors = $wpdb->suppress_errors( true );
+		\add_filter( 'query', $filter, 1000 );
+		try {
+			$payload = $this->captureExportJson( [
+				'url' => self::MANUAL_PUBLIC_URL,
+				'id'  => self::SLAVE_IMPORT_ID,
+			] );
+		}
+		finally {
+			\remove_filter( 'query', $filter, 1000 );
+			$wpdb->suppress_errors( $previousSuppressErrors );
+		}
+
+		$this->assertExportJsonPayload( $payload );
+		$this->assertSame( 2, $attempts );
+		$fresh = ( new SiteRepository() )->findById( $row->id, true );
+		$this->assertGreaterThan( 0, (int)( $fresh->meta[ 'export_served_at' ] ?? 0 ) );
+		if ( $failures === 1 ) {
+			$this->assertGreaterThan( 0, $fresh->last_export_success_at );
+		}
+		else {
+			$this->assertSame( 0, $fresh->last_export_success_at );
+		}
+	}
+
+	public static function provideExportSuccessWriteFailures() :array {
+		return [
+			'transient failure'  => [ 1 ],
+			'persistent failure' => [ 2 ],
+		];
+	}
+
+	public function test_stale_export_success_follow_on_metadata_preserves_replacement_wait() :void {
+		global $wpdb;
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$repo = new SiteRepository();
+		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$table = $this->requireController()->db_con->import_export_sites->getTable();
+		$attempts = 0;
+		$interleaving = false;
+		$winner = null;
+		$filter = function ( string $query ) use ( $repo, $row, $table, &$attempts, &$interleaving, &$winner ) :string {
+			if ( $interleaving || !$this->isExportSuccessUpdate( $query, $table ) ) {
+				return $query;
+			}
+			$attempts++;
+			if ( $attempts === 1 ) {
+				return 'UPDATE intentionally_invalid_export_success_sql';
+			}
+
+			$interleaving = true;
+			$replacement = $repo->upsertActive( $row->url, SitesDB::SOURCE_EXPORT, 'replacement-id', true );
+			$this->assertInstanceOf( SiteRecord::class, $replacement );
+			$this->assertTrue( $repo->startNotificationAttempt( $replacement, Services::Request()->ts(), true ) );
+			$started = $repo->findById( $row->id, true );
+			$this->assertSame( 1, $repo->recordNotifyDispatched( $started, 204, Services::Request()->ts() + 600 ) );
+			$winner = $repo->findById( $row->id, true );
+			$interleaving = false;
+			return $query;
+		};
+		$previousSuppressErrors = $wpdb->suppress_errors( true );
+		\add_filter( 'query', $filter, 1000 );
+		try {
+			$payload = $this->captureExportJson( [
+				'url' => self::MANUAL_PUBLIC_URL,
+				'id'  => self::SLAVE_IMPORT_ID,
+			] );
+		}
+		finally {
+			\remove_filter( 'query', $filter, 1000 );
+			$wpdb->suppress_errors( $previousSuppressErrors );
+		}
+
+		$this->assertExportJsonPayload( $payload );
+		$this->assertSame( 2, $attempts );
+		$this->assertInstanceOf( SiteRecord::class, $winner );
+		$fresh = $repo->findById( $row->id, true );
+		foreach ( [
+			'status', 'deleted_at', 'queue_status', 'queued_at', 'picked_at', 'lock_until', 'next_ping_at',
+			'expected_export_by', 'last_ping_attempt_at', 'last_ping_success_at', 'ping_attempts_total',
+			'consecutive_failures', 'last_export_success_at', 'import_id', 'last_export_result_code', 'last_export_error',
+		] as $field ) {
+			$this->assertSame( $winner->{$field}, $fresh->{$field}, $field );
+		}
+		$this->assertSame( 'replacement-id', $fresh->import_id );
+		$this->assertSame( SitesDB::QUEUE_WAITING_EXPORT, $fresh->queue_status );
+		$this->assertGreaterThan( 0, (int)( $fresh->meta[ 'export_served_at' ] ?? 0 ) );
+		$this->assertSame( SyncObservation::RESULT_EXPORT_SERVED,
+			$repo->readObservation( $fresh, SyncObservation::PHASE_EXPORT )[ 'result' ] ?? null );
+
+		$winnerMeta = $winner->meta;
+		$freshMeta = $fresh->meta;
+		unset( $winnerMeta[ 'export_served_at' ], $freshMeta[ 'export_served_at' ] );
+		unset( $winnerMeta[ 'sync_observations' ][ SyncObservation::PHASE_EXPORT ],
+			$freshMeta[ 'sync_observations' ][ SyncObservation::PHASE_EXPORT ] );
+		$this->assertSame( $winnerMeta, $freshMeta );
+		$this->assertGreaterThanOrEqual( $winner->updated_at, $fresh->updated_at );
+	}
+
 	public function test_export_json_succeeds_through_active_sync_site_import_id_without_secret() :void {
 		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
 		$this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
@@ -1369,7 +1517,16 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$filter = static function () :bool {
 			throw new \RuntimeException( 'bounded export failure' );
 		};
+		$table = $this->requireController()->db_con->import_export_sites->getTable();
+		$successWrites = 0;
+		$queryFilter = function ( string $query ) use ( $table, &$successWrites ) :string {
+			if ( $this->isExportSuccessUpdate( $query, $table ) ) {
+				$successWrites++;
+			}
+			return $query;
+		};
 		\add_filter( 'shield/export_include_ip_rules', $filter );
+		\add_filter( 'query', $queryFilter, 1000 );
 
 		try {
 			$attempt = $this->captureExportAttempt( [
@@ -1379,6 +1536,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		}
 		finally {
 			\remove_filter( 'shield/export_include_ip_rules', $filter );
+			\remove_filter( 'query', $queryFilter, 1000 );
 		}
 
 		$this->assertTrue( $attempt[ 'terminated' ] );
@@ -1391,6 +1549,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$observation = ( new SiteRepository() )->readObservation( $fresh, SyncObservation::PHASE_EXPORT );
 		$this->assertSame( SyncObservation::RESULT_EXPORT_EXCEPTION, $observation[ 'result' ] ?? null );
 		$this->assertSame( SyncObservation::ERROR_REMOTE_EXPORT_EXCEPTION, $observation[ 'error_category' ] ?? null );
+		$this->assertSame( 0, $successWrites );
 	}
 
 	public function test_export_json_rejects_manual_private_sync_site_before_handshake() :void {
@@ -1507,6 +1666,15 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		foreach ( [ 'site_url', 'exported_at', 'exported_date', 'slug', 'version', 'options' ] as $key ) {
 			$this->assertArrayHasKey( $key, $payload[ 'data' ] );
 		}
+	}
+
+	private function isExportSuccessUpdate( string $query, string $table ) :bool {
+		$successColumn = \strpos( $query, '`last_export_success_at`=' );
+		$where = \strpos( $query, ' WHERE ' );
+		return \strpos( $query, "UPDATE `{$table}` SET " ) === 0
+			   && $successColumn !== false
+			   && $where !== false
+			   && $successColumn < $where;
 	}
 
 	private function assertExportJsonCooldownPayload( array $payload ) :void {

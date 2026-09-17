@@ -42,6 +42,8 @@ class CrossSitePairManager {
 	private const B2_CALLBACK_OBSERVER_TARGET = '/var/www/html/wp-content/mu-plugins/shield-cross-site-b2-callback-observer.php';
 	private const GROUP_C_QUEUE_FIXTURE = '/app/tests/fixtures/cross-site/group-c-queue.php';
 	private const GROUP_C_QUEUE_TARGET = '/var/www/html/wp-content/mu-plugins/shield-cross-site-group-c-queue.php';
+	private const EXPORT_SUCCESS_FAILURE_FIXTURE = '/app/tests/fixtures/cross-site/export-success-write-failure.php';
+	private const EXPORT_SUCCESS_FAILURE_TARGET = '/var/www/html/wp-content/mu-plugins/shield-cross-site-export-success-write-failure.php';
 	private const UPDATE_PROVIDER_FIXTURE = '/app/tests/fixtures/upgrade-public/update-provider.php';
 	private const UPDATE_CONFIG_FIXTURE = '/app/tests/fixtures/upgrade-public/write-update-config.php';
 	private const UPDATE_PACKAGE_DIR = '/var/www/html/wp-content/uploads/shield-cross-site-upgrade';
@@ -51,6 +53,7 @@ class CrossSitePairManager {
 		self::AUTOMATIC_CRON_BLOCKER_TARGET,
 		self::B2_CALLBACK_OBSERVER_TARGET,
 		self::GROUP_C_QUEUE_TARGET,
+		self::EXPORT_SUCCESS_FAILURE_TARGET,
 		self::PUBLIC_RUNTIME_TARGET,
 		'/var/www/html/wp-content/mu-plugins/shield-upgrade-test-update-provider.php',
 		'/var/www/html/wp-content/shield-upgrade-test',
@@ -59,10 +62,13 @@ class CrossSitePairManager {
 	];
 	private const STATUS_ACTIVE = 'active';
 	private const QUEUE_IDLE = 'idle';
+	private const QUEUE_QUEUED = 'queued';
 	private const QUEUE_WAITING_EXPORT = 'waiting_export';
 	private const EXPORT_RESULT_SUCCESS = 'success';
+	private const EXPORT_RESULT_TIMEOUT = 'export_timeout';
 	private const WP_CLI_INVALID_CRON_EVENT = 'Invalid cron event';
 	private const B2_CASES = [ 'B2-01', 'B2-02', 'B2-07', 'B2-09' ];
+	private const E_CASES = [ 'E-01', 'E-02' ];
 
 	private ProcessRunner $processRunner;
 
@@ -174,6 +180,8 @@ class CrossSitePairManager {
 		$this->installB2CallbackObserverFixture( $rootDir );
 		$this->stage( 'install Group C queue fixture' );
 		$this->installGroupCQueueFixture( $rootDir );
+		$this->stage( 'install Group E export-success failure fixture' );
+		$this->installExportSuccessFailureFixture( $rootDir );
 	}
 
 	public function cleanupRun( string $rootDir ) :void {
@@ -379,6 +387,15 @@ class CrossSitePairManager {
 		}
 	}
 
+	public function runECase( string $rootDir, string $case ) :void {
+		if ( !\in_array( $case, self::E_CASES, true ) ) {
+			throw new \InvalidArgumentException( 'Unsupported Group E cross-site case: '.$case );
+		}
+
+		$this->setupCurrentConnectedPair( $rootDir );
+		$this->runExportSuccessPersistenceCase( $rootDir, $case );
+	}
+
 	private function setupCurrentConnectedPair( string $rootDir ) :void {
 		$this->stage( 'setup cross-site runtime state' );
 		$this->runHelper( $rootDir, self::MASTER, 'setup', [ 'role' => self::MASTER ] );
@@ -445,6 +462,77 @@ class CrossSitePairManager {
 		$b2Evidence = $this->buildB2StoredIdEvidence( $b2Before, $this->b2Snapshots( $rootDir ) );
 		$this->lastDiagnostics[ 'b2_02' ] = $b2Evidence;
 		$this->assertB2StoredIdExchange( $b2Evidence );
+	}
+
+	private function runExportSuccessPersistenceCase( string $rootDir, string $case ) :void {
+		$this->stage( $case.' apply master option corpus' );
+		$corpus = $this->runHelper( $rootDir, self::MASTER, 'apply-corpus' );
+		$this->lastDiagnostics[ 'corpus' ] = $this->summariseCorpusDiagnostics( $corpus );
+
+		$this->stage( $case.' trigger master notification' );
+		$this->runHelper( $rootDir, self::MASTER, 'run-notify-hook' );
+		$this->processMasterSitesQueue( $rootDir );
+
+		$failureCount = $case === 'E-01' ? 2 : 1;
+		$this->stage( $case.' configure export-success write failure' );
+		$configured = $this->runHelper( $rootDir, self::MASTER, 'e-configure-export-success-failures', [
+			'failures' => $failureCount,
+		] );
+		if ( empty( $configured[ 'active' ] )
+			 || empty( $configured[ 'enabled' ] )
+			 || (int)( $configured[ 'failure_limit' ] ?? -1 ) !== $failureCount ) {
+			throw new \RuntimeException( $case.' could not configure the bounded master write failure.' );
+		}
+
+		$this->stage( $case.' run the scheduled client import' );
+		$slaveCron = $this->runHelper( $rootDir, self::SLAVE, 'cron-state' );
+		$this->runScheduledCronEvent( $rootDir, self::SLAVE, $slaveCron, 'import_hook', 'import_scheduled' );
+
+		$this->stage( $case.' prove client settings application' );
+		$this->assertExportsMatch( $rootDir );
+		$queueAfterImport = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
+		$fixture = $this->runHelper( $rootDir, self::MASTER, 'e-export-success-fixture-state' );
+		$this->lastDiagnostics[ \strtolower( \str_replace( '-', '_', $case ) ) ] = [
+			'fixture' => $fixture,
+			'queue_after_client_import' => $queueAfterImport,
+		];
+
+		if ( $case === 'E-02' ) {
+			$this->assertPostExportQueueState( $queueAfterImport );
+			if ( (int)( $fixture[ 'attempts' ] ?? -1 ) !== 2 ) {
+				throw new \RuntimeException( 'E-02 did not perform exactly two export-success write attempts.' );
+			}
+			return;
+		}
+
+		$row = $this->findRegistryRow( (array)( $queueAfterImport[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
+		if ( !\is_array( $row )
+			 || ( $row[ 'queue_status' ] ?? '' ) !== self::QUEUE_WAITING_EXPORT
+			 || (int)( $row[ 'last_export_success_at' ] ?? 0 ) >= (int)( $row[ 'last_export_request_at' ] ?? 0 )
+			 || (int)( $row[ 'last_export_success_at' ] ?? 0 ) >= (int)( $row[ 'last_ping_success_at' ] ?? 0 ) ) {
+			throw new \RuntimeException( 'E-01 did not preserve the waiting master row after persistent write failure.' );
+		}
+
+		$this->stage( 'E-01 expire grace and run existing timeout maintenance' );
+		$recovery = $this->runHelper( $rootDir, self::MASTER, 'e-expire-export-wait', [
+			'expected_url' => self::SLAVE_INTERNAL_URL,
+		] );
+		$this->lastDiagnostics[ 'e_01' ][ 'recovery' ] = $recovery;
+		$before = (array)( $recovery[ 'before' ] ?? [] );
+		$after = (array)( $recovery[ 'after' ] ?? [] );
+		$recoveryQueue = (array)( $recovery[ 'queue' ] ?? [] );
+		if ( ( $after[ 'queue_status' ] ?? '' ) !== self::QUEUE_QUEUED
+			 || ( $after[ 'last_export_result_code' ] ?? '' ) !== self::EXPORT_RESULT_TIMEOUT
+			 || (int)( $after[ 'expected_export_by' ] ?? -1 ) !== 0
+			 || (int)( $after[ 'consecutive_failures' ] ?? 0 ) !== (int)( $before[ 'consecutive_failures' ] ?? 0 ) + 1
+			 || (int)( $after[ 'next_ping_at' ] ?? 0 ) <= (int)( $after[ 'updated_at' ] ?? 0 )
+			 || (int)( $after[ 'ping_attempts_total' ] ?? -1 ) !== (int)( $before[ 'ping_attempts_total' ] ?? -2 )
+			 || (int)( $recoveryQueue[ 'due_count' ] ?? -1 ) !== 0 ) {
+			throw new \RuntimeException( 'E-01 did not retain the existing timeout and first-backoff recovery.' );
+		}
+		if ( (int)( $fixture[ 'attempts' ] ?? -1 ) !== 2 ) {
+			throw new \RuntimeException( 'E-01 did not perform exactly two bounded export-success write attempts.' );
+		}
 	}
 
 	private function runB2HistoricalNoIdCase( string $rootDir ) :void {
@@ -889,6 +977,15 @@ class CrossSitePairManager {
 			self::MASTER,
 			'mkdir -p /var/www/html/wp-content/mu-plugins'
 			.' && cp '.self::GROUP_C_QUEUE_FIXTURE.' '.self::GROUP_C_QUEUE_TARGET
+		);
+	}
+
+	private function installExportSuccessFailureFixture( string $rootDir ) :void {
+		$this->runSiteShell(
+			$rootDir,
+			self::MASTER,
+			'mkdir -p /var/www/html/wp-content/mu-plugins'
+			.' && cp '.self::EXPORT_SUCCESS_FAILURE_FIXTURE.' '.self::EXPORT_SUCCESS_FAILURE_TARGET
 		);
 	}
 

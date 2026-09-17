@@ -21,6 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diag
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileOptionsCatalog;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\ScopedTargetHostRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
@@ -103,6 +104,12 @@ try {
 					return $this->b2Pull();
 				case 'b2-expired-export-request':
 					return $this->b2ExpiredExportRequest();
+				case 'e-configure-export-success-failures':
+					return $this->eConfigureExportSuccessFailures( (int)( $payload[ 'failures' ] ?? 0 ) );
+				case 'e-export-success-fixture-state':
+					return $this->eExportSuccessFixtureState();
+				case 'e-expire-export-wait':
+					return $this->eExpireExportWait( (string)( $payload[ 'expected_url' ] ?? '' ) );
 				default:
 					throw new \RuntimeException( 'Unknown cross-site runtime action: '.$action );
 			}
@@ -771,6 +778,63 @@ try {
 					'duration_ms' => (int)\round( ( \hrtime( true ) - $startedAt ) / 1000000 ),
 				];
 			}
+		}
+
+		/** @return array<string,mixed> */
+		private function eConfigureExportSuccessFailures( int $failures ) :array {
+			if ( !\defined( 'SHIELD_CROSS_SITE_EXPORT_SUCCESS_FAILURE_ACTIVE' ) ) {
+				throw new \RuntimeException( 'Group E export-success failure fixture is not active.' );
+			}
+			\update_option( SHIELD_CROSS_SITE_EXPORT_SUCCESS_FAILURE_LIMIT_OPTION, \max( 0, $failures ), false );
+			\update_option( SHIELD_CROSS_SITE_EXPORT_SUCCESS_ATTEMPTS_OPTION, 0, false );
+			\update_option( SHIELD_CROSS_SITE_EXPORT_SUCCESS_FAILURE_ENABLED_OPTION, true, false );
+			return $this->eExportSuccessFixtureState();
+		}
+
+		/** @return array<string,mixed> */
+		private function eExportSuccessFixtureState() :array {
+			return [
+				'active'        => \defined( 'SHIELD_CROSS_SITE_EXPORT_SUCCESS_FAILURE_ACTIVE' ),
+				'enabled'       => (bool)\get_option( SHIELD_CROSS_SITE_EXPORT_SUCCESS_FAILURE_ENABLED_OPTION, false ),
+				'failure_limit' => \max( 0, (int)\get_option( SHIELD_CROSS_SITE_EXPORT_SUCCESS_FAILURE_LIMIT_OPTION, 0 ) ),
+				'attempts'      => \max( 0, (int)\get_option( SHIELD_CROSS_SITE_EXPORT_SUCCESS_ATTEMPTS_OPTION, 0 ) ),
+			];
+		}
+
+		/** @return array<string,mixed> */
+		private function eExpireExportWait( string $expectedUrl ) :array {
+			$repo = new SiteRepository();
+			$row = $repo->findByUrl( $expectedUrl, true );
+			if ( !$row instanceof ImportExportSiteRecord
+				 || $row->queue_status !== ImportExportSitesDB::QUEUE_WAITING_EXPORT ) {
+				throw new \RuntimeException( 'Group E expiry requires one waiting export row.' );
+			}
+			$before = $this->normaliseRegistryRow( $row );
+			RuntimeTestState::controller()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
+				'expected_export_by' => Services::Request()->ts() - \MINUTE_IN_SECONDS,
+			] );
+			$expired = $repo->findById( $row->id, true );
+			if ( !$expired instanceof ImportExportSiteRecord ) {
+				throw new \RuntimeException( 'Group E expiry lost the registry row.' );
+			}
+			$selectedCount = \count( $repo->selectExportMaintenanceRows( 5 ) );
+			$processor = new class( static fn() :bool => true ) extends QueueProcessor {
+				public function runForEvidence() :void {
+					$this->handle();
+				}
+			};
+			$processor->runForEvidence();
+			$after = $repo->findById( $row->id, true );
+			if ( !$after instanceof ImportExportSiteRecord ) {
+				throw new \RuntimeException( 'Group E maintenance lost the registry row.' );
+			}
+			return [
+				'before'  => $before,
+				'expired' => $this->normaliseRegistryRow( $expired ),
+				'selected_count' => $selectedCount,
+				'after'   => $this->normaliseRegistryRow( $after ),
+				'queue'   => $this->queueState(),
+			];
 		}
 
 		/**

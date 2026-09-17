@@ -206,10 +206,17 @@ class SiteRepository {
 		}
 
 		$deleted = 0;
-		foreach ( $this->sanitiseIds( $ids ) as $id ) {
-			if ( $this->findById( $id, true ) instanceof Record
-				 && $dbh->getQueryDeleter()->deleteById( $id ) ) {
-				$deleted++;
+		foreach ( \array_chunk( $this->sanitiseIds( $ids ), self::SQL_BATCH_SIZE ) as $chunk ) {
+			$result = Services::WpDb()->doSql( $this->prepareSql(
+				\sprintf(
+					'DELETE FROM `%s` WHERE `id` IN (%s);',
+					$dbh->getTable(),
+					$this->sqlPlaceholders( $chunk, '%d' )
+				),
+				$chunk
+			) );
+			if ( \is_numeric( $result ) ) {
+				$deleted += (int)$result;
 			}
 		}
 		return $deleted;
@@ -543,21 +550,19 @@ class SiteRepository {
 		] );
 	}
 
-	public function recordExportRequested( string $url ) :void {
-		$row = $this->findByUrl( $url );
-		if ( $row instanceof Record ) {
-			$this->updateById( $row->id, [
-				'last_export_request_at' => Services::Request()->ts(),
-			] );
-		}
+	public function recordExportRequested( Record $row ) :void {
+		$this->conditionalRowUpdate( [
+			'last_export_request_at' => Services::Request()->ts(),
+		], '`id`=%d AND `status`=%s AND `deleted_at`=0', [
+			$row->id,
+			SitesDB::STATUS_ACTIVE,
+		] );
 	}
 
-	public function recordExportSuccess( string $url, string $resultCode, string $importID = '' ) :void {
-		$row = $this->findByUrl( $url );
-		if ( !$row instanceof Record ) {
-			return;
-		}
-
+	/**
+	 * @return false|int
+	 */
+	public function recordExportSuccess( Record $row, string $resultCode, string $importID = '' ) {
 		$now = Services::Request()->ts();
 		$data = [
 			'queue_status'             => SitesDB::QUEUE_IDLE,
@@ -570,11 +575,39 @@ class SiteRepository {
 			'expected_export_by'       => 0,
 			'lock_until'               => 0,
 			'picked_at'                => 0,
+			'updated_at'               => $now,
 		];
 		if ( !empty( $importID ) ) {
 			$data[ 'import_id' ] = $importID;
 		}
-		$this->updateById( $row->id, $data );
+
+		$where = '`id`=%d AND `status`=%s AND `deleted_at`=0'
+			 .' AND `queue_status`=%s AND `queued_at`=%d AND `picked_at`=%d AND `lock_until`=%d'
+			 .' AND `next_ping_at`=%d AND `expected_export_by`=%d'
+			 .' AND `last_ping_attempt_at`=%d AND `last_ping_success_at`=%d'
+			 .' AND `ping_attempts_total`=%d AND `consecutive_failures`=%d'
+			 .' AND `last_export_success_at`=%d AND BINARY `import_id`=BINARY %s';
+		$whereValues = [
+			$row->id,
+			SitesDB::STATUS_ACTIVE,
+			$row->queue_status,
+			$row->queued_at,
+			$row->picked_at,
+			$row->lock_until,
+			$row->next_ping_at,
+			$row->expected_export_by,
+			$row->last_ping_attempt_at,
+			$row->last_ping_success_at,
+			$row->ping_attempts_total,
+			$row->consecutive_failures,
+			$row->last_export_success_at,
+			$row->import_id,
+		];
+
+		$result = $this->conditionalRowUpdate( $data, $where, $whereValues );
+		return $result === false
+			? $this->conditionalRowUpdate( $data, $where, $whereValues )
+			: $result;
 	}
 
 	public function recordExportFailure( string $url, string $resultCode, string $error ) :void {

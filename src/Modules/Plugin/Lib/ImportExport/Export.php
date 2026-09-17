@@ -71,6 +71,10 @@ class Export {
 		}
 
 		$row = $verification[ 'row' ];
+		$operationRow = $row;
+		if ( $verification[ 'secret' ] && !$operationRow instanceof ImportExportSiteRecord ) {
+			$operationRow = $repo->findByUrl( $url );
+		}
 		$diagnosticRow = $row;
 		if ( $row instanceof ImportExportSiteRecord && !$verification[ 'secret' ] ) {
 			$cooldown = $verification[ 'import_id_verified' ] ? self::IMPORT_ID_EXPORT_COOLDOWN : self::EXPORT_COOLDOWN;
@@ -95,7 +99,9 @@ class Export {
 
 		try {
 			$code = 0;
-			$repo->recordExportRequested( $url );
+			if ( $operationRow instanceof ImportExportSiteRecord ) {
+				$repo->recordExportRequested( $operationRow );
+			}
 			$data = $this->shouldUseProfileExport( $row, $networkOpt )
 				? $this->getExportDataForProfile( ( new ProfileRepository() )->profileForSite( $row ) )
 				: $this->getExportData();
@@ -110,11 +116,14 @@ class Export {
 			if ( $networkOpt === 'Y' ) {
 				$enrolledRow = $ieCon->addSyncSiteExportUrl( $url, $id );
 				if ( $enrolledRow instanceof ImportExportSiteRecord ) {
+					$operationRow = $enrolledRow;
 					$diagnosticRow = $enrolledRow;
 				}
 			}
 
-			$repo->recordExportSuccess( $url, ImportExportSitesDB::EXPORT_RESULT_SUCCESS, $id );
+			if ( $operationRow instanceof ImportExportSiteRecord ) {
+				$repo->recordExportSuccess( $operationRow, ImportExportSitesDB::EXPORT_RESULT_SUCCESS, $id );
+			}
 			$servedRow = $repo->findByUrl( $url, true );
 			if ( $servedRow instanceof ImportExportSiteRecord ) {
 				$repo->recordExportServed( $servedRow );
