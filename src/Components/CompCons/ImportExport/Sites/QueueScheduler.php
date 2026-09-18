@@ -36,14 +36,26 @@ class QueueScheduler {
 	}
 
 	public function scheduleSoon( int $delay = 30 ) :void {
-		$this->scheduleNext( Services::Request()->ts() + \max( 1, $delay ), true );
+		if ( !$this->canRun() ) {
+			$this->clear();
+			return;
+		}
+
+		$timestamp = Services::Request()->ts() + \max( 1, $delay );
+		$next = wp_next_scheduled( $this->hook() );
+		if ( !empty( $next ) && $next <= $timestamp ) {
+			return;
+		}
+
+		$this->clear();
+		wp_schedule_single_event( $timestamp, $this->hook() );
 	}
 
 	public function clear() :void {
 		wp_clear_scheduled_hook( $this->hook() );
 	}
 
-	private function scheduleNext( ?int $timestamp = null, bool $preferEarlier = false ) :void {
+	private function scheduleNext( ?int $timestamp = null ) :void {
 		$hook = $this->hook();
 		if ( !$this->canRun() ) {
 			$this->clear();
@@ -51,12 +63,7 @@ class QueueScheduler {
 		}
 
 		$timestamp = $timestamp ?? Services::Request()->ts() + self::INTERVAL;
-		$next = wp_next_scheduled( $hook );
-		if ( $preferEarlier && !empty( $next ) && $next > $timestamp ) {
-			$this->clear();
-			$next = false;
-		}
-		if ( empty( $next ) ) {
+		if ( empty( wp_next_scheduled( $hook ) ) ) {
 			wp_schedule_single_event( $timestamp, $hook );
 		}
 	}

@@ -769,6 +769,24 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertSame( 1712620845, $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
 	}
 
+	public function test_schedule_soon_keeps_existing_earlier_event() :void {
+		$hook = $this->queueCronHook();
+		$this->scheduledEvents[ $hook ] = 1712620810;
+
+		( new QueueScheduler( static fn() :bool => true ) )->scheduleSoon( 45 );
+
+		$this->assertSame( 1712620810, $this->scheduledEvents[ $hook ] ?? false );
+	}
+
+	public function test_schedule_soon_replaces_existing_later_event() :void {
+		$hook = $this->queueCronHook();
+		$this->scheduledEvents[ $hook ] = 1712621100;
+
+		( new QueueScheduler( static fn() :bool => true ) )->scheduleSoon( 45 );
+
+		$this->assertSame( 1712620845, $this->scheduledEvents[ $hook ] ?? false );
+	}
+
 	public function test_queue_scheduler_recreates_health_event_before_running_worker() :void {
 		$callbacks = [];
 		Functions\when( 'add_action' )->alias( static function ( string $hook, callable $callback ) use ( &$callbacks ) :bool {

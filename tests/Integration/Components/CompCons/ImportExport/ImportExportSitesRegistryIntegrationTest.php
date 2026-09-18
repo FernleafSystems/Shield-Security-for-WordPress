@@ -268,9 +268,9 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->runWithSeededCronPreservationCheck(
 			$this->requireController()->prefix( 'integration-test-upgrade-import-enabled-cron-owner' ),
 			function () :void {
-				$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 				$this->runWithImportExportSitesPersistentMutation( function () :void {
 					$con = $this->requireController();
+					$this->enableImportExportSyncPremium();
 					$url = 'https://upgrade-import.example.com';
 					$con->opts
 						->optSet( 'importexport_enable', 'Y' )
@@ -302,9 +302,9 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->runWithSeededCronPreservationCheck(
 			$this->requireController()->prefix( 'integration-test-upgrade-import-disabled-cron-owner' ),
 			function () :void {
-				$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 				$this->runWithImportExportSitesPersistentMutation( function () :void {
 					$con = $this->requireController();
+					$this->enableImportExportSyncPremium();
 					$url = 'https://upgrade-import-disabled.example.com';
 					$con->opts
 						->optSet( 'importexport_enable', 'N' )
@@ -331,9 +331,9 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 
 	/** @group database-transaction-exception */
 	public function test_config_rebuild_imports_legacy_settings_into_registry_without_upgrade_cron() :void {
-		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$this->runWithImportExportSitesPersistentMutation( function () :void {
 			$con = $this->requireController();
+			$this->enableImportExportSyncPremium();
 			$url = 'https://config-rebuild-import.example.com';
 			$con->opts
 				->optSet( 'importexport_enable', 'Y' )
@@ -359,9 +359,9 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 
 	/** @group database-transaction-exception */
 	public function test_config_rebuild_imports_registry_without_scheduling_disabled_sync() :void {
-		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$this->runWithImportExportSitesPersistentMutation( function () :void {
 			$con = $this->requireController();
+			$this->enableImportExportSyncPremium();
 			$url = 'https://config-rebuild-disabled.example.com';
 			$con->opts
 				->optSet( 'importexport_enable', 'N' )
@@ -386,9 +386,9 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 
 	/** @group database-transaction-exception */
 	public function test_same_version_config_signature_rebuild_imports_legacy_settings_into_registry() :void {
-		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$this->runWithImportExportSitesPersistentMutation( function () :void {
 			$con = $this->requireController();
+			$this->enableImportExportSyncPremium();
 			$stored = $con->cfg->getRawData();
 			$stored[ 'hash' ] = 'stale-signature';
 			$stored[ 'properties' ][ 'version' ] = $con->cfg->properties[ 'version' ];
@@ -3938,6 +3938,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 				}
 				else {
 					$queueHook = ( new QueueScheduler() )->hook();
+					\wp_clear_scheduled_hook( $queueHook );
 					$this->invalidateCronOptionCaches();
 					if ( \wp_next_scheduled( $queueHook ) !== false ) {
 						throw new \RuntimeException( 'Failed to clear the import/export queue schedule.' );
@@ -3999,6 +4000,25 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 
 	private function runConfigRebuildImport() :void {
 		$this->requireController()->comps->import_export->resetExecution()->execute();
+	}
+
+	private function enableImportExportSyncPremium() :void {
+		$con = $this->requireController();
+		$ts = \max( 1, Services::Request()->ts() );
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$con->comps->license->updateLicenseData( [
+			'checksum'         => 'runtime-test-license',
+			'success'          => true,
+			'license'          => 'valid',
+			'expires'          => 'lifetime',
+			'last_request_at'  => $ts,
+			'last_verified_at' => $ts,
+			'capabilities'     => [ 'import_export_level_2' ],
+			'lic_version'      => 1,
+		] );
+		$con->opts
+			->optSet( 'license_activated_at', $ts )
+			->optSet( 'license_deactivated_at', 0 );
 	}
 
 	private function setRequestTimestamp( int $timestamp ) :void {
