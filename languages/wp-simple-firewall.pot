@@ -710,7 +710,7 @@ msgid "Options imported successfully"
 msgstr ""
 
 #: src/ActionRouter/Actions/PluginImportFromSite.php:21
-#: src/Modules/Plugin/Lib/ImportExport/Import.php:65
+#: src/Components/CompCons/ImportExport/Import.php:65
 msgid "Please check the box to confirm."
 msgstr ""
 
@@ -12876,47 +12876,47 @@ msgstr ""
 msgid "Prefix: <code>%s</code>"
 msgstr ""
 
-#: src/Modules/Plugin/Lib/ImportExport/Export.php:42
+#: src/Components/CompCons/ImportExport/Export.php:42
 msgid "Verification of import-origin failed."
 msgstr ""
 
-#: src/Modules/Plugin/Lib/ImportExport/Import.php:28
+#: src/Components/CompCons/ImportExport/Import.php:28
 msgid "Not importing a file that cannot be deleted"
 msgstr ""
 
-#: src/Modules/Plugin/Lib/ImportExport/Import.php:33
+#: src/Components/CompCons/ImportExport/Import.php:33
 msgid "Import file was empty"
 msgstr ""
 
-#: src/Modules/Plugin/Lib/ImportExport/Import.php:44
+#: src/Components/CompCons/ImportExport/Import.php:44
 msgid "Options data could not be found in uploaded file"
 msgstr ""
 
-#: src/Modules/Plugin/Lib/ImportExport/Import.php:50
+#: src/Components/CompCons/ImportExport/Import.php:50
 msgid "Options data in the file wasn't of the correct format."
 msgstr ""
 
-#: src/Modules/Plugin/Lib/ImportExport/Import.php:54
+#: src/Components/CompCons/ImportExport/Import.php:54
 msgid "import file"
 msgstr ""
 
-#: src/Modules/Plugin/Lib/ImportExport/Import.php:62
+#: src/Components/CompCons/ImportExport/Import.php:62
 msgid "Not currently logged-in as security admin."
 msgstr ""
 
-#: src/Modules/Plugin/Lib/ImportExport/Import.php:70
+#: src/Components/CompCons/ImportExport/Import.php:70
 msgid "Please select a file to upload"
 msgstr ""
 
-#: src/Modules/Plugin/Lib/ImportExport/Import.php:75
+#: src/Components/CompCons/ImportExport/Import.php:75
 msgid "Uploading of file failed"
 msgstr ""
 
-#: src/Modules/Plugin/Lib/ImportExport/Import.php:79
+#: src/Components/CompCons/ImportExport/Import.php:79
 msgid "The file appears to be empty or couldn't be uploaded properly"
 msgstr ""
 
-#: src/Modules/Plugin/Lib/ImportExport/Import.php:233
+#: src/Components/CompCons/ImportExport/Import.php:233
 msgid "Imported"
 msgstr ""
 

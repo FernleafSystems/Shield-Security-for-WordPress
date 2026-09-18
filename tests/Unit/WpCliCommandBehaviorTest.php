@@ -110,7 +110,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 	use Brain\Monkey\Functions;
 	use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
 	use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
-	use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\{
+	use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\{
 		ObservationPresenter,
 		SyncObservation
 	};
