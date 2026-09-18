@@ -376,7 +376,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 
 		$this->assertStringContainsString( 'id="ImportExportClientSecretKey"', $html );
 		$this->assertStringContainsString( 'readonly', $html );
-		$this->assertStringContainsString( ( new ImportExportController() )->getImportExportSecretKey(), $html );
+		$this->assertStringContainsString( $this->requireController()->comps->import_export->getImportExportSecretKey(), $html );
 	}
 
 	public function test_set_enabled_action_stores_disabled_state_and_clears_pending_invites() :void {

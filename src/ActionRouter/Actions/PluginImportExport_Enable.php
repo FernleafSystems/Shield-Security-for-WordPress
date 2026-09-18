@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\ImportExportController;
 
 class PluginImportExport_Enable extends BaseAction {
 
@@ -12,7 +11,7 @@ class PluginImportExport_Enable extends BaseAction {
 	public const SLUG = 'importexport_enable';
 
 	protected function exec() {
-		$importExport = new ImportExportController();
+		$importExport = self::con()->comps->import_export;
 
 		try {
 			$importExport->enableAutomaticImportExport();

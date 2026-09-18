@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\ModConfigVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Extensions\ExtensionsCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
 	HackGuard,
@@ -389,7 +388,7 @@ class Controller extends DynPropertiesClass {
 		}
 
 		try {
-			( new ImportExportController() )->refreshRegistryAndScheduleQueueIfEnabled();
+			$this->comps->import_export->refreshRegistryAndScheduleQueueIfEnabled();
 		}
 		catch ( \Throwable $e ) {
 		}

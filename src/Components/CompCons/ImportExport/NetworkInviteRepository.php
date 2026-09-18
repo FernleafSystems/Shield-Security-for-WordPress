@@ -92,7 +92,7 @@ class NetworkInviteRepository {
 	}
 
 	public function canReviewInvites() :bool {
-		return ( new ImportExportController() )->isSyncEnabled()
+		return self::con()->comps->import_export->isSyncEnabled()
 			   && !$this->isCooldownActive()
 			   && !$this->isConnectedToMaster()
 			   && !$this->hasActiveClientSites();
@@ -155,7 +155,7 @@ class NetworkInviteRepository {
 	}
 
 	private function hasActiveClientSites() :bool {
-		( new ImportExportController() )->ensureSitesRegistryImported();
+		self::con()->comps->import_export->ensureSitesRegistryImported();
 		return ( new SiteRepository() )->countActiveRows() > 0;
 	}
 

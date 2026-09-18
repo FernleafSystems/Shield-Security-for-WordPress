@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExp
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Export;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Import;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\ObservationStore;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\SyncObservation;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\SiteRepository;
@@ -141,7 +140,7 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 			[ 'target_fingerprint' => SyncObservation::targetFingerprint( self::CONFIGURED_MASTER_URL ) ]
 		), '', false );
 
-		( new ImportExportController() )->disconnectMasterSite();
+		$con->comps->import_export->disconnectMasterSite();
 
 		$this->assertSame( '', (string)$con->opts->optGet( 'importexport_masterurl' ) );
 		$this->assertFalse( \get_option( $this->clientObservationOptionKey(), false ) );

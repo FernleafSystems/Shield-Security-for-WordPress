@@ -16,7 +16,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ProfilesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\{
 	ObservationPresenter,
@@ -116,8 +115,8 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( [], $payload );
 		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
 		$this->assertSame( '', (string)$this->requireController()->opts->optGet( 'importexport_masterurl' ) );
-		$this->assertFalse( ( new ImportExportController() )->isSyncAvailable() );
-		$this->assertFalse( ( new ImportExportController() )->isSyncEnabled() );
+		$this->assertFalse( $this->requireController()->comps->import_export->isSyncAvailable() );
+		$this->assertFalse( $this->requireController()->comps->import_export->isSyncEnabled() );
 	}
 
 	public function test_anonymous_invite_request_stores_only_pending_invite_when_import_export_enabled_without_payload() :void {

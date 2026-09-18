@@ -16,7 +16,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\SyncObservation;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\{
 	InvitationMetadata,
@@ -833,7 +832,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		] );
 		$unselectedBefore = $repo->findById( $unselected->id, true )->getRawData();
 
-		$this->assertSame( 1, ( new ImportExportController() )->queueSitesForSync( [ $row->id ] ) );
+		$this->assertSame( 1, $this->requireController()->comps->import_export->queueSitesForSync( [ $row->id ] ) );
 
 		$before[ 'queued_at' ] = $now;
 		$before[ 'next_ping_at' ] = $now;
@@ -1884,7 +1883,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 				'filename' => null,
 			];
 		};
-		$canRun = fn() :bool => ( new ImportExportController() )->isSyncEnabled();
+		$canRun = fn() :bool => $this->requireController()->comps->import_export->isSyncEnabled();
 		$processor = new QueueProcessor( $canRun );
 		$scheduler = new QueueScheduler( $canRun, fn() => $processor->runFromCron() );
 		$scheduler->setup();
@@ -1898,7 +1897,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			$this->assertSame( $pausedRaw, $repo->findById( $row->id, true )->getRawData() );
 
 			$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
-			$this->assertTrue( ( new ImportExportController() )->isSyncEnabled() );
+			$this->assertTrue( $this->requireController()->comps->import_export->isSyncEnabled() );
 			$this->assertNotFalse( \has_action( $scheduler->hook() ) );
 			\do_action( $scheduler->hook() );
 		}
@@ -2254,7 +2253,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$pendingInviteNextPing = $pendingInvite->next_ping_at;
 		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 
-		$count = ( new ImportExportController() )->queueSitesForSync( [ $pendingInvite->id, $pendingConnection->id ] );
+		$count = $this->requireController()->comps->import_export->queueSitesForSync( [ $pendingInvite->id, $pendingConnection->id ] );
 
 		$pendingInvite = $repo->findById( $pendingInvite->id, true );
 		$pendingConnection = $repo->findById( $pendingConnection->id, true );
@@ -3335,7 +3334,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$repo->recordExportSuccess( $first, SitesDB::EXPORT_RESULT_SUCCESS );
 		$repo->recordExportSuccess( $second, SitesDB::EXPORT_RESULT_SUCCESS );
 
-		$count = ( new ImportExportController() )->queueAllActiveSitesForSync();
+		$count = $this->requireController()->comps->import_export->queueAllActiveSitesForSync();
 
 		$this->assertSame( 2, $count );
 		$this->assertSame( SitesDB::QUEUE_QUEUED, $repo->findById( $first->id, true )->queue_status );
@@ -3354,7 +3353,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$repo->recordExportSuccess( $row, SitesDB::EXPORT_RESULT_SUCCESS );
 
 		try {
-			( new ImportExportController() )->queueAllActiveSitesForSync();
+			$this->requireController()->comps->import_export->queueAllActiveSitesForSync();
 			$this->fail( 'Expected disabled import/export queue-all to fail.' );
 		}
 		catch ( \RuntimeException $e ) {
@@ -3457,7 +3456,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		\wp_clear_scheduled_hook( $hook );
 
 		try {
-			( new ImportExportController() )->execute();
+			$this->requireController()->comps->import_export->resetExecution()->execute();
 
 			$this->assertNotFalse( \has_action( $hook ) );
 			$this->assertNotFalse( \wp_next_scheduled( $hook ) );

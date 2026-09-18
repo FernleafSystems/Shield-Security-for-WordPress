@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\ImportExportController;
-
 class PluginImportExport_SetEnabled extends BaseAction {
 
 	use Traits\SecurityAdminRequired;
@@ -21,7 +19,7 @@ class PluginImportExport_SetEnabled extends BaseAction {
 		}
 
 		try {
-			( new ImportExportController() )->setAutomaticImportExportEnabled( $enabled === 'Y' );
+			self::con()->comps->import_export->setAutomaticImportExportEnabled( $enabled === 'Y' );
 			$success = true;
 			$message = $enabled === 'Y'
 				? __( 'Import and export has been enabled. Reloading...', 'wp-simple-firewall' )

@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExportSites\BuildImportExportSitesTableData;
 
@@ -44,7 +43,7 @@ class ImportExportSitesTableAction extends TableActionBase {
 
 	protected function queueSync() :array {
 		$rids = $this->ridsFromActionData();
-		$count = ( new ImportExportController() )->queueSitesForSync( $rids );
+		$count = self::con()->comps->import_export->queueSitesForSync( $rids );
 		$pendingOnly = false;
 		if ( $count === 0 ) {
 			$ids = \array_values( \array_unique( \array_filter(
@@ -74,7 +73,7 @@ class ImportExportSitesTableAction extends TableActionBase {
 	}
 
 	protected function deleteSite() :array {
-		$count = ( new ImportExportController() )->deleteSitesById( $this->ridsFromActionData() );
+		$count = self::con()->comps->import_export->deleteSitesById( $this->ridsFromActionData() );
 		if ( $count > 0 ) {
 			\delete_transient( 'shield_dt_total_'.\md5( BuildImportExportSitesTableData::class ) );
 		}
@@ -88,7 +87,7 @@ class ImportExportSitesTableAction extends TableActionBase {
 	}
 
 	protected function repairConnection() :array {
-		$count = ( new ImportExportController() )->repairSitesById( $this->ridsFromActionData() );
+		$count = self::con()->comps->import_export->repairSitesById( $this->ridsFromActionData() );
 		return [
 			'success'      => true,
 			'table_reload' => true,
@@ -97,7 +96,7 @@ class ImportExportSitesTableAction extends TableActionBase {
 	}
 
 	protected function retryInvitation() :array {
-		$result = ( new ImportExportController() )->restartSiteInvitationsByIds( $this->ridsFromActionData() );
+		$result = self::con()->comps->import_export->restartSiteInvitationsByIds( $this->ridsFromActionData() );
 
 		return \array_merge( $result, [
 			'success'      => true,

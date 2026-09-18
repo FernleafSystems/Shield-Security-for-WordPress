@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\SiteRepository;
 
 class ImportExportSitesAuthoriseUrlsSubmit extends BaseAction {
@@ -25,7 +24,7 @@ class ImportExportSitesAuthoriseUrlsSubmit extends BaseAction {
 
 			$activeClientCountBefore = ( new SiteRepository() )->countActiveRows();
 			$sendInvites = ( $form[ 'send_invites' ] ?? 'Y' ) === 'Y';
-			$result = ( new ImportExportController() )->authoriseUrlsForSyncSites(
+			$result = self::con()->comps->import_export->authoriseUrlsForSyncSites(
 				\preg_split( '#\R#', (string)( $form[ 'urls' ] ?? '' ) ) ?: [],
 				$sendInvites
 			);

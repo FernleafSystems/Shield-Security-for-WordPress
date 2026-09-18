@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\ImportExport;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\ImportExportController;
 
 class FormAuthoriseUrls extends BaseRender {
 
@@ -13,7 +12,7 @@ class FormAuthoriseUrls extends BaseRender {
 	protected function getRenderData() :array {
 		return [
 			'vars'    => [
-				'client_secret_key' => ( new ImportExportController() )->getImportExportSecretKey(),
+				'client_secret_key' => self::con()->comps->import_export->getImportExportSecretKey(),
 			],
 			'strings' => [
 				'client_secret_key' => __( 'Client site secret key', 'wp-simple-firewall' ),

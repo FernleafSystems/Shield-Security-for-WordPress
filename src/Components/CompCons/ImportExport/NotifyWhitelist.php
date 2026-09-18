@@ -36,7 +36,7 @@ class NotifyWhitelist {
 
 	private function queueActiveSitesForSync() :void {
 		try {
-			( new ImportExportController() )->queueAllActiveSitesForSync();
+			self::con()->comps->import_export->queueAllActiveSitesForSync();
 		}
 		catch ( \Throwable $e ) {
 		}
