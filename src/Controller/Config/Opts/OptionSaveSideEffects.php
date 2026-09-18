@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Delete;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerification;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class OptionSaveSideEffects {

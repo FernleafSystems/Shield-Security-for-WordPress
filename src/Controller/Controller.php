@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\ModConfigVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Extensions\ExtensionsCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
 	HackGuard,
@@ -20,7 +21,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	License,
 	LoginGuard,
 	Plugin,
-	Plugin\Lib\ImportExport\ImportExportController,
 	Plugin\Lib\Ops\ResetPlugin,
 	SecurityAdmin
 };
