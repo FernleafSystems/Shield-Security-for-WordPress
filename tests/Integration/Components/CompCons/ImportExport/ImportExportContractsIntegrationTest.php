@@ -108,6 +108,9 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->disablePremiumCapabilities();
 		$con->opts->optSet( 'importexport_enable', 'N' )->store();
 		$this->assertFalse( $probe->canRunForTest() );
+
+		$con->cfg->rebuilt = true;
+		$this->assertFalse( $probe->canRunForTest() );
 	}
 
 	public function test_export_payload_contains_machine_contract_and_excludes_transfer_opt_outs() :void {

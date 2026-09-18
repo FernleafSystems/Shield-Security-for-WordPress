@@ -386,6 +386,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 
 	/** @group database-transaction-exception */
 	public function test_same_version_config_signature_rebuild_imports_legacy_settings_into_registry() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$this->runWithImportExportSitesPersistentMutation( function () :void {
 			$con = $this->requireController();
 			$stored = $con->cfg->getRawData();
@@ -3997,9 +3998,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 	}
 
 	private function runConfigRebuildImport() :void {
-		$method = new \ReflectionMethod( $this->requireController(), 'importExportSitesRegistryOnConfigRebuild' );
-		$method->setAccessible( true );
-		$method->invoke( $this->requireController() );
+		$this->requireController()->comps->import_export->resetExecution()->execute();
 	}
 
 	private function setRequestTimestamp( int $timestamp ) :void {

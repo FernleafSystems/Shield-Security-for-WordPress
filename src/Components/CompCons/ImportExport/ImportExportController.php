@@ -45,6 +45,9 @@ class ImportExportController {
 			$scheduler->setup();
 		}
 		$this->ensureSitesRegistryImported();
+		if ( self::con()->cfg->rebuilt ) {
+			$this->scheduleQueueSoonIfSyncEnabled();
+		}
 		if ( $this->isSyncEnabled() ) {
 			$this->setupHooks();
 		}

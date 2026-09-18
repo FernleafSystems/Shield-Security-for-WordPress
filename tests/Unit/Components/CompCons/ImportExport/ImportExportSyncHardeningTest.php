@@ -835,6 +835,63 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
 	}
 
+	public function test_can_run_ignores_config_rebuild_flag() :void {
+		$this->installControllerStub( new class {
+			public function canImportExportSync() :bool {
+				return false;
+			}
+		} );
+		$this->opts->optSet( 'importexport_enable', 'N' )->store();
+		$this->controller->cfg->rebuilt = true;
+
+		$this->assertFalse( ( new ImportExportControllerCanRunProbe() )->canRunForTest() );
+	}
+
+	public function test_execute_does_not_run_on_rebuild_when_sync_is_unavailable_and_disabled() :void {
+		$this->installControllerStub( new class {
+			public function canImportExportSync() :bool {
+				return false;
+			}
+		} );
+		$this->opts->optSet( 'importexport_enable', 'N' )->store();
+		$this->controller->cfg->rebuilt = true;
+		$this->mockQueueProcessorConstruction();
+
+		( new ImportExportController() )->execute();
+
+		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
+	}
+
+	public function test_execute_schedules_promptly_on_rebuild_when_sync_is_enabled() :void {
+		$this->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$this->controller->cfg->rebuilt = true;
+		$this->mockQueueProcessorConstruction();
+
+		( new ImportExportController() )->execute();
+
+		$this->assertSame( 1712620830, $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
+	}
+
+	public function test_execute_uses_health_interval_when_enabled_without_rebuild() :void {
+		$this->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$this->controller->cfg->rebuilt = false;
+		$this->mockQueueProcessorConstruction();
+
+		( new ImportExportController() )->execute();
+
+		$this->assertSame( 1712621100, $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
+	}
+
+	public function test_execute_does_not_schedule_on_rebuild_when_sync_is_disabled() :void {
+		$this->opts->optSet( 'importexport_enable', 'N' )->store();
+		$this->controller->cfg->rebuilt = true;
+		$this->mockQueueProcessorConstruction();
+
+		( new ImportExportController() )->execute();
+
+		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
+	}
+
 	public function test_ping_sender_uses_trusted_sync_policy_for_private_resolved_hosts() :void {
 		$events = [];
 		$sender = $this->buildPingSenderWithRecordedFilters( $events );
@@ -936,6 +993,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 			null,
 			(object)[
 				'cfg'  => (object)[
+					'rebuilt'    => false,
 					'properties' => [
 						'slug_parent' => 'icwp',
 						'slug_plugin' => 'wpsf',
@@ -965,6 +1023,11 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 
 	private function queueCronHook() :string {
 		return ( new QueueScheduler() )->hook();
+	}
+
+	private function mockQueueProcessorConstruction() :void {
+		Functions\when( 'add_action' )->justReturn( true );
+		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
 	}
 
 	/**
@@ -1075,6 +1138,13 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertSame( $events[ 0 ][ 'callback_id' ] ?? null, $events[ 2 ][ 'callback_id' ] ?? null );
 	}
 
+}
+
+class ImportExportControllerCanRunProbe extends ImportExportController {
+
+	public function canRunForTest() :bool {
+		return $this->canRun();
+	}
 }
 
 class ImportExportQueueProcessorIdentityTestDouble extends QueueProcessor {
