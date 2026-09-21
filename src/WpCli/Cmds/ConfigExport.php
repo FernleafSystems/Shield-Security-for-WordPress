@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Export;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ConfigExport extends BaseCmd {
@@ -70,7 +70,7 @@ class ConfigExport extends BaseCmd {
 			\WP_CLI::error( __( "The system reports that this file path isn't writable.", 'wp-simple-firewall' ) );
 		}
 
-		if ( !$FS->putFileContent( $file, \implode( "\n", ( new Lib\ImportExport\Export() )->toStandardArray() ) ) ) {
+		if ( !$FS->putFileContent( $file, \implode( "\n", ( new Export() )->toStandardArray() ) ) ) {
 			\WP_CLI::error( __( "The system reports that writing the export file failed.", 'wp-simple-firewall' ) );
 		}
 

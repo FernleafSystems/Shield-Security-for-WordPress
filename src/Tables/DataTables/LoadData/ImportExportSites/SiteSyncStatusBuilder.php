@@ -6,13 +6,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Handler as SitesDB,
 	Record
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\{
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\{
 	ExportWaitState,
 	InvitationMetadata,
 	QueuedSyncState,
 	SiteRepository
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\{
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\{
 	ObservationPresenter,
 	SyncObservation
 };

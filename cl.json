@@ -119,8 +119,23 @@
     "patches":     [
       {
         "version":     "3",
-        "released_at": 1789123336,
+        "released_at": 1790000000,
         "items":       [
+          {
+            "type":        "improved",
+            "title":       "Improved detection of Cloaked Plugin",
+            "commit":      "a69aa5dc",
+            "description": [
+              "Improve the reliability of cloaked plugin detection - fewer false positives; more accurate detection."
+            ]
+          },
+          {
+            "type":        "improved",
+            "title":       "Site-to-Site Sync Improvements",
+            "description": [
+              "Continue the development and improvements of the automatic site-to-site network sync feature."
+            ]
+          },
           {
             "type":        "fixed",
             "title":       "Ignore verified Shield cache index files",

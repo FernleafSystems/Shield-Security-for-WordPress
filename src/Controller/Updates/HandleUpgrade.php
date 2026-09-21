@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\OptionsCorrections;
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -40,7 +39,7 @@ class HandleUpgrade {
 
 	private function runScheduledUpgrade() :void {
 		$con = self::con();
-		$importExport = new ImportExportController();
+		$importExport = $con->comps->import_export;
 
 		( new OptionsCorrections() )->runUpgradeMigrations();
 		$this->runUpgradeSideEffect( 'import/export site registry legacy import', function () use ( $importExport ) {

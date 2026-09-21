@@ -7,6 +7,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 	}
 
 	use Brain\Monkey\Functions;
+	use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\ImportExportController;
 	use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
 	use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
 	use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
@@ -28,6 +29,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 	use FernleafSystems\Wordpress\Services\Utilities\Data;
 	use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
 	use FernleafSystems\Wordpress\Services\Core\Db;
+	use PHPUnit\Framework\Attributes\DataProvider;
 
 	class HandleUpgradeTest extends BaseUnitTest {
 
@@ -197,9 +199,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			);
 		}
 
-		/**
-		 * @dataProvider adequateScanMetadataColumnProvider
-		 */
+		#[DataProvider( 'adequateScanMetadataColumnProvider' )]
 		public function test_scheduled_upgrade_does_not_shrink_adequate_scan_metadata_column(
 			string $columnType
 		) :void {
@@ -482,6 +482,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				'comps'                 => (object)[
 					'asset_coordinator' => $assetCoordinator,
 					'scans'             => $scans,
+					'import_export'     => new ImportExportController(),
 				],
 			] );
 
@@ -536,6 +537,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			] );
 			$controller->comps->asset_coordinator = $assetCoordinator;
 			$controller->comps->scans = $scanFacade;
+			$controller->comps->import_export = new ImportExportController();
 			PluginControllerInstaller::install( $controller );
 
 			return (object)[

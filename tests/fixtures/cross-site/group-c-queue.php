@@ -49,7 +49,7 @@ add_filter( 'pre_http_request', static function ( $preempt, array $args, string 
 
 	$queueHook = 'icwp-wpsf-importexport_sites_queue';
 	$futureEvent = wp_next_scheduled( $queueHook );
-	$row = ( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository() )->findByUrl( $url, true );
+	$row = ( new \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\SiteRepository() )->findByUrl( $url, true );
 	$state[ 'notification_starts' ] = (int)( $state[ 'notification_starts' ] ?? 0 ) + 1;
 	$state[ 'attempt_counters' ][] = (int)( $row->meta[ 'notification_attempts_started' ] ?? 0 );
 	$state[ 'future_event_observed' ] = $futureEvent !== false;

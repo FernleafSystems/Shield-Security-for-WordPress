@@ -11,8 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExp
 	BuildImportExportSitesTableData,
 	SiteSyncStatusBuilder
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\InvitationMetadata;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\{
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\InvitationMetadata;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\{
 	ObservationPresenter,
 	SyncObservation
 };
@@ -122,9 +122,7 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertSame( SiteSyncStatusBuilder::STATE_PENDING, $this->builder()->stateForRecord( $record ) );
 	}
 
-	/**
-	 * @dataProvider pendingQueueStatusProvider
-	 */
+	#[DataProvider( 'pendingQueueStatusProvider' )]
 	public function test_pending_invite_and_connection_queue_states_are_pending( string $queueStatus ) :void {
 		$record = $this->record( [
 			'queue_status' => $queueStatus,
@@ -460,9 +458,7 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( 'secret-import-id', $row[ 'actions' ] );
 	}
 
-	/**
-	 * @dataProvider repairActionVisibilityProvider
-	 */
+	#[DataProvider( 'repairActionVisibilityProvider' )]
 	public function test_repair_action_visibility_follows_sync_state( array $overrides, string $expectedState, bool $expectRepairAction ) :void {
 		$rows = ( new BuildImportExportSitesTableData() )->exportBuildTableRowsFromRawRecords( [
 			$this->record( \array_merge( [
