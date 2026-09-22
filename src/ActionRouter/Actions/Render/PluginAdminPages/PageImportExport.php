@@ -7,9 +7,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportFro
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\ImportExport\ProfileOptionsForm;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\ImportExportController;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\NetworkInviteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\{
+	ObservationPresenter,
+	ObservationStore,
+	SyncObservation
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\{
+	SiteRepository,
+	SyncSiteUrlValidator
+};
 
 /**
  * @phpstan-type SyncState 'unavailable'|'disabled'|'enabled'
@@ -112,6 +120,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *   disabled:array{title:string,summary:string},
  *   tasks:list<array{key:'connect'|'clients'|'profile',title:string,summary:string,icon_class:string,is_active:bool}>,
  *   connect:NetworkSyncConnect,
+ *   diagnostics:array{client_import:?array,unassociated_rejection:?array},
  *   clients:array{
  *     title:string,
  *     summary:string,
@@ -357,6 +366,7 @@ class PageImportExport extends PageModeLandingBase {
 				],
 			],
 			'connect'              => $this->buildNetworkConnect( $hasMasterURL, $importMasterURL ),
+			'diagnostics'          => $this->buildNetworkDiagnostics( $importMasterURL ),
 			'clients'              => [
 				'title'              => __( 'Manage client sites', 'wp-simple-firewall' ),
 				'summary'            => __( 'Share this site\'s settings with approved Shield sites.', 'wp-simple-firewall' ),
@@ -367,6 +377,22 @@ class PageImportExport extends PageModeLandingBase {
 				'has_connected_sites' => $activeClientCount > 0,
 			],
 			'profile'              => $this->buildNetworkProfile( $isEnabled, $activeClientCount ),
+		];
+	}
+
+	private function buildNetworkDiagnostics( string $importMasterURL ) :array {
+		$store = new ObservationStore();
+		$presenter = new ObservationPresenter();
+		$client = $store->readClientImport();
+		$canonicalMaster = ( new SyncSiteUrlValidator() )->canonicalize( $importMasterURL );
+		$clientMatchesMaster = $client !== null
+			&& $canonicalMaster !== ''
+			&& ( $client[ 'target_fingerprint' ] ?? '' ) === SyncObservation::targetFingerprint( $canonicalMaster );
+		$unassociated = $store->readUnassociatedRejection();
+
+		return [
+			'client_import'          => $clientMatchesMaster ? $presenter->present( $client ) : null,
+			'unassociated_rejection' => $unassociated === null ? null : $presenter->present( $unassociated ),
 		];
 	}
 

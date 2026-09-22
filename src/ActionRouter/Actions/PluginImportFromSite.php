@@ -2,7 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Import;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\ObservationPresenter;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class PluginImportFromSite extends BaseAction {
@@ -22,8 +23,9 @@ class PluginImportFromSite extends BaseAction {
 		}
 		else {
 			$doNetwork = ( $formParams[ 'ShieldNetwork' ] === 'Y' ) ? true : ( ( $formParams[ 'ShieldNetwork' ] === 'N' ) ? false : null );
+			$import = new Import();
 			try {
-				( new Import() )->fromSite(
+				$import->fromSite(
 					(string)$formParams[ 'MasterSiteUrl' ],
 					(string)$formParams[ 'MasterSiteSecretKey' ],
 					$doNetwork
@@ -33,7 +35,7 @@ class PluginImportFromSite extends BaseAction {
 			}
 			catch ( \Exception $e ) {
 				$success = false;
-				$msg = $e->getMessage();
+				$msg = ( new ObservationPresenter() )->failureMessage( $import->latestObservation(), $e->getMessage() );
 			}
 		}
 

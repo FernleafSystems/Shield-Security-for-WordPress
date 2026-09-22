@@ -38,6 +38,12 @@ class CrossSitePairManager {
 	private const PUBLIC_RUNTIME_SITE_SECRET = '0123456789abcdef0123456789abcdef01234567';
 	private const AUTOMATIC_CRON_BLOCKER_FIXTURE = '/app/tests/fixtures/cross-site/block-automatic-cron.php';
 	private const AUTOMATIC_CRON_BLOCKER_TARGET = '/var/www/html/wp-content/mu-plugins/shield-cross-site-block-automatic-cron.php';
+	private const B2_CALLBACK_OBSERVER_FIXTURE = '/app/tests/fixtures/cross-site/b2-callback-observer.php';
+	private const B2_CALLBACK_OBSERVER_TARGET = '/var/www/html/wp-content/mu-plugins/shield-cross-site-b2-callback-observer.php';
+	private const GROUP_C_QUEUE_FIXTURE = '/app/tests/fixtures/cross-site/group-c-queue.php';
+	private const GROUP_C_QUEUE_TARGET = '/var/www/html/wp-content/mu-plugins/shield-cross-site-group-c-queue.php';
+	private const EXPORT_SUCCESS_FAILURE_FIXTURE = '/app/tests/fixtures/cross-site/export-success-write-failure.php';
+	private const EXPORT_SUCCESS_FAILURE_TARGET = '/var/www/html/wp-content/mu-plugins/shield-cross-site-export-success-write-failure.php';
 	private const UPDATE_PROVIDER_FIXTURE = '/app/tests/fixtures/upgrade-public/update-provider.php';
 	private const UPDATE_CONFIG_FIXTURE = '/app/tests/fixtures/upgrade-public/write-update-config.php';
 	private const UPDATE_PACKAGE_DIR = '/var/www/html/wp-content/uploads/shield-cross-site-upgrade';
@@ -45,6 +51,9 @@ class CrossSitePairManager {
 	private const ARCHIVE_WORKSPACE = 'tmp/cross-site-test-lane/archive-workspace';
 	private const SITE_ARTIFACTS = [
 		self::AUTOMATIC_CRON_BLOCKER_TARGET,
+		self::B2_CALLBACK_OBSERVER_TARGET,
+		self::GROUP_C_QUEUE_TARGET,
+		self::EXPORT_SUCCESS_FAILURE_TARGET,
 		self::PUBLIC_RUNTIME_TARGET,
 		'/var/www/html/wp-content/mu-plugins/shield-upgrade-test-update-provider.php',
 		'/var/www/html/wp-content/shield-upgrade-test',
@@ -53,9 +62,13 @@ class CrossSitePairManager {
 	];
 	private const STATUS_ACTIVE = 'active';
 	private const QUEUE_IDLE = 'idle';
+	private const QUEUE_QUEUED = 'queued';
 	private const QUEUE_WAITING_EXPORT = 'waiting_export';
 	private const EXPORT_RESULT_SUCCESS = 'success';
+	private const EXPORT_RESULT_TIMEOUT = 'export_timeout';
 	private const WP_CLI_INVALID_CRON_EVENT = 'Invalid cron event';
+	private const B2_CASES = [ 'B2-01', 'B2-02', 'B2-07', 'B2-09' ];
+	private const E_CASES = [ 'E-01', 'E-02' ];
 
 	private ProcessRunner $processRunner;
 
@@ -163,6 +176,12 @@ class CrossSitePairManager {
 		$this->refreshCheckoutRuntimeWithEnvironment( $rootDir, $envOverrides, $onOutput );
 		$this->stage( 'install current automatic cron blocker fixture' );
 		$this->installAutomaticCronBlockerFixture( $rootDir );
+		$this->stage( 'install B2 callback observer fixture' );
+		$this->installB2CallbackObserverFixture( $rootDir );
+		$this->stage( 'install Group C queue fixture' );
+		$this->installGroupCQueueFixture( $rootDir );
+		$this->stage( 'install Group E export-success failure fixture' );
+		$this->installExportSuccessFailureFixture( $rootDir );
 	}
 
 	public function cleanupRun( string $rootDir ) :void {
@@ -341,6 +360,43 @@ class CrossSitePairManager {
 	}
 
 	public function runImportExportScenario( string $rootDir ) :void {
+		$this->setupCurrentConnectedPair( $rootDir );
+		$this->runCurrentImportExportExchange( $rootDir );
+
+		$this->stage( 'verify Group C HTTP continuation and recovery' );
+		$this->runGroupCQueueLifecycleEvidence( $rootDir );
+	}
+
+	public function runB2Case( string $rootDir, string $case ) :void {
+		if ( !\in_array( $case, self::B2_CASES, true ) ) {
+			throw new \InvalidArgumentException( 'Unsupported B2 cross-site case: '.$case );
+		}
+
+		$this->setupCurrentConnectedPair( $rootDir );
+		if ( $case === 'B2-01' ) {
+			$this->runB2HistoricalNoIdCase( $rootDir );
+		}
+		elseif ( $case === 'B2-02' ) {
+			$this->runCurrentImportExportExchange( $rootDir );
+		}
+		elseif ( $case === 'B2-07' ) {
+			$this->runB2ExpiredCallbackCase( $rootDir );
+		}
+		else {
+			$this->runB2RetryAfterCooldownCase( $rootDir );
+		}
+	}
+
+	public function runECase( string $rootDir, string $case ) :void {
+		if ( !\in_array( $case, self::E_CASES, true ) ) {
+			throw new \InvalidArgumentException( 'Unsupported Group E cross-site case: '.$case );
+		}
+
+		$this->setupCurrentConnectedPair( $rootDir );
+		$this->runExportSuccessPersistenceCase( $rootDir, $case );
+	}
+
+	private function setupCurrentConnectedPair( string $rootDir ) :void {
 		$this->stage( 'setup cross-site runtime state' );
 		$this->runHelper( $rootDir, self::MASTER, 'setup', [ 'role' => self::MASTER ] );
 		$this->runHelper( $rootDir, self::SLAVE, 'setup', [ 'role' => self::SLAVE ] );
@@ -366,7 +422,6 @@ class CrossSitePairManager {
 			'master' => $this->runHelper( $rootDir, self::MASTER, 'state' ),
 			'slave'  => $this->runHelper( $rootDir, self::SLAVE, 'state' ),
 		];
-		$this->lastDiagnostics[ 'network' ] = $network;
 		$masterState = $network[ 'master' ];
 		$slaveState = $network[ 'slave' ];
 		if ( !\is_array( $masterState )
@@ -377,6 +432,14 @@ class CrossSitePairManager {
 		if ( !\is_array( $slaveState ) || ( $slaveState[ 'master_url' ] ?? '' ) !== self::MASTER_INTERNAL_URL ) {
 			throw new \RuntimeException( 'Slave master URL was not set to the master internal URL.' );
 		}
+	}
+
+	private function runCurrentImportExportExchange( string $rootDir ) :void {
+		$this->stage( 'reset B2-02 callback observer' );
+		$observer = $this->resetB2CallbackObserver( $rootDir, 'B2-02' );
+		$b2Before = $this->b2Snapshots( $rootDir );
+		$b2Before[ 'client' ][ 'callback_observer' ][ 'positive_control_count' ] =
+			(int)$observer[ 'positive_control_count' ];
 
 		$this->stage( 'apply master option corpus' );
 		$corpus = $this->runHelper( $rootDir, self::MASTER, 'apply-corpus' );
@@ -394,6 +457,363 @@ class CrossSitePairManager {
 
 		$this->stage( 'compare exported option payloads' );
 		$this->assertExportsMatch( $rootDir );
+
+		$this->stage( 'assert B2-02 matching stored-ID exchange' );
+		$b2Evidence = $this->buildB2StoredIdEvidence( $b2Before, $this->b2Snapshots( $rootDir ) );
+		$this->lastDiagnostics[ 'b2_02' ] = $b2Evidence;
+		$this->assertB2StoredIdExchange( $b2Evidence );
+	}
+
+	private function runExportSuccessPersistenceCase( string $rootDir, string $case ) :void {
+		$this->stage( $case.' apply master option corpus' );
+		$corpus = $this->runHelper( $rootDir, self::MASTER, 'apply-corpus' );
+		$this->lastDiagnostics[ 'corpus' ] = $this->summariseCorpusDiagnostics( $corpus );
+
+		$this->stage( $case.' trigger master notification' );
+		$this->runHelper( $rootDir, self::MASTER, 'run-notify-hook' );
+		$this->processMasterSitesQueue( $rootDir );
+
+		$failureCount = $case === 'E-01' ? 2 : 1;
+		$this->stage( $case.' configure export-success write failure' );
+		$configured = $this->runHelper( $rootDir, self::MASTER, 'e-configure-export-success-failures', [
+			'failures' => $failureCount,
+		] );
+		if ( empty( $configured[ 'active' ] )
+			 || empty( $configured[ 'enabled' ] )
+			 || (int)( $configured[ 'failure_limit' ] ?? -1 ) !== $failureCount ) {
+			throw new \RuntimeException( $case.' could not configure the bounded master write failure.' );
+		}
+
+		$this->stage( $case.' run the scheduled client import' );
+		$slaveCron = $this->runHelper( $rootDir, self::SLAVE, 'cron-state' );
+		$this->runScheduledCronEvent( $rootDir, self::SLAVE, $slaveCron, 'import_hook', 'import_scheduled' );
+
+		$this->stage( $case.' prove client settings application' );
+		$this->assertExportsMatch( $rootDir );
+		$queueAfterImport = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
+		$fixture = $this->runHelper( $rootDir, self::MASTER, 'e-export-success-fixture-state' );
+		$this->lastDiagnostics[ \strtolower( \str_replace( '-', '_', $case ) ) ] = [
+			'fixture' => $fixture,
+			'queue_after_client_import' => $queueAfterImport,
+		];
+
+		if ( $case === 'E-02' ) {
+			$this->assertPostExportQueueState( $queueAfterImport );
+			if ( (int)( $fixture[ 'attempts' ] ?? -1 ) !== 2 ) {
+				throw new \RuntimeException( 'E-02 did not perform exactly two export-success write attempts.' );
+			}
+			return;
+		}
+
+		$row = $this->findRegistryRow( (array)( $queueAfterImport[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
+		if ( !\is_array( $row )
+			 || ( $row[ 'queue_status' ] ?? '' ) !== self::QUEUE_WAITING_EXPORT
+			 || (int)( $row[ 'last_export_success_at' ] ?? 0 ) >= (int)( $row[ 'last_export_request_at' ] ?? 0 )
+			 || (int)( $row[ 'last_export_success_at' ] ?? 0 ) >= (int)( $row[ 'last_ping_success_at' ] ?? 0 ) ) {
+			throw new \RuntimeException( 'E-01 did not preserve the waiting master row after persistent write failure.' );
+		}
+
+		$this->stage( 'E-01 expire grace and run existing timeout maintenance' );
+		$recovery = $this->runHelper( $rootDir, self::MASTER, 'e-expire-export-wait', [
+			'expected_url' => self::SLAVE_INTERNAL_URL,
+		] );
+		$this->lastDiagnostics[ 'e_01' ][ 'recovery' ] = $recovery;
+		$before = (array)( $recovery[ 'before' ] ?? [] );
+		$after = (array)( $recovery[ 'after' ] ?? [] );
+		$recoveryQueue = (array)( $recovery[ 'queue' ] ?? [] );
+		if ( ( $after[ 'queue_status' ] ?? '' ) !== self::QUEUE_QUEUED
+			 || ( $after[ 'last_export_result_code' ] ?? '' ) !== self::EXPORT_RESULT_TIMEOUT
+			 || (int)( $after[ 'expected_export_by' ] ?? -1 ) !== 0
+			 || (int)( $after[ 'consecutive_failures' ] ?? 0 ) !== (int)( $before[ 'consecutive_failures' ] ?? 0 ) + 1
+			 || (int)( $after[ 'next_ping_at' ] ?? 0 ) <= (int)( $after[ 'updated_at' ] ?? 0 )
+			 || (int)( $after[ 'ping_attempts_total' ] ?? -1 ) !== (int)( $before[ 'ping_attempts_total' ] ?? -2 )
+			 || (int)( $recoveryQueue[ 'due_count' ] ?? -1 ) !== 0 ) {
+			throw new \RuntimeException( 'E-01 did not retain the existing timeout and first-backoff recovery.' );
+		}
+		if ( (int)( $fixture[ 'attempts' ] ?? -1 ) !== 2 ) {
+			throw new \RuntimeException( 'E-01 did not perform exactly two bounded export-success write attempts.' );
+		}
+	}
+
+	private function runB2HistoricalNoIdCase( string $rootDir ) :void {
+		$this->stage( 'B2-01 prepare historical no-ID state' );
+		$before = [
+			'master' => $this->runHelper( $rootDir, self::MASTER, 'b2-prepare-master-row' ),
+			'client' => $this->runHelper( $rootDir, self::SLAVE, 'b2-prepare-client' ),
+		];
+
+		$this->stage( 'B2-01 run production client pull' );
+		$action = $this->runHelper( $rootDir, self::SLAVE, 'b2-pull' );
+		$after = $this->b2Snapshots( $rootDir );
+		$evidence = $this->buildB2Evidence( $before, $action, $after );
+		$this->lastDiagnostics[ 'b2_01' ] = $evidence;
+		$this->assertB2HistoricalNoId( $evidence );
+	}
+
+	private function runB2ExpiredCallbackCase( string $rootDir ) :void {
+		$this->stage( 'B2-07 prepare historical no-ID state' );
+		$this->runHelper( $rootDir, self::MASTER, 'b2-prepare-master-row' );
+		$this->runHelper( $rootDir, self::SLAVE, 'b2-prepare-client' );
+
+		$this->stage( 'B2-07 reset callback observer' );
+		$observer = $this->resetB2CallbackObserver( $rootDir, 'B2-07' );
+		$before = $this->b2Snapshots( $rootDir );
+		$before[ 'client' ][ 'callback_observer' ][ 'positive_control_count' ] =
+			(int)$observer[ 'positive_control_count' ];
+
+		$this->stage( 'B2-07 send export request with expired callback eligibility' );
+		$action = $this->runHelper( $rootDir, self::SLAVE, 'b2-expired-export-request' );
+		$evidence = $this->buildB2ExpiredCallbackEvidence( $before, $action, $this->b2Snapshots( $rootDir ) );
+		$this->lastDiagnostics[ 'b2_07' ] = $evidence;
+		$this->assertB2ExpiredCallbackRejection( $evidence );
+	}
+
+	/** @return array<string,mixed> */
+	private function resetB2CallbackObserver( string $rootDir, string $case ) :array {
+		$observer = $this->runHelper( $rootDir, self::SLAVE, 'b2-reset-callback-observer' );
+		if ( empty( $observer[ 'active' ] )
+			 || (int)( $observer[ 'positive_control_count' ] ?? 0 ) !== 1
+			 || (int)( $observer[ 'count' ] ?? -1 ) !== 0 ) {
+			throw new \RuntimeException( $case.' callback observer was not active and reset.' );
+		}
+		return $observer;
+	}
+
+	private function runB2RetryAfterCooldownCase( string $rootDir ) :void {
+		$this->stage( 'B2-09 prepare cleared callback cooldown' );
+		$this->runHelper( $rootDir, self::MASTER, 'b2-prepare-retry-after-cooldown' );
+		$this->runHelper( $rootDir, self::SLAVE, 'b2-prepare-client' );
+
+		$this->stage( 'B2-09 reset callback observer' );
+		$observer = $this->resetB2CallbackObserver( $rootDir, 'B2-09' );
+		$before = $this->b2Snapshots( $rootDir );
+		$before[ 'client' ][ 'callback_observer' ][ 'positive_control_count' ] =
+			(int)$observer[ 'positive_control_count' ];
+
+		$this->stage( 'B2-09 run Sync settings now production pull' );
+		$action = $this->runHelper( $rootDir, self::SLAVE, 'b2-pull' );
+		$evidence = $this->buildB2Evidence( $before, $action, $this->b2Snapshots( $rootDir ) );
+		$evidence[ 'case' ] = 'B2-09';
+		$evidence[ 'retry_action' ] = 'Sync settings now';
+		$evidence[ 'callback_observer' ] = $this->buildB2CallbackObserverEvidence( $before, $evidence[ 'after' ] );
+		$this->lastDiagnostics[ 'b2_09' ] = $evidence;
+		$this->assertB2RetryAfterCooldown( $evidence );
+	}
+
+	/**
+	 * @return array{master:array<string,mixed>,client:array<string,mixed>}
+	 */
+	private function b2Snapshots( string $rootDir ) :array {
+		return [
+			'master' => $this->runHelper( $rootDir, self::MASTER, 'b2-snapshot', [
+				'role' => 'master',
+				'expected_url' => self::SLAVE_INTERNAL_URL,
+			] ),
+			'client' => $this->runHelper( $rootDir, self::SLAVE, 'b2-snapshot', [
+				'role' => 'client',
+			] ),
+		];
+	}
+
+	/**
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $before
+	 * @param array<string,mixed> $action
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $after
+	 * @return array<string,mixed>
+	 */
+	private function buildB2Evidence( array $before, array $action, array $after ) :array {
+		$beforeAttempt = (int)( $before[ 'master' ][ 'row' ][ 'handshake_attempt_at' ] ?? 0 );
+		$afterAttempt = (int)( $after[ 'master' ][ 'row' ][ 'handshake_attempt_at' ] ?? 0 );
+		$verificationResult = (string)( $after[ 'master' ][ 'row' ][ 'verification' ][ 'result' ] ?? '' );
+		$callbackBranchObserved = $afterAttempt > $beforeAttempt && \in_array( $verificationResult, [
+			'verification_passed',
+			'callback_transport_failure',
+			'callback_invalid_response',
+			'callback_did_not_confirm',
+		], true );
+
+		return [
+			'case' => 'B2-01',
+			'before' => $before,
+			'action' => $action,
+			'after' => $after,
+			'callback_branch_observed' => $callbackBranchObserved,
+		];
+	}
+
+	/** @param array<string,mixed> $evidence */
+	private function assertB2HistoricalNoId( array $evidence, string $case = 'B2-01' ) :void {
+		$this->assertB2ActiveAssociatedPrecondition( $evidence );
+		if ( !empty( $evidence[ 'before' ][ 'master' ][ 'row' ][ 'stored_import_id_present' ] )
+			 || empty( $evidence[ 'action' ][ 'success' ] )
+			 || (int)( $evidence[ 'action' ][ 'duration_ms' ] ?? -1 ) < 0
+			 || empty( $evidence[ 'callback_branch_observed' ] )
+			 || empty( $evidence[ 'after' ][ 'master' ][ 'row' ][ 'stored_import_id_present' ] )
+			 || (string)( $evidence[ 'after' ][ 'master' ][ 'row' ][ 'verification' ][ 'result' ] ?? '' ) !== 'verification_passed'
+			 || (string)( $evidence[ 'after' ][ 'master' ][ 'row' ][ 'export' ][ 'result' ] ?? '' ) !== 'export_served'
+			 || (string)( $evidence[ 'after' ][ 'client' ][ 'client_import' ][ 'result' ] ?? '' ) !== 'network_import_completed'
+			 || (int)( $evidence[ 'after' ][ 'client' ][ 'client_import' ][ 'http_status' ] ?? 0 ) !== 403 ) {
+			throw new \RuntimeException( $case.' historical no-ID exchange did not satisfy the current contract.' );
+		}
+	}
+
+	/**
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $before
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $after
+	 * @return array<string,mixed>
+	 */
+	private function buildB2StoredIdEvidence( array $before, array $after ) :array {
+		$beforeAttempt = (int)( $before[ 'master' ][ 'row' ][ 'handshake_attempt_at' ] ?? 0 );
+		$afterAttempt = (int)( $after[ 'master' ][ 'row' ][ 'handshake_attempt_at' ] ?? 0 );
+		$handshakeAttemptUnchanged = $afterAttempt === $beforeAttempt;
+		$verificationPassed = (string)( $after[ 'master' ][ 'row' ][ 'verification' ][ 'result' ] ?? '' )
+			=== 'verification_passed';
+		$beforeObserver = (array)( $before[ 'client' ][ 'callback_observer' ] ?? [] );
+		$afterObserver = (array)( $after[ 'client' ][ 'callback_observer' ] ?? [] );
+		$beforeCallbackCount = (int)( $beforeObserver[ 'count' ] ?? -1 );
+		$afterCallbackCount = (int)( $afterObserver[ 'count' ] ?? -1 );
+
+		return [
+			'case' => 'B2-02',
+			'before' => $before,
+			'after' => $after,
+			'stored_import_id_present' => !empty( $before[ 'master' ][ 'row' ][ 'stored_import_id_present' ] ),
+			'submitted_import_id_present' => !empty( $before[ 'client' ][ 'local_import_id_present' ] ),
+			'id_agreement_established' => $handshakeAttemptUnchanged && $verificationPassed,
+			'handshake_attempt_unchanged' => $handshakeAttemptUnchanged,
+			'callback_branch_observed' => $afterAttempt > $beforeAttempt,
+			'callback_observer' => [
+				'target_class' => 'client_handshake_confirm',
+				'positive_control_count' => (int)( $beforeObserver[ 'positive_control_count' ] ?? 0 ),
+				'active_before' => !empty( $beforeObserver[ 'active' ] ),
+				'active_after' => !empty( $afterObserver[ 'active' ] ),
+				'before_count' => $beforeCallbackCount,
+				'after_count' => $afterCallbackCount,
+				'observed_count' => $afterCallbackCount - $beforeCallbackCount,
+			],
+		];
+	}
+
+	/**
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $before
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $after
+	 * @return array<string,mixed>
+	 */
+	private function buildB2CallbackObserverEvidence( array $before, array $after ) :array {
+		$beforeObserver = (array)( $before[ 'client' ][ 'callback_observer' ] ?? [] );
+		$afterObserver = (array)( $after[ 'client' ][ 'callback_observer' ] ?? [] );
+		return [
+			'target_class' => 'client_handshake_confirm',
+			'positive_control_count' => (int)( $beforeObserver[ 'positive_control_count' ] ?? 0 ),
+			'active_before' => !empty( $beforeObserver[ 'active' ] ),
+			'active_after' => !empty( $afterObserver[ 'active' ] ),
+			'observed_count' => (int)( $afterObserver[ 'count' ] ?? -1 )
+				- (int)( $beforeObserver[ 'count' ] ?? -1 ),
+		];
+	}
+
+	/** @param array<string,mixed> $evidence */
+	private function assertB2StoredIdExchange( array $evidence ) :void {
+		$this->assertB2ActiveAssociatedPrecondition( $evidence );
+		$observer = (array)( $evidence[ 'callback_observer' ] ?? [] );
+		if ( empty( $evidence[ 'stored_import_id_present' ] )
+			 || empty( $evidence[ 'submitted_import_id_present' ] )
+			 || empty( $evidence[ 'id_agreement_established' ] )
+			 || empty( $evidence[ 'handshake_attempt_unchanged' ] )
+			 || !empty( $evidence[ 'callback_branch_observed' ] )
+			 || empty( $observer[ 'active_before' ] )
+			 || empty( $observer[ 'active_after' ] )
+			 || (int)( $observer[ 'positive_control_count' ] ?? 0 ) !== 1
+			 || (int)( $observer[ 'before_count' ] ?? -1 ) !== 0
+			 || (int)( $observer[ 'observed_count' ] ?? -1 ) !== 0
+			 || (string)( $evidence[ 'before' ][ 'master' ][ 'row' ][ 'url' ] ?? '' ) !== self::SLAVE_INTERNAL_URL
+			 || (string)( $evidence[ 'before' ][ 'client' ][ 'home_url' ] ?? '' ) !== self::SLAVE_INTERNAL_URL
+			 || (string)( $evidence[ 'before' ][ 'client' ][ 'master_url' ] ?? '' ) !== self::MASTER_INTERNAL_URL
+			 || (string)( $evidence[ 'after' ][ 'master' ][ 'row' ][ 'verification' ][ 'result' ] ?? '' ) !== 'verification_passed'
+			 || (string)( $evidence[ 'after' ][ 'master' ][ 'row' ][ 'export' ][ 'result' ] ?? '' ) !== 'export_served'
+			 || (string)( $evidence[ 'after' ][ 'client' ][ 'client_import' ][ 'result' ] ?? '' ) !== 'network_import_completed'
+			 || (int)( $evidence[ 'after' ][ 'client' ][ 'client_import' ][ 'http_status' ] ?? 0 ) !== 403 ) {
+			throw new \RuntimeException( 'B2-02 matching stored-ID exchange did not satisfy the current contract.' );
+		}
+	}
+
+	/**
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $before
+	 * @param array<string,mixed> $action
+	 * @param array{master:array<string,mixed>,client:array<string,mixed>} $after
+	 * @return array<string,mixed>
+	 */
+	private function buildB2ExpiredCallbackEvidence( array $before, array $action, array $after ) :array {
+		$verification = (array)( $after[ 'master' ][ 'row' ][ 'verification' ] ?? [] );
+
+		return [
+			'case' => 'B2-07',
+			'before' => $before,
+			'action' => $action,
+			'after' => $after,
+			'callback_observer' => $this->buildB2CallbackObserverEvidence( $before, $after ),
+			'callback_response' => [
+				'class' => (string)( $verification[ 'result' ] ?? '' ),
+				'http_status' => (int)( $verification[ 'http_status' ] ?? 0 ),
+			],
+			'export_completed' => (string)( $after[ 'master' ][ 'row' ][ 'export' ][ 'result' ] ?? '' ) === 'export_served',
+			'client_import_completed' => (string)( $after[ 'client' ][ 'client_import' ][ 'result' ] ?? '' )
+				=== 'network_import_completed',
+		];
+	}
+
+	/** @param array<string,mixed> $evidence */
+	private function assertB2ExpiredCallbackRejection( array $evidence ) :void {
+		$this->assertB2ActiveAssociatedPrecondition( $evidence );
+		$boundary = (array)( $evidence[ 'action' ][ 'send_boundary' ] ?? [] );
+		$observer = (array)( $evidence[ 'callback_observer' ] ?? [] );
+		$callback = (array)( $evidence[ 'callback_response' ] ?? [] );
+		if ( !empty( $evidence[ 'before' ][ 'master' ][ 'row' ][ 'stored_import_id_present' ] )
+			 || empty( $evidence[ 'action' ][ 'submitted_import_id_present' ] )
+			 || !empty( $boundary[ 'handshake_eligible' ] )
+			 || (int)( $boundary[ 'handshake_expires_at' ] ?? 0 ) > (int)( $boundary[ 'sent_at' ] ?? 0 )
+			 || empty( $evidence[ 'action' ][ 'has_response' ] )
+			 || (int)( $evidence[ 'action' ][ 'http_status' ] ?? 0 ) < 100
+			 || (string)( $evidence[ 'action' ][ 'response_class' ] ?? '' ) !== 'non_json_response'
+			 || empty( $observer[ 'active_before' ] )
+			 || empty( $observer[ 'active_after' ] )
+			 || (int)( $observer[ 'positive_control_count' ] ?? 0 ) !== 1
+			 || (int)( $observer[ 'observed_count' ] ?? 0 ) !== 1
+			 || (string)( $callback[ 'class' ] ?? '' ) !== 'callback_invalid_response'
+			 || (int)( $callback[ 'http_status' ] ?? 0 ) < 100
+			 || !empty( $evidence[ 'export_completed' ] )
+			 || !empty( $evidence[ 'client_import_completed' ] ) ) {
+			throw new \RuntimeException( 'B2-07 expired callback rejection did not satisfy the current contract.' );
+		}
+	}
+
+	/** @param array<string,mixed> $evidence */
+	private function assertB2RetryAfterCooldown( array $evidence ) :void {
+		$this->assertB2HistoricalNoId( $evidence, 'B2-09' );
+		$beforeRow = (array)( $evidence[ 'before' ][ 'master' ][ 'row' ] ?? [] );
+		$observer = (array)( $evidence[ 'callback_observer' ] ?? [] );
+		if ( (string)( $evidence[ 'retry_action' ] ?? '' ) !== 'Sync settings now'
+			 || !empty( $beforeRow[ 'callback_cooldown_active' ] )
+			 || (int)( $beforeRow[ 'handshake_attempt_at' ] ?? 0 ) <= 0
+			 || (int)( $beforeRow[ 'callback_eligible_at' ] ?? 0 ) > (int)( $evidence[ 'before' ][ 'master' ][ 'observed_at' ] ?? 0 )
+			 || empty( $observer[ 'active_before' ] )
+			 || empty( $observer[ 'active_after' ] )
+			 || (int)( $observer[ 'positive_control_count' ] ?? 0 ) !== 1
+			 || (int)( $observer[ 'observed_count' ] ?? 0 ) !== 1 ) {
+			throw new \RuntimeException( 'B2-09 retry after callback cooldown did not satisfy the current contract.' );
+		}
+	}
+
+	/** @param array<string,mixed> $evidence */
+	private function assertB2ActiveAssociatedPrecondition( array $evidence ) :void {
+		$row = $evidence[ 'before' ][ 'master' ][ 'row' ] ?? [];
+		if ( !\is_array( $row )
+			 || empty( $row[ 'associated' ] )
+			 || ( $row[ 'status' ] ?? '' ) !== self::STATUS_ACTIVE
+			 || empty( $row[ 'not_deleted' ] )
+			 || empty( $row[ 'trusted_target' ] ) ) {
+			throw new \RuntimeException( 'B2 case did not start from an active trusted client row.' );
+		}
 	}
 
 	public function lastStage() :string {
@@ -540,6 +960,33 @@ class CrossSitePairManager {
 				.' && cp '.self::AUTOMATIC_CRON_BLOCKER_FIXTURE.' '.self::AUTOMATIC_CRON_BLOCKER_TARGET
 			);
 		}
+	}
+
+	private function installB2CallbackObserverFixture( string $rootDir ) :void {
+		$this->runSiteShell(
+			$rootDir,
+			self::SLAVE,
+			'mkdir -p /var/www/html/wp-content/mu-plugins'
+			.' && cp '.self::B2_CALLBACK_OBSERVER_FIXTURE.' '.self::B2_CALLBACK_OBSERVER_TARGET
+		);
+	}
+
+	private function installGroupCQueueFixture( string $rootDir ) :void {
+		$this->runSiteShell(
+			$rootDir,
+			self::MASTER,
+			'mkdir -p /var/www/html/wp-content/mu-plugins'
+			.' && cp '.self::GROUP_C_QUEUE_FIXTURE.' '.self::GROUP_C_QUEUE_TARGET
+		);
+	}
+
+	private function installExportSuccessFailureFixture( string $rootDir ) :void {
+		$this->runSiteShell(
+			$rootDir,
+			self::MASTER,
+			'mkdir -p /var/www/html/wp-content/mu-plugins'
+			.' && cp '.self::EXPORT_SUCCESS_FAILURE_FIXTURE.' '.self::EXPORT_SUCCESS_FAILURE_TARGET
+		);
 	}
 
 	private function installPublicRuntimeFixture( string $rootDir ) :void {
@@ -878,7 +1325,12 @@ class CrossSitePairManager {
 			 || $afterMeta[ 'export_served_at' ] <= 0 ) {
 			throw new \RuntimeException( 'Public master queue transition did not record a successful export-served marker.' );
 		}
-		unset( $beforeMeta[ 'export_served_at' ], $afterMeta[ 'export_served_at' ] );
+		unset(
+			$beforeMeta[ 'export_served_at' ],
+			$afterMeta[ 'export_served_at' ],
+			$beforeMeta[ 'sync_observations' ],
+			$afterMeta[ 'sync_observations' ]
+		);
 		$this->sortRecursive( $beforeMeta );
 		$this->sortRecursive( $afterMeta );
 		$beforeRow[ 'meta' ] = $beforeMeta;
@@ -955,9 +1407,141 @@ class CrossSitePairManager {
 		$this->wpCapture( $rootDir, self::MASTER, [ 'cron', 'event', 'run', $queueHook ] );
 	}
 
-	/**
-	 * @return array<string,mixed>
-	 */
+	private function triggerWebCron( string $rootDir, string $defaultPort ) :void {
+		$port = (string)( \getenv( 'SHIELD_CROSS_SITE_MASTER_PORT' ) ?: $defaultPort );
+		$url = sprintf( 'http://127.0.0.1:%s/wp-cron.php', $port );
+		$process = $this->processRunner->run(
+			[
+				'curl', '--fail', '--silent', '--show-error', '--max-time', '30',
+				'--header', 'Host: wordpress-master.shield-cross-site.example.com',
+				'--write-out', '%{http_code}', $url,
+			],
+			$rootDir,
+			static function () :void {}
+		);
+		if ( ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			throw new \RuntimeException( 'The real HTTP wp-cron.php request failed: '.trim( $process->getErrorOutput() ) );
+		}
+		if ( \trim( $process->getOutput() ) !== '200' ) {
+			throw new \RuntimeException( 'The real HTTP wp-cron.php request did not reach the canonical site.' );
+		}
+	}
+
+	private function runGroupCQueueLifecycleEvidence( string $rootDir ) :void {
+		$this->startGroupCQueueScenario( $rootDir, 'healthy' );
+		$healthy = $this->waitForGroupCQueueState( $rootDir, 'healthy', 2 );
+		if ( (int)( $healthy[ 'cron_entries' ] ?? 0 ) !== 1
+			 || (int)( $healthy[ 'dispatch_attempts' ] ?? 0 ) !== 1
+			 || !empty( $healthy[ 'dispatch_blocking' ] )
+			 || (int)( $healthy[ 'ajax_entries' ] ?? 0 ) !== 1
+			 || empty( $healthy[ 'future_event_observed' ] )
+			 || (int)( $healthy[ 'queue_next' ] ?? 0 ) <= \time()
+			 || (array)( $healthy[ 'attempt_counters' ] ?? [] ) !== [ 1, 1 ]
+			 || $this->countGroupCStatus( $healthy, 'waiting_export' ) !== 2
+			 || !empty( $healthy[ 'processor_running' ] ) ) {
+			throw new \RuntimeException( 'Healthy Group C continuation did not produce one nonblocking successor from real cron and settle both rows.' );
+		}
+		$this->assertGroupCDispatchUrl( $healthy );
+
+		$interrupted = $this->startGroupCQueueScenario( $rootDir, 'terminated' );
+		if ( (int)( $interrupted[ 'cron_entries' ] ?? 0 ) !== 1
+			 || (int)( $interrupted[ 'dispatch_attempts' ] ?? 0 ) !== 0
+			 || (int)( $interrupted[ 'ajax_entries' ] ?? 0 ) !== 0
+			 || (int)( $interrupted[ 'notification_starts' ] ?? 0 ) !== 1
+			 || empty( $interrupted[ 'future_event_observed' ] )
+			 || empty( $interrupted[ 'processor_running' ] )
+			 || $this->countGroupCStatus( $interrupted, 'processing' ) !== 1
+			 || (array)( $interrupted[ 'attempt_counters' ] ?? [] ) !== [ 1 ] ) {
+			throw new \RuntimeException( 'Terminated Group C worker did not preserve its health event, marker, and processing row.' );
+		}
+		$this->runHelper( $rootDir, self::MASTER, 'advance-queue-event' );
+		$this->triggerWebCron( $rootDir, self::MASTER_HOST_PORT );
+		$beforeExpiry = $this->runHelper( $rootDir, self::MASTER, 'group-c-state', [ 'mode' => 'terminated' ] );
+		if ( (int)( $beforeExpiry[ 'cron_entries' ] ?? 0 ) !== 2
+			 || (int)( $beforeExpiry[ 'notification_starts' ] ?? 0 ) !== 1
+			 || (int)( $beforeExpiry[ 'dispatch_attempts' ] ?? 0 ) !== 0
+			 || (int)( $beforeExpiry[ 'ajax_entries' ] ?? 0 ) !== 0
+			 || $this->countGroupCStatus( $beforeExpiry, 'processing' ) !== 1 ) {
+			throw new \RuntimeException( 'Group C replayed an interrupted notification before marker/deadline expiry.' );
+		}
+
+		$this->runHelper( $rootDir, self::MASTER, 'group-c-recover' );
+		$this->triggerWebCron( $rootDir, self::MASTER_HOST_PORT );
+		$recovered = $this->waitForGroupCQueueState( $rootDir, 'terminated', 2 );
+		if ( (int)( $recovered[ 'cron_entries' ] ?? 0 ) !== 3
+			 || (int)( $recovered[ 'notification_starts' ] ?? 0 ) !== 3
+			 || (int)( $recovered[ 'dispatch_attempts' ] ?? 0 ) !== 0
+			 || (int)( $recovered[ 'ajax_entries' ] ?? 0 ) !== 0
+			 || (array)( $recovered[ 'attempt_counters' ] ?? [] ) !== [ 1, 2, 1 ]
+			 || $this->countGroupCStatus( $recovered, 'waiting_export' ) !== 2
+			 || !empty( $recovered[ 'processor_running' ] ) ) {
+			throw new \RuntimeException( 'Interrupted Group C recovery did not produce exactly one retry and one later-site send.' );
+		}
+		$this->lastDiagnostics[ 'group_c_queue_lifecycle' ] = [
+			'healthy' => $healthy,
+			'interrupted_recovery' => $recovered,
+		];
+	}
+
+	private function assertGroupCDispatchUrl( array $state ) :void {
+		$actual = \parse_url( (string)( $state[ 'dispatch_url' ] ?? '' ) );
+		$expected = \parse_url( self::MASTER_INTERNAL_URL.'/wp-admin/admin-ajax.php' );
+		if ( !\is_array( $actual ) || !\is_array( $expected ) ) {
+			throw new \RuntimeException( 'Healthy Group C successor did not use a parseable admin-ajax.php URL.' );
+		}
+
+		foreach ( [ 'scheme', 'host', 'port', 'path' ] as $part ) {
+			if ( (string)( $actual[ $part ] ?? '' ) !== (string)( $expected[ $part ] ?? '' ) ) {
+				throw new \RuntimeException( 'Healthy Group C successor did not target the canonical master admin-ajax.php URL.' );
+			}
+		}
+
+		\parse_str( (string)( $actual[ 'query' ] ?? '' ), $query );
+		$expectedAction = \trim( (string)( $state[ 'expected_ajax_action' ] ?? '' ) );
+		if ( $expectedAction === ''
+			 || (string)( $query[ 'action' ] ?? '' ) !== $expectedAction
+			 || \trim( (string)( $query[ 'nonce' ] ?? '' ) ) === '' ) {
+			throw new \RuntimeException( 'Healthy Group C successor did not carry the exact processor action and a nonce.' );
+		}
+	}
+
+	private function startGroupCQueueScenario( string $rootDir, string $mode ) :array {
+		$setup = $this->runHelper( $rootDir, self::MASTER, 'group-c-setup', [ 'mode' => $mode ] );
+		if ( \count( (array)( $setup[ 'rows' ] ?? [] ) ) !== 2 || (int)( $setup[ 'queue_next' ] ?? 0 ) <= 0 ) {
+			throw new \RuntimeException( 'Group C fixture did not create two due rows and a production queue event for '.$mode.'.' );
+		}
+		$advanced = $this->runHelper( $rootDir, self::MASTER, 'advance-queue-event' );
+		if ( (int)( $advanced[ 'original_timestamp' ] ?? 0 ) !== (int)$setup[ 'queue_next' ] ) {
+			throw new \RuntimeException( 'Group C fixture replaced the production queue event before '.$mode.'.' );
+		}
+		if ( empty( $advanced[ 'cron_lock_cleared' ] ) ) {
+			throw new \RuntimeException( 'Group C could not clear the test-owned cron lock before '.$mode.'.' );
+		}
+		$this->triggerWebCron( $rootDir, self::MASTER_HOST_PORT );
+		return $this->runHelper( $rootDir, self::MASTER, 'group-c-state', [ 'mode' => $mode ] );
+	}
+
+	private function waitForGroupCQueueState( string $rootDir, string $mode, int $waitingCount ) :array {
+		$startedAt = \microtime( true );
+		do {
+			$state = $this->runHelper( $rootDir, self::MASTER, 'group-c-state', [ 'mode' => $mode ] );
+			$this->lastDiagnostics[ 'group_c_'.$mode.'_poll' ] = $state;
+			if ( $this->countGroupCStatus( $state, 'waiting_export' ) === $waitingCount
+				 && empty( $state[ 'processor_running' ] ) ) {
+				return $state;
+			}
+			\usleep( 200000 );
+		} while ( \microtime( true ) - $startedAt < 20.0 );
+		throw new \RuntimeException( 'Timed out waiting for Group C '.$mode.' queue state: '.\json_encode( $state ) );
+	}
+
+	private function countGroupCStatus( array $state, string $status ) :int {
+		return \count( \array_filter(
+			(array)( $state[ 'rows' ] ?? [] ),
+			static fn( array $row ) :bool => (string)( $row[ 'queue_status' ] ?? '' ) === $status
+		) );
+	}
+
 	/**
 	 * @return array<string,mixed>
 	 */

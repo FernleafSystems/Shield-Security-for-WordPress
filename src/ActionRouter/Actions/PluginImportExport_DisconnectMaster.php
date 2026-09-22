@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
-
 class PluginImportExport_DisconnectMaster extends BaseAction {
 
 	use Traits\SecurityAdminRequired;
@@ -12,7 +10,7 @@ class PluginImportExport_DisconnectMaster extends BaseAction {
 
 	protected function exec() {
 		try {
-			( new ImportExportController() )->disconnectMasterSite();
+			self::con()->comps->import_export->disconnectMasterSite();
 			$success = true;
 			$message = __( 'Master site disconnected. Reloading...', 'wp-simple-firewall' );
 		}

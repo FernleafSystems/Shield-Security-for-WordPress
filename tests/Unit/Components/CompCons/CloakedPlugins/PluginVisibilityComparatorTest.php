@@ -83,15 +83,23 @@ class PluginVisibilityComparatorTest extends BaseUnitTest {
 		bool $showMu = true,
 		?array $final = null
 	) :AdminPluginVisibilitySnapshot {
+		$control = [ 'visible/visible.php' => [ 'Name' => 'Visible' ] ];
+		if ( $final !== null ) {
+			$final = \array_replace( \array_fill_keys(
+				[ 'all', 'active', 'inactive', 'recently_activated', 'upgrade', 'paused', 'mustuse' ], []
+			), $final );
+			$final[ 'all' ] += $control;
+			$final[ 'inactive' ] += $control;
+		}
 		return new AdminPluginVisibilitySnapshot(
-			$wp,
-			$admin,
+			$wp + $control,
+			$admin + $control,
 			$mu,
 			$showMu,
-			$showMu ? $mu : [],
 			$final,
 			[],
-			[]
+			[],
+			$final !== null
 		);
 	}
 }

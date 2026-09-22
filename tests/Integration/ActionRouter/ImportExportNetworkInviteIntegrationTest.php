@@ -10,14 +10,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	CapturePluginAction,
 	Actions\ImportExportNetworkInviteAccept,
 	Actions\ImportExportNetworkInviteReject,
+	Actions\PluginImportFromSite,
 	Actions\PluginImportExport_NetworkInviteRequest,
 	Exceptions\SecurityAdminRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ProfilesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\NetworkInviteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\{
+	ObservationPresenter,
+	SyncObservation
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices\ImportExportNetworkInvite;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
@@ -49,6 +53,7 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 	private const ROOT_SAME_HOST_HOME = 'https://93.184.216.49';
 	private const ROOT_SAME_HOST_MASTER_URL = 'https://93.184.216.49/import4';
 	private const REVOKED_ACCEPT_MASTER_URL = 'https://93.184.216.50/revoked-accept-master';
+	private const HOSTILE_REJECTION_MASTER_URL = 'https://93.184.216.51/hostile-rejection-master';
 
 	private array $optionsSnapshot = [];
 	private array $requestSnapshot = [];
@@ -79,11 +84,13 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 								  ->optSet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, 0 )
 								  ->optSet( 'importexport_sites_migrated_at', 1 )
 								  ->store();
+		\delete_option( $this->clientObservationOptionKey() );
 		\add_filter( 'pre_http_request', [ $this, 'mockMasterExportResponse' ], 10, 3 );
 	}
 
 	public function tear_down() {
 		\remove_filter( 'pre_http_request', [ $this, 'mockMasterExportResponse' ], 10 );
+		\delete_option( $this->clientObservationOptionKey() );
 		$this->restoreSelectedOptions( $this->optionsSnapshot );
 		$this->restoreCurrentRequestState( $this->requestSnapshot );
 		parent::tear_down();
@@ -108,8 +115,8 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( [], $payload );
 		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
 		$this->assertSame( '', (string)$this->requireController()->opts->optGet( 'importexport_masterurl' ) );
-		$this->assertFalse( ( new ImportExportController() )->isSyncAvailable() );
-		$this->assertFalse( ( new ImportExportController() )->isSyncEnabled() );
+		$this->assertFalse( $this->requireController()->comps->import_export->isSyncAvailable() );
+		$this->assertFalse( $this->requireController()->comps->import_export->isSyncEnabled() );
 	}
 
 	public function test_anonymous_invite_request_stores_only_pending_invite_when_import_export_enabled_without_payload() :void {
@@ -319,6 +326,114 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 'Y', (string)$this->requireController()->opts->optGet( 'importexport_enable' ) );
 	}
 
+	public function test_accept_keeps_invite_and_hides_hostile_remote_rejection_message() :void {
+		$this->enableSync();
+		$repo = new NetworkInviteRepository();
+		$invite = $repo->receive( self::HOSTILE_REJECTION_MASTER_URL );
+
+		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+			'form_params' => [
+				'invite_id' => $invite[ 'id' ],
+				'confirm'   => 'Y',
+			],
+		] )->payload();
+
+		$this->assertFalse( $payload[ 'success' ] );
+		$this->assertNotSame( '', $payload[ 'message' ] );
+		$this->assertNotSame( '<script>remote secret</script>', $payload[ 'message' ] );
+		$this->assertStringNotContainsString( 'remote secret', $payload[ 'message' ] );
+		$observation = \get_option( $this->clientObservationOptionKey(), [] );
+		$this->assertIsArray( $observation );
+		$this->assertSame(
+			( new ObservationPresenter() )->failureMessage( $observation, '' ),
+			$payload[ 'message' ]
+		);
+		$this->assertSame(
+			SyncObservation::RESULT_PARSED_REJECTION,
+			$observation[ 'result' ] ?? null
+		);
+		$this->assertArrayNotHasKey( 'error_category', $observation );
+		$this->assertNotNull( $repo->find( $invite[ 'id' ] ) );
+		$this->assertSame( '', (string)$this->requireController()->opts->optGet( 'importexport_masterurl' ) );
+	}
+
+	public function test_manual_import_action_uses_current_bounded_attempt_when_observation_persistence_fails() :void {
+		$optionKey = $this->clientObservationOptionKey();
+		$hostile = '<script>remote secret</script>';
+		$stale = SyncObservation::create(
+			Services::Request()->ts() - 100,
+			SyncObservation::PHASE_CLIENT_IMPORT,
+			SyncObservation::RESULT_EMPTY_RESPONSE,
+			SyncObservation::VERIFICATION_NOT_APPLICABLE,
+			[ 'target_fingerprint' => SyncObservation::targetFingerprint( 'https://stale-master.example.com' ) ]
+		);
+		\update_option( $optionKey, $stale, false );
+		$updateAttempts = 0;
+		$rejectUpdate = static function ( $value, $oldValue ) use ( &$updateAttempts ) {
+			$updateAttempts++;
+			return $oldValue;
+		};
+		\add_filter( 'pre_update_option_'.$optionKey, $rejectUpdate, 10, 2 );
+		$this->applyCurrentRequestState( [], [], [
+			'form_params' => [
+				'confirm'             => 'Y',
+				'MasterSiteUrl'       => self::HOSTILE_REJECTION_MASTER_URL,
+				'MasterSiteSecretKey' => '',
+				'ShieldNetwork'       => 'N',
+			],
+		] );
+		$action = new PluginImportFromSite();
+		$exec = new \ReflectionMethod( $action, 'exec' );
+		$exec->setAccessible( true );
+
+		try {
+			$exec->invoke( $action );
+		}
+		finally {
+			\remove_filter( 'pre_update_option_'.$optionKey, $rejectUpdate, 10 );
+		}
+
+		$payload = $action->response()->payload();
+		$current = SyncObservation::create(
+			Services::Request()->ts(),
+			SyncObservation::PHASE_CLIENT_IMPORT,
+			SyncObservation::RESULT_PARSED_REJECTION,
+			SyncObservation::VERIFICATION_NOT_APPLICABLE
+		);
+		$this->assertFalse( $payload[ 'success' ] );
+		$this->assertSame( 1, $updateAttempts );
+		$this->assertSame( $stale, \get_option( $optionKey ) );
+		$this->assertSame( ( new ObservationPresenter() )->failureMessage( $current, '' ), $payload[ 'message' ] );
+		$this->assertStringNotContainsString( $hostile, $payload[ 'message' ] );
+		$this->assertNotSame( ( new ObservationPresenter() )->failureMessage( $stale, '' ), $payload[ 'message' ] );
+	}
+
+	public function test_manual_import_action_bounds_unknown_remote_rejection_and_persists_uncategorized_result() :void {
+		$hostile = '<script>remote secret</script>';
+		$this->applyCurrentRequestState( [], [], [
+			'form_params' => [
+				'confirm'             => 'Y',
+				'MasterSiteUrl'       => self::HOSTILE_REJECTION_MASTER_URL,
+				'MasterSiteSecretKey' => '',
+				'ShieldNetwork'       => 'N',
+			],
+		] );
+		$action = new PluginImportFromSite();
+		$exec = new \ReflectionMethod( $action, 'exec' );
+		$exec->setAccessible( true );
+
+		$exec->invoke( $action );
+
+		$payload = $action->response()->payload();
+		$observation = \get_option( $this->clientObservationOptionKey(), [] );
+		$this->assertIsArray( $observation );
+		$this->assertFalse( $payload[ 'success' ] );
+		$this->assertSame( SyncObservation::RESULT_PARSED_REJECTION, $observation[ 'result' ] ?? null );
+		$this->assertArrayNotHasKey( 'error_category', $observation );
+		$this->assertSame( ( new ObservationPresenter() )->failureMessage( $observation, '' ), $payload[ 'message' ] );
+		$this->assertStringNotContainsString( $hostile, $payload[ 'message' ] );
+	}
+
 	public function test_accept_keeps_delivered_invite_when_master_authorisation_is_revoked() :void {
 		$this->enableSync();
 		$repo = new NetworkInviteRepository();
@@ -514,11 +629,17 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 			return $preempt;
 		}
 
+		$hostileRejection = \strpos( $url, self::HOSTILE_REJECTION_MASTER_URL ) === 0;
 		return [
 			'headers'  => [],
 			'body'     => \strpos( $url, self::REVOKED_ACCEPT_MASTER_URL ) === 0
 				? ''
-				: \wp_json_encode( [
+				: \wp_json_encode( $hostileRejection ? [
+					'success' => false,
+					'code'    => 999,
+					'message' => '<script>remote secret</script>',
+					'data'    => [],
+				] : [
 					'success' => true,
 					'data'    => [
 						'options'  => [],
@@ -592,6 +713,10 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 
 	private function enableSync() :void {
 		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+	}
+
+	private function clientObservationOptionKey() :string {
+		return $this->requireController()->prefix( 'importexport_client_observation', '_' );
 	}
 }
 

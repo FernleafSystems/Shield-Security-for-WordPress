@@ -12,9 +12,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ProfilesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\ImportExportController;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\NetworkInviteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\{
+	ObservationStore,
+	SyncObservation
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTestCase {
@@ -33,9 +37,11 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 			'importexport_pending_network_invites',
 			'importexport_network_invite_block_until',
 		] );
+		$this->clearDiagnosticOptions();
 	}
 
 	public function tear_down() {
+		$this->clearDiagnosticOptions();
 		$this->restoreSelectedOptions( $this->optionsSnapshot );
 		parent::tear_down();
 	}
@@ -281,6 +287,76 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->assertLessThan( $syncPosition, $masterPosition );
 	}
 
+	public function test_client_diagnostic_is_exposed_only_for_the_configured_master() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', 'https://master.example.com/path?ignored=1' )
+			->store();
+		$matching = SyncObservation::create(
+			1712620800,
+			SyncObservation::PHASE_CLIENT_IMPORT,
+			SyncObservation::RESULT_NETWORK_IMPORT_COMPLETED,
+			SyncObservation::VERIFICATION_ESTABLISHED,
+			[ 'target_fingerprint' => SyncObservation::targetFingerprint( 'https://master.example.com/path' ) ]
+		);
+		$this->assertTrue( ( new ObservationStore() )->saveClientImport( $matching ) );
+
+		$diagnostic = $this->renderVars()[ 'network_sync' ][ 'diagnostics' ][ 'client_import' ];
+		$this->assertSame( SyncObservation::RESULT_NETWORK_IMPORT_COMPLETED, $diagnostic[ 'result' ] );
+		$this->assertArrayHasKey( 'observed_at', $diagnostic );
+		$this->assertArrayHasKey( 'next_check', $diagnostic );
+		$html = ( new PageImportExportContractProbe() )->renderOutputForTest();
+		$this->assertStringContainsString( \esc_html( $diagnostic[ 'label' ] ), $html );
+		$this->assertStringContainsString( \esc_html( $diagnostic[ 'explanation' ] ), $html );
+		$this->assertStringContainsString( \esc_html( $diagnostic[ 'next_check' ] ), $html );
+
+		$con->opts->optSet( 'importexport_masterurl', 'https://different.example.com' )->store();
+		$this->assertNull( $this->renderVars()[ 'network_sync' ][ 'diagnostics' ][ 'client_import' ] );
+	}
+
+	public function test_unassociated_rejection_contract_is_bounded_and_omits_untrusted_identity() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$observation = SyncObservation::create(
+			1712620800,
+			SyncObservation::PHASE_VERIFICATION,
+			SyncObservation::RESULT_NO_AUTHORIZED_ROW,
+			SyncObservation::VERIFICATION_FAILED,
+			[ 'http_status' => 403 ]
+		);
+		$this->assertTrue( ( new ObservationStore() )->saveUnassociatedRejection( $observation ) );
+
+		$diagnostic = $this->renderVars()[ 'network_sync' ][ 'diagnostics' ][ 'unassociated_rejection' ];
+		$this->assertSame( SyncObservation::RESULT_NO_AUTHORIZED_ROW, $diagnostic[ 'result' ] );
+		$this->assertSame( 403, $diagnostic[ 'http_status' ] );
+		$this->assertArrayNotHasKey( 'target_fingerprint', $diagnostic );
+		$html = ( new PageImportExportContractProbe() )->renderOutputForTest();
+		$this->assertStringContainsString( \esc_html( $diagnostic[ 'label' ] ), $html );
+		$this->assertStringContainsString( \esc_html( $diagnostic[ 'explanation' ] ), $html );
+		$this->assertStringContainsString( \esc_html( $diagnostic[ 'next_check' ] ), $html );
+		$this->assertStringNotContainsString( 'claimed-client.example.com', $html );
+	}
+
+	public function test_diagnostic_render_discards_untrusted_extra_fields() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$con = $this->requireController();
+		$con->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$option = SyncObservation::create(
+			1712620800,
+			SyncObservation::PHASE_VERIFICATION,
+			SyncObservation::RESULT_INVALID_CLAIMED_URL,
+			SyncObservation::VERIFICATION_FAILED
+		);
+		$option[ 'message' ] = '<script>hostile diagnostic</script>';
+		\update_option( $con->prefix( 'importexport_unassociated_rejection', '_' ), $option, false );
+
+		$data = $this->renderVars()[ 'network_sync' ][ 'diagnostics' ][ 'unassociated_rejection' ];
+		$this->assertSame( SyncObservation::RESULT_INVALID_CLAIMED_URL, $data[ 'result' ] );
+		$this->assertStringNotContainsString( 'hostile diagnostic', ( new PageImportExportContractProbe() )->renderOutputForTest() );
+	}
+
 	public function test_sync_pro_gate_is_not_replaced_by_disabled_gate() :void {
 		$this->enablePremiumCapabilities( [ 'import_export_level_1' ] );
 		$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();
@@ -300,7 +376,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 
 		$this->assertStringContainsString( 'id="ImportExportClientSecretKey"', $html );
 		$this->assertStringContainsString( 'readonly', $html );
-		$this->assertStringContainsString( ( new ImportExportController() )->getImportExportSecretKey(), $html );
+		$this->assertStringContainsString( $this->requireController()->comps->import_export->getImportExportSecretKey(), $html );
 	}
 
 	public function test_set_enabled_action_stores_disabled_state_and_clears_pending_invites() :void {
@@ -507,6 +583,12 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 			$con->this_req->wp_is_ajax = $wpIsAjaxSnapshot;
 			\remove_filter( $filter, '__return_true', 1000 );
 		}
+	}
+
+	private function clearDiagnosticOptions() :void {
+		$con = $this->requireController();
+		\delete_option( $con->prefix( 'importexport_client_observation', '_' ) );
+		\delete_option( $con->prefix( 'importexport_unassociated_rejection', '_' ) );
 	}
 }
 

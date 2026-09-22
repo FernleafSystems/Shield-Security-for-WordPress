@@ -12,14 +12,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Handler as SitesDB,
 	Record
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\{
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\{
 	QueueScheduler,
 	SiteRepository
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\NetworkInviteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpHttpResponseVo;
 use FernleafSystems\Wordpress\Services\Utilities\HttpRequest;
 
@@ -275,7 +276,7 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->enableSync();
 		$repo = $this->repo();
 		$row = $repo->upsertActive( self::EXISTING, SitesDB::SOURCE_MANUAL, '', true );
-		$repo->recordExportSuccess( $row->url, SitesDB::EXPORT_RESULT_SUCCESS );
+		$repo->recordExportSuccess( $row, SitesDB::EXPORT_RESULT_SUCCESS );
 		$this->clearQueueSchedule();
 		$this->inviteHttp->clearRequests();
 
@@ -326,7 +327,8 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$profileRef = $row->profile_ref;
 		$repo->recordExportServed( $row );
 		$repo->recordHandshakeAttempt( $row );
-		$repo->recordPingFailure( $row, 503, 'stale ping failure' );
+		$this->assertTrue( $repo->startNotificationAttempt( $row, Services::Request()->ts() ) );
+		$this->assertSame( 1, $repo->recordPingFailure( $row, 503, 'stale ping failure' ) );
 		$repo->recordExportFailure( self::REACTIVATED, SitesDB::EXPORT_RESULT_VERIFY_FAILED, 'stale export failure' );
 		$row = $this->requireSite( self::REACTIVATED, true );
 		$meta = $row->meta;

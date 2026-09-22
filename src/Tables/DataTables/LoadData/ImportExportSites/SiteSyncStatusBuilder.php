@@ -6,6 +6,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Handler as SitesDB,
 	Record
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\{
+	ExportWaitState,
+	InvitationMetadata,
+	QueuedSyncState,
+	SiteRepository
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\{
+	ObservationPresenter,
+	SyncObservation
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class SiteSyncStatusBuilder {
@@ -15,6 +25,14 @@ class SiteSyncStatusBuilder {
 	public const STATE_PENDING = 'pending';
 	public const STATE_WORKING = 'working';
 	public const STATE_NEVER_SYNCED = 'never_synced';
+	public const INVITATION_STATE_QUEUED = 'queued';
+	public const INVITATION_STATE_STARTED_RETRYABLE = 'started_retryable';
+	public const INVITATION_STATE_RETRY_SCHEDULED = 'retry_scheduled';
+	public const INVITATION_STATE_FINAL_SETTLEMENT = 'final_settlement';
+	public const INVITATION_STATE_RESPONSE_UNCONFIRMED = 'response_unconfirmed';
+	public const INVITATION_STATE_EXHAUSTED_FAILURE = 'exhausted_failure';
+	public const INVITATION_STATE_EXHAUSTED_UNKNOWN = 'exhausted_unknown';
+	public const INVITATION_STATE_PASSIVE = 'passive';
 
 	private const STATES = [
 		self::STATE_PROBLEM,
@@ -51,12 +69,14 @@ class SiteSyncStatusBuilder {
 	 *   label:string,
 	 *   badge_tone:string,
 	 *   summary_html:string,
-	 *   details_html:string
+	 *   details_html:string,
+	 *   diagnostics:array<string,array>
 	 * }
 	 */
 	public function build( Record $record ) :array {
 		$state = $this->stateForRecord( $record );
-		$details = $this->buildDetailsHtml( $record, $state );
+		$diagnostics = $this->diagnosticsForRecord( $record );
+		$details = $this->buildDetailsHtml( $record, $state, $diagnostics );
 
 		return [
 			'state_key'    => $state,
@@ -64,6 +84,7 @@ class SiteSyncStatusBuilder {
 			'badge_tone'   => $this->stateBadgeTone( $state ),
 			'summary_html' => $this->buildSummaryHtml( $record, $state, $details ),
 			'details_html' => $details,
+			'diagnostics'  => $diagnostics,
 		];
 	}
 
@@ -85,12 +106,12 @@ class SiteSyncStatusBuilder {
 
 		if ( $record->queue_status === SitesDB::QUEUE_PROCESSING
 			 || $record->queue_status === SitesDB::QUEUE_WAITING_EXPORT
-			 || ( $record->queue_status === SitesDB::QUEUE_QUEUED && !$this->hasQueuedOrIdleProblem( $record ) ) ) {
+			 || ( $record->queue_status === SitesDB::QUEUE_QUEUED && !QueuedSyncState::hasProblem( $record ) ) ) {
 			return self::STATE_PENDING;
 		}
 
 		if ( \in_array( $record->queue_status, [ SitesDB::QUEUE_QUEUED, SitesDB::QUEUE_IDLE ], true )
-			 && $this->hasQueuedOrIdleProblem( $record ) ) {
+			 && QueuedSyncState::hasProblem( $record ) ) {
 			return self::STATE_PROBLEM;
 		}
 
@@ -99,6 +120,37 @@ class SiteSyncStatusBuilder {
 		}
 
 		return self::STATE_NEVER_SYNCED;
+	}
+
+	public function invitationStateForRecord( Record $record ) :string {
+		$invitation = ( new InvitationMetadata() )->normalize( $record->meta );
+		$attempts = $invitation[ 'attempts_started' ];
+		$result = $invitation[ 'last_result' ];
+
+		if ( $record->queue_status === SitesDB::QUEUE_PENDING_INVITE ) {
+			if ( $result === InvitationMetadata::RESULT_STARTED ) {
+				return $attempts >= InvitationMetadata::MAX_ATTEMPTS
+					? self::INVITATION_STATE_FINAL_SETTLEMENT
+					: self::INVITATION_STATE_STARTED_RETRYABLE;
+			}
+			if ( $result !== null && InvitationMetadata::isFailure( $result ) ) {
+				return self::INVITATION_STATE_RETRY_SCHEDULED;
+			}
+			return self::INVITATION_STATE_QUEUED;
+		}
+
+		if ( $record->queue_status === SitesDB::QUEUE_PENDING_CONNECTION ) {
+			if ( $result === InvitationMetadata::RESULT_HTTP_RESPONSE ) {
+				return self::INVITATION_STATE_RESPONSE_UNCONFIRMED;
+			}
+			if ( $attempts >= InvitationMetadata::MAX_ATTEMPTS ) {
+				return $result !== null && InvitationMetadata::isFailure( $result )
+					? self::INVITATION_STATE_EXHAUSTED_FAILURE
+					: self::INVITATION_STATE_EXHAUSTED_UNKNOWN;
+			}
+		}
+
+		return self::INVITATION_STATE_PASSIVE;
 	}
 
 	/**
@@ -223,7 +275,7 @@ class SiteSyncStatusBuilder {
 				   self::STATE_INACTIVE     => $this->text( 'Inactive' ),
 				   self::STATE_PROBLEM      => $this->text( 'Problem' ),
 				   self::STATE_PENDING      => $this->text( 'Pending' ),
-				   self::STATE_WORKING      => $this->text( 'Working' ),
+				   self::STATE_WORKING      => $this->text( 'Export served' ),
 				   self::STATE_NEVER_SYNCED => $this->text( 'Never Synced' ),
 			   ][ $state ] ?? $this->formatKey( $state );
 	}
@@ -248,23 +300,31 @@ class SiteSyncStatusBuilder {
 		);
 	}
 
-	private function buildDetailsHtml( Record $record, string $state ) :string {
+	private function buildDetailsHtml( Record $record, string $state, array $diagnostics ) :string {
 		$rows = [
 			$this->detailRow( $this->text( 'Current state' ), $this->stateLabel( $state ) ),
 			$this->detailRow( $this->text( 'Import ID' ), $this->importIDPresenter()->displayValue( $record->import_id ) ),
 			$this->detailRow( $this->text( 'Last ping attempt' ), $this->formatTimestamp( $record->last_ping_attempt_at ) ),
-			$this->detailRow( $this->text( 'Last ping success' ), $this->formatTimestamp( $record->last_ping_success_at ) ),
+			$this->detailRow( $this->text( 'Last notification dispatch attempt' ), $this->formatTimestamp( $record->last_ping_success_at ) ),
 			$this->detailRow( $this->text( 'Last ping failure' ), $this->formatTimestamp( $record->last_ping_failure_at ) ),
 			$this->detailRow( $this->text( 'Ping HTTP result' ), $record->last_ping_http_code > 0 ? (string)$record->last_ping_http_code : $this->text( 'None recorded' ) ),
 			$this->detailRow( $this->text( 'Ping details' ), $this->displayError( $record->last_ping_error ) ),
 			$this->detailRow( $this->text( 'Last export request' ), $this->formatTimestamp( $record->last_export_request_at ) ),
-			$this->detailRow( $this->text( 'Last export success' ), $this->formatTimestamp( $record->last_export_success_at ) ),
+			$this->detailRow( $this->text( 'Last export served' ), $this->formatTimestamp( $record->last_export_success_at ) ),
 			$this->detailRow( $this->text( 'Last export failure' ), $this->formatTimestamp( $record->last_export_failure_at ) ),
-			$this->detailRow( $this->text( 'Export result' ), $this->exportResultLabel( $record->last_export_result_code, $record->last_export_error ) ),
-			$this->detailRow( $this->text( 'Export details' ), $this->displayExportError( $record ) ),
+			$this->detailRow( $this->text( 'Last export result' ), $this->exportResultLabel( $record->last_export_result_code, $record->last_export_error ) ),
+			$this->detailRow( $this->text( 'Last export details' ), $this->displayExportError( $record ) ),
 			$this->detailRow( $this->text( 'Expected export by' ), $this->formatTimestamp( $record->expected_export_by ) ),
 			$this->detailRow( $this->text( 'Next ping due' ), $this->formatTimestamp( $record->next_ping_at ) ),
 		];
+		$rows = \array_merge( $rows, $this->buildInvitationDetailsRows( $record ) );
+		foreach ( [
+			'notification' => $this->text( 'Latest notification' ),
+			'verification' => $this->text( 'Latest verification observation' ),
+			'export'       => $this->text( 'Latest export outcome' ),
+		] as $slot => $label ) {
+			$rows[] = $this->diagnosticDetailRow( $label, $diagnostics[ $slot ] );
+		}
 
 		return \sprintf( '<div class="import-export-sync-details"><dl class="mb-0">%s</dl></div>', \implode( '', $rows ) );
 	}
@@ -275,16 +335,16 @@ class SiteSyncStatusBuilder {
 				return $this->text( 'This site is no longer active for sync.' );
 			case self::STATE_PROBLEM:
 				if ( $this->isExpiredWaitingExportProblem( $record ) ) {
-					return $this->text( 'Export request timed out before this site sent its export.' );
+					return $this->text( 'No qualifying successful export was recorded within the existing grace period.' );
 				}
 				return $this->shortText( $this->currentFailureReason( $record ) );
 			case self::STATE_PENDING:
 				return $this->pendingReason( $record );
 			case self::STATE_WORKING:
-				return $this->text( 'The latest export completed successfully.' );
+				return $this->text( 'The master served a settings export. Client application is unconfirmed.' );
 			case self::STATE_NEVER_SYNCED:
 			default:
-				return $this->text( 'No export has been received yet.' );
+				return $this->text( 'No settings export has been served yet.' );
 		}
 	}
 
@@ -293,15 +353,65 @@ class SiteSyncStatusBuilder {
 			case SitesDB::QUEUE_PROCESSING:
 				return $this->text( 'A sync ping is currently being processed.' );
 			case SitesDB::QUEUE_WAITING_EXPORT:
-				return $this->text( 'Update notification sent; waiting for this site to send its export.' );
+				return $this->text( 'Update notification sent; waiting for the client to request and download its settings.' );
 			case SitesDB::QUEUE_PENDING_INVITE:
 			case SitesDB::QUEUE_PENDING_CONNECTION:
-				return $this->text( 'Waiting for this client to connect before syncing. To retry, remove and re-add the site.' );
+				return $this->invitationReason( $record );
 			case SitesDB::QUEUE_QUEUED:
 				return $this->text( 'This site is queued for its next sync ping.' );
 			default:
 				return $this->text( 'Sync work is pending.' );
 		}
+	}
+
+	private function invitationReason( Record $record ) :string {
+		$invitation = ( new InvitationMetadata() )->normalize( $record->meta );
+		$attempts = $invitation[ 'attempts_started' ];
+		switch ( $this->invitationStateForRecord( $record ) ) {
+			case self::INVITATION_STATE_QUEUED:
+				return $this->text( 'The invitation is queued to be sent.' );
+			case self::INVITATION_STATE_STARTED_RETRYABLE:
+				return \sprintf(
+					$this->text( 'Invitation attempt %1$s started, but its outcome is not recorded. The next attempt is eligible at %2$s.' ),
+					$attempts,
+					$this->formatTimestamp( $record->next_ping_at )
+				);
+			case self::INVITATION_STATE_RETRY_SCHEDULED:
+				return \sprintf(
+					$this->text( 'Invitation attempt %1$s failed. The next attempt is eligible at %2$s.' ),
+					$attempts,
+					$this->formatTimestamp( $record->next_ping_at )
+				);
+			case self::INVITATION_STATE_FINAL_SETTLEMENT:
+				return $this->text( 'The final invitation attempt started with no recorded outcome. No further invitation will be sent; pending work will close the cycle.' );
+			case self::INVITATION_STATE_RESPONSE_UNCONFIRMED:
+				return $this->text( 'The invitation received a response, but the connection is unconfirmed. Check the client for the invitation or an existing master connection. If it is already linked to this master, use Sync settings now on the client.' );
+			case self::INVITATION_STATE_EXHAUSTED_FAILURE:
+				return $this->text( 'Automatic invitation attempts are exhausted after a failure. Inspect and correct the failure before using Retry invitation to start a new cycle.' );
+			case self::INVITATION_STATE_EXHAUSTED_UNKNOWN:
+				return $this->text( 'The final invitation outcome is unknown and no further invitation will be sent. Check the client for an invitation or existing master connection before using Retry invitation. If it is already linked to this master, use Sync settings now on the client.' );
+			case self::INVITATION_STATE_PASSIVE:
+			default:
+				return $this->text( 'Waiting for this client to connect. No invitation result is recorded; use Retry invitation or connect from the client. If it is already linked to this master, use Sync settings now on the client.' );
+		}
+	}
+
+	private function buildInvitationDetailsRows( Record $record ) :array {
+		if ( !\in_array( $record->queue_status, [
+			SitesDB::QUEUE_PENDING_INVITE,
+			SitesDB::QUEUE_PENDING_CONNECTION,
+		], true ) ) {
+			return [];
+		}
+
+		$invitation = ( new InvitationMetadata() )->normalize( $record->meta );
+		return [
+			$this->detailRow( $this->text( 'Invitation state' ), $this->formatKey( $this->invitationStateForRecord( $record ) ) ),
+			$this->detailRow( $this->text( 'Invitation attempts' ), \sprintf( '%d / %d', $invitation[ 'attempts_started' ], InvitationMetadata::MAX_ATTEMPTS ) ),
+			$this->detailRow( $this->text( 'Last invitation attempt' ), $this->formatTimestamp( $invitation[ 'last_attempt_started_at' ] ?? 0 ) ),
+			$this->detailRow( $this->text( 'Invitation result' ), $invitation[ 'last_result' ] === null ? $this->text( 'None recorded' ) : $this->formatKey( $invitation[ 'last_result' ] ) ),
+			$this->detailRow( $this->text( 'Invitation HTTP result' ), $invitation[ 'last_http_status' ] === null ? $this->text( 'None recorded' ) : (string)$invitation[ 'last_http_status' ] ),
+		];
 	}
 
 	private function currentFailureReason( Record $record ) :string {
@@ -339,7 +449,7 @@ class SiteSyncStatusBuilder {
 
 	private function lastExportSummary( Record $record ) :string {
 		if ( $record->last_export_success_at > 0 && $record->last_export_success_at >= $record->last_export_failure_at ) {
-			return \sprintf( '%s (%s)', $this->text( 'success' ), $this->formatTimestamp( $record->last_export_success_at ) );
+			return \sprintf( '%s (%s)', $this->text( 'served' ), $this->formatTimestamp( $record->last_export_success_at ) );
 		}
 		if ( $record->last_export_failure_at > 0 ) {
 			return \sprintf( '%s (%s)', $this->text( 'failed' ), $this->formatTimestamp( $record->last_export_failure_at ) );
@@ -367,6 +477,43 @@ class SiteSyncStatusBuilder {
 		);
 	}
 
+	private function diagnosticDetailRow( string $label, array $diagnostic ) :string {
+		if ( !$diagnostic[ 'has_result' ] ) {
+			$value = (string)$diagnostic[ 'label' ];
+		}
+		else {
+			$parts = [
+				(string)$diagnostic[ 'label' ],
+				(string)$diagnostic[ 'observed_at_display' ],
+			];
+			if ( $diagnostic[ 'http_status' ] !== null ) {
+				$parts[] = \sprintf( '%s: %d', $this->text( 'HTTP status' ), $diagnostic[ 'http_status' ] );
+			}
+			if ( $diagnostic[ 'eligible_at_display' ] !== null ) {
+				$parts[] = \sprintf( '%s: %s', $this->text( 'Eligible at' ), $diagnostic[ 'eligible_at_display' ] );
+			}
+			if ( !empty( $diagnostic[ 'qualification' ] ) ) {
+				$parts[] = (string)$diagnostic[ 'qualification' ];
+			}
+			$parts[] = (string)$diagnostic[ 'explanation' ];
+			$parts[] = \sprintf( '%s: %s', $this->text( 'Next check' ), $diagnostic[ 'next_check' ] );
+			$value = \implode( ' ', $parts );
+		}
+
+		return $this->detailRow( $label, $value );
+	}
+
+	private function diagnosticsForRecord( Record $record ) :array {
+		$presenter = new ObservationPresenter();
+		$repo = new SiteRepository();
+
+		return [
+			'notification' => $presenter->present( $repo->readObservation( $record, SyncObservation::PHASE_NOTIFICATION ) ),
+			'verification' => $presenter->present( $repo->readObservation( $record, SyncObservation::PHASE_VERIFICATION ) ),
+			'export'       => $presenter->present( $repo->readObservation( $record, SyncObservation::PHASE_EXPORT ) ),
+		];
+	}
+
 	private function displayError( string $error ) :string {
 		$error = \trim( $error );
 		return empty( $error ) ? $this->text( 'None recorded' ) : $error;
@@ -375,7 +522,7 @@ class SiteSyncStatusBuilder {
 	private function displayExportError( Record $record ) :string {
 		if ( $record->last_export_result_code === SitesDB::EXPORT_RESULT_TIMEOUT
 			 || $record->last_export_error === 'export_not_requested_before_grace_window' ) {
-			return $this->text( 'Export request timed out before this site sent its export.' );
+			return $this->text( 'No qualifying successful export was recorded within the existing grace period.' );
 		}
 		return $this->displayError( $record->last_export_error );
 	}
@@ -390,20 +537,7 @@ class SiteSyncStatusBuilder {
 	}
 
 	private function isExpiredWaitingExportProblem( Record $record ) :bool {
-		return $record->status === SitesDB::STATUS_ACTIVE
-			   && $record->queue_status === SitesDB::QUEUE_WAITING_EXPORT
-			   && $record->expected_export_by > 0
-			   && $record->expected_export_by <= $this->now
-			   && $record->last_export_success_at <= $record->last_ping_success_at;
-	}
-
-	private function hasQueuedOrIdleProblem( Record $record ) :bool {
-		return \in_array( $record->queue_status, [ SitesDB::QUEUE_QUEUED, SitesDB::QUEUE_IDLE ], true )
-			   && ( $record->consecutive_failures > 0 || $this->hasFailureNewerThanExportSuccess( $record ) );
-	}
-
-	private function hasFailureNewerThanExportSuccess( Record $record ) :bool {
-		return \max( $record->last_ping_failure_at, $record->last_export_failure_at ) > $record->last_export_success_at;
+		return ExportWaitState::isExpired( $record, $this->now );
 	}
 
 	private function stateBadgeTone( string $state ) :string {
@@ -432,7 +566,7 @@ class SiteSyncStatusBuilder {
 				return \sprintf( '(%s AND (%s OR %s))',
 					$this->sqlActive(),
 					$this->sqlExpiredWaitingExportProblem(),
-					$this->sqlQueuedOrIdleProblem()
+					QueuedSyncState::sqlHasProblem()
 				);
 			case self::STATE_PENDING:
 				return \sprintf( '(%s AND (`queue_status` IN (%s,%s) OR `queue_status`=%s OR (`queue_status`=%s AND NOT (%s)) OR (`queue_status`=%s AND NOT (%s))))',
@@ -443,19 +577,19 @@ class SiteSyncStatusBuilder {
 					$this->sqlValue( SitesDB::QUEUE_WAITING_EXPORT ),
 					$this->sqlExpiredWaitingExportProblem(),
 					$this->sqlValue( SitesDB::QUEUE_QUEUED ),
-					$this->sqlQueuedOrIdleProblem()
+					QueuedSyncState::sqlHasProblem()
 				);
 			case self::STATE_WORKING:
 				return \sprintf( '(%s AND `queue_status`=%s AND `last_export_success_at`>0 AND NOT (%s))',
 					$this->sqlActive(),
 					$this->sqlValue( SitesDB::QUEUE_IDLE ),
-					$this->sqlQueuedOrIdleProblem()
+					QueuedSyncState::sqlHasProblem()
 				);
 			case self::STATE_NEVER_SYNCED:
 				return \sprintf( '(%s AND `queue_status`=%s AND `last_export_success_at`<=0 AND NOT (%s))',
 					$this->sqlActive(),
 					$this->sqlValue( SitesDB::QUEUE_IDLE ),
-					$this->sqlQueuedOrIdleProblem()
+					QueuedSyncState::sqlHasProblem()
 				);
 			default:
 				return '';
@@ -464,17 +598,10 @@ class SiteSyncStatusBuilder {
 
 	private function sqlExpiredWaitingExportProblem() :string {
 		return \sprintf(
-			'(`queue_status`=%s AND `expected_export_by`>0 AND `expected_export_by`<=%d AND `last_export_success_at`<=`last_ping_success_at`)',
+			'(`queue_status`=%s AND `expected_export_by`>0 AND `expected_export_by`<=%d AND %s)',
 			$this->sqlValue( SitesDB::QUEUE_WAITING_EXPORT ),
-			$this->now
-		);
-	}
-
-	private function sqlQueuedOrIdleProblem() :string {
-		return \sprintf(
-			'(`queue_status` IN (%s,%s) AND (`consecutive_failures`>0 OR `last_ping_failure_at`>`last_export_success_at` OR `last_export_failure_at`>`last_export_success_at`))',
-			$this->sqlValue( SitesDB::QUEUE_QUEUED ),
-			$this->sqlValue( SitesDB::QUEUE_IDLE )
+			$this->now,
+			ExportWaitState::sqlUnsatisfiedSuccess()
 		);
 	}
 

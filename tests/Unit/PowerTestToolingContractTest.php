@@ -107,7 +107,7 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 			'composer.json',
 			'composer.lock',
 			'src/ActionRouter/Actions/PluginImportExport_*.php',
-			'src/Modules/Plugin/Lib/ImportExport/**',
+			'src/Components/CompCons/ImportExport/**',
 			'src/WpCli/**',
 			'infrastructure/src/Tooling/Cli/**',
 			'infrastructure/src/Tooling/Testing/**',

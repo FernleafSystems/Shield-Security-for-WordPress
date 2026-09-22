@@ -2,7 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\ObservationPresenter;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Import;
 
 class ConfigImport extends BaseCmd {
 
@@ -57,6 +58,7 @@ class ConfigImport extends BaseCmd {
 
 	public function runCmd() :void {
 		$args = \is_array( $this->execCmdArgs ) ? $this->execCmdArgs : [];
+		$networkImport = null;
 
 		$source = $args[ 'source' ] ?? '';
 		if ( empty( $source ) ) {
@@ -79,21 +81,24 @@ class ConfigImport extends BaseCmd {
 					}
 				}
 
-				( new Lib\ImportExport\Import() )->fromSite(
+				$networkImport = new Import();
+				$networkImport->fromSite(
 					$source,
 					(string)$secret,
 					$slave === 'add' ? true : ( $slave === 'remove' ? false : null )
 				);
 			}
 			else {
-				( new Lib\ImportExport\Import() )->fromFile( $source, (bool)\WP_CLI\Utils\get_flag_value( $args, 'delete-file', false ) );
+				( new Import() )->fromFile( $source, (bool)\WP_CLI\Utils\get_flag_value( $args, 'delete-file', false ) );
 			}
 		}
 		catch ( \Exception $e ) {
 			\WP_CLI::error_multi_line(
 				[
 					__( 'The import encountered an error.', 'wp-simple-firewall' ),
-					$e->getMessage(),
+					$networkImport === null
+						? $e->getMessage()
+						: ( new ObservationPresenter() )->failureMessage( $networkImport->latestObservation(), $e->getMessage() ),
 				]
 			);
 			\WP_CLI::halt( $e->getCode() );
