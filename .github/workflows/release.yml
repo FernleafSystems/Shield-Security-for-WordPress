@@ -16,7 +16,7 @@ jobs:
 
   release:
     name: Create GitHub Release
-    runs-on: ubuntu-26.04
+    runs-on: ${{ vars.CI_UBUNTU_RUNNER }}
     needs: build-zip
     permissions:
       actions: read

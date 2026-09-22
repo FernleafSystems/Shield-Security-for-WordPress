@@ -48,7 +48,7 @@ on:
 jobs:
   build-zip:
     name: Build ZIP
-    runs-on: ubuntu-26.04
+    runs-on: ${{ vars.CI_UBUNTU_RUNNER }}
     permissions:
       contents: read
     outputs:

@@ -20,7 +20,7 @@ on:
 jobs:
   build-package:
     name: Run Package Build
-    runs-on: ubuntu-26.04
+    runs-on: ${{ vars.CI_UBUNTU_RUNNER }}
 
     steps:
     - name: Checkout code

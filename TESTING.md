@@ -533,7 +533,7 @@ php bin/run-playground-local.php --clean
 
 ## CI Workflow Roles
 
-CI behavior is recorded here for diagnosis and exact job reproduction; it does not define the preferred local test scope. Required checks use job-level path filters because workflow-level `paths` can leave skipped required checks pending. A docs-only change should normally run only the lightweight changed-file detector. Changes to `.nvmrc` are owned by the PHP, JavaScript, package, browser, and cross-site lanes; changes to the WordPress detector run both its shell regression and PHP/source-runtime consumers.
+CI behavior is recorded here for diagnosis and exact job reproduction; it does not define the preferred local test scope. Required checks use job-level path filters because workflow-level `paths` can leave skipped required checks pending. A docs-only change should normally run only the lightweight changed-file detector. Changes to `.nvmrc` are owned by the PHP, JavaScript, package, browser, and cross-site lanes; changes to the WordPress detector run both its shell regression and PHP/source-runtime consumers. All Linux jobs resolve their runner from the repository configuration variable `CI_UBUNTU_RUNNER`; update that single variable when the pinned Ubuntu image changes.
 
 | Workflow | Trigger and role |
 |---|---|

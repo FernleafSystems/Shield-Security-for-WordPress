@@ -16,7 +16,7 @@ on:
 jobs:
   changes:
     name: 'Changed File Filters'
-    runs-on: ubuntu-26.04
+    runs-on: ${{ vars.CI_UBUNTU_RUNNER }}
     permissions:
       contents: read
       pull-requests: read
@@ -38,7 +38,7 @@ jobs:
 
   playwright-action-router:
     name: 'Playwright ActionRouter'
-    runs-on: ubuntu-26.04
+    runs-on: ${{ vars.CI_UBUNTU_RUNNER }}
     timeout-minutes: 20
     needs: changes
     if: ${{ needs.changes.outputs.browser == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}

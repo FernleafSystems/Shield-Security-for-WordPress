@@ -13,7 +13,7 @@ jobs:
 
   summary:
     name: Share Artifact Link
-    runs-on: ubuntu-26.04
+    runs-on: ${{ vars.CI_UBUNTU_RUNNER }}
     needs: build-zip
     permissions:
       contents: read
