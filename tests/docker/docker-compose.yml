@@ -70,7 +70,7 @@ services:
       context: .
       args:
         PHP_VERSION: ${PHP_VERSION:-8.2}
-        WP_VERSION: ${WP_VERSION_LATEST:-6.9}
+        WP_VERSION: ${WP_VERSION_LATEST:?WP_VERSION_LATEST must be set}
     depends_on:
       mysql-latest:
         condition: service_healthy
@@ -80,13 +80,13 @@ services:
     working_dir: /app
     environment:
       TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
-      TEST_WP_VERSION: ${WP_VERSION_LATEST:-6.9}
+      TEST_WP_VERSION: ${WP_VERSION_LATEST:?WP_VERSION_LATEST must be set}
       PHPUNIT_DEBUG: ${PHPUNIT_DEBUG:-}
       SHIELD_TEST_VERBOSE: ${SHIELD_TEST_VERBOSE:-}
       SHIELD_UNIT_TEST_MODE: ${SHIELD_UNIT_TEST_MODE:-parallel}
       COMPOSER_CACHE_DIR: /tmp/composer-cache
       COMPOSER_AUTH: ${COMPOSER_AUTH:-}
-    command: bin/run-tests-docker.sh wordpress_test_latest root testpass mysql-latest ${WP_VERSION_LATEST:-6.9}
+    command: bin/run-tests-docker.sh wordpress_test_latest root testpass mysql-latest ${WP_VERSION_LATEST:?WP_VERSION_LATEST must be set}
 
   # Test runner for WordPress previous
   test-runner-previous:
@@ -96,7 +96,7 @@ services:
       context: .
       args:
         PHP_VERSION: ${PHP_VERSION:-8.2}
-        WP_VERSION: ${WP_VERSION_PREVIOUS:-6.8.3}
+        WP_VERSION: ${WP_VERSION_PREVIOUS:?WP_VERSION_PREVIOUS must be set}
     depends_on:
       mysql-previous:
         condition: service_healthy
@@ -106,13 +106,13 @@ services:
     working_dir: /app
     environment:
       TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
-      TEST_WP_VERSION: ${WP_VERSION_PREVIOUS:-6.8.3}
+      TEST_WP_VERSION: ${WP_VERSION_PREVIOUS:?WP_VERSION_PREVIOUS must be set}
       PHPUNIT_DEBUG: ${PHPUNIT_DEBUG:-}
       SHIELD_TEST_VERBOSE: ${SHIELD_TEST_VERBOSE:-}
       SHIELD_UNIT_TEST_MODE: ${SHIELD_UNIT_TEST_MODE:-parallel}
       COMPOSER_CACHE_DIR: /tmp/composer-cache
       COMPOSER_AUTH: ${COMPOSER_AUTH:-}
-    command: bin/run-tests-docker.sh wordpress_test_previous root testpass mysql-previous ${WP_VERSION_PREVIOUS:-6.8.3}
+    command: bin/run-tests-docker.sh wordpress_test_previous root testpass mysql-previous ${WP_VERSION_PREVIOUS:?WP_VERSION_PREVIOUS must be set}
 
 networks:
   default:

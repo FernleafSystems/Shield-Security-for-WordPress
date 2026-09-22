@@ -33,7 +33,7 @@ During regression exposure or test-first work, run only the focused command that
 
 `composer test` is a broad local confidence gate, not a routine per-change completion requirement. Run it when the change affects shared PHP bootstrap, generated configuration, test infrastructure, or widely reused behavior whose regression radius cannot be bounded reliably; when reproducing the corresponding CI or release-confidence path; or when the operator or task explicitly requires that exact lane. The number of changed PHP files or bounded owners does not itself make the regression radius unbounded. Before starting the command, map it to the concrete risk or acceptance criterion and confirm that current focused evidence cannot prove the same point. Otherwise omit it and report the focused evidence actually gathered.
 
-Source and full-package Docker testing use only the latest WordPress runtime by default. This is the preferred local behavior. Testing the retained previous major is exceptional compatibility coverage, not a routine final gate; use it only when a task explicitly targets that version or when reproducing the source-runtime CI job itself. Required CI selects its own broader coverage, so normal local verification does not need to duplicate it.
+Source and full-package Docker testing use only the latest WordPress runtime by default. This is the preferred local behavior. Testing the retained previous release series is exceptional compatibility coverage, not a routine final gate; use it only when a task explicitly targets that series or when reproducing the source-runtime CI job itself. Required CI selects its own broader coverage, so normal local verification does not need to duplicate it.
 
 Docker-backed commands keep Compose output concise by default. See [`tests/docker/README.md`](tests/docker/README.md#quiet-vs-noisy-compose-output) for troubleshooting output and runner mechanics.
 
@@ -269,7 +269,9 @@ These commands remain the owned internal lanes behind the public surface and CI 
 
 `test:source` and `analyze:source` cache setup state by default for faster local reruns. Use `--refresh-setup` when you need a clean setup pass.
 
-`test:source` and `test:package-full` start, build, and run only the latest WordPress runtime by default. Both accept `--include-previous-wp` for an explicit previous-major compatibility investigation or exact reproduction of the source-runtime CI job. Do not add it to normal local verification or routine final gates.
+`test:source` and `test:package-full` start, build, and run only the latest WordPress runtime by default. Both accept `--include-previous-wp` for an explicit previous-release-series compatibility investigation or exact reproduction of the source-runtime CI job. Do not add it to normal local verification or routine final gates.
+
+`.github/scripts/detect-wp-versions.sh` selects the highest stable patch from each of the two newest distinct WordPress `X.Y` release series. It queries current WordPress.org data and falls back to stable WordPress Git tags; it does not reuse stale API responses or embed release-number defaults. The orchestrator writes both selected versions to `tests/docker/.env`, and the source Compose services require those values instead of choosing their own versions.
 
 Source-test Docker resources are labeled with `com.fernleaf.harness`, `com.fernleaf.run-id`, `com.fernleaf.lane`, `com.fernleaf.lifecycle`, and `com.fernleaf.expires-at`. Use the explicit cleanup command for auditable dry-runs and scoped removal:
 
@@ -370,7 +372,7 @@ Operational notes:
 6. `php bin/shield dev:site:wp plugin list` and `php bin/shield test:site:wp plugin list` run WP-CLI against the appropriate local `wp-cli` container after ensuring the site is ready. The command appends `--allow-root` automatically when it is not already present.
 7. Browser lanes fail fast if required source prerequisites are missing. At minimum, keep Composer dependencies, npm dependencies, `plugin.json`, Docker, and Playwright current before running browser tests; compiled browser assets are rebuilt automatically for non-list browser runs.
 8. The browser lane is intentionally source-only. Do not add packaged-only `vendor_prefixed` content to this runtime; prefixed dependency validation belongs to the package lanes.
-9. Local browser work requires Docker plus a supported Node 20 binary for webpack and Playwright. `php bin/run-node-tool.php` resolves that on demand without changing the machine default Node.
+9. Local browser work requires Docker plus the Node version declared in `.nvmrc` for webpack and Playwright. `php bin/run-node-tool.php` resolves that on demand without changing the machine default Node. CI and source-runtime Docker asset setup consume the same declaration.
 10. CI installs Chromium headless shell only via `npm run playwright:install -- --with-deps --only-shell`. Headed debugging is still available locally by forwarding Playwright flags through the browser command, for example: `composer test:browser -- -- --headed`.
 11. CI does not cache Playwright browser binaries; Playwright's own CI guidance says Linux browser cache restore time is comparable to installing them, while OS dependencies still need installation.
 12. Composer browser-arg forwarding is two-stage and must be explicit:
@@ -531,7 +533,7 @@ php bin/run-playground-local.php --clean
 
 ## CI Workflow Roles
 
-CI behavior is recorded here for diagnosis and exact job reproduction; it does not define the preferred local test scope. Required checks use job-level path filters because workflow-level `paths` can leave skipped required checks pending. A docs-only change should normally run only the lightweight changed-file detector.
+CI behavior is recorded here for diagnosis and exact job reproduction; it does not define the preferred local test scope. Required checks use job-level path filters because workflow-level `paths` can leave skipped required checks pending. A docs-only change should normally run only the lightweight changed-file detector. Changes to `.nvmrc` are owned by the PHP, JavaScript, package, browser, and cross-site lanes; changes to the WordPress detector run both its shell regression and PHP/source-runtime consumers. All Linux jobs resolve their runner from the repository configuration variable `CI_UBUNTU_RUNNER`; update that single variable when the pinned Ubuntu image changes.
 
 | Workflow | Trigger and role |
 |---|---|

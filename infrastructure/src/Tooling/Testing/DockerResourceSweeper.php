@@ -71,7 +71,7 @@ class DockerResourceSweeper {
 	public function cleanupAllHarnessResources( string $rootDir, int $laneCount, ?DockerCleanupReport $report = null ) :DockerCleanupReport {
 		$report = $report ?? new DockerCleanupReport();
 		$policy = $this->policyForLaneCount( $laneCount );
-		$env = $policy->labelEnvironment(
+		$env = \array_merge( $policy->labelEnvironment(
 			'cleanup',
 			DockerHarnessLabels::LIFECYCLE_TRANSIENT,
 			'shared',
@@ -79,7 +79,7 @@ class DockerResourceSweeper {
 			'cleanup',
 			DockerHarnessLabels::LIFECYCLE_TRANSIENT,
 			\gmdate( \DATE_ATOM )
-		);
+		), $policy->composeCleanupEnvironment() );
 
 		foreach ( $policy->composeDowns() as $composeDown ) {
 			$command = [

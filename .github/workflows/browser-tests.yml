@@ -16,7 +16,7 @@ on:
 jobs:
   changes:
     name: 'Changed File Filters'
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_UBUNTU_RUNNER }}
     permissions:
       contents: read
       pull-requests: read
@@ -38,7 +38,7 @@ jobs:
 
   playwright-action-router:
     name: 'Playwright ActionRouter'
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_UBUNTU_RUNNER }}
     timeout-minutes: 20
     needs: changes
     if: ${{ needs.changes.outputs.browser == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
@@ -57,7 +57,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v5
       with:
-        node-version: '20.10'
+        node-version-file: .nvmrc
         cache: npm
 
     - name: Prepare Private Packagist Composer auth
