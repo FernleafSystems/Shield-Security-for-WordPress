@@ -3,12 +3,19 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptCommandTestTrait;
 
 class RunNodeToolScriptTest extends BaseUnitTest {
 
 	use PluginPathsTrait;
 	use ScriptCommandTestTrait;
+	use TempDirLifecycleTrait;
+
+	protected function tearDown() :void {
+		$this->cleanupTrackedTempDirs();
+		parent::tearDown();
+	}
 
 	public function testRunNodeToolScriptHasValidSyntax() :void {
 		$this->skipIfPackageScriptUnavailable();
@@ -35,4 +42,28 @@ class RunNodeToolScriptTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'Unsupported tool', $output );
 		$this->assertStringContainsString( 'playwright, webpack', $output );
 	}
+
+	public function testRunNodeToolScriptRejectsWrongVersionOverride() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$pinnedVersion = \trim( (string)\file_get_contents( $this->getPluginFilePath( '.nvmrc' ) ) );
+		$emptyPath = $this->createTrackedTempDir( 'shield-node-path-' );
+		$process = $this->runPhpScript(
+			'bin/run-node-tool.php',
+			[ 'webpack', '--version' ],
+			[
+				'HOME'               => '',
+				'NVM_DIR'            => '',
+				'NVM_HOME'           => '',
+				'PATH'               => $emptyPath,
+				'SHIELD_NODE_BINARY' => \PHP_BINARY,
+			]
+		);
+
+		$this->assertSame( 2, $process->getExitCode() ?? 0 );
+		$this->assertStringContainsString(
+			'Unable to resolve a supported Node.js '.$pinnedVersion.' binary.',
+			$this->processOutput( $process )
+		);
+	}
+
 }

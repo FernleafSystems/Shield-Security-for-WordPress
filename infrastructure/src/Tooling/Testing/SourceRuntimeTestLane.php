@@ -418,7 +418,7 @@ class SourceRuntimeTestLane {
 			$nodeModulesVolume.':/app/node_modules',
 			'-w',
 			'/app',
-			$this->setupCacheCoordinator->getNodeImageTag(),
+			$this->setupCacheCoordinator->getNodeImageTag( $rootDir ),
 			'sh',
 			'-c',
 			$command,

@@ -29,7 +29,7 @@ jobs:
   # Decide which test lanes are relevant for this change without skipping the required workflow itself.
   changes:
     name: 'Detect Changed Test Inputs'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       pull-requests: read
@@ -55,7 +55,7 @@ jobs:
   # Prove GitHub Actions helper scripts still behave as expected when CI tooling changes.
   cache-cleanup-script-tests:
     name: 'CI Cache Cleanup Script Regression'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: changes
     if: ${{ needs.changes.outputs.ci_scripts == 'true' || github.event_name == 'workflow_dispatch' }}
 
@@ -71,7 +71,7 @@ jobs:
 
   wordpress-version-detector-script-tests:
     name: 'WordPress Version Detector Script Regression'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: changes
     if: ${{ needs.changes.outputs.ci_scripts == 'true' || github.event_name == 'workflow_dispatch' }}
 
@@ -87,7 +87,7 @@ jobs:
 
   admin-bundle-safety-script-tests:
     name: 'Admin Bundle Safety Script Regression'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: changes
     if: ${{ needs.changes.outputs.ci_scripts == 'true' || github.event_name == 'workflow_dispatch' }}
 
@@ -98,7 +98,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v5
       with:
-        node-version: '20.10'
+        node-version-file: .nvmrc
 
     - name: Run admin bundle safety script regression tests
       run: |
@@ -109,7 +109,7 @@ jobs:
   # Run fast static checks that do not need a WordPress runtime.
   js-static:
     name: 'JavaScript Static Checks'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: changes
     if: ${{ needs.changes.outputs.js == 'true' || github.event_name == 'workflow_dispatch' }}
 
@@ -120,7 +120,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v5
       with:
-        node-version: '20.10'
+        node-version-file: .nvmrc
         cache: npm
 
     - name: Install dependencies
@@ -131,7 +131,7 @@ jobs:
 
   source-static-analysis:
     name: 'PHPStan Source Analysis (PHP 7.4)'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: changes
     if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
 
@@ -180,7 +180,7 @@ jobs:
 
   database-compatibility:
     name: 'Database Compatibility (${{ matrix.profile }})'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: changes
     if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
     strategy:
@@ -218,7 +218,7 @@ jobs:
   # Run source-tree integration checks inside Docker against supported WordPress versions.
   source-docker-runtime:
     name: 'WordPress Runtime Integration (Source)'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: changes
     if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
 
@@ -275,7 +275,7 @@ jobs:
 
   package-targeted-validation:
     name: 'Validate Packaged Plugin Artifact'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: [ changes, build-package ]
     if: ${{ always() && (needs.changes.outputs.package == 'true' || github.event_name == 'workflow_dispatch') && needs.build-package.result == 'success' }}
 

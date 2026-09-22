@@ -9,11 +9,21 @@ class SourceSetupCacheCoordinator {
 	private const STATE_SCHEMA_VERSION = 1;
 	private const STATE_DIR_RELATIVE_PATH = 'tmp/.source-setup-cache';
 	private const STATE_FILE_NAME = 'state.v1.json';
-	private const NODE_IMAGE_TAG = 'node:20.10';
 	private const NODE_MODULES_VOLUME_PREFIX = 'shield-source-node-modules-';
 
-	public function getNodeImageTag() :string {
-		return self::NODE_IMAGE_TAG;
+	public function getNodeImageTag( string $rootDir ) :string {
+		$nvmrcPath = Path::join( $rootDir, '.nvmrc' );
+		if ( !\is_file( $nvmrcPath ) ) {
+			throw new \RuntimeException( 'Missing required Node.js version file: '.$nvmrcPath );
+		}
+
+		$contents = @\file_get_contents( $nvmrcPath );
+		$version = \is_string( $contents ) ? \trim( $contents ) : '';
+		if ( \preg_match( '/^\d+\.\d+\.\d+$/', $version ) !== 1 ) {
+			throw new \RuntimeException( 'Invalid Node.js version in '.$nvmrcPath.'; expected X.Y.Z.' );
+		}
+
+		return 'node:'.$version;
 	}
 
 	public function getNodeModulesVolumeName( string $rootDir ) :string {
@@ -146,6 +156,7 @@ class SourceSetupCacheCoordinator {
 	 * @return array{composer:string,build_config:string,node_deps:string,asset_inputs:string}
 	 */
 	private function computeRuntimeFingerprints( string $rootDir, string $phpVersion ) :array {
+		$nodeImageTag = $this->getNodeImageTag( $rootDir );
 		$composerFingerprint = $this->computeFingerprint(
 			$rootDir,
 			[
@@ -166,7 +177,7 @@ class SourceSetupCacheCoordinator {
 				'package-lock.json',
 			],
 			[
-				'node_image='.self::NODE_IMAGE_TAG,
+				'node_image='.$nodeImageTag,
 			]
 		);
 

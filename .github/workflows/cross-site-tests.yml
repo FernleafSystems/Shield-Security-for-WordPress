@@ -10,6 +10,7 @@ on:
     paths:
       - 'composer.json'
       - 'composer.lock'
+      - '.nvmrc'
       - 'src/ActionRouter/Actions/PluginImportExport_*.php'
       - 'src/Components/CompCons/ImportExport/**'
       - 'src/WpCli/**'
@@ -25,7 +26,7 @@ on:
 jobs:
   shield-cross-site:
     name: 'Shield Cross-Site Import/Export'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
 
     steps:
@@ -42,7 +43,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v5
       with:
-        node-version: '20.10'
+        node-version-file: .nvmrc
         cache: npm
 
     - name: Prepare Private Packagist Composer auth

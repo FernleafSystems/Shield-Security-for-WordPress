@@ -48,7 +48,7 @@ on:
 jobs:
   build-zip:
     name: Build ZIP
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     outputs:
@@ -78,18 +78,18 @@ jobs:
         PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
       run: php .github/scripts/prepare-packagist-composer-auth.php
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version-file: .nvmrc
+        cache: npm
+
     - name: Display Environment Info
       run: |
         echo "PHP Version: $(php -v)"
         echo "Composer Version: $(composer --version)"
         echo "Node.js Version: $(node --version)"
         echo "NPM Version: $(npm --version)"
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v5
-      with:
-        node-version: '20.10'
-        cache: npm
 
     - name: Install dependencies
       run: |

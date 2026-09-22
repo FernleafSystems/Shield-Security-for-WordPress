@@ -27,7 +27,7 @@ on:
 jobs:
   cleanup:
     name: "Cleanup Actions Cache"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       actions: write
       contents: read

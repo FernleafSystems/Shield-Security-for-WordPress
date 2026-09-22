@@ -29,7 +29,13 @@ if ( !array_key_exists( $tool, supportedToolScripts( $projectRoot ) ) ) {
 	exit( EXIT_ENV );
 }
 
-$nodeVersion = readPinnedNodeVersion( $projectRoot );
+try {
+	$nodeVersion = readPinnedNodeVersion( $projectRoot );
+}
+catch ( RuntimeException $e ) {
+	fwrite( STDERR, $e->getMessage()."\n" );
+	exit( EXIT_ENV );
+}
 $currentNode = findCurrentNodeBinary( $nodeVersion );
 $nodeBinary = $currentNode ?? findPinnedNodeBinary( $nodeVersion );
 
@@ -122,11 +128,16 @@ function buildProcessEnvironment( string $nodeBinary ) :array {
 function readPinnedNodeVersion( string $projectRoot ) :string {
 	$nvmrcPath = $projectRoot.'/.nvmrc';
 	if ( !is_file( $nvmrcPath ) ) {
-		return '20.10.0';
+		throw new RuntimeException( 'Missing required Node.js version file: '.$nvmrcPath );
 	}
 
-	$version = trim( (string)file_get_contents( $nvmrcPath ) );
-	return $version !== '' ? $version : '20.10.0';
+	$contents = file_get_contents( $nvmrcPath );
+	$version = is_string( $contents ) ? trim( $contents ) : '';
+	if ( preg_match( '/^\d+\.\d+\.\d+$/', $version ) !== 1 ) {
+		throw new RuntimeException( 'Invalid Node.js version in '.$nvmrcPath.'; expected X.Y.Z.' );
+	}
+
+	return $version;
 }
 
 function findCurrentNodeBinary( string $pinnedVersion ) :?string {
@@ -185,11 +196,6 @@ function resolveNodeFromPath() :?string {
 }
 
 function findPinnedNodeBinary( string $pinnedVersion ) :?string {
-	$override = getenv( 'SHIELD_NODE_BINARY' );
-	if ( is_string( $override ) && $override !== '' && is_file( $override ) ) {
-		return $override;
-	}
-
 	$candidates = [];
 	$windowsBinary = 'node.exe';
 	$unixBinary = 'node';
@@ -268,13 +274,7 @@ function isSupportedNodeVersion( string $rawVersion, string $pinnedVersion ) :bo
 		return false;
 	}
 
-	$pinnedParts = explode( '.', ltrim( $pinnedVersion, 'v' ) );
-	$requiredMajor = (int)( $pinnedParts[0] ?? 20 );
-	$requiredMinor = (int)( $pinnedParts[1] ?? 10 );
-	$major = (int)$matches[1];
-	$minor = (int)$matches[2];
-
-	return $major === $requiredMajor && $minor >= $requiredMinor;
+	return sprintf( '%d.%d.%d', (int)$matches[1], (int)$matches[2], (int)$matches[3] ) === $pinnedVersion;
 }
 
 function normalizePath( string $path ) :string {

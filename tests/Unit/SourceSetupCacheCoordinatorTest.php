@@ -70,6 +70,43 @@ class SourceSetupCacheCoordinatorTest extends TestCase {
 		$this->assertTrue( $decision[ 'needs_npm_build' ] );
 	}
 
+	public function testNodeImageTagUsesPinnedVersion() :void {
+		$rootDir = $this->createFixtureRoot();
+
+		$this->assertSame( 'node:99.98.97', $this->coordinator->getNodeImageTag( $rootDir ) );
+	}
+
+	public function testMissingNodeVersionFailsClearly() :void {
+		$rootDir = $this->createFixtureRoot();
+		@unlink( Path::join( $rootDir, '.nvmrc' ) );
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'Missing required Node.js version file:' );
+		$this->coordinator->getNodeImageTag( $rootDir );
+	}
+
+	public function testInvalidNodeVersionFailsClearly() :void {
+		$rootDir = $this->createFixtureRoot();
+		$this->writeFixtureFile( $rootDir, '.nvmrc', '24' );
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'expected X.Y.Z' );
+		$this->coordinator->getNodeImageTag( $rootDir );
+	}
+
+	public function testNodeVersionChangeInvalidatesDependencyFingerprint() :void {
+		$rootDir = $this->createFixtureRoot();
+		$firstDecision = $this->coordinator->evaluateRuntimeSetup( $rootDir, '8.2' );
+		$this->coordinator->persistRuntimeSetupState( $rootDir, $firstDecision[ 'fingerprints' ] );
+
+		$this->writeFixtureFile( $rootDir, '.nvmrc', '99.98.96' );
+		$secondDecision = $this->coordinator->evaluateRuntimeSetup( $rootDir, '8.2' );
+
+		$this->assertNotSame( $firstDecision[ 'fingerprints' ][ 'node_deps' ], $secondDecision[ 'fingerprints' ][ 'node_deps' ] );
+		$this->assertTrue( $secondDecision[ 'needs_npm_install' ] );
+		$this->assertTrue( $secondDecision[ 'needs_npm_build' ] );
+	}
+
 	public function testMissingRecordedDistArtifactTriggersBuild() :void {
 		$rootDir = $this->createFixtureRoot();
 		$firstDecision = $this->coordinator->evaluateRuntimeSetup( $rootDir, '8.2' );
@@ -119,6 +156,7 @@ class SourceSetupCacheCoordinatorTest extends TestCase {
 
 		$this->writeFixtureFile( $rootDir, 'package.json', '{"name":"fixture"}' );
 		$this->writeFixtureFile( $rootDir, 'package-lock.json', '{"lockfileVersion":3}' );
+		$this->writeFixtureFile( $rootDir, '.nvmrc', '99.98.97' );
 
 		$this->writeFixtureFile( $rootDir, 'plugin.json', '{}' );
 		$this->writeFixtureFile( $rootDir, 'bin/build-config.php', '<?php' );
