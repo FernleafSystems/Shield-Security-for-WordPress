@@ -10,6 +10,12 @@ class OptsLookup {
 
 	use PluginControllerConsumer;
 
+	/** @return 'cookie'|'cookie_free' */
+	public function silentCaptchaMode() :string {
+		return self::con()->opts->optIs( 'silentcaptcha_cookie_free', 'Y' )
+			? 'cookie_free' : 'cookie';
+	}
+
 	public function enabledSilentCaptchaCommentSpam() :bool {
 		return self::con()->opts->optIs( 'enable_antibot_comments', 'Y' );
 	}

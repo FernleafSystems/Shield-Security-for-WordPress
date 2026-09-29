@@ -600,13 +600,23 @@ class BrowserFixtureRegistry {
 		$state = \is_array( $state ) ? $state : [];
 
 		switch ( $action ) {
+			case 'add-ip':
+				\update_option( $optionKey, $builder->addIp( $state, (string)( $args[ 0 ] ?? '' ) ), false );
+				return [ 'updated' => true ];
+			case 'mode':
+				RuntimeTestState::restoreOptions( [ 'silentcaptcha_cookie_free' => ( $args[ 0 ] ?? '' ) === 'cookie_free' ? 'Y' : 'N' ] );
+				return [ 'updated' => true ];
+			case 'timing':
+				\update_option( 'shield_browser_notbot_timing', \json_decode( $args[ 0 ] ?? 'null', true ), false );
+				return [ 'updated' => true ];
 			case 'cleanup':
+				\delete_option( 'shield_browser_notbot_timing' );
 				$builder->cleanup( $state );
 				\delete_option( $optionKey );
 				return [ 'cleaned' => true ];
 
 			case 'inspect':
-				return $builder->inspect( $state );
+				return $builder->inspect( $state, (string)( $args[ 0 ] ?? '' ) );
 
 			case 'seed':
 				if ( $state !== [] ) {

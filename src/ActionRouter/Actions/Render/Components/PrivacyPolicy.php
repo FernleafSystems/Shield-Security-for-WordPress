@@ -39,7 +39,7 @@ class PrivacyPolicy extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRoute
 				'cookies_item_1'             => __( 'The %s plugin never stores any sensitive, personally identifiable information in any cookie at any time.', 'wp-simple-firewall' ),
 				'cookies_item_2'             => __( 'In the case that the %s plugin needs to redirect a visitor or any request, it may use a cookie to prevent repeated/infinite redirect loops.', 'wp-simple-firewall' ),
 				'cookies_item_3'             => __( 'For registered/logged-in users, the %s plugin uses a cookie to track user sessions and control display of certain in-plugin admin notices.', 'wp-simple-firewall' ),
-				'cookies_item_4_sentence_1'  => __( 'The %s plugin does not normally use Cookies for unregistered site visitors.', 'wp-simple-firewall' ),
+				'cookies_item_4_sentence_1'  => __( 'The %s plugin uses a silentCAPTCHA cookie for visitor checks by default. Its optional cookie-free mode stores a refresh timestamp in browser storage instead, or in page memory when storage is unavailable.', 'wp-simple-firewall' ),
 				'cookies_item_4_sentence_2'  => __( 'It may however use a cookie to register the closure of the %s security badge to prevent repeated display.', 'wp-simple-firewall' ),
 				'heading_sessions'           => __( 'Data Storage: User Sessions', 'wp-simple-firewall' ),
 				'sessions_sentence_1'        => __( 'For logged-in users, the %s plugin stores information on the username, the IP address and the time of last login and last activity.', 'wp-simple-firewall' ),

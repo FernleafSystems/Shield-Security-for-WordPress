@@ -54,29 +54,6 @@ async function mutateCaptureNotBotResponse( page, mutatePayload ) {
 	return mutation;
 }
 
-async function mutateNotBotAltchaChallenge( page, mutateChallenge ) {
-	const mutation = { applied: false };
-	await page.route( '**/wp-admin/admin-ajax.php', async ( route ) => {
-		const request = route.request();
-		if ( request.method() !== 'POST' || requestActionSlug( request ) !== 'capture_not_bot' ) {
-			await route.fallback();
-			return;
-		}
-
-		const response = await route.fetch();
-		const payload = await response.json();
-		const rawChallenge = payload?.data?.altcha_data?.altcha_challenge;
-		if ( typeof rawChallenge === 'string' ) {
-			const challenge = JSON.parse( rawChallenge );
-			mutateChallenge( challenge );
-			payload.data.altcha_data.altcha_challenge = JSON.stringify( challenge );
-			mutation.applied = true;
-		}
-		await route.fulfill( { response, json: payload } );
-	} );
-	return mutation;
-}
-
 async function holdFirstCaptureNotBotResponse( page ) {
 	let resolveRequestSeen;
 	const requestSeen = new Promise( resolve => {
@@ -280,14 +257,10 @@ async function expectNotBotCookie( page, expectedSignals = null ) {
 }
 
 async function expectNotBotLocalStorageUnused( page ) {
-	const value = await page.evaluate( ( key ) => {
-		try {
-			return window.localStorage.getItem( key );
-		}
-		catch {
-			return null;
-		}
-	}, NOTBOT_COOKIE_NAME );
+	const key = await page.evaluate( () => window.shield_vars_silentcaptcha.comps.silentcaptcha.config.storage_key );
+	expect( key ).toEqual( expect.any( String ) );
+	expect( key ).not.toBe( '' );
+	const value = await page.evaluate( key => window.localStorage.getItem( key ), key );
 	expect( value ).toBeNull();
 }
 
@@ -310,9 +283,19 @@ test( 'silentCAPTCHA solves ALTCHA v2, writes cookie state, and throttles refres
 			const notbotResponses = collectShieldAjaxActionUrls( page, 'capture_not_bot' );
 			const altchaResponses = collectShieldAjaxActionUrls( page, 'capture_not_bot_altcha' );
 			const altchaResponse = waitForShieldAjaxAction( page, 'capture_not_bot_altcha' );
+			const basicResponse = waitForShieldAjaxAction( page, 'capture_not_bot' );
 
 			await page.goto( '/?force_notbot=1', { waitUntil: 'load' } );
 			await expectShieldAjaxSuccess( await altchaResponse );
+			expect( ( await ( await basicResponse ).json() ).data.notbot_state ).toEqual( {
+				mode: 'cookie', required: [ 'altcha' ], exchange_valid: true,
+			} );
+			expect( ( await ( await altchaResponse ).json() ).data.notbot_state ).toEqual( {
+				mode: 'cookie', required: [], exchange_valid: true,
+			} );
+			for ( const response of [ await basicResponse, await altchaResponse ] ) {
+				expect( response.headers()[ 'cache-control' ] ).toMatch( /no-cache|no-store/ );
+			}
 			await page.waitForLoadState( 'networkidle' );
 			await page.waitForTimeout( 1000 );
 
@@ -652,14 +635,16 @@ test( 'silentCAPTCHA ignores expired or malformed NotBot cookies and refreshes t
 				await withAnonymousContext( browser, lane, PUBLIC_VISITOR_IP, async ( context ) => {
 					await setNotBotCookie( context, lane, cookieValue );
 					const page = await context.newPage();
-					await suppressDocumentNotBotSetCookie( page );
+					await suppressDocumentNotBotSetCookie( page, { lane, value: cookieValue } );
 					const runtimeErrors = collectRuntimeErrors( page );
 					const consoleMessages = collectSilentCaptchaConsoleMessages( page );
 					const notbotResponses = collectShieldAjaxActionUrls( page, 'capture_not_bot' );
 					const altchaResponses = collectShieldAjaxActionUrls( page, 'capture_not_bot_altcha' );
 					const altchaResponse = waitForShieldAjaxAction( page, 'capture_not_bot_altcha' );
+					const basicRequest = waitForShieldAjaxRequest( page, 'capture_not_bot' );
 
 					await page.goto( '/', { waitUntil: 'load' } );
+					expect( await ( await basicRequest ).headerValue( 'cookie' ) ).toContain( `${NOTBOT_COOKIE_NAME}=${cookieValue}` );
 					await expectShieldAjaxSuccess( await altchaResponse );
 					await page.waitForLoadState( 'networkidle' );
 					await page.waitForTimeout( 1000 );
@@ -767,8 +752,10 @@ test( 'silentCAPTCHA rejects an expired ALTCHA challenge without submitting a so
 			const runtimeErrors = collectRuntimeErrors( page );
 			const consoleMessages = collectSilentCaptchaConsoleMessages( page );
 			const altchaResponses = collectShieldAjaxActionUrls( page, 'capture_not_bot_altcha' );
-			const mutation = await mutateNotBotAltchaChallenge( page, ( challenge ) => {
+			const mutation = await mutateCaptureNotBotResponse( page, ( payload ) => {
+				const challenge = JSON.parse( payload.data.altcha_data.altcha_challenge );
 				challenge.parameters.expiresAt = Math.floor( Date.now() / 1000 ) - 60;
+				payload.data.altcha_data.altcha_challenge = JSON.stringify( challenge );
 			} );
 
 			const notbotResponse = waitForShieldAjaxAction( page, 'capture_not_bot' );

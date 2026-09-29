@@ -390,6 +390,16 @@ class StringsOptions {
 				];
 
 				break;
+			case 'silentcaptcha_cookie_free':
+				$name = __( 'Cookie-free silentCAPTCHA', 'wp-simple-firewall' );
+				$summary = __( 'Use browser storage instead of the silentCAPTCHA cookie', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Refresh checks initially run every 5 minutes on ordinary pages, 2 minutes on pages with any form (including search or footer forms), and 1 minute on native WordPress login pages.', 'wp-simple-firewall' ),
+					__( 'An IP address change may not be checked until the next refresh. If browser storage is unavailable, freshness lasts only in the current page.', 'wp-simple-firewall' ),
+					__( 'Existing silentCAPTCHA cookies expire naturally, including any custom cookie lifetime. Other WordPress and Shield cookies are unaffected.', 'wp-simple-firewall' ),
+					__( 'Purge page and asset caches and reload open pages after changing mode or deploying updated assets. This does not guarantee a cache hit.', 'wp-simple-firewall' ),
+				];
+				break;
 			case 'silentcaptcha_complexity':
 				$name = sprintf( __( '%s Complexity', 'wp-simple-firewall' ), $silentCaptcha );
 				$summary = sprintf( __( 'Adjust %s Challenge Complexity', 'wp-simple-firewall' ), $silentCaptcha );

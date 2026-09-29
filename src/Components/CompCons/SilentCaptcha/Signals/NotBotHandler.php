@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCapt
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Assets\InsertNotBotJs;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -37,6 +37,9 @@ class NotBotHandler {
 	}
 
 	public function sendNotBotFlagCookie() {
+		if ( self::con()->comps->opts_lookup->silentCaptchaMode() === 'cookie_free' ) {
+			return;
+		}
 		$cookieParts = $this->getNonRequiredSignals();
 		$cookieParts[] = 'exp-'.( Services::Request()->ts() + self::LIFETIME );
 		Services::Response()->cookieSet(
@@ -50,6 +53,18 @@ class NotBotHandler {
 		return \array_diff( $this->getSignalSlugs(), $this->getRequiredSignals() );
 	}
 
+	/**
+	 * @return array{mode:'cookie'|'cookie_free',required:list<'notbot'|'altcha'>,exchange_valid:bool}
+	 */
+	public function buildResponseState( bool $exchangeValid ) :array {
+		return [
+			'mode'           => self::con()->comps->opts_lookup->silentCaptchaMode(),
+			'required'       => $this->getRequiredSignals(),
+			'exchange_valid' => $exchangeValid,
+		];
+	}
+
+	/** @return list<'notbot'|'altcha'> */
 	public function getRequiredSignals() :array {
 		$con = self::con();
 		try {
