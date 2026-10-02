@@ -42,6 +42,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Render\RenderService;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
 
 /**
+ * @property CompCons\CentralController             $central
  * @property AuditCon                               $activity_log
  * @property AltChaHandler                          $altcha
  * @property AssetsCustomizer                       $assets_customizer
@@ -120,6 +121,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'backups'               => CompCons\BackupsCon::class,
 			'badge'                 => PluginBadge::class,
 			'bot_signals'           => BotSignalsController::class,
+			'central'               => CompCons\CentralController::class,
 			'comment_spam'          => CommentSpamCon::class,
 			'cool_down'             => CompCons\SilentCaptcha\CoolDownHandler::class,
 			'crowdsec'              => CrowdSecController::class,

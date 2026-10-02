@@ -7,7 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionNonce
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\NonceVerifyRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\Rest\ShieldCentral\Support\PairingTokenIssuer;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Rest\ShieldCentral\Support\CentralDisabledException;
 
 class ShieldCentralCreatePairingToken extends BaseAction {
 
@@ -19,8 +20,14 @@ class ShieldCentralCreatePairingToken extends BaseAction {
 	 * @throws \Exception
 	 */
 	protected function exec() {
+		try {
+			$issued = self::con()->comps->central->issuePairingToken();
+		}
+		catch ( CentralDisabledException $e ) {
+			throw new ActionException( $e->getMessage(), 0, $e );
+		}
 		$this->response()
-			 ->setPayload( ( new PairingTokenIssuer() )->issue() )
+			 ->setPayload( $issued )
 			 ->setPayloadSuccess( true );
 	}
 
