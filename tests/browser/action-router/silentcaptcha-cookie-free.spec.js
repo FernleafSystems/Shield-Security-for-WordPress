@@ -134,6 +134,18 @@ async function completion( page, key ) {
 	}, key );
 }
 async function settled( page ) { await page.waitForLoadState( 'networkidle' ); }
+async function loginReady( page ) {
+	// jQuery defers ready callbacks through timers. With a paused clock, the
+	// WordPress user-profile beforeunload handler can run before its form is set.
+	let ready = false;
+	await Promise.all( [
+		page.evaluate( () => new Promise( resolve => window.jQuery( () => resolve() ) ) ).then( () => { ready = true; } ),
+		expect.poll( async () => {
+			await page.clock.runFor( 1 );
+			return ready;
+		} ).toBe( true ),
+	] );
+}
 async function success( page, key, after = 0 ) {
 	await expect.poll( () => completion( page, key ) ).toBeGreaterThan( after );
 }
@@ -604,11 +616,13 @@ for ( const contextKind of [ 'form', 'parser-late-form', 'native-login', 'rename
 				await route.fulfill( { response, body } );
 			} );
 			await page.goto( isForm ? '/' : contextKind === 'native-login' ? '/wp-login.php' : '/shield-browser-login' );
+			if ( !isForm ) await loginReady( page );
 			await success( page, key );
 			if ( contextKind === 'parser-late-form' ) expect( await page.evaluate( () => window.beforeLateForm ) ).toEqual( { forms: 0, requests: 1 } );
 			expect( await page.evaluate( () => window.shield_vars_silentcaptcha.comps.silentcaptcha.config.is_login ) ).toBe( !isForm );
 			const first = await completion( page, key );
 			await page.reload();
+			if ( !isForm ) await loginReady( page );
 			await settled( page );
 			expect( counts.basic ).toBe( 1 );
 			const interval = isForm ? 120000 : 60000;
