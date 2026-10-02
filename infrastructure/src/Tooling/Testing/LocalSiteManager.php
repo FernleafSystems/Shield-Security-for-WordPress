@@ -176,10 +176,11 @@ class LocalSiteManager {
 		string $fixtureToken,
 		?callable $onOutput = null,
 		?array $hostManifest = null,
-		array $browserLabelEnv = []
+		array $browserLabelEnv = [],
+		bool $sharedDatabaseAlreadyReady = false
 	) :int {
 		$this->runPreflightChecks( $rootDir, $requirePlaywright );
-		if ( $this->definition->usesSharedDatabase() ) {
+		if ( $this->definition->usesSharedDatabase() && !$sharedDatabaseAlreadyReady ) {
 			$this->ensureSharedDatabaseReady( $rootDir, $onOutput, $browserLabelEnv );
 		}
 
@@ -214,6 +215,21 @@ class LocalSiteManager {
 		}
 		$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, false, $hostManifest, $browserLabelEnv );
 		return 0;
+	}
+
+	public function cleanupCentralBrowserFixture( string $fixtureToken ) :void {
+		$context = \stream_context_create( [ 'http' => [
+			'method' => 'POST',
+			'header' => "Content-Type: application/json\r\nX-Shield-Browser-Fixture-Token: ".$fixtureToken,
+			'content' => \json_encode( [ 'fixture' => 'central', 'action' => 'cleanup' ], \JSON_THROW_ON_ERROR ),
+			'timeout' => 20,
+			'ignore_errors' => true,
+		] ] );
+		$response = @\file_get_contents( $this->definition->siteUrl().'/wp-json/shield-browser-test/v1/fixture', false, $context );
+		$result = $response === false ? null : \json_decode( $response, true );
+		if ( !\is_array( $result ) || ( $result[ 'ok' ] ?? false ) !== true ) {
+			throw new \RuntimeException( 'Central fixture cleanup failed for browser lane '.$this->definition->siteUrl() );
+		}
 	}
 
 	/**
@@ -402,7 +418,7 @@ class LocalSiteManager {
 	/**
 	 * @param callable|null $onOutput Receives (string $type, string $buffer)
 	 */
-	private function ensureSharedDatabaseReady( string $rootDir, ?callable $onOutput = null, array $browserLabelEnv = [] ) :void {
+	public function ensureSharedDatabaseReady( string $rootDir, ?callable $onOutput = null, array $browserLabelEnv = [] ) :void {
 		$this->withSharedDatabaseLock( $rootDir, function () use ( $rootDir, $onOutput, $browserLabelEnv ) :void {
 			$composeFiles = [ $this->definition->sharedDatabaseComposeFile() ];
 			$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir, $browserLabelEnv );
