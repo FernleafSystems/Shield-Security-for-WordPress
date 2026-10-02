@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\{
 	FileScanOptimiser,
+	MalaiEarlyRecheck,
 	ReportToMalai,
 	RetrieveMalwareMalaiStatus
 };
@@ -161,6 +162,8 @@ class ScansController {
 	}
 
 	private function handlePostScanCron() {
+		$earlyRecheck = new MalaiEarlyRecheck();
+		add_action( $earlyRecheck->hook(), [ $earlyRecheck, 'run' ] );
 		add_action( self::con()->prefix( self::HOOK_POST_SCAN ), function () {
 			$this->runMalaiReconciliation();
 			$this->runAutoRepair();
@@ -169,8 +172,13 @@ class ScansController {
 	}
 
 	private function runMalaiReconciliation() :void {
-		( new ReportToMalai() )->run();
-		( new RetrieveMalwareMalaiStatus() )->reconcileActiveResults();
+		try {
+			( new ReportToMalai() )->run();
+			( new RetrieveMalwareMalaiStatus() )->reconcileActiveResults();
+		}
+		finally {
+			( new MalaiEarlyRecheck() )->schedule();
+		}
 	}
 
 	private function runAutoRepair() {
