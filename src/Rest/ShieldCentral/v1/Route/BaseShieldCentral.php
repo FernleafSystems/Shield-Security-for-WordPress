@@ -16,12 +16,14 @@ abstract class BaseShieldCentral extends \FernleafSystems\Wordpress\Plugin\Shiel
 	}
 
 	public function isRouteAvailable() :bool {
-		return true;
+		return self::con()->comps->central->isEnabled();
 	}
 
 	protected function verifyPermission( \WP_REST_Request $req ) {
 		unset( $req );
-		return true;
+		return self::con()->comps->central->isEnabled()
+			? true
+			: new \WP_Error( 'central_disabled', 'Central is disabled.', [ 'status' => 403 ] );
 	}
 
 	protected function getRequestProcessorClass() :string {
