@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansProgress;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ActionsQueueFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\CentralFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\DashboardDefaultsFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportFileFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportNetworkFixtureBuilder;
@@ -32,6 +33,8 @@ class BrowserFixtureRegistry {
 	 */
 	public static function run( string $fixture, string $action, array $args = [] ) :array {
 		switch ( $fixture ) {
+			case 'central':
+				return ( new CentralFixtureBuilder() )->run( $action );
 			case '__all__':
 				return self::runAllFixtures( $action );
 			case 'actions-queue':
@@ -86,6 +89,7 @@ class BrowserFixtureRegistry {
 		}
 
 		self::runActionsQueueFixture( 'cleanup', [] );
+		self::run( 'central', 'cleanup' );
 		self::runDashboardDefaultsFixture( 'cleanup' );
 		self::runImportExportFileFixture( 'cleanup' );
 		self::runImportExportNetworkFixture( 'cleanup' );

@@ -538,6 +538,25 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertGreaterThan( $marker[ 'created_at_unix' ] ?? 0, $marker[ 'expires_at_unix' ] ?? 0 );
 	}
 
+	public function testPreparedSharedDatabaseIsNotRestartedByChildLane() :void {
+		$runner = new RecordingProcessRunner( [ 0, 0, 0, 0, 0, 0, 0 ] );
+		$compose = new RecordingDockerComposeExecutor( [ 0, 0 ] );
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::browserLane( 2 ),
+			$runner,
+			new RecordingTestingEnvironmentResolver(),
+			$compose,
+			new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] ),
+			new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] )
+		);
+		$this->assertSame( 0, $manager->prepareBrowserLane( $this->projectRoot, 'clean', false, 'fixture-token', static function () :void {}, null, [], true ) );
+		$this->assertCount( 2, $compose->calls );
+		foreach ( $compose->calls as $call ) {
+			$this->assertSame( [ 'tests/docker/docker-compose.browser-lane.yml' ], $call[ 'compose_files' ] );
+		}
+		$this->findProcessCommandContaining( $runner, 'DROP DATABASE IF EXISTS `shield_test_site_lane_2`; CREATE DATABASE `shield_test_site_lane_2`;' );
+	}
+
 	public function testPrepareBrowserLaneWarmEnsuresSchemaAndSkipsBaselineWithValidMarkerAndHealthySite() :void {
 		$hostManifest = [
 			'schema_version' => 1,

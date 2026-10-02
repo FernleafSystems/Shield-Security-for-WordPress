@@ -3,6 +3,7 @@
 namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
+use Symfony\Component\Process\Process;
 
 class BrowserTestLane {
 
@@ -50,6 +51,20 @@ class BrowserTestLane {
 	 * @param array{mode?:?string,lanes?:?string,show_setup_output?:bool,runtime_refresh?:?string} $options
 	 */
 	public function run( string $rootDir, array $playwrightArgs = [], array $options = [] ) :int {
+		return $this->execute( $rootDir, $playwrightArgs, $options );
+	}
+
+	/**
+	 * Keep the lane leases alive until the external browser consumer finishes.
+	 * @param callable(array<int|string,array<string,int|string>>):int $consumer
+	 * @param array{mode?:?string,lanes?:?string,show_setup_output?:bool,runtime_refresh?:?string} $options
+	 */
+	public function runWithConsumer( string $rootDir, callable $consumer, array $options = [] ) :int {
+		$lanes = $this->resolveLaneCount( $options[ 'lanes' ] ?? null );
+		return $this->execute( $rootDir, [ '--workers='.$lanes ], $options, $consumer );
+	}
+
+	private function execute( string $rootDir, array $playwrightArgs, array $options, ?callable $consumer = null ) :int {
 		echo 'Mode: browser'.\PHP_EOL;
 
 		$playwrightArgs = $this->normalizePlaywrightArgs( $playwrightArgs );
@@ -151,6 +166,7 @@ class BrowserTestLane {
 		$laneMap = [];
 		$parallelIndex = 0;
 		$exitCode = 0;
+		$preparations = [];
 		foreach ( $leases as $lease ) {
 			try {
 				$siteManager = $this->providedSiteManager ?? new LocalSiteManager( $lease->definition() );
@@ -160,6 +176,9 @@ class BrowserTestLane {
 					$transientExpiresAt,
 					$reusableExpiresAt
 				);
+				if ( $parallelIndex === 0 ) {
+					$siteManager->ensureSharedDatabaseReady( $rootDir, $showSetupOutput ? null : static function () :void {}, $labelEnv );
+				}
 
 				echo \sprintf(
 					'Browser lane: prepare lane %d at %s (%s)',
@@ -168,15 +187,34 @@ class BrowserTestLane {
 					$runMode
 				).\PHP_EOL;
 				$fixtureToken = \bin2hex( \random_bytes( 24 ) );
-				$siteManager->prepareBrowserLane(
-					$rootDir,
-					$runMode,
-					true,
-					$fixtureToken,
-					$showSetupOutput ? null : static function () :void {},
-					$hostManifest,
-					$labelEnv
-				);
+				if ( $this->providedSiteManager === null && $workerCount > 1 ) {
+					$process = new Process( [ \PHP_BINARY, __DIR__.'/prepare-browser-lane.php' ], $rootDir );
+					$process->setInput( \json_encode( [
+						'laneIndex' => $lease->laneIndex(),
+						'mode' => $runMode,
+						'requirePlaywright' => $consumer === null,
+						'fixtureToken' => $fixtureToken,
+						'hostManifest' => $hostManifest,
+						'labelEnv' => $labelEnv,
+					], \JSON_THROW_ON_ERROR ) );
+					$process->setTimeout( 600 );
+					$process->start( $showSetupOutput ? static function ( string $type, string $buffer ) :void {
+						echo $buffer;
+					} : null );
+					$preparations[ $lease->laneIndex() ] = $process;
+				}
+				else {
+					$siteManager->prepareBrowserLane(
+						$rootDir,
+						$runMode,
+						$consumer === null,
+						$fixtureToken,
+						$showSetupOutput ? null : static function () :void {},
+						$hostManifest,
+						$labelEnv,
+						true
+					);
+				}
 				$laneMap[ (string)$parallelIndex ] = [
 					'laneIndex'     => $lease->laneIndex(),
 					'baseUrl'       => $lease->definition()->siteUrl(),
@@ -194,14 +232,54 @@ class BrowserTestLane {
 		}
 
 		try {
+			// Drain every child's pipes so large manifests and diagnostics cannot serialize preparation.
+			do {
+				$running = false;
+				foreach ( $preparations as $laneIndex => $process ) {
+					if ( $process->isRunning() ) {
+						$process->checkTimeout();
+						$running = true;
+					}
+					elseif ( !$process->isSuccessful() ) {
+						throw new \RuntimeException( 'Browser lane '.$laneIndex.' preparation failed: '.$process->getErrorOutput().$process->getOutput() );
+					}
+				}
+				if ( $running ) {
+					\usleep( 10000 );
+				}
+			} while ( $running );
 			if ( $exitCode === 0 ) {
-				$exitCode = $this->runPlaywright(
+				foreach ( $laneMap as $lane ) {
+					( $this->providedSiteManager ?? new LocalSiteManager( $leases[ $lane[ 'laneIndex' ] ]->definition() ) )->cleanupCentralBrowserFixture( $lane[ 'fixtureToken' ] );
+				}
+				$exitCode = $consumer !== null ? $consumer( $laneMap ) : $this->runPlaywright(
 					$rootDir,
 					$this->withResolvedWorkers( $playwrightArgs, $workerCount ),
 					$laneMap
 				);
 			}
-
+		}
+		catch ( \Throwable $throwable ) {
+			$this->writeFailureDiagnostic( 'browser consumer', $throwable, null );
+			$exitCode = 1;
+		}
+		finally {
+			foreach ( $preparations as $process ) {
+				if ( $process->isRunning() ) {
+					$process->stop();
+				}
+			}
+			if ( $consumer !== null ) {
+				foreach ( $laneMap as $lane ) {
+					try {
+						( $this->providedSiteManager ?? new LocalSiteManager( $leases[ $lane[ 'laneIndex' ] ]->definition() ) )->cleanupCentralBrowserFixture( $lane[ 'fixtureToken' ] );
+					}
+					catch ( \Throwable $throwable ) {
+						$this->writeFailureDiagnostic( 'cleanup Central fixture', $throwable, $leases[ $lane[ 'laneIndex' ] ] );
+						$exitCode = 1;
+					}
+				}
+			}
 			$cleanupFindings = $this->cleanupRunResourcesSafely(
 				$rootDir,
 				$runId,
@@ -213,11 +291,9 @@ class BrowserTestLane {
 				$exitCode = 1;
 			}
 
-			return $exitCode;
-		}
-		finally {
 			$this->releaseLeases( $leases );
 		}
+		return $exitCode;
 	}
 
 	/**

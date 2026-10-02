@@ -282,7 +282,7 @@ class BrowserTestLaneTest extends TestCase {
 		$lanePool = new BrowserTestLanePool();
 		$siteManager = $this->getMockBuilder( LocalSiteManager::class )
 			->disableOriginalConstructor()
-			->onlyMethods( [ 'prepareBrowserLane' ] )
+			->onlyMethods( [ 'prepareBrowserLane', 'ensureSharedDatabaseReady', 'cleanupCentralBrowserFixture' ] )
 			->getMock();
 		$siteManager->expects( $this->once() )
 			->method( 'prepareBrowserLane' )
@@ -313,7 +313,7 @@ class BrowserTestLaneTest extends TestCase {
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
 		$siteManager = $this->getMockBuilder( LocalSiteManager::class )
 			->disableOriginalConstructor()
-			->onlyMethods( [ 'prepareBrowserLane' ] )
+			->onlyMethods( [ 'prepareBrowserLane', 'ensureSharedDatabaseReady', 'cleanupCentralBrowserFixture' ] )
 			->getMock();
 		$siteManager->expects( $this->once() )
 			->method( 'prepareBrowserLane' )
@@ -356,26 +356,61 @@ class BrowserTestLaneTest extends TestCase {
 		$this->assertCount( 0, $playwrightRunner->calls );
 	}
 
+	public function testExternalConsumerRetainsLeasesAndCleansUpAfterFailure() :void {
+		$this->clearBrowserEnvironment();
+		$root = $this->createTrackedTempDir( 'shield-browser-consumer-' );
+		$runner = new RecordingProcessRunner();
+		$pool = new BrowserTestLanePool();
+		$manager = $this->buildSiteManagerMock( 1, 'warm', false );
+		$manager->expects( $this->exactly( 2 ) )->method( 'cleanupCentralBrowserFixture' );
+		$sweeper = new RecordingDockerResourceSweeper();
+		$called = false;
+		$lane = new BrowserTestLane( $runner, $manager, $pool, new RecordingLocalSiteRuntimeHostManifestProvider(), new RecordingSourceGeneratedConfigReadiness(), new RecordingSourceAssetBuildReadiness(), $sweeper );
+		$result = $this->runQuietly( function () use ( $lane, $root, &$called ) :int {
+			return $lane->runWithConsumer( $root, function ( array $map ) use ( &$called, $root ) :int {
+				$called = true;
+				$this->assertCount( 1, $map );
+				$this->assertSame( 1, $map[ 0 ][ 'laneIndex' ] );
+				$handle = \fopen( $root.'/tmp/browser-test-lanes/lane-1.lock', 'r' );
+				try {
+					$this->assertFalse( \flock( $handle, \LOCK_EX | \LOCK_NB ) );
+				}
+				finally {
+					\fclose( $handle );
+				}
+				throw new \RuntimeException( 'consumer failed' );
+			}, [ 'lanes' => '1' ] );
+		} );
+		$this->assertTrue( $called );
+		$this->assertSame( 1, $result );
+		$this->assertCount( 0, $runner->calls );
+		$this->assertCount( 1, $sweeper->cleanupRunResourcesCalls );
+		$lease = $pool->acquire( $root, static function () :void {}, [], 1 );
+		$this->assertSame( 1, $lease->laneIndex() );
+		$lease->release();
+	}
+
 	/**
 	 * @return LocalSiteManager&MockObject
 	 */
-	private function buildSiteManagerMock( int $prepareCalls, string $expectedMode ) :LocalSiteManager {
+	private function buildSiteManagerMock( int $prepareCalls, string $expectedMode, bool $requirePlaywright = true ) :LocalSiteManager {
 		$siteManager = $this->getMockBuilder( LocalSiteManager::class )
 			->disableOriginalConstructor()
-			->onlyMethods( [ 'prepareBrowserLane' ] )
+			->onlyMethods( [ 'prepareBrowserLane', 'ensureSharedDatabaseReady', 'cleanupCentralBrowserFixture' ] )
 			->getMock();
 		$siteManager->expects( $this->exactly( $prepareCalls ) )
 			->method( 'prepareBrowserLane' )
 			->with(
 				$this->isType( 'string' ),
 				$expectedMode,
-				true,
+				$requirePlaywright,
 				$this->callback( static fn( string $token ) :bool => \preg_match( '/^[a-f0-9]{48}$/', $token ) === 1 ),
 				$this->isType( 'callable' ),
 				$this->isType( 'array' ),
 				$this->isType( 'array' )
 			)
 			->willReturn( 0 );
+		$siteManager->expects( $this->exactly( $prepareCalls > 0 ? 1 : 0 ) )->method( 'ensureSharedDatabaseReady' );
 
 		return $siteManager;
 	}

@@ -117,6 +117,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 			$this->routeCallback();
 
 			$actions = \shield_browser_fixture_allowed_actions();
+			$this->assertSame( [ 'reset', 'issue-token', 'revoke-connection', 'inspect', 'cleanup' ], $actions[ 'central' ] );
 
 			$this->assertSame(
 				[ 'seed', 'cleanup', 'inspect', 'reset-defaults', 'prepare-actions-all-clear', 'prepare-maintenance-warning' ],
