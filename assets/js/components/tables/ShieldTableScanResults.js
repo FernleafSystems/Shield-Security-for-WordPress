@@ -50,6 +50,10 @@ export class ShieldTableScanResults extends ShieldTableBase {
 		const baseButtons = /** @type {any[]} */ ( super.getButtons() );
 		return baseButtons.concat(
 			buildScanResultsButtons( {
+				malwareRefresh: this._base_data.vars.malware_refresh === null ? null : {
+					...this._base_data.vars.malware_refresh,
+					onRefresh: ( launcher ) => this.refreshMalwareAssessments( launcher ),
+				},
 				displayFilters: {
 					onToggle: ( optionKey ) => this.toggleResultsDisplayOption( optionKey ),
 				},
@@ -61,6 +65,31 @@ export class ShieldTableScanResults extends ShieldTableBase {
 	rowSelectionChanged() {
 		syncScanResultsSelectionButtons( this.$table );
 		this.syncDynamicUi();
+	}
+
+	refreshMalwareAssessments( launcher ) {
+		if ( this.malwareRefreshPending ) {
+			return;
+		}
+
+		this.malwareRefreshPending = true;
+		const button = this.$table.button( 'refresh-malware-assessments:name' );
+		button.disable();
+		const data = ObjectOps.ObjClone( this._base_data.ajax.table_action );
+		data.sub_action = 'refresh_malware_assessments';
+
+		return this.sendTableActionRequest( this.$table, data, 'Communications error with site.', {
+			resetPaging: false,
+			launcher,
+		} ).then( ( resp ) => {
+			if ( resp?.success === false && this.extractResponseData( resp ).table_reload === true ) {
+				this.tableReload( this.$table, { resetPaging: false } );
+				this.el.dispatchEvent( new CustomEvent( 'shield:scan-results-changed', { bubbles: true } ) );
+			}
+		} ).catch( () => null ).finally( () => {
+			this.malwareRefreshPending = false;
+			button.enable();
+		} );
 	}
 
 	datatablesAjaxRequest( data, callback, settings ) {

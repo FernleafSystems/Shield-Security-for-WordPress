@@ -44,10 +44,8 @@ class MalaiEarlyRecheck {
 			$retriever->limit = self::PAGE_SIZE;
 			$retriever->addWheres( [
 				sprintf( '`ri`.`id`>%d', $lastSeenID ),
-				'`ri`.`ignored_at`=0',
-				'`ri`.`auto_filtered_at`=0',
 			] );
-			$items = $retriever->retrieveLatestForFindings( [ 'is_mal' ] )->getAllItems();
+			$items = $retriever->retrieveActiveProblemFindings( [ 'is_mal' ] )->getAllItems();
 			foreach ( $items as $item ) {
 				if ( !$item instanceof ResultItem ) {
 					throw new \UnexpectedValueException( 'AFS result set contained an invalid item type.' );
@@ -80,7 +78,7 @@ class MalaiEarlyRecheck {
 
 	public function run() :void {
 		try {
-			( new RetrieveMalwareMalaiStatus() )->reconcileActiveResults( true );
+			( new RetrieveMalwareMalaiStatus() )->reconcileActiveResults( RetrieveMalwareMalaiStatus::MODE_EARLY );
 		}
 		catch ( \Throwable $e ) {
 			error_log( 'Shield early malware recheck failed: '.$e->getMessage() );

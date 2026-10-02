@@ -667,6 +667,7 @@ class ActionsQueueFixtureBuilder {
 	/** @phpstan-param FixtureState $state */
 	private function seedMalwareAssessments( array &$state ) :array {
 		$definition = $this->seedMalwareDirectTable( $state );
+		RuntimeTestState::applyPremiumCapabilities( [ 'scan_malware_local', 'scan_malware_malai' ] );
 		$definition[ 'scenario' ] = 'malware_assessments';
 		RuntimeTestState::requireDbHandler( 'malware', true );
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
