@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Use only provider-neutral reason codes to explain unclassified MALAI assessments.
+- Allow authorized administrators to refresh active malware assessments from MALAI immediately using the existing table controls and definitive-clean reconciliation rules.
 - Clarify malware assessments, including inconclusive results, and check unresolved reports again after ten minutes. Only definitive clean verdicts automatically clear malware findings.
 - Keep successful network settings imports from being reported as timed out when the master encounters one transient database write failure.
 - Allow authorized import/export clients without a stored Import ID to complete callback verification against their stored trusted target, while preserving private-target, credential, cooldown, and callback rejection controls.
