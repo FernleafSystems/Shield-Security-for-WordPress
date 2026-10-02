@@ -51,17 +51,22 @@ test( 'cookie mode ignores configured free timings and removes populated feature
 	await scenario( browser, lane, fixtureApi, async ( { page, counts, key, start } ) => {
 		await fixtureApi.setNotBotTiming( { ordinary: 3, form: 2, login: 1 } );
 		await page.addInitScript( ( { key, start } ) => localStorage.setItem( key, JSON.stringify( { completed_at: start } ) ), { key, start } );
+		const altchaResponse = waitForShieldAjaxAction( page, 'capture_not_bot_altcha' );
 		await page.goto( '/?force_notbot=1' );
 		await settled( page );
 		await page.clock.runFor( 1 );
+		// Server-side success can precede response delivery and the next browser timer.
+		await expectShieldAjaxSuccess( await altchaResponse );
 		await expect.poll( async () => ( await fixtureApi.inspectNotBotAltchaFixture() ).altcha_at ).toBeGreaterThan( 0 );
 		await settled( page );
 		expect( await completion( page, key ) ).toBe( 0 );
 		await page.clock.runFor( 14000 );
 		await wake( page );
 		expect( counts ).toEqual( { basic: 1, altcha: 1 } );
+		const nextResponse = waitForShieldAjaxAction( page, 'capture_not_bot' );
 		await page.clock.runFor( 1001 );
 		await expect.poll( () => counts.basic ).toBe( 2 );
+		await expectShieldAjaxSuccess( await nextResponse );
 	}, { allowCookies: true, mode: 'cookie' } );
 } );
 
@@ -244,8 +249,12 @@ for ( const fault of [ 'transport', 'missing', 'unsuccessful', 'invalid', 'unkno
 			await page.clock.runFor( 299999 );
 			await wake( page );
 			expect( counts.basic ).toBe( 1 );
+			// Finish the retry before scenario cleanup closes its request context.
+			const retryFinished = page.waitForEvent( fault === 'transport' ? 'requestfailed' : 'requestfinished',
+				request => requestActionSlug( request ) === 'capture_not_bot' );
 			await page.clock.runFor( 1 );
 			await expect.poll( () => counts.basic ).toBe( 2 );
+			await retryFinished;
 			expect( counts.altcha ).toBe( 0 );
 		} );
 	} );
