@@ -9,6 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retri
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\BuildScanTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\RetrieveMalwareMalaiStatus;
+use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class ScanResultsTableAction extends ScansBase {
 
@@ -67,9 +69,21 @@ class ScanResultsTableAction extends ScansBase {
 			return $response;
 		}
 
-		$response[ 'table_reload' ] = true;
 		$response[ 'message' ] = __( 'The refresh could not be completed. Please try again.', 'wp-simple-firewall' );
 		try {
+			$key = self::con()->prefix( 'malai_manual_refresh', '_' );
+			$now = Services::Request()->ts();
+			$remaining = (int)Transient::Get( $key, 0 ) - $now;
+			if ( $remaining > 0 ) {
+				$response[ 'message' ] = sprintf(
+					/* translators: 1: minutes remaining, 2: seconds remaining */
+					__( 'Malware assessments can be refreshed once every 5 minutes. Please wait %1$d min %2$d sec and try again.', 'wp-simple-firewall' ),
+					\intdiv( $remaining, 60 ), $remaining % 60
+				);
+				return $response;
+			}
+			Transient::Set( $key, $now + 300, 300 );
+			$response[ 'table_reload' ] = true;
 			try {
 				$result = ( new RetrieveMalwareMalaiStatus() )->reconcileActiveResults( RetrieveMalwareMalaiStatus::MODE_MANUAL );
 			}

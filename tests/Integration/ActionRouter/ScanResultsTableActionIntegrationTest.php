@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PluginAdminRouteRuntime;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use PHPUnit\Framework\ExpectationFailedException;
@@ -34,6 +35,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'scan_result_item_meta' );
 		$this->loginAsSecurityAdmin();
 		$this->requireController()->this_req->wp_is_ajax = false;
+		Transient::Delete( self::con()->prefix( 'malai_manual_refresh', '_' ) );
 		$this->requireController()->opts
 			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
 			 ->optSet( 'file_scan_areas', [ 'wp' ] )
@@ -72,8 +74,15 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		Transient::Set( 'apto-wphashes-api-available-routes', '#.*#', 300 );
 		$requests = [];
-		$filter = static function ( $pre, array $args, string $url ) use ( &$requests, $hashes, $partialFailure ) {
+		$filter = function ( $pre, array $args, string $url ) use ( &$requests, $hashes, $partialFailure ) {
 			$requests[] = [ 'url' => $url, 'method' => $args[ 'method' ], 'body' => $args[ 'body' ] ];
+			$this->assertCount( 1, $requests );
+			// A second request is rejected even while the first API lookup is still running.
+			$blocked = $this->processScanResultsAction( [
+				'sub_action' => 'refresh_malware_assessments', 'type' => 'malware', 'file' => 'malware',
+			] );
+			$this->assertFalse( $blocked[ 'success' ] );
+			$this->assertFalse( $blocked[ 'table_reload' ] );
 			$statuses = [ $hashes[ 'clean' ] => 'clean' ];
 			if ( !$partialFailure ) {
 				$statuses[ $hashes[ 'pending' ] ] = 'predicted_clean';
@@ -89,6 +98,11 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 				'results_display_options' => ( new ScanResultsDisplayOptions() )->ignoredOnly(),
 				'rids' => [ $findings[ 'ignored' ][ 'result_item_id' ] ],
 			] );
+			$blocked = $this->processScanResultsAction( [
+				'sub_action' => 'refresh_malware_assessments', 'type' => 'malware', 'file' => 'malware',
+			] );
+			$this->assertFalse( $blocked[ 'success' ] );
+			$this->assertFalse( $blocked[ 'table_reload' ] );
 		}
 		finally {
 			\remove_filter( 'pre_http_request', $filter, 10 );
@@ -111,6 +125,41 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
 	public static function malwareRefreshResponseProvider() :array {
 		return [ 'success' => [ false ], 'partial failure' => [ true ] ];
+	}
+
+	/** @dataProvider malwareRefreshWaitProvider */
+	public function test_manual_malware_refresh_enforces_transient_wait( int $seconds, bool $allowed ) :void {
+		$this->enablePremiumCapabilities( [ 'scan_malware_malai' ] );
+		$key = self::con()->prefix( 'malai_manual_refresh', '_' );
+		$now = Services::Request()->ts();
+		$nextAllowed = $now + $seconds;
+		// WordPress can return scalar option values as strings after a database read.
+		Transient::Set( $key, (string)$nextAllowed, 300 );
+		$snapshot = ServicesState::snapshot();
+		$request = $this->createPartialMock( \FernleafSystems\Wordpress\Services\Core\Request::class, [ 'ts' ] );
+		$request->applyFromArray( Services::Request()->getRawData() );
+		$request->method( 'ts' )->willReturn( $now );
+		ServicesState::mergeItems( [ 'service_request' => $request ] );
+		try {
+			$payload = $this->processScanResultsAction( [
+				'sub_action' => 'refresh_malware_assessments', 'type' => 'malware', 'file' => 'malware',
+			] );
+		}
+		finally {
+			ServicesState::restore( $snapshot );
+		}
+		$this->assertSame( $allowed, $payload[ 'success' ] );
+		$this->assertSame( $allowed, $payload[ 'table_reload' ] );
+		$this->assertFalse( $payload[ 'page_reload' ] );
+		$this->assertSame( $allowed ? $now + 300 : $nextAllowed, (int)Transient::Get( $key ) );
+		if ( !$allowed ) {
+			$this->assertStringContainsString( sprintf( '%d min %d sec', \intdiv( $seconds, 60 ), $seconds % 60 ), $payload[ 'message' ] );
+		}
+	}
+
+	public static function malwareRefreshWaitProvider() :array {
+		return [ 'full wait' => [ 300, false ], 'minutes and seconds' => [ 61, false ],
+			'last second' => [ 1, false ], 'exact expiry' => [ 0, true ], 'expired' => [ -1, true ] ];
 	}
 
 	/** @dataProvider malwareRefreshRejectionProvider */

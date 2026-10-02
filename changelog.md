@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Limit manual malware assessment refreshes to once every five minutes per site, with a dialogue showing the remaining wait.
 - Use only provider-neutral reason codes to explain unclassified MALAI assessments.
 - Allow authorized administrators to refresh active malware assessments from MALAI immediately using the existing table controls and definitive-clean reconciliation rules.
 - Clarify malware assessments, including inconclusive results, and check unresolved reports again after ten minutes. Only definitive clean verdicts automatically clear malware findings.
