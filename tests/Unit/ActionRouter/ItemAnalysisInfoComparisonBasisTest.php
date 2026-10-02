@@ -4,10 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis\Info;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\HashVerificationResult;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\MalwareAssessmentPresenter;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Services\Core\CoreFileHashes;
 use FernleafSystems\Wordpress\Services\Core\General;
 use FernleafSystems\Wordpress\Services\Utilities\DataManipulation;
@@ -19,6 +23,13 @@ class ItemAnalysisInfoComparisonBasisTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+		$controller->caps = new class {
+			public function canScanMalwareMalai() :bool {
+				return false;
+			}
+		};
+		PluginControllerInstaller::install( $controller );
 		$this->servicesSnapshot = ServicesState::snapshot();
 		ServicesState::installItems( [
 			'service_datamanipulation' => new DataManipulation(),
@@ -38,6 +49,7 @@ class ItemAnalysisInfoComparisonBasisTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
@@ -125,6 +137,24 @@ class ItemAnalysisInfoComparisonBasisTest extends BaseUnitTest {
 		return ( new ItemAnalysisInfoComparisonBasisTestDouble( [
 			'scan_item' => $item,
 		] ) )->renderDataForTest()[ 'vars' ][ 'file_description' ];
+	}
+
+	public function test_info_uses_shared_assessment_and_keeps_independent_finding_description() :void {
+		$record = new Record();
+		$record->malai_status = 'predicted_clean';
+		$record->malai_status_context = '';
+		$item = $this->pluginItem( [
+			'is_mal' => true,
+			'is_checksumfail' => true,
+			'comparison_basis' => HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE,
+		] )->setMalwareRecord( $record );
+		$data = ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $item ] ) )->renderDataForTest();
+		$this->assertTrue( $data[ 'flags' ][ 'show_malai_status' ] );
+		$this->assertSame( ( new MalwareAssessmentPresenter() )->present( $record, false ), $data[ 'vars' ][ 'malware_assessment' ] );
+		$this->assertCount( 2, $data[ 'vars' ][ 'file_description' ] );
+		$item->is_mal = false;
+		$withoutMalware = ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $item ] ) )->renderDataForTest();
+		$this->assertSame( $withoutMalware[ 'vars' ][ 'file_description' ], $data[ 'vars' ][ 'file_description' ] );
 	}
 
 	private function pluginItem( array $properties ) :ResultItem {

@@ -145,6 +145,21 @@
             ]
           }
         ]
+      },
+      {
+        "version":     "4",
+        "released_at": 1790000000,
+        "items":       [
+          {
+            "type":        "improved",
+            "title":       "Updated Malware/MAL{ai} Results Presentation",
+            "commit":      "a69aa5dc",
+            "description": [
+              "Enhanced the presentation of malware scanning results based on the improvements with MAL{ai} v3."
+            ],
+            "href":        "https://clk.shldscrty.com/om"
+          }
+        ]
       }
     ]
   },
