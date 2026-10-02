@@ -19,6 +19,7 @@ class ShieldCentralRoutesIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function set_up() {
 		parent::set_up();
+		\add_filter( 'shield/central/enabled', '__return_true' );
 		$this->requireDb( 'scans' );
 		$this->requireDb( 'scan_results' );
 		$this->requireDb( 'scan_result_items' );
@@ -32,7 +33,40 @@ class ShieldCentralRoutesIntegrationTest extends ShieldIntegrationTestCase {
 	public function tear_down() {
 		\delete_option( PairingTokenStore::OPTION_KEY );
 		\delete_option( ConnectionStore::OPTION_KEY );
+		\remove_filter( 'shield/central/enabled', '__return_true' );
+		$this->resetRestServer();
 		parent::tear_down();
+	}
+
+	public function test_default_off_routes_are_absent_and_retained_permission_callback_rejects() :void {
+		$server = $this->resetRestServer();
+		$this->assertArrayHasKey( '/shield/v1/shield-central/pair/bootstrap', $server->get_routes() );
+		\remove_filter( 'shield/central/enabled', '__return_true' );
+		$request = new \WP_REST_Request( 'POST', '/shield/v1/shield-central/pair/bootstrap' );
+		$request->set_param( 'pairing_token', 'token' );
+		$request->set_param( 'site_url', 'https://example.org' );
+		$response = $server->dispatch( $request );
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'central_disabled', $response->get_data()['code'] );
+		foreach ( \array_keys( $this->resetRestServer()->get_routes() ) as $route ) {
+			$this->assertFalse( \strpos( $route, '/shield/v1/shield-central/' ) === 0 );
+		}
+		$this->assertSame( 404, $this->dispatchPostRoute( '/shield/v1/shield-central/pair/bootstrap', [
+			'pairing_token' => 'token', 'site_url' => 'https://example.org',
+		] )->get_status() );
+	}
+
+	public function test_disabled_action_does_not_issue_token_for_authorized_admin() :void {
+		$this->loginAsSecurityAdmin();
+		$this->enablePremiumCapabilities( [ 'rest_api_level_1' ] );
+		$nonce = ActionNonce::Create( ShieldCentralCreatePairingToken::class );
+		\remove_filter( 'shield/central/enabled', '__return_true' );
+		$response = $this->assertSuccessfulResponse( $this->dispatchPostRoute(
+			'/shield/v1/action/'.ShieldCentralCreatePairingToken::SLUG,
+			[ ActionData::FIELD_NONCE => $nonce, 'payload' => [] ]
+		) );
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( [], \get_option( PairingTokenStore::OPTION_KEY, [] ) );
 	}
 
 	public function test_pairing_sync_and_unpair_routes_use_app_level_contract_without_wp_login() :void {
@@ -136,6 +170,19 @@ class ShieldCentralRoutesIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( (bool)$response[ 'data' ][ 'success' ] );
 		$this->assertArrayNotHasKey( 'pairing_token', $response[ 'data' ] );
 		\wp_set_current_user( $userId );
+	}
+
+	public function test_logged_in_admin_without_security_admin_cannot_issue_token() :void {
+		$this->enablePremiumCapabilities( [ 'rest_api_level_1' ] );
+		$this->loginAsSecurityAdmin();
+		$nonce = ActionNonce::Create( ShieldCentralCreatePairingToken::class );
+		$this->setSecurityAdminContext( false );
+		$response = $this->assertSuccessfulResponse( $this->dispatchPostRoute(
+			'/shield/v1/action/'.ShieldCentralCreatePairingToken::SLUG,
+			[ ActionData::FIELD_NONCE => $nonce, 'payload' => [] ]
+		) );
+		$this->assertArrayNotHasKey( 'pairing_token', $response[ 'data' ] );
+		$this->assertSame( [], \get_option( PairingTokenStore::OPTION_KEY, [] ) );
 	}
 
 	public function test_pairing_token_action_rejects_invalid_nonce() :void {

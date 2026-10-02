@@ -145,6 +145,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 
 		private array $servicesSnapshot = [];
 
+		private bool $centralEnabled = true;
+
 		protected function setUp() :void {
 			parent::setUp();
 			\WP_CLI::reset();
@@ -152,6 +154,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 			Functions\when( '__' )->returnArg();
 			Functions\when( 'wp_date' )->alias( static fn( string $format, int $timestamp ) :string => \gmdate( $format, $timestamp ) );
 			Functions\when( 'delete_transient' )->justReturn( true );
+			\Brain\Monkey\Filters\expectApplied( 'shield/central/enabled' )->andReturnUsing( fn() => $this->centralEnabled );
 			$this->servicesSnapshot = ServicesState::snapshot();
 		}
 
@@ -218,6 +221,24 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 			$this->assertNotEmpty( $item[ 'expires_at' ] );
 			$this->assertTrue( ( new PairingTokenStore() )->isValid( (string)$item[ 'pairing_token' ] ) );
 			$this->assertContains( 'success', \array_column( \WP_CLI::$events, 'type' ) );
+		}
+
+		public function test_central_disabled_rejects_direct_cli_and_keeps_capability_registration_gate() :void {
+			$state = $this->installController();
+			$this->centralEnabled = false;
+			( new ShieldCentralPairingToken() )->execute();
+			$this->assertArrayNotHasKey( 'shield shieldcentral pairing-token', \WP_CLI::$commands );
+			try {
+				( new ShieldCentralPairingToken() )->execCmd( [], [] );
+				$this->fail( 'Disabled CLI invocation issued a token.' );
+			}
+			catch ( \WP_CLI\ExitException $e ) {
+				$this->assertSame( [], \get_option( PairingTokenStore::OPTION_KEY, [] ) );
+			}
+			$this->centralEnabled = true;
+			$state->controller->caps->allowed = false;
+			( new ShieldCentralPairingToken() )->execute();
+			$this->assertArrayNotHasKey( 'shield shieldcentral pairing-token', \WP_CLI::$commands );
 		}
 
 		public function test_config_option_commands_read_list_and_write_option_state() :void {
@@ -434,8 +455,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 			};
 			$controller = UnitTestControllerFactory::install( null, null, (object)[
 				'caps'       => new class {
+					public bool $allowed = true;
 					public function canWpcliLevel2() :bool {
-						return true;
+						return $this->allowed;
 					}
 				},
 				'cfg'        => (object)[
@@ -452,10 +474,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 						return $brand;
 					}
 				},
+				'this_req'   => (object)[ 'is_force_off' => false ],
 				'opts'       => $opts,
 				'comps'      => (object)[
 					'asset_coordinator' => $assetCoordinator,
+					'central'           => new \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CentralController(),
 					'opts_lookup'       => new class {
+						public function isPluginEnabled() :bool {
+							return true;
+						}
 					},
 					'scans'             => $scans,
 				],
@@ -512,7 +539,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 							unset( $event, $meta );
 						}
 					},
-					'opts_lookup' => new class {
+					'opts_lookup'       => new class {
 						public function getXferExcluded() :array {
 							return [];
 						}
