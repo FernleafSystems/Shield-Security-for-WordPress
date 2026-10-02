@@ -548,9 +548,11 @@ test( 'cookie-free adopts cookie mode and clears only feature freshness', async 
 
 test( 'cookie mode adopts cookie-free after old-cycle cleanup without completing the mismatched response', async ( { browser, lane, fixtureApi } ) => {
 	await scenario( browser, lane, fixtureApi, async ( { page, counts, key } ) => {
+		const altchaResponse = waitForShieldAjaxAction( page, 'capture_not_bot_altcha' );
 		await page.goto( '/?force_notbot=1' );
 		await settled( page );
 		await page.clock.runFor( 1 );
+		await expectShieldAjaxSuccess( await altchaResponse );
 		await expect.poll( async () => ( await fixtureApi.inspectNotBotAltchaFixture() ).altcha_at ).toBeGreaterThan( 0 );
 		await settled( page );
 		expect( counts ).toEqual( { basic: 1, altcha: 1 } );
