@@ -2,6 +2,10 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrowserFixtureRegistry;
 
+\add_filter( 'shield/central/enabled', static function ( bool $enabled ) :bool {
+	return $enabled || (bool)\get_option( 'shield_browser_fixture_central_enabled', false );
+} );
+
 \add_action( 'after_setup_theme', static function () :void {
 	$timing = \get_option( 'shield_browser_notbot_timing', false );
 	if ( $timing !== false && \function_exists( 'shield_security_get_plugin' ) ) {
@@ -257,6 +261,7 @@ function shield_browser_fixture_login_guard_auto_login_query( string $message ) 
 function shield_browser_fixture_allowed_actions() :array {
 	return [
 		'__all__' => [ 'cleanup' ],
+		'central' => [ 'reset', 'issue-token', 'revoke-connection', 'inspect', 'cleanup' ],
 		'actions-queue' => [ 'seed', 'cleanup', 'inspect' ],
 		'scan-progress' => [ 'render' ],
 		'dashboard-defaults' => [ 'seed', 'cleanup', 'inspect', 'reset-defaults', 'prepare-actions-all-clear', 'prepare-maintenance-warning' ],
@@ -284,6 +289,7 @@ function shield_browser_fixture_require_helpers() :void {
 		'tests/Helpers/RuntimeTestState.php',
 		'tests/Helpers/TestDataFactory.php',
 		'tests/Helpers/BrowserFixtureRegistry.php',
+		'tests/Helpers/ActionRouter/CentralFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/PluginAdminRouteRuntime.php',
 		'tests/Helpers/ActionRouter/ActionsQueueRuntimeProbe.php',
 		'tests/Helpers/ActionRouter/ActionsQueueFixtureBuilder.php',
