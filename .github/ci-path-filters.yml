@@ -79,6 +79,7 @@ browser:
   - 'assets/dist/**'
   - 'templates/twig/**'
   - 'src/ActionRouter/**'
+  - 'src/Components/CompCons/SilentCaptcha/**'
   - 'tests/browser/**'
   - 'tests/Helpers/RuntimeTestState.php'
   - 'tests/Helpers/TestDataFactory.php'

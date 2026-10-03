@@ -80,6 +80,7 @@ class BotSignalsRecord {
 
 		if ( empty( $r ) ) {
 			$r = new BotSignalRecord();
+			$r->ip = $this->getIP();
 			$r->modified = true;
 		}
 
@@ -125,7 +126,9 @@ class BotSignalsRecord {
 			}
 		}
 
-		$this->store( $r );
+		if ( !$this->store( $r ) ) {
+			throw new \Exception( 'Failed to store bot signals.' );
+		}
 
 		return $r;
 	}
@@ -137,11 +140,17 @@ class BotSignalsRecord {
 
 		if ( !isset( $record->id ) ) {
 			$record->ip_ref = ( new IPRecords() )->loadIP( $this->getIP() )->id;
+			$record->created_at = Services::Request()->ts();
+			$record->updated_at = $record->created_at;
 			$success = self::con()
 				->db_con
 				->bot_signals
 				->getQueryInserter()
 				->insert( $record );
+			if ( $success ) {
+				$record->id = (int)Services::WpDb()->loadWpdb()->insert_id;
+				$success = $record->id > 0;
+			}
 		}
 		elseif ( $record->modified ) {
 			$data = $record->getRawData();
@@ -151,14 +160,20 @@ class BotSignalsRecord {
 				->bot_signals
 				->getQueryUpdater()
 				->updateById( $record->id, $data );
+			if ( $success ) {
+				$record->updated_at = $data[ 'updated_at' ];
+			}
 		}
 		else {
 			$success = true;
 		}
 
-		$thisReq = self::con()->this_req;
-		if ( $thisReq->ip === $record->ip ) {
-			$thisReq->botsignal_record = $record;
+		if ( $success ) {
+			$record->modified = false;
+			$thisReq = self::con()->this_req;
+			if ( $thisReq->ip === $record->ip ) {
+				$thisReq->botsignal_record = $record;
+			}
 		}
 
 		return $success;
@@ -179,12 +194,14 @@ class BotSignalsRecord {
 		if ( $ts === null ) {
 			$ts = Services::Request()->ts();
 		}
-		$record = $this->retrieve(); // false as we're going to store it anyway
+		$record = clone $this->retrieve();
 		foreach ( $fields as $field ) {
 			$record->{$field} = $ts;
 		}
 
-		$this->store( $record );
+		if ( !$this->store( $record ) ) {
+			throw new \Exception( 'Failed to store bot signals.' );
+		}
 
 		return $record;
 	}

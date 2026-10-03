@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Keep required silentCAPTCHA checks pending when signal storage fails, preserving confirmed server state until a successful retry.
+- Keep cookie-free silentCAPTCHA retry delays bounded after the browser clock moves backward.
+
 - Limit manual malware assessment refreshes to once every five minutes per site, with a dialogue showing the remaining wait.
 - Use only provider-neutral reason codes to explain unclassified MALAI assessments.
 - Allow authorized administrators to refresh active malware assessments from MALAI immediately using the existing table controls and definitive-clean reconciliation rules.

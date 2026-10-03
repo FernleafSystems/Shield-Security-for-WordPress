@@ -73,7 +73,7 @@ class BotSignalsController {
 			}
 		}
 
-		return $this->isBots[ $IP ] ?? false;
+		return $this->isBots[ $IP ];
 	}
 
 	public function getAllowableExt404s() :array {

@@ -289,14 +289,18 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_cookie_flags_and_embedded_expiry_are_preserved_when_lifetime_is_filtered() :void {
 		$this->setOptions( [ 'antibot_minimum' => 45, 'silentcaptcha_complexity' => SilentCaptchaComplexity::NONE ] );
-		$default = $this->runHandler();
-		$filtered = $this->runHandler( [ 'shield/notbot_cookie_life' => 1800 ] );
-
-		$this->assertSame( 600, $default[ 'cookies' ][ 0 ][ 'duration' ] );
-		$this->assertSame( 1800, $filtered[ 'cookies' ][ 0 ][ 'duration' ] );
-		$expected = 'notbotZaltchaZexp-'.( \FernleafSystems\Wordpress\Services\Services::Request()->ts() + 600 );
-		$this->assertSame( $expected, $default[ 'cookies' ][ 0 ][ 'value' ] );
-		$this->assertSame( $expected, $filtered[ 'cookies' ][ 0 ][ 'value' ] );
+		foreach ( [ 600 => [], 1800 => [ 'shield/notbot_cookie_life' => 1800 ] ] as $duration => $filters ) {
+			$before = \time();
+			$outcome = $this->runHandler( $filters );
+			$after = \time();
+			$cookie = $outcome[ 'cookies' ][ 0 ];
+			$this->assertSame( $duration, $cookie[ 'duration' ] );
+			$prefix = 'notbotZaltchaZexp-';
+			$this->assertStringStartsWith( $prefix, $cookie[ 'value' ] );
+			$expiry = (int)\substr( $cookie[ 'value' ], \strlen( $prefix ) );
+			$this->assertGreaterThanOrEqual( $before + 600, $expiry );
+			$this->assertLessThanOrEqual( $after + 600, $expiry );
+		}
 	}
 
 	private function allConsumersOff() :array {

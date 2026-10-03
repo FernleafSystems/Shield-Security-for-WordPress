@@ -35,7 +35,6 @@ class CaptureNotBot extends BaseAction {
 			] )->setPayloadSuccess( true );
 		}
 		catch ( \Exception $e ) {
-//			error_log( $e->getMessage() );
 			$response->setPayloadSuccess( false );
 		}
 	}

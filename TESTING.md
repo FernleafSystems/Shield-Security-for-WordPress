@@ -367,13 +367,13 @@ Operational notes:
 1. `php bin/shield dev:site:up` starts or reuses the persistent local Docker WordPress dev site at `http://127.0.0.1:8888` for normal manual development.
 2. `php bin/shield test:site:up` remains available for the legacy/manual isolated test site at `http://127.0.0.1:8889`, but browser tests do not use that port.
 3. Local `composer test:browser` defaults to warm mode, auto runtime refresh, two lanes, two Playwright workers, and Playwright `fullyParallel`. The first default lane is `http://127.0.0.1:8890`.
-4. The browser CI workflow runs clean mode with two browser lanes and two Playwright workers in one job. `composer test:browser` rebuilds assets before runtime hashing, so the workflow only needs dependency install and Playwright browser install before the browser lane command.
+4. The browser CI workflow runs the full Chromium suite in clean mode with two browser lanes and two Playwright workers. Separate Firefox/WebKit matrix jobs run the two silentCAPTCHA specs with one lane/worker each. `composer test:browser` rebuilds assets before runtime hashing, so the workflow only needs dependency install and Playwright browser install before the browser lane command.
 5. `php bin/shield dev:site:reset` and `php bin/shield test:site:reset` destroy and reprovision their respective manual sites; `dev:site:down` and `test:site:down` stop them while preserving state.
 6. `php bin/shield dev:site:wp plugin list` and `php bin/shield test:site:wp plugin list` run WP-CLI against the appropriate local `wp-cli` container after ensuring the site is ready. The command appends `--allow-root` automatically when it is not already present.
 7. Browser lanes fail fast if required source prerequisites are missing. At minimum, keep Composer dependencies, npm dependencies, `plugin.json`, Docker, and Playwright current before running browser tests; compiled browser assets are rebuilt automatically for non-list browser runs.
 8. The browser lane is intentionally source-only. Do not add packaged-only `vendor_prefixed` content to this runtime; prefixed dependency validation belongs to the package lanes.
 9. Local browser work requires Docker plus the Node version declared in `.nvmrc` for webpack and Playwright. `php bin/run-node-tool.php` resolves that on demand without changing the machine default Node. CI and source-runtime Docker asset setup consume the same declaration.
-10. CI installs Chromium headless shell only via `npm run playwright:install -- --with-deps --only-shell`. Headed debugging is still available locally by forwarding Playwright flags through the browser command, for example: `composer test:browser -- -- --headed`.
+10. The full suite's CI job installs Chromium headless shell via `npm run playwright:install -- --with-deps --only-shell`. Focused silentCAPTCHA jobs install their engine via `php bin/run-node-tool.php playwright install --with-deps <firefox|webkit>`. Headed debugging is still available locally by forwarding Playwright flags through the browser command, for example: `composer test:browser -- -- --headed`.
 11. CI does not cache Playwright browser binaries; Playwright's own CI guidance says Linux browser cache restore time is comparable to installing them, while OS dependencies still need installation.
 12. Composer browser-arg forwarding is two-stage and must be explicit:
     - First `--` stops Composer argument parsing.
@@ -381,6 +381,20 @@ Operational notes:
     - Do not use `composer test:browser -- --grep "..."`; that is parsed at the wrong layer and fails.
     - Use `composer test:browser -- -- -g "..."` for a pure Playwright grep, or `composer test:browser -- -- <path-or-filter> -g "..."` when you also want to narrow to a file.
 13. `php bin/shield test:site:fixture` is a manual diagnostic path only. Playwright specs must use the REST-backed fixture API exposed by `tests/browser/action-router/support/shield-test.js`.
+
+### Focused silentCAPTCHA engine coverage
+
+After installing the selected Playwright engine with the pinned Node runtime, run:
+
+```bash
+composer test:browser -- --warm --lanes=1 -- tests/browser/action-router/silentcaptcha-altcha-v2.spec.js tests/browser/action-router/silentcaptcha-cookie-free.spec.js --workers=1 --browser=chromium
+composer test:browser -- --warm --lanes=1 -- tests/browser/action-router/silentcaptcha-altcha-v2.spec.js tests/browser/action-router/silentcaptcha-cookie-free.spec.js --workers=1 --browser=firefox
+composer test:browser -- --warm --lanes=1 -- tests/browser/action-router/silentcaptcha-altcha-v2.spec.js tests/browser/action-router/silentcaptcha-cookie-free.spec.js --workers=1 --browser=webkit
+```
+
+These specs use causal exchange/completion/timer evidence, with 30-second ordinary-cycle, 90-second four-exchange or adaptive-medium-challenge, and 120-second whole-test allowances. An IP receiving only cached HTML has no server page-load signal and keeps the existing stronger adaptive challenge; tests allow its genuine crypto work rather than reducing proof cost. Coverage includes cookie/storage failures, IP switches during and after verification, cooldown/recovery, and forged browser freshness against protected native login. Engine results do not certify actual Safari/iOS, every private/privacy browser, or true BFCache restoration. Hosted CI success must be distinguished from local execution and workflow source review.
+
+The focused engine CI jobs have a 40-minute ceiling for dependency installation, runtime setup and the complete slice. This accommodates observed local WebKit execution above 20 minutes; it does not change individual test or production timing budgets.
 
 ### Browser lane parallelism
 
@@ -539,7 +553,7 @@ CI behavior is recorded here for diagnosis and exact job reproduction; it does n
 |---|---|
 | [Required source-first gate](.github/workflows/tests.yml) | Job-level path-gated by [`.github/ci-path-filters.yml`](.github/ci-path-filters.yml); manual dispatch runs the full gate. It runs source analysis on PHP 7.4, JS checks, unit tests on PHP 7.4 and 8.4, package build/targeted validation, and `php bin/shield test:source --skip-unit-tests --include-previous-wp --show-docker-output`. CI explicitly owns this exceptional two-stream WordPress run. |
 | [Serial compatibility sentinel](.github/workflows/unit-serial-sentinel.yml) | Runs `php bin/run-unit-tests.php --runner-mode=serial` manually and weekly at 05:00 UTC Monday. |
-| [Browser tests](.github/workflows/browser-tests.yml) | Runs for browser-relevant pull requests, pushes to `develop`, manual dispatch, and weekdays at 06:30 UTC. It installs Composer and Node dependencies plus Chromium, then runs `composer test:browser -- --clean --lanes=2 -- --workers=2`. |
+| [Browser tests](.github/workflows/browser-tests.yml) | Runs for browser-relevant pull requests, pushes to `develop`, manual dispatch, and weekdays at 06:30 UTC. Full Chromium runs `composer test:browser -- --clean --lanes=2 -- --workers=2`; Firefox/WebKit matrix jobs run both silentCAPTCHA specs in clean mode with one lane/worker. Canonical silentCAPTCHA PHP component changes select browser coverage. Each job installs dependencies/its engine and always cleans its harness resources. |
 | [Cross-site tests](.github/workflows/cross-site-tests.yml) | Runs for pull requests affecting import/export, WP-CLI, the test harness, Docker, Composer, or this workflow; also runs manually and weekdays at 06:45 UTC. It installs dependencies, builds assets, and runs `composer test:cross-site` once with no automatic recovery step. |
 | [Customer test ZIP](.github/workflows/customer-test-zip.yml) | Manual artifact-only workflow that builds a selected branch or ref through the reusable `composer build-zip` path. It records the ref, commit, artifact URL, ZIP SHA-256, and artifact digest without creating a tag or GitHub Release. |
 

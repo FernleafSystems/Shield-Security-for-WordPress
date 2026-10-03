@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Bots;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotEventListener;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Tests that BotEventListener maps specific events to the correct
@@ -79,7 +78,6 @@ class BotEventListenerTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ips' );
 
 		$ip = '192.0.2.211';
-		$now = Services::Request()->ts();
 
 		$id = TestDataFactory::insertBotSignal( $ip );
 

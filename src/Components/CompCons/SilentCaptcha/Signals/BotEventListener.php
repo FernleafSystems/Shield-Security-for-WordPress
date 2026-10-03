@@ -42,7 +42,6 @@ class BotEventListener {
 				error_log( 'Error updating bot signal with column problem: '.$e->getMessage() );
 			}
 			catch ( \Exception $e ) {
-//					error_log( 'Error updating bot signal: '.$e->getMessage() );
 			}
 		}
 	}
@@ -52,7 +51,7 @@ class BotEventListener {
 	 */
 	private function getEventsToColumn() :array {
 		return \array_map(
-			fn( $column ) => \str_replace( '_at', '', $column ).'_at',
+			fn( $column ) => $column.'_at',
 			[
 				'bottrack_notbot'         => 'notbot',
 				'bottrack_altcha'         => 'altcha',

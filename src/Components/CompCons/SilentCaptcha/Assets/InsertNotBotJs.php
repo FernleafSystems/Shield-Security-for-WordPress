@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCapt
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	ActionDataVO,
 	Actions\CaptureNotBot
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -32,13 +31,9 @@ class InsertNotBotJs {
 						'silentcaptcha',
 					],
 					'data'    => function () {
-						$notBotVO = new ActionDataVO();
-						$notBotVO->action = CaptureNotBot::class;
-						$notBotVO->ip_in_nonce = false;
-
 						return [
 							'ajax'  => [
-								'silentcaptcha' => ActionData::BuildVO( $notBotVO ),
+								'silentcaptcha' => ActionData::Build( CaptureNotBot::class ),
 							],
 							'config' => [
 								'mode' => self::con()->comps->opts_lookup->silentCaptchaMode(),
