@@ -574,16 +574,16 @@
         },
         {
             "name": "fernleafsystems/wordpress-services",
-            "version": "3.17.0",
+            "version": "3.17.1",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services.git",
-                "reference": "e37f75fa7f2f45de517ac691042394a78b20d8f9"
+                "reference": "e76521735fda1936a188a70e66cfdea243e0a686"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-services/repository/archive.zip?sha=e37f75fa7f2f45de517ac691042394a78b20d8f9",
-                "reference": "e37f75fa7f2f45de517ac691042394a78b20d8f9",
+                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-services/repository/archive.zip?sha=e76521735fda1936a188a70e66cfdea243e0a686",
+                "reference": "e76521735fda1936a188a70e66cfdea243e0a686",
                 "shasum": ""
             },
             "require": {
@@ -621,9 +621,9 @@
             "description": "Base WordPress Services provider for all AptoWeb WordPress plugins",
             "support": {
                 "issues": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/issues",
-                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/tree/3.17.0"
+                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/tree/3.17.1"
             },
-            "time": "2026-10-02T09:49:28+00:00"
+            "time": "2026-10-05T10:27:38+00:00"
         },
         {
             "name": "fernleafsystems/worpdrive-client",
