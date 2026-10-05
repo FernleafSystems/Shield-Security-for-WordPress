@@ -15,9 +15,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PluginAdminRouteRuntime;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use PHPUnit\Framework\ExpectationFailedException;
+use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\ApiBase;
+use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -31,11 +35,168 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'scan_result_item_meta' );
 		$this->loginAsSecurityAdmin();
 		$this->requireController()->this_req->wp_is_ajax = false;
+		Transient::Delete( self::con()->prefix( 'malai_manual_refresh', '_' ) );
 		$this->requireController()->opts
 			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
 			 ->optSet( 'file_scan_areas', [ 'wp' ] )
 			 ->store();
 		$this->resetScanResultCountMemoization();
+	}
+
+	/** @dataProvider malwareRefreshResponseProvider */
+	public function test_manual_malware_refresh_uses_real_lookup_and_reloads_partial_results( bool $partialFailure ) :void {
+		$this->requireDb( 'malware' );
+		$this->enablePremiumCapabilities( [ 'scan_malware_local', 'scan_malware_malai' ] );
+		$now = Services::Request()->ts();
+		$scan = TestDataFactory::insertCompletedScan( 'afs' );
+		$findings = [];
+		$hashes = [];
+		foreach ( [ 'clean', 'pending', 'ignored' ] as $key ) {
+			$path = 'fixture/refresh-'.$key.'.php';
+			$recordID = TestDataFactory::insertMalwareRecord( $path, $key, [
+				'malai_status' => 'malware',
+				'last_malai_status_at' => $now,
+			] );
+			$findings[ $key ] = TestDataFactory::insertAfsFileScanResultTracked( $scan, $path, [
+				'is_mal' => 1, 'malware_record_id' => $recordID,
+			] );
+			$findings[ $key ][ 'malware_record_id' ] = $recordID;
+			$hashes[ $key ] = self::con()->db_con->malware->getQuerySelector()->byId( $recordID )->hash_sha256;
+		}
+		TestDataFactory::markScanResultItemIgnored( $findings[ 'ignored' ][ 'result_item_id' ] );
+		$optionsSnapshot = $this->snapshotSelectedOptions( [ 'wphashes_api_token' ] );
+		$tokenProperty = new \ReflectionProperty( ApiBase::class, 'API_TOKEN' );
+		$tokenProperty->setAccessible( true );
+		$previousToken = $tokenProperty->getValue();
+		self::con()->opts->optSet( 'wphashes_api_token', [
+			'token' => \str_repeat( 'a', 40 ), 'expires_at' => $now + \DAY_IN_SECONDS,
+			'next_attempt_from' => $now + \DAY_IN_SECONDS, 'valid_license' => true,
+		] );
+		Transient::Set( 'apto-wphashes-api-available-routes', '#.*#', 300 );
+		$requests = [];
+		$filter = function ( $pre, array $args, string $url ) use ( &$requests, $hashes, $partialFailure ) {
+			$requests[] = [ 'url' => $url, 'method' => $args[ 'method' ], 'body' => $args[ 'body' ] ];
+			$this->assertCount( 1, $requests );
+			// A second request is rejected even while the first API lookup is still running.
+			$blocked = $this->processScanResultsAction( [
+				'sub_action' => 'refresh_malware_assessments', 'type' => 'malware', 'file' => 'malware',
+			] );
+			$this->assertFalse( $blocked[ 'success' ] );
+			$this->assertFalse( $blocked[ 'table_reload' ] );
+			$statuses = [ $hashes[ 'clean' ] => 'clean' ];
+			if ( !$partialFailure ) {
+				$statuses[ $hashes[ 'pending' ] ] = 'predicted_clean';
+			}
+			return [ 'headers' => [], 'body' => \wp_json_encode( [ 'error_code' => 0, 'statuses' => $statuses ] ),
+				'response' => [ 'code' => 200, 'message' => '' ], 'cookies' => [] ];
+		};
+		\add_filter( 'pre_http_request', $filter, 10, 3 );
+		try {
+			$payload = $this->processScanResultsAction( [
+				'sub_action' => 'refresh_malware_assessments', 'type' => 'malware', 'file' => 'malware',
+				// Display state and selections must not change the server-owned refresh scope.
+				'results_display_options' => ( new ScanResultsDisplayOptions() )->ignoredOnly(),
+				'rids' => [ $findings[ 'ignored' ][ 'result_item_id' ] ],
+			] );
+			$blocked = $this->processScanResultsAction( [
+				'sub_action' => 'refresh_malware_assessments', 'type' => 'malware', 'file' => 'malware',
+			] );
+			$this->assertFalse( $blocked[ 'success' ] );
+			$this->assertFalse( $blocked[ 'table_reload' ] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter, 10 );
+			$tokenProperty->setValue( null, $previousToken );
+			$this->restoreSelectedOptions( $optionsSnapshot );
+		}
+		$this->assertSame( !$partialFailure, $payload[ 'success' ] );
+		$this->assertFalse( $payload[ 'page_reload' ] );
+		$this->assertTrue( $payload[ 'table_reload' ] );
+		$this->assertCount( 1, $requests );
+		$this->assertStringContainsString( '/v2/malai/malware/statuses', $requests[ 0 ][ 'url' ] );
+		$this->assertSame( 'POST', $requests[ 0 ][ 'method' ] );
+		$this->assertSame( [ $hashes[ 'clean' ], $hashes[ 'pending' ] ], $requests[ 0 ][ 'body' ][ 'hashes_sha256' ] );
+		$this->assertGreaterThan( 0, (int)self::con()->db_con->scan_result_items->getQuerySelector()->byId( $findings[ 'clean' ][ 'result_item_id' ] )->auto_filtered_at );
+		$pending = self::con()->db_con->malware->getQuerySelector()->byId( $findings[ 'pending' ][ 'malware_record_id' ] );
+		$this->assertSame( $partialFailure ? 'unknown' : 'predicted_clean', $pending->malai_status );
+		$this->assertSame( $partialFailure ? 'lookup_failed' : '', $pending->malai_status_context );
+		$this->assertSame( 'malware', self::con()->db_con->malware->getQuerySelector()->byId( $findings[ 'ignored' ][ 'malware_record_id' ] )->malai_status );
+	}
+
+	public static function malwareRefreshResponseProvider() :array {
+		return [ 'success' => [ false ], 'partial failure' => [ true ] ];
+	}
+
+	/** @dataProvider malwareRefreshWaitProvider */
+	public function test_manual_malware_refresh_enforces_transient_wait( int $seconds, bool $allowed ) :void {
+		$this->enablePremiumCapabilities( [ 'scan_malware_malai' ] );
+		$key = self::con()->prefix( 'malai_manual_refresh', '_' );
+		$now = Services::Request()->ts();
+		$nextAllowed = $now + $seconds;
+		// WordPress can return scalar option values as strings after a database read.
+		Transient::Set( $key, (string)$nextAllowed, 300 );
+		$snapshot = ServicesState::snapshot();
+		$request = $this->createPartialMock( \FernleafSystems\Wordpress\Services\Core\Request::class, [ 'ts' ] );
+		$request->applyFromArray( Services::Request()->getRawData() );
+		$request->method( 'ts' )->willReturn( $now );
+		ServicesState::mergeItems( [ 'service_request' => $request ] );
+		try {
+			$payload = $this->processScanResultsAction( [
+				'sub_action' => 'refresh_malware_assessments', 'type' => 'malware', 'file' => 'malware',
+			] );
+		}
+		finally {
+			ServicesState::restore( $snapshot );
+		}
+		$this->assertSame( $allowed, $payload[ 'success' ] );
+		$this->assertSame( $allowed, $payload[ 'table_reload' ] );
+		$this->assertFalse( $payload[ 'page_reload' ] );
+		$this->assertSame( $allowed ? $now + 300 : $nextAllowed, (int)Transient::Get( $key ) );
+		if ( !$allowed ) {
+			$this->assertStringContainsString( sprintf( '%d min %d sec', \intdiv( $seconds, 60 ), $seconds % 60 ), $payload[ 'message' ] );
+		}
+	}
+
+	public static function malwareRefreshWaitProvider() :array {
+		return [ 'full wait' => [ 300, false ], 'minutes and seconds' => [ 61, false ],
+			'last second' => [ 1, false ], 'exact expiry' => [ 0, true ], 'expired' => [ -1, true ] ];
+	}
+
+	/** @dataProvider malwareRefreshRejectionProvider */
+	public function test_manual_malware_refresh_rejects_unavailable_capability_or_wrong_scope( bool $capable, string $scope ) :void {
+		$this->enablePremiumCapabilities( $capable ? [ 'scan_malware_malai' ] : [ 'scan_malware_local' ] );
+		$requests = 0;
+		$filter = static function () use ( &$requests ) {
+			$requests++;
+			return new \WP_Error( 'unexpected_refresh_request' );
+		};
+		\add_filter( 'pre_http_request', $filter );
+		try {
+			$payload = $this->processScanResultsAction( [
+				'sub_action' => 'refresh_malware_assessments', 'type' => $scope, 'file' => $scope,
+			] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter );
+		}
+		$this->assertFalse( $payload[ 'success' ] );
+		$this->assertFalse( $payload[ 'page_reload' ] );
+		$this->assertFalse( $payload[ 'table_reload' ] );
+		$this->assertSame( 0, $requests );
+	}
+
+	public static function malwareRefreshRejectionProvider() :array {
+		return [ 'no capability' => [ false, 'malware' ], 'wrong scope' => [ true, 'wordpress' ] ];
+	}
+
+	public function test_manual_malware_refresh_with_no_active_findings_is_successful() :void {
+		$this->enablePremiumCapabilities( [ 'scan_malware_malai' ] );
+		$payload = $this->processScanResultsAction( [
+			'sub_action' => 'refresh_malware_assessments', 'type' => 'malware', 'file' => 'malware',
+		] );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertFalse( $payload[ 'page_reload' ] );
+		$this->assertTrue( $payload[ 'table_reload' ] );
 	}
 
 	public function test_ignore_sub_action_removes_wordpress_row_from_active_results_without_page_reload() :void {
@@ -83,7 +244,8 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_mutating_sub_action_requires_valid_nonce_before_state_change() :void {
+	/** @dataProvider nonceProtectedSubActionProvider */
+	public function test_mutating_sub_action_requires_valid_nonce_before_state_change( string $subAction ) :void {
 		$tracked = $this->seedWordpressScanResult();
 		$resultItemId = (int)( $tracked[ 'result_item_id' ] ?? 0 );
 		$this->assertGreaterThan( 0, $resultItemId );
@@ -95,7 +257,9 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		try {
 			$this->expectException( InvalidActionNonceException::class );
 			( new ActionProcessor() )->processAction( ScanResultsTableAction::SLUG, [
-				'sub_action' => 'ignore',
+				'sub_action' => $subAction,
+				'type' => 'malware',
+				'file' => 'malware',
 				'rids'       => [ $resultItemId ],
 			] );
 		}
@@ -105,6 +269,10 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 			$this->assertNotEmpty( $item );
 			$this->assertSame( 0, (int)( $item->ignored_at ?? -1 ) );
 		}
+	}
+
+	public static function nonceProtectedSubActionProvider() :array {
+		return [ 'ignore' => [ 'ignore' ], 'refresh' => [ 'refresh_malware_assessments' ] ];
 	}
 
 	public function test_unignore_sub_action_restores_wordpress_row_to_active_results_without_page_reload() :void {

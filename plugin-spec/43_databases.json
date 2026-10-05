@@ -700,6 +700,12 @@
                     "default": "''",
                     "comment": "The status of the file from malai"
                 },
+                "malai_status_context": {
+                    "macro_type": "varchar",
+                    "length": 24,
+                    "default": "''",
+                    "comment": "The context of the latest malware assessment"
+                },
                 "file_content": {
                     "macro_type": "text",
                     "type": "mediumtext",

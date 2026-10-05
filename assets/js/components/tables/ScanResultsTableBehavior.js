@@ -15,9 +15,20 @@ export function buildScanResultsButtons( {
 	onReload = null,
 	onBulkAction = null,
 	displayFilters = null,
+	malwareRefresh = null,
 } = {} ) {
 	/** @type {any[]} */
 	const buttons = [];
+
+	if ( malwareRefresh !== null ) {
+		buttons.push( {
+			text: malwareRefresh.label,
+			titleAttr: malwareRefresh.description,
+			name: 'refresh-malware-assessments',
+			className: 'action btn-outline-secondary mb-2',
+			action: ( e, dt, node ) => malwareRefresh.onRefresh( shieldServices.dialog().resolveLauncher( e, node ) ),
+		} );
+	}
 
 	if ( includeReload && typeof onReload === 'function' ) {
 		buttons.push( {
