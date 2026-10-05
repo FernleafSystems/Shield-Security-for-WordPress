@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\NormalizeHashMap;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
+	FileHashAlgorithm,
+	NormalizeHashMap
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build\BuildHashesForAsset;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build\BuildHashesFromApi;
 
@@ -11,24 +14,23 @@ class Build extends BaseAction {
 	/**
 	 * @throws \Exception
 	 */
-	public function run() {
+	public function run( string $algorithm = 'md5' ) {
+		FileHashAlgorithm::validate( $algorithm );
 		$asset = $this->getAsset();
 		$normaliser = new NormalizeHashMap();
 		$hashes = [];
 		try {
-			$hashes = $normaliser->toScalarMap(
-				( new BuildHashesFromApi() )->build( $asset )
-			);
+			$hashes = ( new BuildHashesFromApi() )->build( $asset, $algorithm );
 		}
 		catch ( \Exception $e ) {
 		}
 
-		$meta = $this->generateMeta();
+		$meta = $this->generateMeta( $algorithm );
 		if ( empty( $hashes ) ) {
 			$hashes = ( new BuildHashesForAsset() )
-				->setHashAlgo( $meta[ 'algo' ] )
+				->setHashAlgo( $algorithm )
 				->build( $asset );
-			$hashes = $normaliser->toScalarMap( $hashes );
+			$hashes = $normaliser->toScalarMapForAlgorithm( $hashes, $algorithm );
 			$meta[ 'live_hashes' ] = false;
 		}
 		else {

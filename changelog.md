@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Request SHA256 for new plugin/theme snapshots and eligible published promotions in Shield's scan preparation, snapshot maintenance, and update cleanup. Support explicit MD5, SHA1, or SHA256 helper parameters with validated references and matching metadata; preserve helper MD5 defaults, existing baselines, local-versus-published trust, and SHA1 crowd submission contracts.
+
 - Keep required silentCAPTCHA checks pending when signal storage fails, preserving confirmed server state until a successful retry.
 - Keep cookie-free silentCAPTCHA retry delays bounded after the browser clock moves backward.
 

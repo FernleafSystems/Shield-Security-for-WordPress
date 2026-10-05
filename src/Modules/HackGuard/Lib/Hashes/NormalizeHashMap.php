@@ -5,6 +5,22 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes;
 class NormalizeHashMap {
 
 	/**
+	 * Validate newly produced snapshot hashes without changing legacy or crowd reads.
+	 * @param mixed $hashes
+	 * @return array<string,string>
+	 */
+	public function toScalarMapForAlgorithm( $hashes, string $algorithm ) :array {
+		$length = FileHashAlgorithm::digestLength( $algorithm );
+		$normalised = $this->toScalarMap( $hashes );
+		foreach ( $normalised as $hash ) {
+			if ( \strlen( $hash ) !== $length ) {
+				return [];
+			}
+		}
+		return $normalised;
+	}
+
+	/**
 	 * @param mixed $hashes
 	 * @return array<string,string>
 	 */

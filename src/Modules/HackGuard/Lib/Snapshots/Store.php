@@ -13,15 +13,9 @@ class Store {
 
 	public const SEPARATOR = '=::=';
 
-	/**
-	 * @var array
-	 */
-	private $snapMeta;
+	private ?array $snapMeta = null;
 
-	/**
-	 * @var array
-	 */
-	private $snapData;
+	private ?array $snapData = null;
 
 	/**
 	 * @var WpPluginVo|WpThemeVo
@@ -94,7 +88,7 @@ class Store {
 	 * @return string[]
 	 */
 	public function getSnapData() :array {
-		if ( !\is_array( $this->snapData ) ) {
+		if ( $this->snapData === null ) {
 			try {
 				$this->snapData = $this->readSnapData();
 			}
@@ -102,7 +96,7 @@ class Store {
 				$this->snapData = [];
 			}
 		}
-		return \is_array( $this->snapData ) ? $this->snapData : [];
+		return $this->snapData;
 	}
 
 	public function getSnapMeta() :array {
@@ -114,7 +108,7 @@ class Store {
 				$this->snapMeta = [];
 			}
 		}
-		return \is_array( $this->snapMeta ) ? $this->snapMeta : [];
+		return $this->snapMeta;
 	}
 
 	public function verify() :bool {
@@ -126,7 +120,7 @@ class Store {
 	}
 
 	/**
-	 * @return array{meta:array,data:array<string,string>}|null
+	 * @return array{meta:array,data:non-empty-array<string,string>}|null
 	 */
 	public function getUsableSnapshot() :?array {
 		try {
@@ -136,7 +130,7 @@ class Store {
 			}
 
 			$data = $this->readSnapDataStrict();
-			if ( empty( $data ) || $data !== ( new NormalizeHashMap() )->toScalarMap( $data ) ) {
+			if ( $data !== ( new NormalizeHashMap() )->toScalarMap( $data ) ) {
 				return null;
 			}
 
@@ -185,7 +179,7 @@ class Store {
 	}
 
 	/**
-	 * @return array<string,string>
+	 * @return non-empty-array<string,string>
 	 * @throws \Exception
 	 */
 	private function readSnapDataStrict() :array {

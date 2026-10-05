@@ -134,25 +134,15 @@ class Retrieve {
 			return;
 		}
 
-		try {
-			$hashes = ( new NormalizeHashMap() )->run( $snapshot[ 'data' ] );
-			if ( empty( $hashes ) ) {
-				throw new \UnexpectedValueException( 'Stored snapshot hashes are empty.' );
-			}
-			$trustedSource = ( $snapshot[ 'meta' ][ 'live_hashes' ] ?? false ) === true;
-			self::$sources[ $cacheKey ] = [
-				'hashes'           => $hashes,
-				'trusted_source'   => $trustedSource,
-				'comparison_basis' => $trustedSource
-					? HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE
-					: HashVerificationResult::COMPARISON_BASIS_LOCAL_BASELINE,
-			];
-			self::$sourceStorageStates[ $cacheKey ] = $after;
-		}
-		catch ( \Throwable $e ) {
-			self::$sources[ $cacheKey ] = null;
-			unset( self::$sourceStorageStates[ $cacheKey ] );
-		}
+		$trustedSource = ( $snapshot[ 'meta' ][ 'live_hashes' ] ?? false ) === true;
+		self::$sources[ $cacheKey ] = [
+			'hashes'           => \array_map( static fn( string $hash ) :array => [ $hash ], $snapshot[ 'data' ] ),
+			'trusted_source'   => $trustedSource,
+			'comparison_basis' => $trustedSource
+				? HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE
+				: HashVerificationResult::COMPARISON_BASIS_LOCAL_BASELINE,
+		];
+		self::$sourceStorageStates[ $cacheKey ] = $after;
 	}
 
 	/**
