@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteFixtureCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteDefinitions;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteManager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
@@ -81,9 +82,11 @@ class SiteFixtureCommandTest extends TestCase {
 	}
 
 	private function buildSiteManagerMock() :LocalSiteManager {
-		return $this->getMockBuilder( LocalSiteManager::class )
+		$manager = $this->getMockBuilder( LocalSiteManager::class )
 			->disableOriginalConstructor()
-			->onlyMethods( [ 'wpCapture' ] )
+			->onlyMethods( [ 'wpCapture', 'definition' ] )
 			->getMock();
+		$manager->method( 'definition' )->willReturn( LocalSiteDefinitions::test() );
+		return $manager;
 	}
 }

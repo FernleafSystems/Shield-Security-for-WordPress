@@ -404,7 +404,7 @@ The focused engine CI jobs have a 40-minute ceiling for dependency installation,
 - Default local run: `mode=warm`, `runtime-refresh=auto`, `lanes=2`, `workers=2`, `fullyParallel=true`.
 - Default CLI CI run: `mode=clean`, `lanes=1`, `workers=1`; the GitHub browser workflow overrides this to `lanes=2`, `workers=2`.
 - Each lane has its own WordPress container, port, database, and Playwright output directory. Browser lanes start at port `8890`, leaving the legacy/manual `test:site` port `8889` alone.
-- All lanes share one MySQL container, so parallel browser commands avoid starting multiple database servers.
+- All lanes share one MySQL container. Separate browser commands serialize through machine-scoped shared-service admission, held from startup sweep through preparation, consumer execution, cleanup, and lane release. Preparation and Playwright workers within one command remain parallel.
 - Browser worker isolation is keyed by Playwright `parallelIndex`. PHP passes `SHIELD_BROWSER_LANE_MAP` as a JSON object keyed by `parallelIndex`, and every worker uses its mapped lane URL, fixture token, auth state file, and output directory.
 - Warm mode starts or reuses lane containers, refreshes the copied runtime, installs the runtime-only fixture endpoint, and skips baseline provisioning only when the readiness marker still matches the lane and the site is healthy.
 - The browser readiness marker includes the lane profile, site/database contract, fixture contract, fixture token hash, runtime manifest hash, and expiry. Warm reuse is skipped when any of those values are stale.
@@ -442,6 +442,10 @@ php bin/shield test:docker:cleanup --scope=browser --dry-run --all --lanes=2
 Automatic browser-run cleanup removes current-run transient resources, expired or malformed labeled resources, and old unlabeled browser resources. Manual cleanup removes expired, malformed, and old unlabeled browser resources; `--all` also purges reusable warm volumes. `--dry-run` audits the Docker resources and stale runtime workspaces that would be removed without deleting them. Runtime refresh staging workspaces under `tmp/.browser-runtime-refresh` are removed after each refresh and stale workspaces are garbage-collected by the cleanup command.
 
 Docker list, inspect, compose, and remove failures are reported as cleanup findings; they are not treated as an empty cleanup result.
+
+Shared-service admission uses `flock()` on `shield-browser-test-lanes/shared-services.lock` under the host PHP temporary directory, independently of the checkout. `SHIELD_BROWSER_LANE_WAIT_SECONDS` controls its bounded wait, defaulting to 600 seconds. The supported browser cleanup commands and browser-selected `test:site:up`, `down`, `reset`, `wp`, and `fixture` commands use the same admission. Discovery with `--list`, standalone `test:site`, and `dev:site` operations do not acquire it. Retain the lock file after release; its PID/root metadata is diagnostic only. Callers sharing a Docker daemon must run on a host with the same lock location; this filesystem lock does not coordinate remote hosts.
+
+An outer native controller can hold `BrowserTestLanePool::withSharedServiceAdmission()` across recovery and a subsequent browser run; nested pool instances in the same PHP process reuse the live admission handle. Before interrupted recovery, the outer controller must stop and await the previous native process tree. Releasing a parent process's lock is not proof that its preparation or consumer descendants stopped. Direct browser sweeper calls are low-level operations and require the caller to hold admission through their cleanup and audit.
 
 Browser Docker containers, volumes, and networks use the labels `com.fernleaf.harness`, `com.fernleaf.run-id`, `com.fernleaf.lane`, `com.fernleaf.lifecycle`, and `com.fernleaf.expires-at`. Warm mode keeps valid reusable volumes only; containers and networks are transient.
 
