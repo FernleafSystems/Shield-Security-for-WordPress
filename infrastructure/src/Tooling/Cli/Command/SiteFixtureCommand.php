@@ -2,39 +2,20 @@
 
 namespace FernleafSystems\ShieldPlatform\Tooling\Cli\Command;
 
-use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class SiteFixtureCommand extends Command {
+class SiteFixtureCommand extends AbstractSiteCommand {
 
 	private const FIXTURE_SCRIPT = '/app/tests/browser/support/run-runtime-fixture.php';
 
-	private string $descriptionText;
-
-	private string $projectRoot;
-
-	private LocalSiteManager $siteManager;
-
-	public function __construct(
-		string $name,
-		string $descriptionText,
-		string $projectRoot,
-		LocalSiteManager $siteManager
-	) {
-		$this->descriptionText = $descriptionText;
-		$this->projectRoot = $projectRoot;
-		$this->siteManager = $siteManager;
-		parent::__construct( $name );
-	}
-
 	protected function configure() :void {
+		parent::configure();
 		$commandName = (string)$this->getName();
 
 		$this
-			->setDescription( $this->descriptionText )
 			->addArgument( 'fixture', InputArgument::REQUIRED, 'Registered fixture key, for example "actions-queue".' )
 			->addArgument( 'fixture_action', InputArgument::REQUIRED, 'Fixture action, for example "seed", "inspect", or "cleanup".' )
 			->addArgument(
@@ -47,31 +28,22 @@ class SiteFixtureCommand extends Command {
 			);
 	}
 
-	protected function execute( InputInterface $input, OutputInterface $output ) :int {
-		try {
-			$fixture = $this->filterStringArgument( $input->getArgument( 'fixture' ) );
-			$fixtureAction = $this->filterStringArgument( $input->getArgument( 'fixture_action' ) );
-			$fixtureArgs = \array_values( \array_filter(
-				(array)$input->getArgument( 'fixture_args' ),
-				fn( $value ) :bool => \is_string( $value ) && $value !== ''
-			) );
+	protected function executeSiteCommand( InputInterface $input, OutputInterface $output ) :int {
+		$fixture = $this->filterStringArgument( $input->getArgument( 'fixture' ) );
+		$fixtureAction = $this->filterStringArgument( $input->getArgument( 'fixture_action' ) );
+		$fixtureArgs = $this->stringArguments( $input->getArgument( 'fixture_args' ) );
 
-			$captured = $this->siteManager->wpCapture( $this->projectRoot, [
-				'eval-file',
-				self::FIXTURE_SCRIPT,
-				'--',
-				$fixture,
-				$fixtureAction,
-				...$fixtureArgs,
-			] );
+		$captured = $this->siteManager->wpCapture( $this->projectRoot, [
+			'eval-file',
+			self::FIXTURE_SCRIPT,
+			'--',
+			$fixture,
+			$fixtureAction,
+			...$fixtureArgs,
+		] );
 
-			$output->write( $this->extractJsonPayload( $captured[ 'stdout' ] ).\PHP_EOL );
-			return Command::SUCCESS;
-		}
-		catch ( \Throwable $throwable ) {
-			$output->writeln( '<error>Error: '.$throwable->getMessage().'</error>' );
-			return Command::FAILURE;
-		}
+		$output->write( $this->extractJsonPayload( $captured[ 'stdout' ] ).\PHP_EOL );
+		return Command::SUCCESS;
 	}
 
 	/**

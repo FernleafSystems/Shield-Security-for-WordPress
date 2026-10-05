@@ -6,6 +6,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\BrowserTestLanePool;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\DockerCleanupPolicy;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\DockerResourceSweeper;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\PositiveIntegerInput;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -64,39 +65,50 @@ class TestDockerCleanupCommand extends Command {
 	protected function execute( InputInterface $input, OutputInterface $output ) :int {
 		try {
 			$scope = $this->resolveScope( $input->getOption( 'scope' ) );
-			$laneCount = $this->resolveLaneCount( $input->getOption( 'lanes' ), $scope );
-			$fullCleanup = (bool)$input->getOption( 'all' );
-			$dryRun = (bool)$input->getOption( 'dry-run' );
-			$policy = DockerCleanupPolicy::forScope( $scope, $laneCount );
-			$sweeper = new DockerResourceSweeper( $this->processRunner, $policy );
-
-			$report = $sweeper->cleanupRunResources(
-				$this->projectRoot,
-				'manual-cleanup',
-				$laneCount,
-				$fullCleanup,
-				$dryRun
-			);
-
-			if ( $dryRun ) {
-				$this->writeDryRunPlan( $output, $scope, $report->plannedActions() );
-			}
-
-			if ( $report->findings() !== [] ) {
-				$output->writeln( '<error>Docker cleanup left unexpected resources:</error>' );
-				foreach ( $report->findings() as $finding ) {
-					$output->writeln( ' - '.$finding );
-				}
-				return Command::FAILURE;
-			}
-
-			$output->writeln( $fullCleanup ? 'Docker harness purge complete for '.$scope.'.' : 'Docker harness cleanup complete for '.$scope.'.' );
-			return Command::SUCCESS;
+			$cleanup = function () use ( $input, $output, $scope ) :int {
+				return $this->executeCleanup( $input, $output, $scope );
+			};
+			return $scope === DockerCleanupPolicy::SCOPE_BROWSER
+				? $this->lanePool->withSharedServiceAdmission( $this->projectRoot, $cleanup, static function ( string $type, string $buffer ) use ( $output ) :void {
+					$output->write( $buffer );
+				} )
+				: $cleanup();
 		}
 		catch ( \Throwable $throwable ) {
 			$output->writeln( '<error>Error: '.$throwable->getMessage().'</error>' );
 			return Command::FAILURE;
 		}
+	}
+
+	private function executeCleanup( InputInterface $input, OutputInterface $output, string $scope ) :int {
+		$laneCount = $this->resolveLaneCount( $input->getOption( 'lanes' ), $scope );
+		$fullCleanup = (bool)$input->getOption( 'all' );
+		$dryRun = (bool)$input->getOption( 'dry-run' );
+		$policy = DockerCleanupPolicy::forScope( $scope, $laneCount );
+		$sweeper = new DockerResourceSweeper( $this->processRunner, $policy );
+
+		$report = $sweeper->cleanupRunResources(
+			$this->projectRoot,
+			'manual-cleanup',
+			$laneCount,
+			$fullCleanup,
+			$dryRun
+		);
+
+		if ( $dryRun ) {
+			$this->writeDryRunPlan( $output, $scope, $report->plannedActions() );
+		}
+
+		if ( $report->findings() !== [] ) {
+			$output->writeln( '<error>Docker cleanup left unexpected resources:</error>' );
+			foreach ( $report->findings() as $finding ) {
+				$output->writeln( ' - '.$finding );
+			}
+			return Command::FAILURE;
+		}
+
+		$output->writeln( $fullCleanup ? 'Docker harness purge complete for '.$scope.'.' : 'Docker harness cleanup complete for '.$scope.'.' );
+		return Command::SUCCESS;
 	}
 
 	/**
@@ -123,11 +135,7 @@ class TestDockerCleanupCommand extends Command {
 		}
 
 		if ( \is_string( $value ) && $value !== '' ) {
-			if ( !\ctype_digit( $value ) || (int)$value < 1 ) {
-				throw new \InvalidArgumentException( '--lanes must be a positive integer.' );
-			}
-
-			return (int)$value;
+			return PositiveIntegerInput::parse( $value, '--lanes' );
 		}
 
 		return $this->lanePool->laneCount();

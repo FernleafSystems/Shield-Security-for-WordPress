@@ -5,15 +5,34 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use Symfony\Component\Process\Process;
 
+/**
+ * @phpstan-type DockerResourceIdentity array{type:'container'|'volume'|'network',id:string}
+ * @phpstan-type DockerResourceSnapshot array{daemonId:string,resources:list<DockerResourceIdentity>}
+ * @phpstan-type DockerResourceMetadata array{harness:string,lifecycle:string,runId:string,expiresAt:string,expiryTs:int|false}
+ * @phpstan-type DockerResourceDetails array{id:string,name:string,harness:string,lifecycle:string,runId:string,expiresAt:string,expiryTs:int|false}
+ */
 class DockerResourceSweeper {
 
 	private ProcessRunner $processRunner;
 
 	private ?DockerCleanupPolicy $policy = null;
 
-	public function __construct( ?ProcessRunner $processRunner = null, ?DockerCleanupPolicy $policy = null ) {
+	private bool $runOwnedCleanup = false;
+
+	private ?string $daemonId = null;
+
+	private ?string $boundRootDir = null;
+
+	/** @var array<string,string|false>|null */
+	private ?array $dockerEnvironment = null;
+
+	public function __construct( ?ProcessRunner $processRunner = null, ?DockerCleanupPolicy $policy = null, bool $runOwnedCleanup = false ) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$this->policy = $policy;
+		$this->runOwnedCleanup = $runOwnedCleanup;
+		if ( $runOwnedCleanup && $policy !== null && $policy->scope() !== DockerCleanupPolicy::SCOPE_BROWSER ) {
+			throw new \InvalidArgumentException( 'Run-owned cleanup is supported only for browser resources.' );
+		}
 	}
 
 	private function policyForLaneCount( int $laneCount ) :DockerCleanupPolicy {
@@ -25,6 +44,11 @@ class DockerResourceSweeper {
 	}
 
 	public function startupSweep( string $rootDir ) :void {
+		if ( $this->runOwnedCleanup ) {
+			$this->assertDockerDaemon( $rootDir );
+			$this->assertFixedSlotsAvailable( $rootDir, null );
+			return;
+		}
 		$report = new DockerCleanupReport();
 		$policy = $this->policyForLaneCount( 1 );
 		$this->removeResources( $rootDir, false, null, $report, $policy );
@@ -41,6 +65,13 @@ class DockerResourceSweeper {
 	 */
 	public function cleanupRunResources( string $rootDir, string $runId, int $laneCount, bool $fullCleanup, bool $dryRun = false ) :DockerCleanupReport {
 		$report = new DockerCleanupReport( $dryRun );
+		if ( $this->runOwnedCleanup ) {
+			if ( $fullCleanup ) {
+				$report->addFinding( 'Run-owned cleanup refuses full/global cleanup.' );
+				return $report;
+			}
+			return $this->cleanupOwnedRunResources( $rootDir, $runId, [], $dryRun );
+		}
 		$policy = $this->policyForLaneCount( $laneCount );
 		if ( $fullCleanup ) {
 			$this->cleanupAllHarnessResources( $rootDir, $laneCount, $report );
@@ -70,6 +101,10 @@ class DockerResourceSweeper {
 
 	public function cleanupAllHarnessResources( string $rootDir, int $laneCount, ?DockerCleanupReport $report = null ) :DockerCleanupReport {
 		$report = $report ?? new DockerCleanupReport();
+		if ( $this->runOwnedCleanup ) {
+			$report->addFinding( 'Run-owned cleanup refuses full/global cleanup.' );
+			return $report;
+		}
 		$policy = $this->policyForLaneCount( $laneCount );
 		$env = \array_merge( $policy->labelEnvironment(
 			'cleanup',
@@ -105,7 +140,7 @@ class DockerResourceSweeper {
 	}
 
 	/**
-	 * @return array<string,string>
+	 * @return array<string,string|false>
 	 */
 	public function labelEnvironment(
 		string $containerRunId,
@@ -116,7 +151,15 @@ class DockerResourceSweeper {
 		string $volumeLifecycle,
 		string $volumeExpiresAt
 	) :array {
-		return $this->policyForLaneCount( 1 )->labelEnvironment(
+		if ( $this->runOwnedCleanup ) {
+			$this->assertRunId( $containerRunId );
+			if ( $this->boundRootDir === null || \preg_match( '/^lane-([1-9][0-9]*)$/D', $lane, $match ) !== 1 ) {
+				throw new \RuntimeException( 'Run-owned allocation has no bound daemon or browser lane.' );
+			}
+			$this->assertDockerDaemon( $this->boundRootDir );
+			$this->assertFixedSlotsAvailable( $this->boundRootDir, (int)$match[ 1 ], $containerRunId );
+		}
+		$environment = $this->policyForLaneCount( 1 )->labelEnvironment(
 			$containerRunId,
 			$containerLifecycle,
 			$lane,
@@ -125,6 +168,272 @@ class DockerResourceSweeper {
 			$volumeLifecycle,
 			$volumeExpiresAt
 		);
+		return $this->runOwnedCleanup ? \array_merge( $environment, $this->dockerEnvironment ?? [] ) : $environment;
+	}
+
+	/**
+	 * Freeze the effective Docker endpoint, then bind allocation/recovery to its server identity.
+	 * @return array{daemonId:string,environment:array<string,string|false>}
+	 */
+	public function bindDockerDaemon( string $rootDir, ?string $expectedDaemonId = null ) :array {
+		$this->requireRunOwnedMode();
+		if ( $expectedDaemonId !== null && !$this->validDaemonId( $expectedDaemonId ) ) {
+			throw new \InvalidArgumentException( 'Recorded Docker daemon identity is invalid.' );
+		}
+		if ( $this->dockerEnvironment === null ) {
+			$this->dockerEnvironment = [];
+			foreach ( [ 'DOCKER_HOST', 'DOCKER_CONTEXT', 'DOCKER_CONFIG', 'DOCKER_TLS', 'DOCKER_TLS_VERIFY', 'DOCKER_CERT_PATH', 'DOCKER_API_VERSION', 'DOCKER_SSH_COMMAND' ] as $key ) {
+				$this->dockerEnvironment[ $key ] = \getenv( $key );
+			}
+			$context = $this->dockerEnvironment[ 'DOCKER_CONTEXT' ];
+			$host = $this->dockerEnvironment[ 'DOCKER_HOST' ];
+			if ( $context !== false && $context !== '' || $host === false || $host === '' ) {
+				if ( $context === false || $context === '' ) {
+					$context = \trim( $this->requiredQuietProcess( [ 'docker', 'context', 'show' ], $rootDir )->getOutput() );
+				}
+				if ( $context === '' || \preg_match( '/^[a-zA-Z0-9_.-]+$/D', $context ) !== 1 ) {
+					throw new \RuntimeException( 'Docker context cannot be frozen safely.' );
+				}
+				$data = \json_decode( $this->requiredQuietProcess( [ 'docker', 'context', 'inspect', $context ], $rootDir )->getOutput(), true );
+				$endpoint = $data[ 0 ][ 'Endpoints' ][ 'docker' ] ?? null;
+				if ( !\is_array( $endpoint ) || !\is_string( $endpoint[ 'Host' ] ?? null ) || $endpoint[ 'Host' ] === '' ) {
+					throw new \RuntimeException( 'Docker context transport is unavailable.' );
+				}
+				$this->dockerEnvironment[ 'DOCKER_HOST' ] = $endpoint[ 'Host' ];
+				$this->dockerEnvironment[ 'DOCKER_CONTEXT' ] = false;
+				$this->dockerEnvironment[ 'DOCKER_TLS' ] = false;
+				$this->dockerEnvironment[ 'DOCKER_TLS_VERIFY' ] = false;
+				$this->dockerEnvironment[ 'DOCKER_CERT_PATH' ] = false;
+				$materials = $data[ 0 ][ 'TLSMaterial' ][ 'docker' ] ?? [];
+				if ( $materials !== [] ) {
+					$path = $data[ 0 ][ 'Storage' ][ 'TLSPath' ] ?? null;
+					if ( !\is_string( $path ) || $path === '' || !\is_array( $materials ) ) {
+						throw new \RuntimeException( 'Docker context TLS transport is unavailable.' );
+					}
+					$this->dockerEnvironment[ 'DOCKER_CERT_PATH' ] = \rtrim( $path, '/\\' ).'/docker';
+					$this->dockerEnvironment[ 'DOCKER_TLS' ] = '1';
+					$this->dockerEnvironment[ 'DOCKER_TLS_VERIFY' ] = ( $endpoint[ 'SkipTLSVerify' ] ?? false ) ? false : '1';
+				}
+			}
+		}
+		$observed = $this->observedDaemonId( $rootDir );
+		if ( ( $expectedDaemonId !== null && !\hash_equals( $expectedDaemonId, $observed ) )
+			|| ( $this->daemonId !== null && !\hash_equals( $this->daemonId, $observed ) ) ) {
+			throw new \RuntimeException( 'Docker daemon identity changed; owned resources retained.' );
+		}
+		$this->daemonId = $observed;
+		$this->boundRootDir = $rootDir;
+		return [ 'daemonId' => $observed, 'environment' => $this->dockerEnvironment ];
+	}
+
+	/** @return DockerResourceSnapshot */
+	public function snapshotRunResources( string $rootDir, string $runId ) :array {
+		$this->assertDockerDaemon( $rootDir );
+		$this->assertRunId( $runId );
+		$report = new DockerCleanupReport();
+		$resources = [];
+		foreach ( [ 'container', 'volume', 'network' ] as $type ) {
+			foreach ( $this->listLabeledResourceIds( $rootDir, $type, $report, $this->policyForLaneCount( 1 ) ) as $id ) {
+				$data = $this->inspectDockerResource( $rootDir, $type, $id, $report );
+				if ( $this->isOwnedTransient( $this->labelsFromInspectData( $data ), $runId ) ) {
+					$canonical = $this->canonicalResourceId( $type, $data );
+					if ( $canonical === null ) {
+						$report->addFinding( 'Docker owned resource identity is invalid.' );
+						continue;
+					}
+					$resources[] = [ 'type' => $type, 'id' => $canonical ];
+				}
+			}
+		}
+		$this->throwReportFindings( $report );
+		$this->assertDockerDaemon( $rootDir );
+		return [ 'daemonId' => (string)$this->daemonId, 'resources' => $resources ];
+	}
+
+	/** @param list<DockerResourceIdentity> $recordedResources */
+	public function cleanupOwnedRunResources( string $rootDir, string $runId, array $recordedResources = [], bool $dryRun = false ) :DockerCleanupReport {
+		$report = new DockerCleanupReport( $dryRun );
+		try {
+			$this->assertDockerDaemon( $rootDir );
+			$this->assertRunId( $runId );
+			if ( \array_values( $recordedResources ) !== $recordedResources ) {
+				throw new \RuntimeException( 'Recorded Docker resources must be a list.' );
+			}
+			$resources = [];
+			foreach ( $recordedResources as $resource ) {
+				if ( !\is_array( $resource ) || \count( $resource ) !== 2 || !\is_string( $resource[ 'type' ] ?? null )
+					|| !\is_string( $resource[ 'id' ] ?? null ) || !$this->validResourceId( $resource[ 'type' ], $resource[ 'id' ] ) ) {
+					throw new \RuntimeException( 'Recorded Docker resource identity is invalid.' );
+				}
+				$resources[ $resource[ 'type' ].':'.$resource[ 'id' ] ] = $resource;
+			}
+			foreach ( $this->snapshotRunResources( $rootDir, $runId )[ 'resources' ] as $resource ) {
+				$resources[ $resource[ 'type' ].':'.$resource[ 'id' ] ] = $resource;
+			}
+			\uasort( $resources, static fn( array $a, array $b ) :int => \array_search( $a[ 'type' ], [ 'container', 'volume', 'network' ], true ) <=> \array_search( $b[ 'type' ], [ 'container', 'volume', 'network' ], true ) );
+			// Validate the complete receipt set before allowing any deletion.
+			foreach ( $resources as $resource ) {
+				$this->inspectOwnedResource( $rootDir, $resource, $runId, $report );
+			}
+			$this->throwReportFindings( $report );
+			foreach ( $resources as $resource ) {
+				$this->assertDockerDaemon( $rootDir );
+				if ( !$this->inspectOwnedResource( $rootDir, $resource, $runId, $report ) ) {
+					$this->throwReportFindings( $report );
+					continue;
+				}
+				$command = [ 'docker', $resource[ 'type' ], 'rm' ];
+				if ( $resource[ 'type' ] === 'container' ) {
+					$command[] = '-f';
+				}
+				$command[] = $resource[ 'id' ];
+				$this->runCleanupCommand( $command, $rootDir, $report, 'remove owned '.$resource[ 'type' ].' '.$resource[ 'id' ], null, true );
+				$this->throwReportFindings( $report );
+			}
+			if ( !$dryRun && $this->snapshotRunResources( $rootDir, $runId )[ 'resources' ] !== [] ) {
+				$report->addFinding( 'Owned Docker resources remain after cleanup.' );
+			}
+			$this->assertDockerDaemon( $rootDir );
+		}
+		catch ( \Throwable $error ) {
+			$report->addFinding( $error->getMessage() );
+		}
+		return $report;
+	}
+
+	private function requireRunOwnedMode() :void {
+		if ( !$this->runOwnedCleanup ) {
+			throw new \RuntimeException( 'Run-owned Docker operations require explicit opt-in.' );
+		}
+	}
+
+	private function assertRunId( string $runId ) :void {
+		if ( \preg_match( '/^[a-zA-Z0-9_.-]{1,200}$/D', $runId ) !== 1 ) {
+			throw new \InvalidArgumentException( 'Docker run identity is invalid.' );
+		}
+	}
+
+	private function validDaemonId( string $id ) :bool {
+		return \preg_match( '/^[a-zA-Z0-9:_.-]{1,200}$/D', $id ) === 1;
+	}
+
+	private function validResourceId( string $type, string $id ) :bool {
+		return \in_array( $type, [ 'container', 'network' ], true )
+			? \preg_match( '/^[a-f0-9]{64}$/D', $id ) === 1
+			: $type === 'volume' && \preg_match( '/^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,199}$/D', $id ) === 1;
+	}
+
+	private function observedDaemonId( string $rootDir ) :string {
+		$id = \trim( $this->requiredQuietProcess( [ 'docker', 'info', '--format', '{{.ID}}' ], $rootDir )->getOutput() );
+		if ( !$this->validDaemonId( $id ) ) {
+			throw new \RuntimeException( 'Docker daemon identity is unavailable.' );
+		}
+		return $id;
+	}
+
+	private function assertDockerDaemon( string $rootDir ) :void {
+		$this->requireRunOwnedMode();
+		if ( $this->daemonId === null || $this->dockerEnvironment === null || !\hash_equals( $this->daemonId, $this->observedDaemonId( $rootDir ) ) ) {
+			throw new \RuntimeException( 'Docker daemon is unbound or changed; owned resources retained.' );
+		}
+	}
+
+	/** @param string[] $command */
+	private function requiredQuietProcess( array $command, string $rootDir ) :Process {
+		$process = $this->runQuiet( $command, $rootDir );
+		if ( $process === null || ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			throw new \RuntimeException( 'Docker ownership inspection failed; private diagnostics suppressed.' );
+		}
+		return $process;
+	}
+
+	/** @param array<string,string> $labels */
+	private function isOwnedTransient( array $labels, string $runId ) :bool {
+		return ( $labels[ DockerHarnessLabels::HARNESS ] ?? null ) === LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE
+			&& ( $labels[ DockerHarnessLabels::RUN_ID ] ?? null ) === $runId
+			&& ( $labels[ DockerHarnessLabels::LIFECYCLE ] ?? null ) === DockerHarnessLabels::LIFECYCLE_TRANSIENT;
+	}
+
+	private function throwReportFindings( DockerCleanupReport $report ) :void {
+		if ( $report->hasFindings() ) {
+			throw new \RuntimeException( 'Docker ownership inspection or cleanup is incomplete; resources retained. '.\implode( ' ', $report->findings() ) );
+		}
+	}
+
+	/** @param DockerResourceIdentity $resource */
+	private function inspectOwnedResource( string $rootDir, array $resource, string $runId, DockerCleanupReport $report ) :bool {
+		$data = $this->optionalResourceData( $rootDir, $resource[ 'type' ], $resource[ 'id' ], $report );
+		if ( $data === null ) {
+			return false;
+		}
+		$canonical = $this->canonicalResourceId( $resource[ 'type' ], $data );
+		if ( $canonical !== $resource[ 'id' ] || !$this->isOwnedTransient( $this->labelsFromInspectData( $data ), $runId ) ) {
+			$report->addFinding( 'Recorded Docker resource ownership changed; cleanup refused.' );
+			return false;
+		}
+		return true;
+	}
+
+	/** @param array<string,mixed> $data */
+	private function canonicalResourceId( string $type, array $data ) :?string {
+		$id = $type === 'volume' ? ( $data[ 'Name' ] ?? null ) : ( $data[ 'Id' ] ?? null );
+		return \is_string( $id ) && $this->validResourceId( $type, $id ) ? $id : null;
+	}
+
+	/** @return array<string,mixed>|null */
+	private function optionalResourceData( string $rootDir, string $type, string $id, DockerCleanupReport $report ) :?array {
+		$process = $this->runOptionalInspect( [ 'docker', $type, 'inspect', $id ], $rootDir, $report, 'inspect fixed/owned '.$type );
+		if ( $process === null || ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			$quotedId = \preg_quote( $id, '/' );
+			$absence = '/(?:No such (?:container|volume|network|object):\s*'.$quotedId.'(?:\s|$)|get '.$quotedId.':\s*no such volume(?:\s|$)|network '.$quotedId.' not found(?:\s|$))/i';
+			if ( $process !== null && \preg_match( $absence, $process->getErrorOutput() ) !== 1 ) {
+				$report->addFinding( 'Docker resource absence is uncertain.' );
+			}
+			return null;
+		}
+		return $this->decodeInspectData( $process->getOutput(), $report, 'Docker ownership inspection returned invalid JSON.', true );
+	}
+
+	private function assertFixedSlotsAvailable( string $rootDir, ?int $laneIndex, ?string $runId = null ) :void {
+		$slots = [
+			[ 'type' => 'container', 'id' => LocalSiteDefinitions::BROWSER_DB_CONTAINER_NAME ],
+			[ 'type' => 'volume', 'id' => LocalSiteDefinitions::BROWSER_DB_VOLUME_NAME ],
+			[ 'type' => 'network', 'id' => LocalSiteDefinitions::BROWSER_NETWORK_NAME ],
+		];
+		if ( $laneIndex !== null ) {
+			$project = LocalSiteDefinitions::browserLane( $laneIndex )->composeProjectName();
+			$slots[] = [ 'type' => 'volume', 'id' => $project.'_site-wp' ];
+			$slots[] = [ 'type' => 'volume', 'id' => $project.'_site-plugin' ];
+			// Include both Compose separators and one-off wp-cli names in this selected lane.
+			$process = $this->requiredQuietProcess( [ 'docker', 'container', 'ls', '-a', '--format', '{{.ID}}\t{{.Names}}' ], $rootDir );
+			foreach ( \preg_split( '/\R+/', \trim( $process->getOutput() ) ) ?: [] as $line ) {
+				$parts = \preg_split( '/\s+/', \trim( $line ), 2 ) ?: [];
+				if ( isset( $parts[ 1 ] ) && \preg_match( '/^'.\preg_quote( $project, '/' ).'[-_](wordpress|wp-cli)[-_]/', $parts[ 1 ] ) === 1 ) {
+					$slots[] = [ 'type' => 'container', 'id' => $parts[ 0 ] ];
+				}
+			}
+		}
+		$report = new DockerCleanupReport();
+		foreach ( $slots as $slot ) {
+			$data = $this->optionalResourceData( $rootDir, $slot[ 'type' ], $slot[ 'id' ], $report );
+			if ( $data === null ) {
+				continue;
+			}
+			$labels = $this->labelsFromInspectData( $data );
+			$metadata = $this->resourceMetadata( $labels );
+			$expiry = $metadata[ 'expiryTs' ];
+			$reusable = $slot[ 'type' ] === 'volume'
+				&& $metadata[ 'harness' ] === LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE
+				&& $this->isValidReusableVolume( $metadata );
+			$ownSharedTransient = $runId !== null && $expiry !== false && $expiry > \time()
+				&& \in_array( $slot[ 'id' ], [ LocalSiteDefinitions::BROWSER_DB_CONTAINER_NAME, LocalSiteDefinitions::BROWSER_NETWORK_NAME ], true )
+				&& $this->isOwnedTransient( $labels, $runId );
+			if ( !$reusable && !$ownSharedTransient ) {
+				$report->addFinding( 'Docker fixed '.$slot[ 'type' ].' slot is occupied; allocation refused.' );
+			}
+		}
+		$this->throwReportFindings( $report );
+		$this->assertDockerDaemon( $rootDir );
 	}
 
 	private function removeResources(
@@ -153,11 +462,10 @@ class DockerResourceSweeper {
 		DockerCleanupPolicy $policy
 	) :void {
 		foreach ( $this->listLabeledResourceIds( $rootDir, $type, $report, $policy ) as $id ) {
-			$labels = $this->inspectLabels( $rootDir, $type, $id, $report );
-			$lifecycle = (string)( $labels[ DockerHarnessLabels::LIFECYCLE ] ?? '' );
-			$resourceRunId = (string)( $labels[ DockerHarnessLabels::RUN_ID ] ?? '' );
-			$expiresAt = (string)( $labels[ DockerHarnessLabels::EXPIRES_AT ] ?? '' );
-			$expiryTs = $expiresAt === '' ? false : \strtotime( $expiresAt );
+			$metadata = $this->resourceMetadata( $this->inspectLabels( $rootDir, $type, $id, $report ) );
+			$lifecycle = $metadata[ 'lifecycle' ];
+			$resourceRunId = $metadata[ 'runId' ];
+			$expiryTs = $metadata[ 'expiryTs' ];
 			$isExpired = $expiryTs !== false && $expiryTs <= \time();
 			$isTransient = $lifecycle === DockerHarnessLabels::LIFECYCLE_TRANSIENT;
 			$isCurrentRunTransient = $isTransient && $runId !== null && \hash_equals( $runId, $resourceRunId );
@@ -234,7 +542,7 @@ class DockerResourceSweeper {
 	}
 
 	/**
-	 * @return array<int,array{id:string,name:string,lifecycle:string,runId:string,expiresAt:string,expiryTs:int|false}>
+	 * @return list<DockerResourceDetails>
 	 */
 	private function listLabeledResourceDetails(
 		string $rootDir,
@@ -245,23 +553,17 @@ class DockerResourceSweeper {
 		$resources = [];
 		foreach ( $this->listLabeledResourceIds( $rootDir, $type, $report, $policy ) as $id ) {
 			$inspect = $this->inspectDockerResource( $rootDir, $type, $id, $report );
-			$labels = $this->labelsFromInspectData( $inspect );
-			$expiresAt = (string)( $labels[ DockerHarnessLabels::EXPIRES_AT ] ?? '' );
-			$resources[] = [
+			$resources[] = \array_merge( $this->resourceMetadata( $this->labelsFromInspectData( $inspect ) ), [
 				'id' => $id,
 				'name' => $this->nameFromInspectData( $inspect, $id ),
-				'lifecycle' => (string)( $labels[ DockerHarnessLabels::LIFECYCLE ] ?? '' ),
-				'runId' => (string)( $labels[ DockerHarnessLabels::RUN_ID ] ?? '' ),
-				'expiresAt' => $expiresAt,
-				'expiryTs' => $expiresAt === '' ? false : \strtotime( $expiresAt ),
-			];
+			] );
 		}
 
 		return $resources;
 	}
 
 	/**
-	 * @param array{id:string,name:string,lifecycle:string,runId:string,expiresAt:string,expiryTs:int|false} $resource
+	 * @param DockerResourceMetadata $resource
 	 */
 	private function isValidReusableVolume( array $resource ) :bool {
 		return $resource[ 'lifecycle' ] === DockerHarnessLabels::LIFECYCLE_REUSABLE
@@ -271,7 +573,7 @@ class DockerResourceSweeper {
 	}
 
 	/**
-	 * @param array{id:string,name:string,lifecycle:string,runId:string,expiresAt:string,expiryTs:int|false} $resource
+	 * @param DockerResourceMetadata $resource
 	 */
 	private function isActiveOtherRunTransient( array $resource, string $runId ) :bool {
 		return $resource[ 'lifecycle' ] === DockerHarnessLabels::LIFECYCLE_TRANSIENT
@@ -282,7 +584,7 @@ class DockerResourceSweeper {
 	}
 
 	/**
-	 * @param array{id:string,name:string,lifecycle:string,runId:string,expiresAt:string,expiryTs:int|false} $resource
+	 * @param DockerResourceDetails $resource
 	 */
 	private function describeResource( string $type, array $resource ) :string {
 		return \sprintf(
@@ -311,13 +613,32 @@ class DockerResourceSweeper {
 		if ( $process === null ) {
 			return [];
 		}
-		$data = \json_decode( $process->getOutput(), true );
-		if ( !\is_array( $data ) || !isset( $data[ 0 ] ) || !\is_array( $data[ 0 ] ) ) {
-			$report->addFinding( 'Docker cleanup command returned invalid inspect JSON: docker '.$type.' inspect '.$id );
-			return [];
-		}
+		return $this->decodeInspectData( $process->getOutput(), $report, 'Docker cleanup command returned invalid inspect JSON: docker '.$type.' inspect '.$id ) ?? [];
+	}
 
+	/** @return array<string,mixed>|null */
+	private function decodeInspectData( string $json, DockerCleanupReport $report, string $invalidFinding, bool $requireSingle = false ) :?array {
+		$data = \json_decode( $json, true );
+		if ( !\is_array( $data ) || !\is_array( $data[ 0 ] ?? null ) || ( $requireSingle && \count( $data ) !== 1 ) ) {
+			$report->addFinding( $invalidFinding );
+			return null;
+		}
 		return $data[ 0 ];
+	}
+
+	/**
+	 * @param array<string,string> $labels
+	 * @return DockerResourceMetadata
+	 */
+	private function resourceMetadata( array $labels ) :array {
+		$expiresAt = $labels[ DockerHarnessLabels::EXPIRES_AT ] ?? '';
+		return [
+			'harness' => $labels[ DockerHarnessLabels::HARNESS ] ?? '',
+			'lifecycle' => $labels[ DockerHarnessLabels::LIFECYCLE ] ?? '',
+			'runId' => $labels[ DockerHarnessLabels::RUN_ID ] ?? '',
+			'expiresAt' => $expiresAt,
+			'expiryTs' => $expiresAt === '' ? false : \strtotime( $expiresAt ),
+		];
 	}
 
 	/**
@@ -326,7 +647,16 @@ class DockerResourceSweeper {
 	 */
 	private function labelsFromInspectData( array $data ) :array {
 		$labels = $data[ 'Config' ][ 'Labels' ] ?? $data[ 'Labels' ] ?? [];
-		return \is_array( $labels ) ? $labels : [];
+		if ( !\is_array( $labels ) ) {
+			return [];
+		}
+		$normalized = [];
+		foreach ( $labels as $key => $value ) {
+			if ( \is_string( $key ) && \is_string( $value ) ) {
+				$normalized[ $key ] = $value;
+			}
+		}
+		return $normalized;
 	}
 
 	/**
@@ -437,12 +767,11 @@ class DockerResourceSweeper {
 			if ( $process === null || ( $process->getExitCode() ?? 1 ) !== 0 ) {
 				return false;
 			}
-			$data = \json_decode( $process->getOutput(), true );
-			if ( !\is_array( $data ) || !isset( $data[ 0 ] ) || !\is_array( $data[ 0 ] ) ) {
-				$report->addFinding( 'Docker cleanup command returned invalid inspect JSON: '.\implode( ' ', $command ) );
+			$data = $this->decodeInspectData( $process->getOutput(), $report, 'Docker cleanup command returned invalid inspect JSON: '.\implode( ' ', $command ) );
+			if ( $data === null ) {
 				return false;
 			}
-			$labels = $this->labelsFromInspectData( $data[ 0 ] );
+			$labels = $this->labelsFromInspectData( $data );
 			return ( $labels[ DockerHarnessLabels::HARNESS ] ?? '' ) === LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE;
 		}
 
@@ -455,6 +784,9 @@ class DockerResourceSweeper {
 	 * @param array<string,string|false>|null $envOverrides
 	 */
 	private function runQuiet( array $command, string $rootDir, ?array $envOverrides = null ) :?Process {
+		if ( $this->runOwnedCleanup && $this->dockerEnvironment !== null ) {
+			$envOverrides = \array_merge( $envOverrides ?? [], $this->dockerEnvironment );
+		}
 		try {
 			return $this->processRunner->run(
 				$command,
@@ -481,6 +813,9 @@ class DockerResourceSweeper {
 		?array $envOverrides = null,
 		bool $destructive = false
 	) :?Process {
+		if ( $destructive && $this->runOwnedCleanup ) {
+			$this->assertDockerDaemon( $rootDir );
+		}
 		if ( $destructive ) {
 			$report->addPlannedAction( $description.': '.\implode( ' ', $command ) );
 		}
@@ -496,6 +831,10 @@ class DockerResourceSweeper {
 
 		$exitCode = $process->getExitCode() ?? 1;
 		if ( $exitCode !== 0 ) {
+			if ( $this->runOwnedCleanup ) {
+				$report->addFinding( 'Docker owned operation failed; private diagnostics suppressed: '.$description );
+				return null;
+			}
 			$stderr = \trim( $process->getErrorOutput() );
 			$report->addFinding( \sprintf(
 				'Docker cleanup command failed (%d): %s%s',
@@ -528,6 +867,10 @@ class DockerResourceSweeper {
 		}
 		$exitCode = $process->getExitCode() ?? 1;
 		if ( $exitCode !== 0 && !$this->isMissingDockerResource( $process->getErrorOutput() ) ) {
+			if ( $this->runOwnedCleanup ) {
+				$report->addFinding( 'Docker owned inspection failed; private diagnostics suppressed: '.$description );
+				return $process;
+			}
 			$report->addFinding( \sprintf(
 				'Docker cleanup command failed (%d): %s STDERR: %s',
 				$exitCode,
