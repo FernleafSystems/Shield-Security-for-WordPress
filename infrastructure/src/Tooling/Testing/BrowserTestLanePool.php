@@ -10,6 +10,78 @@ class BrowserTestLanePool {
 	private const DEFAULT_LANE_COUNT = 2;
 	private const DEFAULT_WAIT_SECONDS = 600;
 	private const LOCK_DIR = 'tmp/browser-test-lanes';
+	private const SHARED_SERVICE_LOCK_DIR = 'shield-browser-test-lanes';
+	private const SHARED_SERVICE_LOCK_FILE = 'shared-services.lock';
+
+	private ?string $sharedServiceLockDir = null;
+
+	/** @var array<string,array{pid:int,handle:resource}> */
+	private static array $sharedServiceAdmissions = [];
+
+	public function __construct( ?string $sharedServiceLockDir = null ) {
+		$this->sharedServiceLockDir = $sharedServiceLockDir;
+	}
+
+	/**
+	 * Serialize browser service owners across checkouts, retaining admission through cleanup.
+	 * Nested owners in the same process share the live handle, never diagnostic metadata.
+	 *
+	 * @param callable():int $callback
+	 */
+	public function withSharedServiceAdmission( string $rootDir, callable $callback, ?callable $onOutput = null ) :int {
+		$lockDir = $this->sharedServiceLockDir ?? Path::join( \rtrim( \sys_get_temp_dir(), "\\/" ), self::SHARED_SERVICE_LOCK_DIR );
+		if ( !\is_dir( $lockDir ) && !@\mkdir( $lockDir, 0777, true ) && !\is_dir( $lockDir ) ) {
+			throw new \RuntimeException( 'Failed to create browser shared-service lock directory: '.$lockDir );
+		}
+		$resolvedLockDir = \realpath( $lockDir );
+		if ( $resolvedLockDir === false ) {
+			throw new \RuntimeException( 'Failed to resolve browser shared-service lock directory: '.$lockDir );
+		}
+		$lockPath = Path::join( $resolvedLockDir, self::SHARED_SERVICE_LOCK_FILE );
+		$admissionKey = \DIRECTORY_SEPARATOR === '\\' ? \strtolower( $lockPath ) : $lockPath;
+		$pid = (int)\getmypid();
+		$admission = self::$sharedServiceAdmissions[ $admissionKey ] ?? null;
+		if ( $admission !== null && $admission[ 'pid' ] === $pid && \is_resource( $admission[ 'handle' ] ) ) {
+			return $callback();
+		}
+
+		$waitSeconds = $this->waitSeconds();
+		$handle = \fopen( $lockPath, 'c+' );
+		if ( $handle === false ) {
+			throw new \RuntimeException( 'Failed to open browser shared-service lock file: '.$lockPath );
+		}
+		$startedAt = \microtime( true );
+		$reportedWaiting = false;
+		try {
+			do {
+				if ( \flock( $handle, \LOCK_EX | \LOCK_NB ) ) {
+					self::$sharedServiceAdmissions[ $admissionKey ] = [ 'pid' => $pid, 'handle' => $handle ];
+					\rewind( $handle );
+					\ftruncate( $handle, 0 );
+					\fwrite( $handle, \json_encode( [
+						'pid' => $pid,
+						'root_dir' => $rootDir,
+						'acquired_at_unix' => \time(),
+					], \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES ).\PHP_EOL );
+					\fflush( $handle );
+					return $callback();
+				}
+				if ( !$reportedWaiting ) {
+					$this->writeProgress( 'Browser shared services: waiting for admission', $onOutput );
+					$reportedWaiting = true;
+				}
+				\usleep( 500000 );
+			} while ( \microtime( true ) - $startedAt < $waitSeconds );
+			throw new \RuntimeException( 'No browser shared-service admission became available within '.$waitSeconds.' seconds. Lock: '.$lockPath );
+		}
+		finally {
+			if ( ( self::$sharedServiceAdmissions[ $admissionKey ][ 'handle' ] ?? null ) === $handle ) {
+				unset( self::$sharedServiceAdmissions[ $admissionKey ] );
+			}
+			@\flock( $handle, \LOCK_UN );
+			\fclose( $handle );
+		}
+	}
 
 	/**
 	 * @param callable|null $onOutput Receives (string $type, string $buffer)
@@ -82,11 +154,7 @@ class BrowserTestLanePool {
 		if ( $value === false || $value === '' ) {
 			return $default;
 		}
-		if ( !\ctype_digit( $value ) || (int)$value < 1 ) {
-			throw new \InvalidArgumentException( $name.' must be a positive integer.' );
-		}
-
-		return (int)$value;
+		return PositiveIntegerInput::parse( $value, $name );
 	}
 
 	/**

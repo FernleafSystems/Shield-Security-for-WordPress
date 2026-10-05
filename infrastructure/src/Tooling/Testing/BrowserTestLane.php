@@ -5,6 +5,10 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use Symfony\Component\Process\Process;
 
+/**
+ * @phpstan-type BrowserLane array{laneIndex:int,baseUrl:string,fixtureToken:string,authStatePath:string,outputDir:string}
+ * @phpstan-type BrowserLaneMap array<int|string,BrowserLane>
+ */
 class BrowserTestLane {
 
 	private const MODE_CLEAN = 'clean';
@@ -56,15 +60,16 @@ class BrowserTestLane {
 
 	/**
 	 * Keep the lane leases alive until the external browser consumer finishes.
-	 * @param callable(array<int|string,array<string,int|string>>):int $consumer
+	 * @param callable(BrowserLaneMap):int $consumer
 	 * @param array{mode?:?string,lanes?:?string,show_setup_output?:bool,runtime_refresh?:?string} $options
 	 */
 	public function runWithConsumer( string $rootDir, callable $consumer, array $options = [] ) :int {
 		$lanes = $this->resolveLaneCount( $options[ 'lanes' ] ?? null );
-		return $this->execute( $rootDir, [ '--workers='.$lanes ], $options, $consumer );
+		return $this->execute( $rootDir, [ '--workers='.$lanes ], $options, $consumer, $lanes );
 	}
 
-	private function execute( string $rootDir, array $playwrightArgs, array $options, ?callable $consumer = null ) :int {
+	/** @param callable(BrowserLaneMap):int|null $consumer */
+	private function execute( string $rootDir, array $playwrightArgs, array $options, ?callable $consumer = null, ?int $resolvedLaneCount = null ) :int {
 		echo 'Mode: browser'.\PHP_EOL;
 
 		$playwrightArgs = $this->normalizePlaywrightArgs( $playwrightArgs );
@@ -85,7 +90,7 @@ class BrowserTestLane {
 			);
 		}
 
-		$laneCount = $this->resolveLaneCount( $options[ 'lanes' ] ?? null );
+		$laneCount = $resolvedLaneCount ?? $this->resolveLaneCount( $options[ 'lanes' ] ?? null );
 		$workerCount = $this->resolveWorkerCount( $playwrightArgs, $laneCount );
 		if ( $workerCount > $laneCount ) {
 			\fwrite(
@@ -99,6 +104,31 @@ class BrowserTestLane {
 			return 1;
 		}
 
+		try {
+			return $this->lanePool->withSharedServiceAdmission( $rootDir, function () use ( $rootDir, $playwrightArgs, $runMode, $runtimeRefreshMode, $showSetupOutput, $laneCount, $workerCount, $consumer ) :int {
+				return $this->executeAdmitted( $rootDir, $playwrightArgs, $runMode, $runtimeRefreshMode, $showSetupOutput, $laneCount, $workerCount, $consumer );
+			} );
+		}
+		catch ( \Throwable $throwable ) {
+			$this->writeFailureDiagnostic( 'browser shared-service admission', $throwable, null );
+			return 1;
+		}
+	}
+
+	/**
+	 * @param string[] $playwrightArgs
+	 * @param callable(BrowserLaneMap):int|null $consumer
+	 */
+	private function executeAdmitted(
+		string $rootDir,
+		array $playwrightArgs,
+		string $runMode,
+		string $runtimeRefreshMode,
+		bool $showSetupOutput,
+		int $laneCount,
+		int $workerCount,
+		?callable $consumer
+	) :int {
 		$runId = $this->buildRunId();
 		$transientExpiresAt = \gmdate( \DATE_ATOM, \time() + 6*60*60 );
 		$reusableExpiresAt = \gmdate( \DATE_ATOM, \time() + 7*24*60*60 );
@@ -215,12 +245,13 @@ class BrowserTestLane {
 						true
 					);
 				}
+				$outputDir = './test-results/playwright/lane-'.$lease->laneIndex();
 				$laneMap[ (string)$parallelIndex ] = [
 					'laneIndex'     => $lease->laneIndex(),
 					'baseUrl'       => $lease->definition()->siteUrl(),
 					'fixtureToken'  => $fixtureToken,
-					'authStatePath' => './test-results/playwright/lane-'.$lease->laneIndex().'/.auth/admin.json',
-					'outputDir'     => './test-results/playwright/lane-'.$lease->laneIndex(),
+					'authStatePath' => $outputDir.'/.auth/admin.json',
+					'outputDir'     => $outputDir,
 				];
 				$parallelIndex++;
 			}
@@ -297,7 +328,7 @@ class BrowserTestLane {
 	}
 
 	/**
-	 * @param array<int|string,array<string,int|string>> $laneMap
+	 * @param BrowserLaneMap $laneMap
 	 */
 	private function encodeLaneMap( array $laneMap ) :string {
 		return \json_encode( (object)$laneMap, \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR );
@@ -305,7 +336,7 @@ class BrowserTestLane {
 
 	/**
 	 * @param string[] $playwrightArgs
-	 * @param array<int|string,array<string,int|string>> $laneMap
+	 * @param BrowserLaneMap $laneMap
 	 */
 	private function runPlaywright( string $rootDir, array $playwrightArgs, array $laneMap ) :int {
 		echo 'Browser lane: run Playwright'.\PHP_EOL;
@@ -386,27 +417,28 @@ class BrowserTestLane {
 	}
 
 	/**
-	 * @return array<string,array<string,int|string>>
+	 * @return BrowserLaneMap
 	 */
 	private function inertLaneMap() :array {
+		$outputDir = './test-results/playwright/list-only';
 		return [
 			'0' => [
 				'laneIndex' => 0,
 				'baseUrl' => 'http://127.0.0.1:0',
 				'fixtureToken' => 'list-only',
-				'authStatePath' => './test-results/playwright/list-only/.auth/admin.json',
-				'outputDir' => './test-results/playwright/list-only',
+				'authStatePath' => $outputDir.'/.auth/admin.json',
+				'outputDir' => $outputDir,
 			],
 		];
 	}
 
 	private function resolveLaneCount( ?string $explicitLaneCount ) :int {
 		if ( $explicitLaneCount !== null && $explicitLaneCount !== '' ) {
-			return $this->positiveInteger( $explicitLaneCount, '--lanes' );
+			return PositiveIntegerInput::parse( $explicitLaneCount, '--lanes' );
 		}
 		$envLaneCount = \getenv( 'SHIELD_BROWSER_LANE_COUNT' );
 		if ( \is_string( $envLaneCount ) && $envLaneCount !== '' ) {
-			return $this->positiveInteger( $envLaneCount, 'SHIELD_BROWSER_LANE_COUNT' );
+			return PositiveIntegerInput::parse( $envLaneCount, 'SHIELD_BROWSER_LANE_COUNT' );
 		}
 		return \getenv( 'CI' ) ? self::DEFAULT_CI_LANES : self::DEFAULT_LOCAL_LANES;
 	}
@@ -421,7 +453,7 @@ class BrowserTestLane {
 		}
 		$envWorkerCount = \getenv( 'SHIELD_BROWSER_WORKERS' );
 		if ( \is_string( $envWorkerCount ) && $envWorkerCount !== '' ) {
-			return $this->positiveInteger( $envWorkerCount, 'SHIELD_BROWSER_WORKERS' );
+			return PositiveIntegerInput::parse( $envWorkerCount, 'SHIELD_BROWSER_WORKERS' );
 		}
 		return \getenv( 'CI' ) ? 1 : $laneCount;
 	}
@@ -434,10 +466,10 @@ class BrowserTestLane {
 			if ( \preg_match( '/^--workers=(\d+)$/', $arg, $matches ) === 1
 				|| \preg_match( '/^-j=(\d+)$/', $arg, $matches ) === 1
 			) {
-				return $this->positiveInteger( $matches[ 1 ], $arg );
+				return PositiveIntegerInput::parse( $matches[ 1 ], $arg );
 			}
 			if ( ( $arg === '--workers' || $arg === '-j' ) && isset( $playwrightArgs[ $index + 1 ] ) ) {
-				return $this->positiveInteger( $playwrightArgs[ $index + 1 ], $arg );
+				return PositiveIntegerInput::parse( $playwrightArgs[ $index + 1 ], $arg );
 			}
 			if ( \str_starts_with( $arg, '--workers' ) || $arg === '-j' ) {
 				throw new \InvalidArgumentException( 'Playwright workers must be a positive integer for browser lane mapping.' );
@@ -447,20 +479,12 @@ class BrowserTestLane {
 		return null;
 	}
 
-	private function positiveInteger( string $value, string $source ) :int {
-		if ( !\ctype_digit( $value ) || (int)$value < 1 ) {
-			throw new \InvalidArgumentException( $source.' must be a positive integer.' );
-		}
-
-		return (int)$value;
-	}
-
 	private function buildRunId() :string {
 		return 'shield-plugin-browser-'.\gmdate( 'YmdHis' ).'-'.\bin2hex( \random_bytes( 4 ) );
 	}
 
 	/**
-	 * @return array<string,string>
+	 * @return array<string,string|false>
 	 */
 	private function browserLabelEnv(
 		string $runId,

@@ -5,6 +5,7 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Cli\Command;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\BrowserTestLanePool;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\DockerResourceSweeper;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteRuntimeRefresher;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\PositiveIntegerInput;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -67,36 +68,11 @@ class TestBrowserCleanupCommand extends Command {
 
 	protected function execute( InputInterface $input, OutputInterface $output ) :int {
 		try {
-			$fullCleanup = (bool)$input->getOption( 'all' );
-			$dryRun = (bool)$input->getOption( 'dry-run' );
-			$laneCount = $this->resolveLaneCount( $input->getOption( 'lanes' ) );
-			$workspaceMaxAgeSeconds = $fullCleanup
-				? 0
-				: $this->resolveWorkspaceMaxAgeSeconds( $input->getOption( 'runtime-workspace-max-age-hours' ) );
-
-			$report = $this->resourceSweeper->cleanupRunResources(
-				$this->projectRoot,
-				'manual-cleanup',
-				$laneCount,
-				$fullCleanup,
-				$dryRun
-			);
-			$workspaceActions = $this->runtimeRefresher->cleanupStaleWorkspaces( $this->projectRoot, $workspaceMaxAgeSeconds, $dryRun );
-
-			if ( $dryRun ) {
-				$this->writeDryRunPlan( $output, $report->plannedActions(), $workspaceActions );
-			}
-
-			if ( $report->findings() !== [] ) {
-				$output->writeln( '<error>Browser cleanup left unexpected resources:</error>' );
-				foreach ( $report->findings() as $finding ) {
-					$output->writeln( ' - '.$finding );
-				}
-				return Command::FAILURE;
-			}
-
-			$output->writeln( $fullCleanup ? 'Browser harness purge complete.' : 'Browser harness cleanup complete.' );
-			return Command::SUCCESS;
+			return $this->lanePool->withSharedServiceAdmission( $this->projectRoot, function () use ( $input, $output ) :int {
+				return $this->executeAdmitted( $input, $output );
+			}, static function ( string $type, string $buffer ) use ( $output ) :void {
+				$output->write( $buffer );
+			} );
 		}
 		catch ( \Throwable $throwable ) {
 			$output->writeln( '<error>Error: '.$throwable->getMessage().'</error>' );
@@ -104,12 +80,45 @@ class TestBrowserCleanupCommand extends Command {
 		}
 	}
 
+	private function executeAdmitted( InputInterface $input, OutputInterface $output ) :int {
+		$fullCleanup = (bool)$input->getOption( 'all' );
+		$dryRun = (bool)$input->getOption( 'dry-run' );
+		$laneCount = $this->resolveLaneCount( $input->getOption( 'lanes' ) );
+		$workspaceMaxAgeSeconds = $fullCleanup
+			? 0
+			: $this->resolveWorkspaceMaxAgeSeconds( $input->getOption( 'runtime-workspace-max-age-hours' ) );
+
+		$report = $this->resourceSweeper->cleanupRunResources(
+			$this->projectRoot,
+			'manual-cleanup',
+			$laneCount,
+			$fullCleanup,
+			$dryRun
+		);
+		$workspaceActions = $this->runtimeRefresher->cleanupStaleWorkspaces( $this->projectRoot, $workspaceMaxAgeSeconds, $dryRun );
+
+		if ( $dryRun ) {
+			$this->writeDryRunPlan( $output, $report->plannedActions(), $workspaceActions );
+		}
+
+		if ( $report->findings() !== [] ) {
+			$output->writeln( '<error>Browser cleanup left unexpected resources:</error>' );
+			foreach ( $report->findings() as $finding ) {
+				$output->writeln( ' - '.$finding );
+			}
+			return Command::FAILURE;
+		}
+
+		$output->writeln( $fullCleanup ? 'Browser harness purge complete.' : 'Browser harness cleanup complete.' );
+		return Command::SUCCESS;
+	}
+
 	/**
 	 * @param mixed $value
 	 */
 	private function resolveLaneCount( $value ) :int {
 		if ( \is_string( $value ) && $value !== '' ) {
-			return $this->positiveInteger( $value, '--lanes' );
+			return PositiveIntegerInput::parse( $value, '--lanes' );
 		}
 
 		return $this->lanePool->laneCount();
@@ -123,15 +132,7 @@ class TestBrowserCleanupCommand extends Command {
 			return 24*60*60;
 		}
 
-		return $this->positiveInteger( $value, '--runtime-workspace-max-age-hours' )*60*60;
-	}
-
-	private function positiveInteger( string $value, string $source ) :int {
-		if ( !\ctype_digit( $value ) || (int)$value < 1 ) {
-			throw new \InvalidArgumentException( $source.' must be a positive integer.' );
-		}
-
-		return (int)$value;
+		return PositiveIntegerInput::parse( $value, '--runtime-workspace-max-age-hours' )*60*60;
 	}
 
 	/**
