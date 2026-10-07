@@ -341,8 +341,8 @@ class DockerResourceSweeper {
 	/** @param string[] $command */
 	private function requiredQuietProcess( array $command, string $rootDir ) :Process {
 		$process = $this->runQuiet( $command, $rootDir );
-		if ( $process === null || ( $process->getExitCode() ?? 1 ) !== 0 ) {
-			throw new \RuntimeException( 'Docker ownership inspection failed; private diagnostics suppressed.' );
+		if ( ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			throw new \RuntimeException( $this->commandFailure( 'Docker ownership inspection', $command, $process ) );
 		}
 		return $process;
 	}
@@ -382,16 +382,8 @@ class DockerResourceSweeper {
 
 	/** @return array<string,mixed>|null */
 	private function optionalResourceData( string $rootDir, string $type, string $id, DockerCleanupReport $report ) :?array {
-		$process = $this->runOptionalInspect( [ 'docker', $type, 'inspect', $id ], $rootDir, $report, 'inspect fixed/owned '.$type );
-		if ( $process === null || ( $process->getExitCode() ?? 1 ) !== 0 ) {
-			$quotedId = \preg_quote( $id, '/' );
-			$absence = '/(?:No such (?:container|volume|network|object):\s*'.$quotedId.'(?:\s|$)|get '.$quotedId.':\s*no such volume(?:\s|$)|network '.$quotedId.' not found(?:\s|$))/i';
-			if ( $process !== null && \preg_match( $absence, $process->getErrorOutput() ) !== 1 ) {
-				$report->addFinding( 'Docker resource absence is uncertain.' );
-			}
-			return null;
-		}
-		return $this->decodeInspectData( $process->getOutput(), $report, 'Docker ownership inspection returned invalid JSON.', true );
+		$process = $this->runOptionalInspect( $type, $id, $rootDir, $report, 'inspect fixed/owned '.$type );
+		return $process === null ? null : $this->decodeInspectData( $process->getOutput(), $report, 'Docker ownership inspection returned invalid JSON.', true );
 	}
 
 	private function assertFixedSlotsAvailable( string $rootDir, ?int $laneIndex, ?string $runId = null ) :void {
@@ -708,11 +700,13 @@ class DockerResourceSweeper {
 			);
 		}
 		if ( $type === 'network' ) {
-			if ( $this->resourceHasHarnessLabel( $rootDir, 'network', LocalSiteDefinitions::BROWSER_NETWORK_NAME, $report, true ) ) {
+			$name = LocalSiteDefinitions::BROWSER_NETWORK_NAME;
+			$process = $this->runOptionalInspect( 'network', $name, $rootDir, $report, 'inspect legacy network '.$name );
+			if ( $process === null ) {
 				return [];
 			}
-			$process = $this->runOptionalInspect( [ 'docker', 'network', 'inspect', LocalSiteDefinitions::BROWSER_NETWORK_NAME ], $rootDir, $report, 'inspect legacy network '.LocalSiteDefinitions::BROWSER_NETWORK_NAME );
-			return $process !== null && ( $process->getExitCode() ?? 1 ) === 0 ? [ LocalSiteDefinitions::BROWSER_NETWORK_NAME ] : [];
+			$data = $this->decodeInspectData( $process->getOutput(), $report, 'Docker cleanup command returned invalid inspect JSON: docker network inspect '.$name );
+			return $data !== null && !$this->hasBrowserHarnessLabel( $this->labelsFromInspectData( $data ) ) ? [ $name ] : [];
 		}
 
 		return [];
@@ -760,22 +754,12 @@ class DockerResourceSweeper {
 		return $name === LocalSiteDefinitions::BROWSER_NETWORK_NAME;
 	}
 
-	private function resourceHasHarnessLabel( string $rootDir, string $type, string $id, DockerCleanupReport $report, bool $optionalAbsence = false ) :bool {
-		if ( $optionalAbsence ) {
-			$command = [ 'docker', $type, 'inspect', $id ];
-			$process = $this->runOptionalInspect( $command, $rootDir, $report, 'inspect '.$type.' '.$id );
-			if ( $process === null || ( $process->getExitCode() ?? 1 ) !== 0 ) {
-				return false;
-			}
-			$data = $this->decodeInspectData( $process->getOutput(), $report, 'Docker cleanup command returned invalid inspect JSON: '.\implode( ' ', $command ) );
-			if ( $data === null ) {
-				return false;
-			}
-			$labels = $this->labelsFromInspectData( $data );
-			return ( $labels[ DockerHarnessLabels::HARNESS ] ?? '' ) === LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE;
-		}
+	private function resourceHasHarnessLabel( string $rootDir, string $type, string $id, DockerCleanupReport $report ) :bool {
+		return $this->hasBrowserHarnessLabel( $this->inspectLabels( $rootDir, $type, $id, $report ) );
+	}
 
-		$labels = $this->inspectLabels( $rootDir, $type, $id, $report );
+	/** @param array<string,string> $labels */
+	private function hasBrowserHarnessLabel( array $labels ) :bool {
 		return ( $labels[ DockerHarnessLabels::HARNESS ] ?? '' ) === LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE;
 	}
 
@@ -783,22 +767,45 @@ class DockerResourceSweeper {
 	 * @param string[] $command
 	 * @param array<string,string|false>|null $envOverrides
 	 */
-	private function runQuiet( array $command, string $rootDir, ?array $envOverrides = null ) :?Process {
+	private function runQuiet( array $command, string $rootDir, ?array $envOverrides = null ) :Process {
 		if ( $this->runOwnedCleanup && $this->dockerEnvironment !== null ) {
 			$envOverrides = \array_merge( $envOverrides ?? [], $this->dockerEnvironment );
 		}
+		return $this->processRunner->run(
+			$command,
+			$rootDir,
+			static function () :void {
+			},
+			$envOverrides
+		);
+	}
+
+	/**
+	 * Report boundary: a launch exception becomes a finding that keeps the original message.
+	 * @param string[] $command
+	 * @param array<string,string|false>|null $envOverrides
+	 */
+	private function runReported( array $command, string $rootDir, DockerCleanupReport $report, string $description, ?array $envOverrides = null ) :?Process {
 		try {
-			return $this->processRunner->run(
-				$command,
-				$rootDir,
-				static function () :void {
-				},
-				$envOverrides
-			);
+			return $this->runQuiet( $command, $rootDir, $envOverrides );
 		}
-		catch ( \Throwable $e ) {
+		catch ( \Throwable $error ) {
+			$report->addFinding( 'Docker cleanup command failed to start: '.$description.' ('.\implode( ' ', $command ).'): '.$error->getMessage() );
 			return null;
 		}
+	}
+
+	/** @param string[] $command */
+	private function commandFailure( string $subject, array $command, Process $process ) :string {
+		$stderr = \trim( $process->getErrorOutput() );
+		$stdout = \trim( $process->getOutput() );
+		return \sprintf(
+			'%s failed (%d): %s%s',
+			$subject,
+			$process->getExitCode() ?? 1,
+			\implode( ' ', $command ),
+			$stderr !== '' ? ' STDERR: '.$stderr : ( $stdout !== '' ? ' STDOUT: '.$stdout : '' )
+		);
 	}
 
 	/**
@@ -823,25 +830,12 @@ class DockerResourceSweeper {
 			return null;
 		}
 
-		$process = $this->runQuiet( $command, $rootDir, $envOverrides );
+		$process = $this->runReported( $command, $rootDir, $report, $description, $envOverrides );
 		if ( $process === null ) {
-			$report->addFinding( 'Docker cleanup command failed to start: '.$description.' ('.\implode( ' ', $command ).')' );
 			return null;
 		}
-
-		$exitCode = $process->getExitCode() ?? 1;
-		if ( $exitCode !== 0 ) {
-			if ( $this->runOwnedCleanup ) {
-				$report->addFinding( 'Docker owned operation failed; private diagnostics suppressed: '.$description );
-				return null;
-			}
-			$stderr = \trim( $process->getErrorOutput() );
-			$report->addFinding( \sprintf(
-				'Docker cleanup command failed (%d): %s%s',
-				$exitCode,
-				\implode( ' ', $command ),
-				$stderr === '' ? '' : ' STDERR: '.$stderr
-			) );
+		if ( ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			$report->addFinding( $this->commandFailure( 'Docker cleanup command', $command, $process ) );
 			return null;
 		}
 
@@ -852,38 +846,30 @@ class DockerResourceSweeper {
 	}
 
 	/**
-	 * @param string[] $command
+	 * Inspect a resource that may be absent.
+	 * @return Process|null The successful inspection; null when the resource is confirmed missing or the
+	 *                      inspection failed, and every failure is recorded as a finding.
 	 */
-	private function runOptionalInspect(
-		array $command,
-		string $rootDir,
-		DockerCleanupReport $report,
-		string $description
-	) :?Process {
-		$process = $this->runQuiet( $command, $rootDir );
-		if ( $process === null ) {
-			$report->addFinding( 'Docker cleanup command failed to start: '.$description.' ('.\implode( ' ', $command ).')' );
-			return null;
+	private function runOptionalInspect( string $type, string $id, string $rootDir, DockerCleanupReport $report, string $description ) :?Process {
+		$command = [ 'docker', $type, 'inspect', $id ];
+		$process = $this->runReported( $command, $rootDir, $report, $description );
+		if ( $process === null || ( $process->getExitCode() ?? 1 ) === 0 ) {
+			return $process;
 		}
-		$exitCode = $process->getExitCode() ?? 1;
-		if ( $exitCode !== 0 && !$this->isMissingDockerResource( $process->getErrorOutput() ) ) {
-			if ( $this->runOwnedCleanup ) {
-				$report->addFinding( 'Docker owned inspection failed; private diagnostics suppressed: '.$description );
-				return $process;
-			}
-			$report->addFinding( \sprintf(
-				'Docker cleanup command failed (%d): %s STDERR: %s',
-				$exitCode,
-				\implode( ' ', $command ),
-				\trim( $process->getErrorOutput() )
-			) );
+		if ( !$this->isMissingDockerResource( $type, $id, $process->getErrorOutput() ) ) {
+			$report->addFinding( $this->commandFailure( 'Docker cleanup command', $command, $process ) );
 		}
-
-		return $process;
+		return null;
 	}
 
-	private function isMissingDockerResource( string $stderr ) :bool {
-		return \stripos( $stderr, 'No such' ) !== false
-			|| \stripos( $stderr, 'not found' ) !== false;
+	/**
+	 * Only Docker's exact "no such object" response line for this resource proves absence.
+	 */
+	private function isMissingDockerResource( string $type, string $id, string $stderr ) :bool {
+		$quotedId = \preg_quote( $id, '/' );
+		$responses = 'No such (?:'.\preg_quote( $type, '/' ).'|object):\s*'.$quotedId
+					 .'|get '.$quotedId.': no such volume'
+					 .'|network '.$quotedId.' not found';
+		return \preg_match( '/^(?:Error(?: response from daemon)?:\s*)?(?:'.$responses.')[ \t]*\r?$/im', $stderr ) === 1;
 	}
 }
