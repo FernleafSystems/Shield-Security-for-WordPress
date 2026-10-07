@@ -146,16 +146,52 @@ class DockerRunOwnedCleanupTest extends TestCase {
 		$this->assertSame( [], $runner->removed );
 	}
 
-	public function testUncertainAbsenceAndPrivateDiagnosticsNeverSettleReceipt() :void {
+	public function testUncertainAbsenceReportsOriginalErrorAndNeverSettlesReceipt() :void {
 		$runner = new OwnedDockerProcessRunner();
 		$sweeper = $this->bound( $runner );
-		$runner->inspectError = 'TLS certificate file not found: private-secret';
-		$report = $sweeper->cleanupOwnedRunResources( $this->root, 'mine', [ [ 'type' => 'volume', 'id' => 'missing' ] ] );
-		$this->assertTrue( $report->hasFindings() );
-		$this->assertStringNotContainsString( 'private-secret', \implode( '\n', $report->findings() ) );
+		$recorded = [ [ 'type' => 'volume', 'id' => 'missing' ] ];
+		$runner->inspectExitCode = 125;
+		foreach ( [ 'TLS certificate file not found: C:\certs\key.pem', 'Error response from daemon: No such volume: missing-other' ] as $error ) {
+			$runner->inspectError = $error;
+			$findings = \implode( "\n", $sweeper->cleanupOwnedRunResources( $this->root, 'mine', $recorded )->findings() );
+			$this->assertStringContainsString( 'Docker cleanup command failed (125): docker volume inspect missing STDERR: '.$error, $findings );
+		}
 		$this->assertSame( [], $runner->removed );
 		$runner->inspectError = null;
-		$this->assertSame( [], $sweeper->cleanupOwnedRunResources( $this->root, 'mine', [ [ 'type' => 'volume', 'id' => 'missing' ] ] )->findings() );
+		$this->assertSame( [], $sweeper->cleanupOwnedRunResources( $this->root, 'mine', $recorded )->findings() );
+	}
+
+	public function testFailedLiveInspectionReportsOriginalErrorAndRetainsResource() :void {
+		$runner = new OwnedDockerProcessRunner();
+		$runner->add( 'volume', 'mine-volume', $this->labels( 'mine', 'transient' ) );
+		$sweeper = $this->bound( $runner );
+		$runner->inspectExitCode = 125;
+		$runner->inspectError = 'permission denied while trying to connect to the Docker daemon';
+		$findings = \implode( "\n", $sweeper->cleanupOwnedRunResources( $this->root, 'mine' )->findings() );
+		$this->assertStringContainsString( 'Docker cleanup command failed (125): docker volume inspect mine-volume STDERR: '.$runner->inspectError, $findings );
+		$this->assertSame( [], $runner->removed );
+		$this->assertCount( 1, $runner->allResources() );
+	}
+
+	public function testLaunchExceptionsReachReportWithOriginalMessage() :void {
+		$runner = new OwnedDockerProcessRunner();
+		$id = $runner->add( 'volume', 'mine-volume', $this->labels( 'mine', 'transient' ) );
+		$sweeper = $this->bound( $runner );
+		$runner->before = static function ( array $command ) :void {
+			if ( ( $command[ 2 ] ?? '' ) === 'rm' ) {
+				throw new \RuntimeException( 'CreateProcess failed: docker.exe vanished' );
+			}
+		};
+		$findings = \implode( "\n", $sweeper->cleanupOwnedRunResources( $this->root, 'mine' )->findings() );
+		$this->assertStringContainsString( 'failed to start: remove owned volume '.$id.' (docker volume rm '.$id.'): CreateProcess failed: docker.exe vanished', $findings );
+		$runner->before = static function ( array $command ) :void {
+			if ( ( $command[ 1 ] ?? '' ) === 'info' ) {
+				throw new \RuntimeException( 'CreateProcess failed: docker.exe missing' );
+			}
+		};
+		$this->assertContains( 'CreateProcess failed: docker.exe missing', $sweeper->cleanupOwnedRunResources( $this->root, 'mine' )->findings() );
+		$this->assertSame( [], $runner->removed );
+		$this->assertCount( 1, $runner->allResources() );
 	}
 
 	public function testTransportIsFrozenForSweeperAndAllocationChildren() :void {
@@ -254,7 +290,8 @@ class DockerRunOwnedCleanupTest extends TestCase {
 		$this->assertCount( 1, $report->plannedActions() );
 		$this->assertSame( [], $runner->removed );
 		$runner->refuseRemoval = $id;
-		$this->assertTrue( $sweeper->cleanupOwnedRunResources( $this->root, 'mine' )->hasFindings() );
+		$findings = \implode( "\n", $sweeper->cleanupOwnedRunResources( $this->root, 'mine' )->findings() );
+		$this->assertStringContainsString( 'Docker cleanup command failed (1): docker volume rm '.$id.' STDERR: Removal refused.', $findings );
 		$this->assertCount( 1, $runner->allResources() );
 		$runner->refuseRemoval = null;
 		$this->assertSame( [], $sweeper->cleanupOwnedRunResources( $this->root, 'mine' )->findings() );
@@ -306,6 +343,8 @@ class OwnedDockerProcessRunner extends ScriptedProcessRunner {
 	public ?string $refuseRemoval = null;
 
 	public ?string $inspectError = null;
+
+	public int $inspectExitCode = 1;
 
 	public bool $duplicateInspectRow = false;
 
@@ -361,7 +400,7 @@ class OwnedDockerProcessRunner extends ScriptedProcessRunner {
 		}
 		$id = (string)\end( $command );
 		if ( $operation === 'inspect' && $this->inspectError !== null ) {
-			return new ScriptedProcess( 1, '', $this->inspectError );
+			return new ScriptedProcess( $this->inspectExitCode, '', $this->inspectError );
 		}
 		$key = null;
 		foreach ( $this->resources[ $type ] as $resourceId => $data ) {
