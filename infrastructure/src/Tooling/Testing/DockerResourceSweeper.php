@@ -235,7 +235,7 @@ class DockerResourceSweeper {
 		foreach ( [ 'container', 'volume', 'network' ] as $type ) {
 			foreach ( $this->listLabeledResourceIds( $rootDir, $type, $report, $this->policyForLaneCount( 1 ) ) as $id ) {
 				$data = $this->inspectDockerResource( $rootDir, $type, $id, $report );
-				if ( $this->isOwnedTransient( $this->labelsFromInspectData( $data ), $runId ) ) {
+				if ( $data !== null && $this->isOwnedTransient( $this->labelsFromInspectData( $data ), $runId ) ) {
 					$canonical = $this->canonicalResourceId( $type, $data );
 					if ( $canonical === null ) {
 						$report->addFinding( 'Docker owned resource identity is invalid.' );
@@ -454,7 +454,12 @@ class DockerResourceSweeper {
 		DockerCleanupPolicy $policy
 	) :void {
 		foreach ( $this->listLabeledResourceIds( $rootDir, $type, $report, $policy ) as $id ) {
-			$metadata = $this->resourceMetadata( $this->inspectLabels( $rootDir, $type, $id, $report ) );
+			$data = $this->inspectDockerResource( $rootDir, $type, $id, $report );
+			if ( $data === null ) {
+				// Unreadable labels are not proof of a removable resource; the finding keeps it visible.
+				continue;
+			}
+			$metadata = $this->resourceMetadata( $this->labelsFromInspectData( $data ) );
 			$lifecycle = $metadata[ 'lifecycle' ];
 			$resourceRunId = $metadata[ 'runId' ];
 			$expiryTs = $metadata[ 'expiryTs' ];
@@ -544,7 +549,7 @@ class DockerResourceSweeper {
 	) :array {
 		$resources = [];
 		foreach ( $this->listLabeledResourceIds( $rootDir, $type, $report, $policy ) as $id ) {
-			$inspect = $this->inspectDockerResource( $rootDir, $type, $id, $report );
+			$inspect = $this->inspectDockerResource( $rootDir, $type, $id, $report ) ?? [];
 			$resources[] = \array_merge( $this->resourceMetadata( $this->labelsFromInspectData( $inspect ) ), [
 				'id' => $id,
 				'name' => $this->nameFromInspectData( $inspect, $id ),
@@ -591,21 +596,14 @@ class DockerResourceSweeper {
 	}
 
 	/**
-	 * @return array<string,string>
+	 * @return array<string,mixed>|null Null when the inspection failed or was unreadable; the finding is recorded.
 	 */
-	private function inspectLabels( string $rootDir, string $type, string $id, DockerCleanupReport $report ) :array {
-		return $this->labelsFromInspectData( $this->inspectDockerResource( $rootDir, $type, $id, $report ) );
-	}
-
-	/**
-	 * @return array<string,mixed>
-	 */
-	private function inspectDockerResource( string $rootDir, string $type, string $id, DockerCleanupReport $report ) :array {
+	private function inspectDockerResource( string $rootDir, string $type, string $id, DockerCleanupReport $report ) :?array {
 		$process = $this->runCleanupCommand( [ 'docker', $type, 'inspect', $id ], $rootDir, $report, 'inspect '.$type.' '.$id );
 		if ( $process === null ) {
-			return [];
+			return null;
 		}
-		return $this->decodeInspectData( $process->getOutput(), $report, 'Docker cleanup command returned invalid inspect JSON: docker '.$type.' inspect '.$id ) ?? [];
+		return $this->decodeInspectData( $process->getOutput(), $report, 'Docker cleanup command returned invalid inspect JSON: docker '.$type.' inspect '.$id );
 	}
 
 	/** @return array<string,mixed>|null */
@@ -706,7 +704,7 @@ class DockerResourceSweeper {
 				return [];
 			}
 			$data = $this->decodeInspectData( $process->getOutput(), $report, 'Docker cleanup command returned invalid inspect JSON: docker network inspect '.$name );
-			return $data !== null && !$this->hasBrowserHarnessLabel( $this->labelsFromInspectData( $data ) ) ? [ $name ] : [];
+			return $this->isReadableUnlabelledResource( $data ) ? [ $name ] : [];
 		}
 
 		return [];
@@ -732,7 +730,7 @@ class DockerResourceSweeper {
 			$id = (string)( $parts[ 0 ] ?? '' );
 			$name = $type === 'container' ? (string)( $parts[ 1 ] ?? '' ) : $id;
 			if ( $id !== '' && $this->isLegacyBrowserResourceName( $type, $name )
-				&& !$this->resourceHasHarnessLabel( $rootDir, $type, $id, $report )
+				&& $this->isReadableUnlabelledResource( $this->inspectDockerResource( $rootDir, $type, $id, $report ) )
 			) {
 				$ids[] = $id;
 			}
@@ -754,13 +752,13 @@ class DockerResourceSweeper {
 		return $name === LocalSiteDefinitions::BROWSER_NETWORK_NAME;
 	}
 
-	private function resourceHasHarnessLabel( string $rootDir, string $type, string $id, DockerCleanupReport $report ) :bool {
-		return $this->hasBrowserHarnessLabel( $this->inspectLabels( $rootDir, $type, $id, $report ) );
-	}
-
-	/** @param array<string,string> $labels */
-	private function hasBrowserHarnessLabel( array $labels ) :bool {
-		return ( $labels[ DockerHarnessLabels::HARNESS ] ?? '' ) === LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE;
+	/**
+	 * A legacy-named resource is removable only when its inspection was read and carries no harness label.
+	 * @param array<string,mixed>|null $data
+	 */
+	private function isReadableUnlabelledResource( ?array $data ) :bool {
+		return $data !== null
+			&& ( $this->labelsFromInspectData( $data )[ DockerHarnessLabels::HARNESS ] ?? '' ) !== LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE;
 	}
 
 	/**

@@ -50,6 +50,7 @@ class DockerResourceSweeperTest extends TestCase {
 		);
 
 		$this->assertTrue( $this->contains( $report->findings(), 'invalid inspect JSON: docker container inspect container-1' ) );
+		$this->assertFalse( $this->commandWasRun( $runner, [ 'docker', 'container', 'rm' ] ) );
 	}
 
 	public function testInvalidLegacyInspectJsonBecomesCleanupFinding() :void {
@@ -105,6 +106,57 @@ class DockerResourceSweeperTest extends TestCase {
 		);
 
 		$this->assertTrue( $this->contains( $report->findings(), 'Docker cleanup command failed (125): docker container inspect container-1 STDOUT: daemon refused inspection' ) );
+		$this->assertFalse( $this->commandWasRun( $runner, [ 'docker', 'container', 'rm' ] ) );
+	}
+
+	public function testFailedHarnessInspectionRetainsResourceAndAuditReportsIt() :void {
+		$inspectFailure = [ 'exit_code' => 1, 'stderr' => 'Error response from daemon: i/o timeout' ];
+		$runner = new ScriptedProcessRunner( [
+			[ 'exit_code' => 0, 'stdout' => "container-1\n" ],
+			$inspectFailure,
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 1, 'stderr' => 'Error: No such network: '.LocalSiteDefinitions::BROWSER_NETWORK_NAME ],
+			[ 'exit_code' => 0, 'stdout' => "container-1\n" ],
+			$inspectFailure,
+		] );
+
+		$report = ( new DockerResourceSweeper( $runner ) )->cleanupRunResources(
+			$this->createTrackedTempDir( 'shield-sweeper-harness-inspect-fail-' ),
+			'run-1',
+			1,
+			false
+		);
+
+		$this->assertTrue( $this->contains( $report->findings(), 'Docker cleanup command failed (1): docker container inspect container-1 STDERR: Error response from daemon: i/o timeout' ) );
+		$this->assertTrue( $this->contains( $report->findings(), 'container container-1 (container-1, lifecycle=missing, run-id=missing, expires-at=missing) remains after warm cleanup.' ) );
+		$this->assertFalse( $this->contains( $report->plannedActions(), 'remove container container-1' ) );
+		$this->assertFalse( $this->commandWasRun( $runner, [ 'docker', 'container', 'rm' ] ) );
+	}
+
+	public function testFailedLegacyInspectionRetainsResource() :void {
+		$runner = new ScriptedProcessRunner( [
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => "legacy-1\tshield-test-site-lane-1-wordpress-1\n" ],
+			[ 'exit_code' => 1, 'stderr' => 'context deadline exceeded' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 1, 'stderr' => 'Error: No such network: '.LocalSiteDefinitions::BROWSER_NETWORK_NAME ],
+		] );
+
+		$report = ( new DockerResourceSweeper( $runner ) )->cleanupRunResources(
+			$this->createTrackedTempDir( 'shield-sweeper-legacy-inspect-fail-' ),
+			'run-1',
+			1,
+			false
+		);
+
+		$this->assertTrue( $this->contains( $report->findings(), 'Docker cleanup command failed (1): docker container inspect legacy-1 STDERR: context deadline exceeded' ) );
+		$this->assertFalse( $this->contains( $report->plannedActions(), 'remove legacy container legacy-1' ) );
+		$this->assertFalse( $this->commandWasRun( $runner, [ 'docker', 'container', 'rm' ] ) );
 	}
 
 	public function testUncertainLegacyNetworkAbsenceIsReportedAndNotRemoved() :void {
