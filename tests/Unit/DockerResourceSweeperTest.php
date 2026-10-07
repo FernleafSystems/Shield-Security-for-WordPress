@@ -8,6 +8,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteDefinitions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptedProcessRunner;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Process;
 
 class DockerResourceSweeperTest extends TestCase {
 
@@ -69,6 +70,62 @@ class DockerResourceSweeperTest extends TestCase {
 		);
 
 		$this->assertTrue( $this->contains( $report->findings(), 'invalid inspect JSON: docker network inspect '.LocalSiteDefinitions::BROWSER_NETWORK_NAME ) );
+		$this->assertFalse( $this->commandWasRun( $runner, [ 'docker', 'network', 'rm' ] ) );
+	}
+
+	public function testLaunchExceptionBecomesFindingWithOriginalMessage() :void {
+		$runner = new class( [] ) extends ScriptedProcessRunner {
+			public function run( array $command, string $workingDir, ?callable $onOutput = null, ?array $envOverrides = null ) :Process {
+				throw new \RuntimeException( 'docker executable is not on PATH' );
+			}
+		};
+
+		$report = ( new DockerResourceSweeper( $runner ) )->cleanupRunResources(
+			$this->createTrackedTempDir( 'shield-sweeper-launch-fail-' ),
+			'run-1',
+			1,
+			false
+		);
+
+		$this->assertTrue( $this->contains( $report->findings(), 'failed to start: list container resources (docker container ls -a -q' ) );
+		$this->assertTrue( $this->contains( $report->findings(), '): docker executable is not on PATH' ) );
+	}
+
+	public function testInspectFailureReportsExitCodeAndStdoutWhenStderrIsEmpty() :void {
+		$runner = new ScriptedProcessRunner( [
+			[ 'exit_code' => 0, 'stdout' => "container-1\n" ],
+			[ 'exit_code' => 125, 'stdout' => 'daemon refused inspection' ],
+		] );
+
+		$report = ( new DockerResourceSweeper( $runner ) )->cleanupRunResources(
+			$this->createTrackedTempDir( 'shield-sweeper-inspect-fail-' ),
+			'run-1',
+			1,
+			false
+		);
+
+		$this->assertTrue( $this->contains( $report->findings(), 'Docker cleanup command failed (125): docker container inspect container-1 STDOUT: daemon refused inspection' ) );
+	}
+
+	public function testUncertainLegacyNetworkAbsenceIsReportedAndNotRemoved() :void {
+		$runner = new ScriptedProcessRunner( [
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 1, 'stderr' => 'error during connect: TLS certificate file not found' ],
+		] );
+
+		$report = ( new DockerResourceSweeper( $runner ) )->cleanupRunResources(
+			$this->createTrackedTempDir( 'shield-sweeper-legacy-uncertain-' ),
+			'run-1',
+			1,
+			false
+		);
+
+		$this->assertTrue( $this->contains( $report->findings(), 'Docker cleanup command failed (1): docker network inspect '.LocalSiteDefinitions::BROWSER_NETWORK_NAME.' STDERR: error during connect: TLS certificate file not found' ) );
+		$this->assertFalse( $this->commandWasRun( $runner, [ 'docker', 'network', 'rm' ] ) );
 	}
 
 	public function testRemoveFailureBecomesCleanupFinding() :void {
@@ -85,8 +142,7 @@ class DockerResourceSweeperTest extends TestCase {
 			false
 		);
 
-		$this->assertTrue( $this->contains( $report->findings(), 'docker container rm -f container-1' ) );
-		$this->assertTrue( $this->contains( $report->findings(), 'remove denied' ) );
+		$this->assertTrue( $this->contains( $report->findings(), 'Docker cleanup command failed (1): docker container rm -f container-1 STDERR: remove denied' ) );
 	}
 
 	public function testDryRunPlansRemovalsWithoutRunningDestructiveCommands() :void {
@@ -97,8 +153,7 @@ class DockerResourceSweeperTest extends TestCase {
 			[ 'exit_code' => 0, 'stdout' => '' ],
 			[ 'exit_code' => 0, 'stdout' => '' ],
 			[ 'exit_code' => 0, 'stdout' => '' ],
-			[ 'exit_code' => 1, 'stderr' => 'No such network' ],
-			[ 'exit_code' => 1, 'stderr' => 'No such network' ],
+			[ 'exit_code' => 1, 'stderr' => 'Error response from daemon: network '.LocalSiteDefinitions::BROWSER_NETWORK_NAME.' not found' ],
 		] );
 
 		$report = ( new DockerResourceSweeper( $runner ) )->cleanupRunResources(
@@ -132,6 +187,7 @@ class DockerResourceSweeperTest extends TestCase {
 
 	public function testWarmCleanupPreservesValidReusableVolume() :void {
 		$volumeInspect = $this->inspectJson( 'reusable', 'run-1', \gmdate( \DATE_ATOM, \time() + 86400 ) );
+		$networkMissing = [ 'exit_code' => 1, 'stderr' => 'Error: No such network: '.LocalSiteDefinitions::BROWSER_NETWORK_NAME ];
 		$runner = new ScriptedProcessRunner( [
 			[ 'exit_code' => 0, 'stdout' => '' ],
 			[ 'exit_code' => 0, 'stdout' => "volume-1\n" ],
@@ -139,16 +195,14 @@ class DockerResourceSweeperTest extends TestCase {
 			[ 'exit_code' => 0, 'stdout' => '' ],
 			[ 'exit_code' => 0, 'stdout' => '' ],
 			[ 'exit_code' => 0, 'stdout' => '' ],
-			[ 'exit_code' => 1, 'stderr' => 'No such network' ],
-			[ 'exit_code' => 1, 'stderr' => 'No such network' ],
+			$networkMissing,
 			[ 'exit_code' => 0, 'stdout' => '' ],
 			[ 'exit_code' => 0, 'stdout' => '' ],
 			[ 'exit_code' => 0, 'stdout' => "volume-1\n" ],
 			[ 'exit_code' => 0, 'stdout' => $volumeInspect ],
 			[ 'exit_code' => 0, 'stdout' => '' ],
 			[ 'exit_code' => 0, 'stdout' => '' ],
-			[ 'exit_code' => 1, 'stderr' => 'No such network' ],
-			[ 'exit_code' => 1, 'stderr' => 'No such network' ],
+			$networkMissing,
 		] );
 
 		$report = ( new DockerResourceSweeper( $runner ) )->cleanupRunResources(
