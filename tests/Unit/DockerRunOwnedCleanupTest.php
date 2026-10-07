@@ -82,6 +82,17 @@ class DockerRunOwnedCleanupTest extends TestCase {
 		return [ 'startup' => [ 'startup', 3 ], 'warm' => [ 'warm', 2 ], 'full' => [ 'full', 0 ] ];
 	}
 
+	public function testFailedInspectionRetainsSelectiveCandidatesButNotFullCleanupTargets() :void {
+		$runner = new OwnedDockerProcessRunner();
+		$id = $runner->add( 'container', 'expired', $this->labels( 'other', 'transient', false ) );
+		$runner->inspectError = 'Error response from daemon: i/o timeout';
+		$sweeper = new DockerResourceSweeper( $runner );
+		$this->assertContains( 'Docker cleanup command failed (1): docker container inspect '.$id.' STDERR: Error response from daemon: i/o timeout', $sweeper->cleanupRunResources( $this->root, 'mine', 1, false )->findings() );
+		$this->assertSame( [], $runner->removed );
+		$sweeper->cleanupRunResources( $this->root, 'mine', 1, true );
+		$this->assertSame( [ [ 'type' => 'container', 'id' => $id ] ], $runner->removed );
+	}
+
 	public function testChangedRecordedOwnershipRefusesAllDeletion() :void {
 		$runner = new OwnedDockerProcessRunner();
 		$runner->add( 'container', 'owned', $this->labels( 'mine', 'transient' ) );

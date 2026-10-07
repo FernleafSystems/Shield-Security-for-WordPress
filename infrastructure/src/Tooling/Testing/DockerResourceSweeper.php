@@ -454,21 +454,8 @@ class DockerResourceSweeper {
 		DockerCleanupPolicy $policy
 	) :void {
 		foreach ( $this->listLabeledResourceIds( $rootDir, $type, $report, $policy ) as $id ) {
-			$data = $this->inspectDockerResource( $rootDir, $type, $id, $report );
-			if ( $data === null ) {
-				// Unreadable labels are not proof of a removable resource; the finding keeps it visible.
-				continue;
-			}
-			$metadata = $this->resourceMetadata( $this->labelsFromInspectData( $data ) );
-			$lifecycle = $metadata[ 'lifecycle' ];
-			$resourceRunId = $metadata[ 'runId' ];
-			$expiryTs = $metadata[ 'expiryTs' ];
-			$isExpired = $expiryTs !== false && $expiryTs <= \time();
-			$isTransient = $lifecycle === DockerHarnessLabels::LIFECYCLE_TRANSIENT;
-			$isCurrentRunTransient = $isTransient && $runId !== null && \hash_equals( $runId, $resourceRunId );
-			$isMalformed = $lifecycle === '' || $resourceRunId === '' || $expiryTs === false;
-
-			if ( !$forceAll && !( $isCurrentRunTransient || $isExpired || $isMalformed ) ) {
+			// Full cleanup removes everything Docker lists under the harness label; only selective cleanup needs labels.
+			if ( !$forceAll && !$this->isSelectivelyRemovable( $rootDir, $type, $id, $runId, $report ) ) {
 				continue;
 			}
 
@@ -479,6 +466,22 @@ class DockerResourceSweeper {
 			);
 			$this->runCleanupCommand( $command, $rootDir, $report, 'remove '.$type.' '.$id, null, true );
 		}
+	}
+
+	private function isSelectivelyRemovable( string $rootDir, string $type, string $id, ?string $runId, DockerCleanupReport $report ) :bool {
+		$data = $this->inspectDockerResource( $rootDir, $type, $id, $report );
+		if ( $data === null ) {
+			// Unreadable labels are not proof of a removable resource; the finding keeps it visible.
+			return false;
+		}
+		$metadata = $this->resourceMetadata( $this->labelsFromInspectData( $data ) );
+		$lifecycle = $metadata[ 'lifecycle' ];
+		$resourceRunId = $metadata[ 'runId' ];
+		$expiryTs = $metadata[ 'expiryTs' ];
+		$isExpired = $expiryTs !== false && $expiryTs <= \time();
+		$isCurrentRunTransient = $lifecycle === DockerHarnessLabels::LIFECYCLE_TRANSIENT && $runId !== null && \hash_equals( $runId, $resourceRunId );
+		$isMalformed = $lifecycle === '' || $resourceRunId === '' || $expiryTs === false;
+		return $isCurrentRunTransient || $isExpired || $isMalformed;
 	}
 
 	/**
