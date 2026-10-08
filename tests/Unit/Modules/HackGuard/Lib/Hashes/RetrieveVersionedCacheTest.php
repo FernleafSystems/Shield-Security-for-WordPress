@@ -27,6 +27,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	ServicesState
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\CacheStoreTestCacheDir;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\AssetSnapshots\SnapshotWpGeneral;
 use FernleafSystems\Wordpress\Services\Core\{
 	Fs,
 	Plugins,
@@ -478,13 +479,11 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 	}
 
 	private function installController( string $cacheRoot ) :void {
+		$general = new SnapshotWpGeneral();
+		$general->setTransient( 'apto-wphashes-api-available-routes', '' );
+		ServicesState::mergeItems( [ 'service_wpgeneral' => $general ] );
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->caps = new class {
-			public function canScanPluginsThemesRemote() :bool {
-				return false;
-			}
-		};
 		$controller->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
 
 		PluginControllerInstaller::install( $controller );

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\ScanHashCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\{
 	ScansController,
 	ScanStatus
@@ -40,6 +41,7 @@ class CompleteQueue {
 			wp_schedule_single_event( Services::Request()->ts() + 5, $postScanHook );
 		}
 
+		( new ScanHashCache() )->deleteDirectory();
 		do_action( 'shield/scan_queue_completed' );
 
 		self::con()->opts->optSet( 'is_scan_cron', false );

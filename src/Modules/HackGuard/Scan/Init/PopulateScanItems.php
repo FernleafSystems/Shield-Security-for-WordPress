@@ -8,12 +8,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	Scans\Ops as ScansDB
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\FindAssetsToSnap;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\ScanHashCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueHeartbeat;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\RunState;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO as AfsScanActionVO;
+use FernleafSystems\Wordpress\Services\Services;
 
 class PopulateScanItems {
 
@@ -37,6 +39,26 @@ class PopulateScanItems {
 		$scanActionVO->progress_callback = static function () use ( $heartbeat, $scanID ) :void {
 			$heartbeat->tickBuilding( $scanID );
 		};
+		if ( $scanRecord->scan === 'afs' ) {
+			$cache = new ScanHashCache();
+			$cache->emptyDirectory( (int)$scanID );
+			if ( \in_array( $scanActionVO->scope_type, [ 'plugin', 'theme' ], true ) ) {
+				try {
+					if ( \is_main_network() && \is_main_site() ) {
+						$asset = $scanActionVO->scope_type === 'plugin'
+							? Services::WpPlugins()->getPluginAsVo( $scanActionVO->scope_key, true )
+							: Services::WpThemes()->getThemeAsVo( $scanActionVO->scope_key, true );
+						if ( $asset !== null ) {
+							$cache->fill( $asset );
+						}
+					}
+				}
+				catch ( \Throwable $e ) {
+					error_log( \sprintf( 'Shield scan hash cache asset lookup failed: type=%s key=%s message=%s',
+						$scanActionVO->scope_type, $scanActionVO->scope_key, $e->getMessage() ) );
+				}
+			}
+		}
 		if ( $scanRecord->scan === 'afs' && $scanActionVO->scope_type === 'full' ) {
 			if ( !$scanActionVO instanceof AfsScanActionVO ) {
 				throw new \UnexpectedValueException( 'The AFS scan controller returned an invalid action.' );

@@ -87,6 +87,57 @@ class CompareFileHashTest extends BaseUnitTest {
 		( new CompareFileHash() )->isEqual( $this->createTrackedTempPath( 'missing-hash-file-' ), \md5( 'content' ) );
 	}
 
+	/** @dataProvider provideAlgorithms */
+	public function test_multi_hash_comparison_preserves_raw_and_line_ending_matches( string $algorithm ) :void {
+		$compare = new CompareFileHash();
+		foreach ( [ "one\r\ntwo\r\n", "one\ntwo\n", "one\rtwo\r", "one\r\ntwo\rthree\n", "\x00\xff\x80one\r\ntwo\r\x00" ] as $content ) {
+			$path = $this->writeFile( $content );
+			$this->assertTrue( $compare->isAnyEqual( $path, [ \hash( $algorithm, 'different' ), \hash( $algorithm, $content ) ] ) );
+			$normalised = \str_replace( [ "\r\n", "\r" ], "\n", $content );
+			$this->assertTrue( $compare->isAnyEqual( $path, [ \hash( $algorithm, 'different' ), \hash( $algorithm, $normalised ) ] ) );
+			$this->assertTrue( $compare->isAnyEqual( $path, [ \hash( $algorithm, \str_replace( "\n", "\r\n", $normalised ) ) ] ) );
+			$this->assertFalse( $compare->isAnyEqual( $path, [ \hash( $algorithm, $content.'changed' ) ] ) );
+		}
+	}
+
+	public function test_multi_hash_comparison_hashes_once_per_algorithm_and_reads_content_once() :void {
+		$path = $this->writeFile( "one\r\ntwo\rthree\n" );
+		$compare = new class extends CompareFileHash {
+			public array $hashCalls = [];
+			public int $reads = 0;
+			protected function hashFile( string $algorithm, string $path ) {
+				$this->hashCalls[ $algorithm ] = ( $this->hashCalls[ $algorithm ] ?? 0 ) + 1;
+				return parent::hashFile( $algorithm, $path );
+			}
+			protected function readFile( string $path ) {
+				$this->reads++;
+				return parent::readFile( $path );
+			}
+		};
+		$references = [];
+		foreach ( [ 'md5', 'sha1', 'sha256' ] as $algorithm ) {
+			foreach ( \range( 1, 10 ) as $index ) {
+				$references[] = \hash( $algorithm, 'different-'.$index );
+			}
+		}
+		$this->assertFalse( $compare->isAnyEqual( $path, $references ) );
+		$this->assertSame( [ 'md5' => 1, 'sha1' => 1, 'sha256' => 1 ], $compare->hashCalls );
+		$this->assertSame( 1, $compare->reads );
+	}
+
+	public function test_multi_hash_comparison_preserves_hash_and_content_read_failures() :void {
+		$path = $this->writeFile( 'content' );
+		$this->assertFalse( ( new CompareFileHashFalseHash() )->isAnyEqual( $path, [ \md5( 'content' ) ] ) );
+		$this->assertFalse( ( new CompareFileHashFalseRead() )->isAnyEqual( $path, [ \md5( 'different' ) ] ) );
+	}
+
+	public function test_multi_hash_comparison_preserves_missing_file_exception_and_empty_reference_miss() :void {
+		$path = $this->createTrackedTempPath( 'missing-multi-hash-file-' );
+		$this->assertFalse( ( new CompareFileHash() )->isAnyEqual( $path, [] ) );
+		$this->expectException( \InvalidArgumentException::class );
+		( new CompareFileHash() )->isAnyEqual( $path, [ \md5( 'content' ) ] );
+	}
+
 	private function writeFile( string $content ) :string {
 		$path = $this->createTrackedTempPath( 'shield-compare-file-hash-' );
 		\file_put_contents( $path, $content );

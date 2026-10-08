@@ -121,10 +121,35 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertHook( $this->actions, '_core_updated_successfully', 10, 1 );
 		$this->assertHook( $this->actions, 'deleted_plugin', 10, 2 );
 		$this->assertHook( $this->actions, 'deleted_theme', 10, 2 );
-		$this->assertHook( $this->actions, 'icwp-wpsf-hourly_cron', 10, 0 );
+		$hourly = \array_values( \array_filter( $this->actions,
+			static fn( array $hook ) :bool => $hook[ 'hook' ] === 'icwp-wpsf-hourly_cron' ) );
+		$this->assertSame( [ 'runSnapshotMaintenance', 'runScanHashCacheMaintenance' ],
+			\array_map( static fn( array $hook ) :string => $hook[ 'callback' ][ 1 ], $hourly ) );
+		$this->assertSame( [ 10, 10 ], \array_column( $hourly, 'priority' ) );
+		$this->assertSame( [ 0, 0 ], \array_column( $hourly, 'acceptedArgs' ) );
 		$this->assertHook( $this->actions, 'shield/scan_queue_completed', 10, 0 );
 		$this->assertHook( $this->actions, 'icwp-wpsf-asset_coordinator', 10, 1 );
 		$this->assertNotHooked( $this->actions, 'icwp-wpsf-pre_plugin_shutdown' );
+	}
+
+	public function test_scan_cache_maintenance_preserves_cache_when_scan_status_query_fails() :void {
+		$root = $this->createTrackedTempDir( 'shield-hourly-scan-hashes-' );
+		\mkdir( $root.'/scan-hashes' );
+		$marker = $root.'/scan-hashes/reference.json';
+		\file_put_contents( $marker, '{}' );
+		$this->controller->cache_dir_handler = new CacheStoreTestCacheDir( $root );
+		$this->controller->db_con = (object)[ 'scans' => new class {
+			public function getTable() :string {
+				return 'wp_icwp_wpsf_scans';
+			}
+		} ];
+		ServicesState::mergeItems( [ 'service_wpfs' => new CacheStoreTestFs() ] );
+		$db = $this->installReadinessResponses( [ [] ], new \RuntimeException( 'Synthetic read failure.' ) );
+
+		( new AssetCoordinator() )->runScanHashCacheMaintenance();
+
+		$this->assertCount( 1, $db->queries );
+		$this->assertFileExists( $marker );
 	}
 
 	/**

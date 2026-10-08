@@ -42,6 +42,7 @@ class AssetTrustResolver {
 	private static array $relativePathsByPath = [];
 
 	public static function resetMemoization() :void {
+		ScanHashCache::resetMemoization();
 		self::$plugins = [];
 		self::$pluginFilesByDir = null;
 		self::$themesByDir = [];
@@ -129,6 +130,34 @@ class AssetTrustResolver {
 			$hashData[ 'asset_version' ],
 			$hashData[ 'relative_path' ]
 		);
+	}
+
+	/**
+	 * @throws NonAssetFileException
+	 * @throws \InvalidArgumentException
+	 * @throws \Exception
+	 */
+	public function verifyScanContext( string $path, AssetFileContext $context ) :?HashVerificationResult {
+		$cache = ( new ScanHashCache() )->read( $context );
+		if ( $cache !== null ) {
+			$hashes = $cache[ 'hashes' ][ $context->relativePath ]
+				?? ( $cache[ 'hashes' ][ \strtolower( $context->relativePath ) ] ?? [] );
+			if ( ( new CompareFileHash() )->isAnyEqual( $path, $hashes ) ) {
+				return new HashVerificationResult(
+					true,
+					$cache[ 'meta' ][ 'trusted' ],
+					true,
+					$cache[ 'meta' ][ 'trusted' ]
+						? HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE
+						: HashVerificationResult::COMPARISON_BASIS_LOCAL_BASELINE,
+					$context->assetType,
+					$context->assetKey,
+					$context->assetVersion,
+					$context->relativePath
+				);
+			}
+		}
+		return $this->verifyStoredContext( $path, $context );
 	}
 
 	/**

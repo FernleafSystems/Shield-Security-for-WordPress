@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoo
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetTrustResolver,
-	Retrieve
+	Retrieve,
+	ScanHashCache
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\{
 	Build,
@@ -15,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Stor
 	TouchAll
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange\Cleanup;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
@@ -45,6 +47,7 @@ class AssetCoordinator {
 		\add_action( 'deleted_plugin', [ $this, 'onDeletedPlugin' ], 10, 2 );
 		\add_action( 'deleted_theme', [ $this, 'onDeletedTheme' ], 10, 2 );
 		\add_action( self::con()->prefix( 'hourly_cron' ), [ $this, 'runSnapshotMaintenance' ], 10, 0 );
+		\add_action( self::con()->prefix( 'hourly_cron' ), [ $this, 'runScanHashCacheMaintenance' ], 10, 0 );
 		\add_action( 'shield/scan_queue_completed', [ $this, 'onScanQueueCompleted' ], 10, 0 );
 		\add_action( $this->cronHook(), [ $this, 'runDueWork' ], 10, 1 );
 
@@ -199,6 +202,7 @@ class AssetCoordinator {
 		}
 
 		$canBuild = \is_main_network() && \is_main_site();
+		$scanHashCache = new ScanHashCache();
 		foreach ( $records as $record ) {
 			try {
 				if ( $record === null ) {
@@ -221,6 +225,9 @@ class AssetCoordinator {
 					}
 				}
 				$eligibility[ $record[ 'type' ] ][ $record[ 'key' ] ][ 'comparison_eligible' ] = $isUsable;
+				if ( $isUsable ) {
+					$scanHashCache->fill( $record[ 'asset' ] );
+				}
 			}
 			catch ( \Throwable $e ) {
 				$this->logFullScanSnapshotFailure( $record[ 'asset' ], $e );
@@ -236,6 +243,17 @@ class AssetCoordinator {
 	public function runSnapshotMaintenance() :void {
 		if ( $this->discoverMissingSnapshots() ) {
 			( new CleanStale() )->execute();
+		}
+	}
+
+	public function runScanHashCacheMaintenance() :void {
+		try {
+			if ( \is_main_network() && \is_main_site() && !( new ScansStatus() )->hasActiveAfs() ) {
+				( new ScanHashCache() )->deleteDirectory();
+			}
+		}
+		catch ( \Throwable $e ) {
+			// Optional cache maintenance must not interrupt other hourly jobs.
 		}
 	}
 
