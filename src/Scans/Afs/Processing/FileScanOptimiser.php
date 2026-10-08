@@ -320,7 +320,7 @@ class FileScanOptimiser {
 		foreach ( $this->readRecords( $path, $type ) as $existing ) {
 			$matches = true;
 			foreach ( $uniqueKeys as $key ) {
-				if ( ( $existing[ $key ] ?? null ) !== ( $record[ $key ] ?? null ) ) {
+				if ( $existing[ $key ] !== $record[ $key ] ) {
 					$matches = false;
 					break;
 				}

@@ -6,6 +6,8 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetTrustResolver,
+	CompareFileHash,
+	HashVerificationResult,
 	Retrieve
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
@@ -88,7 +90,7 @@ class FullScanSnapshotReadinessTest extends BaseUnitTest {
 	public function test_main_owner_loads_builds_and_reloads_missing_local_baseline() :void {
 		$asset = new SnapshotPluginVo( 'readiness-owner/plugin.php', '1.0.0' );
 		$this->installEnvironment( [ $asset ] );
-		$this->writePluginFile( $asset, "<?php\n// local snapshot source\n" );
+		$this->writeAssetFile( $asset->getInstallDir().'plugin.php', "<?php\n// local snapshot source\n" );
 		$heartbeats = 0;
 
 		$eligibility = ( new AssetCoordinator() )->prepareFullScanSnapshotEligibility(
@@ -110,10 +112,11 @@ class FullScanSnapshotReadinessTest extends BaseUnitTest {
 		$store = $this->loadStore( $asset );
 		$this->assertTrue( $store->isUsable() );
 		$this->assertSame(
-			[ 'plugin.php' => \md5_file( WP_PLUGIN_DIR.'/'.$asset->file ) ],
+			[ 'plugin.php' => \hash_file( 'sha256', WP_PLUGIN_DIR.'/'.$asset->file ) ],
 			$store->getSnapData()
 		);
 		$this->assertSame( $asset->Version, $store->getSnapMeta()[ 'version' ] ?? null );
+		$this->assertSame( 'sha256', $store->getSnapMeta()[ 'algo' ] ?? null );
 		$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] ?? true );
 		$this->assertSame( 1, $heartbeats );
 	}
@@ -131,9 +134,94 @@ class FullScanSnapshotReadinessTest extends BaseUnitTest {
 		$this->assertMemoizationSentinelsPresent();
 	}
 
-	/**
-	 * @dataProvider provideNonOwnerTopologies
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideLegacySnapshotAlgorithms' )]
+	public function test_automatic_sha256_creation_retains_real_legacy_snapshot_without_rebuilding(
+		string $algorithm,
+		bool $includeAlgorithmMetadata,
+		?bool $published,
+		string $assetType
+	) :void {
+		$slug = 'legacy-'.$algorithm.'-'.( $includeAlgorithmMetadata ? 'meta' : 'absent' );
+		$asset = $assetType === 'theme'
+			? new SnapshotThemeVo( $slug, '1.0.0' )
+			: new SnapshotPluginVo( $assetType === 'root plugin' ? $slug.'.php' : $slug.'/plugin.php', '1.0.0' );
+		$cacheRoot = $this->installEnvironment( $assetType === 'theme' ? [] : [ $asset ], $assetType === 'theme' ? [ $asset ] : [] );
+		$file = $assetType === 'theme' ? 'functions.php' : \basename( $asset->file );
+		$path = $asset->getInstallDir().$file;
+		$this->writeAssetFile( $path, '<?php changed_since_baseline();' );
+		$expectedHash = \hash( $algorithm, '<?php original_reference();' );
+		$expectedHashes = [ $file => $expectedHash ];
+		$meta = \array_merge( [
+			'ts'           => 1700000000,
+			'snap_version' => $assetType === 'root plugin' ? '22.2.5' : ( $includeAlgorithmMetadata ? '21.2.7' : '16.1.8' ),
+			'cs_hashes_at' => 0,
+			'unique_id'    => $asset->unique_id,
+			'name'         => $asset->Name,
+			'version'      => $asset->Version,
+		], $includeAlgorithmMetadata ? [ 'algo' => $algorithm ] : [], $published === null ? [] : [ 'live_hashes' => $published ] );
+		$hashDir = ( new HashesStorageDir() )->getTempDir();
+		$store = ( new Store( $asset, true ) )->setWorkingDir( $hashDir );
+		// Freeze released filenames too. Root plugin identity was corrected before this change, in 22.x.
+		$basePath = $hashDir.'/'.( $assetType === 'theme' ? 'themes' : 'plugins' ).'/'.( $assetType === 'root plugin' ? $asset->file : $slug ).'-1.0.0';
+		$this->assertSame( $basePath.'.txt', $store->getSnapStorePath() );
+		$this->assertSame( $basePath.'_meta.txt', $store->getSnapStoreMetaPath() );
+		\mkdir( \dirname( $basePath ), 0777, true );
+		// Released Store::save() protocol: deflated scalar lines and a separate deflated JSON metadata file.
+		// Bypass the current writer so a writer/reader change cannot conceal an upgrade incompatibility.
+		\file_put_contents( $basePath.'.txt', \gzdeflate( $file.'=::='.$expectedHash ) );
+		\file_put_contents( $basePath.'_meta.txt', \gzdeflate( \json_encode( $meta ) ) );
+		// Older storage directories have no active marker; force rediscovery instead of using the new directory's cache.
+		\unlink( $cacheRoot.'/'.HashesStorageDir::ACTIVE_MARKER );
+		$this->resetHashesStorageDir();
+		$originalSnapshot = [ 'meta' => $meta, 'data' => $expectedHashes ];
+		$this->assertSame( $originalSnapshot, $store->getUsableSnapshot() );
+		$this->fs->fileWriteCounts = [];
+		$this->fs->touchCounts = [];
+		$storedFingerprints = [
+			'data' => \hash_file( 'sha256', $store->getSnapStorePath() ),
+			'meta' => \hash_file( 'sha256', $store->getSnapStoreMetaPath() ),
+		];
+		$eligibility = ( new AssetCoordinator() )->prepareFullScanSnapshotEligibility( [ $asset ], static function () :void {} );
+
+		$this->assertTrue( $eligibility[ $asset->asset_type ][ $asset->unique_id ][ 'comparison_eligible' ] );
+		$this->assertSame( $originalSnapshot, ( new Load() )->setAsset( $asset )->run()->getUsableSnapshot() );
+		$source = ( new Retrieve() )->byVOFromStoredSnapshot( $asset );
+		$this->assertSame( [
+			'hashes'           => [ $file => [ $expectedHash ] ],
+			'trusted_source'   => $published === true,
+			'comparison_basis' => $published === true
+				? HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE
+				: HashVerificationResult::COMPARISON_BASIS_LOCAL_BASELINE,
+		], $source );
+		$compare = new CompareFileHash();
+		$this->assertFalse( $compare->isEqual( $path, $source[ 'hashes' ][ $file ][ 0 ] ) );
+		$this->writeAssetFile( $path, '<?php original_reference();' );
+		$this->assertTrue( $compare->isEqual( $path, $source[ 'hashes' ][ $file ][ 0 ] ) );
+		$this->assertSame( $storedFingerprints, [
+			'data' => \hash_file( 'sha256', $store->getSnapStorePath() ),
+			'meta' => \hash_file( 'sha256', $store->getSnapStoreMetaPath() ),
+		] );
+		$this->assertSame( [], $this->fs->fileWriteCounts );
+		$this->assertSame( [], $this->fs->touchCounts );
+		$this->assertSame( 0, $this->remoteRequestCount );
+	}
+
+	public static function provideLegacySnapshotAlgorithms() :array {
+		$cases = [];
+		foreach ( [ 'md5', 'sha1' ] as $algorithm ) {
+			foreach ( [ true, false ] as $includeAlgorithmMetadata ) {
+				foreach ( [ 'local' => false, 'published' => true, 'unknown' => null ] as $provenance => $published ) {
+					foreach ( [ 'plugin', 'root plugin', 'theme' ] as $assetType ) {
+						$label = $assetType.' '.$algorithm.' '.( $includeAlgorithmMetadata ? 'with algo' : 'without algo' ).' '.$provenance;
+						$cases[ $label ] = [ $algorithm, $includeAlgorithmMetadata, $published, $assetType ];
+					}
+				}
+			}
+		}
+		return $cases;
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideNonOwnerTopologies' )]
 	public function test_non_owner_is_read_only_for_missing_snapshot(
 		bool $isMainNetwork,
 		bool $isMainSite
@@ -258,14 +346,14 @@ class FullScanSnapshotReadinessTest extends BaseUnitTest {
 		return $cacheRoot;
 	}
 
-	private function writePluginFile( SnapshotPluginVo $asset, string $contents ) :void {
-		$path = $this->normalisePath( WP_PLUGIN_DIR.'/'.$asset->file );
+	private function writeAssetFile( string $path, string $contents ) :void {
+		$path = $this->normalisePath( $path );
 		$dir = \dirname( $path );
 		if ( !\is_dir( $dir ) && !@\mkdir( $dir, 0777, true ) && !\is_dir( $dir ) ) {
-			throw new \RuntimeException( 'Failed to create plugin fixture directory.' );
+			throw new \RuntimeException( 'Failed to create asset fixture directory.' );
 		}
 		if ( \file_put_contents( $path, $contents ) === false ) {
-			throw new \RuntimeException( 'Failed to write plugin fixture.' );
+			throw new \RuntimeException( 'Failed to write asset fixture.' );
 		}
 		$this->trackWrittenFixtureFile( $path );
 	}

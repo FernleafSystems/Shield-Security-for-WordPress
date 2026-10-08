@@ -26,15 +26,15 @@ class CaptureNotBot extends BaseAction {
 
 			$notBotCon = $con->comps->not_bot;
 			$notBotCon->sendNotBotFlagCookie();
-			$requiredSignals = $notBotCon->getRequiredSignals();
+			$state = $notBotCon->buildResponseState( true );
 
 			$response->setPayload( [
-				'altcha_data' => \in_array( NotBotHandler::SIGNAL_ALTCHA, $requiredSignals, true ) ?
+				'notbot_state' => $state,
+				'altcha_data' => \in_array( NotBotHandler::SIGNAL_ALTCHA, $state[ 'required' ], true ) ?
 					ActionData::Build( CaptureNotBotAltcha::class, true, $con->comps->altcha->generateChallenge() ) : [],
 			] )->setPayloadSuccess( true );
 		}
 		catch ( \Exception $e ) {
-//			error_log( $e->getMessage() );
 			$response->setPayloadSuccess( false );
 		}
 	}

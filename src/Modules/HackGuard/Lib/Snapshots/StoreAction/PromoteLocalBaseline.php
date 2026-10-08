@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshot
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetTrustResolver,
-	NormalizeHashMap,
+	FileHashAlgorithm,
 	Retrieve
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
@@ -36,7 +36,14 @@ class PromoteLocalBaseline extends BaseAction {
 			   || $lastCheck <= $now - self::CHECK_INTERVAL;
 	}
 
-	public function run() :bool {
+	public function run( string $algorithm = 'md5' ) :bool {
+		try {
+			FileHashAlgorithm::validate( $algorithm );
+		}
+		catch ( \InvalidArgumentException $e ) {
+			return false;
+		}
+
 		$target = $this->describeAsset( $this->getAsset() );
 		if ( $target === null ) {
 			return false;
@@ -62,9 +69,7 @@ class PromoteLocalBaseline extends BaseAction {
 		}
 
 		try {
-			$published = ( new NormalizeHashMap() )->toScalarMap(
-				( new BuildHashesFromApi() )->build( $asset )
-			);
+			$published = ( new BuildHashesFromApi() )->build( $asset, $algorithm );
 		}
 		catch ( \Throwable $e ) {
 			$published = [];
@@ -81,7 +86,7 @@ class PromoteLocalBaseline extends BaseAction {
 			return false;
 		}
 
-		$publishedMeta = $this->generateMeta();
+		$publishedMeta = $this->generateMeta( $algorithm );
 		$publishedMeta[ 'live_hashes' ] = true;
 		if ( !$this->isAfsIdle() ) {
 			return false;

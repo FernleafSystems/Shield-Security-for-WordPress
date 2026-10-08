@@ -9,8 +9,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\CaptureNotBotAltcha
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\AltCha\AltChaV2Pbkdf2;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotEventListener;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotSignalsRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\NotBotHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Services;
@@ -25,8 +29,12 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 	public function set_up() {
 		parent::set_up();
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
-		$this->optionsSnapshot = $this->snapshotSelectedOptions( [ 'silentcaptcha_complexity' ] );
+		$this->optionsSnapshot = $this->snapshotSelectedOptions( [ 'silentcaptcha_complexity', 'silentcaptcha_cookie_free' ] );
 		$this->requireController()->opts->optSet( 'silentcaptcha_complexity', 'low' );
+		$this->requireDb( 'bot_signals' );
+		$this->requireController()->this_req->is_trusted_request = false;
+		// The integration bootstrap does not install this request-time listener.
+		( new BotEventListener() )->execute();
 	}
 
 	public function tear_down() {
@@ -41,6 +49,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( (bool)( $routed->payload()[ 'success' ] ?? false ) );
 		$this->assertContains( 'bottrack_altcha', $this->capturedBottrackEvents() );
+		$this->assertSame( [ 'mode' => 'cookie', 'required' => [], 'exchange_valid' => true ], $routed->payload()[ 'notbot_state' ] );
 	}
 
 	public function test_v1_payload_cannot_fire_altcha_signal() :void {
@@ -125,6 +134,36 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( (bool)( $routed->payload()[ 'success' ] ?? false ) );
 		$this->assertSame( [], $routed->payload()[ 'altcha_data' ] ?? null );
+		$this->assertSame( [ 'mode' => 'cookie', 'required' => [], 'exchange_valid' => true ], $routed->payload()[ 'notbot_state' ] );
+	}
+
+	public function test_basic_response_state_is_built_after_signal_processing() :void {
+		$ip = '93.184.216.231';
+		$this->applyAjaxRequestContext( $ip );
+		$this->seedCurrentIpBotSignal( [ 'notbot_at' => 0, 'altcha_at' => 0 ] );
+		$routed = $this->runNotBotAction( ActionData::Build( CaptureNotBot::class, true ), $ip );
+		$this->assertSame( [ 'mode' => 'cookie', 'required' => [ 'altcha' ], 'exchange_valid' => true ], $routed->payload()[ 'notbot_state' ] );
+		$this->assertSame( '2', $routed->payload()[ 'altcha_data' ][ 'altcha_version' ] );
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidExchangeProvider' )]
+	public function test_invalid_exchange_never_becomes_valid_from_existing_signals( bool $fresh, bool $expired ) :void {
+		$this->applyAjaxRequestContext( '93.184.216.232' );
+		$this->seedCurrentIpBotSignal( [
+			'notbot_at' => 0,
+			'altcha_at' => $fresh ? Services::Request()->ts() : 0,
+		] );
+		$data = $this->buildSignedV2ActionData( Services::Request()->ts() + ( $expired ? -1 : 300 ) );
+		if ( !$expired ) {
+			$data[ 'altcha_solution' ] = '{}';
+		}
+		$routed = $this->runAltchaAction( $data );
+		$this->assertTrue( $routed->payload()[ 'success' ] );
+		$this->assertSame( [ 'mode' => 'cookie', 'required' => $fresh ? [] : [ 'altcha' ], 'exchange_valid' => false ], $routed->payload()[ 'notbot_state' ] );
+	}
+
+	public static function invalidExchangeProvider() :array {
+		return [ [ false, false ], [ true, false ], [ false, true ], [ true, true ] ];
 	}
 
 	public function test_none_complexity_prevents_direct_challenge_generation() :void {
@@ -132,6 +171,171 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->expectException( \Exception::class );
 		$this->requireController()->comps->altcha->generateChallenge();
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'failedWriteProvider' )]
+	public function test_failed_signal_write_preserves_confirmed_state_and_recovers( bool $cookieFree, bool $altcha ) :void {
+		$ip = '93.184.216.233';
+		$con = $this->requireController();
+		$con->opts->optSet( 'silentcaptcha_cookie_free', $cookieFree ? 'Y' : 'N' );
+		$this->applyAjaxRequestContext( $ip );
+		$now = Services::Request()->ts();
+		$id = TestDataFactory::insertBotSignal( $ip, [ 'notbot_at' => 0, 'altcha_at' => $altcha ? 0 : $now ] );
+		$owner = ( new BotSignalsRecord() )->setIP( $ip );
+		$confirmed = $owner->retrieve();
+		$before = $confirmed->getRawData();
+		$data = $altcha ? $this->buildSignedV2ActionData( $now + 300 ) : ActionData::Build( CaptureNotBot::class, true );
+		$slug = $altcha ? CaptureNotBotAltcha::SLUG : CaptureNotBot::SLUG;
+		$this->captureShieldEvents();
+
+		$payload = [];
+		$this->withQueryFailure( $con->db_con->bot_signals->getTable(), 'UPDATE', function () use ( $slug, $data, &$payload ) {
+			$payload = $this->routeCaptureAction( $slug, $data )->payload();
+		} );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( [
+			'mode' => $cookieFree ? 'cookie_free' : 'cookie',
+			'required' => $altcha ? [ 'notbot', 'altcha' ] : [ 'notbot' ],
+			'exchange_valid' => true,
+		], $payload[ 'notbot_state' ] );
+		$this->assertContains( $altcha ? 'bottrack_altcha' : 'bottrack_notbot', $this->capturedBottrackEvents() );
+		$this->assertSame( $confirmed, $con->this_req->botsignal_record );
+		$this->assertSame( $before, $confirmed->getRawData() );
+		$saved = $con->db_con->bot_signals->getQuerySelector()->byId( $id );
+		$this->assertSame( 0, $saved->notbot_at );
+		$this->assertSame( $altcha ? 0 : $now, $saved->altcha_at );
+
+		$this->assertSame( [], $this->routeCaptureAction( $slug, $data )->payload()[ 'notbot_state' ][ 'required' ] );
+		$written = $con->this_req->botsignal_record;
+		$this->assertGreaterThanOrEqual( $now, $written->notbot_at );
+		$this->applyAjaxRequestContext( $ip );
+		$freshRequest = $owner->retrieve();
+		$this->assertSame( $id, $freshRequest->id );
+		$this->assertSame( $written->notbot_at, $freshRequest->notbot_at );
+		$this->assertSame( $written->altcha_at, $freshRequest->altcha_at );
+	}
+
+	public static function failedWriteProvider() :array {
+		return [ 'cookie basic' => [ false, false ], 'cookie ALTCHA' => [ false, true ],
+			'free basic' => [ true, false ], 'free ALTCHA' => [ true, true ] ];
+	}
+
+	public function test_first_visitor_capture_updates_one_identified_record() :void {
+		$ip = '93.184.216.234';
+		$this->applyAjaxRequestContext( $ip );
+		$con = $this->requireController();
+		$ipRecord = TestDataFactory::createIpRecord( $ip );
+		$this->assertSame( [], $con->db_con->bot_signals->getQuerySelector()->filterByIP( $ipRecord->id )->queryWithResult() );
+		$before = \time();
+		$basic = $this->routeCaptureAction( CaptureNotBot::SLUG, ActionData::Build( CaptureNotBot::class, true ) )->payload();
+		$after = \time();
+		$this->assertTrue( $basic[ 'success' ] );
+		$first = $con->this_req->botsignal_record;
+		$this->assertSame( $ip, $first->ip );
+		$this->assertGreaterThan( 0, $first->id );
+		$this->assertFalse( $first->modified );
+		$this->assertGreaterThanOrEqual( $before, $first->created_at );
+		$this->assertLessThanOrEqual( $after, $first->created_at );
+		$this->assertGreaterThanOrEqual( $before, $first->updated_at );
+		$this->assertLessThanOrEqual( $after, $first->updated_at );
+		// The signed builder does not seed a second signal row.
+		$altcha = $this->routeCaptureAction( CaptureNotBotAltcha::SLUG, $this->buildSignedV2ActionData( Services::Request()->ts() + 300 ) )->payload();
+		$this->assertSame( [], $altcha[ 'notbot_state' ][ 'required' ] );
+		$rows = $con->db_con->bot_signals->getQuerySelector()->filterByIP( $first->ip_ref )->queryWithResult();
+		$this->assertCount( 1, $rows );
+		$saved = \reset( $rows );
+		$this->assertSame( $first->id, $saved->id );
+		$this->assertSame( $first->created_at, $saved->created_at );
+		$this->assertSame( $con->this_req->botsignal_record->updated_at, $saved->updated_at );
+		$this->applyAjaxRequestContext( $ip );
+		$fresh = ( new BotSignalsRecord() )->setIP( $ip )->retrieve();
+		$this->assertSame( $saved->id, $fresh->id );
+		$this->assertGreaterThan( 0, $fresh->notbot_at );
+		$this->assertGreaterThan( 0, $fresh->altcha_at );
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'unavailableRecordProvider' )]
+	public function test_unavailable_record_cannot_exempt_required_checks( bool $cookieFree, bool $ipFailure, string $operation ) :void {
+		$ip = '93.184.216.235';
+		$con = $this->requireController();
+		$con->opts->optSet( 'silentcaptcha_cookie_free', $cookieFree ? 'Y' : 'N' );
+		$this->applyAjaxRequestContext( $ip );
+		if ( $operation === 'SELECT' ) {
+			TestDataFactory::createIpRecord( $ip );
+		}
+		$this->resetIpCaches();
+		$this->withQueryFailure( $con->db_con->{$ipFailure ? 'ips' : 'bot_signals'}->getTable(), $operation, function () {
+			$payload = $this->routeCaptureAction( CaptureNotBot::SLUG, ActionData::Build( CaptureNotBot::class, true ) )->payload();
+			$this->assertSame( [ 'notbot', 'altcha' ], $payload[ 'notbot_state' ][ 'required' ] );
+			$this->assertEmpty( $this->requireController()->this_req->botsignal_record );
+			$this->requireController()->opts->optSet( 'silentcaptcha_complexity', SilentCaptchaComplexity::NONE );
+			$this->assertSame( [], ( new NotBotHandler() )->getRequiredSignals() );
+			$this->requireController()->opts->optSet( 'silentcaptcha_complexity', SilentCaptchaComplexity::LOW );
+			// Substitute only the external identity boundary; required-state logic and SQL remain real.
+			$services = ServicesState::snapshot();
+			$detector = $this->createMock( \FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection::class );
+			$detector->method( 'getIPIdentity' )->willReturn( 'googlebot' );
+			$ipService = $this->createPartialMock( \FernleafSystems\Wordpress\Services\Utilities\IpUtils::class, [ 'getIpDetector' ] );
+			$ipService->method( 'getIpDetector' )->willReturn( $detector );
+			try {
+				ServicesState::mergeItems( [ 'service_ip' => $ipService ] );
+				$this->assertSame( [], ( new NotBotHandler() )->getRequiredSignals() );
+			}
+			finally {
+				ServicesState::restore( $services );
+			}
+		} );
+		$con->opts->optSet( 'silentcaptcha_complexity', SilentCaptchaComplexity::LOW );
+		$this->assertSame( [ 'altcha' ], $this->routeCaptureAction( CaptureNotBot::SLUG, ActionData::Build( CaptureNotBot::class, true ) )->payload()[ 'notbot_state' ][ 'required' ] );
+	}
+
+	public static function unavailableRecordProvider() :array {
+		return [ 'cookie signal insert' => [ false, false, 'INSERT' ], 'free signal insert' => [ true, false, 'INSERT' ],
+			'cookie IP insert' => [ false, true, 'INSERT' ], 'free IP insert' => [ true, true, 'INSERT' ],
+			'cookie IP retrieval' => [ false, true, 'SELECT' ], 'free IP retrieval' => [ true, true, 'SELECT' ] ];
+	}
+
+	public function test_repeated_timestamp_is_a_noop_and_other_ip_does_not_replace_cache() :void {
+		$ip = '93.184.216.236';
+		$this->applyAjaxRequestContext( $ip );
+		$owner = ( new BotSignalsRecord() )->setIP( $ip );
+		$confirmed = $owner->updateSignalField( 'notbot_at' );
+		$this->assertFalse( $confirmed->modified );
+		$this->withQueryFailure( $this->requireController()->db_con->bot_signals->getTable(), 'UPDATE', function () use ( $owner, $confirmed ) {
+			$this->assertSame( $confirmed->notbot_at, $owner->updateSignalField( 'notbot_at', $confirmed->notbot_at )->notbot_at );
+		}, false );
+		$current = $this->requireController()->this_req->botsignal_record;
+		$other = ( new BotSignalsRecord() )->setIP( '93.184.216.237' )->updateSignalField( 'altcha_at' );
+		$this->assertSame( $current, $this->requireController()->this_req->botsignal_record );
+		$this->assertNotSame( $current->id, $other->id );
+		$this->assertSame( 0, $current->altcha_at );
+		$this->assertGreaterThan( 0, $this->requireController()->db_con->bot_signals->getQuerySelector()->byId( $other->id )->altcha_at );
+	}
+
+	private function withQueryFailure( string $table, string $operation, callable $exercise, bool $mustReach = true ) :void {
+		$hits = 0;
+		$filter = static function ( string $sql ) use ( $table, $operation, &$hits ) :string {
+			if ( \preg_match( '/^\s*'.$operation.'\b/i', $sql ) && \strpos( $sql, '`'.$table.'`' ) !== false ) {
+				$hits++;
+				return 'SELECT * FROM `shield_missing_signal_failure_table`';
+			}
+			return $sql;
+		};
+		$wpdb = Services::WpDb()->loadWpdb();
+		$previous = $wpdb->suppress_errors( true );
+		\add_filter( 'query', $filter, 1000 );
+		try {
+			$exercise();
+			$this->assertSame( $mustReach, $hits > 0, 'The targeted SQL operation must match the intended fault/no-op path.' );
+		}
+		finally {
+			\remove_filter( 'query', $filter, 1000 );
+			$wpdb->suppress_errors( $previous );
+		}
+	}
+
+	private function routeCaptureAction( string $slug, array $data ) :\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\RoutedResponse {
+		return $this->requireController()->action_router->action( $slug, $data, ActionRoutingController::ACTION_AJAX );
 	}
 
 	public function test_low_complexity_with_recent_page_signal_uses_low_profile_and_v2_contract() :void {
@@ -187,20 +391,12 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 	private function runAltchaAction( array $data ) :\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\RoutedResponse {
 		$ip = (string)( self::con()->this_req->ip ?? '' );
 		$this->applyAjaxRequestContext( $ip === '' ? '198.51.100.25' : $ip, $data );
-		return $this->requireController()->action_router->action(
-			CaptureNotBotAltcha::SLUG,
-			$data,
-			ActionRoutingController::ACTION_AJAX
-		);
+		return $this->routeCaptureAction( CaptureNotBotAltcha::SLUG, $data );
 	}
 
 	private function runNotBotAction( array $data, string $ip ) :\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\RoutedResponse {
 		$this->applyAjaxRequestContext( $ip, $data );
-		return $this->requireController()->action_router->action(
-			CaptureNotBot::SLUG,
-			$data,
-			ActionRoutingController::ACTION_AJAX
-		);
+		return $this->routeCaptureAction( CaptureNotBot::SLUG, $data );
 	}
 
 	private function buildValidV2ActionData() :array {

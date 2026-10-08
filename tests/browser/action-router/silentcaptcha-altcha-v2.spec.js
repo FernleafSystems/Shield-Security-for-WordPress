@@ -1,4 +1,5 @@
-const { test, expect } = require( './support/shield-test' );
+const { test } = require( './support/shield-test' );
+const { expect, CYCLE_TIMEOUT, TEST_TIMEOUT } = require( './support/silentcaptcha' );
 const {
 	collectRuntimeErrors,
 	collectShieldAjaxActionUrls,
@@ -14,6 +15,8 @@ const PUBLIC_VISITOR_IP = '93.184.216.34';
 const NOTBOT_COOKIE_NAME = 'icwp-wpsf-notbot';
 const THIRD_PARTY_AJAX_ACTION = 'shield_browser_third_party_ping';
 
+test.setTimeout( TEST_TIMEOUT );
+
 async function withAnonymousContext( browser, lane, publicVisitorIp, runScenario ) {
 	const context = await browser.newContext( {
 		baseURL: lane.baseUrl,
@@ -21,6 +24,7 @@ async function withAnonymousContext( browser, lane, publicVisitorIp, runScenario
 			'X-Forwarded-For': publicVisitorIp,
 		},
 	} );
+	context.setDefaultTimeout( CYCLE_TIMEOUT );
 	try {
 		return await runScenario( context );
 	}
@@ -49,29 +53,6 @@ async function mutateCaptureNotBotResponse( page, mutatePayload ) {
 		const payload = await response.json();
 		mutatePayload( payload );
 		mutation.applied = true;
-		await route.fulfill( { response, json: payload } );
-	} );
-	return mutation;
-}
-
-async function mutateNotBotAltchaChallenge( page, mutateChallenge ) {
-	const mutation = { applied: false };
-	await page.route( '**/wp-admin/admin-ajax.php', async ( route ) => {
-		const request = route.request();
-		if ( request.method() !== 'POST' || requestActionSlug( request ) !== 'capture_not_bot' ) {
-			await route.fallback();
-			return;
-		}
-
-		const response = await route.fetch();
-		const payload = await response.json();
-		const rawChallenge = payload?.data?.altcha_data?.altcha_challenge;
-		if ( typeof rawChallenge === 'string' ) {
-			const challenge = JSON.parse( rawChallenge );
-			mutateChallenge( challenge );
-			payload.data.altcha_data.altcha_challenge = JSON.stringify( challenge );
-			mutation.applied = true;
-		}
 		await route.fulfill( { response, json: payload } );
 	} );
 	return mutation;
@@ -148,6 +129,8 @@ async function suppressDocumentNotBotSetCookie( page, restoreNotBotCookie = null
 		await page.context().clearCookies( { name: NOTBOT_COOKIE_NAME } );
 		if ( restoreNotBotCookie !== null ) {
 			await setNotBotCookie( page.context(), restoreNotBotCookie.lane, restoreNotBotCookie.value );
+			const restored = ( await page.context().cookies( restoreNotBotCookie.lane.baseUrl ) ).find( cookie => cookie.name === NOTBOT_COOKIE_NAME );
+			expect( restored?.value, 'The intended cookie input must exist before document scripts run.' ).toBe( restoreNotBotCookie.value );
 		}
 		await route.fulfill( {
 			body: await response.body(),
@@ -202,19 +185,7 @@ async function triggerThirdPartyAjaxPing( page ) {
 }
 
 async function responseSetCookieHeader( response ) {
-	if ( typeof response.headerValues === 'function' ) {
-		const values = await response.headerValues( 'set-cookie' );
-		if ( Array.isArray( values ) && values.length > 0 ) {
-			return values.join( "\n" );
-		}
-	}
-	if ( typeof response.headerValue === 'function' ) {
-		const value = await response.headerValue( 'set-cookie' );
-		if ( typeof value === 'string' && value.length > 0 ) {
-			return value;
-		}
-	}
-	return response.headers()[ 'set-cookie' ] || '';
+	return ( await response.headerValues( 'set-cookie' ) ).join( "\n" );
 }
 
 function collectSilentCaptchaConsoleMessages( page ) {
@@ -223,7 +194,6 @@ function collectSilentCaptchaConsoleMessages( page ) {
 		/silentcaptcha/i,
 		/silent captcha/i,
 		/fetchSilentCaptcha/,
-		/hasAltchaChallengeData/,
 		/Could not verify the altcha challenge data/,
 		/ALTCHA/,
 	];
@@ -280,14 +250,10 @@ async function expectNotBotCookie( page, expectedSignals = null ) {
 }
 
 async function expectNotBotLocalStorageUnused( page ) {
-	const value = await page.evaluate( ( key ) => {
-		try {
-			return window.localStorage.getItem( key );
-		}
-		catch {
-			return null;
-		}
-	}, NOTBOT_COOKIE_NAME );
+	const key = await page.evaluate( () => window.shield_vars_silentcaptcha.comps.silentcaptcha.config.storage_key );
+	expect( key ).toEqual( expect.any( String ) );
+	expect( key ).not.toBe( '' );
+	const value = await page.evaluate( key => window.localStorage.getItem( key ), key );
 	expect( value ).toBeNull();
 }
 
@@ -310,11 +276,21 @@ test( 'silentCAPTCHA solves ALTCHA v2, writes cookie state, and throttles refres
 			const notbotResponses = collectShieldAjaxActionUrls( page, 'capture_not_bot' );
 			const altchaResponses = collectShieldAjaxActionUrls( page, 'capture_not_bot_altcha' );
 			const altchaResponse = waitForShieldAjaxAction( page, 'capture_not_bot_altcha' );
+			const basicResponse = waitForShieldAjaxAction( page, 'capture_not_bot' );
 
 			await page.goto( '/?force_notbot=1', { waitUntil: 'load' } );
-			await expectShieldAjaxSuccess( await altchaResponse );
+			const altchaPayload = await expectShieldAjaxSuccess( await altchaResponse );
+			const basicPayload = await expectShieldAjaxSuccess( await basicResponse );
+			expect( basicPayload.data.notbot_state ).toEqual( {
+				mode: 'cookie', required: [ 'altcha' ], exchange_valid: true,
+			} );
+			expect( altchaPayload.data.notbot_state ).toEqual( {
+				mode: 'cookie', required: [], exchange_valid: true,
+			} );
+			for ( const response of [ await basicResponse, await altchaResponse ] ) {
+				expect( response.headers()[ 'cache-control' ] ).toMatch( /no-cache|no-store/ );
+			}
 			await page.waitForLoadState( 'networkidle' );
-			await page.waitForTimeout( 1000 );
 
 			expect( notbotResponses ).toHaveLength( 1 );
 			expect( altchaResponses ).toHaveLength( 1 );
@@ -324,11 +300,10 @@ test( 'silentCAPTCHA solves ALTCHA v2, writes cookie state, and throttles refres
 			await expect.poll( async () => {
 				const state = await fixtureApi.inspectNotBotAltchaFixture();
 				return state.altcha_at;
-			}, { timeout: 15000 } ).toBeGreaterThan( 0 );
+			}, { timeout: CYCLE_TIMEOUT } ).toBeGreaterThan( 0 );
 
 			await page.goto( '/', { waitUntil: 'load' } );
 			await page.waitForLoadState( 'networkidle' );
-			await page.waitForTimeout( 1000 );
 
 			expect( notbotResponses ).toHaveLength( 1 );
 			expect( altchaResponses ).toHaveLength( 1 );
@@ -358,7 +333,6 @@ test( 'server Set-Cookie overrides a stale full NotBot cookie when checks are re
 			await expectShieldAjaxSuccess( await notbotResponse );
 			await expectShieldAjaxSuccess( await altchaResponse );
 			await page.waitForLoadState( 'networkidle' );
-			await page.waitForTimeout( 1000 );
 
 			expect( notbotResponses ).toHaveLength( 1 );
 			expect( altchaResponses ).toHaveLength( 1 );
@@ -394,7 +368,6 @@ test( 'third-party AJAX closes stale NotBot cookie IP-change window through refr
 
 			await page.goto( '/', { waitUntil: 'load' } );
 			await page.waitForLoadState( 'networkidle' );
-			await page.waitForTimeout( 1000 );
 
 			expect( notbotResponses ).toEqual( [] );
 			expect( altchaResponses ).toEqual( [] );
@@ -414,7 +387,6 @@ test( 'third-party AJAX closes stale NotBot cookie IP-change window through refr
 					fixture: 'third-party-ajax',
 				},
 			} );
-			expect( Object.prototype.hasOwnProperty.call( thirdPartyResult.payload, 'client_state' ) ).toBe( false );
 			expect( thirdPartySetCookie ).toContain( NOTBOT_COOKIE_NAME );
 
 			await expect.poll( async () => ( await readNotBotCookie( page ) )?.value || '' ).not.toBe( staleCookieValue );
@@ -423,7 +395,6 @@ test( 'third-party AJAX closes stale NotBot cookie IP-change window through refr
 			await expectShieldAjaxSuccess( await notbotResponse );
 			await expectShieldAjaxSuccess( await altchaResponse );
 			await page.waitForLoadState( 'networkidle' );
-			await page.waitForTimeout( 1000 );
 
 			expect( notbotResponses ).toHaveLength( 1 );
 			expect( altchaResponses ).toHaveLength( 1 );
@@ -457,7 +428,6 @@ test( 'silentCAPTCHA handles capture_not_bot transport failure without frontend 
 			await page.goto( '/?force_notbot=1', { waitUntil: 'load' } );
 			await notbotRequest;
 			await page.waitForLoadState( 'networkidle' );
-			await page.waitForTimeout( 1000 );
 
 			expect( notbotRequests ).toHaveLength( 1 );
 			expect( altchaRequests ).toEqual( [] );
@@ -490,18 +460,13 @@ test( 'silentCAPTCHA handles malformed capture_not_bot_altcha response without f
 			const notbotRequests = collectShieldAjaxActionRequests( page, 'capture_not_bot' );
 			const altchaRequests = collectShieldAjaxActionRequests( page, 'capture_not_bot_altcha' );
 			const notbotResponse = waitForShieldAjaxAction( page, 'capture_not_bot' );
-			const altchaResponse = page.waitForResponse( ( response ) => {
-				const request = response.request();
-				return isAdminAjaxRequest( request )
-					&& requestActionSlug( request ) === 'capture_not_bot_altcha';
-			} );
+			const altchaResponse = waitForShieldAjaxAction( page, 'capture_not_bot_altcha' );
 
 			await page.goto( '/?force_notbot=1', { waitUntil: 'load' } );
 			await expectShieldAjaxSuccess( await notbotResponse );
 			const malformedResponse = await altchaResponse;
 			expect( malformedResponse.status() ).toBe( 200 );
 			await page.waitForLoadState( 'networkidle' );
-			await page.waitForTimeout( 1000 );
 
 			const state = await fixtureApi.inspectNotBotAltchaFixture();
 			expect( state.notbot_at ).toBeGreaterThan( 0 );
@@ -528,7 +493,7 @@ test( 'force_notbot uses AJAX cookie refresh without ALTCHA when server state is
 			await expect.poll( async () => {
 				const state = await fixtureApi.inspectNotBotAltchaFixture();
 				return state.altcha_at;
-			}, { timeout: 15000 } ).toBeGreaterThan( 0 );
+			}, { timeout: CYCLE_TIMEOUT } ).toBeGreaterThan( 0 );
 		} );
 
 		await withAnonymousContext( browser, lane, PUBLIC_VISITOR_IP, async ( context ) => {
@@ -550,15 +515,12 @@ test( 'force_notbot uses AJAX cookie refresh without ALTCHA when server state is
 
 			expect( held.setCookieHeader ).toContain( NOTBOT_COOKIE_NAME );
 			expect( held.payload?.data?.altcha_data ).toEqual( [] );
-			expect( Object.prototype.hasOwnProperty.call( held.payload?.data || {}, 'client_state' ) ).toBe( false );
 			await expectNoNotBotCookie( page );
 
 			held.release();
 			const payload = await expectShieldAjaxSuccess( await forcedNotbotResponse );
 			expect( payload?.data?.altcha_data ).toEqual( [] );
-			expect( Object.prototype.hasOwnProperty.call( payload?.data || {}, 'client_state' ) ).toBe( false );
 			await page.waitForLoadState( 'networkidle' );
-			await page.waitForTimeout( 1000 );
 
 			expect( notbotResponses ).toHaveLength( 1 );
 			expect( altchaResponses ).toEqual( [] );
@@ -600,7 +562,6 @@ test( 'silentCAPTCHA keeps ALTCHA required when only the NotBot cookie signal is
 			await unsupportedPage.goto( '/?force_notbot=1', { waitUntil: 'load' } );
 			await expectShieldAjaxSuccess( await notbotResponse );
 			await unsupportedPage.waitForLoadState( 'networkidle' );
-			await unsupportedPage.waitForTimeout( 1000 );
 
 			const state = await fixtureApi.inspectNotBotAltchaFixture();
 			expect( state.notbot_at ).toBeGreaterThan( 0 );
@@ -622,14 +583,13 @@ test( 'silentCAPTCHA keeps ALTCHA required when only the NotBot cookie signal is
 			await page.goto( '/', { waitUntil: 'load' } );
 			await expectShieldAjaxSuccess( await altchaResponse );
 			await page.waitForLoadState( 'networkidle' );
-			await page.waitForTimeout( 1000 );
 
 			expect( notbotResponses ).toHaveLength( 1 );
 			expect( altchaResponses ).toHaveLength( 1 );
 			await expect.poll( async () => {
 				const updatedState = await fixtureApi.inspectNotBotAltchaFixture();
 				return updatedState.altcha_at;
-			}, { timeout: 15000 } ).toBeGreaterThan( 0 );
+			}, { timeout: CYCLE_TIMEOUT } ).toBeGreaterThan( 0 );
 			await expectNotBotCookie( page, [ 'notbot', 'altcha' ] );
 			await expectNotBotLocalStorageUnused( page );
 			await expectNoRuntimeErrors( runtimeErrors, 'ALTCHA required after partial cookie state' );
@@ -652,17 +612,18 @@ test( 'silentCAPTCHA ignores expired or malformed NotBot cookies and refreshes t
 				await withAnonymousContext( browser, lane, PUBLIC_VISITOR_IP, async ( context ) => {
 					await setNotBotCookie( context, lane, cookieValue );
 					const page = await context.newPage();
-					await suppressDocumentNotBotSetCookie( page );
+					await suppressDocumentNotBotSetCookie( page, { lane, value: cookieValue } );
 					const runtimeErrors = collectRuntimeErrors( page );
 					const consoleMessages = collectSilentCaptchaConsoleMessages( page );
 					const notbotResponses = collectShieldAjaxActionUrls( page, 'capture_not_bot' );
 					const altchaResponses = collectShieldAjaxActionUrls( page, 'capture_not_bot_altcha' );
 					const altchaResponse = waitForShieldAjaxAction( page, 'capture_not_bot_altcha' );
+					const basicRequest = waitForShieldAjaxRequest( page, 'capture_not_bot' );
 
 					await page.goto( '/', { waitUntil: 'load' } );
+					await basicRequest;
 					await expectShieldAjaxSuccess( await altchaResponse );
 					await page.waitForLoadState( 'networkidle' );
-					await page.waitForTimeout( 1000 );
 
 					expect( notbotResponses ).toHaveLength( 1 );
 					expect( altchaResponses ).toHaveLength( 1 );
@@ -722,7 +683,6 @@ test( 'silentCAPTCHA handles malformed AJAX payload envelopes without frontend e
 					await page.goto( '/?force_notbot=1', { waitUntil: 'load' } );
 					await expectShieldAjaxSuccess( await notbotResponse );
 					await page.waitForLoadState( 'networkidle' );
-					await page.waitForTimeout( 1000 );
 
 					expect( mutation.applied ).toBe( true );
 					await expectNotBotLocalStorageUnused( page );
@@ -753,7 +713,6 @@ test( 'silentCAPTCHA recoverable failures do not touch console methods', async (
 			await page.goto( '/?force_notbot=1', { waitUntil: 'load' } );
 			await expectShieldAjaxSuccess( await notbotResponse );
 			await page.waitForLoadState( 'networkidle' );
-			await page.waitForTimeout( 1000 );
 
 			await expectNotBotLocalStorageUnused( page );
 			await expectNoRuntimeErrors( runtimeErrors, 'console method failure during recoverable silentCAPTCHA error' );
@@ -767,8 +726,10 @@ test( 'silentCAPTCHA rejects an expired ALTCHA challenge without submitting a so
 			const runtimeErrors = collectRuntimeErrors( page );
 			const consoleMessages = collectSilentCaptchaConsoleMessages( page );
 			const altchaResponses = collectShieldAjaxActionUrls( page, 'capture_not_bot_altcha' );
-			const mutation = await mutateNotBotAltchaChallenge( page, ( challenge ) => {
+			const mutation = await mutateCaptureNotBotResponse( page, ( payload ) => {
+				const challenge = JSON.parse( payload.data.altcha_data.altcha_challenge );
 				challenge.parameters.expiresAt = Math.floor( Date.now() / 1000 ) - 60;
+				payload.data.altcha_data.altcha_challenge = JSON.stringify( challenge );
 			} );
 
 			const notbotResponse = waitForShieldAjaxAction( page, 'capture_not_bot' );
@@ -776,7 +737,6 @@ test( 'silentCAPTCHA rejects an expired ALTCHA challenge without submitting a so
 			await expectShieldAjaxSuccess( await notbotResponse );
 			expect( mutation.applied ).toBe( true );
 			await page.waitForLoadState( 'networkidle' );
-			await page.waitForTimeout( 1000 );
 
 			const state = await fixtureApi.inspectNotBotAltchaFixture();
 			expect( state.notbot_at ).toBeGreaterThan( 0 );

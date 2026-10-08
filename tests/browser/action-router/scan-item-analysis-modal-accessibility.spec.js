@@ -23,6 +23,79 @@ function isScanItemAnalysisRequest( request ) {
 	return params.get( 'render_slug' ) === 'scanitemanalysis_container';
 }
 
+test( 'malware assessments open the matching details without changing row selection', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'malware_assessments', async ( fixture ) => {
+		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
+		await new ActionsQueuePage( page ).drillToDetail( fixture );
+		const table = page.locator( '[data-scan-results-table="1"]' ).first();
+		await waitForScanResultsTableRows( table );
+		const assessments = table.locator( 'button.scan-results-malware-assessment' );
+		await expect( assessments ).toHaveCount( 4 );
+		await expect( assessments.locator( '.text-bg-success' ) ).toHaveCount( 1 );
+		await expect( assessments.locator( '.text-bg-danger' ) ).toHaveCount( 1 );
+		await expect( assessments.locator( '.text-bg-warning' ) ).toHaveCount( 1 );
+		await expect( assessments.locator( '.text-bg-secondary' ) ).toHaveCount( 1 );
+		await test.info().attach( 'malware-assessments-table', {
+			body: await page.screenshot( { animations: 'disabled', fullPage: true, path: test.info().outputPath( 'malware-assessments-table.png' ) } ),
+			contentType: 'image/png',
+		} );
+		// Existing DataTables selection is independent of the details action.
+		await table.evaluate( ( element ) => globalThis.jQuery( element ).DataTable().row( 0 ).select() );
+		const selectedIds = () => table.evaluate( ( element ) => globalThis.jQuery( element ).DataTable()
+		.rows( { selected: true } ).data().toArray().map( ( row ) => row.rid ) );
+		const selection = await selectedIds();
+		const modal = page.locator( '#ShieldModalContainer.modal.show' );
+		for ( const [ index, activation ] of [ [ 0, 'click' ], [ 1, 'Enter' ], [ 2, 'Space' ], [ 3, 'click' ] ] ) {
+			const button = assessments.nth( index );
+			const rid = await button.getAttribute( 'data-rid' );
+			const file = await button.locator( 'xpath=ancestor::tr' ).locator( '.scan-results-file-cell button' ).textContent();
+			const request = page.waitForRequest( isScanItemAnalysisRequest );
+			if ( activation === 'click' ) {
+				await button.click();
+			}
+			else {
+				await button.focus();
+				await page.keyboard.press( activation );
+			}
+			expect( new URLSearchParams( ( await request ).postData() ).get( 'rid' ) ).toBe( rid );
+			await expect( modal.locator( '#tabInfo' ) ).toBeVisible();
+			await expect( modal.locator( '#tabInfo' ) ).toContainText( file );
+			await expectNamedDialog( page, modal );
+			expect( await selectedIds() ).toEqual( selection );
+			await expectNoAxeViolations( page, '#ShieldModalContainer' );
+			await test.info().attach( `malware-assessment-details-${index}`, {
+				body: await page.screenshot( { animations: 'disabled', path: test.info().outputPath( `malware-assessment-details-${index}.png` ) } ),
+				contentType: 'image/png',
+			} );
+			await page.keyboard.press( 'Escape' );
+			await expectModalHiddenWithoutAriaModal( page, '#ShieldModalContainer' );
+			await expect( button ).toBeFocused();
+		}
+		await page.setViewportSize( { width: 768, height: 900 } );
+		await test.info().attach( 'malware-assessments-table-narrow', {
+			body: await page.screenshot( { animations: 'disabled', fullPage: true, path: test.info().outputPath( 'malware-assessments-table-narrow.png' ) } ),
+			contentType: 'image/png',
+		} );
+		await assessments.last().click();
+		await expect( modal.locator( '#tabInfo' ) ).toBeVisible();
+		await expectNoAxeViolations( page, '#ShieldModalContainer' );
+		await test.info().attach( 'malware-assessment-details-narrow', {
+			body: await page.screenshot( { animations: 'disabled', path: test.info().outputPath( 'malware-assessment-details-narrow.png' ) } ),
+			contentType: 'image/png',
+		} );
+		await page.keyboard.press( 'Escape' );
+		await page.setViewportSize( { width: 1280, height: 720 } );
+		await table.evaluate( ( element ) => new Promise( ( resolve ) => {
+			globalThis.jQuery( element ).DataTable().ajax.reload( () => resolve(), false );
+		} ) );
+		const refreshed = assessments.first();
+		await refreshed.click();
+		await expect( modal.locator( '#tabInfo' ) ).toBeVisible();
+		await page.keyboard.press( 'Escape' );
+		await expect( refreshed ).toBeFocused();
+	} );
+} );
+
 test( 'unavailable scan file download is disabled and skipped by keyboard navigation', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'unavailable_file_direct_table', async ( fixture ) => {
 		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );

@@ -157,9 +157,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		$this->assertFalse( PromoteLocalBaseline::isDue( $this->loadSnapshot( $published ), self::NOW ) );
 	}
 
-	/**
-	 * @dataProvider activeStatusProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'activeStatusProvider' )]
 	public function test_active_afs_defers_before_remote_and_preserves_every_state( string $status ) :void {
 		$asset = new SnapshotPluginVo( 'active-'.$status.'/plugin.php', '1.0.0' );
 		$asset->wpOrg = true;
@@ -238,9 +236,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		$this->assertSame( [], $this->coordinator->assets );
 	}
 
-	/**
-	 * @dataProvider unsuccessfulResponseProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'unsuccessfulResponseProvider' )]
 	public function test_completed_unsuccessful_check_changes_only_timestamp(
 		string $case,
 		array $hashes,
@@ -310,9 +306,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		$this->assertSame( [], $this->coordinator->assets );
 	}
 
-	/**
-	 * @dataProvider successfulAssetProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'successfulAssetProvider' )]
 	public function test_success_persists_complete_published_snapshot_resets_memoization_and_enqueues_once(
 		string $type,
 		string $key,
@@ -482,6 +476,131 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		);
 	}
 
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'selectedPromotionAssets' )]
+	public function test_selected_sha256_promotes_plugins_and_themes_with_consistent_metadata(
+		string $type, string $originalAlgorithm
+	) :void {
+		$asset = $type === 'plugin'
+			? new SnapshotPluginVo( 'sha256-'.$originalAlgorithm.'/plugin.php', '1.2.3' )
+			: new SnapshotThemeVo( 'sha256-'.$originalAlgorithm, '1.2.3' );
+		$asset->wpOrg = true;
+		$this->installEnvironment( $type === 'plugin' ? [ $asset ] : [], $type === 'theme' ? [ $asset ] : [] );
+		$path = $type === 'plugin' ? 'plugin.php' : 'style.css';
+		$this->writeLocalStore( $asset, [ 'algo' => $originalAlgorithm ], [ $path => \hash( $originalAlgorithm, 'local baseline' ) ] );
+		$published = [ $path => \hash( 'sha256', 'published reference' ) ];
+		$urls = [];
+		Functions\when( 'wp_remote_request' )->alias(
+			static function ( string $url ) use ( &$urls, $published ) :array {
+				$urls[] = $url;
+				return PromoteLocalBaselineTest::httpResponse( [ 'hashes' => $published ] );
+			}
+		);
+		$this->seedMemoization();
+
+		$this->assertTrue( ( new PromoteLocalBaseline() )->setAsset( $asset )->run( 'sha256' ) );
+
+		$snapshot = $this->loadSnapshot( $asset );
+		$this->assertSame( $published, $snapshot[ 'data' ] );
+		$this->assertSame( 'sha256', $snapshot[ 'meta' ][ 'algo' ] );
+		$this->assertTrue( $snapshot[ 'meta' ][ 'live_hashes' ] );
+		$this->assertCount( 1, $urls );
+		$this->assertStringContainsString( '/hashes/'.( $type === 'plugin' ? 'p' : 't' ).'/sha256-'.$originalAlgorithm.'/1.2.3/sha256', $urls[ 0 ] );
+		$this->assertSame( [ [ $type, $type === 'plugin' ? $asset->file : $asset->stylesheet, '1.2.3' ] ], $this->coordinator->assets );
+		$this->assertMemoizationEmpty();
+	}
+
+	public static function selectedPromotionAssets() :array {
+		return [ [ 'plugin', 'md5' ], [ 'plugin', 'sha1' ], [ 'theme', 'md5' ], [ 'theme', 'sha1' ] ];
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidSelections' )]
+	public function test_invalid_selection_preserves_baseline_without_request_write_or_completed_timestamp( string $selection ) :void {
+		$asset = new SnapshotPluginVo( 'invalid-selection/plugin.php', '1.0.0' );
+		$asset->wpOrg = true;
+		$this->installEnvironment( [ $asset ], [] );
+		$original = $this->writeLocalStore( $asset );
+		$this->fs->fileWriteCounts = [];
+		$requests = 0;
+		Functions\when( 'wp_remote_request' )->alias( static function () use ( &$requests ) :array {
+			$requests++;
+			return PromoteLocalBaselineTest::httpResponse( [ 'hashes' => [ 'plugin.php' => self::PUBLISHED_HASH ] ] );
+		} );
+
+		$this->assertFalse( ( new PromoteLocalBaseline() )->setAsset( $asset )->run( $selection ) );
+
+		$this->assertSame( $original, $this->loadSnapshot( $asset ) );
+		$this->assertSame( [], $this->fs->fileWriteCounts );
+		$this->assertSame( 0, $requests );
+		$this->assertSame( 0, $this->db->calls );
+		$this->assertSame( [], $this->coordinator->assets );
+	}
+
+	public static function invalidSelections() :array {
+		return [ [ '' ], [ 'SHA256' ], [ 'sha512' ], [ 'sha384' ], [ ' sha256 ' ] ];
+	}
+
+	public function test_selected_algorithm_uses_reloaded_asset_for_published_request_and_metadata() :void {
+		$stale = new SnapshotPluginVo( 'refreshed/plugin.php', '1.0.0', 'Original name' );
+		$current = new SnapshotPluginVo( $stale->file, $stale->Version, 'Current name' );
+		$current->wpOrg = true;
+		$this->installEnvironment( [ $current ], [] );
+		$this->writeLocalStore( $current );
+		$published = [ 'plugin.php' => \hash( 'sha256', 'published bytes' ) ];
+		$urls = [];
+		Functions\when( 'wp_remote_request' )->alias(
+			static function ( string $url ) use ( &$urls, $published ) :array {
+				$urls[] = $url;
+				return PromoteLocalBaselineTest::httpResponse( [ 'hashes' => $published ] );
+			}
+		);
+
+		$this->assertTrue( ( new PromoteLocalBaseline() )->setAsset( $stale )->run( 'sha256' ) );
+		$this->assertCount( 1, $urls );
+		$this->assertStringContainsString( '/hashes/p/refreshed/1.0.0/sha256', $urls[ 0 ] );
+		$this->assertSame( $published, $this->loadSnapshot( $current )[ 'data' ] );
+		$this->assertSame( 'sha256', $this->loadSnapshot( $current )[ 'meta' ][ 'algo' ] );
+		$this->assertSame( 'Current name', $this->loadSnapshot( $current )[ 'meta' ][ 'name' ] );
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'mismatchedPublishedMaps' )]
+	public function test_mismatched_published_response_retains_original_algorithm_and_provenance( array $published ) :void {
+		$asset = new SnapshotPluginVo( 'mismatched-response/plugin.php', '1.0.0' );
+		$asset->wpOrg = true;
+		$this->installEnvironment( [ $asset ], [] );
+		$original = $this->writeLocalStore( $asset, [ 'algo' => 'sha1' ], [ 'plugin.php' => \hash( 'sha1', 'local bytes' ) ] );
+		$this->mockPublishedHashes( $published );
+
+		$this->assertFalse( ( new PromoteLocalBaseline() )->setAsset( $asset )->run( 'sha256' ) );
+
+		$original[ 'meta' ][ 'last_live_hash_check_at' ] = self::NOW;
+		$this->assertSame( $original, $this->loadSnapshot( $asset ) );
+		$this->assertSame( [], $this->coordinator->assets );
+	}
+
+	public static function mismatchedPublishedMaps() :array {
+		return [
+			[ [ 'plugin.php' => \hash( 'md5', 'published bytes' ) ] ],
+			[ [ 'plugin.php' => \hash( 'sha256', 'published bytes' ), 'other.php' => \hash( 'sha1', 'other bytes' ) ] ],
+		];
+	}
+
+	public function test_selected_sha256_write_failure_restores_sha1_baseline_and_original_provenance() :void {
+		$asset = new SnapshotPluginVo( 'sha256-rollback/plugin.php', '1.0.0' );
+		$asset->wpOrg = true;
+		$this->installEnvironment( [ $asset ], [] );
+		$original = $this->writeLocalStore( $asset, [ 'algo' => 'sha1' ], [ 'plugin.php' => \hash( 'sha1', 'local baseline' ) ] );
+		$store = $this->rawStore( $asset );
+		$this->fs->resetWriteAttempts();
+		$this->fs->failOnWriteAttempt( $store->getSnapStoreMetaPath(), 1 );
+		$this->mockPublishedHashes( [ 'plugin.php' => \hash( 'sha256', 'published bytes' ) ] );
+
+		$this->assertFalse( ( new PromoteLocalBaseline() )->setAsset( $asset )->run( 'sha256' ) );
+
+		$original[ 'meta' ][ 'last_live_hash_check_at' ] = self::NOW;
+		$this->assertSame( $original, $this->loadSnapshot( $asset ) );
+		$this->assertSame( [], $this->coordinator->assets );
+	}
+
 	/**
 	 * @param SnapshotPluginVo[] $plugins
 	 * @param SnapshotThemeVo[]  $themes
@@ -529,7 +648,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 	 * @param SnapshotPluginVo|SnapshotThemeVo $asset
 	 * @return array{meta:array,data:array<string,string>}
 	 */
-	private function writeLocalStore( $asset, array $meta = [] ) :array {
+	private function writeLocalStore( $asset, array $meta = [], ?array $data = null ) :array {
 		$meta = \array_merge( [
 			'ts'           => 1600000000,
 			'snap_version' => '19.0.0',
@@ -541,7 +660,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 			'live_hashes'  => false,
 		], $meta );
 		$this->rawStore( $asset )
-			->setSnapData( [ 'plugin.php' => self::ORIGINAL_HASH ] )
+			->setSnapData( $data ?? [ 'plugin.php' => self::ORIGINAL_HASH ] )
 			->setSnapMeta( $meta )
 			->save();
 		return $this->loadSnapshot( $asset );

@@ -152,9 +152,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertSame( [], $wpDb->queries );
 	}
 
-	/**
-	 * @dataProvider providePresentAssetReadinessFailures
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providePresentAssetReadinessFailures' )]
 	public function test_present_plugin_or_theme_readiness_failure_is_reported_without_scanning(
 		string $assetType,
 		string $assetKey,
@@ -246,8 +244,12 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$secondStore = ( new Load() )->setAsset( $second )->run();
 		$this->assertNotSame( $firstStore->getSnapStorePath(), $secondStore->getSnapStorePath() );
 		$this->assertNotSame( $firstStore->getSnapStoreMetaPath(), $secondStore->getSnapStoreMetaPath() );
-		$this->assertSame( [ 'first.php' => \md5_file( $firstPath ) ], $firstStore->getSnapData() );
-		$this->assertSame( [ 'second.php' => \md5_file( $secondPath ) ], $secondStore->getSnapData() );
+		$this->assertSame( [ 'first.php' => \hash_file( 'sha256', $firstPath ) ], $firstStore->getSnapData() );
+		$this->assertSame( [ 'second.php' => \hash_file( 'sha256', $secondPath ) ], $secondStore->getSnapData() );
+		$this->assertSame( 'sha256', $firstStore->getSnapMeta()[ 'algo' ] );
+		$this->assertSame( 'sha256', $secondStore->getSnapMeta()[ 'algo' ] );
+		$this->assertFalse( $firstStore->getSnapMeta()[ 'live_hashes' ] );
+		$this->assertFalse( $secondStore->getSnapMeta()[ 'live_hashes' ] );
 		$this->assertSame( 'first.php', $firstStore->getSnapMeta()[ 'unique_id' ] );
 		$this->assertSame( 'second.php', $secondStore->getSnapMeta()[ 'unique_id' ] );
 
@@ -258,7 +260,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 
 		$rebuiltFirst = ( new Load() )->setAsset( $first )->run();
 		$untouchedSecond = ( new Load() )->setAsset( $second )->run();
-		$this->assertSame( [ 'first.php' => \md5( 'first-content' ) ], $rebuiltFirst->getSnapData() );
+		$this->assertSame( [ 'first.php' => \hash( 'sha256', 'first-content' ) ], $rebuiltFirst->getSnapData() );
 		$this->assertSame( $secondDataBefore, $untouchedSecond->getSnapData() );
 		$this->assertSame( $secondMetaBefore, $untouchedSecond->getSnapMeta() );
 		$this->assertTrue( $rebuiltFirst->verify() );
@@ -294,8 +296,12 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			$this->assertSame( 'plugin', $assetType );
 			$this->assertSame( $plugin->file, $assetKey );
 			$this->assertSame( [
-				'cleanup-reset.php' => [ \md5_file( $path ) ],
+				'cleanup-reset.php' => [ \hash_file( 'sha256', $path ) ],
 			], ( new Retrieve() )->byVO( $plugin ) );
+			$store = ( new Load() )->setAsset( $plugin )->run();
+			$this->assertTrue( $store->isUsable() );
+			$this->assertSame( 'sha256', $store->getSnapMeta()[ 'algo' ] );
+			$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] );
 		};
 
 		( new Cleanup() )->run( 'plugin', $plugin->file );
@@ -400,9 +406,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertSame( [], $wpDb->queries );
 	}
 
-	/**
-	 * @dataProvider providePublishedSnapshotAssets
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providePublishedSnapshotAssets' )]
 	public function test_cleanup_persists_usable_published_snapshot_before_starting_scoped_scan(
 		string $assetType,
 		string $assetKey,
@@ -429,12 +433,16 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			'service_wpgeneral' => $wpGeneral,
 			'service_wpdb'      => new AssetChangeCleanupWpDb(),
 		] );
-		$hash = \str_repeat( 'a', 32 );
+		$hash = \hash( 'sha256', 'published reference bytes' );
+		$this->assertNotSame( \hash_file( 'sha256', $path ), $hash );
+		$requests = [];
 		Functions\when( 'wp_remote_request' )->alias(
-			static function ( string $url ) use ( $hash, $relativePath ) :array {
-				return \strpos( $url, '/availability' ) !== false
-					? AssetChangeCleanupTest::httpResponse( [ 'routes_regex' => '#^(?:cshashes|hashes)$#' ] )
-					: AssetChangeCleanupTest::httpResponse( [ 'hashes' => [ $relativePath => $hash ] ] );
+			static function ( string $url ) use ( $hash, $relativePath, &$requests ) :array {
+				if ( \strpos( $url, '/availability' ) !== false ) {
+					return AssetChangeCleanupTest::httpResponse( [ 'routes_regex' => '#^(?:cshashes|hashes)$#' ] );
+				}
+				$requests[] = $url;
+				return AssetChangeCleanupTest::httpResponse( [ 'hashes' => [ $relativePath => $hash ] ] );
 			}
 		);
 
@@ -443,6 +451,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			$this->assertSame( $assetKey, $startedKey );
 			$store = ( new Load() )->setAsset( $asset )->run();
 			$this->assertTrue( $store->isUsable() );
+			$this->assertSame( 'sha256', $store->getSnapMeta()[ 'algo' ] );
 			$this->assertTrue( $store->getSnapMeta()[ 'live_hashes' ] );
 			$this->assertSame( [
 				$relativePath => [ $hash ],
@@ -451,6 +460,11 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 
 		$this->assertTrue( ( new Cleanup() )->process( $assetType, $assetKey ) );
 		$this->assertSame( [ [ $assetType, $assetKey ] ], $scans->startedAssets );
+		$this->assertCount( 1, $requests );
+		$this->assertSame(
+			'/api/apto-wphashes/v1/hashes/'.( $assetType === 'plugin' ? 'p' : 't' ).'/'.$asset->slug.'/'.$version.'/sha256',
+			\parse_url( $requests[ 0 ], \PHP_URL_PATH )
+		);
 	}
 
 	public static function providePublishedSnapshotAssets() :array {
@@ -460,9 +474,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider providePublishedSnapshotAssets
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providePublishedSnapshotAssets' )]
 	public function test_promotion_follow_up_starts_only_from_exact_published_snapshot(
 		string $assetType,
 		string $assetKey,
@@ -632,7 +644,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			'service_wpgeneral' => $wpGeneral,
 			'service_wpdb'      => new AssetChangeCleanupWpDb(),
 		] );
-		$currentHash = \str_repeat( 'b', 32 );
+		$currentHash = \str_repeat( 'b', 64 );
 		Functions\when( 'wp_remote_request' )->alias(
 			static fn() :array => AssetChangeCleanupTest::httpResponse( [
 				'hashes' => [ 'plugin.php' => $currentHash ],
@@ -643,6 +655,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 
 		$currentStore = ( new Load() )->setAsset( $current )->run();
 		$this->assertSame( [ 'plugin.php' => $currentHash ], $currentStore->getSnapData() );
+		$this->assertSame( 'sha256', $currentStore->getSnapMeta()[ 'algo' ] );
 		$this->assertTrue( $currentStore->getSnapMeta()[ 'live_hashes' ] );
 		$this->assertSame( [ [ 'plugin', $current->file ] ], $scans->startedAssets );
 		$this->assertSnapshotStorePreserved( $old, $oldData, $oldMeta );

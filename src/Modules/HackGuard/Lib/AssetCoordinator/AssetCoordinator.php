@@ -199,7 +199,7 @@ class AssetCoordinator {
 		}
 
 		$canBuild = \is_main_network() && \is_main_site();
-		foreach ( $records as $index => $record ) {
+		foreach ( $records as $record ) {
 			try {
 				if ( $record === null ) {
 					continue;
@@ -223,7 +223,7 @@ class AssetCoordinator {
 				$eligibility[ $record[ 'type' ] ][ $record[ 'key' ] ][ 'comparison_eligible' ] = $isUsable;
 			}
 			catch ( \Throwable $e ) {
-				$this->logFullScanSnapshotFailure( $record[ 'asset' ] ?? $assets[ $index ], $e );
+				$this->logFullScanSnapshotFailure( $record[ 'asset' ], $e );
 			}
 			finally {
 				$heartbeat();
@@ -314,7 +314,7 @@ class AssetCoordinator {
 
 		if ( $buildPending ) {
 			try {
-				( new ScheduleBuildAll() )->build();
+				( new ScheduleBuildAll() )->build( 'sha256' );
 			}
 			catch ( \Throwable $e ) {
 				error_log( 'Shield asset coordinator snapshot build failed: '.$e->getMessage() );
@@ -921,7 +921,7 @@ class AssetCoordinator {
 	protected function buildSnapshot( $asset ) :void {
 		( new Build() )
 			->setAsset( $asset )
-			->run();
+			->run( 'sha256' );
 	}
 
 	/**

@@ -26,9 +26,7 @@ class CompareFileHashTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider provideAlgorithms
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideAlgorithms' )]
 	public function test_supported_hash_algorithms_verify( string $algorithm ) :void {
 		$content = "one\ntwo\n";
 		$path = $this->writeFile( $content );
@@ -44,13 +42,29 @@ class CompareFileHashTest extends BaseUnitTest {
 		];
 	}
 
-	public function test_line_ending_variants_remain_compatible() :void {
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideAlgorithms' )]
+	public function test_line_ending_variants_remain_compatible( string $algorithm ) :void {
 		$dosPath = $this->writeFile( "one\r\ntwo\r\n" );
 		$linuxPath = $this->writeFile( "one\ntwo\n" );
+		$macPath = $this->writeFile( "one\rtwo\r" );
+		$mixedPath = $this->writeFile( "one\r\ntwo\rthree\n" );
 		$compare = new CompareFileHash();
 
-		$this->assertTrue( $compare->isEqual( $dosPath, \sha1( "one\ntwo\n" ) ) );
-		$this->assertTrue( $compare->isEqual( $linuxPath, \sha1( "one\r\ntwo\r\n" ) ) );
+		$this->assertTrue( $compare->isEqual( $dosPath, \hash( $algorithm, "one\ntwo\n" ) ) );
+		$this->assertTrue( $compare->isEqual( $linuxPath, \hash( $algorithm, "one\r\ntwo\r\n" ) ) );
+		$this->assertTrue( $compare->isEqual( $macPath, \hash( $algorithm, "one\ntwo\n" ) ) );
+		$this->assertTrue( $compare->isEqual( $mixedPath, \hash( $algorithm, "one\ntwo\nthree\n" ) ) );
+		$this->assertFalse( $compare->isEqual( $mixedPath, \hash( $algorithm, "one\ntwo\nchanged\n" ) ) );
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideAlgorithms' )]
+	public function test_binary_raw_equality_and_changed_content( string $algorithm ) :void {
+		$content = "\x00\xff\x80one\r\ntwo\r\x00";
+		$path = $this->writeFile( $content );
+		$compare = new CompareFileHash();
+
+		$this->assertTrue( $compare->isEqual( $path, \hash( $algorithm, $content ) ) );
+		$this->assertFalse( $compare->isEqual( $path, \hash( $algorithm, $content."\x01" ) ) );
 	}
 
 	public function test_hash_file_false_is_not_reported_as_verified() :void {

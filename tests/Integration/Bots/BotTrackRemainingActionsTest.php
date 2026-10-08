@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Bots;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack\TrackLinkCheese;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsController;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotSignalsController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\OffenseTracker;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\Core\BotTrackInvalidScript,
@@ -46,9 +46,7 @@ class BotTrackRemainingActionsTest extends ShieldIntegrationTestCase {
 		parent::tear_down();
 	}
 
-	/**
-	 * @dataProvider botTrackModeProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'botTrackModeProvider' )]
 	public function test_xmlrpc_bot_tracking_uses_mode_contract(
 		string $mode,
 		int $expectedOffenseCount,
@@ -72,9 +70,7 @@ class BotTrackRemainingActionsTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $this->evaluateRule( $this->xmlrpcRule() ) );
 	}
 
-	/**
-	 * @dataProvider botTrackModeProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'botTrackModeProvider' )]
 	public function test_invalid_script_bot_tracking_uses_mode_contract(
 		string $mode,
 		int $expectedOffenseCount,
@@ -101,9 +97,7 @@ class BotTrackRemainingActionsTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $this->evaluateRule( $this->invalidScriptRule() ) );
 	}
 
-	/**
-	 * @dataProvider botTrackModeProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'botTrackModeProvider' )]
 	public function test_link_cheese_bot_tracking_uses_mode_contract(
 		string $mode,
 		int $expectedOffenseCount,

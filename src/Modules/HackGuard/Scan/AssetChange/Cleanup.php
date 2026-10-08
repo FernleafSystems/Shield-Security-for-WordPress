@@ -137,7 +137,7 @@ class Cleanup {
 		try {
 			( new StoreAction\Build() )
 				->setAsset( $asset )
-				->run();
+				->run( 'sha256' );
 
 			$store = ( new StoreAction\Load() )
 				->setAsset( $asset )

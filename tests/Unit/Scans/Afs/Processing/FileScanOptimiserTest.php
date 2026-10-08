@@ -322,7 +322,8 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $beta, $this->newAction() ) );
 	}
 
-	public function test_known_valid_plugin_record_requires_current_published_snapshot() :void {
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSnapshotAlgorithms' )]
+	public function test_known_valid_plugin_record_requires_current_published_snapshot( string $algorithm ) :void {
 		$path = $this->writeFile( WP_PLUGIN_DIR.'/local/local.php', '<?php local();' );
 		$cacheDir = $this->makeTempDir( 'cache' );
 		$this->installEnvironment(
@@ -331,21 +332,23 @@ class FileScanOptimiserTest extends BaseUnitTest {
 			'6.5.0',
 			[ 'local/local.php' ]
 		);
-		$this->writeSnapshot( $cacheDir, new OptimiserPluginVo( 'local/local.php' ), [
-			'local.php' => \md5_file( $path ),
-		], false );
+		$asset = new OptimiserPluginVo( 'local/local.php' );
+		$hashes = [ 'local.php' => \hash_file( $algorithm, $path ) ];
+		$this->writeSnapshot( $cacheDir, $asset, $hashes, true );
 		$optimiser = new FileScanOptimiser();
 		$optimiser->recordKnownValidFile(
 			$path,
 			new TrustedFileContext( 'plugin', 'local/local.php', '1.0.0', 'local.php' )
 		);
 
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
+
+		$this->writeSnapshot( $cacheDir, $asset, $hashes, false );
+
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
 	}
 
-	/**
-	 * @dataProvider provideIneligibleFullScanPluginSnapshots
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideIneligibleFullScanPluginSnapshots' )]
 	public function test_full_scan_known_valid_plugin_requires_exact_comparison_eligibility(
 		?array $eligibility
 	) :void {
@@ -662,20 +665,28 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertSame( 3, OptimiserThemes::$getThemeAsVoCalls );
 	}
 
-	public function test_known_valid_plugin_record_does_not_skip_after_same_version_snapshot_hash_replacement() :void {
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSnapshotAlgorithms' )]
+	public function test_known_valid_plugin_record_does_not_skip_after_same_version_snapshot_hash_replacement( string $algorithm ) :void {
 		$path = $this->writeFile( WP_PLUGIN_DIR.'/alpha/one.php', '<?php original();' );
 		$cacheDir = $this->makeTempDir( 'cache' );
 		$asset = new OptimiserPluginVo( 'alpha/alpha.php' );
 		$this->installEnvironment( $cacheDir, true, '6.5.0', [ 'alpha/alpha.php' ] );
-		$this->writePublishedSnapshot( $cacheDir, $asset, [ 'one.php' => \md5_file( $path ) ] );
+		$this->writePublishedSnapshot( $cacheDir, $asset, [ 'one.php' => \hash_file( $algorithm, $path ) ] );
 		$optimiser = new FileScanOptimiser();
 		$optimiser->recordKnownValidFile( $path, new TrustedFileContext( 'plugin', 'alpha/alpha.php', '1.0.0', 'one.php' ) );
 
 		$this->assertTrue( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
 
-		$this->writePublishedSnapshot( $cacheDir, $asset, [ 'one.php' => \md5( '<?php corrected();' ) ] );
+		$this->writePublishedSnapshot( $cacheDir, $asset, [ 'one.php' => \hash( $algorithm, '<?php corrected();' ) ] );
 
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
+	}
+
+	public static function provideSnapshotAlgorithms() :array {
+		return [
+			'md5'    => [ 'md5' ],
+			'sha256' => [ 'sha256' ],
+		];
 	}
 
 	public function test_known_valid_theme_record_does_not_skip_after_same_version_snapshot_path_removal() :void {
@@ -694,9 +705,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
 	}
 
-	/**
-	 * @dataProvider patternFamiliesProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'patternFamiliesProvider' )]
 	public function test_malware_clean_verdict_fingerprint_includes_pattern_family( string $family ) :void {
 		$path = $this->writeFile( ABSPATH.'wp-content/uploads/clean.php', '<?php clean();' );
 		$this->installEnvironment( $this->makeTempDir( 'cache' ) );
@@ -755,9 +764,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertTrue( $optimiser->hasCleanMalwareVerdict( $path, $action ) );
 	}
 
-	/**
-	 * @dataProvider staleSchemaProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'staleSchemaProvider' )]
 	public function test_records_without_current_schema_version_do_not_hit_cache( ?int $schemaVersion ) :void {
 		$cacheDir = $this->makeTempDir( 'cache' );
 		$knownValid = $this->writeFile( ABSPATH.'wp-admin/schema-valid.php', '<?php clean_valid();' );

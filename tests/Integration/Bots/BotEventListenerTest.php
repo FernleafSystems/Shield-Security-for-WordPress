@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Bots;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotEventListener;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotEventListener;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Tests that BotEventListener maps specific events to the correct
@@ -46,9 +45,7 @@ class BotEventListenerTest extends ShieldIntegrationTestCase {
 		];
 	}
 
-	/**
-	 * @dataProvider provideEventToColumnMappings
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideEventToColumnMappings' )]
 	public function test_event_updates_correct_signal_column( string $event, string $expectedColumn ) {
 		$this->requireDb( 'bot_signals' );
 		$this->requireDb( 'ips' );
@@ -79,7 +76,6 @@ class BotEventListenerTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ips' );
 
 		$ip = '192.0.2.211';
-		$now = Services::Request()->ts();
 
 		$id = TestDataFactory::insertBotSignal( $ip );
 

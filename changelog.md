@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Request SHA256 for new plugin/theme snapshots and eligible published promotions in Shield's scan preparation, snapshot maintenance, and update cleanup. Support explicit MD5, SHA1, or SHA256 helper parameters with validated references and matching metadata; preserve helper MD5 defaults, existing baselines, local-versus-published trust, and SHA1 crowd submission contracts.
+
+- Keep required silentCAPTCHA checks pending when signal storage fails, preserving confirmed server state until a successful retry.
+- Keep cookie-free silentCAPTCHA retry delays bounded after the browser clock moves backward.
+
+- Limit manual malware assessment refreshes to once every five minutes per site, with a dialogue showing the remaining wait.
+- Use only provider-neutral reason codes to explain unclassified MALAI assessments.
+- Allow authorized administrators to refresh active malware assessments from MALAI immediately using the existing table controls and definitive-clean reconciliation rules.
+- Add optional cookie-free silentCAPTCHA with browser refresh timing while preserving existing server-side bot checks and default cookie mode. IP changes are reassessed at the next due refresh; purge page and asset caches and reload open pages when changing mode.
+- Clarify malware assessments, including inconclusive results, and check unresolved reports again after ten minutes. Only definitive clean verdicts automatically clear malware findings.
 - Keep successful network settings imports from being reported as timed out when the master encounters one transient database write failure.
 - Allow authorized import/export clients without a stored Import ID to complete callback verification against their stored trusted target, while preserving private-target, credential, cooldown, and callback rejection controls.
 - Prevent false cloaked-plugin findings and mass alerts from replayed filters or unusable plugin lists. Preserve saved findings when evidence is incomplete, and require WordPress 6.3 or newer for this check.

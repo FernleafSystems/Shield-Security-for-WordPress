@@ -2,6 +2,28 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrowserFixtureRegistry;
 
+\add_action( 'after_setup_theme', static function () :void {
+	$timing = \get_option( 'shield_browser_notbot_timing', false );
+	if ( $timing !== false && \function_exists( 'shield_security_get_plugin' ) ) {
+		$controller = \shield_security_get_plugin()->getController();
+		$cfg = $controller->cfg;
+		$config = $cfg->configuration;
+		$defs = $config->defs;
+		$originalTiming = $defs[ 'silentcaptcha_refresh_seconds' ] ?? null;
+		$defs[ 'silentcaptcha_refresh_seconds' ] = $timing;
+		$config->defs = $defs;
+		$cfg->configuration = $config;
+		// Keep the fixture override out of Shield's configuration cache on shutdown.
+		\add_action( $controller->prefix( 'pre_plugin_shutdown' ), static function () use ( $cfg, $originalTiming ) :void {
+			$config = $cfg->configuration;
+			$defs = $config->defs;
+			$defs[ 'silentcaptcha_refresh_seconds' ] = $originalTiming;
+			$config->defs = $defs;
+			$cfg->configuration = $config;
+		}, \PHP_INT_MIN );
+	}
+} );
+
 \add_filter( 'pre_http_request', 'shield_browser_fixture_filelocker_api_response', 10, 3 );
 \add_filter( 'pre_wp_mail', 'shield_browser_fixture_login_guard_mail_capture', 10, 2 );
 \add_action( 'shield/event', 'shield_browser_fixture_login_guard_event_capture', 10, 3 );
@@ -249,7 +271,7 @@ function shield_browser_fixture_allowed_actions() :array {
 		'mainwp-sites' => [ 'seed', 'cleanup' ],
 		'merlin-welcome' => [ 'seed', 'cleanup' ],
 		'mfa-profile' => [ 'seed', 'cleanup', 'inspect' ],
-		'notbot-altcha' => [ 'seed', 'cleanup', 'inspect' ],
+		'notbot-altcha' => [ 'seed', 'cleanup', 'inspect', 'mode', 'add-ip', 'timing' ],
 		'public-block-recovery' => [ 'seed', 'cleanup' ],
 		'security-admin' => [ 'seed', 'cleanup', 'inspect' ],
 		'security-headers' => [ 'seed', 'cleanup' ],

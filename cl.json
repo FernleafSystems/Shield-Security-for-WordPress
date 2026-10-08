@@ -145,6 +145,31 @@
             ]
           }
         ]
+      },
+      {
+        "version":     "5",
+        "released_at": 1791200000,
+        "items":       [
+          {
+            "type":        "improved",
+            "title":       "Updated Malware/MAL{ai} Results Presentation",
+            "description": [
+              "Enhanced the presentation of malware scanning results based on the improvements with MAL{ai} v3."
+            ],
+            "href":        "https://clk.shldscrty.com/om"
+          }
+        ]
+      },
+      {
+        "version":     "6",
+        "released_at": 1791227000,
+        "items":       [
+          {
+            "type":        "fixed",
+            "title":       "Fatal Error for PHP 8.5+",
+            "description": []
+          }
+        ]
       }
     ]
   },

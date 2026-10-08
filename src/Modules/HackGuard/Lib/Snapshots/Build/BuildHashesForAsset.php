@@ -1,16 +1,17 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build;
 
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\FileHashAlgorithm;
 
 class BuildHashesForAsset {
 
 	private string $hashAlgo = 'md5';
 
 	/**
-	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
+	 * Keys are relative to the asset directory, or the filename for a single-file plugin.
 	 * @param Assets\WpPluginVo|Assets\WpThemeVo $asset
 	 * @return string[]
 	 */
@@ -33,11 +34,11 @@ class BuildHashesForAsset {
 	}
 
 	public function getHashAlgo() :string {
-		return empty( $this->hashAlgo ) ? 'md5' : $this->hashAlgo;
+		return $this->hashAlgo;
 	}
 
 	public function setHashAlgo( string $hashAlgo ) :self {
-		$this->hashAlgo = $hashAlgo;
+		$this->hashAlgo = FileHashAlgorithm::validate( $hashAlgo );
 		return $this;
 	}
 }

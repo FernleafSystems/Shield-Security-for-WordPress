@@ -1,4 +1,4 @@
-const { test, expect } = require( './support/shield-test' );
+const { test, expect, fillWordPressLoginForm } = require( './support/shield-test' );
 
 const MFA_VERIFY_PAGE_SHIELD = 'custom_shield';
 const MFA_VERIFY_PAGE_WP_LOGIN = 'wp_login';
@@ -11,8 +11,7 @@ async function anonymousPage( browser, lane ) {
 
 async function submitWpLogin( page, loginPath, userLogin, userPass ) {
 	await page.goto( loginPath, { waitUntil: 'domcontentloaded' } );
-	await page.locator( '#user_login' ).fill( userLogin );
-	await page.locator( '#user_pass' ).fill( userPass );
+	await fillWordPressLoginForm( page.locator( '#loginform' ), userLogin, userPass );
 	await Promise.all( [
 		page.waitForNavigation( { waitUntil: 'domcontentloaded' } ).catch( () => null ),
 		page.locator( '#wp-submit' ).click(),

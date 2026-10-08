@@ -100,6 +100,12 @@ type ShieldPluginOnboardingGlobal = {
 };
 
 type ShieldSilentCaptchaBaseData = {
+	config: {
+		mode: 'cookie' | 'cookie_free';
+		refresh_seconds: { ordinary: number; form: number; login: number };
+		storage_key: string;
+		is_login: boolean;
+	};
 	ajax: {
 		silentcaptcha: Record<string, any> & {
 			ajaxurl: string;

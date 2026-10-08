@@ -37,6 +37,7 @@
     "monolog/monolog":                       "^2.11",
     "paragonie/constant_time_encoding":      "^3.0",
     "symfony/polyfill-iconv":                "^1.37",
+    "symfony/polyfill-uuid":                 "1.37",
     "twig/twig":                             "^3.27",
     "web-auth/webauthn-lib":                 "^5.3",
     "ext-json":                              "*",
@@ -79,49 +80,49 @@
     }
   },
   "scripts":           {
-    "post-install-cmd": [
+    "post-install-cmd":     [
       "@php bin/patch-plugin-core-api-exception.php"
     ],
-    "post-update-cmd": [
+    "post-update-cmd":      [
       "@php bin/patch-plugin-core-api-exception.php"
     ],
-    "build:config":     "@php bin/build-config.php",
-    "test":             [
+    "build:config":         "@php bin/build-config.php",
+    "test":                 [
       "Composer\\Config::disableProcessTimeout",
       "@build:config",
       "@test:unit",
       "@test:integration"
     ],
-    "test:unit:policy": "@php bin/check-unit-test-fixtures.php",
-    "test:unit:runner": [
+    "test:unit:policy":     "@php bin/check-unit-test-fixtures.php",
+    "test:unit:runner":     [
       "@build:config",
       "@php bin/run-unit-tests.php --runner-mode=auto"
     ],
-    "test:unit":        [
+    "test:unit":            [
       "@test:unit:policy @no_additional_args",
       "@test:unit:runner"
     ],
-    "test:integration": [
+    "test:integration":     [
       "Composer\\Config::disableProcessTimeout",
       "@build:config",
       "@php bin/shield test:integration-local"
     ],
-    "test:browser":     [
+    "test:browser":         [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:browser"
     ],
     "test:browser:cleanup": [
       "@php bin/shield test:browser:cleanup"
     ],
-    "test:cross-site": [
+    "test:cross-site":      [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:cross-site"
     ],
-    "test:package":     [
+    "test:package":         [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:package-targeted"
     ],
-    "test:upgrade-public": [
+    "test:upgrade-public":  [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:upgrade-public"
     ],
@@ -129,17 +130,17 @@
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:popular-plugins"
     ],
-    "analyze":          "@php bin/shield analyze:source",
-    "package-plugin":   [
+    "analyze":              "@php bin/shield analyze:source",
+    "package-plugin":       [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/package-plugin.php"
     ],
-    "build-zip":        [
+    "build-zip":            [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/build-zip.php"
     ],
-    "strauss:dev":      "@php bin/run-strauss-dev.php",
-    "strauss:clean":    "@php bin/run-strauss-dev.php --clean"
+    "strauss:dev":          "@php bin/run-strauss-dev.php",
+    "strauss:clean":        "@php bin/run-strauss-dev.php --clean"
   },
   "extra":             {
     "strauss": {

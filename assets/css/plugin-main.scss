@@ -532,6 +532,29 @@ a[target="_blank"]:not(.shield-footer-version):not(.option_link_info):not(.card-
   box-shadow: none;
 }
 
+.scan-results-malware-assessment {
+  display: block;
+  width: 100%;
+  text-align: left;
+  white-space: normal;
+
+  &__summary,
+  &__meta,
+  &__details {
+    display: block;
+    margin-top: .25rem;
+  }
+
+  &__meta {
+    color: var(--bs-secondary-color);
+    font-size: .875em;
+  }
+
+  &__details {
+    font-size: .875em;
+  }
+}
+
 dl.pro-features dt {
   margin-left: 2px;
 }
@@ -1154,8 +1177,7 @@ td.status {
   width: 200px;
 }
 
-td.status ul,
-td.mal_details ul {
+td.status ul {
   margin-bottom: 2px;
   padding-left: 0;
 }

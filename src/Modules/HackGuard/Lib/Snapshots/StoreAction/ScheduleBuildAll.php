@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshot
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetTrustResolver,
+	FileHashAlgorithm,
 	Retrieve
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\CrowdSourced\SubmitHashes;
@@ -24,12 +25,13 @@ class ScheduleBuildAll extends BaseExec {
 		self::con()->comps->asset_coordinator->discoverMissingSnapshots();
 	}
 
-	public function build() :void {
+	public function build( string $algorithm = 'md5' ) :void {
+		FileHashAlgorithm::validate( $algorithm );
 		[ $needsBuild, $needsPromotion ] = $this->classifyAssets();
 
 		foreach ( $needsBuild as $asset ) {
 			try {
-				$this->buildMissingAsset( $asset );
+				$this->buildMissingAsset( $asset, $algorithm );
 			}
 			catch ( \Throwable $e ) {
 				error_log( '[Build Asset] Notice: '.$e->getMessage() );
@@ -40,7 +42,7 @@ class ScheduleBuildAll extends BaseExec {
 			try {
 				( new PromoteLocalBaseline() )
 					->setAsset( $asset )
-					->run();
+					->run( $algorithm );
 			}
 			catch ( \Throwable $e ) {
 				error_log( '[Promote Asset Snapshot] Notice: '.$e->getMessage() );
@@ -81,10 +83,10 @@ class ScheduleBuildAll extends BaseExec {
 	/**
 	 * @param WpPluginVo|WpThemeVo $asset
 	 */
-	private function buildMissingAsset( $asset ) :void {
+	private function buildMissingAsset( $asset, string $algorithm ) :void {
 		( new Build() )
 			->setAsset( $asset )
-			->run();
+			->run( $algorithm );
 
 		$store = ( new Load() )
 			->setAsset( $asset )

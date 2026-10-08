@@ -89,3 +89,61 @@ jobs:
           playwright-report
           test-results
         if-no-files-found: ignore
+
+  playwright-silentcaptcha-engines:
+    name: 'Playwright silentCAPTCHA (${{ matrix.browser }})'
+    runs-on: ${{ vars.CI_UBUNTU_RUNNER }}
+    timeout-minutes: 40
+    needs: changes
+    if: ${{ needs.changes.outputs.browser == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [ firefox, webkit ]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        coverage: none
+        tools: composer:v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version-file: .nvmrc
+        cache: npm
+
+    - name: Prepare Private Packagist Composer auth
+      env:
+        PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
+      run: php .github/scripts/prepare-packagist-composer-auth.php
+
+    - name: Install dependencies
+      run: |
+        composer install --no-interaction --prefer-dist --optimize-autoloader
+        npm ci --no-audit --no-fund
+
+    - name: Install Playwright engine
+      run: php bin/run-node-tool.php playwright install --with-deps ${{ matrix.browser }}
+
+    - name: Run silentCAPTCHA browser lane
+      run: composer test:browser -- --clean --lanes=1 -- tests/browser/action-router/silentcaptcha-altcha-v2.spec.js tests/browser/action-router/silentcaptcha-cookie-free.spec.js --workers=1 --browser=${{ matrix.browser }}
+
+    - name: Clean browser harness resources
+      if: always()
+      run: composer test:browser:cleanup -- --all --lanes=1
+
+    - name: Upload Playwright artifacts
+      if: failure()
+      uses: actions/upload-artifact@v7
+      with:
+        name: playwright-silentcaptcha-${{ matrix.browser }}-artifacts
+        path: |
+          playwright-report
+          test-results
+        if-no-files-found: ignore

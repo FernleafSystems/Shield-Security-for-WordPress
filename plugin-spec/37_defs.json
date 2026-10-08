@@ -1,4 +1,9 @@
 {
+    "silentcaptcha_refresh_seconds": {
+        "ordinary": 300,
+        "form": 120,
+        "login": 60
+    },
     "restricted_pages_users": [
         "user-edit.php",
         "users.php"

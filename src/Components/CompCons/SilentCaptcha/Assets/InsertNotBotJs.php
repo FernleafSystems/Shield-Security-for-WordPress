@@ -5,11 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCapt
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	ActionDataVO,
 	Actions\CaptureNotBot
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
 class InsertNotBotJs {
 
@@ -33,17 +31,15 @@ class InsertNotBotJs {
 						'silentcaptcha',
 					],
 					'data'    => function () {
-						$notBotVO = new ActionDataVO();
-						$notBotVO->action = CaptureNotBot::class;
-						$notBotVO->ip_in_nonce = false;
-
 						return [
 							'ajax'  => [
-								'silentcaptcha' => ActionData::BuildVO( $notBotVO ),
+								'silentcaptcha' => ActionData::Build( CaptureNotBot::class ),
 							],
-							'flags' => [
-								'skip'     => false,
-								'required' => $this->isFreshSignalRequired(),
+							'config' => [
+								'mode' => self::con()->comps->opts_lookup->silentCaptchaMode(),
+								'refresh_seconds' => self::con()->cfg->configuration->def( 'silentcaptcha_refresh_seconds' ),
+								'storage_key' => 'icwp-wpsf-notbot-freshness:v1:'.home_url( '/' ),
+								'is_login' => doing_action( 'login_enqueue_scripts' ),
 							]
 						];
 					},
@@ -53,10 +49,5 @@ class InsertNotBotJs {
 
 			return $assets;
 		} );
-	}
-
-	private function isFreshSignalRequired() :bool {
-		$req = Services::Request();
-		return $req->query( 'force_notbot' ) == 1 || !empty( self::con()->comps->not_bot->getRequiredSignals() );
 	}
 }

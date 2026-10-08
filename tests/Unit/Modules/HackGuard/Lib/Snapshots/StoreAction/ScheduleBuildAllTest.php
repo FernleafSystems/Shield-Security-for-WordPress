@@ -19,7 +19,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
 	HashesStorageDir,
 	Store
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\ScheduleBuildAll;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\{Build, ScheduleBuildAll};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build\BuildHashesFromApi;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -45,6 +46,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\{
 	CacheStoreWordPressFunctions
 };
 use FernleafSystems\Wordpress\Services\Core\Db;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\{ApiBase, Hashes};
 
 function error_log( string $message ) :bool {
 	ScheduleBuildAllTest::$capturedErrorLogs[] = $message;
@@ -62,11 +64,14 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 	public static array $capturedErrorLogs = [];
 
 	private array $servicesSnapshot = [];
+	private array $httpQueryCacheSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
 		self::$capturedErrorLogs = [];
 		$this->servicesSnapshot = ServicesState::snapshot();
+		$this->httpQueryCacheSnapshot = $this->getStaticProperty( ApiBase::class, 'QueryCache' );
+		$this->setStaticProperty( ApiBase::class, 'QueryCache', [] );
 		Retrieve::resetMemoization();
 		AssetTrustResolver::resetMemoization();
 		$this->resetHashesStorageDir();
@@ -96,6 +101,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
+		$this->setStaticProperty( ApiBase::class, 'QueryCache', $this->httpQueryCacheSnapshot );
 		Retrieve::resetMemoization();
 		AssetTrustResolver::resetMemoization();
 		$this->resetHashesStorageDir();
@@ -155,6 +161,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 			'src/Plugin.php' => self::MD5,
 		], $store->getSnapData() );
 		$this->assertTrue( $store->getSnapMeta()[ 'live_hashes' ] );
+		$this->assertSame( 'md5', $store->getSnapMeta()[ 'algo' ] );
 		$this->assertCount( 1, $urls );
 		$this->assertStringContainsString( '/hashes/p/published-plugin/1.2.3/md5', $urls[ 0 ] );
 	}
@@ -177,13 +184,12 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 			'style.css' => self::MD5,
 		], $store->getSnapData() );
 		$this->assertTrue( $store->getSnapMeta()[ 'live_hashes' ] );
+		$this->assertSame( 'md5', $store->getSnapMeta()[ 'algo' ] );
 		$this->assertCount( 1, $urls );
 		$this->assertStringContainsString( '/hashes/t/published-theme/4.5.6/md5', $urls[ 0 ] );
 	}
 
-	/**
-	 * @dataProvider provideUnusablePublishedMaps
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideUnusablePublishedMaps' )]
 	public function test_unusable_published_map_falls_back_to_complete_local_baseline(
 		string $slug,
 		array $published
@@ -205,6 +211,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 			'plugin.php' => \md5_file( $path ),
 		], $store->getSnapData() );
 		$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] );
+		$this->assertSame( 'md5', $store->getSnapMeta()[ 'algo' ] );
 		$this->assertCount( 1, $urls );
 	}
 
@@ -231,6 +238,346 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		];
 	}
 
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSnapshotAlgorithms' )]
+	public function test_selected_algorithm_is_requested_and_persisted_for_plugin_and_theme( string $algorithm ) :void {
+		$plugin = new SnapshotPluginVo( 'selected-plugin/plugin.php', '1.2.3' );
+		$theme = new SnapshotThemeVo( 'selected-theme', '4.5.6' );
+		$plugin->wpOrg = $theme->wpOrg = true;
+		$this->installBuildEnvironment( [ $plugin ], $this->makeTempDir( 'selected-'.$algorithm ), [ $theme ] );
+		$hash = \hash( $algorithm, 'published reference' );
+		$urls = [];
+		$this->mockPublishedResponse( [ 'reference.php' => $hash ], $urls );
+
+		$this->invokeBuild( $algorithm );
+
+		$this->assertSame( [
+			ApiBase::API_URL.'/v1/hashes/p/selected-plugin/1.2.3/'.$algorithm,
+			ApiBase::API_URL.'/v1/hashes/t/selected-theme/4.5.6/'.$algorithm,
+		], $urls );
+		foreach ( [ $plugin, $theme ] as $asset ) {
+			$store = $this->loadStore( $asset );
+			$this->assertSame( [ 'reference.php' => $hash ], $store->getSnapData() );
+			$this->assertSame( $algorithm, $store->getSnapMeta()[ 'algo' ] );
+			$this->assertTrue( $store->getSnapMeta()[ 'live_hashes' ] );
+		}
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'malformedPremiumCatalogs' )]
+	public function test_malformed_premium_catalog_never_confers_support( string $type, $info ) :void {
+		$asset = $type === 'plugin'
+			? new SnapshotPluginVo( 'premium/plugin.php', '1.0.0' )
+			: new SnapshotThemeVo( 'premium', '1.0.0' );
+		$this->installBuildEnvironment( [], $this->makeTempDir( 'premium-invalid' ) );
+		$urls = [];
+		$this->mockPremiumCatalog( $info, $urls );
+
+		$warnings = [];
+		\set_error_handler( static function ( int $severity, string $message ) use ( &$warnings ) :bool {
+			$warnings[] = [ $severity, $message ];
+			return true;
+		} );
+		$failure = null;
+		try {
+			( new BuildHashesFromApi() )->build( $asset, 'sha256' );
+		}
+		catch ( \Exception $e ) {
+			$failure = $e;
+		}
+		finally {
+			\restore_error_handler();
+		}
+
+		$this->assertSame( [], $warnings );
+		$this->assertInstanceOf( \Exception::class, $failure );
+		$this->assertSame( [ ApiBase::API_URL.'/v1/hashes/info' ], $urls );
+	}
+
+	public static function malformedPremiumCatalogs() :array {
+		$cases = [];
+		foreach ( [ 'plugin' => 'plugins', 'theme' => 'themes' ] as $type => $group ) {
+			foreach ( [
+				'null info' => null,
+				'scalar info' => true,
+				'missing premium' => [],
+				'scalar premium' => [ 'supported_premium' => true ],
+				'missing group' => [ 'supported_premium' => [] ],
+				'scalar group' => [ 'supported_premium' => [ $group => true ] ],
+				'invalid rows' => [ 'supported_premium' => [ $group => [
+					null, true, 'premium', [],
+					[ 'slug' => true, 'file' => true, 'name' => true ],
+					[ 'slug' => 0, 'file' => [], 'name' => false ],
+					[ 'slug' => '', 'file' => " \t", 'name' => null ],
+				] ] ],
+			] as $label => $info ) {
+				$cases[ $type.' '.$label ] = [ $type, $info ];
+			}
+		}
+		return $cases;
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'independentPremiumIdentifiers' )]
+	public function test_valid_premium_identifier_survives_malformed_siblings( string $type, string $field ) :void {
+		$asset = $type === 'plugin'
+			? new SnapshotPluginVo( 'premium/plugin.php', '1.0.0' )
+			: new SnapshotThemeVo( 'premium', '1.0.0' );
+		$this->installBuildEnvironment( [], $this->makeTempDir( 'premium-valid' ) );
+		$identifier = $field === 'name'
+			? $asset->Name
+			: ( $field === 'file' && $type === 'plugin' ? $asset->file : 'premium' );
+		$urls = [];
+		$this->mockPremiumCatalog( [
+			'supported_premium' => [
+				$type === 'plugin' ? 'plugins' : 'themes' => [
+					null, true, [ 'slug' => [], 'file' => false, 'name' => 12 ],
+					[ $field => $identifier, 'ignored' => true ],
+				],
+			],
+		], $urls );
+
+		( new Build() )->setAsset( $asset )->run( 'sha256' );
+
+		$snapshot = $this->loadStore( $asset )->getUsableSnapshot();
+		$this->assertNotNull( $snapshot );
+		$this->assertSame( [ 'reference.php' => \hash( 'sha256', 'published reference' ) ], $snapshot[ 'data' ] );
+		$this->assertSame( 'sha256', $snapshot[ 'meta' ][ 'algo' ] );
+		$this->assertTrue( $snapshot[ 'meta' ][ 'live_hashes' ] );
+		$this->assertSame( [
+			ApiBase::API_URL.'/v1/hashes/info',
+			ApiBase::API_URL.'/v1/hashes/'.( $type === 'plugin' ? 'p' : 't' ).'/premium/1.0.0/sha256',
+		], $urls );
+	}
+
+	public static function independentPremiumIdentifiers() :array {
+		return [
+			[ 'plugin', 'slug' ], [ 'plugin', 'file' ], [ 'plugin', 'name' ],
+			[ 'theme', 'slug' ], [ 'theme', 'file' ], [ 'theme', 'name' ],
+		];
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidPremiumSlugs' )]
+	public function test_name_match_does_not_adopt_invalid_premium_slug( array $row ) :void {
+		$asset = new ScheduleBuildAllEmptySlugPluginVo( 'premium/plugin.php', '1.0.0' );
+		$this->installBuildEnvironment( [], $this->makeTempDir( 'premium-slug' ) );
+		$row[ 'name' ] = $asset->Name;
+		$urls = [];
+		$this->mockPremiumCatalog( [ 'supported_premium' => [ 'plugins' => [ $row ] ] ], $urls );
+
+		$this->assertNull( ( new BuildHashesFromApi() )->build( $asset, 'sha256' ) );
+		$this->assertSame( '', $asset->slug );
+		$this->assertSame( [ ApiBase::API_URL.'/v1/hashes/info' ], $urls );
+	}
+
+	public static function invalidPremiumSlugs() :array {
+		return [ [ [] ], [ [ 'slug' => true ] ], [ [ 'slug' => " \t" ] ] ];
+	}
+
+	public function test_name_match_adopts_valid_premium_slug_for_request() :void {
+		$asset = new ScheduleBuildAllEmptySlugPluginVo( 'premium/plugin.php', '1.0.0' );
+		$this->installBuildEnvironment( [], $this->makeTempDir( 'premium-adopt' ) );
+		$urls = [];
+		$this->mockPremiumCatalog( [ 'supported_premium' => [ 'plugins' => [
+			[ 'slug' => 'provider-slug', 'name' => $asset->Name ],
+		] ] ], $urls );
+
+		$this->assertSame( [ 'reference.php' => \hash( 'sha256', 'published reference' ) ],
+			( new BuildHashesFromApi() )->build( $asset, 'sha256' ) );
+		$this->assertSame( 'provider-slug', $asset->slug );
+		$this->assertSame( [
+			ApiBase::API_URL.'/v1/hashes/info',
+			ApiBase::API_URL.'/v1/hashes/p/provider-slug/1.0.0/sha256',
+		], $urls );
+	}
+
+	private function mockPremiumCatalog( $info, array &$urls ) :void {
+		Functions\when( 'wp_remote_request' )->alias(
+			static function ( string $url ) use ( $info, &$urls ) :array {
+				$urls[] = $url;
+				return self::httpResponse( \strpos( $url, '/hashes/info' ) !== false
+					? [ 'info' => $info ]
+					: [ 'hashes' => [ 'reference.php' => \hash( 'sha256', 'published reference' ) ] ] );
+			}
+		);
+	}
+
+	public static function provideSnapshotAlgorithms() :array {
+		return [ 'md5' => [ 'md5' ], 'sha1' => [ 'sha1' ], 'sha256' => [ 'sha256' ] ];
+	}
+
+	public function test_selection_can_vary_by_asset_without_changing_default_for_sibling() :void {
+		$selected = new SnapshotPluginVo( 'per-asset-selected/plugin.php', '1.0.0' );
+		$default = new SnapshotPluginVo( 'per-asset-default/plugin.php', '1.0.0' );
+		$selected->wpOrg = $default->wpOrg = true;
+		$this->installBuildEnvironment( [ $selected, $default ], $this->makeTempDir( 'per-asset' ) );
+		Functions\when( 'wp_remote_request' )->alias(
+			static fn( string $url ) :array => self::httpResponse( [
+				'hashes' => [ 'plugin.php' => \hash( \basename( $url ), 'reference' ) ],
+			] )
+		);
+
+		( new Build() )->setAsset( $selected )->run( 'sha256' );
+		( new Build() )->setAsset( $default )->run();
+
+		foreach ( [ [ $selected, 'sha256' ], [ $default, 'md5' ] ] as [ $asset, $algorithm ] ) {
+			$store = $this->loadStore( $asset );
+			$this->assertSame( [ 'plugin.php' => \hash( $algorithm, 'reference' ) ], $store->getSnapData() );
+			$this->assertSame( $algorithm, $store->getSnapMeta()[ 'algo' ] );
+			$this->assertTrue( $store->getSnapMeta()[ 'live_hashes' ] );
+		}
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidSnapshotSelections' )]
+	public function test_invalid_selection_leaves_existing_snapshot_and_never_requests_or_builds( $selection ) :void {
+		$asset = new SnapshotPluginVo( 'invalid-selected/plugin.php', '1.0.0' );
+		$asset->wpOrg = true;
+		$this->installBuildEnvironment( [ $asset ], $this->makeTempDir( 'invalid-selected' ) );
+		$this->writeFile( WP_PLUGIN_DIR.'/'.$asset->file, 'installed content differs from baseline' );
+		$this->writeStore( $asset, [ 'plugin.php' => self::MD5 ], [
+			'unique_id' => $asset->file, 'version' => $asset->Version, 'algo' => 'md5', 'live_hashes' => false,
+		] );
+		$store = $this->loadStore( $asset );
+		$before = [ \file_get_contents( $store->getSnapStorePath() ), \file_get_contents( $store->getSnapStoreMetaPath() ) ];
+		$requests = 0;
+		Functions\when( 'wp_remote_request' )->alias( static function () use ( &$requests ) :array {
+			$requests++;
+			return self::httpResponse( [ 'hashes' => [] ] );
+		} );
+		foreach ( [
+			static fn() => ( new Build() )->setAsset( $asset )->run( $selection ),
+			static fn() => ( new ScheduleBuildAll() )->build( $selection ),
+		] as $operation ) {
+			$failure = null;
+			try {
+				$operation();
+			}
+			catch ( \InvalidArgumentException | \TypeError $e ) {
+				$failure = $e;
+			}
+
+			$this->assertInstanceOf( \is_string( $selection ) ? \InvalidArgumentException::class : \TypeError::class, $failure );
+			$this->assertSame( 0, $requests );
+			$this->assertSame( $before, [ \file_get_contents( $store->getSnapStorePath() ), \file_get_contents( $store->getSnapStoreMetaPath() ) ] );
+		}
+	}
+
+	public static function provideInvalidSnapshotSelections() :array {
+		return [
+			'empty' => [ '' ], 'null' => [ null ], 'boolean' => [ false ], 'array' => [ [] ],
+			'object' => [ new \stdClass() ], 'unsupported' => [ 'sha512' ], 'sha384' => [ 'sha384' ],
+			'uppercase' => [ 'SHA256' ], 'whitespace' => [ ' sha256 ' ],
+		];
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideWrongAlgorithmPublishedMaps' )]
+	public function test_wrong_algorithm_published_response_builds_raw_sha256_local_baseline( array $published ) :void {
+		$asset = new SnapshotPluginVo( 'wrong-algorithm/plugin.php', '2.0.0' );
+		$asset->wpOrg = true;
+		$this->installBuildEnvironment( [ $asset ], $this->makeTempDir( 'wrong-algorithm' ) );
+		$path = WP_PLUGIN_DIR.'/'.$asset->file;
+		$this->writeFile( $path, "<?php\r\n// raw local fallback\r" );
+		$urls = [];
+		$this->mockPublishedResponse( $published, $urls );
+
+		$this->invokeBuild( 'sha256' );
+
+		$store = $this->loadStore( $asset );
+		$this->assertSame( [ 'plugin.php' => \hash_file( 'sha256', $path ) ], $store->getSnapData() );
+		$this->assertSame( 'sha256', $store->getSnapMeta()[ 'algo' ] );
+		$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] );
+		$this->assertSame( [ ApiBase::API_URL.'/v1/hashes/p/wrong-algorithm/2.0.0/sha256' ], $urls );
+	}
+
+	public static function provideWrongAlgorithmPublishedMaps() :array {
+		return [
+			'wrong length' => [ [ 'plugin.php' => self::MD5 ] ],
+			'mixed algorithms' => [ [ 'plugin.php' => \str_repeat( 'b', 64 ), 'other.php' => self::MD5 ] ],
+		];
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideHttpCacheAssetTypes' )]
+	public function test_published_http_cache_separates_sequential_algorithms( string $type ) :void {
+		$this->installBuildEnvironment( [], $this->makeTempDir( 'http-cache-'.$type ) );
+		$requests = [];
+		Functions\when( 'wp_remote_request' )->alias( static function ( string $url ) use ( &$requests ) :array {
+			$requests[] = $url;
+			return self::httpResponse( [ 'hashes' => [ 'file.php' => \hash( \basename( $url ), 'reference bytes' ) ] ] );
+		} );
+		$wrapper = ( $type === 'p' ? new Hashes\Plugin() : new Hashes\Theme() )->setUseQueryCache( true );
+
+		foreach ( [ 'md5', 'sha256', 'md5', 'sha256' ] as $algorithm ) {
+			$this->assertSame( [ 'file.php' => \hash( $algorithm, 'reference bytes' ) ], $wrapper->getHashes( 'cache-algorithm', '1.0.0', $algorithm ) );
+		}
+
+		$this->assertSame( [
+			ApiBase::API_URL.'/v1/hashes/'.$type.'/cache-algorithm/1.0.0/md5',
+			ApiBase::API_URL.'/v1/hashes/'.$type.'/cache-algorithm/1.0.0/sha256',
+		], $requests );
+	}
+
+	public static function provideHttpCacheAssetTypes() :array {
+		return [ 'plugin' => [ 'p' ], 'theme' => [ 't' ] ];
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideHttpCacheAssetTypes' )]
+	public function test_snapshot_selection_preserves_exact_crowd_map_identity_and_submission( string $type ) :void {
+		$asset = $type === 'p'
+			? new SnapshotPluginVo( 'crowd-protocol/plugin.php', '1.0.0' )
+			: new SnapshotThemeVo( 'crowd-protocol', '1.0.0' );
+		$expectedMap = [
+			'file2.php'  => 'f5c5dcd4cfb1f9757df6c09711164ebbeb64f826',
+			'file10.php' => 'f5c5dcd4cfb1f9757df6c09711164ebbeb64f826',
+			'upper.php'  => 'f5c5dcd4cfb1f9757df6c09711164ebbeb64f826',
+		];
+		$expectedJson = '{"file2.php":"f5c5dcd4cfb1f9757df6c09711164ebbeb64f826","file10.php":"f5c5dcd4cfb1f9757df6c09711164ebbeb64f826","upper.php":"f5c5dcd4cfb1f9757df6c09711164ebbeb64f826"}';
+		$collection = 'd0c78a7fca5818c3346d321818ff919ba54f9f5b';
+		$expectedUrl = ApiBase::API_URL.'/v2/cshashes/submit/'.$collection;
+		$runs = [];
+		foreach ( [ 'md5', 'sha256' ] as $algorithm ) {
+			$this->setStaticProperty( ApiBase::class, 'QueryCache', [] );
+			$this->installBuildEnvironment(
+				$type === 'p' ? [ $asset ] : [],
+				$this->makeTempDir( 'crowd-'.$type.'-'.$algorithm ),
+				$type === 't' ? [ $asset ] : [],
+				true
+			);
+			$dir = $asset->getInstallDir();
+			$this->writeFile( $dir.'file10.php', "first\r\nsecond\r\n" );
+			$this->writeFile( $dir.'file2.php', "first\nsecond\n" );
+			$this->writeFile( $dir.'UPPER.PHP', "first\rsecond\r" );
+			$this->writeFile( $dir.'excluded.txt', "not submitted\r\n" );
+			$crowdRequests = [];
+			Functions\when( 'wp_remote_request' )->alias(
+				static function ( string $url, array $args ) use ( &$crowdRequests ) :array {
+					if ( \strpos( $url, '/hashes/info' ) !== false ) {
+						return self::httpResponse( [ 'info' => [ 'supported_premium' => [ 'plugins' => [], 'themes' => [] ] ] ] );
+					}
+					$crowdRequests[] = [ $url, $args[ 'method' ], $args[ 'body' ] ?? null ];
+					return self::httpResponse( $args[ 'method' ] === 'GET'
+						? [ 'hashes' => [ 'submit_required' => true ] ]
+						: [ 'error' => false ] );
+				}
+			);
+
+			$this->invokeBuild( $algorithm );
+
+			$store = $this->loadStore( $asset );
+			$this->assertSame( $algorithm, $store->getSnapMeta()[ 'algo' ] );
+			$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] );
+			$this->assertSame( 1700000500, $store->getSnapMeta()[ 'cs_hashes_at' ] );
+			$this->assertSame( \hash_file( $algorithm, $dir.'file10.php' ), $store->getSnapData()[ 'file10.php' ] );
+			$this->assertCount( 2, $crowdRequests );
+			$this->assertSame( [ $expectedUrl, 'GET', null ], $crowdRequests[ 0 ] );
+			$this->assertSame( [ $expectedUrl, 'POST' ], \array_slice( $crowdRequests[ 1 ], 0, 2 ) );
+			$body = $crowdRequests[ 1 ][ 2 ];
+			$this->assertSame( [
+				'type' => $type, 'slug' => 'crowd-protocol', 'version' => '1.0.0',
+				'hash' => $collection, 'hashes' => $expectedMap,
+			], $body );
+			$this->assertSame( $expectedJson, \json_encode( $body[ 'hashes' ] ) );
+			$runs[] = $crowdRequests;
+		}
+		$this->assertSame( $runs[ 0 ], $runs[ 1 ] );
+	}
+
 	public function test_published_api_exception_falls_back_to_usable_local_baseline() :void {
 		$asset = new SnapshotPluginVo( 'published-exception/plugin.php', '2.0.0' );
 		$asset->wpOrg = true;
@@ -254,7 +601,8 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] );
 	}
 
-	public function test_missing_inactive_root_plugin_hashes_only_its_file_and_skips_crowdsource() :void {
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSnapshotAlgorithms' )]
+	public function test_missing_inactive_root_plugin_hashes_only_its_file_and_skips_crowdsource( string $algorithm ) :void {
 		$asset = new ScheduleBuildAllRootPluginVo( 'inactive-root.php', '2.0.0' );
 		$asset->active = false;
 		$root = $this->makeTempDir( 'inactive-root' );
@@ -286,13 +634,14 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 			}
 		);
 
-		$this->invokeBuild();
+		$this->invokeBuild( $algorithm );
 
 		$store = $this->loadStore( $asset );
 		$this->assertTrue( $store->isUsable() );
 		$this->assertSame( [
-			$asset->file => \md5_file( $path ),
+			$asset->file => \hash_file( $algorithm, $path ),
 		], $store->getSnapData() );
+		$this->assertSame( $algorithm, $store->getSnapMeta()[ 'algo' ] );
 		$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] );
 		$this->assertSame( 0, $store->getSnapMeta()[ 'cs_hashes_at' ] );
 		$this->assertFalse(
@@ -305,12 +654,11 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertTrue( $store->isUsable() );
 	}
 
-	/**
-	 * @dataProvider provideChildThemeFlags
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideChildThemeFlags' )]
 	public function test_child_theme_uses_local_baseline_without_published_or_crowdsource_work(
 		bool $activeChild,
-		bool $inactiveChild
+		bool $inactiveChild,
+		string $algorithm
 	) :void {
 		$asset = new SnapshotThemeVo(
 			$activeChild ? 'active-child-theme' : 'inactive-child-theme',
@@ -331,13 +679,14 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 			}
 		);
 
-		$this->invokeBuild();
+		$this->invokeBuild( $algorithm );
 
 		$store = $this->loadStore( $asset );
 		$this->assertTrue( $store->isUsable() );
 		$this->assertSame( [
-			'style.css' => \md5_file( $path ),
+			'style.css' => \hash_file( $algorithm, $path ),
 		], $store->getSnapData() );
+		$this->assertSame( $algorithm, $store->getSnapMeta()[ 'algo' ] );
 		$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] );
 		$this->assertSame( 0, $store->getSnapMeta()[ 'cs_hashes_at' ] );
 		$this->assertSame( 0, $requests );
@@ -345,8 +694,10 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 
 	public static function provideChildThemeFlags() :array {
 		return [
-			'active child'   => [ true, false ],
-			'inactive child' => [ false, true ],
+			'active child md5'      => [ true, false, 'md5' ],
+			'inactive child md5'    => [ false, true, 'md5' ],
+			'active child sha256'   => [ true, false, 'sha256' ],
+			'inactive child sha256' => [ false, true, 'sha256' ],
 		];
 	}
 
@@ -375,7 +726,8 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertNull( $this->loadStore( $asset )->getUsableSnapshot() );
 	}
 
-	public function test_build_classifies_before_mutation_and_promotes_only_preexisting_due_snapshot() :void {
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSnapshotAlgorithms' )]
+	public function test_build_classifies_before_mutation_and_promotes_only_preexisting_due_snapshot( string $algorithm ) :void {
 		$missing = new SnapshotPluginVo( 'new-local/new-local.php', '1.0.0' );
 		$missing->wpOrg = true;
 		$due = new SnapshotPluginVo( 'due-published/due.php', '2.0.0' );
@@ -410,23 +762,26 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 
 		$urls = [];
 		Functions\when( 'wp_remote_request' )->alias(
-			static function ( string $url ) use ( &$urls ) :array {
+			static function ( string $url ) use ( &$urls, $algorithm ) :array {
 				if ( \strpos( $url, '/availability' ) !== false ) {
 					return ScheduleBuildAllTest::httpResponse( [ 'routes_regex' => '#^hashes$#' ] );
 				}
 				$urls[] = $url;
 				return ScheduleBuildAllTest::httpResponse( [
 					'hashes' => \strpos( $url, '/due-published/' ) !== false
-						? [ 'due.php' => \str_repeat( 'c', 32 ) ]
+						? [ 'due.php' => \hash( $algorithm, 'published reference' ) ]
 						: [],
 				] );
 			}
 		);
 
-		$this->invokeBuild();
+		$this->invokeBuild( $algorithm );
 
 		$this->assertFalse( $this->loadStore( $missing )->getSnapMeta()[ 'live_hashes' ] );
 		$this->assertTrue( $this->loadStore( $due )->getSnapMeta()[ 'live_hashes' ] );
+		$this->assertSame( $algorithm, $this->loadStore( $missing )->getSnapMeta()[ 'algo' ] );
+		$this->assertSame( $algorithm, $this->loadStore( $due )->getSnapMeta()[ 'algo' ] );
+		$this->assertSame( [ 'due.php' => \hash( $algorithm, 'published reference' ) ], $this->loadStore( $due )->getSnapData() );
 		$this->assertCount( 2, $urls );
 		$this->assertCount( 1, \array_filter(
 			$urls,
@@ -561,8 +916,8 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 			->save();
 	}
 
-	private function invokeBuild() :void {
-		( new ScheduleBuildAll() )->build();
+	private function invokeBuild( string $algorithm = 'md5' ) :void {
+		( new ScheduleBuildAll() )->build( $algorithm );
 	}
 
 	/**
@@ -703,6 +1058,11 @@ class ScheduleBuildAllRootPluginVo extends SnapshotPluginVo {
 	public function __get( string $key ) {
 		return $key === 'slug' ? 'inactive-root' : parent::__get( $key );
 	}
+}
+
+class ScheduleBuildAllEmptySlugPluginVo extends SnapshotPluginVo {
+
+	public string $slug = '';
 }
 
 class ScheduleBuildAllPromotionCoordinator {

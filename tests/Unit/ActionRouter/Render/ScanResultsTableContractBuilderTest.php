@@ -9,7 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{PluginControllerInstaller, ServicesState, UnitTestControllerFactory};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\{Controller\Afs, ScansController};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\Capabilities;
 use FernleafSystems\Wordpress\Services\Core\{
 	General,
 	Request,
@@ -82,10 +84,12 @@ class ScanResultsTableContractBuilderTest extends BaseUnitTest {
 				}
 			},
 		] );
+		$this->installMalaiAvailability( true, false );
 	}
 
 	protected function tearDown() :void {
 		ServicesState::restore( $this->servicesSnapshot );
+		PluginControllerInstaller::reset();
 		parent::tearDown();
 	}
 
@@ -105,6 +109,7 @@ class ScanResultsTableContractBuilderTest extends BaseUnitTest {
 		);
 
 		$this->assertArrayHasKey( 'title', $table );
+		$this->assertNull( $table[ 'malware_refresh_attr' ] );
 		$this->assertSame( $href, $table[ 'full_log_href' ] ?? '' );
 		$this->assertFalse( (bool)( $table[ 'show_header' ] ?? true ) );
 		$this->assertTrue( (bool)( $table[ 'is_flat' ] ?? false ) );
@@ -305,6 +310,40 @@ class ScanResultsTableContractBuilderTest extends BaseUnitTest {
 			'1',
 			'/queue/scans'
 		);
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'malwareRefreshAvailability' )]
+	public function testMalwareRefreshConfigurationUsesCurrentCapabilityAndRestriction( bool $capable, bool $restricted ) :void {
+		$this->installMalaiAvailability( $capable, $restricted );
+		$table = ( new ScanResultsTableContractBuilder() )->buildMalware( '/queue/scans' );
+		if ( $capable && !$restricted ) {
+			$config = $this->decodeJsonAttr( $table[ 'malware_refresh_attr' ] );
+			$this->assertSame( [ 'label', 'description' ], \array_keys( $config ) );
+			foreach ( $config as $value ) {
+				$this->assertIsString( $value );
+				$this->assertNotSame( '', $value );
+			}
+		}
+		else {
+			$this->assertNull( $table[ 'malware_refresh_attr' ] );
+		}
+	}
+
+	public static function malwareRefreshAvailability() :array {
+		return [ [ true, false ], [ false, false ], [ true, true ], [ false, true ] ];
+	}
+
+	private function installMalaiAvailability( bool $capable, bool $restricted ) :void {
+		$caps = $this->createMock( Capabilities::class );
+		$caps->method( 'canScanMalwareMalai' )->willReturn( $capable );
+		$afs = $this->createMock( Afs::class );
+		$afs->method( 'isRestricted' )->willReturn( $restricted );
+		$scans = $this->createMock( ScansController::class );
+		$scans->method( 'AFS' )->willReturn( $afs );
+		UnitTestControllerFactory::install( null, null, (object)[
+			'caps' => $caps,
+			'comps' => (object)[ 'scans' => $scans ],
+		] );
 	}
 
 	private function decodeJsonAttr( string $json ) :array {

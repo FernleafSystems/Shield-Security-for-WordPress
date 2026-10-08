@@ -45,7 +45,7 @@ class BaseAction {
 			->setWorkingDir( $workingDir );
 	}
 
-	protected function generateMeta() :array {
+	protected function generateMeta( string $algorithm ) :array {
 		$asset = $this->getAsset();
 		return [
 			'ts'           => Services::Request()->ts(),
@@ -54,7 +54,7 @@ class BaseAction {
 			'unique_id'    => $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet,
 			'name'         => $asset->asset_type === 'plugin' ? $asset->Name : $asset->wp_theme->get( 'Name' ),
 			'version'      => $asset->version,
-			'algo'         => 'md5',
+			'algo'         => $algorithm,
 		];
 	}
 }

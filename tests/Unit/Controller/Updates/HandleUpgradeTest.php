@@ -473,6 +473,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				'plugin'                => $plugin,
 				'opts'                  => $opts,
 				'caps'                  => new class {
+					public function canScanMalwareMalai() :bool {
+						return false;
+					}
+
 					public function canImportExportSync() :bool {
 						return false;
 					}
@@ -528,6 +532,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$controller->plugin = $plugin;
 			$controller->opts = $opts;
 			$controller->caps = new class {
+				public function canScanMalwareMalai() :bool {
+					return false;
+				}
+
 				public function canImportExportSync() :bool {
 					return false;
 				}

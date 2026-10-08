@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-
 trait IpAddressConsumer {
 
 	/**

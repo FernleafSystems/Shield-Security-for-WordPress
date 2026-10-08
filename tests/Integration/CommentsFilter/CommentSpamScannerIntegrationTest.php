@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\CommentsFilt
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\CoolDownHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan\Scanner;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsController;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotSignalsController;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Services;

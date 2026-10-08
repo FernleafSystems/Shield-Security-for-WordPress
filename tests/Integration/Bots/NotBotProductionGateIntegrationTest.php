@@ -29,6 +29,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 	private const OPTION_KEYS = [
 		'antibot_minimum',
 		'silentcaptcha_complexity',
+		'silentcaptcha_cookie_free',
 		'enable_antibot_comments',
 		'bot_protection_locations',
 		'form_spam_providers',
@@ -72,10 +73,9 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
-	 * @dataProvider thresholdProvider
-	 *
 	 * @param mixed $input
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'thresholdProvider' )]
 	public function test_threshold_normalisation_controls_cookie_and_frontend_payloads(
 		$input,
 		int $expectedThreshold,
@@ -99,9 +99,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		];
 	}
 
-	/**
-	 * @dataProvider complexityProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'complexityProvider' )]
 	public function test_complexity_is_orthogonal_to_score_gate(
 		string $complexity,
 		int $score,
@@ -124,9 +122,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		return $cases;
 	}
 
-	/**
-	 * @dataProvider consumerProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'consumerProvider' )]
 	public function test_consumer_settings_do_not_replace_the_explicit_score_gate(
 		int $score,
 		array $overrides,
@@ -162,9 +158,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		];
 	}
 
-	/**
-	 * @dataProvider filterProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'filterProvider' )]
 	public function test_filters_keep_existing_precedence_and_side_effect_scope(
 		int $storedScore,
 		array $filters,
@@ -215,9 +209,31 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertOutcome( $this->runHandler(), true, true );
 	}
 
-	/**
-	 * @dataProvider securityProfileProvider
-	 */
+	public function test_cookie_free_option_defaults_missing_values_and_reset_preserve_cookie_mode() :void {
+		$con = $this->requireController();
+		$opts = $con->opts;
+		$this->setOptions( [ 'antibot_minimum' => 45 ] );
+		$this->assertSame( 'N', $opts->optDefault( 'silentcaptcha_cookie_free' ) );
+		$values = $opts->values();
+		unset( $values[ 'silentcaptcha_cookie_free' ] );
+		$property = new \ReflectionProperty( $opts, 'values' );
+		$property->setAccessible( true );
+		$property->setValue( $opts, $values );
+		$this->assertSame( 'cookie', $con->comps->opts_lookup->silentCaptchaMode() );
+		$this->assertOutcome( $this->runHandler(), true, true );
+		$opts->optSet( 'silentcaptcha_cookie_free', 'Y' );
+		$this->assertSame( 'cookie_free', $con->comps->opts_lookup->silentCaptchaMode() );
+		$this->assertOutcome( $this->runHandler(), false, true );
+		$this->assertOutcome( $this->runHandler( [ 'shield/notbot_js_insert' => false ] ), false, false );
+		$opts->optSet( 'antibot_minimum', 0 );
+		$this->assertOutcome( $this->runHandler(), false, false );
+		$opts->optSet( 'antibot_minimum', 45 );
+		$opts->optReset( 'silentcaptcha_cookie_free' );
+		$this->assertSame( 'cookie', $con->comps->opts_lookup->silentCaptchaMode() );
+		$this->assertOutcome( $this->runHandler(), true, true );
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'securityProfileProvider' )]
 	public function test_security_profiles_keep_silentcaptcha_enabled( string $level, int $expectedScore ) :void {
 		$profile = $this->requireController()->comps->security_profiles->buildForLevel( $level );
 		$score = null;
@@ -239,6 +255,43 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 			'medium' => [ Levels::MEDIUM, 45 ],
 			'strong' => [ Levels::STRONG, 65 ],
 		];
+	}
+
+	public function test_localisation_uses_site_home_path_and_site_wide_configuration_only() :void {
+		$this->setOptions( [ 'antibot_minimum' => 45 ] );
+		$component = $this->runHandler()[ 'components' ][ 'silentcaptcha' ];
+		$keys = [];
+		foreach ( [ 'https://example.test/one/', 'https://example.test/two/' ] as $home ) {
+			$filter = static fn() => $home;
+			\add_filter( 'home_url', $filter );
+			try {
+				$data = $component[ 'data' ]();
+				$this->assertSame( [ 'ajax', 'config' ], \array_keys( $data ) );
+				$this->assertSame( 'cookie', $data[ 'config' ][ 'mode' ] );
+				$this->assertSame( $this->requireController()->cfg->configuration->def( 'silentcaptcha_refresh_seconds' ), $data[ 'config' ][ 'refresh_seconds' ] );
+				$this->assertFalse( $data[ 'config' ][ 'is_login' ] );
+				$keys[] = $data[ 'config' ][ 'storage_key' ];
+				$this->assertSame( 'icwp-wpsf-notbot-freshness:v1:'.$home, \end( $keys ) );
+			}
+			finally { \remove_filter( 'home_url', $filter ); }
+		}
+		$this->assertNotSame( $keys[ 0 ], $keys[ 1 ] );
+	}
+
+	public function test_cookie_flags_and_embedded_expiry_are_preserved_when_lifetime_is_filtered() :void {
+		$this->setOptions( [ 'antibot_minimum' => 45, 'silentcaptcha_complexity' => SilentCaptchaComplexity::NONE ] );
+		foreach ( [ 600 => [], 1800 => [ 'shield/notbot_cookie_life' => 1800 ] ] as $duration => $filters ) {
+			$before = \time();
+			$outcome = $this->runHandler( $filters );
+			$after = \time();
+			$cookie = $outcome[ 'cookies' ][ 0 ];
+			$this->assertSame( $duration, $cookie[ 'duration' ] );
+			$prefix = 'notbotZaltchaZexp-';
+			$this->assertStringStartsWith( $prefix, $cookie[ 'value' ] );
+			$expiry = (int)\substr( $cookie[ 'value' ], \strlen( $prefix ) );
+			$this->assertGreaterThanOrEqual( $before + 600, $expiry );
+			$this->assertLessThanOrEqual( $after + 600, $expiry );
+		}
 	}
 
 	private function allConsumersOff() :array {
