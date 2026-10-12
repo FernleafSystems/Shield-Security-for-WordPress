@@ -670,7 +670,8 @@ test( 'cookie-free open page reassesses a changed IP when its local freshness is
 		expect( counts.basic ).toBe( 1 );
 		expect( ( await fixtureApi.inspectNotBotAltchaFixture( secondIp ) ).altcha_at ).toBe( 0 );
 		await page.clock.runFor( 1 );
-		await success( page, key, first );
+		// No page load came from this IP, so it keeps the adaptive medium challenge and its greater WebKit CPU work.
+		await expect.poll( () => completion( page, key ), { timeout: COMPLEX_CHALLENGE_TIMEOUT } ).toBeGreaterThan( first );
 		expect( counts ).toEqual( { basic: 2, altcha: 2 } );
 		expect( ( await fixtureApi.inspectNotBotAltchaFixture( secondIp ) ).altcha_at ).toBeGreaterThan( 0 );
 	} );
