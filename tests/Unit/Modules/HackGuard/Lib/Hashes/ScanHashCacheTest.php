@@ -339,6 +339,25 @@ class ScanHashCacheTest extends BaseUnitTest {
 		$this->assertCount( 1, $this->requests );
 	}
 
+	public function test_cache_directory_reached_through_a_symlink_is_written_and_read() :void {
+		$link = $this->createTrackedTempPath( 'shield-scan-hashes-link-' );
+		if ( !@\symlink( $this->root, $link ) ) {
+			$this->markTestSkipped( 'Symlinks are unavailable here.' );
+		}
+		ScanHashCache::con()->cache_dir_handler = new CacheStoreTestCacheDir( $link );
+		$this->remoteHashes = [ 'postmark.php' => [ \sha1_file( $this->path() ) ] ];
+		$cache = new ScanHashCache();
+		$cache->fill( $this->plugin );
+		$this->cacheFile();
+		$this->assertSame( 'crowd_sourced', $cache->read( $this->context() )[ 'meta' ][ 'source' ] ?? null );
+	}
+
+	public function test_missing_cache_file_is_not_read() :void {
+		$dir = ScanHashCache::con()->cache_dir_handler->buildSubDir( 'scan-hashes' );
+		$this->assertNull( ( new ScanHashCache() )->read( $this->context() ) );
+		$this->assertSame( [], \array_filter( \array_keys( $this->fs->fileReadCounts ), static fn( string $path ) :bool => \strpos( $path, $dir ) === 0 ) );
+	}
+
 	public function test_normalisation_lowercase_lookup_and_request_memoization() :void {
 		$this->remoteHashes = [ 'src\\file.php' => [ \sha1_file( $this->path() ) ], '../bad' => [ \str_repeat( 'b', 40 ) ] ];
 		( new ScanHashCache() )->fill( $this->plugin );

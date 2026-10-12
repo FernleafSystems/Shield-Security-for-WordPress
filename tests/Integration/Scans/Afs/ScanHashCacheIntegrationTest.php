@@ -393,7 +393,8 @@ class ScanHashCacheIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function writePlugin( string $version ) :void {
-		\file_put_contents( $this->path, "<?php\n/*\nPlugin Name: Scan hash fixture\nVersion: ".$version."\n*/\n// original Postmark copy\n" );
+		// The file needs code: scans skip comment-only files before any hash comparison.
+		\file_put_contents( $this->path, "<?php\n/*\nPlugin Name: Scan hash fixture\nVersion: ".$version."\n*/\n// original Postmark copy\ndefined( 'ABSPATH' ) || exit;\n" );
 		\wp_clean_plugins_cache( true );
 	}
 
