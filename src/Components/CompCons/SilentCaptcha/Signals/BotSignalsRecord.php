@@ -155,11 +155,11 @@ class BotSignalsRecord {
 		elseif ( $record->modified ) {
 			$data = $record->getRawData();
 			$data[ 'updated_at' ] = Services::Request()->ts();
-			$success = self::con()
-				->db_con
-				->bot_signals
-				->getQueryUpdater()
-				->updateById( $record->id, $data );
+			$dbh = self::con()->db_con->bot_signals;
+			$updater = $dbh->getQueryUpdater();
+			// 0 affected rows means the row already holds these values, unless it was deleted.
+			$success = $updater->updateById( $record->id, $data )
+					   || ( $updater->getLastQueryResult() === 0 && $dbh->getQuerySelector()->addWhereEquals( 'id', $record->id )->count() > 0 );
 			if ( $success ) {
 				$record->updated_at = $data[ 'updated_at' ];
 			}

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Bots;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\NotBotHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Plugin\Shield\Profiles\Levels;
@@ -287,6 +288,21 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( $keys[ 0 ], $keys[ 1 ] );
 	}
 
+	public function test_cookie_free_hint_reports_this_ips_required_signals_and_cookie_mode_sends_none() :void {
+		$this->setOptions( [ 'antibot_minimum' => 45, 'silentcaptcha_complexity' => SilentCaptchaComplexity::LOW ] );
+		$this->assertArrayNotHasKey( 'hint', $this->localisedConfig() );
+
+		$this->setOptions( [ 'silentcaptcha_cookie_free' => 'Y' ] );
+		$before = \time();
+		$hint = $this->localisedConfig()[ 'hint' ];
+		$this->assertTrue( $hint[ 'required' ] );
+		$this->assertGreaterThanOrEqual( $before, $hint[ 'rendered_at' ] );
+		$this->assertLessThanOrEqual( \time(), $hint[ 'rendered_at' ] );
+
+		( new BotSignalsRecord() )->setIP( self::PUBLIC_TEST_IP )->updateSignalFields( [ 'notbot_at', 'altcha_at' ] );
+		$this->assertFalse( $this->localisedConfig()[ 'hint' ][ 'required' ] );
+	}
+
 	public function test_cookie_flags_and_embedded_expiry_are_preserved_when_lifetime_is_filtered() :void {
 		$this->setOptions( [ 'antibot_minimum' => 45, 'silentcaptcha_complexity' => SilentCaptchaComplexity::NONE ] );
 		foreach ( [ 600 => [], 1800 => [ 'shield/notbot_cookie_life' => 1800 ] ] as $duration => $filters ) {
@@ -301,6 +317,10 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 			$this->assertGreaterThanOrEqual( $before + 600, $expiry );
 			$this->assertLessThanOrEqual( $after + 600, $expiry );
 		}
+	}
+
+	private function localisedConfig() :array {
+		return $this->runHandler()[ 'components' ][ 'silentcaptcha' ][ 'data' ]()[ 'config' ];
 	}
 
 	private function allConsumersOff() :array {

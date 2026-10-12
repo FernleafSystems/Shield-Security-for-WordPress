@@ -20,7 +20,7 @@ import { PageQueryParam } from "../../util/PageQueryParam";
  * }} SilentCaptchaAltchaRequestData
  *
  * @typedef {{ data?: unknown, success?: unknown }} SilentCaptchaAjaxPayload
- * @typedef {{mode: 'cookie'|'cookie_free', required: Array<'notbot'|'altcha'>, exchange_valid: boolean}} SilentCaptchaResponseState
+ * @typedef {{mode: 'cookie'|'cookie_free', required: Array<'notbot'|'altcha'>, exchange_valid: boolean, server_ts?: number}} SilentCaptchaResponseState
  * @typedef {{data: Record<string, any>, state: SilentCaptchaResponseState|null, modeChanged: boolean}} SilentCaptchaExchange
  */
 
@@ -42,6 +42,9 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 		this.failedAt = 0;
 		this.inFlight = false;
 		this.diagnosticConsumed = false;
+		this.hintConsumed = false;
+		this.earlyStartedAt = 0;
+		this.answered = false;
 		this.timer = 0;
 		this.formSeen = false;
 
@@ -289,7 +292,11 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 		}
 		catch {
 			this.failed_request_count++;
-			if ( this.mode === 'cookie_free' ) this.failedAt = Date.now();
+			if ( this.mode === 'cookie_free' ) {
+				this.failedAt = Date.now();
+				// A request cut off by a dropped connection or by leaving the page never holds back the next page.
+				if ( this.answered ) this.writeStored( { failed_at: this.failedAt } );
+			}
 		}
 		finally {
 			this.inFlight = false;
@@ -306,12 +313,20 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 	 */
 	async fetchExchange( requestData ) {
 		this.request_count++;
+		this.answered = false;
 		const reqData = /** @type {SilentCaptchaRequestData} */ ( ObjectOps.ObjClone( requestData ) );
 		delete reqData.ajaxurl;
 		delete reqData._rest_url;
 		delete reqData._wpnonce;
 		const response = await fetch( this.silentCaptchaAjaxData.ajaxurl, this.constructFetchRequestData( reqData ) );
-		const parsed = /** @type {SilentCaptchaAjaxPayload} */ ( AjaxParseResponseService.ParseIt( await response.text() ) );
+		const body = await response.text();
+		this.answered = true;
+		// An early check counts against its budget once the server answers, so one cut off in transit leaves the next page free to check early.
+		if ( this.earlyStartedAt ) {
+			this.writeStored( { early_at: this.earlyStartedAt } );
+			this.earlyStartedAt = 0;
+		}
+		const parsed = /** @type {SilentCaptchaAjaxPayload} */ ( AjaxParseResponseService.ParseIt( body ) );
 		const data = this.resolveAjaxPayloadData( parsed );
 		if ( data === null ) throw new Error( 'Invalid silentCAPTCHA response.' );
 		const state = response.ok && parsed.success === true ? this.parseResponseState( data.notbot_state ) : null;
@@ -336,10 +351,8 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 		if ( state.required.length === 0 ) {
 			this.completedAt = Date.now();
 			this.failedAt = 0;
-			try {
-				window.localStorage.setItem( this.config.storage_key, JSON.stringify( { completed_at: this.completedAt } ) );
-			}
-			catch { /* Keep the successful timestamp in this document. */ }
+			// An undefined value drops the stored failure.
+			this.writeStored( { completed_at: this.completedAt, server_at: state.server_ts, failed_at: undefined } );
 		}
 		else {
 			this.altchaChallengeRequestData = result.data.altcha_data;
@@ -379,13 +392,33 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 		catch { /* Cookie mode never uses the stored timestamp. */ }
 	}
 
-	readCompletion() {
-		let stored = 0;
-		try { stored = JSON.parse( window.localStorage.getItem( this.config.storage_key ) )?.completed_at; }
-		catch { /* Storage is optional. */ }
-		const usable = value => typeof value === 'number' && Number.isFinite( value ) && value > 0 && value <= Date.now();
-		this.completedAt = Math.max( usable( stored ) ? stored : 0, usable( this.completedAt ) ? this.completedAt : 0 );
-		return this.completedAt;
+	/** @returns {Record<string, any>} */
+	readStored() {
+		try {
+			const stored = JSON.parse( window.localStorage.getItem( this.config.storage_key ) );
+			return stored !== null && typeof stored === 'object' ? stored : {};
+		}
+		catch {
+			return {};
+		}
+	}
+
+	/** @param {Record<string, number|undefined>} changes */
+	writeStored( changes ) {
+		try {
+			window.localStorage.setItem( this.config.storage_key, JSON.stringify( { ...this.readStored(), ...changes } ) );
+		}
+		catch { /* Keep the values in this document. */ }
+	}
+
+	/**
+	 * The server flagged this page's IP, e.g. after an IP change, and rendered the page after our last check.
+	 * @param {number|undefined} serverAt
+	 */
+	wantsEarlyCheck( serverAt ) {
+		const hint = this.config.hint;
+		return !this.hintConsumed && hint?.required === true && Number.isFinite( hint.rendered_at )
+			&& hint.rendered_at > ( Number.isFinite( serverAt ) ? serverAt : 0 );
 	}
 
 	evaluate() {
@@ -393,17 +426,25 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 		if ( !this.validConfig() || document.visibilityState !== 'visible' || this.inFlight ) return;
 		const timing = this.config.refresh_seconds;
 		const windowMs = ( this.config.is_login ? timing.login : this.formSeen ? timing.form : timing.ordinary ) * 1000;
-		const completed = this.readCompletion();
 		const now = Date.now();
-		if ( this.failedAt > now ) this.failedAt = now;
+		// Storage shares these times with other tabs and later pages. A time ahead of the clock is unusable.
+		const stored = this.readStored();
+		const past = value => Number.isFinite( value ) && value > 0 && value <= now ? value : 0;
+		this.completedAt = Math.max( past( stored.completed_at ), past( this.completedAt ) );
+		this.failedAt = Math.min( now, Math.max( this.failedAt, past( stored.failed_at ) ) );
+		const completed = this.completedAt;
 		const cooldown = this.failedAt ? this.failedAt + windowMs - now : 0;
 		const diagnostic = this.isForceNotbotRequested() && !this.diagnosticConsumed;
-		const remaining = cooldown > 0 ? cooldown : diagnostic || !completed ? 0 : completed + windowMs - now;
+		// A possible IP change brings the next check forward, at most once per refresh window.
+		const earlyDue = completed && this.wantsEarlyCheck( stored.server_at ) ? Math.max( now, past( stored.early_at ) + windowMs ) : Infinity;
+		const remaining = cooldown > 0 ? cooldown : diagnostic || !completed ? 0 : Math.min( completed + windowMs, earlyDue ) - now;
 		if ( remaining > 0 ) {
 			this.timer = window.setTimeout( () => this.evaluate(), remaining );
 		}
 		else {
 			if ( diagnostic ) this.diagnosticConsumed = true;
+			this.earlyStartedAt = !diagnostic && earlyDue < completed + windowMs ? now : 0;
+			this.hintConsumed = true;
 			this.request_count = 0;
 			this.failed_request_count = 0;
 			this.fetchSilentCaptcha();

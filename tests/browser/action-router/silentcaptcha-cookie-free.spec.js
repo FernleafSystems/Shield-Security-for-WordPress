@@ -467,21 +467,24 @@ test( 'cookie-free fresh tab reuse and one diagnostic override per document', as
 } );
 
 test( 'cookie-free retains imported freshness if storage later becomes unavailable', async ( { browser, lane, fixtureApi } ) => {
-	await scenario( browser, lane, fixtureApi, async ( { page, counts, key, start } ) => {
-		await page.addInitScript( ( { key, start } ) => localStorage.setItem( key, JSON.stringify( { completed_at: start } ) ), { key, start } );
+	await scenario( browser, lane, fixtureApi, async ( { page, counts, key } ) => {
 		await page.goto( '/' );
+		await success( page, key );
+		const first = await completion( page, key );
+		await page.reload();
 		await settled( page );
-		expect( counts.basic ).toBe( 0 );
+		expect( counts ).toEqual( { basic: 1, altcha: 1 } );
 		await page.evaluate( () => { Storage.prototype.getItem = () => { throw new Error( 'Reads revoked' ); }; } );
 		await wake( page );
-		await page.clock.runFor( 299999 );
-		expect( counts.basic ).toBe( 0 );
-		const altchaResponse = waitForShieldAjaxAction( page, 'capture_not_bot_altcha' );
-		await page.clock.runFor( 1 );
-		await expect.poll( () => counts.altcha ).toBe( 1 );
-		expect( ( await expectShieldAjaxSuccess( await altchaResponse ) ).data.notbot_state ).toEqual( { mode: 'cookie_free', required: [], exchange_valid: true } );
+		await advanceTo( page, first + 299999 );
 		await wake( page );
 		expect( counts.basic ).toBe( 1 );
+		const renewalResponse = waitForShieldAjaxAction( page, 'capture_not_bot' );
+		await page.clock.runFor( 1 );
+		await expect.poll( () => counts.basic ).toBe( 2 );
+		expect( ( await expectShieldAjaxSuccess( await renewalResponse ) ).data.notbot_state ).toEqual( { mode: 'cookie_free', required: [], exchange_valid: true, server_ts: expect.any( Number ) } );
+		await wake( page );
+		expect( counts ).toEqual( { basic: 2, altcha: 1 } );
 	} );
 } );
 
@@ -649,7 +652,7 @@ test( 'cookie-free logged-in document also suppresses the deferred init writer',
 	} );
 } );
 
-test( 'cookie-free reassesses a changed IP only when local freshness is due', async ( { browser, lane, fixtureApi } ) => {
+test( 'cookie-free open page reassesses a changed IP when its local freshness is due', async ( { browser, lane, fixtureApi } ) => {
 	await scenario( browser, lane, fixtureApi, async ( { page, context, counts, key } ) => {
 		const secondIp = '93.184.216.85';
 		await fixtureApi.addNotBotIp( secondIp );
@@ -673,6 +676,189 @@ test( 'cookie-free reassesses a changed IP only when local freshness is due', as
 	} );
 } );
 
+// Server times have one-second resolution, so a page rendered in the same second as a check reads as older.
+const nextServerSecond = () => new Promise( resolve => setTimeout( resolve, 1100 ) );
+
+test( 'cookie-free checks a changed IP on the next page it loads, once per refresh window', async ( { browser, lane, fixtureApi } ) => {
+	await scenario( browser, lane, fixtureApi, async ( { page, context, counts, key } ) => {
+		const [ secondIp, thirdIp ] = [ '93.184.216.89', '93.184.216.90' ];
+		await fixtureApi.addNotBotIp( secondIp );
+		await fixtureApi.addNotBotIp( thirdIp );
+		await page.goto( '/' );
+		await success( page, key );
+		const first = await completion( page, key );
+		await page.reload();
+		await settled( page );
+		expect( counts ).toEqual( { basic: 1, altcha: 1 } );
+		await context.setExtraHTTPHeaders( { 'X-Forwarded-For': secondIp } );
+		await nextServerSecond();
+		await page.clock.runFor( 1 );
+		await page.reload();
+		await success( page, key, first );
+		expect( counts ).toEqual( { basic: 2, altcha: 2 } );
+		expect( ( await fixtureApi.inspectNotBotAltchaFixture( secondIp ) ).altcha_at ).toBeGreaterThan( 0 );
+		const second = await completion( page, key );
+		await context.setExtraHTTPHeaders( { 'X-Forwarded-For': thirdIp } );
+		await nextServerSecond();
+		await page.clock.runFor( 1 );
+		await page.reload();
+		await settled( page );
+		expect( counts.basic ).toBe( 2 );
+		await advanceTo( page, second + 299999 );
+		await wake( page );
+		expect( counts.basic ).toBe( 2 );
+		await page.clock.runFor( 1 );
+		await success( page, key, second );
+		expect( counts ).toEqual( { basic: 3, altcha: 3 } );
+	} );
+} );
+
+test( 'cookie-free ignores a cached page hint rendered before its last check', async ( { browser, lane, fixtureApi } ) => {
+	await scenario( browser, lane, fixtureApi, async ( { page, context, counts, key } ) => {
+		// Cached before any check, the page tells every visitor that checks are required.
+		const original = await context.request.get( '/' );
+		const html = await original.text();
+		await nextServerSecond();
+		await page.route( lane.baseUrl + '/', route => route.fulfill( { response: original, body: html } ) );
+		await page.goto( '/' );
+		await success( page, key );
+		expect( await page.evaluate( () => window.shield_vars_silentcaptcha.comps.silentcaptcha.config.hint.required ) ).toBe( true );
+		const first = await completion( page, key );
+		await page.clock.runFor( 1 );
+		await page.reload();
+		await settled( page );
+		await advanceTo( page, first + 299999 );
+		await wake( page );
+		expect( counts ).toEqual( { basic: 1, altcha: 1 } );
+	} );
+} );
+
+test( 'cookie-free failure the server answered holds back later pages until its cooldown ends', async ( { browser, lane, fixtureApi } ) => {
+	await scenario( browser, lane, fixtureApi, async ( { page, counts, key } ) => {
+		let failing = true;
+		await page.route( '**/wp-admin/admin-ajax.php', route => failing && requestActionSlug( route.request() ) === 'capture_not_bot'
+			? route.fulfill( { status: 503, body: '' } ) : route.fallback() );
+		const failedAt = () => page.evaluate( key => JSON.parse( localStorage.getItem( key ) || '{}' ).failed_at || 0, key );
+		await page.goto( '/' );
+		await expect.poll( failedAt ).toBeGreaterThan( 0 );
+		const failure = await failedAt();
+		await page.clock.runFor( 1000 );
+		await page.reload();
+		await settled( page );
+		expect( counts.basic ).toBe( 1 );
+		await advanceTo( page, failure + 299999 );
+		await wake( page );
+		expect( counts.basic ).toBe( 1 );
+		failing = false;
+		await page.clock.runFor( 1 );
+		await success( page, key );
+		expect( counts ).toEqual( { basic: 2, altcha: 1 } );
+		expect( await failedAt() ).toBe( 0 );
+	} );
+} );
+
+test( 'cookie-free check cut off by leaving the page never holds back the next page', async ( { browser, lane, fixtureApi } ) => {
+	await scenario( browser, lane, fixtureApi, async ( { page, context, counts, key } ) => {
+		const secondIp = '93.184.216.93';
+		await fixtureApi.addNotBotIp( secondIp );
+		const held = [];
+		let holding = true;
+		await page.route( '**/wp-admin/admin-ajax.php', async route => {
+			if ( !holding || requestActionSlug( route.request() ) !== 'capture_not_bot' ) return route.fallback();
+			await new Promise( resolve => held.push( resolve ) );
+			await route.continue().catch( () => {} );
+		} );
+		try {
+			// A first check, cut off: no failure cooldown.
+			await page.goto( '/' );
+			await expect.poll( () => held.length ).toBe( 1 );
+			holding = false;
+			await page.clock.runFor( 1000 );
+			await page.goto( '/' );
+			await success( page, key );
+			expect( counts ).toEqual( { basic: 2, altcha: 1 } );
+			const first = await completion( page, key );
+			// An early check after an IP change, cut off: its budget stays unspent.
+			holding = true;
+			await context.setExtraHTTPHeaders( { 'X-Forwarded-For': secondIp } );
+			await nextServerSecond();
+			await page.clock.runFor( 1 );
+			await page.goto( '/' );
+			await expect.poll( () => held.length ).toBe( 2 );
+			holding = false;
+			await page.clock.runFor( 1000 );
+			await page.goto( '/' );
+			await success( page, key, first );
+			expect( counts ).toEqual( { basic: 4, altcha: 2 } );
+			expect( ( await fixtureApi.inspectNotBotAltchaFixture( secondIp ) ).altcha_at ).toBeGreaterThan( 0 );
+		}
+		finally { held.forEach( release => release() ); }
+	} );
+} );
+
+test( 'cookie-free early check spent before its completion lets the next one fall due a window after it started', async ( { browser, lane, fixtureApi } ) => {
+	await scenario( browser, lane, fixtureApi, async ( { page, context, counts, key } ) => {
+		const [ secondIp, thirdIp ] = [ '93.184.216.91', '93.184.216.92' ];
+		await fixtureApi.addNotBotIp( secondIp );
+		await fixtureApi.addNotBotIp( thirdIp );
+		const stored = () => page.evaluate( key => JSON.parse( localStorage.getItem( key ) || '{}' ), key );
+		await page.goto( '/' );
+		await success( page, key );
+		const first = await completion( page, key );
+		// Hold the early check's proof while page time moves on, so it completes well after it started.
+		let release;
+		const released = new Promise( resolve => { release = resolve; } );
+		let caught = false;
+		await page.route( '**/wp-admin/admin-ajax.php', async route => {
+			if ( caught || requestActionSlug( route.request() ) !== 'capture_not_bot_altcha' ) return route.fallback();
+			caught = true;
+			await released;
+			await route.continue().catch( () => {} );
+		} );
+		try {
+			await context.setExtraHTTPHeaders( { 'X-Forwarded-For': secondIp } );
+			await nextServerSecond();
+			await page.clock.runFor( 1 );
+			await page.reload();
+			await expect.poll( () => caught ).toBe( true );
+			await page.clock.runFor( 10000 );
+		}
+		finally { release(); }
+		await success( page, key, first );
+		expect( counts ).toEqual( { basic: 2, altcha: 2 } );
+		const { early_at: early, completed_at: second } = await stored();
+		expect( second - early ).toBeGreaterThanOrEqual( 10000 );
+		await context.setExtraHTTPHeaders( { 'X-Forwarded-For': thirdIp } );
+		await nextServerSecond();
+		await page.clock.runFor( 1 );
+		await page.reload();
+		await settled( page );
+		await advanceTo( page, early + 299999 );
+		await wake( page );
+		expect( counts.basic ).toBe( 2 );
+		await page.clock.runFor( 1 );
+		await success( page, key, second );
+		expect( counts ).toEqual( { basic: 3, altcha: 3 } );
+		expect( ( await stored() ).early_at ).toBe( early + 300000 );
+	} );
+} );
+
+test( 'cookie-free ignores stored check times ahead of the clock', async ( { browser, lane, fixtureApi } ) => {
+	await scenario( browser, lane, fixtureApi, async ( { page, counts, key, start } ) => {
+		// The fresh completion leaves only this IP's early check, which future failure and early times must not hold back.
+		await page.addInitScript( ( { key, start } ) => {
+			if ( localStorage.getItem( key ) === null ) localStorage.setItem( key, JSON.stringify( { completed_at: start - 1, early_at: start + 9e9, failed_at: start + 9e9 } ) );
+		}, { key, start } );
+		await page.goto( '/' );
+		await success( page, key, start - 1 );
+		expect( counts ).toEqual( { basic: 1, altcha: 1 } );
+		const stored = await page.evaluate( key => JSON.parse( localStorage.getItem( key ) ), key );
+		expect( stored.failed_at ).toBeUndefined();
+		expect( stored.early_at ).toBeGreaterThanOrEqual( start );
+		expect( stored.early_at ).toBeLessThanOrEqual( stored.completed_at );
+	} );
+} );
+
 for ( const secondIp of [ '93.184.216.87', '2620:0:862:ed1a::1' ] ) {
 	test( `cookie-free pending challenge credits only changed IP ${secondIp} after real proof`, async ( { browser, lane, fixtureApi } ) => {
 		await scenario( browser, lane, fixtureApi, async ( { page, context, counts, key } ) => {
@@ -688,7 +874,7 @@ for ( const secondIp of [ '93.184.216.87', '2620:0:862:ed1a::1' ] ) {
 					const response = await route.fetch();
 					const payload = parseShieldAjaxJson( await response.text() );
 					expect( payload.success ).toBe( true );
-					expect( payload.data.notbot_state ).toEqual( { mode: 'cookie_free', required: [ 'altcha' ], exchange_valid: true } );
+					expect( payload.data.notbot_state ).toEqual( { mode: 'cookie_free', required: [ 'altcha' ], exchange_valid: true, server_ts: expect.any( Number ) } );
 					minted = true;
 					await hold;
 					return route.fulfill( { response } );
@@ -709,7 +895,7 @@ for ( const secondIp of [ '93.184.216.87', '2620:0:862:ed1a::1' ] ) {
 			release();
 			const response = await altchaResponse;
 			expect( await response.request().headerValue( 'x-forwarded-for' ) ).toBe( secondIp );
-			expect( ( await expectShieldAjaxSuccess( response ) ).data.notbot_state ).toEqual( { mode: 'cookie_free', required: [], exchange_valid: true } );
+			expect( ( await expectShieldAjaxSuccess( response ) ).data.notbot_state ).toEqual( { mode: 'cookie_free', required: [], exchange_valid: true, server_ts: expect.any( Number ) } );
 			await success( page, key );
 			expect( counts ).toEqual( { basic: 1, altcha: 1 } );
 			const secondary = await fixtureApi.inspectNotBotAltchaFixture( secondIp );
@@ -724,13 +910,19 @@ test( 'cookie-free identical cached HTML serves separate IPs and stored freshnes
 	await scenario( browser, lane, fixtureApi, async ( { page, context, counts, key } ) => {
 		const secondIp = '93.184.216.86';
 		await fixtureApi.addNotBotIp( secondIp );
+		await page.goto( '/' );
+		await success( page, key );
+		expect( counts.altcha ).toBe( 1 );
+		// Cached after a successful check, the page's hint reports no required signals to any visitor.
 		const original = await context.request.get( '/' );
 		await expectNoNotBotHeader( original );
 		const html = await original.text();
 		await page.route( lane.baseUrl + '/', route => route.fulfill( { response: original, body: html } ) );
-		await page.goto( '/' );
-		await success( page, key );
-		expect( counts.altcha ).toBe( 1 );
+		await page.clock.runFor( 1 );
+		await page.reload();
+		await settled( page );
+		expect( await page.evaluate( () => window.shield_vars_silentcaptcha.comps.silentcaptcha.config.hint.required ) ).toBe( false );
+		expect( counts ).toEqual( { basic: 1, altcha: 1 } );
 		const other = await browser.newContext( { baseURL: lane.baseUrl, extraHTTPHeaders: { 'X-Forwarded-For': secondIp } } );
 		// Cached HTML supplies no page-load signal for this IP. Preserve the real
 		// adaptive medium challenge, including its greater WebKit CPU work.
@@ -767,12 +959,18 @@ test( 'cookie-free forged local freshness cannot authorize native login but real
 	const ip = '93.184.216.88';
 	await fixtureApi.withLoginGuardCoreFixture( 'silentcaptcha-login', async fixture => {
 		await scenario( browser, lane, fixtureApi, async ( { page, context, counts, key, start } ) => {
+			// The server's hint for this unverified IP starts a check despite the forged freshness.
+			// Cutting that check off leaves only the forged freshness for the login.
+			let cutOff = true;
+			await page.route( '**/wp-admin/admin-ajax.php', route => cutOff && requestActionSlug( route.request() ) === 'capture_not_bot' ? route.abort() : route.fallback() );
 			await page.addInitScript( ( { key, start } ) => {
 				if ( localStorage.getItem( key ) === null ) localStorage.setItem( key, JSON.stringify( { completed_at: start } ) );
 			}, { key, start } );
-			await page.goto( fixture.login_path + '?redirect_to=' + encodeURIComponent( lane.baseUrl + '/' ) );
+			const loginUrl = fixture.login_path + '?redirect_to=' + encodeURIComponent( lane.baseUrl + '/' );
+			await page.goto( loginUrl );
+			await expect.poll( () => counts.basic ).toBe( 1 );
 			await settled( page );
-			expect( counts ).toEqual( { basic: 0, altcha: 0 } );
+			expect( counts ).toEqual( { basic: 1, altcha: 0 } );
 			expect( await fixtureApi.inspectNotBotAltchaFixture() ).toEqual( { ip, notbot_at: 0, altcha_at: 0 } );
 			const submitCredentials = async () => {
 				await loginReady( page );
@@ -782,14 +980,16 @@ test( 'cookie-free forged local freshness cannot authorize native login but real
 			await submitCredentials();
 			expect( ( await fixtureApi.inspectLoginGuardCoreFixture() ).event_counts.login_block ).toBe( 1 );
 			expect( ( await context.cookies() ).some( cookie => cookie.name.startsWith( 'wordpress_logged_in_' ) ) ).toBe( false );
-			expect( counts ).toEqual( { basic: 0, altcha: 0 } );
+			// The cut-off check never reached the budget, so the returned login page checks early again.
+			await expect.poll( () => counts.basic ).toBe( 2 );
+			await settled( page );
+			expect( counts ).toEqual( { basic: 2, altcha: 0 } );
 			expect( await fixtureApi.inspectNotBotAltchaFixture() ).toEqual( { ip, notbot_at: 0, altcha_at: 0 } );
-			await loginReady( page );
-			await page.clock.runFor( 1 );
-			await page.evaluate( () => history.replaceState( null, '', '/wp-login.php?force_notbot=1' ) );
-			await wake( page );
+			// No cut-off check leaves a failure behind, so the next login page checks straight away.
+			cutOff = false;
+			await page.goto( loginUrl );
 			await success( page, key, start );
-			expect( counts ).toEqual( { basic: 1, altcha: 1 } );
+			expect( counts ).toEqual( { basic: 3, altcha: 1 } );
 			const signals = await fixtureApi.inspectNotBotAltchaFixture();
 			expect( signals.notbot_at ).toBeGreaterThan( 0 );
 			expect( signals.altcha_at ).toBeGreaterThan( 0 );

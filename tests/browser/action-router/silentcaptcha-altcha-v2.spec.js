@@ -282,10 +282,10 @@ test( 'silentCAPTCHA solves ALTCHA v2, writes cookie state, and throttles refres
 			const altchaPayload = await expectShieldAjaxSuccess( await altchaResponse );
 			const basicPayload = await expectShieldAjaxSuccess( await basicResponse );
 			expect( basicPayload.data.notbot_state ).toEqual( {
-				mode: 'cookie', required: [ 'altcha' ], exchange_valid: true,
+				mode: 'cookie', required: [ 'altcha' ], exchange_valid: true, server_ts: expect.any( Number ),
 			} );
 			expect( altchaPayload.data.notbot_state ).toEqual( {
-				mode: 'cookie', required: [], exchange_valid: true,
+				mode: 'cookie', required: [], exchange_valid: true, server_ts: expect.any( Number ),
 			} );
 			for ( const response of [ await basicResponse, await altchaResponse ] ) {
 				expect( response.headers()[ 'cache-control' ] ).toMatch( /no-cache|no-store/ );
@@ -311,6 +311,42 @@ test( 'silentCAPTCHA solves ALTCHA v2, writes cookie state, and throttles refres
 			await expectNotBotLocalStorageUnused( page );
 			await expectNoRuntimeErrors( runtimeErrors, 'ALTCHA v2 solved cookie throttle flow' );
 			await expectNoSilentCaptchaConsoleMessages( consoleMessages, 'ALTCHA v2 solved cookie throttle flow' );
+		} );
+	} );
+} );
+
+test( 'cookie mode checks a changed IP on its next page load without a hint or stored freshness', async ( { browser, lane, fixtureApi } ) => {
+	const secondIp = '93.184.216.36';
+	await fixtureApi.withNotBotAltchaFixture( PUBLIC_VISITOR_IP, async () => {
+		await fixtureApi.addNotBotIp( secondIp );
+		await withAnonymousContext( browser, lane, PUBLIC_VISITOR_IP, async ( context ) => {
+			const page = await context.newPage();
+			const runtimeErrors = collectRuntimeErrors( page );
+			const notbotResponses = collectShieldAjaxActionUrls( page, 'capture_not_bot' );
+			const altchaResponses = collectShieldAjaxActionUrls( page, 'capture_not_bot_altcha' );
+			const firstAltcha = waitForShieldAjaxAction( page, 'capture_not_bot_altcha' );
+
+			await page.goto( '/', { waitUntil: 'load' } );
+			await expectShieldAjaxSuccess( await firstAltcha );
+			await page.waitForLoadState( 'networkidle' );
+			expect( await page.evaluate( () => window.shield_vars_silentcaptcha.comps.silentcaptcha.config ) ).not.toHaveProperty( 'hint' );
+			expect( notbotResponses ).toHaveLength( 1 );
+			expect( altchaResponses ).toHaveLength( 1 );
+			await expectNotBotCookie( page, [ 'notbot', 'altcha' ] );
+
+			await context.setExtraHTTPHeaders( { 'X-Forwarded-For': secondIp } );
+			const secondAltcha = waitForShieldAjaxAction( page, 'capture_not_bot_altcha' );
+			await page.goto( '/', { waitUntil: 'load' } );
+			expect( ( await expectShieldAjaxSuccess( await secondAltcha ) ).data.notbot_state ).toEqual( {
+				mode: 'cookie', required: [], exchange_valid: true, server_ts: expect.any( Number ),
+			} );
+			await page.waitForLoadState( 'networkidle' );
+			expect( notbotResponses ).toHaveLength( 2 );
+			expect( altchaResponses ).toHaveLength( 2 );
+			expect( ( await fixtureApi.inspectNotBotAltchaFixture( secondIp ) ).altcha_at ).toBeGreaterThan( 0 );
+			await expectNotBotCookie( page, [ 'notbot', 'altcha' ] );
+			await expectNotBotLocalStorageUnused( page );
+			await expectNoRuntimeErrors( runtimeErrors, 'cookie mode changed IP' );
 		} );
 	} );
 } );

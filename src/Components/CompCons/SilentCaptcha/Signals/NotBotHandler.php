@@ -53,13 +53,14 @@ class NotBotHandler {
 	}
 
 	/**
-	 * @return array{mode:'cookie'|'cookie_free',required:list<'notbot'|'altcha'>,exchange_valid:bool}
+	 * @return array{mode:'cookie'|'cookie_free',required:list<'notbot'|'altcha'>,exchange_valid:bool,server_ts:int}
 	 */
 	public function buildResponseState( bool $exchangeValid ) :array {
 		return [
 			'mode'           => self::con()->comps->opts_lookup->silentCaptchaMode(),
 			'required'       => $this->getRequiredSignals(),
 			'exchange_valid' => $exchangeValid,
+			'server_ts'      => Services::Request()->ts(),
 		];
 	}
 
