@@ -151,7 +151,7 @@ class ScanHashCache {
 			$cacheKey = \implode( "\0", [ $path, $context->assetType, $context->assetKey, $context->assetVersion ] );
 			if ( !\array_key_exists( $cacheKey, self::$files ) ) {
 				self::$files[ $cacheKey ] = null;
-				$contents = Services::WpFs()->getFileContent( $path );
+				$contents = Services::WpFs()->isAccessibleFile( $path ) ? Services::WpFs()->getFileContent( $path ) : null;
 				if ( \is_string( $contents ) ) {
 					$data = \json_decode( $contents, true );
 					if ( $this->isValid( $data, $context ) ) {
@@ -234,7 +234,9 @@ class ScanHashCache {
 			throw new \RuntimeException( 'Could not create scan hash cache temporary file.' );
 		}
 		try {
-			if ( wp_normalize_path( \dirname( $tmp ) ) !== wp_normalize_path( \rtrim( $dir, '/\\' ) )
+			// tempnam() resolves symlinks and falls back to the system temp directory when $dir is unusable.
+			$realDir = \realpath( $dir );
+			if ( $realDir === false || wp_normalize_path( \dirname( $tmp ) ) !== wp_normalize_path( $realDir )
 				 || !Services::WpFs()->putFileContent( $tmp, $json )
 				 || !@\rename( $tmp, path_join( $dir, $this->filename( $context ) ) ) ) {
 				throw new \RuntimeException( 'Could not write scan hash cache file.' );
