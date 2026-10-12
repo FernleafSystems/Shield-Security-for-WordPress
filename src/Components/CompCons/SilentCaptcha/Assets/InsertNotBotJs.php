@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\CaptureNotBot
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class InsertNotBotJs {
 
@@ -31,16 +32,26 @@ class InsertNotBotJs {
 						'silentcaptcha',
 					],
 					'data'    => function () {
+						$con = self::con();
+						$config = [
+							'mode' => $con->comps->opts_lookup->silentCaptchaMode(),
+							'refresh_seconds' => $con->cfg->configuration->def( 'silentcaptcha_refresh_seconds' ),
+							'storage_key' => 'icwp-wpsf-notbot-freshness:v1:'.home_url( '/' ),
+							'is_login' => doing_action( 'login_enqueue_scripts' ),
+						];
+						if ( $config[ 'mode' ] === 'cookie_free' ) {
+							// Cookie mode relays this through the cookie. Cookie-free browsers use it to
+							// re-check early when this request's IP, e.g. a changed one, lacks fresh signals.
+							$config[ 'hint' ] = [
+								'required'    => !empty( $con->comps->not_bot->getRequiredSignals() ),
+								'rendered_at' => Services::Request()->ts(),
+							];
+						}
 						return [
 							'ajax'  => [
 								'silentcaptcha' => ActionData::Build( CaptureNotBot::class ),
 							],
-							'config' => [
-								'mode' => self::con()->comps->opts_lookup->silentCaptchaMode(),
-								'refresh_seconds' => self::con()->cfg->configuration->def( 'silentcaptcha_refresh_seconds' ),
-								'storage_key' => 'icwp-wpsf-notbot-freshness:v1:'.home_url( '/' ),
-								'is_login' => doing_action( 'login_enqueue_scripts' ),
-							]
+							'config' => $config,
 						];
 					},
 				];

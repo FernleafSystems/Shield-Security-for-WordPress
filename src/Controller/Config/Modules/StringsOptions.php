@@ -195,7 +195,7 @@ class StringsOptions {
 					$additional = __( 'Premium plugins are also supported on your plan.', 'wp-simple-firewall' );
 				}
 				elseif ( $caps->canScanPluginsThemesLocal() ) {
-					$additional = __( 'Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium plugins.', 'wp-simple-firewall' );
+					$additional = __( 'Upgrade your plan to add support for premium plugins.', 'wp-simple-firewall' );
 				}
 				else {
 					$additional = __( 'Please upgrade to support scanning of all plugin files for tampering.', 'wp-simple-firewall' );
@@ -211,7 +211,7 @@ class StringsOptions {
 					$additional = __( 'Premium themes are also supported on your plan.', 'wp-simple-firewall' );
 				}
 				elseif ( $caps->canScanPluginsThemesLocal() ) {
-					$additional = __( 'Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium themes.', 'wp-simple-firewall' );
+					$additional = __( 'Upgrade your plan to add support for premium themes.', 'wp-simple-firewall' );
 				}
 				else {
 					$additional = __( 'Upgrade your plan to support scanning of theme files for tampering.', 'wp-simple-firewall' );
@@ -391,13 +391,13 @@ class StringsOptions {
 
 				break;
 			case 'silentcaptcha_cookie_free':
-				$name = __( 'Cookie-free silentCAPTCHA', 'wp-simple-firewall' );
-				$summary = __( 'Use browser storage instead of the silentCAPTCHA cookie', 'wp-simple-firewall' );
+				$name = sprintf( __( 'Cookie-free %s', 'wp-simple-firewall' ), $silentCaptcha );
+				$summary = sprintf( __( 'Run %s without setting its visitor cookie', 'wp-simple-firewall' ), $silentCaptcha );
 				$desc = [
-					__( 'Refresh checks initially run every 5 minutes on ordinary pages, 2 minutes on pages with any form (including search or footer forms), and 1 minute on native WordPress login pages.', 'wp-simple-firewall' ),
-					__( 'An IP address change may not be checked until the next refresh. If browser storage is unavailable, freshness lasts only in the current page.', 'wp-simple-firewall' ),
-					__( 'Existing silentCAPTCHA cookies expire naturally, including any custom cookie lifetime. Other WordPress and Shield cookies are unaffected.', 'wp-simple-firewall' ),
-					__( 'Purge page and asset caches and reload open pages after changing mode or deploying updated assets. This does not guarantee a cache hit.', 'wp-simple-firewall' ),
+					sprintf( __( "%s normally sets a short-lived cookie that tells the visitor's browser when to check in again. With this option on, it sets no cookie: the browser keeps its check times in local storage and checks in on a timer instead. Bot detection still happens on your server either way.", 'wp-simple-firewall' ), $silentCaptcha ),
+					__( 'Trade-off: visible pages check in more often than in cookie mode: every 5 minutes, every 2 minutes on pages with any form, and every minute on the WordPress login page. On busy sites this adds background requests. If a browser blocks local storage, it checks in on every page load.', 'wp-simple-firewall' ),
+					__( "Trade-off: after a visitor's IP address changes, the browser is re-checked on the next page it loads that your page cache didn't serve, at most once per refresh period. Otherwise it waits for its next timed check, and a login or form sent in the meantime may be treated as coming from an unverified visitor.", 'wp-simple-firewall' ),
+					sprintf( __( 'Leave this off unless the %1$s cookie causes problems for your site, such as with page caching. Existing %1$s cookies expire on their own, and other cookies, such as WordPress login cookies, are unaffected. Purge your page cache after changing this option.', 'wp-simple-firewall' ), $silentCaptcha ),
 				];
 				break;
 			case 'silentcaptcha_complexity':

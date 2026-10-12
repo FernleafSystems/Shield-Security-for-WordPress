@@ -1053,8 +1053,8 @@
         "default": "N",
         "type": "checkbox",
         "name": "Cookie-free silentCAPTCHA",
-        "summary": "Use browser storage instead of the silentCAPTCHA cookie",
-        "description": "Enable cookie-free silentCAPTCHA. Other WordPress and Shield cookies are unaffected. Purge page and asset caches and reload open pages after changing mode."
+        "summary": "Run silentCAPTCHA without setting its visitor cookie",
+        "description": "Browsers keep silentCAPTCHA check times in local storage instead of a cookie, and check in more often. Purge your page cache after changing this option."
     },
     {
         "key": "silentcaptcha_complexity",

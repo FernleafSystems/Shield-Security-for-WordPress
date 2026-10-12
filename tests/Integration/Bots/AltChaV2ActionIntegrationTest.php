@@ -49,7 +49,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( (bool)( $routed->payload()[ 'success' ] ?? false ) );
 		$this->assertContains( 'bottrack_altcha', $this->capturedBottrackEvents() );
-		$this->assertSame( [ 'mode' => 'cookie', 'required' => [], 'exchange_valid' => true ], $routed->payload()[ 'notbot_state' ] );
+		$this->assertNotBotState( [ 'mode' => 'cookie', 'required' => [], 'exchange_valid' => true ], $routed->payload()[ 'notbot_state' ] );
 	}
 
 	public function test_v1_payload_cannot_fire_altcha_signal() :void {
@@ -134,7 +134,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( (bool)( $routed->payload()[ 'success' ] ?? false ) );
 		$this->assertSame( [], $routed->payload()[ 'altcha_data' ] ?? null );
-		$this->assertSame( [ 'mode' => 'cookie', 'required' => [], 'exchange_valid' => true ], $routed->payload()[ 'notbot_state' ] );
+		$this->assertNotBotState( [ 'mode' => 'cookie', 'required' => [], 'exchange_valid' => true ], $routed->payload()[ 'notbot_state' ] );
 	}
 
 	public function test_basic_response_state_is_built_after_signal_processing() :void {
@@ -142,7 +142,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->applyAjaxRequestContext( $ip );
 		$this->seedCurrentIpBotSignal( [ 'notbot_at' => 0, 'altcha_at' => 0 ] );
 		$routed = $this->runNotBotAction( ActionData::Build( CaptureNotBot::class, true ), $ip );
-		$this->assertSame( [ 'mode' => 'cookie', 'required' => [ 'altcha' ], 'exchange_valid' => true ], $routed->payload()[ 'notbot_state' ] );
+		$this->assertNotBotState( [ 'mode' => 'cookie', 'required' => [ 'altcha' ], 'exchange_valid' => true ], $routed->payload()[ 'notbot_state' ] );
 		$this->assertSame( '2', $routed->payload()[ 'altcha_data' ][ 'altcha_version' ] );
 	}
 
@@ -159,7 +159,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 		}
 		$routed = $this->runAltchaAction( $data );
 		$this->assertTrue( $routed->payload()[ 'success' ] );
-		$this->assertSame( [ 'mode' => 'cookie', 'required' => $fresh ? [] : [ 'altcha' ], 'exchange_valid' => false ], $routed->payload()[ 'notbot_state' ] );
+		$this->assertNotBotState( [ 'mode' => 'cookie', 'required' => $fresh ? [] : [ 'altcha' ], 'exchange_valid' => false ], $routed->payload()[ 'notbot_state' ] );
 	}
 
 	public static function invalidExchangeProvider() :array {
@@ -193,7 +193,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 			$payload = $this->routeCaptureAction( $slug, $data )->payload();
 		} );
 		$this->assertTrue( $payload[ 'success' ] );
-		$this->assertSame( [
+		$this->assertNotBotState( [
 			'mode' => $cookieFree ? 'cookie_free' : 'cookie',
 			'required' => $altcha ? [ 'notbot', 'altcha' ] : [ 'notbot' ],
 			'exchange_valid' => true,
@@ -295,6 +295,47 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 			'cookie IP retrieval' => [ false, true, 'SELECT' ], 'free IP retrieval' => [ true, true, 'SELECT' ] ];
 	}
 
+	/** @dataProvider modeProvider */
+	public function test_unchanged_signal_row_saved_again_in_the_same_second_is_not_a_failure( bool $cookieFree ) :void {
+		$ip = '93.184.216.238';
+		$con = $this->requireController();
+		$this->requireDb( 'ip_rules' );
+		$con->opts->optSet( 'silentcaptcha_cookie_free', $cookieFree ? 'Y' : 'N' );
+		// retrieve() copies this rule's times onto the record and then clears them as older than a month,
+		// so every request saves the row again with identical values.
+		$longAgo = Services::Request()->ts() - 40*\DAY_IN_SECONDS;
+		TestDataFactory::insertCrowdsecBlock( $ip, [ 'blocked_at' => $longAgo, 'unblocked_at' => $longAgo + 60 ] );
+		$this->resetIpCaches();
+		// Start on a fresh second, so the page request and the capture request below share it.
+		$second = \time();
+		while ( \time() === $second ) {
+			\usleep( 10000 );
+		}
+		$this->applyAjaxRequestContext( $ip );
+		( new BotSignalsRecord() )->setIP( $ip )->retrieve();
+		$this->applyAjaxRequestContext( $ip );
+		$payload = $this->routeCaptureAction( CaptureNotBot::SLUG, ActionData::Build( CaptureNotBot::class, true ) )->payload();
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( [ 'altcha' ], $payload[ 'notbot_state' ][ 'required' ] );
+		$this->assertGreaterThan( 0, $con->this_req->botsignal_record->notbot_at );
+	}
+
+	public function modeProvider() :array {
+		return [ 'cookie' => [ false ], 'cookie-free' => [ true ] ];
+	}
+
+	public function test_saving_a_signal_row_deleted_since_it_was_loaded_fails() :void {
+		$ip = '93.184.216.239';
+		$this->applyAjaxRequestContext( $ip );
+		$owner = ( new BotSignalsRecord() )->setIP( $ip );
+		$record = clone $owner->updateSignalField( 'notbot_at' );
+		$dbh = $this->requireController()->db_con->bot_signals;
+		$this->assertTrue( $dbh->getQueryDeleter()->deleteById( $record->id ) );
+		$record->altcha_at = Services::Request()->ts();
+		$this->assertFalse( $owner->store( $record ) );
+		$this->assertSame( 0, $dbh->getQuerySelector()->addWhereEquals( 'id', $record->id )->count() );
+	}
+
 	public function test_repeated_timestamp_is_a_noop_and_other_ip_does_not_replace_cache() :void {
 		$ip = '93.184.216.236';
 		$this->applyAjaxRequestContext( $ip );
@@ -310,6 +351,12 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( $current->id, $other->id );
 		$this->assertSame( 0, $current->altcha_at );
 		$this->assertGreaterThan( 0, $this->requireController()->db_con->bot_signals->getQuerySelector()->byId( $other->id )->altcha_at );
+	}
+
+	private function assertNotBotState( array $expected, array $state ) :void {
+		$this->assertEqualsWithDelta( \time(), $state[ 'server_ts' ] ?? 0, 5 );
+		unset( $state[ 'server_ts' ] );
+		$this->assertSame( $expected, $state );
 	}
 
 	private function withQueryFailure( string $table, string $operation, callable $exercise, bool $mustReach = true ) :void {

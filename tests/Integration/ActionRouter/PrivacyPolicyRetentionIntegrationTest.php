@@ -37,4 +37,31 @@ class PrivacyPolicyRetentionIntegrationTest extends ShieldIntegrationTestCase {
 			remove_filter( ActivityLogRetentionPolicy::FILTER_ACTIVITY_POLICY, $activityFilter );
 		}
 	}
+
+	public function test_privacy_policy_describes_the_active_visitor_check() :void {
+		$con = $this->requireController();
+		$snapshot = $this->snapshotSelectedOptions( [ 'silentcaptcha_cookie_free' ] );
+		$threshold = 50;
+		$thresholdFilter = static function () use ( &$threshold ) :int {
+			return $threshold;
+		};
+		add_filter( 'shield/silent_captcha_bot_threshold', $thresholdFilter, \PHP_INT_MAX );
+		$sentence = static function () :string {
+			$payload = ( new ActionProcessor() )->processAction( PrivacyPolicy::SLUG )->payload();
+			return (string)( $payload[ 'render_data' ][ 'strings' ][ 'cookies_item_4_sentence_1' ] ?? '' );
+		};
+
+		try {
+			$con->opts->optSet( 'silentcaptcha_cookie_free', 'N' );
+			$this->assertStringContainsString( 'short-lived cookie', $sentence() );
+			$con->opts->optSet( 'silentcaptcha_cookie_free', 'Y' );
+			$this->assertStringContainsString( 'without using a cookie', $sentence() );
+			$threshold = 0;
+			$this->assertStringContainsString( 'does not normally use cookies', $sentence() );
+		}
+		finally {
+			remove_filter( 'shield/silent_captcha_bot_threshold', $thresholdFilter, \PHP_INT_MAX );
+			$this->restoreSelectedOptions( $snapshot );
+		}
+	}
 }
