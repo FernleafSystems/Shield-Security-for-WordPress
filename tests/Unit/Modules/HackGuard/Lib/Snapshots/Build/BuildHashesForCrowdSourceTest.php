@@ -36,10 +36,10 @@ class BuildHashesForCrowdSourceTest extends BaseUnitTest {
 		$probeEdge = \substr_replace( \str_repeat( "x\r\n", 3000 ), "\0", 7999, 1 );
 		$pastProbe = \substr_replace( \str_repeat( "x\r\n", 3000 ), "\0", 8000, 1 );
 		$this->assertSame( [
-			'edge.mo'   => \sha1( $probeEdge ),
-			'icon.ico'  => \sha1( $icon ),
-			'main.php'  => \sha1( "<?php\necho 1;\ndone\n" ),
-			'past.js'   => \sha1( \str_replace( [ "\r\n", "\r" ], "\n", $pastProbe ) ),
+			'edge.mo'  => \sha1( $probeEdge ),
+			'icon.ico' => \sha1( $icon ),
+			'main.php' => \sha1( "<?php\necho 1;\ndone\n" ),
+			'past.js'  => \sha1( \str_replace( [ "\r\n", "\r" ], "\n", $pastProbe ) ),
 		], $this->build( [
 			'main.php'  => $text,
 			'icon.ico'  => $icon,
@@ -53,8 +53,8 @@ class BuildHashesForCrowdSourceTest extends BaseUnitTest {
 		// The API's canonical fixture pack publishes these SHA-1s for these bytes; a crowd-sourced collection
 		// only verifies against the API's WordPress.org hashes when Shield computes identical values.
 		$this->assertSame( [
-			'data.ico' => 'fe14f7784b0f681e11f61de1240412f4f18a1e7b',
-			'main.php' => '5ba6310fcdb87203c54262628a243bcc689b7963',
+			'data.ico'  => 'fe14f7784b0f681e11f61de1240412f4f18a1e7b',
+			'main.php'  => '5ba6310fcdb87203c54262628a243bcc689b7963',
 			'style.css' => '5ba6310fcdb87203c54262628a243bcc689b7963',
 		], $this->build( [
 			'data.ico'  => (string)\base64_decode( 'AAENCgL/DQM=', true ),
