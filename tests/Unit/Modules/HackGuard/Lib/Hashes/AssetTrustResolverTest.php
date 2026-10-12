@@ -575,9 +575,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$this->assertResolveContextMiss( $resolver, $path );
 	}
 
-	/**
-	 * @dataProvider unknownAssetDirectoryProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'unknownAssetDirectoryProvider' )]
 	public function test_repeated_unknown_asset_directory_miss_is_memoized( string $path ) :void {
 		$this->installEnvironment( [ 'alpha/alpha.php' ], [ 'clean' ] );
 		$resolver = new AssetTrustResolver();
@@ -605,9 +603,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider siblingPathProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'siblingPathProvider' )]
 	public function test_root_sibling_paths_are_rejected( string $path ) :void {
 		$this->installEnvironment( [ 'alpha/alpha.php' ], [ 'clean' ] );
 

@@ -295,7 +295,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 			'cookie IP retrieval' => [ false, true, 'SELECT' ], 'free IP retrieval' => [ true, true, 'SELECT' ] ];
 	}
 
-	/** @dataProvider modeProvider */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'modeProvider' )]
 	public function test_unchanged_signal_row_saved_again_in_the_same_second_is_not_a_failure( bool $cookieFree ) :void {
 		$ip = '93.184.216.238';
 		$con = $this->requireController();
@@ -320,7 +320,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThan( 0, $con->this_req->botsignal_record->notbot_at );
 	}
 
-	public function modeProvider() :array {
+	public static function modeProvider() :array {
 		return [ 'cookie' => [ false ], 'cookie-free' => [ true ] ];
 	}
 

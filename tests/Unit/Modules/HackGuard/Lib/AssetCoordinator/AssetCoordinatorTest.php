@@ -152,9 +152,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertFileExists( $marker );
 	}
 
-	/**
-	 * @dataProvider retryableAssetStateProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'retryableAssetStateProvider' )]
 	public function test_retryable_asset_work_uses_only_normalized_asset_records( array $state, bool $expected ) :void {
 		$db = $this->installReadinessDb( [ $this->readinessRow( $state ) ] );
 
@@ -216,9 +214,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		);
 	}
 
-	/**
-	 * @dataProvider malformedReadinessStateProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'malformedReadinessStateProvider' )]
 	public function test_retryable_asset_work_rejects_malformed_persisted_state( $rows ) :void {
 		$this->installReadinessDb( $rows );
 
@@ -544,9 +540,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		], $this->scans->assets );
 	}
 
-	/**
-	 * @dataProvider provideScanResults
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideScanResults' )]
 	public function test_later_ordinary_work_survives_selected_promotion_result( bool $scanResult ) :void {
 		$asset = new SnapshotPluginVo( 'changed/plugin.php', '1.0.0' );
 		$this->installPublishedSnapshot( $asset );
@@ -568,9 +562,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertSame( 0, $this->scans->notificationReadinessCalls );
 	}
 
-	/**
-	 * @dataProvider provideScanResults
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideScanResults' )]
 	public function test_refreshed_ordinary_work_survives_selected_ordinary_result( bool $scanResult ) :void {
 		$asset = new SnapshotPluginVo( 'changed/plugin.php', '2.0.0' );
 		$this->installPublishedSnapshot( $asset );
@@ -599,9 +591,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertSame( 0, $this->scans->notificationReadinessCalls );
 	}
 
-	/**
-	 * @dataProvider provideScanResults
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideScanResults' )]
 	public function test_equivalent_ordinary_work_accepts_selected_result( bool $scanResult ) :void {
 		$asset = new SnapshotPluginVo( 'changed/plugin.php', '2.0.0' );
 		$this->installPublishedSnapshot( $asset );
@@ -738,9 +728,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertTrue( $this->state()[ 'build_missing_snapshots' ] );
 	}
 
-	/**
-	 * @dataProvider provideNonOwnerTopologies
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideNonOwnerTopologies' )]
 	public function test_non_owner_topologies_do_not_run_routine_work_but_preserve_targeted_and_wpv_work(
 		bool $isMainNetwork,
 		bool $isMainSite
@@ -942,9 +930,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		);
 	}
 
-	/**
-	 * @dataProvider provideNonOwnerTopologies
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideNonOwnerTopologies' )]
 	public function test_non_owner_leaves_legacy_snapshot_build_for_the_owner(
 		bool $isMainNetwork,
 		bool $isMainSite
@@ -1258,9 +1244,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertCount( 1, $db->queries );
 	}
 
-	/**
-	 * @dataProvider failedWriteFallbackRowsProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'failedWriteFallbackRowsProvider' )]
 	public function test_false_update_with_cached_mismatch_keeps_unreadable_or_unequal_raw_state_as_a_failure( array $rows ) :void {
 		$db = $this->installReadinessDb( $rows );
 		$this->optionReadOverride = [];

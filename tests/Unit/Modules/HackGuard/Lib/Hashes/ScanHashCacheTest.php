@@ -166,7 +166,7 @@ class ScanHashCacheTest extends BaseUnitTest {
 		$this->assertCount( 2, $this->requests );
 	}
 
-	/** @dataProvider provideSnapshotFallbacks */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSnapshotFallbacks' )]
 	public function test_api_failure_copies_snapshot_and_preserves_trust( bool $trusted, bool $throws ) :void {
 		$this->writeSnapshot( $trusted );
 		$this->remoteThrows = $throws;
@@ -185,7 +185,7 @@ class ScanHashCacheTest extends BaseUnitTest {
 		return [ [ false, false ], [ true, false ], [ false, true ], [ true, true ] ];
 	}
 
-	/** @dataProvider provideRequestFailures */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideRequestFailures' )]
 	public function test_full_preflight_stops_after_two_request_failures_and_next_preflight_gets_a_fresh_budget( bool $transportFailure ) :void {
 		$assets = $this->budgetAssets();
 		$this->remoteThrows = $transportFailure;
@@ -244,7 +244,7 @@ class ScanHashCacheTest extends BaseUnitTest {
 		$this->assertCount( 4, $this->requests );
 	}
 
-	/** @dataProvider provideInvalidCaches */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidCaches' )]
 	public function test_cache_miss_or_nonmatch_returns_stored_result_unchanged( string $case ) :void {
 		$this->writeSnapshot( false );
 		$this->remoteHashes = [ 'postmark.php' => [ \sha1_file( $this->path() ) ] ];
@@ -414,7 +414,7 @@ class ScanHashCacheTest extends BaseUnitTest {
 		$this->assertNull( $cache->read( $this->context() ) );
 	}
 
-	/** @dataProvider provideNonOwnerSites */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideNonOwnerSites' )]
 	public function test_subnetwork_has_no_fill_read_or_deletes( bool $mainNetwork, bool $mainSite ) :void {
 		$this->remoteHashes = [ 'postmark.php' => [ \sha1_file( $this->path() ) ] ];
 		$cache = new ScanHashCache();

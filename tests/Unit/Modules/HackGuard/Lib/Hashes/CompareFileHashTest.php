@@ -85,7 +85,7 @@ class CompareFileHashTest extends BaseUnitTest {
 		( new CompareFileHash() )->isEqual( $this->createTrackedTempPath( 'missing-hash-file-' ), \md5( 'content' ) );
 	}
 
-	/** @dataProvider provideAlgorithms */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideAlgorithms' )]
 	public function test_multi_hash_comparison_preserves_raw_and_line_ending_matches( string $algorithm ) :void {
 		$compare = new CompareFileHash();
 		foreach ( [ "one\r\ntwo\r\n", "one\ntwo\n", "one\rtwo\r", "one\r\ntwo\rthree\n", "\x00\xff\x80one\r\ntwo\r\x00" ] as $content ) {

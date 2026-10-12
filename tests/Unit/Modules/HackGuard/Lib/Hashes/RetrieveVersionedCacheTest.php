@@ -173,9 +173,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		], ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) );
 	}
 
-	/**
-	 * @dataProvider provideUntrustedStoredSourceMeta
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideUntrustedStoredSourceMeta' )]
 	public function test_stored_only_non_published_source_is_local_baseline( array $sourceMeta ) :void {
 		$cacheRoot = $this->makeTempDir( 'root' );
 		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
