@@ -19,13 +19,28 @@ final class Paths {
 
 	public string $ruleset;
 
-	public function __construct( string $stub, string $stubUrl, string $htaccess, ?string $userIni, string $bootstrap, string $ruleset ) {
+	/**
+	 * The WordPress directories the early pass covers: ABSPATH and the content directory.
+	 * @var string[]
+	 */
+	public array $scope;
+
+	public function __construct(
+		string $stub,
+		string $stubUrl,
+		string $htaccess,
+		?string $userIni,
+		string $bootstrap,
+		string $ruleset,
+		array $scope
+	) {
 		$this->stub = $stub;
 		$this->stubUrl = $stubUrl;
 		$this->htaccess = $htaccess;
 		$this->userIni = $userIni;
 		$this->bootstrap = $bootstrap;
 		$this->ruleset = $ruleset;
+		$this->scope = $scope;
 	}
 
 	/**

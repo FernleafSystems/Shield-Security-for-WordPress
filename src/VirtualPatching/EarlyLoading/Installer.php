@@ -132,7 +132,7 @@ class Installer {
 	}
 
 	public function stubContent( ?string $hostPrepend ) :string {
-		return StubBuilder::build( $this->paths->bootstrap, $this->paths->ruleset, $hostPrepend );
+		return StubBuilder::build( $this->paths->bootstrap, $this->paths->ruleset, $hostPrepend, $this->paths->scope );
 	}
 
 	/**
@@ -169,11 +169,10 @@ class Installer {
 
 		$edits = $this->plannedEdits( $mechanism );
 
-		$baseline = $this->probe->verify();
-		if ( !$baseline->isVerificationResponse() ) {
+		$this->probe->prepare();
+		if ( !$this->siteResponds() ) {
 			throw new InstallException( InstallException::LOOPBACK_UNAVAILABLE );
 		}
-		$baselineHome = $this->probe->home();
 
 		$stub->write( $this->stubContent( $hostPrepend ) );
 		if ( $this->probe->smoke()->isServerError() ) {
@@ -199,7 +198,7 @@ class Installer {
 		}
 
 		$verify = $this->probe->verify();
-		if ( $this->siteFailed( $verify, $baselineHome, $this->probe->home() ) ) {
+		if ( !$verify->isVerificationResponse() || !$this->probe->home()->isVerificationResponse() ) {
 			$this->rollBack( $snapshots, $previous );
 			throw new InstallException( InstallException::SITE_FAILED_REVERTED );
 		}
@@ -283,9 +282,12 @@ class Installer {
 		return $current;
 	}
 
-	private function siteFailed( ProbeResult $verify, ProbeResult $baselineHome, ProbeResult $home ) :bool {
-		return !$verify->isVerificationResponse()
-			   || ( $baselineHome->isLoads() && !$home->isLoads() );
+	/**
+	 * Shield answers its verification request both through admin-ajax.php and through the home page. If it
+	 * can't before the change, the change can't be checked, so it isn't made.
+	 */
+	private function siteResponds() :bool {
+		return $this->probe->verify()->isVerificationResponse() && $this->probe->home()->isVerificationResponse();
 	}
 
 	/**

@@ -63,7 +63,7 @@ class StubBuilderTest extends TestCase {
 
 	private function writeStub( string $bootstrap, ?string $host ) :string {
 		$path = $this->dir.'/'.StubBuilder::FILE_NAME;
-		\file_put_contents( $path, StubBuilder::build( $bootstrap, '/rules.php', $host ) );
+		\file_put_contents( $path, StubBuilder::build( $bootstrap, '/rules.php', $host, [ $this->dir ] ) );
 		return $path;
 	}
 
