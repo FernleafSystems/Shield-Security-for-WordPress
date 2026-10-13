@@ -171,7 +171,7 @@ class EarlyLoadingController {
 			$home.'.htaccess',
 			Mechanism::isUsableUserIniFilename( $userIni ) ? $home.$userIni : null,
 			\wp_normalize_path( \path_join( $con->getRootDir(), 'src/VirtualPatching/EarlyLoading/bootstrap.php' ) ),
-			\wp_normalize_path( $con->cache_dir_handler->cacheItemPath( 'virtual-patching/ruleset.php' ) )
+			\wp_normalize_path( $con->comps->virtual_patching->rulesetPath() )
 		);
 	}
 
