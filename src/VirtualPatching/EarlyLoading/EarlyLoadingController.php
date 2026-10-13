@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\SiteLoopback;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -158,6 +159,7 @@ class EarlyLoadingController {
 			$this->environment(),
 			new WpLoopbackProbe(
 				$this->verifyRequest(),
+				new SiteLoopback(),
 				\admin_url( 'admin-ajax.php' ),
 				\home_url( '/' ),
 				$paths->stubUrl
@@ -189,7 +191,7 @@ class EarlyLoadingController {
 			require_once ABSPATH.'wp-admin/includes/file.php';
 		}
 		$home = \trailingslashit( \wp_normalize_path( \get_home_path() ) );
-		$userIni = (string)\ini_get( 'user_ini.filename' );
+		$userIni = $this->ini( 'user_ini.filename' );
 		$con = self::con();
 		return new Paths(
 			\wp_normalize_path( ABSPATH ).StubBuilder::FILE_NAME,
@@ -197,22 +199,46 @@ class EarlyLoadingController {
 			$home.'.htaccess',
 			Mechanism::isUsableUserIniFilename( $userIni ) ? $home.$userIni : null,
 			\wp_normalize_path( \path_join( $con->getRootDir(), 'src/VirtualPatching/EarlyLoading/bootstrap.php' ) ),
-			\wp_normalize_path( $con->comps->virtual_patching->rulesetPath() )
+			\wp_normalize_path( $con->comps->virtual_patching->rulesetPath() ),
+			$this->scopeDirs()
 		);
+	}
+
+	/**
+	 * ABSPATH and the content directory, which may be outside it, as PHP will report them when resolved.
+	 * @return string[]
+	 */
+	private function scopeDirs() :array {
+		$dirs = [];
+		foreach ( [ ABSPATH, WP_CONTENT_DIR ] as $dir ) {
+			$real = \function_exists( 'realpath' ) ? \realpath( $dir ) : $dir;
+			if ( \is_string( $real ) ) {
+				$dirs[] = \untrailingslashit( \wp_normalize_path( $real ) );
+			}
+		}
+		return \array_values( \array_unique( $dirs ) );
 	}
 
 	private function environment() :Environment {
 		return new Environment(
-			\PHP_SAPI,
-			(string)\ini_get( 'user_ini.filename' ),
-			(int)\ini_get( 'user_ini.cache_ttl' ),
-			(string)\ini_get( 'auto_prepend_file' ),
+			// Without ini_get() the current auto_prepend_file can't be known, so only manual setup is offered.
+			\function_exists( 'ini_get' ) ? \PHP_SAPI : '',
+			$this->ini( 'user_ini.filename' ),
+			(int)$this->ini( 'user_ini.cache_ttl' ),
+			$this->ini( 'auto_prepend_file' ),
 			(string)( $_SERVER[ 'SERVER_SOFTWARE' ] ?? '' ),
 			Services::WpGeneral()->isMultisite(),
 			Services::WpFs()->isFilesystemAccessDirect(),
 			$this->isWebRequest(),
 			Services::Request()->ts()
 		);
+	}
+
+	/**
+	 * Hosts can disable ini_get().
+	 */
+	private function ini( string $key ) :string {
+		return \function_exists( 'ini_get' ) ? (string)\ini_get( $key ) : '';
 	}
 
 	/**

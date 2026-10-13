@@ -36,9 +36,13 @@ class EarlyLoaderServerTest extends TestCase {
 		$this->events = $cache.'/events.php';
 		$this->rulesetPath = $cache.'/ruleset.php';
 
+		$script = '<?php echo "reached|", defined("SHIELD_EARLY_RAN") ? SHIELD_EARLY_RAN : "not-ran";';
 		\mkdir( $this->root.'/wp-content/plugins/demo', 0777, true );
-		\file_put_contents( $this->root.'/wp-content/plugins/demo/install.php',
-			'<?php echo "reached|", defined("SHIELD_EARLY_RAN") ? SHIELD_EARLY_RAN : "not-ran";' );
+		\file_put_contents( $this->root.'/wp-content/plugins/demo/install.php', $script );
+		// Another WordPress site installed in a folder below this one.
+		\mkdir( $this->root.'/blog/wp-content/plugins/demo', 0777, true );
+		\file_put_contents( $this->root.'/blog/wp-load.php', '<?php' );
+		\file_put_contents( $this->root.'/blog/wp-content/plugins/demo/install.php', $script );
 
 		\file_put_contents( $this->rulesetPath, RulesetFile::render( [
 			'format'         => RulesetFile::FORMAT,
@@ -55,13 +59,21 @@ class EarlyLoaderServerTest extends TestCase {
 						[ 'kind' => 'plugin_active', 'negate' => false, 'pluginFile' => 'demo/demo.php' ],
 					],
 				],
+				[
+					'id'         => 'any-install-script',
+					'advisories' => [ 'CVE-2026-0002' ],
+					'conditions' => [
+						[ 'kind' => 'method', 'negate' => false, 'value' => 'POST' ],
+						[ 'kind' => 'script', 'negate' => false, 'operator' => 'equals', 'value' => 'install.php' ],
+					],
+				],
 			],
 			'bypass'         => [ 'ip_source' => 'REMOTE_ADDR', 'ips' => [] ],
 			'events'         => $this->events,
 		] ) );
 
 		$bootstrap = \dirname( __DIR__, 4 ).'/src/VirtualPatching/EarlyLoading/bootstrap.php';
-		\file_put_contents( $this->root.'/'.StubBuilder::FILE_NAME, StubBuilder::build( $bootstrap, $this->rulesetPath, null ) );
+		\file_put_contents( $this->root.'/'.StubBuilder::FILE_NAME, StubBuilder::build( $bootstrap, $this->rulesetPath, null, [ $this->root ] ) );
 
 		$this->startServer();
 	}
@@ -97,6 +109,13 @@ class EarlyLoaderServerTest extends TestCase {
 		[ $status ] = $this->request( 'POST', '/wp-content/plugins/demo/%69nstall.php', 'step=2' );
 
 		$this->assertSame( 403, $status );
+	}
+
+	public function testWordPressInAFolderBelowIsAnotherSiteAndIsNotChecked() :void {
+		[ $status, $body ] = $this->request( 'POST', '/blog/wp-content/plugins/demo/install.php', 'step=2' );
+
+		$this->assertSame( 200, $status );
+		$this->assertSame( 'reached|not-ran', $body );
 	}
 
 	public function testDamagedRulesetLeavesRequestsToWordPress() :void {

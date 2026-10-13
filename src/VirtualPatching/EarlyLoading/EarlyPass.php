@@ -38,6 +38,34 @@ final class EarlyPass {
 	}
 
 	/**
+	 * Whether the requested PHP file belongs to this WordPress site: inside one of its directories, and not
+	 * inside another WordPress installed in a folder below it, which is common on shared hosting. Other
+	 * applications and other sites are never checked against this site's rules.
+	 * @param string[] $scopeDirs
+	 */
+	public static function coversScript( string $scriptFile, array $scopeDirs ) :bool {
+		$script = $scriptFile !== '' && \function_exists( 'realpath' ) ? \realpath( $scriptFile ) : false;
+		if ( !\is_string( $script ) ) {
+			return false;
+		}
+		$script = \str_replace( '\\', '/', $script );
+
+		foreach ( $scopeDirs as $root ) {
+			$root = \rtrim( \str_replace( '\\', '/', (string)$root ), '/' );
+			if ( $root === '' || \strpos( $script, $root.'/' ) !== 0 ) {
+				continue;
+			}
+			for ( $dir = \dirname( $script ); \strlen( $dir ) > \strlen( $root ); $dir = \dirname( $dir ) ) {
+				if ( \is_file( $dir.'/wp-load.php' ) ) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * @return array|null the rule that blocks this request
 	 */
 	public function run() :?array {

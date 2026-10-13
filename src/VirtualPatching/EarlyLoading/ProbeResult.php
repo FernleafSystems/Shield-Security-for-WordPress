@@ -34,10 +34,6 @@ final class ProbeResult {
 		return $this->reachable && $this->status >= 500;
 	}
 
-	public function isLoads() :bool {
-		return $this->reachable && $this->status > 0 && $this->status < 500;
-	}
-
 	public function isVerificationResponse() :bool {
 		return $this->reachable && $this->status === 200 && $this->loaded !== null;
 	}
