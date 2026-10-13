@@ -2505,6 +2505,21 @@
         "description": "Setup the plugin to run as an MU-plugin to prevent accidental deactivation."
     },
     {
+        "key": "enable_early_loading",
+        "section": "section_defaults",
+        "zone_comp_slugs": [
+            "plugin_general",
+            "module_plugin"
+        ],
+        "default": "N",
+        "type": "checkbox",
+        "link_info": "",
+        "link_blog": "",
+        "name": "Early Loading",
+        "summary": "Run Virtual Patching Protection Before WordPress Loads",
+        "description": "Configure PHP to load Shield's virtual patching protection before WordPress, so it also covers plugin files requested directly."
+    },
+    {
         "key": "autoupdate_plugin_self",
         "section": "section_defaults",
         "zone_comp_slugs": [

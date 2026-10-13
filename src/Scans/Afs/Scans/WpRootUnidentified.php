@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions;
+use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\StubBuilder;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -14,10 +15,18 @@ class WpRootUnidentified extends BaseScan {
 	 * @throws Exceptions\WpRootFileUnidentifiedException
 	 */
 	protected function runScan() :bool {
-		if ( $this->inRootDir() ) {
+		if ( $this->inRootDir() && !$this->isEarlyLoaderStub() ) {
 			throw new Exceptions\WpRootFileUnidentifiedException( $this->pathFull );
 		}
 		return false;
+	}
+
+	/**
+	 * Shield's own early loader stub, only while its content is exactly what Shield generates.
+	 */
+	private function isEarlyLoaderStub() :bool {
+		return \basename( $this->pathFull ) === StubBuilder::FILE_NAME
+			   && self::con()->comps->early_loading->isGeneratedStub( $this->pathFull );
 	}
 
 	/**

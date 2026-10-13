@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Diagnostics\TestNotBotLoading;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\WorldTimeApi;
+use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\EarlyLoadingStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModulePlugin;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\SilentCaptcha;
 use FernleafSystems\Wordpress\Services\Services;
@@ -102,6 +103,10 @@ class SectionNotices {
 						)
 					);
 				}
+				break;
+
+			case 'section_defaults':
+				$notices = \array_merge( $notices, ( new EarlyLoadingStatus() )->notices() );
 				break;
 
 			default:
@@ -321,6 +326,10 @@ class SectionNotices {
 						);
 					}
 				}
+				break;
+
+			case 'section_defaults':
+				$warnings = \array_merge( $warnings, ( new EarlyLoadingStatus() )->warnings() );
 				break;
 
 			default:

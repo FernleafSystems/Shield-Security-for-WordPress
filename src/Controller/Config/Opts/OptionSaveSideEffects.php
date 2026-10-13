@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Delete;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\EarlyLoadingController;
 
 class OptionSaveSideEffects {
 
@@ -63,6 +64,9 @@ class OptionSaveSideEffects {
 	private function securityAdmin() :void {
 		if ( self::con()->opts->optChanged( 'enable_mu' ) ) {
 			self::con()->comps->mu->run();
+		}
+		if ( self::con()->opts->optChanged( EarlyLoadingController::OPT_ENABLE ) ) {
+			self::con()->comps->early_loading->applyOption();
 		}
 	}
 

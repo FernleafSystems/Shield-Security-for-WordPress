@@ -6,7 +6,12 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions\WpRootFileUnidentifiedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans\WpRootUnidentified;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	ServicesState,
+	UnitTestControllerFactory
+};
+use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\EarlyLoadingController;
 use FernleafSystems\Wordpress\Services\Core\Fs;
 
 class WpRootUnidentifiedTest extends BaseUnitTest {
@@ -26,6 +31,7 @@ class WpRootUnidentifiedTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
@@ -56,6 +62,36 @@ class WpRootUnidentifiedTest extends BaseUnitTest {
 
 	public function test_inaccessible_root_file_is_not_reported() :void {
 		$this->assertFalse( $this->scan( $this->root.'/shell.php', false ) );
+	}
+
+	public function test_shield_early_loader_stub_is_skipped_only_while_shield_generated_it() :void {
+		$stub = $this->root.'/shield-early-loader.php';
+
+		$this->installEarlyLoading( true );
+		$this->assertFalse( $this->scan( $stub ) );
+
+		$this->installEarlyLoading( false );
+		$this->expectException( WpRootFileUnidentifiedException::class );
+		$this->scan( $stub );
+	}
+
+	private function installEarlyLoading( bool $generated ) :void {
+		UnitTestControllerFactory::install( null, null, (object)[
+			'comps' => (object)[
+				'early_loading' => new class( $generated ) extends EarlyLoadingController {
+
+					private bool $generated;
+
+					public function __construct( bool $generated ) {
+						$this->generated = $generated;
+					}
+
+					public function isGeneratedStub( string $path ) :bool {
+						return $this->generated;
+					}
+				},
+			],
+		] );
 	}
 
 	private function scan( string $path, bool $accessible = true ) :bool {

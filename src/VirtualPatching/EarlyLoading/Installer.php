@@ -78,28 +78,26 @@ class Installer {
 	 */
 	public function finishRemoval() :State {
 		$state = $this->store->load();
-		if ( $state->status !== State::REMOVING || $this->anyBlockPresent() || $this->thisRequestPrependsStub() ) {
+		if ( $state->status !== State::REMOVING ) {
 			return $state;
 		}
 
-		$verify = $this->probe->verify();
 		$state->checkedAt = $this->env->now;
-		if ( $verify->loaded === true ) {
-			$this->store->save( $state );
-			return $state;
+		if ( !$this->anyBlockPresent() && !$this->thisRequestPrependsStub() ) {
+			$verify = $this->probe->verify();
+			if ( $state->mechanism === Mechanism::MANUAL ) {
+				// Only the administrator can remove a manual setting, so wait for evidence that they have.
+				$safe = $verify->loaded === false;
+			}
+			else {
+				$safe = $verify->loaded !== true && $this->env->now >= $state->settledAt();
+			}
+
+			if ( $safe && ( new StubFile( $this->paths->stub ) )->delete() ) {
+				$state = new State();
+			}
 		}
 
-		if ( $state->mechanism === Mechanism::MANUAL ) {
-			// Only the administrator can remove a manual setting, so wait for evidence that they have.
-			$safe = $verify->loaded === false;
-		}
-		else {
-			$safe = $this->env->now >= $state->settledAt();
-		}
-
-		if ( $safe && ( new StubFile( $this->paths->stub ) )->delete() ) {
-			$state = new State();
-		}
 		$this->store->save( $state );
 		return $state;
 	}
@@ -114,14 +112,22 @@ class Installer {
 			return $state;
 		}
 
-		( new StubFile( $this->paths->stub ) )->write( $this->stubContent( $state->hostPrepend ) );
+		$state->checkedAt = $this->env->now;
+		try {
+			( new StubFile( $this->paths->stub ) )->write( $this->stubContent( $state->hostPrepend ) );
+		}
+		catch ( InstallException $e ) {
+			$state->error = $e->reason();
+			$state->errorFile = $e->configFile();
+			$this->store->save( $state );
+			throw $e;
+		}
 
 		$verify = $this->probe->verify();
 		if ( $verify->isVerificationResponse() ) {
 			$state->confirmed = (bool)$verify->loaded;
-			$state->checkedAt = $this->env->now;
-			$this->store->save( $state );
 		}
+		$this->store->save( $state );
 		return $state;
 	}
 

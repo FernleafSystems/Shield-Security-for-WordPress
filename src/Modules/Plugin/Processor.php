@@ -91,6 +91,7 @@ class Processor {
 
 		// Runs whether or not Shield's features are enabled, so that disabling them removes the ruleset.
 		$components->virtual_patching->execute();
+		$components->early_loading->execute();
 		$components->mainwp->execute();
 		$components->shieldnet->execute();
 		$components->wpcli->execute();
@@ -104,6 +105,7 @@ class Processor {
 		if ( self::con()->comps->opts_lookup->isPluginEnabled() ) {
 			self::con()->comps->hidden_plugins->detect();
 		}
+		self::con()->comps->early_loading->maintain();
 		( new BulkUpdateUserMeta() )->execute();
 	}
 

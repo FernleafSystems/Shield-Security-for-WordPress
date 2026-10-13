@@ -35,8 +35,8 @@ class ConfigFile {
 
 	/**
 	 * Applies $change to the current content (null when the file does not exist) while holding the lock.
-	 * $change returns the new content, or null to leave the file as it was. A file this call creates is
-	 * removed again if it would be left empty.
+	 * $change returns the new content, or null to leave the file as it was. It may be called twice, so it
+	 * must not have side effects. A missing file is only created when there is content to write.
 	 * @param callable(?string):?string $change
 	 * @return array{0:?string,1:?string} the content before and after
 	 * @throws ConfigFileException
@@ -46,6 +46,9 @@ class ConfigFile {
 		if ( $existed && ( !\is_file( $this->path ) || !\is_writable( $this->path ) ) ) {
 			throw new ConfigFileException( sprintf( 'Could not write %s.', $this->path ) );
 		}
+		if ( !$existed && ( $change( null ) ?? '' ) === '' ) {
+			return [ null, null ];
+		}
 
 		$handle = @\fopen( $this->path, 'c+' );
 		if ( $handle === false ) {
@@ -54,6 +57,7 @@ class ConfigFile {
 
 		$before = null;
 		$after = null;
+		$created = false;
 		$completed = false;
 		try {
 			if ( !\flock( $handle, \LOCK_EX ) ) {
@@ -63,7 +67,9 @@ class ConfigFile {
 			if ( !\is_string( $read ) ) {
 				throw new ConfigFileException( sprintf( 'Could not read %s.', $this->path ) );
 			}
-			$before = $existed ? $read : null;
+			// Another writer may have created the file since the existence check.
+			$created = !$existed && $read === '';
+			$before = $created ? null : $read;
 
 			$after = $change( $before );
 			if ( $after !== null && $after !== $read ) {
@@ -74,7 +80,7 @@ class ConfigFile {
 		finally {
 			\flock( $handle, \LOCK_UN );
 			\fclose( $handle );
-			if ( !$existed && ( !$completed || ( $after ?? '' ) === '' ) ) {
+			if ( $created && ( !$completed || ( $after ?? '' ) === '' ) ) {
 				@\unlink( $this->path );
 			}
 		}

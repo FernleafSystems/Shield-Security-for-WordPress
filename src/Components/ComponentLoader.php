@@ -41,6 +41,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend\U
 use FernleafSystems\Wordpress\Plugin\Shield\Render\RenderService;
 use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\VirtualPatchingCon;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
+use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\EarlyLoadingController;
 
 /**
  * @property AuditCon                               $activity_log
@@ -55,6 +56,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property BotSignalsController                   $bot_signals
  * @property CommentSpamCon                         $comment_spam
  * @property CrowdSecController                     $crowdsec
+ * @property EarlyLoadingController                 $early_loading
  * @property EventsService                          $events
  * @property LoginSuccessRecorder                   $login_success
  * @property FileLockerController                   $file_locker
@@ -125,6 +127,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'comment_spam'          => CommentSpamCon::class,
 			'cool_down'             => CompCons\SilentCaptcha\CoolDownHandler::class,
 			'crowdsec'              => CrowdSecController::class,
+			'early_loading'         => EarlyLoadingController::class,
 			'events'                => EventsService::class,
 			'login_success'         => LoginSuccessRecorder::class,
 			'file_locker'           => FileLockerController::class,

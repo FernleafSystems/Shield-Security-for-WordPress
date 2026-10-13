@@ -1156,6 +1156,16 @@ class StringsOptions {
 						sprintf( __( 'WordPress must be at least version %s to activate this option.', 'wp-simple-firewall' ), '<code>5.6</code>' ) ),
 				];
 				break;
+			case 'enable_early_loading':
+				$name = __( 'Early Loading', 'wp-simple-firewall' );
+				$summary = __( 'Run Virtual Patching Protection Before WordPress Loads', 'wp-simple-firewall' );
+				$desc = [
+					__( "Configure PHP to load Shield's virtual patching protection before WordPress, so it also covers plugin files requested directly.", 'wp-simple-firewall' ),
+					sprintf( __( 'Shield adds %s to your site and sets PHP\'s %s in %s or %s, depending on your server.', 'wp-simple-firewall' ),
+						'<code>shield-early-loader.php</code>', '<code>auto_prepend_file</code>', '<code>.htaccess</code>', '<code>.user.ini</code>' ),
+					__( 'Shield checks the site still loads after the change and undoes it automatically if it does not.', 'wp-simple-firewall' ),
+				];
+				break;
 			case 'admin_access_restrict_posts':
 				$name = __( 'Pages', 'wp-simple-firewall' );
 				$summary = __( 'Restrict Access To Key WordPress Posts And Pages Actions', 'wp-simple-firewall' );
