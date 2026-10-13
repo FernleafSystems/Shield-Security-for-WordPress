@@ -45,6 +45,7 @@ class EarlyLoadingController {
 	 * Applies a change to the setting. A failed install switches the setting back off.
 	 */
 	public function applyOption() :void {
+		\update_option( $this->changedAtKey(), Services::Request()->ts(), false );
 		$guard = $this->acquireGuard();
 		if ( $guard === '' ) {
 			// Another request is changing the early loader; maintain() reconciles with the setting afterwards.
@@ -96,8 +97,11 @@ class EarlyLoadingController {
 	 * confirms installs, keeps the stub current and completes removals.
 	 */
 	public function maintain() :void {
-		// While a settings save is installing or removing, its own loopback requests can start WP-Cron, which
-		// would still see the previous setting.
+		// A request that began before the setting last changed has read the previous setting, and while a
+		// settings save is installing or removing, its own loopback requests can start WP-Cron.
+		if ( $this->settingChangedDuringThisRequest() ) {
+			return;
+		}
 		$guard = $this->acquireGuard();
 		if ( $guard === '' ) {
 			return;
@@ -217,6 +221,17 @@ class EarlyLoadingController {
 	 */
 	private function isWebRequest() :bool {
 		return \PHP_SAPI !== 'cli' && !Services::WpGeneral()->isWpCli();
+	}
+
+	private function settingChangedDuringThisRequest() :bool {
+		// Read from the database, not from what this request cached when it started.
+		\wp_cache_delete( $this->changedAtKey(), 'options' );
+		\wp_cache_delete( 'notoptions', 'options' );
+		return (int)\get_option( $this->changedAtKey(), 0 ) >= (int)( $_SERVER[ 'REQUEST_TIME' ] ?? \time() );
+	}
+
+	private function changedAtKey() :string {
+		return self::con()->prefix( 'early_loading_changed_at', '_' );
 	}
 
 	private function acquireGuard() :string {
