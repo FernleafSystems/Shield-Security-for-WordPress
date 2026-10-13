@@ -6,9 +6,9 @@ concurrency:
 
 on:
   pull_request:
-    branches: [ develop, main, master, docker-matrix-testing-research ]
+    branches: [ develop, main, master, 'support/**', docker-matrix-testing-research ]
   push:
-    branches: [ develop ]
+    branches: [ develop, 'support/**' ]
   workflow_dispatch:
   schedule:
     - cron: '30 6 * * 1-5'
