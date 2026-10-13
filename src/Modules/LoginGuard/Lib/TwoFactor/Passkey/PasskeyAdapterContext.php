@@ -2,33 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Passkey;
 
-class PasskeyAdapterContext {
-
-	public string $relyingPartyId;
-
-	public string $relyingPartyName;
-
-	public string $userName;
-
-	public string $userHandle;
-
-	public string $userDisplayName;
-
-	public string $userAvatarUrl;
+readonly class PasskeyAdapterContext {
 
 	public function __construct(
-		string $relyingPartyId,
-		string $relyingPartyName,
-		string $userName,
-		string $userHandle,
-		string $userDisplayName,
-		string $userAvatarUrl
+		public string $relyingPartyId,
+		public string $relyingPartyName,
+		public string $userName,
+		public string $userHandle,
+		public string $userDisplayName,
+		public string $userAvatarUrl,
+		public ?string $relyingPartyOrigin = null
 	) {
-		$this->relyingPartyId = $relyingPartyId;
-		$this->relyingPartyName = $relyingPartyName;
-		$this->userName = $userName;
-		$this->userHandle = $userHandle;
-		$this->userDisplayName = $userDisplayName;
-		$this->userAvatarUrl = $userAvatarUrl;
 	}
 }

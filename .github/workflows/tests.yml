@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [ develop, main, master, docker-matrix-testing-research ]
+    branches: [ develop, feature/php82, main, master, docker-matrix-testing-research ]
   pull_request:
-    branches: [ develop, main, master, docker-matrix-testing-research ]
+    branches: [ develop, feature/php82, main, master, docker-matrix-testing-research ]
   workflow_dispatch:
 
 jobs:
@@ -130,7 +130,7 @@ jobs:
       run: npm run test:js
 
   source-static-analysis:
-    name: 'PHPStan Source Analysis (PHP 7.4)'
+    name: 'PHPStan Source Analysis (PHP 8.2)'
     runs-on: ${{ vars.CI_UBUNTU_RUNNER }}
     needs: changes
     if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -142,7 +142,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.4'
+        php-version: '8.2'
         coverage: none
         tools: composer:v2
 
@@ -158,14 +158,14 @@ jobs:
       run: composer analyze
 
   # Exercise the PHPUnit unit suite on the minimum and latest supported PHP runtimes.
-  unit-php74:
-    name: 'PHP Unit Tests (PHP 7.4)'
+  unit-php82:
+    name: 'PHP Unit Tests (PHP 8.2)'
     needs: changes
     if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/reusable-unit-tests.yml
     with:
       run_command: composer test:unit:runner
-      php_version: '7.4'
+      php_version: '8.2'
     secrets: inherit
 
   unit-latest:
@@ -286,7 +286,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.4'
+        php-version: '8.2'
         coverage: none
         tools: composer:v2
 

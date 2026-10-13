@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 
@@ -87,7 +87,7 @@ class Emails extends Base {
 
 	private function findEmailSenderBacktrace() :array {
 		$backtrace = [];
-		foreach ( \debug_backtrace( false ) as $item ) {
+		foreach ( \debug_backtrace( \DEBUG_BACKTRACE_IGNORE_ARGS ) as $item ) {
 			if ( 'wp_mail' === \strtolower( $item[ 'function' ] ) ) {
 				$backtrace = $item;
 				break;

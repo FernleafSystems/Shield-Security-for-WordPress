@@ -186,7 +186,7 @@ class ExternalActionTransportPolicyTest extends BaseUnitTest {
 		) );
 	}
 
-	public function directRenderActionProvider() :array {
+	public static function directRenderActionProvider() :array {
 		return [
 			[ SecurityReport::class ],
 			[ ReportAreaChanges::class ],

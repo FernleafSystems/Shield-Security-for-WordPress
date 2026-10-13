@@ -228,7 +228,7 @@ class RequestControlRulesBehaviorTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $this->runRuleConditions( ( new DisableXmlrpcRuleBuilder() )->build() ) );
 	}
 
-	public function disableXmlrpcNegativeProvider() :array {
+	public static function disableXmlrpcNegativeProvider() :array {
 		return [
 			'disabled option'       => [ 'N', '', true, false ],
 			'non xmlrpc request'    => [ 'Y', '', false, false ],

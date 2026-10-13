@@ -143,7 +143,7 @@ class AltChaV2Pbkdf2Test extends BaseUnitTest {
 		);
 	}
 
-	public function provideMalformedSolutions() :array {
+	public static function provideMalformedSolutions() :array {
 		return [
 			'missing counter'       => [
 				[

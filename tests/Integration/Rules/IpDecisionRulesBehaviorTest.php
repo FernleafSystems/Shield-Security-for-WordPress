@@ -186,7 +186,7 @@ class IpDecisionRulesBehaviorTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( $this->evaluateRule( ( new IpBlockedCrowdsec() )->build() ) );
 	}
 
-	public function shieldBlockProvider() :array {
+	public static function shieldBlockProvider() :array {
 		return [
 			'manual block' => [
 				'10.0.20.10',

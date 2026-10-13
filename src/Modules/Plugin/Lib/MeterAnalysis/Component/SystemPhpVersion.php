@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\MinimumRequirements;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SystemPhpVersion extends Base {
@@ -10,7 +11,7 @@ class SystemPhpVersion extends Base {
 	public const WEIGHT = 5;
 
 	protected function testIfProtected() :bool {
-		return Services::Data()->getPhpVersionIsAtLeast( '7.4' );
+		return Services::Data()->getPhpVersionIsAtLeast( $this->phpMinimum() );
 	}
 
 	protected function hrefFull() :string {
@@ -29,14 +30,18 @@ class SystemPhpVersion extends Base {
 		return sprintf(
 			/* translators: %1$s: current PHP version, %2$s: minimum required version */
 			__( 'WordPress is running on a recent version (%1$s) of PHP (at least %2$s).', 'wp-simple-firewall' ),
-			Services::Data()->getPhpVersionCleaned(), '7.4' );
+			Services::Data()->getPhpVersionCleaned(), $this->phpMinimum() );
 	}
 
 	public function descUnprotected() :string {
 		return \implode( ' ', [
 			sprintf( __( 'WordPress is running an old version (%s) of PHP.', 'wp-simple-firewall' ),
 				Services::Data()->getPhpVersionCleaned() ),
-			sprintf( __( 'WordPress.org recommends running on at least PHP %s.', 'wp-simple-firewall' ), '7.4' )
+			sprintf( __( 'Shield Security requires PHP %s or newer.', 'wp-simple-firewall' ), $this->phpMinimum() )
 		] );
+	}
+
+	private function phpMinimum() :string {
+		return MinimumRequirements::PHP;
 	}
 }

@@ -27,6 +27,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sit
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Services;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -757,7 +758,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThan( 0, $fresh->last_export_success_at );
 	}
 
-	/** @dataProvider provideExportSuccessWriteFailures */
+	#[DataProvider( 'provideExportSuccessWriteFailures' )]
 	public function test_export_json_success_survives_export_success_write_failure( int $failures ) :void {
 		global $wpdb;
 		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
@@ -1122,9 +1123,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNull( $repo->readObservation( $fresh, SyncObservation::PHASE_EXPORT ) );
 	}
 
-	/**
-	 * @dataProvider provideHandshakeCallbackOutcomes
-	 */
+	#[DataProvider( 'provideHandshakeCallbackOutcomes' )]
 	public function test_export_json_records_callback_outcome_without_changing_handshake_predicate(
 		string $case,
 		?string $body,

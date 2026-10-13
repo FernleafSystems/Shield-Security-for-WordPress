@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
          bootstrap="tests/Unit/bootstrap.php"
          colors="true"
-         verbose="true"
          beStrictAboutOutputDuringTests="true"
          beStrictAboutTestsThatDoNotTestAnything="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true">
+         cacheDirectory=".phpunit.cache">
     <testsuites>
         <testsuite name="Unit Tests">
-            <directory>tests/Unit</directory>
+            <directory suffix="Test.php">tests/Unit</directory>
+            <exclude>tests/Unit/BaseUnitTest.php</exclude>
+            <exclude>tests/Unit/ReleaseOperatorCommandTest.php</exclude>
         </testsuite>
     </testsuites>
-    <coverage processUncoveredFiles="true">
+    <source>
         <include>
             <directory suffix=".php">src</directory>
         </include>
@@ -23,5 +22,5 @@
             <directory>vendor</directory>
             <directory>vendor_prefixed</directory>
         </exclude>
-    </coverage>
+    </source>
 </phpunit>

@@ -51,7 +51,7 @@ class PluginThemesBaseCachedFlagsTest extends BaseUnitTest {
 		$this->assertSame( \HOUR_IN_SECONDS, $general->lastStoredTransientLifetime );
 	}
 
-	public function provideMalformedCachedFlags() :array {
+	public static function provideMalformedCachedFlags() :array {
 		return [
 			'scalar cached flags'      => [ 'not-an-array' ],
 			'missing is_wporg flag'    => [ [ 'has_tag' => true ] ],

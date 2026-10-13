@@ -122,7 +122,7 @@ class GoogleAuthProviderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertEmpty( $this->requireController()->user_metas->for( $user )->ga_temp_secret );
 	}
 
-	public function invalidActivationOtpProvider() :array {
+	public static function invalidActivationOtpProvider() :array {
 		return [
 			'wrong six digits' => [ '000000' ],
 			'malformed'        => [ 'not-an-otp' ],

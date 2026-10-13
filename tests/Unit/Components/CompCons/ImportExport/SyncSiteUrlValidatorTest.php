@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
 use FernleafSystems\Wordpress\Services\Core\General;
 use FernleafSystems\Wordpress\Services\Utilities\Data;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class SyncSiteUrlValidatorTest extends BaseUnitTest {
 
@@ -33,9 +34,7 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider canonicalUrlProvider
-	 */
+	#[DataProvider( 'canonicalUrlProvider' )]
 	public function test_http_url_is_canonicalized( string $expected, string $input ) :void {
 		$this->assertSame(
 			$expected,
@@ -43,7 +42,7 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 		);
 	}
 
-	public function canonicalUrlProvider() :array {
+	public static function canonicalUrlProvider() :array {
 		return [
 			'scheme and host case' => [ 'https://client.example.com/Path', 'HTTPS://CLIENT.Example.COM/Path' ],
 			'http default port'    => [ 'http://client.example.com/path', 'HTTP://Client.Example.com:80/path' ],
@@ -151,16 +150,14 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 		( new SyncSiteUrlValidator() )->validate( 'https://testing.aptotechnologies.com/import4' );
 	}
 
-	/**
-	 * @dataProvider trustedSyncUnsafeUrlProvider
-	 */
+	#[DataProvider( 'trustedSyncUnsafeUrlProvider' )]
 	public function test_trusted_sync_rejects_unsafe_url_inputs( string $url ) :void {
 		$this->expectException( \InvalidArgumentException::class );
 
 		$this->validatorWithResolvedIps( [ '10.0.0.25' ] )->validateTrustedSyncUrl( $url );
 	}
 
-	public function trustedSyncUnsafeUrlProvider() :array {
+	public static function trustedSyncUnsafeUrlProvider() :array {
 		return [
 			'credentials'  => [ 'https://user:pass@client.example.com' ],
 			'private ip'   => [ 'https://10.0.0.10' ],
@@ -184,9 +181,7 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 		);
 	}
 
-	/**
-	 * @dataProvider sameHostSelfUrlProvider
-	 */
+	#[DataProvider( 'sameHostSelfUrlProvider' )]
 	public function test_same_host_current_site_paths_are_rejected( string $homeUrl, string $targetUrl ) :void {
 		$this->installHomeUrl( $homeUrl );
 		$this->expectException( \InvalidArgumentException::class );
@@ -194,7 +189,7 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 		$this->validatorWithResolvedIps( [ '10.0.0.25' ] )->validateTrustedSyncUrl( $targetUrl );
 	}
 
-	public function sameHostSelfUrlProvider() :array {
+	public static function sameHostSelfUrlProvider() :array {
 		return [
 			'root home rejects exact self' => [ 'https://local.example.com', 'https://local.example.com' ],
 			'subdirectory home rejects base' => [ 'https://local.example.com/import3', 'https://local.example.com/import3' ],
@@ -202,16 +197,14 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider invalidUrlProvider
-	 */
+	#[DataProvider( 'invalidUrlProvider' )]
 	public function test_unsafe_urls_are_rejected( string $url ) :void {
 		$this->expectException( \InvalidArgumentException::class );
 
 		( new SyncSiteUrlValidator() )->validate( $url );
 	}
 
-	public function invalidUrlProvider() :array {
+	public static function invalidUrlProvider() :array {
 		return [
 			'credentials' => [ 'https://user:pass@client.example.com' ],
 			'loopback ip' => [ 'http://127.0.0.1' ],

@@ -24,7 +24,7 @@ class BuildHashesFromDirTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/** @dataProvider algorithmsAndEncoding */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'algorithmsAndEncoding' )]
 	public function test_raw_bytes_paths_depth_extensions_and_encoding_are_preserved( string $algorithm, bool $binary ) :void {
 		$dir = $this->createTrackedTempDir( 'shield-dir-hashes-' );
 		$nested = $this->createTrackedTempDir( 'nested-', $dir );
@@ -51,7 +51,7 @@ class BuildHashesFromDirTest extends BaseUnitTest {
 		$this->assertSame( 'md5', ( new BuildHashesForAsset() )->getHashAlgo() );
 	}
 
-	/** @dataProvider invalidSetterInputs */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidSetterInputs' )]
 	public function test_invalid_setter_keeps_previous_valid_algorithm( string $builderClass, string $invalid ) :void {
 		$builder = ( new $builderClass() )->setHashAlgo( 'sha256' );
 		try {

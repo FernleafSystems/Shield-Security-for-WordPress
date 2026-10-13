@@ -152,9 +152,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertSame( [], $wpDb->queries );
 	}
 
-	/**
-	 * @dataProvider providePresentAssetReadinessFailures
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providePresentAssetReadinessFailures' )]
 	public function test_present_plugin_or_theme_readiness_failure_is_reported_without_scanning(
 		string $assetType,
 		string $assetKey,
@@ -408,9 +406,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertSame( [], $wpDb->queries );
 	}
 
-	/**
-	 * @dataProvider providePublishedSnapshotAssets
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providePublishedSnapshotAssets' )]
 	public function test_cleanup_persists_usable_published_snapshot_before_starting_scoped_scan(
 		string $assetType,
 		string $assetKey,
@@ -471,16 +467,14 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		);
 	}
 
-	public function providePublishedSnapshotAssets() :array {
+	public static function providePublishedSnapshotAssets() :array {
 		return [
 			'plugin' => [ 'plugin', 'remote-plugin/remote.php', '2.0.0', 'remote.php' ],
 			'theme'  => [ 'theme', 'remote-theme', '3.0.0', 'style.php' ],
 		];
 	}
 
-	/**
-	 * @dataProvider providePublishedSnapshotAssets
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providePublishedSnapshotAssets' )]
 	public function test_promotion_follow_up_starts_only_from_exact_published_snapshot(
 		string $assetType,
 		string $assetKey,
@@ -815,7 +809,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertSame( [], $scans->startedAssets );
 	}
 
-	public function providePresentAssetReadinessFailures() :array {
+	public static function providePresentAssetReadinessFailures() :array {
 		return [
 			'plugin' => [
 				'plugin',

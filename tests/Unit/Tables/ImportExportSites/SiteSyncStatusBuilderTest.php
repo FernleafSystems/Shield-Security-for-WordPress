@@ -21,6 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	ServicesState,
 	UnitTestRequest
 };
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class SiteSyncStatusBuilderTest extends BaseUnitTest {
 
@@ -72,9 +73,7 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertSame( SiteSyncStatusBuilder::STATE_PROBLEM, $status[ 'state_key' ] );
 	}
 
-	/**
-	 * @dataProvider waitingExportBoundaryProvider
-	 */
+	#[DataProvider( 'waitingExportBoundaryProvider' )]
 	public function test_waiting_export_expiry_boundary(
 		int $deadline,
 		int $pingSuccess,
@@ -123,9 +122,7 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertSame( SiteSyncStatusBuilder::STATE_PENDING, $this->builder()->stateForRecord( $record ) );
 	}
 
-	/**
-	 * @dataProvider pendingQueueStatusProvider
-	 */
+	#[DataProvider( 'pendingQueueStatusProvider' )]
 	public function test_pending_invite_and_connection_queue_states_are_pending( string $queueStatus ) :void {
 		$record = $this->record( [
 			'queue_status' => $queueStatus,
@@ -134,9 +131,7 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertSame( SiteSyncStatusBuilder::STATE_PENDING, $this->builder()->stateForRecord( $record ) );
 	}
 
-	/**
-	 * @dataProvider invitationPresentationStateProvider
-	 */
+	#[DataProvider( 'invitationPresentationStateProvider' )]
 	public function test_invitation_metadata_maps_to_stable_presentation_state(
 		string $queueStatus,
 		array $invitation,
@@ -463,9 +458,7 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( 'secret-import-id', $row[ 'actions' ] );
 	}
 
-	/**
-	 * @dataProvider repairActionVisibilityProvider
-	 */
+	#[DataProvider( 'repairActionVisibilityProvider' )]
 	public function test_repair_action_visibility_follows_sync_state( array $overrides, string $expectedState, bool $expectRepairAction ) :void {
 		$rows = ( new BuildImportExportSitesTableData() )->exportBuildTableRowsFromRawRecords( [
 			$this->record( \array_merge( [

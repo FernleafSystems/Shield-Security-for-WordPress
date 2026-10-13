@@ -29,6 +29,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 	use FernleafSystems\Wordpress\Services\Utilities\Data;
 	use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
 	use FernleafSystems\Wordpress\Services\Core\Db;
+	use PHPUnit\Framework\Attributes\DataProvider;
 
 	class HandleUpgradeTest extends BaseUnitTest {
 
@@ -198,9 +199,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			);
 		}
 
-		/**
-		 * @dataProvider adequateScanMetadataColumnProvider
-		 */
+		#[DataProvider( 'adequateScanMetadataColumnProvider' )]
 		public function test_scheduled_upgrade_does_not_shrink_adequate_scan_metadata_column(
 			string $columnType
 		) :void {
@@ -215,7 +214,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$this->assertSame( [], HandleUpgradeDbSpy::$writes );
 		}
 
-		public function adequateScanMetadataColumnProvider() :array {
+		public static function adequateScanMetadataColumnProvider() :array {
 			return [
 				'mediumtext' => [ 'mediumtext' ],
 				'longtext'   => [ 'longtext' ],

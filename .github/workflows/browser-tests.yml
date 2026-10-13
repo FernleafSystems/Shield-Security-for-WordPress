@@ -6,9 +6,9 @@ concurrency:
 
 on:
   pull_request:
-    branches: [ develop, main, master, docker-matrix-testing-research ]
+    branches: [ develop, feature/php82, main, master, docker-matrix-testing-research ]
   push:
-    branches: [ develop ]
+    branches: [ develop, feature/php82 ]
   workflow_dispatch:
   schedule:
     - cron: '30 6 * * 1-5'
@@ -50,7 +50,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.4'
+        php-version: '8.2'
         coverage: none
         tools: composer:v2
 
@@ -108,7 +108,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.4'
+        php-version: '8.2'
         coverage: none
         tools: composer:v2
 

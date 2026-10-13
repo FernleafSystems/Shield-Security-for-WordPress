@@ -6,7 +6,7 @@ class AdminPluginVisibility {
 
 	private ?AdminPluginVisibilitySnapshot $observation = null;
 
-	public function beginPluginsList( $plugins ) {
+	public function beginPluginsList( mixed $plugins ) :mixed {
 		$this->observation = $this->snapshot();
 		$this->observation->wpDiscoveredPlugins = \is_array( $plugins ) ? $plugins : null;
 		$this->observation->adminAllPlugins = null;
@@ -15,21 +15,21 @@ class AdminPluginVisibility {
 		return $plugins;
 	}
 
-	public function observeAllPlugins( $plugins ) {
+	public function observeAllPlugins( mixed $plugins ) :mixed {
 		if ( $this->observation !== null ) {
 			$this->observation->adminAllPlugins = \is_array( $plugins ) ? $plugins : null;
 		}
 		return $plugins;
 	}
 
-	public function observeAdvancedPlugins( $show, string $type ) {
+	public function observeAdvancedPlugins( mixed $show, string $type ) :mixed {
 		if ( $type === 'mustuse' && $this->observation !== null ) {
 			$this->observation->showMustUsePlugins = \is_bool( $show ) ? $show : null;
 		}
 		return $show;
 	}
 
-	public function finishPluginsList( $plugins ) :?AdminPluginVisibilitySnapshot {
+	public function finishPluginsList( mixed $plugins ) :?AdminPluginVisibilitySnapshot {
 		$observation = $this->observation;
 		$this->observation = null;
 		if ( $observation !== null ) {

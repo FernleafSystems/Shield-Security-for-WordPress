@@ -322,9 +322,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $beta, $this->newAction() ) );
 	}
 
-	/**
-	 * @dataProvider provideSnapshotAlgorithms
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSnapshotAlgorithms' )]
 	public function test_known_valid_plugin_record_requires_current_published_snapshot( string $algorithm ) :void {
 		$path = $this->writeFile( WP_PLUGIN_DIR.'/local/local.php', '<?php local();' );
 		$cacheDir = $this->makeTempDir( 'cache' );
@@ -350,9 +348,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
 	}
 
-	/**
-	 * @dataProvider provideIneligibleFullScanPluginSnapshots
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideIneligibleFullScanPluginSnapshots' )]
 	public function test_full_scan_known_valid_plugin_requires_exact_comparison_eligibility(
 		?array $eligibility
 	) :void {
@@ -669,9 +665,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertSame( 3, OptimiserThemes::$getThemeAsVoCalls );
 	}
 
-	/**
-	 * @dataProvider provideSnapshotAlgorithms
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSnapshotAlgorithms' )]
 	public function test_known_valid_plugin_record_does_not_skip_after_same_version_snapshot_hash_replacement( string $algorithm ) :void {
 		$path = $this->writeFile( WP_PLUGIN_DIR.'/alpha/one.php', '<?php original();' );
 		$cacheDir = $this->makeTempDir( 'cache' );
@@ -688,7 +682,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
 	}
 
-	public function provideSnapshotAlgorithms() :array {
+	public static function provideSnapshotAlgorithms() :array {
 		return [
 			'md5'    => [ 'md5' ],
 			'sha256' => [ 'sha256' ],
@@ -711,9 +705,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
 	}
 
-	/**
-	 * @dataProvider patternFamiliesProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'patternFamiliesProvider' )]
 	public function test_malware_clean_verdict_fingerprint_includes_pattern_family( string $family ) :void {
 		$path = $this->writeFile( ABSPATH.'wp-content/uploads/clean.php', '<?php clean();' );
 		$this->installEnvironment( $this->makeTempDir( 'cache' ) );
@@ -772,9 +764,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertTrue( $optimiser->hasCleanMalwareVerdict( $path, $action ) );
 	}
 
-	/**
-	 * @dataProvider staleSchemaProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'staleSchemaProvider' )]
 	public function test_records_without_current_schema_version_do_not_hit_cache( ?int $schemaVersion ) :void {
 		$cacheDir = $this->makeTempDir( 'cache' );
 		$knownValid = $this->writeFile( ABSPATH.'wp-admin/schema-valid.php', '<?php clean_valid();' );

@@ -146,7 +146,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( '2', $routed->payload()[ 'altcha_data' ][ 'altcha_version' ] );
 	}
 
-	/** @dataProvider invalidExchangeProvider */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidExchangeProvider' )]
 	public function test_invalid_exchange_never_becomes_valid_from_existing_signals( bool $fresh, bool $expired ) :void {
 		$this->applyAjaxRequestContext( '93.184.216.232' );
 		$this->seedCurrentIpBotSignal( [
@@ -162,7 +162,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotBotState( [ 'mode' => 'cookie', 'required' => $fresh ? [] : [ 'altcha' ], 'exchange_valid' => false ], $routed->payload()[ 'notbot_state' ] );
 	}
 
-	public function invalidExchangeProvider() :array {
+	public static function invalidExchangeProvider() :array {
 		return [ [ false, false ], [ true, false ], [ false, true ], [ true, true ] ];
 	}
 
@@ -173,7 +173,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireController()->comps->altcha->generateChallenge();
 	}
 
-	/** @dataProvider failedWriteProvider */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'failedWriteProvider' )]
 	public function test_failed_signal_write_preserves_confirmed_state_and_recovers( bool $cookieFree, bool $altcha ) :void {
 		$ip = '93.184.216.233';
 		$con = $this->requireController();
@@ -215,7 +215,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $written->altcha_at, $freshRequest->altcha_at );
 	}
 
-	public function failedWriteProvider() :array {
+	public static function failedWriteProvider() :array {
 		return [ 'cookie basic' => [ false, false ], 'cookie ALTCHA' => [ false, true ],
 			'free basic' => [ true, false ], 'free ALTCHA' => [ true, true ] ];
 	}
@@ -254,7 +254,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThan( 0, $fresh->altcha_at );
 	}
 
-	/** @dataProvider unavailableRecordProvider */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'unavailableRecordProvider' )]
 	public function test_unavailable_record_cannot_exempt_required_checks( bool $cookieFree, bool $ipFailure, string $operation ) :void {
 		$ip = '93.184.216.235';
 		$con = $this->requireController();
@@ -289,13 +289,13 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [ 'altcha' ], $this->routeCaptureAction( CaptureNotBot::SLUG, ActionData::Build( CaptureNotBot::class, true ) )->payload()[ 'notbot_state' ][ 'required' ] );
 	}
 
-	public function unavailableRecordProvider() :array {
+	public static function unavailableRecordProvider() :array {
 		return [ 'cookie signal insert' => [ false, false, 'INSERT' ], 'free signal insert' => [ true, false, 'INSERT' ],
 			'cookie IP insert' => [ false, true, 'INSERT' ], 'free IP insert' => [ true, true, 'INSERT' ],
 			'cookie IP retrieval' => [ false, true, 'SELECT' ], 'free IP retrieval' => [ true, true, 'SELECT' ] ];
 	}
 
-	/** @dataProvider modeProvider */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'modeProvider' )]
 	public function test_unchanged_signal_row_saved_again_in_the_same_second_is_not_a_failure( bool $cookieFree ) :void {
 		$ip = '93.184.216.238';
 		$con = $this->requireController();
@@ -320,7 +320,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThan( 0, $con->this_req->botsignal_record->notbot_at );
 	}
 
-	public function modeProvider() :array {
+	public static function modeProvider() :array {
 		return [ 'cookie' => [ false ], 'cookie-free' => [ true ] ];
 	}
 

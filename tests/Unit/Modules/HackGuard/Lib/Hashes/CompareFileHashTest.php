@@ -26,9 +26,7 @@ class CompareFileHashTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider provideAlgorithms
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideAlgorithms' )]
 	public function test_supported_hash_algorithms_verify( string $algorithm ) :void {
 		$content = "one\ntwo\n";
 		$path = $this->writeFile( $content );
@@ -36,7 +34,7 @@ class CompareFileHashTest extends BaseUnitTest {
 		$this->assertTrue( ( new CompareFileHash() )->isEqual( $path, \hash( $algorithm, $content ) ) );
 	}
 
-	public function provideAlgorithms() :array {
+	public static function provideAlgorithms() :array {
 		return [
 			'md5'    => [ 'md5' ],
 			'sha1'   => [ 'sha1' ],
@@ -44,7 +42,7 @@ class CompareFileHashTest extends BaseUnitTest {
 		];
 	}
 
-	/** @dataProvider provideAlgorithms */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideAlgorithms' )]
 	public function test_line_ending_variants_remain_compatible( string $algorithm ) :void {
 		$dosPath = $this->writeFile( "one\r\ntwo\r\n" );
 		$linuxPath = $this->writeFile( "one\ntwo\n" );
@@ -59,7 +57,7 @@ class CompareFileHashTest extends BaseUnitTest {
 		$this->assertFalse( $compare->isEqual( $mixedPath, \hash( $algorithm, "one\ntwo\nchanged\n" ) ) );
 	}
 
-	/** @dataProvider provideAlgorithms */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideAlgorithms' )]
 	public function test_binary_raw_equality_and_changed_content( string $algorithm ) :void {
 		$content = "\x00\xff\x80one\r\ntwo\r\x00";
 		$path = $this->writeFile( $content );
@@ -87,7 +85,7 @@ class CompareFileHashTest extends BaseUnitTest {
 		( new CompareFileHash() )->isEqual( $this->createTrackedTempPath( 'missing-hash-file-' ), \md5( 'content' ) );
 	}
 
-	/** @dataProvider provideAlgorithms */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideAlgorithms' )]
 	public function test_multi_hash_comparison_preserves_raw_and_line_ending_matches( string $algorithm ) :void {
 		$compare = new CompareFileHash();
 		foreach ( [ "one\r\ntwo\r\n", "one\ntwo\n", "one\rtwo\r", "one\r\ntwo\rthree\n", "\x00\xff\x80one\r\ntwo\r\x00" ] as $content ) {

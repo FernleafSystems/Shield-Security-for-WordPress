@@ -178,8 +178,18 @@ class SectionNotices {
 				try {
 					$passkeyChecker = new PasskeyCompatibilityCheck();
 					if ( !$passkeyChecker->run() ) {
-						$warnings[] = sprintf( __( 'To use Passkeys, your PHP installation must have 1 of the following extensions loaded: %s', 'wp-simple-firewall' ),
-							'<code>'.\implode( '</code>, <code>', $passkeyChecker->requiredExtensions() ).'</code>' );
+						$requirements = \array_merge(
+							\array_map(
+								static fn( string $extension ) => sprintf( 'PHP extension <code>%s</code>', $extension ),
+								$passkeyChecker->requiredExtensions()
+							),
+							\array_map(
+								static fn( string $function ) => sprintf( 'PHP function <code>%s</code>', $function ),
+								$passkeyChecker->requiredFunctions()
+							)
+						);
+						$warnings[] = sprintf( __( 'To use Passkeys, your PHP installation must provide these capabilities: %s', 'wp-simple-firewall' ),
+							\implode( ', ', $requirements ) );
 					}
 				}
 				catch ( \Exception $e ) {

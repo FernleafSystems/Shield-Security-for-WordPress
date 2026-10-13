@@ -85,7 +85,12 @@ class UnitTestExecutionSelector {
 	 * @return string[]
 	 */
 	public function buildCommand( array $args, string $mode = self::MODE_AUTO ) :array {
-		switch ( $this->selectStrategy( $args, $mode ) ) {
+		$strategy = $this->selectStrategy( $args, $mode );
+		if ( $this->isParatestStrategy( $strategy ) ) {
+			$args = $this->paraTestCompatibleArgs( $args );
+		}
+
+		switch ( $strategy ) {
 			case self::STRATEGY_SERIAL_PHPUNIT:
 				return $this->buildSerialCommand( $args );
 
@@ -97,6 +102,20 @@ class UnitTestExecutionSelector {
 		}
 
 		throw new \LogicException( 'Unknown unit test execution strategy.' );
+	}
+
+	/**
+	 * ParaTest 7 does not accept PHPUnit's --debug flag. Its --verbose flag
+	 * provides the compatible process-level diagnostic output instead.
+	 *
+	 * @param string[] $args
+	 * @return string[]
+	 */
+	private function paraTestCompatibleArgs( array $args ) :array {
+		return \array_map(
+			static fn( string $arg ) :string => $arg === '--debug' ? '--verbose' : $arg,
+			$args
+		);
 	}
 
 	/**
@@ -146,11 +165,9 @@ class UnitTestExecutionSelector {
 				'./vendor/brianium/paratest/bin/paratest',
 				'-c',
 				'phpunit-unit.xml',
-				'--runner',
-				'Runner',
 				'--processes=auto',
 				'--no-coverage',
-				'-f',
+				'--functional',
 			],
 			$args
 		);
@@ -161,7 +178,7 @@ class UnitTestExecutionSelector {
 	 *
 	 * @return string[]
 	 */
-	private function buildPhpCommand() :array {
+	public function buildPhpCommand() :array {
 		return [
 			\PHP_BINARY,
 			'-d',

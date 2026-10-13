@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class BotSignalNamespaceCompatibilityTest extends BaseUnitTest {
 
-	/** @dataProvider signalClasses */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'signalClasses' )]
 	public function test_legacy_namespace_resolves_to_the_same_component( string $name ) :void {
 		$legacy = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\Lib\\Bots\\'.$name;
 		$canonical = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\Components\\CompCons\\SilentCaptcha\\Signals\\'.$name;
@@ -15,7 +15,7 @@ class BotSignalNamespaceCompatibilityTest extends BaseUnitTest {
 		$this->assertInstanceOf( $legacy, new $canonical() );
 	}
 
-	public function signalClasses() :array {
+	public static function signalClasses() :array {
 		return [
 			[ 'BotSignalsController' ],
 			[ 'BotSignalsRecord' ],

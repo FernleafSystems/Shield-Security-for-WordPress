@@ -161,7 +161,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->assertNotSame( $firstRoot, $secondRoot );
 	}
 
-	public function oldUrlCollisionDataProvider() :array {
+	public static function oldUrlCollisionDataProvider() :array {
 		return [
 			'punctuation' => [ 'https://a-b.example/', 'https://a.b-example/' ],
 			'path case'   => [ 'https://example.com/Admin/', 'https://example.com/admin/' ],
@@ -509,7 +509,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->assertSame( '', ( new CacheDirHandler( '', $preferred ) )->dir() );
 	}
 
-	public function protectionFileDataProvider() :array {
+	public static function protectionFileDataProvider() :array {
 		return [
 			'htaccess' => [ '.htaccess' ],
 			'index'    => [ 'index.php' ],

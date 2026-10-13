@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class FileHashAlgorithmTest extends BaseUnitTest {
 
-	/** @dataProvider supportedAlgorithms */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'supportedAlgorithms' )]
 	public function test_supported_algorithm_and_digest_length( string $algorithm, int $length ) :void {
 		$this->assertSame( $algorithm, FileHashAlgorithm::validate( $algorithm ) );
 		$this->assertSame( $length, FileHashAlgorithm::digestLength( $algorithm ) );
@@ -17,7 +17,7 @@ class FileHashAlgorithmTest extends BaseUnitTest {
 		return [ [ 'md5', 32 ], [ 'sha1', 40 ], [ 'sha256', 64 ] ];
 	}
 
-	/** @dataProvider invalidAlgorithms */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidAlgorithms' )]
 	public function test_invalid_algorithm_is_rejected_without_coercion( $algorithm ) :void {
 		$this->expectException( \InvalidArgumentException::class );
 		FileHashAlgorithm::validate( $algorithm );

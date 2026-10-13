@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Extensions;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\MinimumRequirements;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\NormaliseConfigComponents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModuleIntegrations;
@@ -19,7 +20,7 @@ class ExtensionsCon {
 	private $extensions = null;
 
 	protected function canRun() :bool {
-		return Services::Data()->getPhpVersionIsAtLeast( '7.4' );
+		return $this->minimumPhpRequirementMet();
 	}
 
 	protected function run() {
@@ -28,7 +29,11 @@ class ExtensionsCon {
 	}
 
 	public function canRunExtensions() :bool {
-		return Services::Data()->getPhpVersionIsAtLeast( '7.4' ) && self::con()->isPremiumActive();
+		return $this->minimumPhpRequirementMet() && self::con()->isPremiumActive();
+	}
+
+	private function minimumPhpRequirementMet() :bool {
+		return Services::Data()->getPhpVersionIsAtLeast( MinimumRequirements::PHP );
 	}
 
 	private function initExtensions() :void {

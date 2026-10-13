@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use PHPUnit\Framework\ExpectationFailedException;
+use Symfony\Component\Filesystem\Path;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\ApiBase;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -43,7 +44,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->resetScanResultCountMemoization();
 	}
 
-	/** @dataProvider malwareRefreshResponseProvider */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'malwareRefreshResponseProvider' )]
 	public function test_manual_malware_refresh_uses_real_lookup_and_reloads_partial_results( bool $partialFailure ) :void {
 		$this->requireDb( 'malware' );
 		$this->enablePremiumCapabilities( [ 'scan_malware_local', 'scan_malware_malai' ] );
@@ -127,7 +128,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		return [ 'success' => [ false ], 'partial failure' => [ true ] ];
 	}
 
-	/** @dataProvider malwareRefreshWaitProvider */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'malwareRefreshWaitProvider' )]
 	public function test_manual_malware_refresh_enforces_transient_wait( int $seconds, bool $allowed ) :void {
 		$this->enablePremiumCapabilities( [ 'scan_malware_malai' ] );
 		$key = self::con()->prefix( 'malai_manual_refresh', '_' );
@@ -162,7 +163,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 			'last second' => [ 1, false ], 'exact expiry' => [ 0, true ], 'expired' => [ -1, true ] ];
 	}
 
-	/** @dataProvider malwareRefreshRejectionProvider */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'malwareRefreshRejectionProvider' )]
 	public function test_manual_malware_refresh_rejects_unavailable_capability_or_wrong_scope( bool $capable, string $scope ) :void {
 		$this->enablePremiumCapabilities( $capable ? [ 'scan_malware_malai' ] : [ 'scan_malware_local' ] );
 		$requests = 0;
@@ -244,7 +245,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	/** @dataProvider nonceProtectedSubActionProvider */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'nonceProtectedSubActionProvider' )]
 	public function test_mutating_sub_action_requires_valid_nonce_before_state_change( string $subAction ) :void {
 		$tracked = $this->seedWordpressScanResult();
 		$resultItemId = (int)( $tracked[ 'result_item_id' ] ?? 0 );
@@ -943,7 +944,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
 		$dir = \dirname( $path );
 		if ( !\is_dir( $dir ) ) {
-			\wp_mkdir_p( $dir );
+			$this->assertTrue( \wp_mkdir_p( Path::canonicalize( $dir ) ), 'Could not create scan-action fixture directory.' );
 		}
 		$this->assertNotFalse( \file_put_contents( $path, "fixture\n" ) );
 		$this->assertFileExists( $path );

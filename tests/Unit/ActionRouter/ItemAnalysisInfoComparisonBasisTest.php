@@ -88,9 +88,7 @@ class ItemAnalysisInfoComparisonBasisTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( 'official', $description );
 	}
 
-	/**
-	 * @dataProvider providerLegacyComparisonBasis
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerLegacyComparisonBasis' )]
 	public function test_legacy_plugin_checksum_description_is_neutral_about_provenance( ?string $comparisonBasis ) :void {
 		$properties = [ 'is_checksumfail' => true ];
 		if ( $comparisonBasis !== null ) {

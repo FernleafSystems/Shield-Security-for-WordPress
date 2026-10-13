@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sit
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Core\General;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -315,9 +316,7 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 		);
 	}
 
-	/**
-	 * @dataProvider invalidSecretProvider
-	 */
+	#[DataProvider( 'invalidSecretProvider' )]
 	public function test_secret_key_verification_rejects_non_exact_values( string $stored, string $provided ) :void {
 		$this->seedSecretKey( $stored );
 

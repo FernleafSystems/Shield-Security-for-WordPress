@@ -13,8 +13,15 @@ class PasskeyCredentialDataNormalizer {
 		self::TRUST_PATH_TYPE_ECDAA,
 	];
 
-	public function normalize( array $credentialData ) :array {
+	public function normalizeForStorage( array $credentialData ) :array {
 		if ( !\is_array( $credentialData[ 'trustPath' ] ?? null ) ) {
+			return $credentialData;
+		}
+
+		if ( $credentialData[ 'trustPath' ] === [] ) {
+			$credentialData[ 'trustPath' ] = [
+				'type' => self::TRUST_PATH_TYPE_EMPTY,
+			];
 			return $credentialData;
 		}
 
@@ -24,6 +31,20 @@ class PasskeyCredentialDataNormalizer {
 		}
 
 		$credentialData[ 'trustPath' ][ 'type' ] = $alias;
+		return $credentialData;
+	}
+
+	public function normalizeForWebauthn( array $credentialData ) :array {
+		$credentialData = $this->normalizeForStorage( $credentialData );
+		if ( !\is_array( $credentialData[ 'trustPath' ] ?? null ) ) {
+			return $credentialData;
+		}
+
+		$type = $credentialData[ 'trustPath' ][ 'type' ] ?? null;
+		if ( $type === self::TRUST_PATH_TYPE_EMPTY || $type === self::TRUST_PATH_TYPE_ECDAA ) {
+			$credentialData[ 'trustPath' ] = [];
+		}
+
 		return $credentialData;
 	}
 
@@ -44,6 +65,8 @@ class PasskeyCredentialDataNormalizer {
 			return $type;
 		}
 
+		// Some stored records carry obsolete trust-path class names without trust material.
+		// Treat class-like values as empty to avoid binding storage to WebAuthn internals.
 		return $this->isClassLikeType( $type ) ? self::TRUST_PATH_TYPE_EMPTY : null;
 	}
 

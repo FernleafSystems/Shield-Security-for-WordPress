@@ -52,6 +52,16 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * @group smoke
+	 * @expectedDeprecated shield_phpunit_compatibility_probe
+	 */
+	public function test_wordpress_deprecation_annotations_are_read_with_phpunit_11() :void {
+		_deprecated_function( 'shield_phpunit_compatibility_probe', '1.0.0' );
+
+		$this->assertTrue( true );
+	}
+
+	/**
 	 * Validates that temporary table filter functions are instance methods on
 	 * WP_UnitTestCase_Base, NOT global functions. This is the exact check that
 	 * would have caught the bootstrap bug where global function callbacks were
@@ -362,16 +372,12 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 	/**
 	 * @group smoke
 	 */
-	public function test_passkey_runtime_has_required_extension() :void {
-		$required = [
-			'bcmath',
-			'gmp',
-		];
-		$loaded = \array_values( \array_filter( $required, '\extension_loaded' ) );
+	public function test_passkey_runtime_has_required_capabilities() :void {
+		$checker = new \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeyCompatibilityCheck();
 
-		$this->assertNotEmpty(
-			$loaded,
-			'Passkey integration runtime must load at least one required extension: '.\implode( ', ', $required ).'.'
+		$this->assertTrue(
+			$checker->run(),
+			'Passkey integration runtime must provide required extensions/functions.'
 		);
 	}
 }

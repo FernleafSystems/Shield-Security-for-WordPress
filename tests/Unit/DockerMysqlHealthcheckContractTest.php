@@ -36,7 +36,7 @@ class DockerMysqlHealthcheckContractTest extends TestCase {
 	/**
 	 * @return array<string,array{0:string,1:int}>
 	 */
-	public function provideDockerMysqlHealthcheckFiles() :array {
+	public static function provideDockerMysqlHealthcheckFiles() :array {
 		return [
 			'source runtime' => [ 'tests/docker/docker-compose.yml', 2 ],
 			'integration local' => [ 'tests/docker/docker-compose.local-db.yml', 1 ],

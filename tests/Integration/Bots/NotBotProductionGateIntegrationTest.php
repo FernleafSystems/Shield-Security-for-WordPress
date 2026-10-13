@@ -74,10 +74,9 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
-	 * @dataProvider thresholdProvider
-	 *
 	 * @param mixed $input
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'thresholdProvider' )]
 	public function test_threshold_normalisation_controls_cookie_and_frontend_payloads(
 		$input,
 		int $expectedThreshold,
@@ -89,7 +88,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertOutcome( $this->runHandler(), $expectedToRun, $expectedToRun );
 	}
 
-	public function thresholdProvider() :array {
+	public static function thresholdProvider() :array {
 		return [
 			'below range becomes zero' => [ -1, 0, false ],
 			'string zero is preserved' => [ '0', 0, false ],
@@ -101,9 +100,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		];
 	}
 
-	/**
-	 * @dataProvider complexityProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'complexityProvider' )]
 	public function test_complexity_is_orthogonal_to_score_gate(
 		string $complexity,
 		int $score,
@@ -117,7 +114,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertOutcome( $this->runHandler(), $expectedToRun, $expectedToRun );
 	}
 
-	public function complexityProvider() :array {
+	public static function complexityProvider() :array {
 		$cases = [];
 		foreach ( SilentCaptchaComplexity::VALID as $complexity ) {
 			$cases[ $complexity.' with score zero' ] = [ $complexity, 0, false ];
@@ -126,9 +123,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		return $cases;
 	}
 
-	/**
-	 * @dataProvider consumerProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'consumerProvider' )]
 	public function test_consumer_settings_do_not_replace_the_explicit_score_gate(
 		int $score,
 		array $overrides,
@@ -141,7 +136,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertOutcome( $this->runHandler(), $expectedToRun, $expectedToRun );
 	}
 
-	public function consumerProvider() :array {
+	public static function consumerProvider() :array {
 		return [
 			'all consumers off leaves positive score enabled' => [ 45, [], true ],
 			'comment consumer' => [ 45, [ 'enable_antibot_comments' => 'Y' ], true ],
@@ -164,9 +159,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		];
 	}
 
-	/**
-	 * @dataProvider filterProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'filterProvider' )]
 	public function test_filters_keep_existing_precedence_and_side_effect_scope(
 		int $storedScore,
 		array $filters,
@@ -178,7 +171,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertOutcome( $this->runHandler( $filters ), $expectedCookie, $expectedJavascript );
 	}
 
-	public function filterProvider() :array {
+	public static function filterProvider() :array {
 		return [
 			'legacy threshold filter disables' => [ 45, [ 'shield/antibot_score_minimum' => 0 ], false, false ],
 			'current threshold filter disables' => [ 45, [ 'shield/silent_captcha_bot_threshold' => 0 ], false, false ],
@@ -241,9 +234,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertOutcome( $this->runHandler(), true, true );
 	}
 
-	/**
-	 * @dataProvider securityProfileProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'securityProfileProvider' )]
 	public function test_security_profiles_keep_silentcaptcha_enabled( string $level, int $expectedScore ) :void {
 		$profile = $this->requireController()->comps->security_profiles->buildForLevel( $level );
 		$score = null;
@@ -259,7 +250,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertOutcome( $this->runHandler(), true, true );
 	}
 
-	public function securityProfileProvider() :array {
+	public static function securityProfileProvider() :array {
 		return [
 			'light'  => [ Levels::LIGHT, 25 ],
 			'medium' => [ Levels::MEDIUM, 45 ],

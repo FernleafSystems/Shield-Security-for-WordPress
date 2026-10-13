@@ -134,9 +134,7 @@ class FullScanSnapshotReadinessTest extends BaseUnitTest {
 		$this->assertMemoizationSentinelsPresent();
 	}
 
-	/**
-	 * @dataProvider provideLegacySnapshotAlgorithms
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideLegacySnapshotAlgorithms' )]
 	public function test_automatic_sha256_creation_retains_real_legacy_snapshot_without_rebuilding(
 		string $algorithm,
 		bool $includeAlgorithmMetadata,
@@ -208,7 +206,7 @@ class FullScanSnapshotReadinessTest extends BaseUnitTest {
 		$this->assertSame( 0, $this->remoteRequestCount );
 	}
 
-	public function provideLegacySnapshotAlgorithms() :array {
+	public static function provideLegacySnapshotAlgorithms() :array {
 		$cases = [];
 		foreach ( [ 'md5', 'sha1' ] as $algorithm ) {
 			foreach ( [ true, false ] as $includeAlgorithmMetadata ) {
@@ -223,9 +221,7 @@ class FullScanSnapshotReadinessTest extends BaseUnitTest {
 		return $cases;
 	}
 
-	/**
-	 * @dataProvider provideNonOwnerTopologies
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideNonOwnerTopologies' )]
 	public function test_non_owner_is_read_only_for_missing_snapshot(
 		bool $isMainNetwork,
 		bool $isMainSite
@@ -257,7 +253,7 @@ class FullScanSnapshotReadinessTest extends BaseUnitTest {
 		$this->assertSame( 0, $this->remoteRequestCount );
 	}
 
-	public function provideNonOwnerTopologies() :array {
+	public static function provideNonOwnerTopologies() :array {
 		return [
 			'main network secondary site' => [ true, false ],
 			'secondary network main site' => [ false, true ],

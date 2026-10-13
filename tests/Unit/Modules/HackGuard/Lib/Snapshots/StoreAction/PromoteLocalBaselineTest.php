@@ -157,9 +157,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		$this->assertFalse( PromoteLocalBaseline::isDue( $this->loadSnapshot( $published ), self::NOW ) );
 	}
 
-	/**
-	 * @dataProvider activeStatusProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'activeStatusProvider' )]
 	public function test_active_afs_defers_before_remote_and_preserves_every_state( string $status ) :void {
 		$asset = new SnapshotPluginVo( 'active-'.$status.'/plugin.php', '1.0.0' );
 		$asset->wpOrg = true;
@@ -238,9 +236,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		$this->assertSame( [], $this->coordinator->assets );
 	}
 
-	/**
-	 * @dataProvider unsuccessfulResponseProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'unsuccessfulResponseProvider' )]
 	public function test_completed_unsuccessful_check_changes_only_timestamp(
 		string $case,
 		array $hashes,
@@ -310,9 +306,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		$this->assertSame( [], $this->coordinator->assets );
 	}
 
-	/**
-	 * @dataProvider successfulAssetProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'successfulAssetProvider' )]
 	public function test_success_persists_complete_published_snapshot_resets_memoization_and_enqueues_once(
 		string $type,
 		string $key,
@@ -482,7 +476,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		);
 	}
 
-	/** @dataProvider selectedPromotionAssets */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'selectedPromotionAssets' )]
 	public function test_selected_sha256_promotes_plugins_and_themes_with_consistent_metadata(
 		string $type, string $originalAlgorithm
 	) :void {
@@ -519,7 +513,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		return [ [ 'plugin', 'md5' ], [ 'plugin', 'sha1' ], [ 'theme', 'md5' ], [ 'theme', 'sha1' ] ];
 	}
 
-	/** @dataProvider invalidSelections */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidSelections' )]
 	public function test_invalid_selection_preserves_baseline_without_request_write_or_completed_timestamp( string $selection ) :void {
 		$asset = new SnapshotPluginVo( 'invalid-selection/plugin.php', '1.0.0' );
 		$asset->wpOrg = true;
@@ -568,7 +562,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		$this->assertSame( 'Current name', $this->loadSnapshot( $current )[ 'meta' ][ 'name' ] );
 	}
 
-	/** @dataProvider mismatchedPublishedMaps */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'mismatchedPublishedMaps' )]
 	public function test_mismatched_published_response_retains_original_algorithm_and_provenance( array $published ) :void {
 		$asset = new SnapshotPluginVo( 'mismatched-response/plugin.php', '1.0.0' );
 		$asset->wpOrg = true;

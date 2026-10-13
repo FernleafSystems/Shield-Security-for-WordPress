@@ -82,7 +82,9 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 			}
 		);
 		Functions\when( 'wp_http_validate_url' )->justReturn( true );
-		Functions\when( 'is_wp_error' )->justReturn( false );
+		Functions\when( 'is_wp_error' )->alias(
+			static fn( $value ) :bool => $value instanceof \WP_Error
+		);
 		Functions\when( 'wp_remote_request' )->alias(
 			static fn() :array => self::httpResponse( [
 				'routes_regex' => '#^hashes$#',
@@ -187,9 +189,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertStringContainsString( '/hashes/t/published-theme/4.5.6/md5', $urls[ 0 ] );
 	}
 
-	/**
-	 * @dataProvider provideUnusablePublishedMaps
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideUnusablePublishedMaps' )]
 	public function test_unusable_published_map_falls_back_to_complete_local_baseline(
 		string $slug,
 		array $published
@@ -215,7 +215,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertCount( 1, $urls );
 	}
 
-	public function provideUnusablePublishedMaps() :array {
+	public static function provideUnusablePublishedMaps() :array {
 		return [
 			'empty' => [
 				'empty-published',
@@ -238,9 +238,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider provideSnapshotAlgorithms
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSnapshotAlgorithms' )]
 	public function test_selected_algorithm_is_requested_and_persisted_for_plugin_and_theme( string $algorithm ) :void {
 		$plugin = new SnapshotPluginVo( 'selected-plugin/plugin.php', '1.2.3' );
 		$theme = new SnapshotThemeVo( 'selected-theme', '4.5.6' );
@@ -264,7 +262,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		}
 	}
 
-	/** @dataProvider malformedPremiumCatalogs */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'malformedPremiumCatalogs' )]
 	public function test_malformed_premium_catalog_never_confers_support( string $type, $info ) :void {
 		$asset = $type === 'plugin'
 			? new SnapshotPluginVo( 'premium/plugin.php', '1.0.0' )
@@ -317,7 +315,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		return $cases;
 	}
 
-	/** @dataProvider independentPremiumIdentifiers */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'independentPremiumIdentifiers' )]
 	public function test_valid_premium_identifier_survives_malformed_siblings( string $type, string $field ) :void {
 		$asset = $type === 'plugin'
 			? new SnapshotPluginVo( 'premium/plugin.php', '1.0.0' )
@@ -356,7 +354,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		];
 	}
 
-	/** @dataProvider invalidPremiumSlugs */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidPremiumSlugs' )]
 	public function test_name_match_does_not_adopt_invalid_premium_slug( array $row ) :void {
 		$asset = new ScheduleBuildAllEmptySlugPluginVo( 'premium/plugin.php', '1.0.0' );
 		$this->installBuildEnvironment( [], $this->makeTempDir( 'premium-slug' ) );
@@ -401,7 +399,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		);
 	}
 
-	public function provideSnapshotAlgorithms() :array {
+	public static function provideSnapshotAlgorithms() :array {
 		return [ 'md5' => [ 'md5' ], 'sha1' => [ 'sha1' ], 'sha256' => [ 'sha256' ] ];
 	}
 
@@ -427,9 +425,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		}
 	}
 
-	/**
-	 * @dataProvider provideInvalidSnapshotSelections
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidSnapshotSelections' )]
 	public function test_invalid_selection_leaves_existing_snapshot_and_never_requests_or_builds( $selection ) :void {
 		$asset = new SnapshotPluginVo( 'invalid-selected/plugin.php', '1.0.0' );
 		$asset->wpOrg = true;
@@ -463,7 +459,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		}
 	}
 
-	public function provideInvalidSnapshotSelections() :array {
+	public static function provideInvalidSnapshotSelections() :array {
 		return [
 			'empty' => [ '' ], 'null' => [ null ], 'boolean' => [ false ], 'array' => [ [] ],
 			'object' => [ new \stdClass() ], 'unsupported' => [ 'sha512' ], 'sha384' => [ 'sha384' ],
@@ -471,9 +467,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider provideWrongAlgorithmPublishedMaps
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideWrongAlgorithmPublishedMaps' )]
 	public function test_wrong_algorithm_published_response_builds_raw_sha256_local_baseline( array $published ) :void {
 		$asset = new SnapshotPluginVo( 'wrong-algorithm/plugin.php', '2.0.0' );
 		$asset->wpOrg = true;
@@ -492,16 +486,14 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertSame( [ ApiBase::API_URL.'/v1/hashes/p/wrong-algorithm/2.0.0/sha256' ], $urls );
 	}
 
-	public function provideWrongAlgorithmPublishedMaps() :array {
+	public static function provideWrongAlgorithmPublishedMaps() :array {
 		return [
 			'wrong length' => [ [ 'plugin.php' => self::MD5 ] ],
 			'mixed algorithms' => [ [ 'plugin.php' => \str_repeat( 'b', 64 ), 'other.php' => self::MD5 ] ],
 		];
 	}
 
-	/**
-	 * @dataProvider provideHttpCacheAssetTypes
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideHttpCacheAssetTypes' )]
 	public function test_published_http_cache_separates_sequential_algorithms( string $type ) :void {
 		$this->installBuildEnvironment( [], $this->makeTempDir( 'http-cache-'.$type ) );
 		$requests = [];
@@ -521,13 +513,11 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		], $requests );
 	}
 
-	public function provideHttpCacheAssetTypes() :array {
+	public static function provideHttpCacheAssetTypes() :array {
 		return [ 'plugin' => [ 'p' ], 'theme' => [ 't' ] ];
 	}
 
-	/**
-	 * @dataProvider provideHttpCacheAssetTypes
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideHttpCacheAssetTypes' )]
 	public function test_snapshot_selection_preserves_exact_crowd_map_identity_and_submission( string $type ) :void {
 		$asset = $type === 'p'
 			? new SnapshotPluginVo( 'crowd-protocol/plugin.php', '1.0.0' )
@@ -611,7 +601,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] );
 	}
 
-	/** @dataProvider provideSnapshotAlgorithms */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSnapshotAlgorithms' )]
 	public function test_missing_inactive_root_plugin_hashes_only_its_file_and_skips_crowdsource( string $algorithm ) :void {
 		$asset = new ScheduleBuildAllRootPluginVo( 'inactive-root.php', '2.0.0' );
 		$asset->active = false;
@@ -664,9 +654,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertTrue( $store->isUsable() );
 	}
 
-	/**
-	 * @dataProvider provideChildThemeFlags
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideChildThemeFlags' )]
 	public function test_child_theme_uses_local_baseline_without_published_or_crowdsource_work(
 		bool $activeChild,
 		bool $inactiveChild,
@@ -704,7 +692,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertSame( 0, $requests );
 	}
 
-	public function provideChildThemeFlags() :array {
+	public static function provideChildThemeFlags() :array {
 		return [
 			'active child md5'      => [ true, false, 'md5' ],
 			'inactive child md5'    => [ false, true, 'md5' ],
@@ -738,7 +726,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertNull( $this->loadStore( $asset )->getUsableSnapshot() );
 	}
 
-	/** @dataProvider provideSnapshotAlgorithms */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSnapshotAlgorithms' )]
 	public function test_build_classifies_before_mutation_and_promotes_only_preexisting_due_snapshot( string $algorithm ) :void {
 		$missing = new SnapshotPluginVo( 'new-local/new-local.php', '1.0.0' );
 		$missing->wpOrg = true;

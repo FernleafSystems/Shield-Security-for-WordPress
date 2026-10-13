@@ -127,7 +127,7 @@ class ScanHashCacheIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 2, $this->requests );
 	}
 
-	/** @dataProvider provideSnapshotTrust */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSnapshotTrust' )]
 	public function test_api_miss_is_quiet_and_preserves_existing_failure_result( bool $trusted ) :void {
 		$this->writeSnapshot( $trusted );
 		$this->hashes = [];
@@ -160,7 +160,7 @@ class ScanHashCacheIntegrationTest extends ShieldIntegrationTestCase {
 		return [ [ false ], [ true ] ];
 	}
 
-	/** @dataProvider provideHttpFailures */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideHttpFailures' )]
 	public function test_real_request_error_is_logged_once_and_snapshot_copy_is_written( string $failure ) :void {
 		$this->httpFailure = $failure;
 		$log = $this->createTrackedTempFile( 'shield-scan-hash-request-errors-', '.log' );
@@ -244,7 +244,7 @@ class ScanHashCacheIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $this->requests );
 	}
 
-	/** @dataProvider provideScopes */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideScopes' )]
 	public function test_scoped_preflight_uses_installed_asset_and_core_fills_none( string $scope ) :void {
 		$scan = $this->newScan( $scope, $scope === 'plugin' ? $this->plugin->file : 'core' );
 		( new PopulateScanItems() )->setRecord( $scan )->setScanController( $this->requireController()->comps->scans->AFS() )->run();
@@ -299,7 +299,7 @@ class ScanHashCacheIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $this->requests );
 	}
 
-	/** @dataProvider provideActiveStatuses */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideActiveStatuses' )]
 	public function test_initialise_preserves_cache_only_when_another_afs_is_active( ?string $otherStatus ) :void {
 		$cache = new ScanHashCache();
 		$cache->fill( $this->plugin );

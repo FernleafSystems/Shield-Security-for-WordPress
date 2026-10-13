@@ -50,9 +50,13 @@ WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress/}
 
 wp_core_valid() {
 	local http_bootstrap="$WP_CORE_DIR/wp-includes/class-wp-http.php"
+	local diff_renderer="$WP_CORE_DIR/wp-includes/Text/Diff/Renderer.php"
+	local inline_diff_renderer="$WP_CORE_DIR/wp-includes/Text/Diff/Renderer/inline.php"
 
 	[ -f "$WP_CORE_DIR/wp-load.php" ] || return 1
 	[ -f "$http_bootstrap" ] || return 1
+	[ -f "$diff_renderer" ] || return 1
+	[ -f "$inline_diff_renderer" ] || return 1
 
 	if grep -q 'Requests/src/Autoload.php' "$http_bootstrap"; then
 		[ -f "$WP_CORE_DIR/wp-includes/Requests/src/Autoload.php" ]

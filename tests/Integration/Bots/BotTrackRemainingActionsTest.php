@@ -46,9 +46,7 @@ class BotTrackRemainingActionsTest extends ShieldIntegrationTestCase {
 		parent::tear_down();
 	}
 
-	/**
-	 * @dataProvider botTrackModeProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'botTrackModeProvider' )]
 	public function test_xmlrpc_bot_tracking_uses_mode_contract(
 		string $mode,
 		int $expectedOffenseCount,
@@ -72,9 +70,7 @@ class BotTrackRemainingActionsTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $this->evaluateRule( $this->xmlrpcRule() ) );
 	}
 
-	/**
-	 * @dataProvider botTrackModeProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'botTrackModeProvider' )]
 	public function test_invalid_script_bot_tracking_uses_mode_contract(
 		string $mode,
 		int $expectedOffenseCount,
@@ -101,9 +97,7 @@ class BotTrackRemainingActionsTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $this->evaluateRule( $this->invalidScriptRule() ) );
 	}
 
-	/**
-	 * @dataProvider botTrackModeProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'botTrackModeProvider' )]
 	public function test_link_cheese_bot_tracking_uses_mode_contract(
 		string $mode,
 		int $expectedOffenseCount,
@@ -159,7 +153,7 @@ class BotTrackRemainingActionsTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( (bool)$events[ 0 ][ 'meta' ][ 'block' ] );
 	}
 
-	public function botTrackModeProvider() :array {
+	public static function botTrackModeProvider() :array {
 		return [
 			'log'                  => [ 'log', 0, false ],
 			'transgression-single' => [ 'transgression-single', 1, false ],

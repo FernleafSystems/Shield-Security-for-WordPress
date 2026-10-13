@@ -154,7 +154,7 @@ class SharedAssertionFixtureContractIntegrationTest extends ShieldIntegrationTes
 	/**
 	 * @return array<string,array{string,list<string>,string}>
 	 */
-	public function noScenarioInspectableFixtureProvider() :array {
+	public static function noScenarioInspectableFixtureProvider() :array {
 		return [
 			'dashboard-defaults'         => [ 'dashboard-defaults', [], 'assertDashboardDefaultsRegistryInspection' ],
 			'ip-analysis-activity-meta' => [ 'ip-analysis-activity-meta', [], 'assertIpAnalysisRegistryInspection' ],

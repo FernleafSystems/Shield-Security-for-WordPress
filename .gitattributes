@@ -162,10 +162,9 @@ yarn.lock text eol=lf
 /changelog.md export-ignore
 /CONTEXT.md export-ignore
 
-# Dependency management (runtime deps installed separately in package)
-# NOTE: composer.json is INCLUDED during copy (needed for composer install in packaging)
-# but removed from the final package by PluginPackager after all build steps complete.
-/composer.lock export-ignore
+# Dependency management (runtime deps installed from the reviewed lock in package)
+# NOTE: composer.json and composer.lock are included during copy for reproducible
+# package installation, then removed from the final package by PluginPackager.
 /package.json export-ignore
 /package-lock.json export-ignore
 /webpack.config.js export-ignore

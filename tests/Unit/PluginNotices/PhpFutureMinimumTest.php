@@ -11,6 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\PluginNotices;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\MinimumRequirements;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices\PhpFutureMinimum;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -41,12 +42,26 @@ class PhpFutureMinimumTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @dataProvider providerDangerPhpVersions
+	 * @dataProvider providerCurrentRuntimeVersions
 	 */
-	public function test_older_php_versions_return_non_dismissible_danger_notice( string $phpVersion ) :void {
+	public function test_default_future_minimum_notice_is_dormant( string $phpVersion ) :void {
 		$this->installEnvironment( $phpVersion );
 
-		$payload = ( new PhpFutureMinimum() )->check();
+		$this->assertNull( ( new PhpFutureMinimum() )->check() );
+	}
+
+	public static function providerCurrentRuntimeVersions() :array {
+		return [
+			'php 8.2' => [ '8.2.20' ],
+			'php 8.3' => [ '8.3.15' ],
+			'php 8.4' => [ '8.4.8' ],
+		];
+	}
+
+	public function test_configured_future_minimum_returns_non_dismissible_danger_notice_below_future_version() :void {
+		$this->installEnvironment( '8.3.20' );
+
+		$payload = ( new ConfiguredPhpFutureMinimum() )->check();
 
 		$this->assertIsArray( $payload );
 		$this->assertSame( PhpFutureMinimum::ID, $payload[ 'id' ] );
@@ -56,57 +71,26 @@ class PhpFutureMinimumTest extends BaseUnitTest {
 		$this->assertStringContainsString( PhpFutureMinimum::MORE_INFO_URL, \implode( "\n", $payload[ 'text' ] ) );
 	}
 
-	public static function providerDangerPhpVersions() :array {
-		return [
-			'php 7.4' => [ '7.4.33' ],
-			'php 8.0' => [ '8.0.30' ],
-			'php 8.1' => [ '8.1.29' ],
-		];
-	}
+	public function test_configured_future_minimum_returns_dismissible_recommendation_notice() :void {
+		$this->installEnvironment( '8.4.1' );
 
-	public function test_php_82_returns_dismissible_info_notice_when_not_snoozed() :void {
-		$this->installEnvironment( '8.2.20' );
-
-		$payload = ( new PhpFutureMinimum() )->check();
-
-		$this->assertIsArray( $payload );
-		$this->assertSame( PhpFutureMinimum::ID, $payload[ 'id' ] );
-		$this->assertSame( 'info', $payload[ 'type' ] );
-		$this->assertTrue( (bool)$payload[ 'can_dismiss' ] );
-		$this->assertContains( 'shield_admin_top_page', $payload[ 'locations' ] );
-		$this->assertStringContainsString( PhpFutureMinimum::MORE_INFO_URL, \implode( "\n", $payload[ 'text' ] ) );
-	}
-
-	public function test_php_82_notice_is_hidden_while_snoozed_for_less_than_30_days() :void {
-		$this->installEnvironment( '8.2.20', self::NOW - 100 );
-
-		$this->assertNull( ( new PhpFutureMinimum() )->check() );
-	}
-
-	public function test_php_82_notice_returns_after_30_day_snooze_expires() :void {
-		$this->installEnvironment( '8.2.20', self::NOW - 30 * 86400 );
-
-		$payload = ( new PhpFutureMinimum() )->check();
+		$payload = ( new ConfiguredPhpFutureMinimum() )->check();
 
 		$this->assertIsArray( $payload );
 		$this->assertSame( 'info', $payload[ 'type' ] );
 		$this->assertTrue( (bool)$payload[ 'can_dismiss' ] );
 	}
 
-	/**
-	 * @dataProvider providerHiddenPhpVersions
-	 */
-	public function test_php_83_and_newer_return_no_notice( string $phpVersion ) :void {
-		$this->installEnvironment( $phpVersion );
+	public function test_configured_future_minimum_recommendation_notice_can_be_snoozed() :void {
+		$this->installEnvironment( '8.4.1', self::NOW - 100 );
 
-		$this->assertNull( ( new PhpFutureMinimum() )->check() );
+		$this->assertNull( ( new ConfiguredPhpFutureMinimum() )->check() );
 	}
 
-	public static function providerHiddenPhpVersions() :array {
-		return [
-			'php 8.3' => [ '8.3.15' ],
-			'php 8.4' => [ '8.4.8' ],
-		];
+	public function test_configured_future_minimum_hides_notice_at_recommended_version() :void {
+		$this->installEnvironment( '8.5.0' );
+
+		$this->assertNull( ( new ConfiguredPhpFutureMinimum() )->check() );
 	}
 
 	private function installEnvironment( string $phpVersion, int $snoozedAt = 0 ) :PhpFutureMinimumUserMetaStub {
@@ -123,6 +107,13 @@ class PhpFutureMinimumTest extends BaseUnitTest {
 
 		return $meta;
 	}
+}
+
+class ConfiguredPhpFutureMinimum extends PhpFutureMinimum {
+
+	protected const CURRENT_MINIMUM_PHP = MinimumRequirements::PHP;
+	protected const FUTURE_MINIMUM_PHP = '8.4';
+	protected const RECOMMENDED_PHP = '8.5';
 }
 
 class PhpFutureMinimumControllerStub extends Controller {

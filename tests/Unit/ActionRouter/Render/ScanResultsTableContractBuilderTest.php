@@ -312,7 +312,7 @@ class ScanResultsTableContractBuilderTest extends BaseUnitTest {
 		);
 	}
 
-	/** @dataProvider malwareRefreshAvailability */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'malwareRefreshAvailability' )]
 	public function testMalwareRefreshConfigurationUsesCurrentCapabilityAndRestriction( bool $capable, bool $restricted ) :void {
 		$this->installMalaiAvailability( $capable, $restricted );
 		$table = ( new ScanResultsTableContractBuilder() )->buildMalware( '/queue/scans' );

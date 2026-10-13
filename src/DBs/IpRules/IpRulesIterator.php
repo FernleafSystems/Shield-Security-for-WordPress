@@ -14,7 +14,7 @@ class IpRulesIterator extends AbstractPagedIterator {
 	/**
 	 * @return IpRuleRecord
 	 */
-	public function current() {
+	public function current() :mixed {
 		return parent::current();
 	}
 

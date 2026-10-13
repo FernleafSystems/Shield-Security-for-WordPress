@@ -11,14 +11,12 @@ class NormalizeHashMapTest extends BaseUnitTest {
 	private const SHA1 = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
 	private const SHA256 = 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc';
 
-	/**
-	 * @dataProvider provideInvalidOuterValues
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidOuterValues' )]
 	public function test_invalid_outer_values_become_empty_maps( $value ) :void {
 		$this->assertSame( [], ( new NormalizeHashMap() )->run( $value ) );
 	}
 
-	public function provideInvalidOuterValues() :array {
+	public static function provideInvalidOuterValues() :array {
 		return [
 			'null'       => [ null ],
 			'false'      => [ false ],
@@ -87,14 +85,12 @@ class NormalizeHashMapTest extends BaseUnitTest {
 		] ) );
 	}
 
-	/**
-	 * @dataProvider provideInvalidScalarMaps
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidScalarMaps' )]
 	public function test_scalar_map_rejects_entire_map_on_any_invalid_entry( $hashes ) :void {
 		$this->assertSame( [], ( new NormalizeHashMap() )->toScalarMap( $hashes ) );
 	}
 
-	public function provideInvalidScalarMaps() :array {
+	public static function provideInvalidScalarMaps() :array {
 		return [
 			'empty map' => [ [] ],
 			'not an array' => [ 'not-an-array' ],
@@ -126,7 +122,7 @@ class NormalizeHashMapTest extends BaseUnitTest {
 		];
 	}
 
-	/** @dataProvider provideSelectedAlgorithms */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSelectedAlgorithms' )]
 	public function test_selected_algorithm_validates_and_normalises_complete_maps( string $algorithm, string $hash ) :void {
 		$this->assertSame( [ 'src/File.php' => $hash ],
 			( new NormalizeHashMap() )->toScalarMapForAlgorithm( [ 'src\\File.php' => $hash ], $algorithm ) );

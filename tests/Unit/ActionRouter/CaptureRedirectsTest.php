@@ -134,7 +134,7 @@ class CaptureRedirectsTest extends BaseUnitTest {
 		);
 	}
 
-	public function providerLegacyScanRoutes() :array {
+	public static function providerLegacyScanRoutes() :array {
 		return [
 			'results' => [ 'results' ],
 			'history' => [ 'history' ],
@@ -160,7 +160,7 @@ class CaptureRedirectsTest extends BaseUnitTest {
 		);
 	}
 
-	public function providerLegacyReportsRoutes() :array {
+	public static function providerLegacyReportsRoutes() :array {
 		return [
 			'alerts'    => [ 'alerts', PluginNavs::SUBNAV_REPORTS_SETTINGS ],
 			'reporting' => [ 'reporting', PluginNavs::SUBNAV_REPORTS_SETTINGS ],

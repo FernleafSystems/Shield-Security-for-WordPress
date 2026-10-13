@@ -255,7 +255,7 @@ These commands remain the owned internal lanes behind the public surface and CI 
 
 | Internal Command | Role |
 |---|---|
-| `php bin/shield analyze:source` | Canonical source static-analysis lane; source parse-compatibility gate when run on PHP 7.4 |
+| `php bin/shield analyze:source` | Canonical source static-analysis lane; source parse-compatibility gate when run on PHP 8.2 |
 | `php bin/shield analyze:package` | Packaged static analysis lane |
 | `php bin/shield test:source` | Source-first Docker runtime lane; latest WordPress by default |
 | `php bin/shield test:integration-local` | Local Docker-backed WordPress integration lane |
@@ -551,7 +551,7 @@ CI behavior is recorded here for diagnosis and exact job reproduction; it does n
 
 | Workflow | Trigger and role |
 |---|---|
-| [Required source-first gate](.github/workflows/tests.yml) | Job-level path-gated by [`.github/ci-path-filters.yml`](.github/ci-path-filters.yml); manual dispatch runs the full gate. It runs source analysis on PHP 7.4, JS checks, unit tests on PHP 7.4 and 8.4, package build/targeted validation, and `php bin/shield test:source --skip-unit-tests --include-previous-wp --show-docker-output`. CI explicitly owns this exceptional two-stream WordPress run. |
+| [Required source-first gate](.github/workflows/tests.yml) | Job-level path-gated by [`.github/ci-path-filters.yml`](.github/ci-path-filters.yml); manual dispatch runs the full gate. It runs source analysis on PHP 8.2, JS checks, unit tests on PHP 8.2 and 8.4, package build/targeted validation, and `php bin/shield test:source --skip-unit-tests --include-previous-wp --show-docker-output`. CI explicitly owns this exceptional two-stream WordPress run. |
 | [Serial compatibility sentinel](.github/workflows/unit-serial-sentinel.yml) | Runs `php bin/run-unit-tests.php --runner-mode=serial` manually and weekly at 05:00 UTC Monday. |
 | [Browser tests](.github/workflows/browser-tests.yml) | Runs for browser-relevant pull requests, pushes to `develop`, manual dispatch, and weekdays at 06:30 UTC. Full Chromium runs `composer test:browser -- --clean --lanes=2 -- --workers=2`; Firefox/WebKit matrix jobs run both silentCAPTCHA specs in clean mode with one lane/worker. Canonical silentCAPTCHA PHP component changes select browser coverage. Each job installs dependencies/its engine and always cleans its harness resources. |
 | [Cross-site tests](.github/workflows/cross-site-tests.yml) | Runs for pull requests affecting import/export, WP-CLI, the test harness, Docker, Composer, or this workflow; also runs manually and weekdays at 06:45 UTC. It installs dependencies, builds assets, and runs `composer test:cross-site` once with no automatic recovery step. |
