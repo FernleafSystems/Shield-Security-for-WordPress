@@ -20,9 +20,13 @@ class WpRootUnidentified extends BaseScan {
 		return false;
 	}
 
+	/**
+	 * Uses the path relative to ABSPATH rather than rebuilding the absolute path, as a root ABSPATH ("//" on
+	 * chrooted hosts) yields "//file.php" from the directory iterator but "/file.php" from path_join(). Paths
+	 * outside ABSPATH stay absolute, so they always contain a slash.
+	 */
 	private function inRootDir() :bool {
-		return Services::WpFs()->isAccessibleFile( $this->pathFull )
-			   && $this->pathFull === wp_normalize_path( path_join( ABSPATH, \basename( $this->pathFull ) ) );
+		return Services::WpFs()->isAccessibleFile( $this->pathFull ) && !\str_contains( $this->pathFragment, '/' );
 	}
 
 	// TODO: empty file extension support

@@ -630,6 +630,18 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->assertFalse( \is_dir( $preferred.'/afs-file-optimiser' ) );
 	}
 
+	public function test_filesystem_root_abspath_resolves_cache_root() :void {
+		$preferredBase = $this->normaliseCacheStorePath( $this->makeTempDir( 'root-abspath' ) );
+
+		$dir = ( new CacheDirHandlerRootAbsPathProbe( '', $preferredBase ) )->dir();
+
+		$this->assertStringStartsWith( $preferredBase.'/shield', $dir );
+		$this->assertTrue( \is_dir( $dir ) );
+		if ( \DIRECTORY_SEPARATOR === '/' ) {
+			$this->assertSame( $preferredBase.'/shield', $dir, 'Every path is within a root ABSPATH, so no namespace applies.' );
+		}
+	}
+
 	private function prepareWpContentDirs() :void {
 		foreach ( [
 			WP_CONTENT_DIR,
@@ -768,5 +780,15 @@ class CacheDirHandlerHashFailureProbe extends CacheDirHandler {
 			@\unlink( $path );
 		}
 		return \in_array( $normalised, $this->failedHashPaths, true ) ? null : parent::hashProtectionFile( $path );
+	}
+}
+
+/**
+ * Chrooted hosts run WordPress from the filesystem root, which WordPress reports as an ABSPATH of "//".
+ */
+class CacheDirHandlerRootAbsPathProbe extends CacheDirHandler {
+
+	protected function absPath() :string {
+		return '//';
 	}
 }
