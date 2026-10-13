@@ -40,6 +40,7 @@ class PatchValidatorTest extends TestCase {
 				[ self::PATH, [ 'kind' => 'theme_active', 'negate' => false, 'theme' => 'example-theme' ] ],
 				[ 'targetExtension' => [ 'kind' => 'theme', 'slug' => 'example-theme', 'affectedVersionRanges' => [ [ 'firstAffectedVersion' => '1', 'lastAffectedVersion' => '2' ] ] ] ]
 			) ],
+			'no vulnerability IDs'          => [ self::patch( [], [ 'publicVulnerabilityIds' => [] ] ) ],
 			'empty exact value'             => [ self::patch( [
 				[ 'kind' => 'rest_route', 'negate' => false, 'namespace' => 'example/v1', 'operator' => 'equals_i', 'value' => '' ],
 			] ) ],
@@ -59,7 +60,7 @@ class PatchValidatorTest extends TestCase {
 		return [
 			'other contract version'          => [ self::patch( [], [ 'contractVersion' => 1 ] ) ],
 			'action other than block'         => [ self::patch( [], [ 'virtualPatch' => [ 'action' => 'log', 'matcher' => [ 'conditions' => [ self::PATH ] ] ] ] ) ],
-			'no vulnerability IDs'            => [ self::patch( [], [ 'publicVulnerabilityIds' => [] ] ) ],
+			'vulnerability IDs not a list'    => [ self::patch( [], [ 'publicVulnerabilityIds' => [ 'a' => [ 'authority' => 'CVE', 'identifier' => 'CVE-2026-0001' ] ] ] ) ],
 			'no version ranges'               => [ self::patch( [], [ 'targetExtension' => [ 'kind' => 'plugin', 'slug' => 'example', 'affectedVersionRanges' => [] ] ] ) ],
 			'unsupported kind'                => [ self::patch( [ self::PATH, [ 'kind' => 'cookie', 'negate' => false, 'name' => 'x' ] ] ) ],
 			'unknown field'                   => [ self::patch( [ self::PATH + [ 'extra' => 'x' ] ] ) ],
@@ -93,6 +94,12 @@ class PatchValidatorTest extends TestCase {
 			'blank contains value'            => [ self::patch( [ [ 'operator' => 'contains', 'value' => ' ' ] + self::PATH ] ) ],
 			'value too long'                  => [ self::patch( [ [ 'operator' => 'contains', 'value' => '/'.\str_repeat( 'a', 1024 ) ] + self::PATH ] ) ],
 			'unsupported method'              => [ self::patch( [ self::PATH, [ 'kind' => 'method', 'negate' => false, 'value' => 'TRACE' ] ] ) ],
+			'capability with a newline'      => [ self::patch( [ self::PATH, [ 'kind' => 'user_capability', 'negate' => false, 'capability' => "edit_posts
+" ] ] ) ],
+			'theme with a newline'            => [ self::patch( [ self::PATH, [ 'kind' => 'theme_active', 'negate' => false, 'theme' => "x
+" ] ], [ 'targetExtension' => [ 'kind' => 'theme', 'slug' => 'x', 'affectedVersionRanges' => [ [ 'firstAffectedVersion' => '1', 'lastAffectedVersion' => '2' ] ] ] ] ) ],
+			'REST namespace with a newline'   => [ self::patch( [ [ 'namespace' => "example/v1
+" ] + self::REST ] ) ],
 			'invalid capability'              => [ self::patch( [ self::PATH, [ 'kind' => 'user_capability', 'negate' => false, 'capability' => 'edit posts' ] ] ) ],
 			'plugin file outside plugins'     => [ self::patch( [ self::PATH, [ 'kind' => 'plugin_active', 'negate' => false, 'pluginFile' => '../example.php' ] ] ) ],
 			'invalid parameter source'        => [ self::patch( [ [ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'either', 'name' => 'a', 'operator' => 'equals', 'value' => 'b' ] ] ) ],

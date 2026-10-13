@@ -29,7 +29,9 @@ final class IpBypass {
 	}
 
 	/**
-	 * The first valid IP address in the given $_SERVER entry, which may hold a comma-separated list.
+	 * The first public IP address in the given $_SERVER entry, which may hold a comma-separated list, as Shield's
+	 * own visitor IP detection reads it: an IPv4 port suffix is removed, and private and reserved addresses are
+	 * skipped so a client can't put one on the bypass list in front of its own address.
 	 */
 	public static function requestIp( $source, array $server ) :?string {
 		$value = \is_string( $source ) && $source !== '' ? ( $server[ $source ] ?? null ) : null;
@@ -38,7 +40,10 @@ final class IpBypass {
 		}
 		foreach ( \explode( ',', $value ) as $candidate ) {
 			$candidate = \trim( $candidate );
-			if ( \filter_var( $candidate, \FILTER_VALIDATE_IP ) !== false ) {
+			if ( \preg_match( '/^(\d{1,3}(?:\.\d{1,3}){3}):\d+$/D', $candidate, $matches ) === 1 ) {
+				$candidate = $matches[ 1 ];
+			}
+			if ( \filter_var( $candidate, \FILTER_VALIDATE_IP, \FILTER_FLAG_NO_PRIV_RANGE|\FILTER_FLAG_NO_RES_RANGE ) !== false ) {
 				return $candidate;
 			}
 		}
@@ -46,6 +51,9 @@ final class IpBypass {
 	}
 
 	private static function inRange( string $ip, string $range ) :bool {
+		if ( !\function_exists( 'inet_pton' ) ) {
+			return false;
+		}
 		$parts = \explode( '/', \trim( $range ), 2 );
 		$ipBinary = @\inet_pton( $ip );
 		$rangeBinary = @\inet_pton( $parts[ 0 ] );
@@ -54,7 +62,7 @@ final class IpBypass {
 		}
 		$maxBits = \strlen( $ipBinary )*8;
 		$bits = isset( $parts[ 1 ] ) ? $parts[ 1 ] : (string)$maxBits;
-		if ( !\ctype_digit( $bits ) || (int)$bits > $maxBits ) {
+		if ( \preg_match( '/^\d+$/D', $bits ) !== 1 || (int)$bits > $maxBits ) {
 			return false;
 		}
 		$bits = (int)$bits;
