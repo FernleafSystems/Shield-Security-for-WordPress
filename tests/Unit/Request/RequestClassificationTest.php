@@ -38,39 +38,35 @@ class RequestClassificationTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider provideRequestTypeScenarios
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideRequestTypeScenarios' )]
 	public function test_request_type_resolver_classifies_known_request_types( array $scenario ) :void {
 		$this->installScenario( $scenario );
 
 		$this->assertSame( $scenario[ 'expected_type' ], ( new RequestTypeResolver() )->resolve() );
 	}
 
-	public function provideRequestTypeScenarios() :array {
+	public static function provideRequestTypeScenarios() :array {
 		return [
-			'wp cli'          => [ $this->scenario( [ 'general' => [ 'wpCli' => true ], 'expected_type' => Handler::TYPE_WPCLI ] ) ],
-			'ajax'            => [ $this->scenario( [ 'general' => [ 'ajax' => true ], 'expected_type' => Handler::TYPE_AJAX ] ) ],
-			'rest'            => [ $this->scenario( [ 'rest' => true, 'rest_route' => 'wp/v2/users/me', 'expected_type' => Handler::TYPE_REST ] ) ],
-			'shield mcp rest' => [ $this->scenario( [ 'rest' => true, 'rest_route' => 'wp/v2/mcp-servers/shield-security/mcp', 'expected_type' => Handler::TYPE_MCP ] ) ],
-			'xmlrpc'          => [ $this->scenario( [ 'general' => [ 'xmlrpc' => true ], 'expected_type' => Handler::TYPE_XMLRPC ] ) ],
-			'cron'            => [ $this->scenario( [ 'general' => [ 'cron' => true ], 'expected_type' => Handler::TYPE_CRON ] ) ],
-			'login'           => [ $this->scenario( [ 'general' => [ 'loginRequest' => true ], 'expected_type' => Handler::TYPE_LOGIN ] ) ],
-			'2fa query'       => [ $this->scenario( [
+			'wp cli'          => [ self::scenario( [ 'general' => [ 'wpCli' => true ], 'expected_type' => Handler::TYPE_WPCLI ] ) ],
+			'ajax'            => [ self::scenario( [ 'general' => [ 'ajax' => true ], 'expected_type' => Handler::TYPE_AJAX ] ) ],
+			'rest'            => [ self::scenario( [ 'rest' => true, 'rest_route' => 'wp/v2/users/me', 'expected_type' => Handler::TYPE_REST ] ) ],
+			'shield mcp rest' => [ self::scenario( [ 'rest' => true, 'rest_route' => 'wp/v2/mcp-servers/shield-security/mcp', 'expected_type' => Handler::TYPE_MCP ] ) ],
+			'xmlrpc'          => [ self::scenario( [ 'general' => [ 'xmlrpc' => true ], 'expected_type' => Handler::TYPE_XMLRPC ] ) ],
+			'cron'            => [ self::scenario( [ 'general' => [ 'cron' => true ], 'expected_type' => Handler::TYPE_CRON ] ) ],
+			'login'           => [ self::scenario( [ 'general' => [ 'loginRequest' => true ], 'expected_type' => Handler::TYPE_LOGIN ] ) ],
+			'2fa query'       => [ self::scenario( [
 				'method'        => 'POST',
 				'general'       => [ 'loginUrl' => true ],
 				'query'         => [ ActionData::FIELD_EXECUTE => ActionData::FIELD_SHIELD.'-wp_login_2fa_verify' ],
 				'request'       => [ ActionData::FIELD_EXECUTE => 'wrong-post-value' ],
 				'expected_type' => Handler::TYPE_2FA,
 			] ) ],
-			'comment'         => [ $this->scenario( [ 'comment' => true, 'expected_type' => Handler::TYPE_COMMENT ] ) ],
-			'http'            => [ $this->scenario( [ 'expected_type' => Handler::TYPE_HTTP ] ) ],
+			'comment'         => [ self::scenario( [ 'comment' => true, 'expected_type' => Handler::TYPE_COMMENT ] ) ],
+			'http'            => [ self::scenario( [ 'expected_type' => Handler::TYPE_HTTP ] ) ],
 		];
 	}
 
-	/**
-	 * @dataProvider provideRequestProfileScenarios
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideRequestProfileScenarios' )]
 	public function test_request_profile_builder_derives_fixed_surfaces( array $scenario ) :void {
 		$this->installScenario( $scenario );
 
@@ -80,19 +76,19 @@ class RequestClassificationTest extends BaseUnitTest {
 		$this->assertSame( \strtoupper( $scenario[ 'method' ] ), $profile->method );
 	}
 
-	public function provideRequestProfileScenarios() :array {
+	public static function provideRequestProfileScenarios() :array {
 		return [
-			'public read'      => [ $this->scenario( [ 'method' => 'GET', 'path' => '/blog/post/', 'expected_surface' => RequestProfile::SURFACE_PUBLIC_READ ] ) ],
-			'api read'         => [ $this->scenario( [ 'method' => 'GET', 'rest' => true, 'rest_route' => 'wp/v2/posts', 'expected_surface' => RequestProfile::SURFACE_API_READ ] ) ],
-			'ajax read'        => [ $this->scenario( [ 'method' => 'GET', 'general' => [ 'ajax' => true ], 'expected_surface' => RequestProfile::SURFACE_API_READ ] ) ],
-			'auth attempt'     => [ $this->scenario( [ 'method' => 'POST', 'general' => [ 'loginRequest' => true ], 'expected_surface' => RequestProfile::SURFACE_AUTH_ATTEMPT ] ) ],
-			'content mutation' => [ $this->scenario( [ 'method' => 'POST', 'path' => '/submit/', 'expected_surface' => RequestProfile::SURFACE_CONTENT_MUTATION ] ) ],
-			'comment mutation' => [ $this->scenario( [ 'method' => 'POST', 'comment' => true, 'expected_surface' => RequestProfile::SURFACE_CONTENT_MUTATION ] ) ],
-			'admin mutation'   => [ $this->scenario( [ 'method' => 'POST', 'wp_admin' => true, 'expected_surface' => RequestProfile::SURFACE_ADMIN_MUTATION ] ) ],
-			'ajax mutation'    => [ $this->scenario( [ 'method' => 'POST', 'general' => [ 'ajax' => true ], 'expected_surface' => RequestProfile::SURFACE_ADMIN_MUTATION ] ) ],
-			'api mutation'     => [ $this->scenario( [ 'method' => 'PUT', 'rest' => true, 'rest_route' => 'wp/v2/posts/1', 'expected_surface' => RequestProfile::SURFACE_API_MUTATION ] ) ],
-			'xmlrpc'           => [ $this->scenario( [ 'method' => 'POST', 'general' => [ 'xmlrpc' => true ], 'expected_surface' => RequestProfile::SURFACE_XMLRPC ] ) ],
-			'shield action'    => [ $this->scenario( [
+			'public read'      => [ self::scenario( [ 'method' => 'GET', 'path' => '/blog/post/', 'expected_surface' => RequestProfile::SURFACE_PUBLIC_READ ] ) ],
+			'api read'         => [ self::scenario( [ 'method' => 'GET', 'rest' => true, 'rest_route' => 'wp/v2/posts', 'expected_surface' => RequestProfile::SURFACE_API_READ ] ) ],
+			'ajax read'        => [ self::scenario( [ 'method' => 'GET', 'general' => [ 'ajax' => true ], 'expected_surface' => RequestProfile::SURFACE_API_READ ] ) ],
+			'auth attempt'     => [ self::scenario( [ 'method' => 'POST', 'general' => [ 'loginRequest' => true ], 'expected_surface' => RequestProfile::SURFACE_AUTH_ATTEMPT ] ) ],
+			'content mutation' => [ self::scenario( [ 'method' => 'POST', 'path' => '/submit/', 'expected_surface' => RequestProfile::SURFACE_CONTENT_MUTATION ] ) ],
+			'comment mutation' => [ self::scenario( [ 'method' => 'POST', 'comment' => true, 'expected_surface' => RequestProfile::SURFACE_CONTENT_MUTATION ] ) ],
+			'admin mutation'   => [ self::scenario( [ 'method' => 'POST', 'wp_admin' => true, 'expected_surface' => RequestProfile::SURFACE_ADMIN_MUTATION ] ) ],
+			'ajax mutation'    => [ self::scenario( [ 'method' => 'POST', 'general' => [ 'ajax' => true ], 'expected_surface' => RequestProfile::SURFACE_ADMIN_MUTATION ] ) ],
+			'api mutation'     => [ self::scenario( [ 'method' => 'PUT', 'rest' => true, 'rest_route' => 'wp/v2/posts/1', 'expected_surface' => RequestProfile::SURFACE_API_MUTATION ] ) ],
+			'xmlrpc'           => [ self::scenario( [ 'method' => 'POST', 'general' => [ 'xmlrpc' => true ], 'expected_surface' => RequestProfile::SURFACE_XMLRPC ] ) ],
+			'shield action'    => [ self::scenario( [
 				'method'           => 'POST',
 				'request'          => [
 					ActionData::FIELD_ACTION  => ActionData::FIELD_SHIELD,
@@ -100,7 +96,7 @@ class RequestClassificationTest extends BaseUnitTest {
 				],
 				'expected_surface' => RequestProfile::SURFACE_SHIELD_ACTION,
 			] ) ],
-			'probe'            => [ $this->scenario( [ 'method' => 'GET', 'path' => '/.env', 'expected_surface' => RequestProfile::SURFACE_PROBE ] ) ],
+			'probe'            => [ self::scenario( [ 'method' => 'GET', 'path' => '/.env', 'expected_surface' => RequestProfile::SURFACE_PROBE ] ) ],
 		];
 	}
 
@@ -126,7 +122,7 @@ class RequestClassificationTest extends BaseUnitTest {
 		] );
 	}
 
-	private function scenario( array $overrides = [] ) :array {
+	private static function scenario( array $overrides = [] ) :array {
 		return \array_replace_recursive( [
 			'method'           => 'GET',
 			'path'             => '/',
