@@ -57,11 +57,12 @@ class PerformConditionMatch {
 	}
 
 	private function matchRegex() :bool {
-		return (bool)\preg_match( $this->matchAgainst, $this->incomingValue );
+		$incoming = $this->incomingScalarAsString();
+		return $incoming !== null && (bool)\preg_match( $this->matchAgainst, $incoming );
 	}
 
 	private function matchEquals() :bool {
-		return \strval( $this->incomingValue ) === \strval( $this->matchAgainst );
+		return !\is_array( $this->incomingValue ) && \strval( $this->incomingValue ) === \strval( $this->matchAgainst );
 	}
 
 	/**
@@ -81,11 +82,21 @@ class PerformConditionMatch {
 	}
 
 	private function matchContainsI() :bool {
-		return \str_contains( \strtolower( $this->incomingValue ), \strtolower( $this->matchAgainst ) );
+		$incoming = $this->incomingScalarAsString();
+		return $incoming !== null && \str_contains( \strtolower( $incoming ), \strtolower( $this->matchAgainst ) );
 	}
 
 	private function matchEqualsI() :bool {
-		return \strtolower( $this->incomingValue ) === \strtolower( $this->matchAgainst );
+		$incoming = $this->incomingScalarAsString();
+		return $incoming !== null && \strtolower( $incoming ) === \strtolower( $this->matchAgainst );
+	}
+
+	/**
+	 * Request values can arrive as arrays (e.g. ?name[]=x) and parameter names as integers (e.g. ?0=x).
+	 * Scalars compare as strings; anything else can't match a string pattern.
+	 */
+	private function incomingScalarAsString() :?string {
+		return \is_scalar( $this->incomingValue ) ? \strval( $this->incomingValue ) : null;
 	}
 
 	private function matchIpRange() :bool {
