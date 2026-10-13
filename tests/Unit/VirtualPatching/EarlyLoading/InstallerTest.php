@@ -41,7 +41,7 @@ class InstallerTest extends TestCase {
 			$this->root.'/.user.ini',
 			$this->root.'/wp-content/plugins/wp-simple-firewall/src/VirtualPatching/EarlyLoading/bootstrap.php',
 			$this->root.'/wp-content/shield/virtual-patching/ruleset.php',
-			[ $this->root ]
+			[ 'root_dirs' => [ $this->root ] ]
 		);
 		$this->store = new InstallerTestStore();
 		$this->probe = new InstallerTestProbe();
@@ -154,14 +154,39 @@ class InstallerTest extends TestCase {
 		$this->assertFileDoesNotExist( $this->paths->htaccess );
 	}
 
-	public function testStubThatFailsWhenRequestedIsRemovedAndNoDirectiveIsWritten() :void {
-		$this->probe->verifyResults = [ $this->verified( false ) ];
-		$this->probe->smokeResult = new ProbeResult( true, 500 );
+	public function testStubThatFailsWhenRequestedIsNeverWrittenAndNoDirectiveIsWritten() :void {
+		foreach ( [ 'server error' => new ProbeResult( true, 500 ), 'displayed fatal error' => new ProbeResult( true, 200 ) ] as $case => $smoke ) {
+			$this->probe->verifyResults = [ $this->verified( false ) ];
+			$this->probe->smokeResults = [ $smoke ];
 
-		$this->assertInstallFails( InstallException::STUB_SMOKE_FAILED, $this->installer( 'apache2handler' ) );
+			$this->assertInstallFails( InstallException::STUB_SMOKE_FAILED, $this->installer( 'apache2handler' ) );
 
-		$this->assertFileDoesNotExist( $this->paths->stub );
-		$this->assertFileDoesNotExist( $this->paths->htaccess );
+			$this->assertFileDoesNotExist( $this->paths->stub, $case );
+			$this->assertFileDoesNotExist( $this->paths->htaccess, $case );
+			$this->assertSame( [], $this->candidates(), $case );
+		}
+	}
+
+	public function testFailingNewStubLeavesTheStubInUseAlone() :void {
+		$this->probe->verifyResults = [ $this->verified( false ), $this->verified( true ) ];
+		$this->installer( 'apache2handler' )->install();
+		$working = (string)\file_get_contents( $this->paths->stub );
+
+		$this->probe->verifyResults = [ $this->verified( true ) ];
+		$this->probe->smokeResults = [ new ProbeResult( true, 500 ) ];
+		$this->assertInstallFails( InstallException::STUB_SMOKE_FAILED, $this->installer( 'apache2handler', '/opt/host/prepend.php' ) );
+
+		$this->assertSame( $working, \file_get_contents( $this->paths->stub ) );
+		$this->assertSame( [], $this->candidates() );
+	}
+
+	public function testStubCheckThatCannotBeMadeDoesNotStopTheInstall() :void {
+		$this->probe->verifyResults = [ $this->verified( false ), $this->verified( true ) ];
+		$this->probe->smokeResults = [ new ProbeResult( true, 403 ) ];
+
+		$this->assertSame( State::INSTALLED, $this->installer( 'apache2handler' )->install()->status );
+		$this->assertStringEndsWith( '.php', $this->probe->smokeUrls[ 0 ] );
+		$this->assertStringStartsWith( 'https://example.test/shield-early-loader-check-', $this->probe->smokeUrls[ 0 ] );
 	}
 
 	public function testHostPrependIsChainedFromTheStub() :void {
@@ -279,6 +304,122 @@ class InstallerTest extends TestCase {
 		$this->assertSame( $installer->stubContent( null ), \file_get_contents( $this->paths->stub ) );
 	}
 
+	public function testRollbackKeepsChangesOthersMadeMeanwhile() :void {
+		\file_put_contents( $this->paths->htaccess, self::WP_RULES );
+		$this->probe->verifyResults = [ $this->verified( false ), new ProbeResult( true, 500 ) ];
+		$this->probe->onVerify = function ( int $call ) {
+			if ( $call === 2 ) {
+				// WordPress saves its rewrite rules while Shield is checking the site.
+				\file_put_contents( $this->paths->htaccess, "# added by WordPress\n", \FILE_APPEND );
+			}
+		};
+
+		$this->assertInstallFails( InstallException::SITE_FAILED_REVERTED, $this->installer( 'apache2handler' ) );
+
+		$htaccess = (string)\file_get_contents( $this->paths->htaccess );
+		$this->assertStringContainsString( '# added by WordPress', $htaccess );
+		$this->assertStringNotContainsString( 'Shield Early Loading', $htaccess );
+		$this->assertStringStartsWith( self::WP_RULES, $htaccess );
+	}
+
+	public function testInterruptedInstallIsPutBackLater() :void {
+		\file_put_contents( $this->paths->htaccess, self::WP_RULES );
+		$this->probe->verifyResults = [ $this->verified( false ) ];
+		$this->probe->onVerify = function ( int $call ) {
+			if ( $call === 2 ) {
+				throw new \RuntimeException( 'PHP stopped the request' );
+			}
+		};
+		try {
+			$this->installer( 'apache2handler' )->install();
+			$this->fail( 'Expected the request to stop.' );
+		}
+		catch ( \RuntimeException $e ) {
+		}
+		$this->probe->onVerify = null;
+		$this->assertSame( State::INSTALLING, $this->store->state->status );
+		$this->assertStringContainsString( 'Shield Early Loading', (string)\file_get_contents( $this->paths->htaccess ) );
+
+		$this->installer( 'apache2handler', '', 'Apache', '.user.ini', false, true, 1000 + 60 )->recoverInterrupted();
+		$this->assertSame( State::INSTALLING, $this->store->state->status, 'Too early to be sure it was interrupted.' );
+
+		$state = $this->installer( 'apache2handler', '', 'Apache', '.user.ini', false, true, 1000 + Installer::INTERRUPTED_AFTER )->recoverInterrupted();
+		$this->assertSame( State::REMOVING, $state->status );
+		$this->assertSame( InstallException::INSTALL_INTERRUPTED, $state->error );
+		$this->assertSame( self::WP_RULES, \file_get_contents( $this->paths->htaccess ) );
+	}
+
+	public function testCachedInstallIsUndoneWhenTheSiteFailsOnceTheCacheExpires() :void {
+		$this->probe->verifyResults = [ $this->verified( false ), $this->verified( false ) ];
+		$this->installer( 'fpm-fcgi', '', 'nginx' )->install();
+		$this->assertFileExists( $this->paths->userIni );
+
+		$this->probe->verifyResults = [ $this->verified( true ) ];
+		$this->probe->homeResults = [ new ProbeResult( true, 500 ) ];
+		$state = $this->installer( 'fpm-fcgi', '', 'nginx', '.user.ini', false, true, 1000 + 360 )->refresh();
+
+		$this->assertSame( State::REMOVING, $state->status );
+		$this->assertSame( InstallException::SITE_FAILED_REVERTED, $state->error );
+		$this->assertFileDoesNotExist( $this->paths->userIni );
+		$this->assertFileExists( $this->paths->stub );
+	}
+
+	public function testCachedInstallSettlesOnlyOnAConclusiveCheck() :void {
+		$this->probe->verifyResults = [ $this->verified( false ), $this->verified( false ) ];
+		$this->installer( 'fpm-fcgi', '', 'nginx' )->install();
+
+		$this->probe->verifyResults = [ $this->verified( true ) ];
+		$this->probe->homeResults = [ ProbeResult::unreachable() ];
+		$state = $this->installer( 'fpm-fcgi', '', 'nginx', '.user.ini', false, true, 1000 + 360 )->refresh();
+		$this->assertSame( State::INSTALLED, $state->status );
+		$this->assertFalse( $state->settled, 'A failed request proves nothing.' );
+
+		$this->probe->verifyResults = [ $this->verified( true ) ];
+		$state = $this->installer( 'fpm-fcgi', '', 'nginx', '.user.ini', false, true, 1000 + 400 )->refresh();
+		$this->assertTrue( $state->settled );
+		$this->assertSame( [], $state->edits );
+	}
+
+	public function testSuccessfulRefreshClearsAnEarlierError() :void {
+		$this->probe->verifyResults = [ $this->verified( false ), $this->verified( true ) ];
+		$this->installer( 'apache2handler' )->install();
+		$this->store->state->error = InstallException::STUB_WRITE_FAILED;
+
+		$this->probe->verifyResults = [ $this->verified( true ) ];
+		$this->assertSame( '', $this->installer( 'apache2handler' )->refresh()->error );
+	}
+
+	public function testStubIsOnlyRemovedFromAWebRequestThatConfirmsItStopped() :void {
+		$this->probe->verifyResults = [ $this->verified( false ), $this->verified( true ) ];
+		$this->installer( 'apache2handler' )->install();
+		$this->installer( 'apache2handler' )->removeDirectives();
+
+		$this->probe->verifyResults = [ $this->verified( false ) ];
+		$this->installer( 'apache2handler', '', 'Apache', '.user.ini', false, true, 5000, false )->finishRemoval();
+		$this->assertFileExists( $this->paths->stub, 'WP-CLI does not see the web server configuration.' );
+
+		$this->probe->verifyResults = [ ProbeResult::unreachable() ];
+		$this->installer( 'apache2handler', '', 'Apache', '.user.ini', false, true, 5000 )->finishRemoval();
+		$this->assertFileExists( $this->paths->stub, 'A failed loopback proves nothing.' );
+
+		$this->probe->verifyResults = [ $this->verified( false ) ];
+		$this->installer( 'apache2handler', '', 'Apache', '.user.ini', false, true, 5000 )->finishRemoval();
+		$this->assertFileDoesNotExist( $this->paths->stub );
+	}
+
+	public function testRemovalFindsTheFilesRecordedAtInstall() :void {
+		$this->probe->verifyResults = [ $this->verified( false ), $this->verified( true ) ];
+		$this->installer( 'apache2handler' )->install();
+
+		// A request that works the paths out differently, such as WP-CLI with WordPress in its own directory.
+		$elsewhere = $this->createTrackedTempDir( 'shield-early-elsewhere-' );
+		$paths = new Paths( $this->paths->stub, $this->paths->stubUrl, $elsewhere.'/.htaccess', $elsewhere.'/.user.ini',
+			$this->paths->bootstrap, $this->paths->ruleset, $this->paths->scope );
+		$env = new Environment( 'cli', '.user.ini', 300, '', '', false, true, false, 2000 );
+		( new Installer( $paths, $env, $this->probe, $this->store ) )->removeDirectives();
+
+		$this->assertStringNotContainsString( 'Shield Early Loading', (string)\file_get_contents( $this->paths->htaccess ) );
+	}
 	private function installer(
 		string $sapi,
 		string $currentPrepend = '',
@@ -286,9 +427,10 @@ class InstallerTest extends TestCase {
 		string $userIni = '.user.ini',
 		bool $multisite = false,
 		bool $directFs = true,
-		int $now = 1000
+		int $now = 1000,
+		bool $web = true
 	) :Installer {
-		$env = new Environment( $sapi, $userIni, 300, $currentPrepend, $software, $multisite, $directFs, true, $now );
+		$env = new Environment( $sapi, $userIni, 300, $currentPrepend, $software, $multisite, $directFs, $web, $now );
 		$paths = $this->paths;
 		if ( !Mechanism::isUsableUserIniFilename( $userIni ) ) {
 			$paths = new Paths( $paths->stub, $paths->stubUrl, $paths->htaccess, null, $paths->bootstrap, $paths->ruleset, $paths->scope );
@@ -309,6 +451,13 @@ class InstallerTest extends TestCase {
 
 	private function verified( bool $loaded ) :ProbeResult {
 		return new ProbeResult( true, 200, $loaded );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function candidates() :array {
+		return \glob( $this->root.'/shield-early-loader-check-*.php' ) ?: [];
 	}
 
 	private function stubPath() :string {
@@ -345,12 +494,28 @@ class InstallerTestProbe implements LoopbackProbe {
 	 */
 	public array $homeResults = [];
 
-	public ?ProbeResult $smokeResult = null;
+	/**
+	 * @var ProbeResult[]
+	 */
+	public array $smokeResults = [];
+
+	/**
+	 * @var string[]
+	 */
+	public array $smokeUrls = [];
+
+	/**
+	 * @var ?callable
+	 */
+	public $onVerify = null;
 
 	public int $verifyCalls = 0;
 
 	public function verify() :ProbeResult {
 		$this->verifyCalls++;
+		if ( $this->onVerify !== null ) {
+			( $this->onVerify )( $this->verifyCalls );
+		}
 		return \array_shift( $this->verifyResults ) ?? ProbeResult::unreachable();
 	}
 
@@ -361,7 +526,8 @@ class InstallerTestProbe implements LoopbackProbe {
 	public function prepare() :void {
 	}
 
-	public function smoke() :ProbeResult {
-		return $this->smokeResult ?? new ProbeResult( true, 200, null, true );
+	public function smoke( string $url ) :ProbeResult {
+		$this->smokeUrls[] = $url;
+		return \array_shift( $this->smokeResults ) ?? new ProbeResult( true, 200, null, true );
 	}
 }

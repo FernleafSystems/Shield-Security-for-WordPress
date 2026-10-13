@@ -31,12 +31,15 @@ class EarlyLoadingStatus {
 			);
 		}
 		elseif ( $state->status === State::MANUAL ) {
+			$directives = $early->manualDirectives();
 			$notices[] = $state->confirmed ?
 				__( 'Early loading is active through your own PHP configuration.', 'wp-simple-firewall' )
 				: \implode( ' ', [
 					__( "This server's PHP configuration can't be changed automatically.", 'wp-simple-firewall' ),
-					__( 'Add this line to the PHP configuration for this site (php.ini or the PHP-FPM pool), then reload PHP:', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', esc_html( $early->manualDirective() ) ),
+					sprintf( __( 'Add %s to the php.ini for this site, or %s to its PHP-FPM pool, then reload PHP.', 'wp-simple-firewall' ),
+						sprintf( '<code>%s</code>', esc_html( $directives[ 'ini' ] ) ),
+						sprintf( '<code>%s</code>', esc_html( $directives[ 'pool' ] ) )
+					),
 				] );
 		}
 		elseif ( $state->status === State::REMOVING ) {
@@ -95,6 +98,9 @@ class EarlyLoadingStatus {
 			case InstallException::CONFIG_WRITE_FAILED:
 				$msg = sprintf( __( "Early loading couldn't be set up because %s couldn't be updated.", 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', esc_html( $file ) ) );
+				break;
+			case InstallException::INSTALL_INTERRUPTED:
+				$msg = __( 'Early loading was undone automatically because setting it up was interrupted before it could be checked.', 'wp-simple-firewall' );
 				break;
 			case InstallException::SITE_FAILED_REVERTED:
 				$msg = __( 'Early loading was undone automatically because the site stopped responding normally after the change.', 'wp-simple-firewall' );

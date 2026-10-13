@@ -32,7 +32,7 @@ class VerifyRequestTest extends BaseUnitTest {
 	}
 
 	public function testOnlyTheIssuedTokenIsAcceptedUntilItExpires() :void {
-		$verify = new VerifyRequest( 'test_early_check' );
+		$verify = new VerifyRequest( 'test_early_check', '/var/www/html/shield-early-loader.php' );
 		$token = $verify->issueToken();
 
 		$this->assertTrue( $verify->isValidToken( $token ) );
@@ -44,12 +44,22 @@ class VerifyRequestTest extends BaseUnitTest {
 	}
 
 	public function testIssuingANewTokenReplacesThePreviousOne() :void {
-		$verify = new VerifyRequest( 'test_early_check' );
+		$verify = new VerifyRequest( 'test_early_check', '/var/www/html/shield-early-loader.php' );
 		$first = $verify->issueToken();
 		$second = $verify->issueToken();
 
 		$this->assertFalse( $verify->isValidToken( $first ) );
 		$this->assertTrue( $verify->isValidToken( $second ) );
+	}
+
+	public function testOnlyThisSitesStubCountsAsLoaded() :void {
+		$stub = '/var/www/html/shield-early-loader.php';
+
+		$this->assertTrue( VerifyRequest::isOwnStub( $stub, $stub ) );
+		$this->assertTrue( VerifyRequest::isOwnStub( '\\var\\www\\html\\shield-early-loader.php', $stub ) );
+		$this->assertFalse( VerifyRequest::isOwnStub( '/var/www/shield-early-loader.php', $stub ), 'A parent folder site\'s stub' );
+		$this->assertFalse( VerifyRequest::isOwnStub( true, $stub ), 'An older stub that only defined true' );
+		$this->assertFalse( VerifyRequest::isOwnStub( null, $stub ) );
 	}
 
 	public function testParseLoadedReadsOnlyAVerificationResponse() :void {

@@ -22,11 +22,11 @@ class WpRootUnidentified extends BaseScan {
 	}
 
 	/**
-	 * Shield's own early loader stub, only while its content is exactly what Shield generates.
+	 * Shield's own early loader stub, while Shield manages it.
 	 */
 	private function isEarlyLoaderStub() :bool {
 		return \basename( $this->pathFull ) === StubBuilder::FILE_NAME
-			   && self::con()->comps->early_loading->isGeneratedStub( $this->pathFull );
+			   && self::con()->comps->early_loading->isShieldStub( $this->pathFull );
 	}
 
 	/**

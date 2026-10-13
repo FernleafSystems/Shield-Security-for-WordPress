@@ -20,8 +20,7 @@ final class Paths {
 	public string $ruleset;
 
 	/**
-	 * The WordPress directories the early pass covers: ABSPATH and the content directory.
-	 * @var string[]
+	 * Which PHP files the early pass covers, see EarlyPass::coversScript().
 	 */
 	public array $scope;
 
@@ -45,13 +44,9 @@ final class Paths {
 
 	/**
 	 * Every configuration file Shield's block may be in, whatever the current mechanism.
-	 * @return array<string,MarkedBlock>
+	 * @return string[]
 	 */
 	public function configFiles() :array {
-		$files = [ $this->htaccess => MarkedBlock::htaccess() ];
-		if ( $this->userIni !== null ) {
-			$files[ $this->userIni ] = MarkedBlock::userIni();
-		}
-		return $files;
+		return $this->userIni === null ? [ $this->htaccess ] : [ $this->htaccess, $this->userIni ];
 	}
 }

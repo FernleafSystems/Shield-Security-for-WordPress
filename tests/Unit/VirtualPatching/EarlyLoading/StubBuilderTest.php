@@ -53,6 +53,20 @@ class StubBuilderTest extends TestCase {
 		$this->assertSame( StubBuilder::SMOKE_MARKER, $this->runPhp( null, $stub ) );
 	}
 
+	public function testLoadedConstantHoldsTheStubsOwnPath() :void {
+		\file_put_contents( $this->dir.'/bootstrap.php', '<?php echo SHIELD_EARLY_LOADED, "|";' );
+		$stub = $this->writeStub( $this->dir.'/bootstrap.php', null );
+
+		$this->assertSame( \realpath( $stub ).'|main|', $this->runPhp( $stub, $this->dir.'/main.php' ) );
+	}
+
+	public function testHalfWrittenBootstrapDoesNotStopTheRequest() :void {
+		\file_put_contents( $this->dir.'/bootstrap.php', '<?php echo "partial' );
+		$stub = $this->writeStub( $this->dir.'/bootstrap.php', null );
+
+		$this->assertSame( 'main|', $this->runPhp( $stub, $this->dir.'/main.php' ) );
+	}
+
 	public function testPathsWithQuotesAreExportedSafely() :void {
 		$odd = $this->createTrackedTempDir( "shield-o'brien-" );
 		\file_put_contents( $odd.'/bootstrap.php', '<?php echo "odd|";' );
@@ -63,7 +77,7 @@ class StubBuilderTest extends TestCase {
 
 	private function writeStub( string $bootstrap, ?string $host ) :string {
 		$path = $this->dir.'/'.StubBuilder::FILE_NAME;
-		\file_put_contents( $path, StubBuilder::build( $bootstrap, '/rules.php', $host, [ $this->dir ] ) );
+		\file_put_contents( $path, StubBuilder::build( $bootstrap, '/rules.php', $host, [ 'root_dirs' => [ $this->dir ] ] ) );
 		return $path;
 	}
 

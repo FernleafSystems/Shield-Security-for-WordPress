@@ -86,7 +86,7 @@ class WpRootUnidentifiedTest extends BaseUnitTest {
 						$this->generated = $generated;
 					}
 
-					public function isGeneratedStub( string $path ) :bool {
+					public function isShieldStub( string $path ) :bool {
 						return $this->generated;
 					}
 				},

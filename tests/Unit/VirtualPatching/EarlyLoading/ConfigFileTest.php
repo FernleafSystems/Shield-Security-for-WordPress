@@ -3,7 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\VirtualPatching\EarlyLoading;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
-use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\ConfigFile;
+use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\{
+	ConfigFile,
+	ConfigFileException,
+	MarkedBlock
+};
 use PHPUnit\Framework\TestCase;
 
 class ConfigFileTest extends TestCase {
@@ -82,6 +86,48 @@ class ConfigFileTest extends TestCase {
 
 		$this->assertSame( "original\r\n", \file_get_contents( $existing ) );
 		$this->assertFileDoesNotExist( $created );
+	}
+
+	public function testFailedWritePutsTheOriginalContentBack() :void {
+		$path = $this->dir.'/.htaccess';
+		\file_put_contents( $path, "# BEGIN WordPress\nRewriteEngine On\n# END WordPress\n" );
+		$file = new class( $path ) extends ConfigFile {
+
+			private int $calls = 0;
+
+			protected function writeChunk( $handle, string $data ) {
+				// The first write runs out of space part way through.
+				return ++$this->calls === 1 ? \fwrite( $handle, \substr( $data, 0, 5 ) ) && false : parent::writeChunk( $handle, $data );
+			}
+		};
+
+		try {
+			$file->modify( fn( ?string $c ) => $c."php_value auto_prepend_file '/s.php'\n" );
+			$this->fail( 'Expected the write to fail.' );
+		}
+		catch ( ConfigFileException $e ) {
+		}
+
+		$this->assertSame( "# BEGIN WordPress\nRewriteEngine On\n# END WordPress\n", \file_get_contents( $path ) );
+	}
+
+	public function testRevertRestoresOnlyWhileTheFileIsAsShieldLeftIt() :void {
+		$path = $this->dir.'/.htaccess';
+		$block = MarkedBlock::htaccess();
+		$before = "RewriteEngine On\n";
+		$after = $block->apply( $before, "php_value auto_prepend_file '/s.php'" );
+
+		\file_put_contents( $path, $after );
+		( new ConfigFile( $path ) )->revert( $before, $after, $block );
+		$this->assertSame( $before, \file_get_contents( $path ) );
+
+		\file_put_contents( $path, $after."# added by someone else\n" );
+		( new ConfigFile( $path ) )->revert( $before, $after, $block );
+		$this->assertSame( "RewriteEngine On\n\n# added by someone else\n", \file_get_contents( $path ) );
+
+		\file_put_contents( $path, $after );
+		( new ConfigFile( $path ) )->revert( null, $after, $block );
+		$this->assertFileDoesNotExist( $path, 'Shield created the file, so reverting removes it.' );
 	}
 
 	public function testReadReturnsNullForMissingFile() :void {
