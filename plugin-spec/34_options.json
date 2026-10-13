@@ -2511,6 +2511,8 @@
             "plugin_general",
             "module_plugin"
         ],
+        "premium": true,
+        "cap": "virtual_patching",
         "default": "N",
         "type": "checkbox",
         "link_info": "",
