@@ -2,44 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading;
 
-final class Paths {
-
-	public string $stub;
-
-	public string $stubUrl;
-
-	public string $htaccess;
+final readonly class Paths {
 
 	/**
-	 * Null when PHP does not read per-directory INI files.
+	 * @param ?string $userIni null when PHP does not read per-directory INI files
+	 * @param array   $scope   which PHP files the early pass covers, see EarlyPass::coversScript()
 	 */
-	public ?string $userIni;
-
-	public string $bootstrap;
-
-	public string $ruleset;
-
-	/**
-	 * Which PHP files the early pass covers, see EarlyPass::coversScript().
-	 */
-	public array $scope;
-
 	public function __construct(
-		string $stub,
-		string $stubUrl,
-		string $htaccess,
-		?string $userIni,
-		string $bootstrap,
-		string $ruleset,
-		array $scope
+		public string $stub,
+		public string $stubUrl,
+		public string $htaccess,
+		public ?string $userIni,
+		public string $bootstrap,
+		public string $ruleset,
+		public array $scope
 	) {
-		$this->stub = $stub;
-		$this->stubUrl = $stubUrl;
-		$this->htaccess = $htaccess;
-		$this->userIni = $userIni;
-		$this->bootstrap = $bootstrap;
-		$this->ruleset = $ruleset;
-		$this->scope = $scope;
 	}
 
 	/**

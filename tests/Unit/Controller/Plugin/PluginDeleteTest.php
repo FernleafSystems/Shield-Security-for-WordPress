@@ -75,6 +75,7 @@ class PluginDeleteTest extends BaseUnitTest {
 	public function test_run_deletes_only_the_current_external_namespace() :void {
 		$sharedParent = $this->makeTempDir( 'shared-parent' );
 		$assetCoordinator = new PluginDeleteTestAssetCoordinator();
+		$earlyLoading = new PluginDeleteTestEarlyLoading();
 		$controller = UnitTestControllerFactory::install( null, null, (object)[
 			'cfg'               => (object)[
 				'paths'      => [
@@ -94,6 +95,7 @@ class PluginDeleteTest extends BaseUnitTest {
 			},
 			'comps'             => (object)[
 				'asset_coordinator' => $assetCoordinator,
+				'early_loading'     => $earlyLoading,
 			],
 			'db_con'            => $this->newDbCon(),
 			'cache_dir_handler' => new CacheDirHandler( '', $sharedParent ),
@@ -136,6 +138,7 @@ class PluginDeleteTest extends BaseUnitTest {
 			$this->deletedTransients
 		);
 		$this->assertSame( 1, $assetCoordinator->deletions );
+		$this->assertSame( 1, $earlyLoading->deletions );
 		$this->assertDirectoryDoesNotExist( $rootA );
 		foreach ( [ $sharedParent, $rootB, $unsuffixedRoot, $legacyRoot ] as $preservedRoot ) {
 			$this->assertDirectoryExists( $preservedRoot );
@@ -190,6 +193,15 @@ class PluginDeleteTest extends BaseUnitTest {
 		if ( !\is_dir( $dir ) ) {
 			@\mkdir( $dir, 0777, true );
 		}
+	}
+}
+
+class PluginDeleteTestEarlyLoading {
+
+	public int $deletions = 0;
+
+	public function deleteStoredState() :void {
+		$this->deletions++;
 	}
 }
 

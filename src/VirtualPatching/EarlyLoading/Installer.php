@@ -21,19 +21,12 @@ class Installer {
 	 */
 	public const INTERRUPTED_AFTER = 300;
 
-	private Paths $paths;
-
-	private Environment $env;
-
-	private LoopbackProbe $probe;
-
-	private StateStore $store;
-
-	public function __construct( Paths $paths, Environment $env, LoopbackProbe $probe, StateStore $store ) {
-		$this->paths = $paths;
-		$this->env = $env;
-		$this->probe = $probe;
-		$this->store = $store;
+	public function __construct(
+		private readonly Paths $paths,
+		private readonly Environment $env,
+		private readonly LoopbackProbe $probe,
+		private readonly StateStore $store
+	) {
 	}
 
 	/**
@@ -66,20 +59,15 @@ class Installer {
 			throw $e;
 		}
 
-		if ( $state->status === State::OFF && !( new StubFile( $this->paths->stub ) )->exists() ) {
+		if ( $state->status === InstallStatus::Off && !( new StubFile( $this->paths->stub ) )->exists() ) {
 			return $state;
 		}
 
-		if ( $state->status !== State::REMOVING ) {
-			$state->status = State::REMOVING;
-			$state->since = $this->env->now;
-			$state->cacheSeconds = Mechanism::cacheSecondsFor( $state->mechanism, $this->env->userIniCacheTtl );
+		// The reason for an earlier undo stays, so the settings page can still say why early loading went off.
+		if ( !$state->wasUndone() ) {
+			$state->clearError();
 		}
-		$state->confirmed = false;
-		$state->settled = false;
-		$state->edits = [];
-		$state->error = '';
-		$state->errorFile = '';
+		$state->startRemoving( $this->env->now, $this->env->userIniCacheTtl );
 		$this->store->save( $state );
 		return $state;
 	}
@@ -91,16 +79,20 @@ class Installer {
 	 */
 	public function finishRemoval() :State {
 		$state = $this->store->load();
-		if ( $state->status !== State::REMOVING || !$this->env->isWebRequest ) {
+		if ( $state->status !== InstallStatus::Removing || !$this->env->isWebRequest ) {
 			return $state;
 		}
 
 		$state->checkedAt = $this->env->now;
-		$settled = $state->mechanism === Mechanism::MANUAL || $this->env->now >= $state->settledAt();
+		$settled = $state->mechanism === MechanismKind::Manual || $this->env->now >= $state->settledAt();
 		if ( $settled && !$this->anyBlockPresent( $this->knownConfigFiles( $state ) ) && !$this->thisRequestPrependsStub()
 			 && $this->probe->verify()->loaded === false
 			 && ( new StubFile( $this->paths->stub ) )->delete() ) {
-			$state = new State();
+			$removed = new State();
+			// Kept until the next install, so the settings page can still say why early loading went off.
+			$removed->error = $state->error;
+			$removed->errorFile = $state->errorFile;
+			$state = $removed;
 		}
 
 		$this->store->save( $state );
@@ -114,7 +106,7 @@ class Installer {
 	 */
 	public function refresh() :State {
 		$state = $this->store->load();
-		if ( !\in_array( $state->status, [ State::INSTALLED, State::MANUAL ], true ) ) {
+		if ( !$state->status->keepsStub() ) {
 			return $state;
 		}
 
@@ -123,18 +115,17 @@ class Installer {
 			$this->writeStub( $this->stubContent( $state->hostPrepend ) );
 		}
 		catch ( InstallException $e ) {
-			$state->error = $e->reason();
-			$state->errorFile = $e->configFile();
+			$state->recordError( $e );
 			$this->store->save( $state );
 			throw $e;
 		}
 
 		$verify = $this->probe->verify();
-		if ( $state->status === State::INSTALLED && !$state->settled && $this->env->now >= $state->settledAt() ) {
+		if ( $state->status === InstallStatus::Installed && !$state->settled && $this->env->now >= $state->settledAt() ) {
 			$home = $this->probe->home();
 			if ( $verify->reachable && $home->reachable ) {
 				if ( !$verify->isVerificationResponse() || !$home->isVerificationResponse() ) {
-					$this->rollBack( $state, InstallException::SITE_FAILED_REVERTED );
+					$this->rollBack( $state, InstallFailure::SiteFailedReverted );
 					return $this->store->load();
 				}
 				$state->settled = true;
@@ -145,8 +136,7 @@ class Installer {
 		if ( $verify->isVerificationResponse() ) {
 			$state->confirmed = (bool)$verify->loaded;
 		}
-		$state->error = '';
-		$state->errorFile = '';
+		$state->clearError();
 		$this->store->save( $state );
 		return $state;
 	}
@@ -156,8 +146,8 @@ class Installer {
 	 */
 	public function recoverInterrupted() :State {
 		$state = $this->store->load();
-		if ( $state->status === State::INSTALLING && $this->env->now - $state->since >= self::INTERRUPTED_AFTER ) {
-			$this->rollBack( $state, InstallException::INSTALL_INTERRUPTED );
+		if ( $state->status === InstallStatus::Installing && $this->env->now - $state->since >= self::INTERRUPTED_AFTER ) {
+			$this->rollBack( $state, InstallFailure::InstallInterrupted );
 			$state = $this->store->load();
 		}
 		return $state;
@@ -172,30 +162,30 @@ class Installer {
 	 */
 	private function runInstall( State $previous ) :State {
 		if ( $this->env->isMultisite ) {
-			throw new InstallException( InstallException::MULTISITE );
+			throw new InstallException( InstallFailure::Multisite );
 		}
 		if ( !$this->env->isDirectFilesystem ) {
-			throw new InstallException( InstallException::FILESYSTEM_NOT_DIRECT );
+			throw new InstallException( InstallFailure::FilesystemNotDirect );
 		}
 		if ( !DirectiveBlocks::isSafePath( $this->paths->stub ) ) {
-			throw new InstallException( InstallException::UNSAFE_PATH, $this->paths->stub );
+			throw new InstallException( InstallFailure::UnsafePath, $this->paths->stub );
 		}
 
 		$mechanism = $this->env->mechanism();
 		$hostPrepend = $this->hostPrepend( $previous );
 
 		$state = new State();
-		$state->mechanism = $mechanism->key();
+		$state->mechanism = $mechanism->kind();
 		$state->hostPrepend = $hostPrepend;
 		$state->since = $this->env->now;
-		$state->cacheSeconds = $mechanism->cacheSeconds( $this->env->userIniCacheTtl );
+		$state->cacheSeconds = $mechanism->kind()->cacheSeconds( $this->env->userIniCacheTtl );
 		$state->checkedAt = $this->env->now;
 		$state->files = $previous->files;
 
-		if ( !$mechanism->isAutomatic() ) {
+		if ( !$mechanism->kind()->isAutomatic() ) {
 			$this->writeStub( $this->stubContent( $hostPrepend ) );
 			$this->removeBlocksOutside( [], $state );
-			$state->status = State::MANUAL;
+			$state->status = InstallStatus::Manual;
 			return $state;
 		}
 
@@ -203,13 +193,13 @@ class Installer {
 
 		$this->probe->prepare();
 		if ( !$this->siteResponds() ) {
-			throw new InstallException( InstallException::LOOPBACK_UNAVAILABLE );
+			throw new InstallException( InstallFailure::LoopbackUnavailable );
 		}
 
 		$this->writeStub( $this->stubContent( $hostPrepend ) );
 
 		// Recorded before any file changes, so a request that dies part way through can be undone later.
-		$state->status = State::INSTALLING;
+		$state->status = InstallStatus::Installing;
 		$state->files = \array_values( \array_unique( \array_merge( $state->files, \array_keys( $planned ) ) ) );
 		foreach ( $planned as $path => [ $block, $body ] ) {
 			$before = $this->readConfig( $path );
@@ -228,19 +218,19 @@ class Installer {
 			$this->store->save( $state );
 		}
 		catch ( ConfigFileException|MalformedBlockException $e ) {
-			$this->rollBack( $state, InstallException::CONFIG_WRITE_FAILED );
-			throw new InstallException( InstallException::CONFIG_WRITE_FAILED, $path );
+			$this->rollBack( $state, InstallFailure::ConfigWriteFailed );
+			throw new InstallException( InstallFailure::ConfigWriteFailed, $path );
 		}
 
 		$verify = $this->probe->verify();
 		if ( !$verify->isVerificationResponse() || !$this->probe->home()->isVerificationResponse() ) {
-			$this->rollBack( $state, InstallException::SITE_FAILED_REVERTED );
-			throw new InstallException( InstallException::SITE_FAILED_REVERTED );
+			$this->rollBack( $state, InstallFailure::SiteFailedReverted );
+			throw new InstallException( InstallFailure::SiteFailedReverted );
 		}
 
 		$this->removeBlocksOutside( \array_keys( $planned ), $state );
 
-		$state->status = State::INSTALLED;
+		$state->status = InstallStatus::Installed;
 		$state->confirmed = $verify->loaded === true;
 		// Where PHP reads the change at once, this check was the real one; elsewhere refresh() checks again.
 		$state->settled = $state->cacheSeconds === 0;
@@ -264,7 +254,7 @@ class Installer {
 		$smoke = $this->probe->smoke( \dirname( $this->paths->stubUrl ).'/'.\basename( $candidate ) );
 		if ( $smoke->smokeFailed() ) {
 			$stub->discard( $candidate );
-			throw new InstallException( InstallException::STUB_SMOKE_FAILED, $this->paths->stub );
+			throw new InstallException( InstallFailure::StubSmokeFailed, $this->paths->stub );
 		}
 		$stub->promote( $candidate );
 	}
@@ -307,16 +297,16 @@ class Installer {
 		}
 
 		foreach ( $edits as $path => [ $block ] ) {
-			$honoursPrepend = $path !== $this->paths->htaccess || $mechanism->writesHtaccessPrepend();
+			$honoursPrepend = $path !== $this->paths->htaccess || $mechanism->kind()->setsPrependInHtaccess();
 			$content = $this->readConfig( $path ) ?? '';
 			try {
 				if ( $honoursPrepend && $block->hasForeignPrepend( $content ) ) {
-					throw new InstallException( InstallException::CONFLICT, $path );
+					throw new InstallException( InstallFailure::Conflict, $path );
 				}
 				$block->has( $content );
 			}
 			catch ( MalformedBlockException $e ) {
-				throw new InstallException( InstallException::MALFORMED_MARKERS, $path );
+				throw new InstallException( InstallFailure::MalformedMarkers, $path );
 			}
 		}
 		return $edits;
@@ -336,7 +326,7 @@ class Installer {
 			return $previous->hostPrepend;
 		}
 		if ( !DirectiveBlocks::isSafePath( $current ) ) {
-			throw new InstallException( InstallException::HOST_PREPEND_NOT_ABSOLUTE, $current );
+			throw new InstallException( InstallFailure::HostPrependNotAbsolute, $current );
 		}
 		return $current;
 	}
@@ -353,7 +343,7 @@ class Installer {
 	 * Undoes the recorded edits. The stub stays, because PHP may already have read the new configuration
 	 * and will keep using it until its cache expires.
 	 */
-	private function rollBack( State $state, string $reason ) :void {
+	private function rollBack( State $state, InstallFailure $reason ) :void {
 		foreach ( \array_reverse( $state->edits, true ) as $path => $edit ) {
 			try {
 				( new ConfigFile( $path ) )->revert( $edit[ 'before' ], $edit[ 'after' ], MarkedBlock::forFile( $path ) );
@@ -362,12 +352,7 @@ class Installer {
 			}
 		}
 
-		$state->status = State::REMOVING;
-		$state->since = $this->env->now;
-		$state->cacheSeconds = Mechanism::cacheSecondsFor( $state->mechanism, $this->env->userIniCacheTtl );
-		$state->confirmed = false;
-		$state->settled = false;
-		$state->edits = [];
+		$state->startRemoving( $this->env->now, $this->env->userIniCacheTtl );
 		$state->error = $reason;
 		$state->errorFile = '';
 		$this->store->save( $state );
@@ -403,10 +388,10 @@ class Installer {
 			);
 		}
 		catch ( ConfigFileException $e ) {
-			throw new InstallException( InstallException::CONFIG_WRITE_FAILED, $path );
+			throw new InstallException( InstallFailure::ConfigWriteFailed, $path );
 		}
 		catch ( MalformedBlockException $e ) {
-			throw new InstallException( InstallException::MALFORMED_MARKERS, $path );
+			throw new InstallException( InstallFailure::MalformedMarkers, $path );
 		}
 	}
 
@@ -418,7 +403,7 @@ class Installer {
 			return ( new ConfigFile( $path ) )->read();
 		}
 		catch ( ConfigFileException $e ) {
-			throw new InstallException( InstallException::CONFIG_WRITE_FAILED, $path );
+			throw new InstallException( InstallFailure::ConfigWriteFailed, $path );
 		}
 	}
 
@@ -450,8 +435,7 @@ class Installer {
 
 	private function recordError( InstallException $e ) :void {
 		$state = $this->store->load();
-		$state->error = $e->reason();
-		$state->errorFile = $e->configFile();
+		$state->recordError( $e );
 		$this->store->save( $state );
 	}
 }

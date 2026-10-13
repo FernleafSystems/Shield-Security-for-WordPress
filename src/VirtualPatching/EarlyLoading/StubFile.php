@@ -39,7 +39,7 @@ class StubFile {
 		$candidate = \dirname( $this->path ).'/'.\basename( $this->path, '.php' ).'-check-'.\bin2hex( \random_bytes( 6 ) ).'.php';
 		if ( @\file_put_contents( $candidate, $content ) !== \strlen( $content ) || @\file_get_contents( $candidate ) !== $content ) {
 			@\unlink( $candidate );
-			throw new InstallException( InstallException::STUB_WRITE_FAILED, $this->path );
+			throw new InstallException( InstallFailure::StubWriteFailed, $this->path );
 		}
 		return $candidate;
 	}
@@ -51,11 +51,11 @@ class StubFile {
 		$content = @\file_get_contents( $candidate );
 		if ( !\is_string( $content ) || !@\rename( $candidate, $this->path ) ) {
 			$this->discard( $candidate );
-			throw new InstallException( InstallException::STUB_WRITE_FAILED, $this->path );
+			throw new InstallException( InstallFailure::StubWriteFailed, $this->path );
 		}
 		$this->invalidateOpcache( $this->path );
 		if ( !$this->matches( $content ) ) {
-			throw new InstallException( InstallException::STUB_WRITE_FAILED, $this->path );
+			throw new InstallException( InstallFailure::StubWriteFailed, $this->path );
 		}
 	}
 

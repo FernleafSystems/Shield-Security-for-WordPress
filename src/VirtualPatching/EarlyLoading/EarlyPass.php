@@ -102,9 +102,10 @@ final class EarlyPass {
 			return null;
 		}
 
-		$facts = RuleEvaluator::requestFacts( $this->server, $this->query, $this->form );
-		$facts[ 'active_plugins' ] = \is_array( $this->ruleset[ 'active_plugins' ] ?? null ) ? $this->ruleset[ 'active_plugins' ] : [];
-		$facts[ 'active_themes' ] = \is_array( $this->ruleset[ 'active_themes' ] ?? null ) ? $this->ruleset[ 'active_themes' ] : [];
+		$facts = \array_merge(
+			RuleEvaluator::requestFacts( $this->server, $this->query, $this->form ),
+			RuleEvaluator::rulesetFacts( $this->ruleset )
+		);
 
 		$evaluatedAll = true;
 		foreach ( $this->ruleset[ 'rules' ] as $rule ) {
@@ -139,20 +140,8 @@ final class EarlyPass {
 
 	private function log( array $rule, string $verdict, array $facts ) :void {
 		$path = $this->ruleset[ 'events' ] ?? null;
-		if ( !\is_string( $path ) || $path === '' ) {
-			return;
+		if ( \is_string( $path ) && $path !== '' ) {
+			BlockLog::append( $path, BlockLog::entry( $this->ruleset, $rule, $facts, $this->server, 'early', $verdict ) );
 		}
-		$remote = $this->server[ 'REMOTE_ADDR' ] ?? '';
-		BlockLog::append( $path, [
-			'ts'         => \time(),
-			'rule'       => (string)( $rule[ 'id' ] ?? '' ),
-			'advisories' => \is_array( $rule[ 'advisories' ] ?? null ) ? $rule[ 'advisories' ] : [],
-			'ip'         => IpBypass::requestIp( $this->ruleset[ 'bypass' ][ 'ip_source' ] ?? null, $this->server )
-							?? ( \is_string( $remote ) ? $remote : '' ),
-			'method'     => $facts[ 'method' ],
-			'path'       => $facts[ 'path' ],
-			'pass'       => 'early',
-			'verdict'    => $verdict,
-		] );
 	}
 }

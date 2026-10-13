@@ -21,6 +21,7 @@ class PluginDelete {
 	private function deleteOptions() {
 
 		self::con()->comps->asset_coordinator->deleteState();
+		self::con()->comps->early_loading->deleteStoredState();
 		self::con()->opts->delete();
 
 		foreach (
@@ -28,10 +29,6 @@ class PluginDelete {
 				'icwp-wpsf-cs_auths',
 				'icwp-wpsf-rules',
 				self::con()->prefix( 'ip_rules_cache', '_' ),
-				self::con()->prefix( 'early_loading_state', '_' ),
-				self::con()->prefix( 'early_loading_check', '_' ),
-				self::con()->prefix( 'early_loading_changed_at', '_' ),
-				self::con()->prefix( 'early_loading', '_' ).'.lock',
 			] as $opt
 		) {
 			Services::WpGeneral()->deleteOption( $opt );

@@ -43,11 +43,11 @@ class EarlyLoadingController {
 	}
 
 	/**
-	 * Applies a change to the setting. A failed install switches the setting back off.
+	 * Applies a change to the setting.
 	 */
 	public function applyOption() :void {
 		// Requests that start before this one has stored the new setting still read the old one, so the
-		// time of the change is also recorded once this request has finished.
+		// change is also recorded once this request has finished, with the value it ended with.
 		$this->markSettingChanged();
 		add_action( 'shutdown', [ $this, 'markSettingChanged' ], \PHP_INT_MAX );
 
@@ -60,12 +60,7 @@ class EarlyLoadingController {
 				$this->remove();
 			}
 			elseif ( $this->isWebRequest() ) {
-				try {
-					$this->installer()->install();
-				}
-				catch ( InstallException $e ) {
-					self::con()->opts->optSet( self::OPT_ENABLE, 'N' );
-				}
+				$this->install( $this->installer() );
 			}
 		}
 		catch ( InstallException $e ) {
@@ -78,21 +73,10 @@ class EarlyLoadingController {
 
 	/**
 	 * Deactivation takes Shield's blocks out of the configuration files. The stub stays, inert once the
-	 * plugin is gone, until PHP has stopped using it. This goes ahead even while another request holds the
-	 * lock, because leaving the blocks in place is the greater risk.
+	 * plugin is gone, until PHP has stopped using it.
 	 */
 	public function onDeactivate() :void {
-		$locked = $this->lock();
-		try {
-			$this->installer()->removeDirectives();
-		}
-		catch ( InstallException $e ) {
-		}
-		finally {
-			if ( $locked ) {
-				$this->unlock();
-			}
-		}
+		$this->removeDirectivesNow();
 	}
 
 	public function maintainIfDue() :void {
@@ -106,31 +90,38 @@ class EarlyLoadingController {
 	/**
 	 * Puts back interrupted installs, installs when the setting is on but nothing is installed (for example
 	 * after reactivation), confirms and settles installs, keeps the stub current and completes removals.
+	 * An install Shield had to undo, or a setting an older copy of the options switched back on, turns the
+	 * setting off instead of installing again.
 	 */
 	public function maintain() :void {
-		if ( $this->settingChangedDuringThisRequest() || !$this->lock() ) {
+		$change = $this->lastChange();
+		if ( $change->madeSince( (int)( $_SERVER[ 'REQUEST_TIME' ] ?? \time() ) ) || !$this->lock() ) {
 			return;
 		}
 		try {
+			if ( $change->revertedBy( $this->isEnabled() ) ) {
+				$this->switchOff();
+			}
+
 			$installer = $this->installer();
 			$state = $installer->recoverInterrupted();
+			if ( $state->wasUndone() ) {
+				$this->switchOff();
+			}
 			( new StubFile( $this->stubPath() ) )->removeStaleCandidates( Services::Request()->ts() );
 
 			if ( !$this->isEnabled() ) {
-				if ( $state->status !== State::OFF || ( new StubFile( $this->stubPath() ) )->exists() ) {
+				if ( $state->status !== InstallStatus::Off || ( new StubFile( $this->stubPath() ) )->exists() ) {
 					$this->remove();
 				}
 			}
-			elseif ( \in_array( $state->status, [ State::INSTALLED, State::MANUAL ], true ) ) {
-				$installer->refresh();
+			elseif ( $state->status->keepsStub() ) {
+				if ( $installer->refresh()->wasUndone() ) {
+					$this->switchOff();
+				}
 			}
 			elseif ( $this->isWebRequest() ) {
-				try {
-					$installer->install();
-				}
-				catch ( InstallException $e ) {
-					self::con()->opts->optSet( self::OPT_ENABLE, 'N' );
-				}
+				$this->install( $installer );
 			}
 		}
 		catch ( InstallException $e ) {
@@ -150,7 +141,7 @@ class EarlyLoadingController {
 		$state = $this->state();
 		return VerifyRequest::isOwnStub( $path, $this->stubPath() )
 			   && ( $stub->matches( $this->installer()->stubContent( $state->hostPrepend ) )
-					|| ( $state->status !== State::OFF && $stub->isShieldStub() ) );
+					|| ( $state->status !== InstallStatus::Off && $stub->isShieldStub() ) );
 	}
 
 	/**
@@ -180,10 +171,44 @@ class EarlyLoadingController {
 	}
 
 	/**
+	 * Removes everything the early loader stores in the database, when the plugin is deleted or reset. Shield's
+	 * blocks come out first, as a reset also switches early loading off. The stub stays: PHP may still be
+	 * prepending it. Once the plugin is gone it does nothing; after a reset, maintain() removes it.
+	 */
+	public function deleteStoredState() :void {
+		$this->removeDirectivesNow();
+		foreach ( [ $this->stateKey(), $this->verifyKey() ] as $key ) {
+			Services::WpGeneral()->deleteOption( $key );
+		}
+		// Stored with WordPress's option functions directly, as is the lock.
+		\delete_option( $this->changeKey() );
+		$this->unlock();
+	}
+
+	/**
 	 * Called at the start of a settings change and again at the end of that request.
 	 */
 	public function markSettingChanged() :void {
-		\update_option( $this->changedAtKey(), \time(), false );
+		\update_option( $this->changeKey(), ( new SettingChange( \time(), $this->isEnabled() ) )->toOption(), false );
+	}
+
+	/**
+	 * A failed install switches the setting back off; the reason is in the state for the settings page.
+	 */
+	private function install( Installer $installer ) :void {
+		try {
+			$installer->install();
+		}
+		catch ( InstallException $e ) {
+			$this->switchOff();
+		}
+	}
+
+	/**
+	 * Saving the options then applies the change, which takes out anything still installed.
+	 */
+	private function switchOff() :void {
+		self::con()->opts->optSet( self::OPT_ENABLE, 'N' );
 	}
 
 	/**
@@ -192,18 +217,36 @@ class EarlyLoadingController {
 	private function remove() :void {
 		$installer = $this->installer();
 		$state = $installer->removeDirectives();
-		if ( $state->status === State::REMOVING ) {
+		if ( $state->status === InstallStatus::Removing ) {
 			$installer->finishRemoval();
+		}
+	}
+
+	/**
+	 * Goes ahead even while another request holds the lock, because leaving the blocks in place is the
+	 * greater risk.
+	 */
+	private function removeDirectivesNow() :void {
+		$locked = $this->lock();
+		try {
+			$this->installer()->removeDirectives();
+		}
+		catch ( InstallException $e ) {
+		}
+		finally {
+			if ( $locked ) {
+				$this->unlock();
+			}
 		}
 	}
 
 	private function needsAttention( State $state ) :bool {
 		$enabled = $this->isEnabled();
-		return \in_array( $state->status, [ State::INSTALLING, State::REMOVING ], true )
-			   || ( $state->status === State::INSTALLED && !$state->settled )
-			   || ( $enabled && $state->status === State::OFF )
-			   || ( !$enabled && $state->status !== State::OFF )
-			   || ( \in_array( $state->status, [ State::INSTALLED, State::MANUAL ], true )
+		return \in_array( $state->status, [ InstallStatus::Installing, InstallStatus::Removing ], true )
+			   || ( $state->status === InstallStatus::Installed && !$state->settled )
+			   || ( $enabled && $state->status === InstallStatus::Off )
+			   || ( !$enabled && $state->status !== InstallStatus::Off )
+			   || ( $state->status->keepsStub()
 					&& !( new StubFile( $this->stubPath() ) )->matches( $this->installer()->stubContent( $state->hostPrepend ) ) );
 	}
 
@@ -282,29 +325,36 @@ class EarlyLoadingController {
 		return \PHP_SAPI !== 'cli' && !Services::WpGeneral()->isWpCli();
 	}
 
-	private function settingChangedDuringThisRequest() :bool {
-		// Read from the database, not from what this request cached when it started.
-		\wp_cache_delete( $this->changedAtKey(), 'options' );
+	/**
+	 * Read from the database, not from what this request cached when it started.
+	 */
+	private function lastChange() :SettingChange {
+		\wp_cache_delete( $this->changeKey(), 'options' );
 		\wp_cache_delete( 'notoptions', 'options' );
-		return (int)\get_option( $this->changedAtKey(), 0 ) >= (int)( $_SERVER[ 'REQUEST_TIME' ] ?? \time() );
+		return SettingChange::fromOption( \get_option( $this->changeKey() ) );
 	}
 
-	private function changedAtKey() :string {
-		return self::con()->prefix( 'early_loading_changed_at', '_' );
+	private function changeKey() :string {
+		return self::con()->prefix( 'early_loading_change', '_' );
 	}
 
 	/**
 	 * WordPress's own lock for upgrades: an atomic insert, released automatically if the holder dies.
 	 */
 	private function lock() :bool {
-		if ( !\class_exists( '\WP_Upgrader' ) ) {
-			require_once ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
-		}
+		$this->loadUpgrader();
 		return \WP_Upgrader::create_lock( $this->lockName(), self::LOCK_TIMEOUT );
 	}
 
 	private function unlock() :void {
+		$this->loadUpgrader();
 		\WP_Upgrader::release_lock( $this->lockName() );
+	}
+
+	private function loadUpgrader() :void {
+		if ( !\class_exists( '\WP_Upgrader' ) ) {
+			require_once ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
+		}
 	}
 
 	private function lockName() :string {
@@ -312,10 +362,18 @@ class EarlyLoadingController {
 	}
 
 	private function verifyRequest() :VerifyRequest {
-		return new VerifyRequest( self::con()->prefix( 'early_loading_check', '_' ), $this->stubPath() );
+		return new VerifyRequest( $this->verifyKey(), $this->stubPath() );
+	}
+
+	private function verifyKey() :string {
+		return self::con()->prefix( 'early_loading_check', '_' );
 	}
 
 	private function store() :WpStateStore {
-		return new WpStateStore( self::con()->prefix( 'early_loading_state', '_' ) );
+		return new WpStateStore( $this->stateKey() );
+	}
+
+	private function stateKey() :string {
+		return self::con()->prefix( 'early_loading_state', '_' );
 	}
 }

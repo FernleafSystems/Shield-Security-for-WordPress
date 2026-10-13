@@ -5,25 +5,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading;
 /**
  * The outcome of one loopback request made by the installer.
  */
-final class ProbeResult {
-
-	public bool $reachable;
-
-	public int $status;
+final readonly class ProbeResult {
 
 	/**
-	 * From the verification response: whether the stub ran for that request. Null when the response
-	 * was not a valid verification response.
+	 * @param ?bool $loaded from a verification response, whether the stub ran for that request; null when the
+	 *                      response was not a valid verification response
 	 */
-	public ?bool $loaded;
-
-	public bool $smokeMarkerSeen;
-
-	public function __construct( bool $reachable, int $status, ?bool $loaded = null, bool $smokeMarkerSeen = false ) {
-		$this->reachable = $reachable;
-		$this->status = $status;
-		$this->loaded = $loaded;
-		$this->smokeMarkerSeen = $smokeMarkerSeen;
+	public function __construct(
+		public bool $reachable,
+		public int $status,
+		public ?bool $loaded = null,
+		public bool $smokeMarkerSeen = false
+	) {
 	}
 
 	public static function unreachable() :self {

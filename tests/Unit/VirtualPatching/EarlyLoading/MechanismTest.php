@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\VirtualPatching\EarlyLoading;
 
-use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\Mechanism;
+use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\{
+	Mechanism,
+	MechanismKind
+};
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -10,15 +13,15 @@ class MechanismTest extends TestCase {
 
 	public static function environmentProvider() :array {
 		return [
-			'apache mod_php'           => [ 'apache2handler', '.user.ini', 'Apache/2.4.58', Mechanism::APACHE_MOD_PHP, true, false, true ],
-			'litespeed with user ini'  => [ 'litespeed', '.user.ini', 'LiteSpeed', Mechanism::LITESPEED, true, true, true ],
-			'litespeed without'        => [ 'litespeed', '', 'LiteSpeed', Mechanism::LITESPEED, true, false, true ],
-			'nginx php-fpm'            => [ 'fpm-fcgi', '.user.ini', 'nginx/1.27.0', Mechanism::USER_INI, false, true, false ],
-			'apache php-fpm'           => [ 'fpm-fcgi', '.user.ini', 'Apache/2.4.58 (Ubuntu)', Mechanism::USER_INI, false, true, true ],
-			'apache suphp cgi'         => [ 'cgi', '.user.ini', 'Apache', Mechanism::USER_INI, false, true, true ],
-			'fpm with user ini off'    => [ 'fpm-fcgi', '', 'nginx', Mechanism::MANUAL, false, false, false ],
-			'fpm with unsafe ini name' => [ 'fpm-fcgi', '../php.ini', 'nginx', Mechanism::MANUAL, false, false, false ],
-			'cli'                      => [ 'cli', '.user.ini', '', Mechanism::MANUAL, false, false, false ],
+			'apache mod_php'           => [ 'apache2handler', '.user.ini', 'Apache/2.4.58', MechanismKind::ApacheModPhp, true, false, true ],
+			'litespeed with user ini'  => [ 'litespeed', '.user.ini', 'LiteSpeed', MechanismKind::Litespeed, true, true, true ],
+			'litespeed without'        => [ 'litespeed', '', 'LiteSpeed', MechanismKind::Litespeed, true, false, true ],
+			'nginx php-fpm'            => [ 'fpm-fcgi', '.user.ini', 'nginx/1.27.0', MechanismKind::UserIni, false, true, false ],
+			'apache php-fpm'           => [ 'fpm-fcgi', '.user.ini', 'Apache/2.4.58 (Ubuntu)', MechanismKind::UserIni, false, true, true ],
+			'apache suphp cgi'         => [ 'cgi', '.user.ini', 'Apache', MechanismKind::UserIni, false, true, true ],
+			'fpm with user ini off'    => [ 'fpm-fcgi', '', 'nginx', MechanismKind::Manual, false, false, false ],
+			'fpm with unsafe ini name' => [ 'fpm-fcgi', '../php.ini', 'nginx', MechanismKind::Manual, false, false, false ],
+			'cli'                      => [ 'cli', '.user.ini', '', MechanismKind::Manual, false, false, false ],
 		];
 	}
 
@@ -27,24 +30,23 @@ class MechanismTest extends TestCase {
 		string $sapi,
 		string $userIni,
 		string $software,
-		string $expectedKey,
+		MechanismKind $expectedKind,
 		bool $htaccessPrepend,
 		bool $userIniWritten,
 		bool $htaccessWritten
 	) :void {
 		$mechanism = Mechanism::detect( $sapi, $userIni, $software );
 
-		$this->assertSame( $expectedKey, $mechanism->key() );
-		$this->assertSame( $expectedKey !== Mechanism::MANUAL, $mechanism->isAutomatic() );
-		$this->assertSame( $htaccessPrepend, $mechanism->writesHtaccessPrepend() );
+		$this->assertSame( $expectedKind, $mechanism->kind() );
+		$this->assertSame( $htaccessPrepend, $mechanism->kind()->setsPrependInHtaccess() );
 		$this->assertSame( $userIniWritten, $mechanism->writesUserIni() );
 		$this->assertSame( $htaccessWritten, $mechanism->writesHtaccess() );
 	}
 
 	public function testCacheSecondsCoversTheUserIniCache() :void {
-		$this->assertSame( 0, Mechanism::detect( 'apache2handler', '.user.ini', 'Apache' )->cacheSeconds( 300 ) );
-		$this->assertSame( 300, Mechanism::detect( 'fpm-fcgi', '.user.ini', 'nginx' )->cacheSeconds( 60 ) );
-		$this->assertSame( 900, Mechanism::detect( 'fpm-fcgi', '.user.ini', 'nginx' )->cacheSeconds( 900 ) );
-		$this->assertSame( 300, Mechanism::detect( 'litespeed', '', 'LiteSpeed' )->cacheSeconds( 0 ) );
+		$this->assertSame( 0, MechanismKind::ApacheModPhp->cacheSeconds( 300 ) );
+		$this->assertSame( 300, MechanismKind::UserIni->cacheSeconds( 60 ) );
+		$this->assertSame( 900, MechanismKind::UserIni->cacheSeconds( 900 ) );
+		$this->assertSame( 300, MechanismKind::Litespeed->cacheSeconds( 0 ) );
 	}
 }

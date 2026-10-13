@@ -318,6 +318,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 
 			$this->assertTrue( $state->controller->plugin_reset );
 			$this->assertSame( 1, $state->assetCoordinator->deletions );
+			$this->assertSame( 1, $state->earlyLoading->deletions );
 			$this->assertSame( 1, $state->opts->resetCalls );
 			$this->assertSame( 1, $state->opts->deleteCalls );
 			$this->assertNotContains( 'confirm', \array_column( \WP_CLI::$events, 'type' ) );
@@ -398,6 +399,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 			$opts = new WpCliTestOptions();
 			$scans = new WpCliTestScans( $scanResult );
 			$assetCoordinator = new WpCliTestAssetCoordinator();
+			$earlyLoading = new WpCliTestEarlyLoading();
 			$configuration = new class {
 				public array $options = [
 					'wp_cli_test_option' => [],
@@ -431,6 +433,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 				'opts'       => $opts,
 				'comps'      => (object)[
 					'asset_coordinator' => $assetCoordinator,
+					'early_loading'     => $earlyLoading,
 					'opts_lookup'       => new class {
 					},
 					'scans'             => $scans,
@@ -452,6 +455,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 			return (object)[
 				'controller' => $controller,
 				'assetCoordinator' => $assetCoordinator,
+				'earlyLoading'     => $earlyLoading,
 				'opts'       => $opts,
 				'scans'      => $scans,
 			];
@@ -741,6 +745,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 		public int $deletions = 0;
 
 		public function deleteState() :void {
+			$this->deletions++;
+		}
+	}
+
+	class WpCliTestEarlyLoading {
+
+		public int $deletions = 0;
+
+		public function deleteStoredState() :void {
 			$this->deletions++;
 		}
 	}

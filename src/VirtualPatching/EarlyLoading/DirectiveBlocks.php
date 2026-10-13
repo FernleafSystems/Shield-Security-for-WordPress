@@ -13,13 +13,11 @@ final class DirectiveBlocks {
 	public static function htaccess( string $stubPath, Mechanism $mechanism, string $userIniFilename ) :string {
 		$quoted = self::quoted( $stubPath );
 
-		$modules = [];
-		if ( $mechanism->key() === Mechanism::APACHE_MOD_PHP ) {
-			$modules = [ 'mod_php5.c', 'mod_php7.c', 'mod_php.c' ];
-		}
-		elseif ( $mechanism->key() === Mechanism::LITESPEED ) {
-			$modules = [ 'LiteSpeed', 'lsapi_module' ];
-		}
+		$modules = match ( $mechanism->kind() ) {
+			MechanismKind::ApacheModPhp => [ 'mod_php5.c', 'mod_php7.c', 'mod_php.c' ],
+			MechanismKind::Litespeed => [ 'LiteSpeed', 'lsapi_module' ],
+			MechanismKind::UserIni, MechanismKind::Manual => [],
+		};
 
 		$lines = [];
 		foreach ( $modules as $module ) {
