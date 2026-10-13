@@ -12,7 +12,7 @@ class UserHasWpCapability extends Base {
 	use Traits\TypeUser;
 
 	public function getDescription() :string {
-		return __( "Is current user a logged-in WordPress administrator.", 'wp-simple-firewall' );
+		return __( "Does the logged-in user have the given WordPress capability.", 'wp-simple-firewall' );
 	}
 
 	protected function execConditionCheck() :bool {

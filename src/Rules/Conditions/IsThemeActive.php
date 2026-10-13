@@ -29,7 +29,7 @@ class IsThemeActive extends Base {
 				[
 					'conditions' => IsThemeInstalled::class,
 					'params'     => [
-						'plugin_file' => $this->p->theme_dir,
+						'theme_dir' => $this->p->theme_dir,
 					],
 				],
 				[
