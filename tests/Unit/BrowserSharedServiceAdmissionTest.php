@@ -184,7 +184,7 @@ class BrowserSharedServiceAdmissionTest extends TestCase {
 		$this->assertSame( 0, $tester->execute( [ '--scope' => 'source', '--dry-run' => true ] ), $tester->getDisplay() );
 	}
 
-	/** @dataProvider siteCommandProfiles */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'siteCommandProfiles' )]
 	public function testSiteMutatorsAdmitOnlyBrowserProfiles( string $commandClass, string $method, array $arguments, string $profile ) :void {
 		$manager = $this->getMockBuilder( LocalSiteManager::class )->disableOriginalConstructor()
 			->onlyMethods( [ 'definition', $method ] )->getMock();
@@ -221,7 +221,7 @@ class BrowserSharedServiceAdmissionTest extends TestCase {
 		return $cases;
 	}
 
-	/** @dataProvider siteCommandProfiles */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'siteCommandProfiles' )]
 	public function testSiteOperationFailureReturnsFailureAndReleasesAdmission( string $commandClass, string $method, array $arguments, string $profile ) :void {
 		$manager = $this->getMockBuilder( LocalSiteManager::class )->disableOriginalConstructor()
 			->onlyMethods( [ 'definition', $method ] )->getMock();

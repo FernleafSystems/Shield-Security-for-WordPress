@@ -58,7 +58,7 @@ class DockerRunOwnedCleanupTest extends TestCase {
 		$this->assertCount( 3, $runner->removed );
 	}
 
-	/** @dataProvider ordinaryCleanupPhases */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'ordinaryCleanupPhases' )]
 	public function testOrdinaryStartupWarmAndFullPoliciesRemainUnchanged( string $phase, int $remaining ) :void {
 		$runner = new OwnedDockerProcessRunner();
 		$runner->add( 'container', 'owned', $this->labels( 'mine', 'transient' ) );
@@ -227,7 +227,7 @@ class DockerRunOwnedCleanupTest extends TestCase {
 		}
 	}
 
-	/** @dataProvider occupiedSlotLabels */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'occupiedSlotLabels' )]
 	public function testStartupRefusesOccupiedSharedContainerWithoutWrites( array $labels ) :void {
 		$runner = new OwnedDockerProcessRunner();
 		$runner->add( 'container', LocalSiteDefinitions::BROWSER_DB_CONTAINER_NAME, $labels );
