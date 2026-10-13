@@ -14,14 +14,11 @@ class WpLoopbackProbe implements LoopbackProbe {
 
 	private string $homeUrl;
 
-	private string $stubUrl;
-
-	public function __construct( VerifyRequest $verifyRequest, SiteLoopback $loopback, string $verifyUrl, string $homeUrl, string $stubUrl ) {
+	public function __construct( VerifyRequest $verifyRequest, SiteLoopback $loopback, string $verifyUrl, string $homeUrl ) {
 		$this->verifyRequest = $verifyRequest;
 		$this->loopback = $loopback;
 		$this->verifyUrl = $verifyUrl;
 		$this->homeUrl = $homeUrl;
-		$this->stubUrl = $stubUrl;
 	}
 
 	public function verify() :ProbeResult {
@@ -36,8 +33,8 @@ class WpLoopbackProbe implements LoopbackProbe {
 		$this->loopback->prepareForChecks();
 	}
 
-	public function smoke() :ProbeResult {
-		$response = $this->loopback->get( $this->stubUrl );
+	public function smoke( string $url ) :ProbeResult {
+		$response = $this->loopback->get( $url );
 		if ( \is_wp_error( $response ) ) {
 			return ProbeResult::unreachable();
 		}

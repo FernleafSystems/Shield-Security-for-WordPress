@@ -43,6 +43,9 @@ class EarlyLoaderServerTest extends TestCase {
 		\mkdir( $this->root.'/blog/wp-content/plugins/demo', 0777, true );
 		\file_put_contents( $this->root.'/blog/wp-load.php', '<?php' );
 		\file_put_contents( $this->root.'/blog/wp-content/plugins/demo/install.php', $script );
+		// Another application in the same hosting account.
+		\mkdir( $this->root.'/other-app', 0777, true );
+		\file_put_contents( $this->root.'/other-app/install.php', $script );
 
 		\file_put_contents( $this->rulesetPath, RulesetFile::render( [
 			'format'         => RulesetFile::FORMAT,
@@ -73,7 +76,10 @@ class EarlyLoaderServerTest extends TestCase {
 		] ) );
 
 		$bootstrap = \dirname( __DIR__, 4 ).'/src/VirtualPatching/EarlyLoading/bootstrap.php';
-		\file_put_contents( $this->root.'/'.StubBuilder::FILE_NAME, StubBuilder::build( $bootstrap, $this->rulesetPath, null, [ $this->root ] ) );
+		\file_put_contents( $this->root.'/'.StubBuilder::FILE_NAME, StubBuilder::build( $bootstrap, $this->rulesetPath, null, [
+			'root_dirs' => [ $this->root ],
+			'dirs'      => [ $this->root.'/wp-content' ],
+		] ) );
 
 		$this->startServer();
 	}
@@ -113,6 +119,13 @@ class EarlyLoaderServerTest extends TestCase {
 
 	public function testWordPressInAFolderBelowIsAnotherSiteAndIsNotChecked() :void {
 		[ $status, $body ] = $this->request( 'POST', '/blog/wp-content/plugins/demo/install.php', 'step=2' );
+
+		$this->assertSame( 200, $status );
+		$this->assertSame( 'reached|not-ran', $body );
+	}
+
+	public function testAnotherApplicationIsNotChecked() :void {
+		[ $status, $body ] = $this->request( 'POST', '/other-app/install.php', 'step=2' );
 
 		$this->assertSame( 200, $status );
 		$this->assertSame( 'reached|not-ran', $body );

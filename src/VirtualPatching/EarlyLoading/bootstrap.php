@@ -13,7 +13,7 @@ if ( !\defined( 'SHIELD_EARLY_RULESET' ) || !\defined( 'SHIELD_EARLY_SCOPE' ) ||
 	return;
 }
 
-( static function ( $rulesetPath, $scopeDirs ) :void {
+( static function ( $rulesetPath, $scope ) :void {
 	$ruleset = null;
 	$blocked = null;
 	$complete = false;
@@ -37,12 +37,18 @@ if ( !\defined( 'SHIELD_EARLY_RULESET' ) || !\defined( 'SHIELD_EARLY_SCOPE' ) ||
 			] as $class
 		) {
 			if ( !\class_exists( $namespace.$class, false ) ) {
-				require_once \dirname( __DIR__ ).'/'.\str_replace( '\\', '/', $class ).'.php';
+				// Part way through a plugin update or deletion, a file can be missing; on PHP 7 a failed
+				// require can't be caught, so nothing is required unless it's there.
+				$file = \dirname( __DIR__ ).'/'.\str_replace( '\\', '/', $class ).'.php';
+				if ( !\is_file( $file ) ) {
+					return;
+				}
+				require_once $file;
 			}
 		}
 
-		if ( \is_string( $rulesetPath ) && \is_array( $scopeDirs ) && \is_string( $script )
-			 && \FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\EarlyPass::coversScript( $script, $scopeDirs ) ) {
+		if ( \is_string( $rulesetPath ) && \is_array( $scope ) && \is_string( $script )
+			 && \FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\EarlyPass::coversScript( $script, $scope ) ) {
 			$ruleset = \FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\Ruleset\RulesetFile::read( $rulesetPath );
 			if ( $ruleset !== null && !empty( $ruleset[ 'rules' ] ) ) {
 				$pass = new \FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\EarlyPass( $ruleset, $_SERVER, $_GET, $_POST );

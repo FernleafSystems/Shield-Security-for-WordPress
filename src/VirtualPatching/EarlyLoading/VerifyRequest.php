@@ -16,8 +16,11 @@ class VerifyRequest {
 
 	private string $optionKey;
 
-	public function __construct( string $optionKey ) {
+	private string $stubPath;
+
+	public function __construct( string $optionKey, string $stubPath ) {
 		$this->optionKey = $optionKey;
+		$this->stubPath = $stubPath;
 	}
 
 	public function issueToken() :string {
@@ -42,8 +45,24 @@ class VerifyRequest {
 		$token = $_GET[ self::QUERY_KEY ] ?? null;
 		if ( \is_string( $token ) && $this->isValidToken( $token ) ) {
 			\nocache_headers();
-			\wp_send_json( [ 'shield_early' => [ 'loaded' => \defined( 'SHIELD_EARLY_LOADED' ) ] ] );
+			\wp_send_json( [
+				'shield_early' => [
+					'loaded' => self::isOwnStub(
+						\defined( 'SHIELD_EARLY_LOADED' ) ? \constant( 'SHIELD_EARLY_LOADED' ) : null,
+						$this->stubPath
+					),
+				],
+			] );
 		}
+	}
+
+	/**
+	 * The stub defines SHIELD_EARLY_LOADED as its own path. Another site's stub, for example one inherited
+	 * from a WordPress site in a parent folder, doesn't count.
+	 * @param mixed $loaded
+	 */
+	public static function isOwnStub( $loaded, string $stubPath ) :bool {
+		return \is_string( $loaded ) && $loaded !== '' && self::normalise( $loaded ) === self::normalise( $stubPath );
 	}
 
 	/**
@@ -53,5 +72,10 @@ class VerifyRequest {
 		$decoded = \json_decode( $body, true );
 		$loaded = \is_array( $decoded ) ? ( $decoded[ 'shield_early' ][ 'loaded' ] ?? null ) : null;
 		return \is_bool( $loaded ) ? $loaded : null;
+	}
+
+	private static function normalise( string $path ) :string {
+		$real = \function_exists( 'realpath' ) ? \realpath( $path ) : false;
+		return DirectiveBlocks::normalise( \is_string( $real ) ? $real : $path );
 	}
 }

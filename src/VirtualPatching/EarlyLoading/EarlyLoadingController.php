@@ -26,7 +26,7 @@ class EarlyLoadingController {
 	/**
 	 * Longer than an install's loopback requests can take.
 	 */
-	private const GUARD_TTL = 180;
+	private const LOCK_TIMEOUT = 300;
 
 	protected function run() {
 		$this->verifyRequest()->respondIfRequested();
@@ -46,9 +46,12 @@ class EarlyLoadingController {
 	 * Applies a change to the setting. A failed install switches the setting back off.
 	 */
 	public function applyOption() :void {
-		\update_option( $this->changedAtKey(), Services::Request()->ts(), false );
-		$guard = $this->acquireGuard();
-		if ( $guard === '' ) {
+		// Requests that start before this one has stored the new setting still read the old one, so the
+		// time of the change is also recorded once this request has finished.
+		$this->markSettingChanged();
+		add_action( 'shutdown', [ $this, 'markSettingChanged' ], \PHP_INT_MAX );
+
+		if ( !$this->lock() ) {
 			// Another request is changing the early loader; maintain() reconciles with the setting afterwards.
 			return;
 		}
@@ -69,19 +72,26 @@ class EarlyLoadingController {
 			// Recorded in the state for the settings page.
 		}
 		finally {
-			$this->releaseGuard( $guard );
+			$this->unlock();
 		}
 	}
 
 	/**
 	 * Deactivation takes Shield's blocks out of the configuration files. The stub stays, inert once the
-	 * plugin is gone, until PHP has stopped using it.
+	 * plugin is gone, until PHP has stopped using it. This goes ahead even while another request holds the
+	 * lock, because leaving the blocks in place is the greater risk.
 	 */
 	public function onDeactivate() :void {
+		$locked = $this->lock();
 		try {
 			$this->installer()->removeDirectives();
 		}
 		catch ( InstallException $e ) {
+		}
+		finally {
+			if ( $locked ) {
+				$this->unlock();
+			}
 		}
 	}
 
@@ -94,32 +104,29 @@ class EarlyLoadingController {
 	}
 
 	/**
-	 * Installs when the setting is on but nothing is installed (for example after reactivation),
-	 * confirms installs, keeps the stub current and completes removals.
+	 * Puts back interrupted installs, installs when the setting is on but nothing is installed (for example
+	 * after reactivation), confirms and settles installs, keeps the stub current and completes removals.
 	 */
 	public function maintain() :void {
-		// A request that began before the setting last changed has read the previous setting, and while a
-		// settings save is installing or removing, its own loopback requests can start WP-Cron.
-		if ( $this->settingChangedDuringThisRequest() ) {
+		if ( $this->settingChangedDuringThisRequest() || !$this->lock() ) {
 			return;
 		}
-		$guard = $this->acquireGuard();
-		if ( $guard === '' ) {
-			return;
-		}
-		$state = $this->state();
 		try {
+			$installer = $this->installer();
+			$state = $installer->recoverInterrupted();
+			( new StubFile( $this->stubPath() ) )->removeStaleCandidates( Services::Request()->ts() );
+
 			if ( !$this->isEnabled() ) {
-				if ( $state->status !== State::OFF || ( new StubFile( $this->paths()->stub ) )->exists() ) {
+				if ( $state->status !== State::OFF || ( new StubFile( $this->stubPath() ) )->exists() ) {
 					$this->remove();
 				}
 			}
 			elseif ( \in_array( $state->status, [ State::INSTALLED, State::MANUAL ], true ) ) {
-				$this->installer()->refresh();
+				$installer->refresh();
 			}
 			elseif ( $this->isWebRequest() ) {
 				try {
-					$this->installer()->install();
+					$installer->install();
 				}
 				catch ( InstallException $e ) {
 					self::con()->opts->optSet( self::OPT_ENABLE, 'N' );
@@ -130,42 +137,53 @@ class EarlyLoadingController {
 			// Recorded in the state for the settings page.
 		}
 		finally {
-			$this->releaseGuard( $guard );
+			$this->unlock();
 		}
 	}
 
 	/**
-	 * Whether the given file is the stub exactly as Shield generates it, so scans can skip it.
+	 * Whether the given file is this site's stub as Shield manages it, so scans neither report it nor offer
+	 * to delete it: deleting a stub PHP still prepends would break every request.
 	 */
-	public function isGeneratedStub( string $path ) :bool {
-		$paths = $this->paths();
-		$real = \realpath( $path );
-		return $real !== false
-			   && $real === \realpath( $paths->stub )
-			   && ( new StubFile( $paths->stub ) )->matches( $this->installer()->stubContent( $this->state()->hostPrepend ) );
+	public function isShieldStub( string $path ) :bool {
+		$stub = new StubFile( $this->stubPath() );
+		$state = $this->state();
+		return VerifyRequest::isOwnStub( $path, $this->stubPath() )
+			   && ( $stub->matches( $this->installer()->stubContent( $state->hostPrepend ) )
+					|| ( $state->status !== State::OFF && $stub->isShieldStub() ) );
 	}
 
 	/**
-	 * The line for an administrator to add when PHP's configuration can't be changed automatically.
+	 * The settings for an administrator to add when PHP's configuration can't be changed automatically.
+	 * @return array{ini:string,pool:string}
 	 */
-	public function manualDirective() :string {
-		return 'auto_prepend_file = '.DirectiveBlocks::quoted( $this->paths()->stub );
+	public function manualDirectives() :array {
+		$quoted = DirectiveBlocks::quoted( $this->stubPath() );
+		return [
+			'ini'  => 'auto_prepend_file = '.$quoted,
+			'pool' => 'php_admin_value[auto_prepend_file] = '.$quoted,
+		];
 	}
 
 	public function installer() :Installer {
-		$paths = $this->paths();
 		return new Installer(
-			$paths,
+			$this->paths(),
 			$this->environment(),
 			new WpLoopbackProbe(
 				$this->verifyRequest(),
 				new SiteLoopback(),
 				\admin_url( 'admin-ajax.php' ),
-				\home_url( '/' ),
-				$paths->stubUrl
+				\home_url( '/' )
 			),
 			$this->store()
 		);
+	}
+
+	/**
+	 * Called at the start of a settings change and again at the end of that request.
+	 */
+	public function markSettingChanged() :void {
+		\update_option( $this->changedAtKey(), \time(), false );
 	}
 
 	/**
@@ -180,10 +198,17 @@ class EarlyLoadingController {
 	}
 
 	private function needsAttention( State $state ) :bool {
-		return $state->status === State::REMOVING
-			   || $state->isPending( Services::Request()->ts() )
-			   || ( $this->isEnabled() && $state->status === State::OFF )
-			   || ( !$this->isEnabled() && $state->status !== State::OFF );
+		$enabled = $this->isEnabled();
+		return \in_array( $state->status, [ State::INSTALLING, State::REMOVING ], true )
+			   || ( $state->status === State::INSTALLED && !$state->settled )
+			   || ( $enabled && $state->status === State::OFF )
+			   || ( !$enabled && $state->status !== State::OFF )
+			   || ( \in_array( $state->status, [ State::INSTALLED, State::MANUAL ], true )
+					&& !( new StubFile( $this->stubPath() ) )->matches( $this->installer()->stubContent( $state->hostPrepend ) ) );
+	}
+
+	private function stubPath() :string {
+		return \wp_normalize_path( ABSPATH ).StubBuilder::FILE_NAME;
 	}
 
 	private function paths() :Paths {
@@ -194,29 +219,37 @@ class EarlyLoadingController {
 		$userIni = $this->ini( 'user_ini.filename' );
 		$con = self::con();
 		return new Paths(
-			\wp_normalize_path( ABSPATH ).StubBuilder::FILE_NAME,
+			$this->stubPath(),
 			\site_url( '/'.StubBuilder::FILE_NAME ),
 			$home.'.htaccess',
 			Mechanism::isUsableUserIniFilename( $userIni ) ? $home.$userIni : null,
 			\wp_normalize_path( \path_join( $con->getRootDir(), 'src/VirtualPatching/EarlyLoading/bootstrap.php' ) ),
 			\wp_normalize_path( $con->comps->virtual_patching->rulesetPath() ),
-			$this->scopeDirs()
+			$this->scope( $home )
 		);
 	}
 
 	/**
-	 * ABSPATH and the content directory, which may be outside it, as PHP will report them when resolved.
-	 * @return string[]
+	 * Only this site's WordPress files: those directly in ABSPATH, wp-admin, wp-includes and the content
+	 * directory (which may be outside ABSPATH), and the front controller when WordPress has its own
+	 * directory. Paths are resolved as PHP reports them for the requested script.
 	 */
-	private function scopeDirs() :array {
-		$dirs = [];
-		foreach ( [ ABSPATH, WP_CONTENT_DIR ] as $dir ) {
-			$real = \function_exists( 'realpath' ) ? \realpath( $dir ) : $dir;
-			if ( \is_string( $real ) ) {
-				$dirs[] = \untrailingslashit( \wp_normalize_path( $real ) );
-			}
-		}
-		return \array_values( \array_unique( $dirs ) );
+	private function scope( string $home ) :array {
+		$resolve = function ( string $path ) :string {
+			$real = \function_exists( 'realpath' ) ? \realpath( $path ) : $path;
+			return \is_string( $real ) ? \untrailingslashit( \wp_normalize_path( $real ) ) : '';
+		};
+		$abspath = $resolve( ABSPATH );
+		$frontController = $resolve( $home.'index.php' );
+		return [
+			'files'     => $frontController !== '' && \dirname( $frontController ) !== $abspath ? [ $frontController ] : [],
+			'root_dirs' => \array_filter( [ $abspath ] ),
+			'dirs'      => \array_values( \array_unique( \array_filter( [
+				$resolve( ABSPATH.'wp-admin' ),
+				$resolve( ABSPATH.WPINC ),
+				$resolve( WP_CONTENT_DIR ),
+			] ) ) ),
+		];
 	}
 
 	private function environment() :Environment {
@@ -260,27 +293,26 @@ class EarlyLoadingController {
 		return self::con()->prefix( 'early_loading_changed_at', '_' );
 	}
 
-	private function acquireGuard() :string {
-		$key = self::con()->prefix( 'early_loading_guard', '_' );
-		if ( \get_transient( $key ) !== false ) {
-			return '';
+	/**
+	 * WordPress's own lock for upgrades: an atomic insert, released automatically if the holder dies.
+	 */
+	private function lock() :bool {
+		if ( !\class_exists( '\WP_Upgrader' ) ) {
+			require_once ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
 		}
-		$token = \wp_generate_uuid4();
-		if ( !\set_transient( $key, $token, self::GUARD_TTL ) ) {
-			return '';
-		}
-		return \get_transient( $key ) === $token ? $token : '';
+		return \WP_Upgrader::create_lock( $this->lockName(), self::LOCK_TIMEOUT );
 	}
 
-	private function releaseGuard( string $token ) :void {
-		$key = self::con()->prefix( 'early_loading_guard', '_' );
-		if ( \hash_equals( $token, (string)\get_transient( $key ) ) ) {
-			\delete_transient( $key );
-		}
+	private function unlock() :void {
+		\WP_Upgrader::release_lock( $this->lockName() );
+	}
+
+	private function lockName() :string {
+		return self::con()->prefix( 'early_loading', '_' );
 	}
 
 	private function verifyRequest() :VerifyRequest {
-		return new VerifyRequest( self::con()->prefix( 'early_loading_check', '_' ) );
+		return new VerifyRequest( self::con()->prefix( 'early_loading_check', '_' ), $this->stubPath() );
 	}
 
 	private function store() :WpStateStore {

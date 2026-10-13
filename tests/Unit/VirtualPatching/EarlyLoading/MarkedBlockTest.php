@@ -43,6 +43,13 @@ class MarkedBlockTest extends TestCase {
 		$this->assertSame( "memory_limit = 256M\nupload_max_filesize = 8M\n", $block->remove( $content ) );
 	}
 
+	public function testRemoveLeavesTheRestOfTheFileExactlyAsItWas() :void {
+		$block = MarkedBlock::htaccess();
+		$users = "RewriteEngine On\r\n\r\n\r\n\r\n# keep this spacing\r\n";
+
+		$this->assertSame( $users, $block->remove( $block->apply( $users, "php_value auto_prepend_file '/a.php'" ) ) );
+	}
+
 	public function testCrlfContentIsRecognised() :void {
 		$block = MarkedBlock::userIni();
 		$content = "memory_limit = 256M\r\n; BEGIN Shield Early Loading\r\nauto_prepend_file = '/a.php'\r\n; END Shield Early Loading\r\n";

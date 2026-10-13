@@ -25,7 +25,7 @@ interface LoopbackProbe {
 	public function prepare() :void;
 
 	/**
-	 * The stub requested directly, to check the web server can run it.
+	 * A stub file requested directly, to check the web server can run it.
 	 */
-	public function smoke() :ProbeResult;
+	public function smoke( string $url ) :ProbeResult;
 }

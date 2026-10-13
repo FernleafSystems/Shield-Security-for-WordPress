@@ -73,7 +73,19 @@ class ConfigFile {
 
 			$after = $change( $before );
 			if ( $after !== null && $after !== $read ) {
-				$this->replaceContent( $handle, $after );
+				try {
+					$this->replaceContent( $handle, $after );
+				}
+				catch ( ConfigFileException $e ) {
+					// The file may now be empty or half written (a full disk, for example), so the original
+					// content goes back before the failure is reported.
+					try {
+						$this->replaceContent( $handle, $read );
+					}
+					catch ( ConfigFileException $ignored ) {
+					}
+					throw $e;
+				}
 			}
 			$completed = true;
 		}
@@ -104,6 +116,23 @@ class ConfigFile {
 	}
 
 	/**
+	 * Undoes Shield's edit. The original comes back only while the file is exactly as Shield left it;
+	 * if anything else has changed the file since, only Shield's block is taken out, so the other change
+	 * is kept.
+	 * @throws ConfigFileException
+	 * @throws MalformedBlockException
+	 */
+	public function revert( ?string $before, string $after, MarkedBlock $block ) :void {
+		if ( $this->read() === $after ) {
+			$this->restore( $before );
+		}
+		else {
+			$this->modify( fn( ?string $current ) => $current !== null && $block->has( $current ) ? $block->remove( $current ) : null );
+		}
+	}
+
+	/**
+	 * Writes and then reads the file back, so a short write is never taken for success.
 	 * @param resource $handle
 	 * @throws ConfigFileException
 	 */
@@ -114,12 +143,22 @@ class ConfigFile {
 		$written = 0;
 		$length = \strlen( $content );
 		while ( $written < $length ) {
-			$bytes = \fwrite( $handle, \substr( $content, $written ) );
+			$bytes = $this->writeChunk( $handle, \substr( $content, $written ) );
 			if ( $bytes === false || $bytes === 0 ) {
 				throw new ConfigFileException( sprintf( 'Could not write %s.', $this->path ) );
 			}
 			$written += $bytes;
 		}
-		\fflush( $handle );
+		if ( !\fflush( $handle ) || !\rewind( $handle ) || \stream_get_contents( $handle ) !== $content ) {
+			throw new ConfigFileException( sprintf( 'Could not write %s.', $this->path ) );
+		}
+	}
+
+	/**
+	 * @param resource $handle
+	 * @return int|false
+	 */
+	protected function writeChunk( $handle, string $data ) {
+		return \fwrite( $handle, $data );
 	}
 }

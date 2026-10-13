@@ -38,31 +38,58 @@ final class EarlyPass {
 	}
 
 	/**
-	 * Whether the requested PHP file belongs to this WordPress site: inside one of its directories, and not
-	 * inside another WordPress installed in a folder below it, which is common on shared hosting. Other
-	 * applications and other sites are never checked against this site's rules.
-	 * @param string[] $scopeDirs
+	 * Whether the requested PHP file belongs to this WordPress site, so other applications and other sites
+	 * on the same hosting account are never checked against this site's rules. The scope lists:
+	 * - 'files': exact files, such as the site's front controller when WordPress has its own directory;
+	 * - 'root_dirs': directories whose own PHP files are covered, but not their subdirectories (ABSPATH);
+	 * - 'dirs': directories covered with everything below them (wp-admin, wp-includes, the content
+	 *   directory), except inside another WordPress installed in a folder there.
 	 */
-	public static function coversScript( string $scriptFile, array $scopeDirs ) :bool {
+	public static function coversScript( string $scriptFile, array $scope ) :bool {
 		$script = $scriptFile !== '' && \function_exists( 'realpath' ) ? \realpath( $scriptFile ) : false;
 		if ( !\is_string( $script ) ) {
 			return false;
 		}
-		$script = \str_replace( '\\', '/', $script );
+		$script = self::normalise( $script );
 
-		foreach ( $scopeDirs as $root ) {
-			$root = \rtrim( \str_replace( '\\', '/', (string)$root ), '/' );
-			if ( $root === '' || \strpos( $script, $root.'/' ) !== 0 ) {
-				continue;
+		foreach ( self::scopeList( $scope, 'files' ) as $file ) {
+			if ( $script === $file ) {
+				return true;
 			}
-			for ( $dir = \dirname( $script ); \strlen( $dir ) > \strlen( $root ); $dir = \dirname( $dir ) ) {
-				if ( \is_file( $dir.'/wp-load.php' ) ) {
-					return false;
+		}
+		foreach ( self::scopeList( $scope, 'root_dirs' ) as $dir ) {
+			if ( \dirname( $script ) === $dir ) {
+				return true;
+			}
+		}
+		foreach ( self::scopeList( $scope, 'dirs' ) as $root ) {
+			if ( \strpos( $script, $root.'/' ) === 0 ) {
+				for ( $dir = \dirname( $script ); \strlen( $dir ) > \strlen( $root ); $dir = \dirname( $dir ) ) {
+					if ( \is_file( $dir.'/wp-load.php' ) ) {
+						return false;
+					}
 				}
+				return true;
 			}
-			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private static function scopeList( array $scope, string $key ) :array {
+		$list = [];
+		foreach ( \is_array( $scope[ $key ] ?? null ) ? $scope[ $key ] : [] as $path ) {
+			if ( \is_string( $path ) && \trim( $path, '/\\' ) !== '' ) {
+				$list[] = self::normalise( $path );
+			}
+		}
+		return $list;
+	}
+
+	private static function normalise( string $path ) :string {
+		return \rtrim( \str_replace( '\\', '/', $path ), '/' );
 	}
 
 	/**

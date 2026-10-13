@@ -5,12 +5,21 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading;
 /**
  * Installs and removes the early loader.
  *
- * Install writes the stub first, then Shield's blocks in .htaccess and/or .user.ini, and checks the site
- * with loopback requests before and after. If the site stops loading, both files are put back exactly as
- * they were. The stub is only deleted once no configuration can still point PHP at it: Shield's blocks are
- * gone and PHP's configuration cache has had time to expire.
+ * Install writes the stub first (checked by requesting a copy of it), records the planned edits, then writes
+ * Shield's blocks in .htaccess and/or .user.ini and checks the site with loopback requests before and after.
+ * If the site stops responding, the files are put back. Where PHP caches its configuration, the site is
+ * checked again once the cache has expired, and the change is undone then if it broke the site.
+ *
+ * A file is only put back exactly while nobody else has changed it since; otherwise only Shield's block is
+ * taken out. The stub is only deleted once nothing can still point PHP at it: Shield's blocks are gone,
+ * PHP's configuration cache has expired, and a request confirms the stub no longer runs.
  */
 class Installer {
+
+	/**
+	 * An install still marked as in progress after this long was interrupted.
+	 */
+	public const INTERRUPTED_AFTER = 300;
 
 	private Paths $paths;
 
@@ -50,7 +59,7 @@ class Installer {
 	public function removeDirectives() :State {
 		$state = $this->store->load();
 		try {
-			$this->removeBlocks();
+			$this->removeBlocks( $this->knownConfigFiles( $state ) );
 		}
 		catch ( InstallException $e ) {
 			$this->recordError( $e );
@@ -67,6 +76,8 @@ class Installer {
 			$state->cacheSeconds = Mechanism::cacheSecondsFor( $state->mechanism, $this->env->userIniCacheTtl );
 		}
 		$state->confirmed = false;
+		$state->settled = false;
+		$state->edits = [];
 		$state->error = '';
 		$state->errorFile = '';
 		$this->store->save( $state );
@@ -74,28 +85,22 @@ class Installer {
 	}
 
 	/**
-	 * Second step of removal: delete the stub once nothing can still prepend it.
+	 * Second step of removal: delete the stub once nothing can still prepend it. That needs a web request,
+	 * which sees the PHP configuration visitors get, and a request confirming the stub no longer runs; a
+	 * failed loopback proves nothing, so the stub then stays.
 	 */
 	public function finishRemoval() :State {
 		$state = $this->store->load();
-		if ( $state->status !== State::REMOVING ) {
+		if ( $state->status !== State::REMOVING || !$this->env->isWebRequest ) {
 			return $state;
 		}
 
 		$state->checkedAt = $this->env->now;
-		if ( !$this->anyBlockPresent() && !$this->thisRequestPrependsStub() ) {
-			$verify = $this->probe->verify();
-			if ( $state->mechanism === Mechanism::MANUAL ) {
-				// Only the administrator can remove a manual setting, so wait for evidence that they have.
-				$safe = $verify->loaded === false;
-			}
-			else {
-				$safe = $verify->loaded !== true && $this->env->now >= $state->settledAt();
-			}
-
-			if ( $safe && ( new StubFile( $this->paths->stub ) )->delete() ) {
-				$state = new State();
-			}
+		$settled = $state->mechanism === Mechanism::MANUAL || $this->env->now >= $state->settledAt();
+		if ( $settled && !$this->anyBlockPresent( $this->knownConfigFiles( $state ) ) && !$this->thisRequestPrependsStub()
+			 && $this->probe->verify()->loaded === false
+			 && ( new StubFile( $this->paths->stub ) )->delete() ) {
+			$state = new State();
 		}
 
 		$this->store->save( $state );
@@ -103,7 +108,8 @@ class Installer {
 	}
 
 	/**
-	 * Confirms whether an installed stub is running and keeps the stub's content current.
+	 * Keeps an installed stub current, confirms whether it runs, and once PHP's configuration cache has
+	 * expired, checks the site again and undoes the install if it broke the site.
 	 * @throws InstallException
 	 */
 	public function refresh() :State {
@@ -114,7 +120,7 @@ class Installer {
 
 		$state->checkedAt = $this->env->now;
 		try {
-			( new StubFile( $this->paths->stub ) )->write( $this->stubContent( $state->hostPrepend ) );
+			$this->writeStub( $this->stubContent( $state->hostPrepend ) );
 		}
 		catch ( InstallException $e ) {
 			$state->error = $e->reason();
@@ -124,10 +130,36 @@ class Installer {
 		}
 
 		$verify = $this->probe->verify();
+		if ( $state->status === State::INSTALLED && !$state->settled && $this->env->now >= $state->settledAt() ) {
+			$home = $this->probe->home();
+			if ( $verify->reachable && $home->reachable ) {
+				if ( !$verify->isVerificationResponse() || !$home->isVerificationResponse() ) {
+					$this->rollBack( $state, InstallException::SITE_FAILED_REVERTED );
+					return $this->store->load();
+				}
+				$state->settled = true;
+				$state->edits = [];
+			}
+		}
+
 		if ( $verify->isVerificationResponse() ) {
 			$state->confirmed = (bool)$verify->loaded;
 		}
+		$state->error = '';
+		$state->errorFile = '';
 		$this->store->save( $state );
+		return $state;
+	}
+
+	/**
+	 * Puts back an install that a request started but never finished, for example because PHP stopped it.
+	 */
+	public function recoverInterrupted() :State {
+		$state = $this->store->load();
+		if ( $state->status === State::INSTALLING && $this->env->now - $state->since >= self::INTERRUPTED_AFTER ) {
+			$this->rollBack( $state, InstallException::INSTALL_INTERRUPTED );
+			$state = $this->store->load();
+		}
 		return $state;
 	}
 
@@ -151,7 +183,6 @@ class Installer {
 
 		$mechanism = $this->env->mechanism();
 		$hostPrepend = $this->hostPrepend( $previous );
-		$stub = new StubFile( $this->paths->stub );
 
 		$state = new State();
 		$state->mechanism = $mechanism->key();
@@ -159,55 +190,83 @@ class Installer {
 		$state->since = $this->env->now;
 		$state->cacheSeconds = $mechanism->cacheSeconds( $this->env->userIniCacheTtl );
 		$state->checkedAt = $this->env->now;
+		$state->files = $previous->files;
 
 		if ( !$mechanism->isAutomatic() ) {
-			$stub->write( $this->stubContent( $hostPrepend ) );
-			$this->removeBlocksOutside( [] );
+			$this->writeStub( $this->stubContent( $hostPrepend ) );
+			$this->removeBlocksOutside( [], $state );
 			$state->status = State::MANUAL;
 			return $state;
 		}
 
-		$edits = $this->plannedEdits( $mechanism );
+		$planned = $this->plannedEdits( $mechanism );
 
 		$this->probe->prepare();
 		if ( !$this->siteResponds() ) {
 			throw new InstallException( InstallException::LOOPBACK_UNAVAILABLE );
 		}
 
-		$stub->write( $this->stubContent( $hostPrepend ) );
-		if ( $this->probe->smoke()->isServerError() ) {
-			if ( !$previous->stubMayBeInUse() ) {
-				$stub->delete();
-			}
-			throw new InstallException( InstallException::STUB_SMOKE_FAILED, $this->paths->stub );
-		}
+		$this->writeStub( $this->stubContent( $hostPrepend ) );
 
-		$snapshots = [];
+		// Recorded before any file changes, so a request that dies part way through can be undone later.
+		$state->status = State::INSTALLING;
+		$state->files = \array_values( \array_unique( \array_merge( $state->files, \array_keys( $planned ) ) ) );
+		foreach ( $planned as $path => [ $block, $body ] ) {
+			$before = $this->readConfig( $path );
+			$state->edits[ $path ] = [ 'before' => $before, 'after' => $block->apply( $before ?? '', $body ) ];
+		}
+		$this->store->save( $state );
+
 		$path = '';
 		try {
-			foreach ( $edits as $path => [ $block, $body ] ) {
-				[ $before ] = ( new ConfigFile( $path ) )->modify(
+			foreach ( $planned as $path => [ $block, $body ] ) {
+				[ $before, $after ] = ( new ConfigFile( $path ) )->modify(
 					fn( ?string $content ) => $block->apply( $content ?? '', $body )
 				);
-				$snapshots[ $path ] = $before;
+				$state->edits[ $path ] = [ 'before' => $before, 'after' => (string)$after ];
 			}
+			$this->store->save( $state );
 		}
 		catch ( ConfigFileException|MalformedBlockException $e ) {
-			$this->rollBack( $snapshots, $previous );
+			$this->rollBack( $state, InstallException::CONFIG_WRITE_FAILED );
 			throw new InstallException( InstallException::CONFIG_WRITE_FAILED, $path );
 		}
 
 		$verify = $this->probe->verify();
 		if ( !$verify->isVerificationResponse() || !$this->probe->home()->isVerificationResponse() ) {
-			$this->rollBack( $snapshots, $previous );
+			$this->rollBack( $state, InstallException::SITE_FAILED_REVERTED );
 			throw new InstallException( InstallException::SITE_FAILED_REVERTED );
 		}
 
-		$this->removeBlocksOutside( \array_keys( $edits ) );
+		$this->removeBlocksOutside( \array_keys( $planned ), $state );
 
 		$state->status = State::INSTALLED;
 		$state->confirmed = $verify->loaded === true;
+		// Where PHP reads the change at once, this check was the real one; elsewhere refresh() checks again.
+		$state->settled = $state->cacheSeconds === 0;
+		if ( $state->settled ) {
+			$state->edits = [];
+		}
 		return $state;
+	}
+
+	/**
+	 * Writes a copy of the stub first and requests it, so a stub the server can't run never replaces one PHP
+	 * may already be including. A request that can't be made (blocked, for example) doesn't stop the write.
+	 * @throws InstallException
+	 */
+	private function writeStub( string $content ) :void {
+		$stub = new StubFile( $this->paths->stub );
+		if ( $stub->matches( $content ) ) {
+			return;
+		}
+		$candidate = $stub->writeCandidate( $content );
+		$smoke = $this->probe->smoke( \dirname( $this->paths->stubUrl ).'/'.\basename( $candidate ) );
+		if ( $smoke->smokeFailed() ) {
+			$stub->discard( $candidate );
+			throw new InstallException( InstallException::STUB_SMOKE_FAILED, $this->paths->stub );
+		}
+		$stub->promote( $candidate );
 	}
 
 	/**
@@ -215,16 +274,16 @@ class Installer {
 	 * site moves from mod_php to PHP-FPM.
 	 * @param string[] $keep
 	 */
-	private function removeBlocksOutside( array $keep ) :void {
-		foreach ( \array_keys( $this->paths->configFiles() ) as $path ) {
-			if ( !\in_array( $path, $keep, true ) ) {
-				try {
-					$this->removeBlock( $path );
-				}
-				catch ( InstallException $e ) {
-				}
+	private function removeBlocksOutside( array $keep, State $state ) :void {
+		$stale = \array_diff( $this->knownConfigFiles( $state ), $keep );
+		foreach ( $stale as $path ) {
+			try {
+				$this->removeBlock( $path );
+			}
+			catch ( InstallException $e ) {
 			}
 		}
+		$state->files = \array_values( \array_diff( $state->files, $stale ) );
 	}
 
 	/**
@@ -236,25 +295,25 @@ class Installer {
 		$edits = [];
 		if ( $mechanism->writesHtaccess() ) {
 			$edits[ $this->paths->htaccess ] = [
-				MarkedBlock::htaccess(),
+				MarkedBlock::forFile( $this->paths->htaccess ),
 				DirectiveBlocks::htaccess( $this->paths->stub, $mechanism, $this->env->userIniFilename ),
 			];
 		}
 		if ( $mechanism->writesUserIni() && $this->paths->userIni !== null ) {
-			$edits[ $this->paths->userIni ] = [ MarkedBlock::userIni(), DirectiveBlocks::userIni( $this->paths->stub ) ];
+			$edits[ $this->paths->userIni ] = [
+				MarkedBlock::forFile( $this->paths->userIni ),
+				DirectiveBlocks::userIni( $this->paths->stub ),
+			];
 		}
 
 		foreach ( $edits as $path => [ $block ] ) {
 			$honoursPrepend = $path !== $this->paths->htaccess || $mechanism->writesHtaccessPrepend();
+			$content = $this->readConfig( $path ) ?? '';
 			try {
-				$content = ( new ConfigFile( $path ) )->read() ?? '';
 				if ( $honoursPrepend && $block->hasForeignPrepend( $content ) ) {
 					throw new InstallException( InstallException::CONFLICT, $path );
 				}
 				$block->has( $content );
-			}
-			catch ( ConfigFileException $e ) {
-				throw new InstallException( InstallException::CONFIG_WRITE_FAILED, $path );
 			}
 			catch ( MalformedBlockException $e ) {
 				throw new InstallException( InstallException::MALFORMED_MARKERS, $path );
@@ -291,35 +350,44 @@ class Installer {
 	}
 
 	/**
-	 * Puts every edited file back exactly as it was. The stub stays, because PHP may already have read the
-	 * new configuration and will keep using it until its cache expires.
-	 * @param array<string,?string> $snapshots
+	 * Undoes the recorded edits. The stub stays, because PHP may already have read the new configuration
+	 * and will keep using it until its cache expires.
 	 */
-	private function rollBack( array $snapshots, State $previous ) :void {
-		foreach ( \array_reverse( $snapshots, true ) as $path => $content ) {
+	private function rollBack( State $state, string $reason ) :void {
+		foreach ( \array_reverse( $state->edits, true ) as $path => $edit ) {
 			try {
-				( new ConfigFile( $path ) )->restore( $content );
+				( new ConfigFile( $path ) )->revert( $edit[ 'before' ], $edit[ 'after' ], MarkedBlock::forFile( $path ) );
 			}
-			catch ( ConfigFileException $e ) {
+			catch ( ConfigFileException|MalformedBlockException $e ) {
 			}
 		}
 
-		$state = $previous;
-		if ( $state->status !== State::REMOVING ) {
-			$state->status = State::REMOVING;
-			$state->mechanism = $this->env->mechanism()->key();
-			$state->since = $this->env->now;
-			$state->cacheSeconds = $this->env->mechanism()->cacheSeconds( $this->env->userIniCacheTtl );
-		}
+		$state->status = State::REMOVING;
+		$state->since = $this->env->now;
+		$state->cacheSeconds = Mechanism::cacheSecondsFor( $state->mechanism, $this->env->userIniCacheTtl );
 		$state->confirmed = false;
+		$state->settled = false;
+		$state->edits = [];
+		$state->error = $reason;
+		$state->errorFile = '';
 		$this->store->save( $state );
 	}
 
 	/**
+	 * Every configuration file Shield's block may be in: those recorded when it was written, and those this
+	 * request would use now.
+	 * @return string[]
+	 */
+	private function knownConfigFiles( State $state ) :array {
+		return \array_values( \array_unique( \array_merge( $state->files, $this->paths->configFiles() ) ) );
+	}
+
+	/**
+	 * @param string[] $paths
 	 * @throws InstallException
 	 */
-	private function removeBlocks() :void {
-		foreach ( \array_keys( $this->paths->configFiles() ) as $path ) {
+	private function removeBlocks( array $paths ) :void {
+		foreach ( $paths as $path ) {
 			$this->removeBlock( $path );
 		}
 	}
@@ -328,7 +396,7 @@ class Installer {
 	 * @throws InstallException
 	 */
 	private function removeBlock( string $path ) :void {
-		$block = $this->paths->configFiles()[ $path ];
+		$block = MarkedBlock::forFile( $path );
 		try {
 			( new ConfigFile( $path ) )->modify(
 				fn( ?string $content ) => $content !== null && $block->has( $content ) ? $block->remove( $content ) : null
@@ -342,8 +410,23 @@ class Installer {
 		}
 	}
 
-	private function anyBlockPresent() :bool {
-		foreach ( $this->paths->configFiles() as $path => $block ) {
+	/**
+	 * @throws InstallException
+	 */
+	private function readConfig( string $path ) :?string {
+		try {
+			return ( new ConfigFile( $path ) )->read();
+		}
+		catch ( ConfigFileException $e ) {
+			throw new InstallException( InstallException::CONFIG_WRITE_FAILED, $path );
+		}
+	}
+
+	/**
+	 * @param string[] $paths
+	 */
+	private function anyBlockPresent( array $paths ) :bool {
+		foreach ( $paths as $path ) {
 			try {
 				$content = ( new ConfigFile( $path ) )->read();
 				if ( $content !== null && \str_contains( $content, MarkedBlock::MARKER ) ) {
@@ -362,10 +445,7 @@ class Installer {
 	}
 
 	private function isStub( string $path ) :bool {
-		$real = @\realpath( $path );
-		$stub = @\realpath( $this->paths->stub );
-		return DirectiveBlocks::normalise( $path ) === DirectiveBlocks::normalise( $this->paths->stub )
-			   || ( $real !== false && $stub !== false && $real === $stub );
+		return $path !== '' && VerifyRequest::isOwnStub( $path, $this->paths->stub );
 	}
 
 	private function recordError( InstallException $e ) :void {

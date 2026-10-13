@@ -31,6 +31,7 @@ class PluginDelete {
 				self::con()->prefix( 'early_loading_state', '_' ),
 				self::con()->prefix( 'early_loading_check', '_' ),
 				self::con()->prefix( 'early_loading_changed_at', '_' ),
+				self::con()->prefix( 'early_loading', '_' ).'.lock',
 			] as $opt
 		) {
 			Services::WpGeneral()->deleteOption( $opt );

@@ -19,6 +19,7 @@ class InstallException extends \Exception {
 	public const STUB_SMOKE_FAILED = 'stub_smoke_failed';
 	public const CONFIG_WRITE_FAILED = 'config_write_failed';
 	public const SITE_FAILED_REVERTED = 'site_failed_reverted';
+	public const INSTALL_INTERRUPTED = 'install_interrupted';
 
 	private string $reason;
 
