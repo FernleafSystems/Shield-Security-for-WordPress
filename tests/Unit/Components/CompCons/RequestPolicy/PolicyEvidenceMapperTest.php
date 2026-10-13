@@ -10,9 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class PolicyEvidenceMapperTest extends BaseUnitTest {
 
-	/**
-	 * @dataProvider provideMappedEvents
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideMappedEvents' )]
 	public function testMapsShieldEventsToPolicyEvidence( string $event, string $expectedType, string $expectedSeverity ) :void {
 		$evidence = ( new PolicyEvidenceMapper() )->fromEvent( $event );
 
@@ -22,7 +20,7 @@ class PolicyEvidenceMapperTest extends BaseUnitTest {
 		$this->assertSame( $event, $evidence[ 0 ]->source_event );
 	}
 
-	public function provideMappedEvents() :array {
+	public static function provideMappedEvents() :array {
 		return [
 			'failed login'          => [ 'bottrack_loginfailed', PolicyEvidence::TYPE_AUTH_ABUSE, PolicyEvidence::SEVERITY_SIGNAL ],
 			'invalid login'         => [ 'bottrack_logininvalid', PolicyEvidence::TYPE_AUTH_ABUSE, PolicyEvidence::SEVERITY_SIGNAL ],
@@ -77,14 +75,12 @@ class PolicyEvidenceMapperTest extends BaseUnitTest {
 		);
 	}
 
-	/**
-	 * @dataProvider provideIgnoredEvents
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideIgnoredEvents' )]
 	public function testIgnoredEventsDoNotProducePolicyEvidence( string $event ) :void {
 		$this->assertSame( [], ( new PolicyEvidenceMapper() )->fromEvent( $event ) );
 	}
 
-	public function provideIgnoredEvents() :array {
+	public static function provideIgnoredEvents() :array {
 		return [
 			'decision'      => [ 'request_policy_decision' ],
 			'policy block'  => [ 'request_policy_block' ],
