@@ -33,6 +33,29 @@ class WordPressPhpUnitCompatibilityPatcherTest extends TestCase {
 		$this->assertSame( 1, \substr_count( (string)\file_get_contents( $path ), 'Shield PHPUnit 11 compatibility:' ) );
 	}
 
+	public function test_removes_group_metadata_from_check_requirements_prose_on_patched_base() :void {
+		$wpTestsDir = $this->createTrackedTempDir( 'shield-wp-phpunit-patch-prose-' );
+		$path = Path::join( $wpTestsDir, 'includes', 'abstract-testcase.php' );
+		\mkdir( \dirname( $path ), 0777, true );
+		$patcher = new WordPressPhpUnitCompatibilityPatcher();
+		\file_put_contents( $path, $this->legacyFixture() );
+		$patcher->patch( $wpTestsDir );
+		\file_put_contents( $path, \str_replace(
+			"abstract class WP_UnitTestCase_Base {\n",
+			"abstract class WP_UnitTestCase_Base {\n".$this->checkRequirementsFixture(),
+			(string)\file_get_contents( $path )
+		) );
+
+		$patcher->patch( $wpTestsDir );
+		$patched = (string)\file_get_contents( $path );
+		$patcher->patch( $wpTestsDir );
+
+		$this->assertStringNotContainsString( '@group', $patched );
+		$this->assertStringContainsString( 'protected function checkRequirements()', $patched );
+		$this->assertSame( 1, \substr_count( $patched, 'Shield PHPUnit 11 compatibility:' ) );
+		$this->assertSame( $patched, (string)\file_get_contents( $path ) );
+	}
+
 	public function test_rejects_an_unrecognised_wordpress_test_base() :void {
 		$wpTestsDir = $this->createTrackedTempDir( 'shield-wp-phpunit-patch-invalid-' );
 		$path = Path::join( $wpTestsDir, 'includes', 'abstract-testcase.php' );
@@ -62,6 +85,19 @@ abstract class WP_UnitTestCase_Base {
 		}
 	}
 }
+PHP;
+	}
+
+	private function checkRequirementsFixture() :string {
+		return <<<'PHP'
+	/**
+	 * Allows tests to be skipped on single or multisite installs by using @group annotations.
+	 *
+	 * @deprecated 5.9.0 This method has not been functional since PHPUnit 7.0.
+	 */
+	protected function checkRequirements() {
+	}
+
 PHP;
 	}
 }
