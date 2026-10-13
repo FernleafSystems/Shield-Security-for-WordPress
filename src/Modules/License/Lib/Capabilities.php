@@ -171,6 +171,10 @@ class Capabilities {
 		return $this->hasCap( 'user_block_spam_registration' );
 	}
 
+	public function canVirtualPatching() :bool {
+		return $this->hasCap( 'virtual_patching' );
+	}
+
 	public function canWhitelabel() :bool {
 		return $this->hasCap( 'whitelabel' );
 	}
@@ -247,6 +251,7 @@ class Capabilities {
 			'user_suspension',
 			'user_auto_unblock',
 			'user_block_spam_registration',
+			'virtual_patching',
 			'whitelabel',
 			'wpcli_level_2',
 			'reports_local',
