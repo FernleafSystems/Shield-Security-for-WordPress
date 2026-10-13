@@ -89,6 +89,7 @@ class Processor {
 			$components->mfa->execute();
 		}
 
+		$components->early_loading->execute();
 		$components->mainwp->execute();
 		$components->shieldnet->execute();
 		$components->wpcli->execute();
@@ -102,6 +103,7 @@ class Processor {
 		if ( self::con()->comps->opts_lookup->isPluginEnabled() ) {
 			self::con()->comps->hidden_plugins->detect();
 		}
+		self::con()->comps->early_loading->maintain();
 		( new BulkUpdateUserMeta() )->execute();
 	}
 
