@@ -43,9 +43,7 @@ class PluginPackagerTest extends TestCase {
 	// resolveOutputDirectory() - Required parameter validation
 	// =========================================================================
 
-	/**
-	 * @dataProvider providerInvalidOutputDirectory
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerInvalidOutputDirectory' )]
 	public function testOutputDirectoryRequired( $input ) :void {
 		$packager = $this->createPackager();
 

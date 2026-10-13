@@ -169,9 +169,7 @@ class AdminBarScanSummaryCacheTest extends BaseUnitTest {
 		$this->assertSame( $expected, $cache->readBounded() );
 	}
 
-	/**
-	 * @dataProvider invalidBoundedSummaryProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidBoundedSummaryProvider' )]
 	public function test_store_bounded_rejects_invalid_shape_without_writing( array $summary ) :void {
 		Functions\expect( 'set_transient' )->never();
 
@@ -273,9 +271,7 @@ class AdminBarScanSummaryCacheTest extends BaseUnitTest {
 		], $deleted );
 	}
 
-	/**
-	 * @dataProvider boundedSetFailureProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'boundedSetFailureProvider' )]
 	public function test_store_bounded_returns_and_memoizes_valid_summary_when_set_fails( bool $throws ) :void {
 		Functions\when( 'set_transient' )->alias( static function () use ( $throws ) {
 			if ( $throws ) {

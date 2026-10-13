@@ -3,10 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration;
 
 /**
- * @group smoke
  * @expectedDeprecated shield_phpunit_compatibility_class_deprecated
  * @expectedIncorrectUsage shield_phpunit_compatibility_class_incorrect_usage
  */
+#[\PHPUnit\Framework\Attributes\Group( 'smoke' )]
 class WordPressPhpUnitAnnotationCompatibilityIntegrationTest extends ShieldWordPressTestCase {
 
 	/**

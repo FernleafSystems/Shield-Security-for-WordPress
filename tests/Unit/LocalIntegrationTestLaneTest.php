@@ -319,7 +319,7 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		$this->assertFileDoesNotExist( $this->laneLockPath() );
 	}
 
-	/** @dataProvider providerDatabaseProfiles */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerDatabaseProfiles' )]
 	public function testDatabaseProfileSuppliesFixedComposeEnvironment(
 		string $profile,
 		string $expectedImage,

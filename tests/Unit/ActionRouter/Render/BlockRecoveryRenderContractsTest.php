@@ -88,9 +88,7 @@ class BlockRecoveryRenderContractsTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider provideStableActionContracts
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideStableActionContracts' )]
 	public function test_action_contract_builds_exact_stable_ids(
 		string $pageKey,
 		string $actionKey,

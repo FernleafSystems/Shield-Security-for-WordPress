@@ -12,9 +12,7 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 class ReportIntervalWindowResolverTest extends TestCase {
 
-	/**
-	 * @dataProvider providerCompletedIntervals
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerCompletedIntervals' )]
 	public function test_resolve_completed_window_returns_expected_boundaries(
 		string $interval,
 		Carbon $referenceNow,

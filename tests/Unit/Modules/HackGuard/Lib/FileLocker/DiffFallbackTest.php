@@ -57,9 +57,7 @@ class DiffFallbackTest extends BaseUnitTest {
 		);
 	}
 
-	/**
-	 * @dataProvider provideApiThrowables
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideApiThrowables' )]
 	public function test_api_throwable_selects_prepared_wp_fallback( \Throwable $failure ) :void {
 		$original = 'old '.\chr( 0xC3 );
 		$current = 'new content';
@@ -82,9 +80,7 @@ class DiffFallbackTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider provideUnusableApiResponses
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideUnusableApiResponses' )]
 	public function test_unusable_api_response_selects_wp_fallback( ?array $response ) :void {
 		$expectedHtml = '<table class="diff">fallback diff</table>';
 		$subject = new DiffFallbackProbe();

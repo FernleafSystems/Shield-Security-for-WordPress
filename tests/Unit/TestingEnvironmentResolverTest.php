@@ -69,9 +69,7 @@ class TestingEnvironmentResolverTest extends TestCase {
 		$this->detectWordpressVersionsSilenced( $resolver );
 	}
 
-	/**
-	 * @dataProvider providerMalformedWordpressVersionOutput
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerMalformedWordpressVersionOutput' )]
 	public function testDetectWordpressVersionsFailsForMalformedMachineOutput( string $output ) :void {
 		$resolver = new TestingEnvironmentResolver( new RecordingProcessRunner( [ [
 			'exit_code' => 0,

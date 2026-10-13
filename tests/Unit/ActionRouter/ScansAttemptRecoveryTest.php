@@ -56,9 +56,7 @@ class ScansAttemptRecoveryTest extends BaseUnitTest {
 		$this->assertSame( [ $scanID, $scanID ], $watchdog->receivedScanIDs );
 	}
 
-	/**
-	 * @dataProvider invalidScanIDProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidScanIDProvider' )]
 	public function test_explicit_recovery_action_rejects_invalid_ids_and_returns_payload( array $actionData ) :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$this->useNonEmptyModalRenderer( $harness );

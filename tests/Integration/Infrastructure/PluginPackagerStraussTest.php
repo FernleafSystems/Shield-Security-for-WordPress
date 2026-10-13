@@ -142,7 +142,7 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->packagePath = $this->getPluginRoot();
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testSourceStraussConfigMatchesPackageContract() :void {
 		$strauss = $this->getSourceComposerStraussConfig();
 
@@ -157,14 +157,14 @@ class PluginPackagerStraussTest extends TestCase {
 		);
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testVendorPrefixedExists() :void {
 		$prefixed = $this->packagePathJoin( 'vendor_prefixed' );
 		$this->assertDirectoryExists( $prefixed, 'vendor_prefixed directory missing' );
 		$this->assertFileExists( Path::join( $prefixed, 'autoload.php' ) );
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testPackagePathParity() :void {
 		$vendorPackages = $this->collectPackagePaths( $this->packagePathJoin( 'vendor' ) );
 		$prefixedPackages = $this->collectPackagePaths( $this->packagePathJoin( 'vendor_prefixed' ) );
@@ -201,7 +201,7 @@ class PluginPackagerStraussTest extends TestCase {
 		}
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testRequiredPrefixedPackageDirectoriesAreNonEmpty() :void {
 		$requiredPrefixedOnly = $this->getRequiredPrefixedPackages();
 
@@ -215,7 +215,7 @@ class PluginPackagerStraussTest extends TestCase {
 		}
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testPrefixedLibrariesPresent() :void {
 		$prefixed = $this->packagePathJoin( 'vendor_prefixed' );
 		foreach ( $this->getExpectedPrefixedPackageVendors() as $dir ) {
@@ -226,7 +226,7 @@ class PluginPackagerStraussTest extends TestCase {
 		}
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testPackageVendorBinRemoved() :void {
 		$this->assertDirectoryDoesNotExist(
 			$this->packagePathJoin( 'vendor/bin' ),
@@ -234,12 +234,12 @@ class PluginPackagerStraussTest extends TestCase {
 		);
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testStraussPharRemoved() :void {
 		$this->assertFileDoesNotExist( $this->packagePathJoin( 'strauss.phar' ) );
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testAutoloaderSuffixApplied() :void {
 		$autoloadReal = $this->packagePathJoin( 'vendor/composer/autoload_real.php' );
 		$this->assertFileExists( $autoloadReal );
@@ -253,7 +253,7 @@ class PluginPackagerStraussTest extends TestCase {
 		);
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testAutoloadsPruned() :void {
 		$composerDir = $this->packagePathJoin( 'vendor/composer' );
 		$files = [
@@ -279,7 +279,7 @@ class PluginPackagerStraussTest extends TestCase {
 		}
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testPrefixedAutoloadsHaveNoVendorLeaks() :void {
 		$autoloadFiles = \array_merge(
 			glob( $this->packagePathJoin( 'vendor_prefixed/autoload*.php' ) ) ?: [],
@@ -303,7 +303,7 @@ class PluginPackagerStraussTest extends TestCase {
 		);
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testPrefixedAutoloadContainsKeyNamespaces() :void {
 		$composerDir = Path::join( $this->packagePath, 'vendor_prefixed', 'composer' );
 		$autoloadFiles = [
@@ -347,7 +347,7 @@ class PluginPackagerStraussTest extends TestCase {
 		}
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testPrefixedAutoloadSmoke() :void {
 		$prefixedAutoload = $this->packagePathJoin( 'vendor_prefixed/autoload.php' );
 
@@ -427,7 +427,7 @@ class PluginPackagerStraussTest extends TestCase {
 
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testPackagedCrowdSecWatcherBatchesSignalsInPrefixedRuntime() :void {
 		$prefixedAutoload = $this->packagePathJoin( 'vendor_prefixed/autoload.php' );
 		$this->assertFileExists( $prefixedAutoload );
@@ -509,7 +509,7 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertSame( 51, $handler->requests[ 1 ]->getParams()[ 0 ][ 'signal_id' ] );
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testPackagedWorpdriveClientAutoloadsFromUnprefixedVendor() :void {
 		$autoloadPath = $this->packagePathJoin( 'vendor/autoload.php' );
 		$this->assertFileExists( $autoloadPath );
@@ -537,7 +537,7 @@ class PluginPackagerStraussTest extends TestCase {
 		);
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testPackagedPasskeyCredentialNormalizerUsesStableTrustPathContract() :void {
 		$this->requirePackageAutoload();
 		$normalizerClass = $this->loadPackagedPasskeyCredentialDataNormalizer();
@@ -563,7 +563,7 @@ class PluginPackagerStraussTest extends TestCase {
 		}
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testPackagedPasskeyCompatibilityDoesNotCompareExactWebauthnTrustPathClassNames() :void {
 		$content = file_get_contents( $this->packagePasskeyCredentialDataNormalizerPath() );
 		$this->assertNotFalse( $content );
@@ -588,7 +588,7 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertSame( [], $violations, 'Packaged passkey source must not compare exact WebAuthn trust-path classes.' );
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testPackagedSourceHasNoUnprefixedReferencesToPrefixedNamespaces() :void {
 		$violations = $this->findForbiddenNamespaceReferences(
 			$this->collectPhpFiles( $this->packagePathJoin( 'src' ) ),
@@ -599,7 +599,7 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertTrue( $violations === [], $this->formatNamespaceViolations( $violations ) );
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testPrefixedVendorHasNoUnprefixedReferencesToGeneratedPrefixedNamespaces() :void {
 		$violations = $this->findForbiddenNamespaceReferences(
 			$this->collectPhpFiles( $this->packagePathJoin( 'vendor_prefixed' ) ),
@@ -610,7 +610,7 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertTrue( $violations === [], $this->formatNamespaceViolations( $violations ) );
 	}
 
-	/** @group package-targeted */
+	#[\PHPUnit\Framework\Attributes\Group( 'package-targeted' )]
 	public function testLegacyCompatibilityOutputIsAbsentWhenNoPlanIsActive() :void {
 		$this->assertDirectoryDoesNotExist( $this->packagePathJoin( 'src/lib' ) );
 	}

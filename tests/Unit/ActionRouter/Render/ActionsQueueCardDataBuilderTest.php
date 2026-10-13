@@ -267,9 +267,7 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		$this->assertNotSame( '', $strip[ 'summaries' ][ 0 ][ 'accessible_label' ] );
 	}
 
-	/**
-	 * @dataProvider dashboardStripPrecedenceProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'dashboardStripPrecedenceProvider' )]
 	public function test_dashboard_strip_overall_precedence(
 		array $scanItems,
 		array $maintenanceItems,

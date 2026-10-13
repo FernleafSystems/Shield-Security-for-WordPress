@@ -682,9 +682,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 2, $rows[ 0 ][ 'unfinished' ] );
 	}
 
-	/**
-	 * @dataProvider activeScanStaleProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'activeScanStaleProvider' )]
 	public function test_active_scan_progress_rows_apply_stale_timestamp_rules(
 		string $status,
 		int $createdAt,
@@ -724,9 +722,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider claimedScanReloadProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'claimedScanReloadProvider' )]
 	public function test_explicit_recovery_stops_safely_when_claimed_scan_is_missing_finished_or_non_active(
 		?string $status,
 		int $finishedAt

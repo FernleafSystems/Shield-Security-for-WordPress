@@ -7,9 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class PasskeyCredentialDataNormalizerTest extends BaseUnitTest {
 
-	/**
-	 * @dataProvider classLikeTrustPathTypesProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'classLikeTrustPathTypesProvider' )]
 	public function test_class_like_trust_path_types_without_trust_material_normalize_to_empty( string $type ) :void {
 		$normalized = $this->normalizer()->normalizeForStorage( [
 			'trustPath' => [
@@ -20,9 +18,7 @@ class PasskeyCredentialDataNormalizerTest extends BaseUnitTest {
 		$this->assertTrustPathType( 'empty', $normalized );
 	}
 
-	/**
-	 * @dataProvider trustMaterialProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'trustMaterialProvider' )]
 	public function test_trust_material_normalizes_to_alias_independent_of_type( array $trustPath, string $expected ) :void {
 		$normalized = $this->normalizer()->normalizeForStorage( [
 			'trustPath' => $trustPath,
@@ -151,9 +147,7 @@ class PasskeyCredentialDataNormalizerTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider unchangedCredentialDataProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'unchangedCredentialDataProvider' )]
 	public function test_unmapped_or_malformed_credential_data_is_unchanged( array $credentialData ) :void {
 		$this->assertSame( $credentialData, $this->normalizer()->normalizeForStorage( $credentialData ) );
 	}

@@ -7,9 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class QueueItemVOContractTest extends BaseUnitTest {
 
-	/**
-	 * @dataProvider provideSerializedItemPayloads
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSerializedItemPayloads' )]
 	public function test_serialized_item_payloads_publish_canonical_lists( $payload, array $expected ) :void {
 		$item = ( new QueueItemVO() )->applyFromArray( [
 			'items' => $payload,

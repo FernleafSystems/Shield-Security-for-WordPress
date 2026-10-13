@@ -7,9 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class LocaleLanguageMatcherTest extends BaseUnitTest {
 
-	/**
-	 * @dataProvider providerLocaleToLang
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerLocaleToLang' )]
 	public function testLocaleToLang( string $locale, string $expectedLang ) :void {
 		$this->assertSame( $expectedLang, ( new LocaleLanguageMatcher() )->localeToLang( $locale ) );
 	}
@@ -25,9 +23,7 @@ class LocaleLanguageMatcherTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider providerFirstLocaleForLanguage
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerFirstLocaleForLanguage' )]
 	public function testGetFirstLocaleForLanguage( array $locales, string $target, ?string $expected ) :void {
 		$this->assertSame( $expected, ( new LocaleLanguageMatcher() )->getFirstLocaleForLanguage( $locales, $target ) );
 	}
@@ -52,9 +48,7 @@ class LocaleLanguageMatcherTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider providerLocaleLanguageMatches
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerLocaleLanguageMatches' )]
 	public function testIsLocaleOrLanguageMatch( string $candidate, string $target, bool $expected ) :void {
 		$this->assertSame( $expected, ( new LocaleLanguageMatcher() )->isLocaleOrLanguageMatch( $candidate, $target ) );
 	}

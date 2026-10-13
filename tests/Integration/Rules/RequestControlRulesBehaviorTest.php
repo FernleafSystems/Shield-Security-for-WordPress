@@ -209,9 +209,7 @@ class RequestControlRulesBehaviorTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $this->getCapturedEventsByKey( 'block_xml' ) );
 	}
 
-	/**
-	 * @dataProvider disableXmlrpcNegativeProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'disableXmlrpcNegativeProvider' )]
 	public function test_disable_xmlrpc_rule_does_not_match_outside_owned_disable_contract(
 		string $disableXmlrpc,
 		string $trackXmlrpc,

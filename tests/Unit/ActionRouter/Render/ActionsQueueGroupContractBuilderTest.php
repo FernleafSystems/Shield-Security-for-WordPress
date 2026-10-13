@@ -416,7 +416,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'Plugin & Theme Risks', 'File Integrity' ], \array_column( $result[ 'active_sections' ], 'heading_label' ) );
 	}
 
-	/** @dataProvider clearSectionStatuses */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'clearSectionStatuses' )]
 	public function test_clear_sections_show_file_integrity_first( string $fileStatus, string $riskStatus ) :void {
 		$result = $this->newBuilder()->buildResolvedGroups( 'Fix Now', [
 			$this->groupSeed( [ 'key' => 'vulnerabilities', 'definition_key' => 'vulnerabilities', 'status' => $riskStatus, 'item_count' => 0 ] ),

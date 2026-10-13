@@ -45,9 +45,7 @@ class IpRulesHandlerTest extends TestCase {
 	// IsValidType TESTS
 	// =========================================================================
 
-	/**
-	 * @dataProvider providerValidTypes
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerValidTypes' )]
 	public function testIsValidTypeReturnsTrueForValidTypes( string $type ) :void {
 		$this->assertTrue(
 			Handler::IsValidType( $type ),
@@ -65,9 +63,7 @@ class IpRulesHandlerTest extends TestCase {
 		];
 	}
 
-	/**
-	 * @dataProvider providerInvalidTypes
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerInvalidTypes' )]
 	public function testIsValidTypeReturnsFalseForInvalidTypes( string $type ) :void {
 		$this->assertFalse(
 			Handler::IsValidType( $type ),

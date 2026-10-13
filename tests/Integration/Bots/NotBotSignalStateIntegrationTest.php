@@ -34,11 +34,11 @@ class NotBotSignalStateIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
-	 * @dataProvider signalStateProvider
 	 *
 	 * @param array<string,string>|null $signalAges
 	 * @param list<string>             $expectedRequired
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'signalStateProvider' )]
 	public function testRequiredAndNonRequiredSignalsMatchBotSignalState(
 		?array $signalAges,
 		string $complexity,

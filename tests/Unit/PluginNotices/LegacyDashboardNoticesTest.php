@@ -42,9 +42,7 @@ class LegacyDashboardNoticesTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider providerNoticeTypeMappings
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerNoticeTypeMappings' )]
 	public function testCheckNormalisesLegacyNoticeTypeInPayload( string $input, string $expected ) :void {
 		$this->installControllerForNoticeType( $input );
 
@@ -66,9 +64,7 @@ class LegacyDashboardNoticesTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider providerEmailVerificationNoticeStates
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerEmailVerificationNoticeStates' )]
 	public function testEmailVerificationNoticeExposesStableStatusAndActions(
 		int $verifiedAt,
 		int $sentAt,

@@ -209,7 +209,7 @@ class UnitTestScriptRunnerTest extends TestCase {
 		$this->assertNotContains( '--processes=1', $processRunner->calls[ 0 ][ 'command' ] );
 	}
 
-	/** @dataProvider explicitWorkerCounts */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'explicitWorkerCounts' )]
 	public function testSingleFileHonoursExplicitWorkerCount( array $workerArgs ) :void {
 		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$this->newRunner( $processRunner )->run(

@@ -161,7 +161,7 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertFalse( $repo->findBySlug( 'temporary-default' )->is_default );
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_profiles_table_recreates_after_warm_ready_cache_table_loss() :void {
 		global $wpdb;
 

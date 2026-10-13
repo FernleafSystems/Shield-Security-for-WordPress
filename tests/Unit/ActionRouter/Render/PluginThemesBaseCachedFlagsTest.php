@@ -26,9 +26,7 @@ class PluginThemesBaseCachedFlagsTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider provideMalformedCachedFlags
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideMalformedCachedFlags' )]
 	public function testMalformedCachedFlagsAreRebuilt( $cachedFlags ) :void {
 		$general = new PluginThemesBaseCachedFlagsGeneralStub( [
 			self::PLUGIN_FILE => $cachedFlags,

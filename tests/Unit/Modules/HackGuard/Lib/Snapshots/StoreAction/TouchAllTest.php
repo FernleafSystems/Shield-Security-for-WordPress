@@ -159,9 +159,7 @@ class TouchAllTest extends BaseUnitTest {
 		$this->assertSame( $before[ $store->getSnapStoreMetaPath() ], \filemtime( $store->getSnapStoreMetaPath() ) );
 	}
 
-	/**
-	 * @dataProvider provideNonOwnerTopologies
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideNonOwnerTopologies' )]
 	public function test_non_owner_hourly_maintenance_does_not_touch_or_clean_shared_snapshots(
 		bool $isMainNetwork,
 		bool $isMainSite

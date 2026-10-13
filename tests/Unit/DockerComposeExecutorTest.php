@@ -99,8 +99,8 @@ class DockerComposeExecutorTest extends TestCase {
 	/**
 	 * @param string[] $subCommand
 	 * @param string[] $expectedCommand
-	 * @dataProvider providerSubCommandsWithSuppressedOutput
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerSubCommandsWithSuppressedOutput' )]
 	public function testRunIgnoringFailureWithSuppressedOutputInjectsExpectedFlags(
 		array $subCommand,
 		array $expectedCommand
@@ -126,8 +126,8 @@ class DockerComposeExecutorTest extends TestCase {
 	/**
 	 * @param string[] $subCommand
 	 * @param string[] $expectedCommand
-	 * @dataProvider providerSubCommandsWithSuppressedOutput
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerSubCommandsWithSuppressedOutput' )]
 	public function testRunWithSuppressedOutputInjectsExpectedFlags(
 		array $subCommand,
 		array $expectedCommand

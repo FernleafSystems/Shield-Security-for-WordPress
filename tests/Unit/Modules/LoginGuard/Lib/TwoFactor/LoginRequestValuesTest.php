@@ -17,9 +17,7 @@ class LoginRequestValuesTest extends BaseUnitTest {
 		);
 	}
 
-	/**
-	 * @dataProvider loginIntentRenderDataProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'loginIntentRenderDataProvider' )]
 	public function test_build_login_intent_render_data_contract(
 		array $input,
 		string $redirectFallback,
@@ -123,9 +121,7 @@ class LoginRequestValuesTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider userIdProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'userIdProvider' )]
 	public function test_positive_user_id_contract( $value, ?int $expected ) :void {
 		$this->assertSame( $expected, LoginRequestValues::positiveUserId( $value ) );
 	}
@@ -172,9 +168,7 @@ class LoginRequestValuesTest extends BaseUnitTest {
 		}
 	}
 
-	/**
-	 * @dataProvider nonceProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'nonceProvider' )]
 	public function test_nonce_contract( $value, ?string $expected ) :void {
 		$this->assertSame( $expected, LoginRequestValues::nonEmptyString( $value ) );
 	}
@@ -206,9 +200,7 @@ class LoginRequestValuesTest extends BaseUnitTest {
 		}
 	}
 
-	/**
-	 * @dataProvider exactTokenProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'exactTokenProvider' )]
 	public function test_exact_token_contract( string $expected ) :void {
 		$this->assertTrue( LoginRequestValues::isToken( $expected, $expected ) );
 		$this->assertSame( $expected, LoginRequestValues::tokenValue( $expected, $expected ) );
@@ -223,9 +215,7 @@ class LoginRequestValuesTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider invalidTokenProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidTokenProvider' )]
 	public function test_token_rejects_nonexact_value( $value, string $expected ) :void {
 		$this->assertFalse( LoginRequestValues::isToken( $value, $expected ) );
 		$this->assertSame( '', LoginRequestValues::tokenValue( $value, $expected ) );
@@ -267,9 +257,7 @@ class LoginRequestValuesTest extends BaseUnitTest {
 		$this->assertSame( '/fallback', LoginRequestValues::safeRedirect( 'https://evil.example/path', '/fallback' ) );
 	}
 
-	/**
-	 * @dataProvider invalidRedirectProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidRedirectProvider' )]
 	public function test_safe_redirect_rejects_invalid_value_without_wordpress_validation( $value ) :void {
 		Functions\expect( 'wp_validate_redirect' )->never();
 		$this->assertSame( '/fallback', LoginRequestValues::safeRedirect( $value, '/fallback' ) );
@@ -300,9 +288,7 @@ class LoginRequestValuesTest extends BaseUnitTest {
 		}
 	}
 
-	/**
-	 * @dataProvider loginMessageProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'loginMessageProvider' )]
 	public function test_login_message_contract( $value, string $expected ) :void {
 		$this->assertSame( $expected, LoginRequestValues::loginMessage( $value ) );
 	}

@@ -293,9 +293,7 @@ class CloakedPluginStateTest extends BaseUnitTest {
 		$this->assertSame( [], $this->opts->values[ CloakedPluginState::FINDINGS_OPT_KEY ] );
 	}
 
-	/**
-	 * @dataProvider invalidPersistedFindingRecordProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidPersistedFindingRecordProvider' )]
 	public function testInvalidPersistedFindingRecordIsPruned( callable $mutator, bool $includeEntry = true ) :void {
 		$state = new CloakedPluginState();
 		$entry = $this->pluginEntry( 'cloaked/cloaked.php' );

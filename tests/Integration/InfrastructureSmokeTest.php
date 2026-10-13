@@ -9,14 +9,11 @@
  * component changes.
  *
  * Run independently: vendor/bin/phpunit -c phpunit-integration.xml --group smoke
- *
- * @group smoke
  */
+#[\PHPUnit\Framework\Attributes\Group( 'smoke' )]
 class InfrastructureSmokeTest extends \WP_UnitTestCase {
 
-	/**
-	 * @group smoke
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'smoke' )]
 	public function test_wp_unit_test_case_class_hierarchy() :void {
 		$this->assertTrue(
 			\class_exists( 'WP_UnitTestCase' ),
@@ -34,9 +31,7 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 		);
 	}
 
-	/**
-	 * @group smoke
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'smoke' )]
 	public function test_wp_lifecycle_methods_are_snake_case() :void {
 		$ref = new \ReflectionClass( 'WP_UnitTestCase' );
 		$this->assertTrue(
@@ -52,9 +47,9 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * @group smoke
 	 * @expectedDeprecated shield_phpunit_compatibility_probe
 	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'smoke' )]
 	public function test_wordpress_deprecation_annotations_are_read_with_phpunit_11() :void {
 		_deprecated_function( 'shield_phpunit_compatibility_probe', '1.0.0' );
 
@@ -66,9 +61,8 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 	 * WP_UnitTestCase_Base, NOT global functions. This is the exact check that
 	 * would have caught the bootstrap bug where global function callbacks were
 	 * registered for these non-existent global functions.
-	 *
-	 * @group smoke
 	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'smoke' )]
 	public function test_wp_temporary_table_methods_are_instance_methods() :void {
 		$ref = new \ReflectionClass( 'WP_UnitTestCase_Base' );
 
@@ -99,9 +93,7 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 		);
 	}
 
-	/**
-	 * @group smoke
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'smoke' )]
 	public function test_wp_test_helper_functions_available() :void {
 		$this->assertTrue(
 			\function_exists( 'tests_add_filter' ),
@@ -126,9 +118,8 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 	 * Inspects the global $wp_filter to ensure no string callback for
 	 * '_create_temporary_tables' is registered on the 'query' hook.
 	 * This directly catches the bootstrap bug.
-	 *
-	 * @group smoke
 	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'smoke' )]
 	public function test_no_stale_temporary_table_string_callbacks() :void {
 		global $wp_filter;
 
@@ -166,9 +157,7 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 
 	}
 
-	/**
-	 * @group smoke
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'smoke' )]
 	public function test_shield_plugin_loaded() :void {
 		$this->assertTrue(
 			\function_exists( 'shield_security_get_plugin' ),
@@ -192,9 +181,7 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 		);
 	}
 
-	/**
-	 * @group smoke
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'smoke' )]
 	public function test_shield_db_infrastructure() :void {
 		$dbConClass = \FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\DbCon::class;
 		$this->assertTrue( \class_exists( $dbConClass ), "DbCon class must exist at {$dbConClass}." );
@@ -237,9 +224,7 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 		);
 	}
 
-	/**
-	 * @group smoke
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'smoke' )]
 	public function test_namespaced_integration_tests_extend_supported_base_classes() :void {
 		$integrationRoot = __DIR__;
 		$allowedStandalone = \array_filter( [
@@ -299,9 +284,7 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 		$this->assertSame( [], $violations, "Integration tests must extend Shield base test cases.\n".\implode( "\n", $violations ) );
 	}
 
-	/**
-	 * @group smoke
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'smoke' )]
 	public function test_php_reflection_capabilities() :void {
 		$testClass = \FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords::class;
 		$ref = new \ReflectionClass( $testClass );
@@ -321,10 +304,8 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 		);
 	}
 
-	/**
-	 * @group smoke
-	 * @group database-transaction-exception
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'smoke' )]
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_mysql_required_features() :void {
 		global $wpdb;
 
@@ -369,9 +350,7 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 	}
 
 
-	/**
-	 * @group smoke
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'smoke' )]
 	public function test_passkey_runtime_has_required_capabilities() :void {
 		$checker = new \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeyCompatibilityCheck();
 

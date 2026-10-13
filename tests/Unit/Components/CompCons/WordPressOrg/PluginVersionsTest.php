@@ -194,9 +194,7 @@ class PluginVersionsTest extends BaseUnitTest {
 		);
 	}
 
-	/**
-	 * @dataProvider provideReleaseVersionNormalizationCases
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideReleaseVersionNormalizationCases' )]
 	public function testNormalizeReleaseVersionOnlyAcceptsDottedNumericStrings( $version, string $expected ) :void {
 		$this->assertSame( $expected, PluginVersions::normalizeReleaseVersion( $version ) );
 	}
@@ -224,9 +222,7 @@ class PluginVersionsTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider provideMajorVersionCases
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideMajorVersionCases' )]
 	public function testDetectsAtLeastTwoNewerMajorVersions( array $versions, string $currentVersion, bool $expected ) :void {
 		$this->assertSame(
 			$expected,

@@ -92,9 +92,7 @@ class SnapshotStoreParserTest extends BaseUnitTest {
 		$this->assertTrue( $store->isUsable() );
 	}
 
-	/**
-	 * @dataProvider provideMismatchedMetadata
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideMismatchedMetadata' )]
 	public function test_usable_store_rejects_mismatched_asset_metadata( array $meta ) :void {
 		$store = $this->newStore();
 		$this->writeRawStore( $store, 'file.php'.Store::SEPARATOR.self::MD5, $meta );
@@ -124,9 +122,7 @@ class SnapshotStoreParserTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider provideInvalidStrictPayloads
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidStrictPayloads' )]
 	public function test_usable_store_rejects_invalid_persisted_payloads( string $payload ) :void {
 		$store = $this->newStore();
 		$this->writeRawStore(

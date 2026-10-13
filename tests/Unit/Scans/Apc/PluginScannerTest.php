@@ -96,9 +96,7 @@ class PluginScannerTest extends BaseUnitTest {
 		$this->assertSame( $lastUpdatedAt, $result[ 'last_updated_at' ] ?? null );
 	}
 
-	/**
-	 * @dataProvider provideMalformedUpdateUris
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideMalformedUpdateUris' )]
 	public function test_malformed_update_uri_is_conservatively_ineligible( string $key, $value ) :void {
 		Functions\expect( 'plugins_api' )->never();
 
@@ -137,9 +135,7 @@ class PluginScannerTest extends BaseUnitTest {
 		$this->assertSame( [], $result );
 	}
 
-	/**
-	 * @dataProvider provideMalformedWpOrgIds
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideMalformedWpOrgIds' )]
 	public function test_malformed_wp_org_id_never_reaches_api_or_string_conversion( $id ) :void {
 		PluginScannerStringableValue::$calls = 0;
 		Functions\expect( 'plugins_api' )->never();
@@ -169,9 +165,7 @@ class PluginScannerTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider provideEligibleInstalledVersions
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideEligibleInstalledVersions' )]
 	public function test_old_wp_org_plugin_remains_abandoned( string $installedVersion ) :void {
 		$lastUpdatedAt = self::NOW - self::ABANDONED_LIMIT - 1;
 		$this->expectPluginApi( $this->apiResponse( 'cornerstone', '0.8.1', $lastUpdatedAt ) );
@@ -192,9 +186,7 @@ class PluginScannerTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider provideUntrustedApiResponses
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideUntrustedApiResponses' )]
 	public function test_untrusted_wp_org_response_produces_no_finding( $apiResponse ) :void {
 		$this->expectPluginApi( $apiResponse );
 
@@ -237,9 +229,7 @@ class PluginScannerTest extends BaseUnitTest {
 		$this->assertSame( [], $result );
 	}
 
-	/**
-	 * @dataProvider provideWrongTypeFamily
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideWrongTypeFamily' )]
 	public function test_installed_slug_wrong_type_family_never_reaches_api( $value ) :void {
 		PluginScannerStringableValue::$calls = 0;
 		Functions\expect( 'plugins_api' )->never();
@@ -288,9 +278,7 @@ class PluginScannerTest extends BaseUnitTest {
 		$this->assertSame( [], $result );
 	}
 
-	/**
-	 * @dataProvider provideMalformedApiFields
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideMalformedApiFields' )]
 	public function test_each_malformed_api_field_produces_no_finding_after_one_api_call( string $field ) :void {
 		$response = $this->apiResponse( 'cornerstone', '0.8.1', self::NOW - self::ABANDONED_LIMIT - 1 );
 		$response->{$field} = new \stdClass();

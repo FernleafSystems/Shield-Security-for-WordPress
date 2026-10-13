@@ -146,9 +146,7 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$this->assertRootDirDepth( 0, path_join( ABSPATH, 'wp-admin' ), $rootDirs );
 	}
 
-	/**
-	 * @dataProvider providerMalwareScanEntitlement
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerMalwareScanEntitlement' )]
 	public function test_malware_scan_entitlement_uses_local_capability(
 		bool $canScanMalwareLocal,
 		bool $expected

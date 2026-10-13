@@ -43,9 +43,7 @@ class SafeDirectoryRemoverTest extends TestCase {
 	// Dangerous path blocking - Critical safety tests
 	// =========================================================================
 
-	/**
-	 * @dataProvider providerDangerousPaths
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerDangerousPaths' )]
 	public function testBlocksDangerousPaths( string $dangerousPath ) :void {
 		$remover = $this->createRemover();
 

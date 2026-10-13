@@ -14,10 +14,9 @@ class DbCreateTableDiagnosticTest extends ShieldIntegrationTestCase {
 	/**
 	 * Build every handler's CREATE TABLE SQL, redirect it to a unique disposable
 	 * probe table, and report whether MySQL accepts that schema SQL.
-	 *
-	 * @group diagnostics
-	 * @group database-transaction-exception
 	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'diagnostics' )]
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_diagnose_table_creation_failures() :void {
 		if ( !$this->isVerbose() ) {
 			$this->markTestSkipped( 'DB diagnostics disabled. Set SHIELD_TEST_VERBOSE=1 to run this diagnostic test.' );
@@ -32,9 +31,7 @@ class DbCreateTableDiagnosticTest extends ShieldIntegrationTestCase {
 		$this->assertProbeTableAbsentRaw( $probeTable );
 	}
 
-	/**
-	 * @group database-transaction-exception
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_invalid_probe_sql_fails_diagnostic() :void {
 		$probeTable = $this->newProbeTableName();
 		$createFailed = false;
@@ -59,9 +56,7 @@ class DbCreateTableDiagnosticTest extends ShieldIntegrationTestCase {
 		$this->assertProbeTableAbsentRaw( $probeTable );
 	}
 
-	/**
-	 * @group database-transaction-exception
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_cleanup_failure_stops_following_handlers() :void {
 		$probeTable = $this->newProbeTableName();
 		$dropCount = 0;
@@ -91,9 +86,7 @@ class DbCreateTableDiagnosticTest extends ShieldIntegrationTestCase {
 		$this->assertProbeTableAbsentRaw( $probeTable );
 	}
 
-	/**
-	 * @group database-transaction-exception
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_pre_cleanup_failure_prevents_create_and_stops_following_handlers() :void {
 		$probeTable = $this->newProbeTableName();
 		$cleanupFailed = false;
@@ -126,9 +119,7 @@ class DbCreateTableDiagnosticTest extends ShieldIntegrationTestCase {
 		$this->assertProbeTableAbsentRaw( $probeTable );
 	}
 
-	/**
-	 * @group database-transaction-exception
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_schema_and_cleanup_failures_are_both_reported() :void {
 		$probeTable = $this->newProbeTableName();
 		$createFailed = false;
@@ -473,8 +464,8 @@ class DbCreateTableDiagnosticTest extends ShieldIntegrationTestCase {
 
 	/**
 	 * Directly test that column names with MySQL reserved words are properly handled.
-	 * @group diagnostics
 	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'diagnostics' )]
 	public function test_reserved_word_column_detection() {
 		if ( !$this->isVerbose() ) {
 			$this->markTestSkipped( 'Reserved-word diagnostics disabled. Set SHIELD_TEST_VERBOSE=1 to run this diagnostic test.' );

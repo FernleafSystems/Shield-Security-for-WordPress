@@ -166,9 +166,7 @@ class BotTrack404RuleBehaviorTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $this->evaluateFullRule() );
 	}
 
-	/**
-	 * @dataProvider botTrackModeProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'botTrackModeProvider' )]
 	public function test_normal_404_response_uses_bottrack_mode_contract(
 		string $mode,
 		int $expectedOffenseCount,

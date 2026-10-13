@@ -133,9 +133,7 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
 	}
 
-	/**
-	 * @dataProvider providePersistedAfsActionConfig
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providePersistedAfsActionConfig' )]
 	public function test_persisted_afs_action_config_is_canonical_before_processing(
 		$fileExts,
 		bool $expectTrustedFileRecord,
@@ -435,9 +433,7 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 		$this->assertSame( $meta, $staleWorker->meta );
 	}
 
-	/**
-	 * @dataProvider provideReadyScanStatuses
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideReadyScanStatuses' )]
 	public function test_stale_ready_recovery_preserves_marker_and_recovery_facts( string $status ) :void {
 		$pluginFile = 'queue-stale-recovery/plugin.php';
 		$path = $this->writePluginFile( $pluginFile, "<?php\n// changed\n" );
@@ -549,9 +545,7 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 		$this->assertArrayHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $harness->scanRow( $scanID ) ) );
 	}
 
-	/**
-	 * @dataProvider provideAssetMarkerPersistenceFailures
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideAssetMarkerPersistenceFailures' )]
 	public function test_marker_persistence_failure_prevents_enqueue_store_finish_and_completion( string $failure ) :void {
 		$pluginFile = 'queue-marker-failure/plugin.php';
 		$path = $this->writePluginFile( $pluginFile, "<?php\n// marker failure\n" );

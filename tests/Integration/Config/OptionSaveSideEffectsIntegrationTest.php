@@ -298,7 +298,7 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( wp_next_scheduled( $hook ) );
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_file_locker_option_change_recreates_storage_when_table_caches_are_stale() :void {
 		global $wpdb;
 

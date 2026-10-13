@@ -64,9 +64,7 @@ class InvestigationTableActionTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $payload[ 'request_meta' ][ 'is_valid' ] ?? false ) );
 	}
 
-	/**
-	 * @dataProvider provideRetrieveTableDataNormalizationCases
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideRetrieveTableDataNormalizationCases' )]
 	public function testRetrieveTableDataNormalizationCases( array $actionData ) :void {
 		$payload = ( new InvestigationTableActionRetrieveSuccessUnitTestDouble( [
 			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
@@ -151,9 +149,7 @@ class InvestigationTableActionTest extends BaseUnitTest {
 		$this->assertSame( 'unavailable_builder', $payload[ 'error_code' ] ?? '' );
 	}
 
-	/**
-	 * @dataProvider provideActivitySubjectSuccessCases
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideActivitySubjectSuccessCases' )]
 	public function testRetrieveTableDataAcceptsExpandedActivitySubjects( string $subjectType, $subjectId ) :void {
 		$payload = ( new InvestigationTableActionActivityRetrieveSuccessUnitTestDouble( [
 			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,

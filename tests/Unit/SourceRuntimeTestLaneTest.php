@@ -501,9 +501,9 @@ class SourceRuntimeTestLaneTest extends TestCase {
 	}
 
 	/**
-	 * @dataProvider providerRuntimeFailurePositions
 	 * @param int[] $exitCodes
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerRuntimeFailurePositions' )]
 	public function testRuntimeFailuresAggregateAcrossBothWordpressStreams( array $exitCodes ) :void {
 		$dockerComposeExecutor = RecordingDockerComposeExecutor::strict( $exitCodes );
 		$lane = new SourceRuntimeTestLane(

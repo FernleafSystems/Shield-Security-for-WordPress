@@ -41,9 +41,7 @@ class PhpFutureMinimumTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider providerCurrentRuntimeVersions
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerCurrentRuntimeVersions' )]
 	public function test_default_future_minimum_notice_is_dormant( string $phpVersion ) :void {
 		$this->installEnvironment( $phpVersion );
 

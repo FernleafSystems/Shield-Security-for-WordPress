@@ -16,10 +16,10 @@ class IntegrationBootstrapDecisionsTest extends TestCase {
 	}
 
 	/**
-	 * @dataProvider providerResolvePluginContextMatrix
 	 *
 	 * @param array<string,string|false> $env
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerResolvePluginContextMatrix' )]
 	public function testResolvePluginContextMatrix(
 		array $env,
 		bool $dockerPluginDirExists,

@@ -57,9 +57,7 @@ class AssetFilterBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
-	/**
-	 * @dataProvider provideHostileFilterValues
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideHostileFilterValues' )]
 	public function test_asset_chain_canonicalizes_hostile_upstream_families( $hostile ) :void {
 		add_filter( 'shield/custom_enqueue_assets', static fn() => $hostile, 1 );
 
@@ -69,9 +67,7 @@ class AssetFilterBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertContainsOnly( 'string', $assets );
 	}
 
-	/**
-	 * @dataProvider provideHostileFilterValues
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideHostileFilterValues' )]
 	public function test_localisation_chain_canonicalizes_hostile_upstream_families( $hostile ) :void {
 		add_filter( 'shield/custom_localisations', static fn() => $hostile, 1 );
 
@@ -93,9 +89,7 @@ class AssetFilterBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		];
 	}
 
-	/**
-	 * @dataProvider provideInvalidFinalAssetValues
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidFinalAssetValues' )]
 	public function test_enqueue_owner_drops_hostile_final_asset_output( $hostile ) :void {
 		add_filter( 'shield/custom_enqueue_assets', static fn() => $hostile, \PHP_INT_MAX );
 

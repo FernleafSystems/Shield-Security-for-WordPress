@@ -267,8 +267,8 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 
 	/**
 	 * @param array{request_id:int,activity_id:int} $fixture
-	 * @depends test_policy_prunes_activity_and_request_logs_by_tier_and_references
 	 */
+	#[\PHPUnit\Framework\Attributes\Depends( 'test_policy_prunes_activity_and_request_logs_by_tier_and_references' )]
 	public function test_policy_retained_rows_are_rolled_back_after_producer_teardown( array $fixture ) :void {
 		$this->assertFalse( $this->existsById( 'activity_logs', $fixture[ 'activity_id' ] ) );
 		$this->assertFalse( $this->existsById( 'req_logs', $fixture[ 'request_id' ] ) );

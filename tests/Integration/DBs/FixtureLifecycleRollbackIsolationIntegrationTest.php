@@ -38,9 +38,7 @@ class FixtureLifecycleRollbackIsolationIntegrationTest extends ShieldIntegration
 		return $key;
 	}
 
-	/**
-	 * @depends test_producer_persists_an_ordinary_option
-	 */
+	#[\PHPUnit\Framework\Attributes\Depends( 'test_producer_persists_an_ordinary_option' )]
 	public function test_consumer_observes_ordinary_option_rollback( string $key ) :void {
 		$this->assertNull(
 			$this->storedOptionValue( $key ),
@@ -56,9 +54,7 @@ class FixtureLifecycleRollbackIsolationIntegrationTest extends ShieldIntegration
 		return $key;
 	}
 
-	/**
-	 * @depends test_producer_persists_a_shield_option
-	 */
+	#[\PHPUnit\Framework\Attributes\Depends( 'test_producer_persists_a_shield_option' )]
 	public function test_consumer_observes_shield_option_rollback( string $key ) :void {
 		$this->assertNull(
 			$this->storedOptionValue( $key ),
@@ -78,9 +74,7 @@ class FixtureLifecycleRollbackIsolationIntegrationTest extends ShieldIntegration
 		return $userId;
 	}
 
-	/**
-	 * @depends test_producer_persists_a_user_and_usermeta
-	 */
+	#[\PHPUnit\Framework\Attributes\Depends( 'test_producer_persists_a_user_and_usermeta' )]
 	public function test_consumer_observes_user_and_usermeta_rollback( int $userId ) :void {
 		$this->assertFalse(
 			\get_user_by( 'id', $userId ),
@@ -97,9 +91,7 @@ class FixtureLifecycleRollbackIsolationIntegrationTest extends ShieldIntegration
 		return $id;
 	}
 
-	/**
-	 * @depends test_producer_persists_a_shield_handler_row
-	 */
+	#[\PHPUnit\Framework\Attributes\Depends( 'test_producer_persists_a_shield_handler_row' )]
 	public function test_consumer_observes_shield_handler_row_rollback( int $id ) :void {
 		$this->assertEmpty( $this->requireDb( 'malware' )->getQuerySelector()->byId( $id ) );
 	}
@@ -112,8 +104,8 @@ class FixtureLifecycleRollbackIsolationIntegrationTest extends ShieldIntegration
 	 *     service_baseline:bool,
 	 *     events_ready_baseline:bool
 	 * }
-	 * @group database-compat
 	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
 	public function test_transaction_scoped_optional_table_producer_tracks_runtime_ownership() :array {
 		global $wpdb;
 
@@ -153,9 +145,9 @@ class FixtureLifecycleRollbackIsolationIntegrationTest extends ShieldIntegration
 	 *     service_baseline:bool,
 	 *     events_ready_baseline:bool
 	 * } $fixture
-	 * @depends test_transaction_scoped_optional_table_producer_tracks_runtime_ownership
-	 * @group database-compat
 	 */
+	#[\PHPUnit\Framework\Attributes\Depends( 'test_transaction_scoped_optional_table_producer_tracks_runtime_ownership' )]
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
 	public function test_transaction_scoped_optional_table_consumer_observes_complete_cleanup( array $fixture ) :void {
 		global $wpdb;
 
@@ -212,9 +204,7 @@ class FixtureLifecycleRollbackIsolationIntegrationTest extends ShieldIntegration
 		}
 	}
 
-	/**
-	 * @group database-transaction-exception
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_transaction_scoped_cleanup_continues_after_thrown_drop_and_composes_parent_failure() :void {
 		global $wpdb;
 
@@ -287,12 +277,10 @@ class FixtureLifecycleRollbackIsolationIntegrationTest extends ShieldIntegration
 		}
 	}
 
-	/**
-	 * @depends test_consumer_observes_ordinary_option_rollback
-	 * @depends test_consumer_observes_shield_option_rollback
-	 * @depends test_consumer_observes_user_and_usermeta_rollback
-	 * @depends test_consumer_observes_shield_handler_row_rollback
-	 */
+	#[\PHPUnit\Framework\Attributes\Depends( 'test_consumer_observes_ordinary_option_rollback' )]
+	#[\PHPUnit\Framework\Attributes\Depends( 'test_consumer_observes_shield_option_rollback' )]
+	#[\PHPUnit\Framework\Attributes\Depends( 'test_consumer_observes_user_and_usermeta_rollback' )]
+	#[\PHPUnit\Framework\Attributes\Depends( 'test_consumer_observes_shield_handler_row_rollback' )]
 	public function test_teardown_avoids_global_fixture_cleanup_sql() :void {
 		$sql = \implode( "\n", self::$teardownSql );
 

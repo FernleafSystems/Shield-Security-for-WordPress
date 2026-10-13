@@ -116,9 +116,9 @@ class BuildAlertDigestContractTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @dataProvider invalidSourceRowProvider
 	 * @param array<string,mixed> $sourceRow
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidSourceRowProvider' )]
 	public function test_build_rejects_invalid_source_row_contract( array $sourceRow ) :void {
 		$report = new ReportVO();
 		$report->areas_data = [

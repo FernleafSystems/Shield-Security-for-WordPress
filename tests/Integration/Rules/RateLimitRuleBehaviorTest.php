@@ -137,9 +137,7 @@ class RateLimitRuleBehaviorTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( $this->processRateLimitRuleConditions() );
 	}
 
-	/**
-	 * @dataProvider disabledTrafficLimiterProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'disabledTrafficLimiterProvider' )]
 	public function test_disabled_traffic_limiter_configuration_does_not_match_rate_limit_rule(
 		string $limiter,
 		int $limit,

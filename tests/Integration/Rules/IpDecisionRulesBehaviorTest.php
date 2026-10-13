@@ -52,9 +52,7 @@ class IpDecisionRulesBehaviorTest extends ShieldIntegrationTestCase {
 		parent::tear_down();
 	}
 
-	/**
-	 * @dataProvider shieldBlockProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'shieldBlockProvider' )]
 	public function test_shield_block_rule_contract_for_manual_and_auto_blocks(
 		string $ip,
 		callable $seedBlock

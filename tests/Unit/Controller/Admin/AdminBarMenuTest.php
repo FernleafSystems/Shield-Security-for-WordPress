@@ -290,9 +290,7 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$this->assertSame( [], $this->scanChildNodeIds( $adminBar ) );
 	}
 
-	/**
-	 * @dataProvider transientFailureProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'transientFailureProvider' )]
 	public function test_transient_failures_do_not_break_admin_bar_rendering( string $failure ) :void {
 		switch ( $failure ) {
 			case 'get':

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\DBs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
-/** @group database-transaction-exception */
+#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 class PersistentDatabaseMutationBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 
 	private static ?string $fixtureSuffix = null;
@@ -256,7 +256,7 @@ class PersistentDatabaseMutationBoundaryIntegrationTest extends ShieldIntegratio
 		return $key;
 	}
 
-	/** @depends test_producer_writes_inside_the_reopened_transaction */
+	#[\PHPUnit\Framework\Attributes\Depends( 'test_producer_writes_inside_the_reopened_transaction' )]
 	public function test_parent_teardown_rolls_back_the_reopened_transaction( string $key ) :void {
 		global $wpdb;
 		$this->assertNull( $wpdb->get_var( $wpdb->prepare(

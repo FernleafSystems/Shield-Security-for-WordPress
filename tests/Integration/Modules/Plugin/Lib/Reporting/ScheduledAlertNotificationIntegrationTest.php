@@ -168,9 +168,7 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertSame( [], $this->getCapturedEventsByKey( 'report_sent' ) );
 	}
 
-	/**
-	 * @dataProvider provideActiveScanStatuses
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideActiveScanStatuses' )]
 	public function test_active_scan_blocks_all_automatic_reports_until_terminal_reentry( string $status ) :void {
 		self::con()->opts->optSet( 'frequency_info', 'daily' )->store();
 		$this->captureShieldEvents();
@@ -398,9 +396,7 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertSame( 0, $rebuild->alert_digest[ 'summary' ][ 'new_total' ] );
 	}
 
-	/**
-	 * @dataProvider provideAfsAssetScopes
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideAfsAssetScopes' )]
 	public function test_rediscovered_notified_afs_asset_finding_keeps_identity_and_is_not_new(
 		string $assetType
 	) :void {

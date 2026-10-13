@@ -208,9 +208,7 @@ class PluginOptionsSchemaTest extends TestCase {
 	// CRITICAL OPTION TESTS
 	// =========================================================================
 
-	/**
-	 * @dataProvider providerCriticalSecurityOptions
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerCriticalSecurityOptions' )]
 	public function testCriticalSecurityOptionsExist( string $optionKey, string $description ) :void {
 		$this->assertArrayHasKey(
 			$optionKey,

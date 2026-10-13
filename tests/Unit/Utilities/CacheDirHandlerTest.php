@@ -141,9 +141,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->assertTrue( \is_dir( $preferred ) );
 	}
 
-	/**
-	 * @dataProvider oldUrlCollisionDataProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'oldUrlCollisionDataProvider' )]
 	public function test_external_namespace_ignores_old_url_collisions_but_changes_with_install_context(
 		string $firstURL,
 		string $secondURL
@@ -429,9 +427,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		}
 	}
 
-	/**
-	 * @dataProvider protectionFileDataProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'protectionFileDataProvider' )]
 	public function test_write_mode_does_not_rewrite_current_protection( string $filename ) :void {
 		$preferred = $this->makeNonTmpCacheRoot( 'current-'.\str_replace( '.', '-', $filename ) );
 		$expected = $this->expectedExternalCacheRoot( $preferred );
@@ -445,9 +441,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->assertSame( 0, $this->fs->fileWriteCounts[ $protection ] ?? 0 );
 	}
 
-	/**
-	 * @dataProvider protectionFileDataProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'protectionFileDataProvider' )]
 	public function test_stale_protection_is_repaired_and_verified( string $filename ) :void {
 		$preferred = $this->makeNonTmpCacheRoot( 'stale-'.\str_replace( '.', '-', $filename ) );
 		$expected = $this->expectedExternalCacheRoot( $preferred );
@@ -477,9 +471,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->assertFalse( \is_dir( $preferred ) );
 	}
 
-	/**
-	 * @dataProvider tmpPathDataProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'tmpPathDataProvider' )]
 	public function test_tmp_exemption_requires_exact_path_segment( string $path, bool $expected ) :void {
 		$method = new \ReflectionMethod( CacheDirHandler::class, 'isTmpPath' );
 		$method->setAccessible( true );
@@ -498,9 +490,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider protectionFileDataProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'protectionFileDataProvider' )]
 	public function test_unhashable_protection_entry_rejects_candidate( string $filename ) :void {
 		$preferred = $this->makeNonTmpCacheRoot( 'unhashable-'.\str_replace( '.', '-', $filename ) );
 		$expected = $this->expectedExternalCacheRoot( $preferred );
@@ -517,9 +507,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider protectionFileDataProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'protectionFileDataProvider' )]
 	public function test_failed_protection_write_rejects_candidate( string $filename ) :void {
 		$preferred = $this->makeNonTmpCacheRoot( 'failed-write-'.\str_replace( '.', '-', $filename ) );
 		$expected = $this->expectedExternalCacheRoot( $preferred );
@@ -532,9 +520,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->assertSame( 'stale', \file_get_contents( $protection ) );
 	}
 
-	/**
-	 * @dataProvider protectionFileDataProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'protectionFileDataProvider' )]
 	public function test_unverifiable_repair_rejects_candidate( string $filename ) :void {
 		$preferred = $this->makeNonTmpCacheRoot( 'unverifiable-repair-'.\str_replace( '.', '-', $filename ) );
 		$expected = $this->expectedExternalCacheRoot( $preferred );
@@ -546,9 +532,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->assertSame( 1, $this->fs->fileWriteCounts[ $protection ] ?? 0 );
 	}
 
-	/**
-	 * @dataProvider protectionFileDataProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'protectionFileDataProvider' )]
 	public function test_protection_that_disappears_before_hashing_is_repaired( string $filename ) :void {
 		$preferred = $this->makeNonTmpCacheRoot( 'disappears-'.\str_replace( '.', '-', $filename ) );
 		$expected = $this->expectedExternalCacheRoot( $preferred );
@@ -562,9 +546,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->assertSame( 2, $this->fs->fileWriteCounts[ $protection ] ?? 0 );
 	}
 
-	/**
-	 * @dataProvider protectionFileDataProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'protectionFileDataProvider' )]
 	public function test_protection_failure_falls_through_to_usable_sibling( string $filename ) :void {
 		$first = $this->makeNonTmpCacheRoot( 'failed-candidate-'.\str_replace( '.', '-', $filename ) );
 		$second = $this->makeNonTmpCacheRoot( 'usable-candidate-'.\str_replace( '.', '-', $filename ) );

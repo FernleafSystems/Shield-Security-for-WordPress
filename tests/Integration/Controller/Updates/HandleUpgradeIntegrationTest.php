@@ -15,7 +15,7 @@ class HandleUpgradeIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'scans' );
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function testScheduledWorkerWidensScanMetaAndPreservesLargeEligibilityPayloads() :void {
 		$this->runWithSeededCronPreservationCheck(
 			$this->requireController()->prefix( 'integration-test-handle-upgrade-cron-owner' ),

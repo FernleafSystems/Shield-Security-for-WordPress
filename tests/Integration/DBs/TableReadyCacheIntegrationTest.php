@@ -114,7 +114,7 @@ class TableReadyCacheIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_missing_table_is_repaired_before_ready_status_is_cacheable() :void {
 		$this->runWithPersistentDatabaseMutation(
 			function () :void {

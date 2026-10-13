@@ -54,7 +54,7 @@ class ReportStatisticsContinuityIntegrationTest extends ShieldIntegrationTestCas
 		parent::tear_down();
 	}
 
-	/** @group database-compat */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
 	public function test_current_week_equals_following_report_previous_week_after_compaction() :void {
 		$events = [
 			self::EVENT_PREFIX.'blocked',

@@ -243,9 +243,7 @@ class AutoUpdatesConTest extends BaseUnitTest {
 		);
 	}
 
-	/**
-	 * @dataProvider provideInvalidIdentifiers
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidIdentifiers' )]
 	public function test_plugin_auto_update_preserves_incoming_decision_for_invalid_identifier( $identifier ) :void {
 		$wpv = new AutoUpdatesConTestWpv( true, [ self::OTHER_PLUGIN_FILE ] );
 		$this->installEnvironment( [ 'update_delay' => 7 ], [], $wpv );
@@ -257,9 +255,7 @@ class AutoUpdatesConTest extends BaseUnitTest {
 		$this->assertSame( [], $wpv->vulnerabilityChecks );
 	}
 
-	/**
-	 * @dataProvider provideInvalidIdentifiers
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidIdentifiers' )]
 	public function test_theme_auto_update_preserves_incoming_decision_for_invalid_identifier( $identifier ) :void {
 		$this->installEnvironment( [ 'update_delay' => 7 ], [] );
 		$subject = new AutoUpdatesCon();

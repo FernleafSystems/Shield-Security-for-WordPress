@@ -62,7 +62,7 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_purge_deletes_existing_file_lock_rows() :void {
 		global $wpdb;
 		$con = $this->requireController();
@@ -111,7 +111,7 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [ 'wpconfig', 'root_index' ], $con->opts->optGet( 'file_locker' ) );
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_run_analysis_clears_file_locker_when_stored_abspath_is_genuinely_different() :void {
 		$con = $this->requireController();
 		$this->requireFileLockerAnalysisRuntime();
@@ -283,7 +283,7 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_invalid_only_stored_selections_register_no_analysis_or_lock_work() :void {
 		$con = $this->requireController();
 		$this->runWithPersistentDatabaseMutation(

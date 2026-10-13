@@ -7,9 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class GetPublicKeyTest extends BaseUnitTest {
 
-	/**
-	 * @dataProvider responseProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'responseProvider' )]
 	public function test_response_contract( ?array $response, ?array $expected ) :void {
 		$this->assertSame( $expected, ( new GetPublicKeyResponseStub( $response ) )->retrieve() );
 	}

@@ -118,7 +118,7 @@ class CompiledReportAssetReadinessTest extends TestCase {
 		$this->assertSame( [], $assetBuildReadiness->calls );
 	}
 
-	/** @dataProvider provideOuterReceipts */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideOuterReceipts' )]
 	public function testOuterReceiptsRejectEmptyBundle( string $receipt ) :void {
 		if ( $receipt === 'source' ) {
 			\putenv( 'SHIELD_SKIP_INNER_SETUP=1' );
