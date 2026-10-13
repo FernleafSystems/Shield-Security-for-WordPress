@@ -249,14 +249,17 @@ final class RuleEvaluator {
 	}
 
 	/**
-	 * PCRE limits are applied only for this match, then restored.
+	 * PCRE limits are applied only for this match, then restored. Hosts that disable ini_set() keep their own
+	 * limits, and a match that exceeds them is still reported as a pattern failure.
 	 */
 	private function regex( string $pattern, string $subject ) :?bool {
 		$previous = [];
-		foreach ( self::PCRE_SETTINGS as $setting => $value ) {
-			$old = \ini_set( $setting, $value );
-			if ( $old !== false ) {
-				$previous[ $setting ] = $old;
+		if ( \function_exists( 'ini_set' ) ) {
+			foreach ( self::PCRE_SETTINGS as $setting => $value ) {
+				$old = @\ini_set( $setting, $value );
+				if ( $old !== false ) {
+					$previous[ $setting ] = $old;
+				}
 			}
 		}
 		\set_error_handler( static function () :bool {
@@ -269,7 +272,7 @@ final class RuleEvaluator {
 		finally {
 			\restore_error_handler();
 			foreach ( $previous as $setting => $value ) {
-				\ini_set( $setting, (string)$value );
+				@\ini_set( $setting, (string)$value );
 			}
 		}
 		return ( $result === false || $error !== \PREG_NO_ERROR ) ? null : $result === 1;
