@@ -32,7 +32,7 @@ final class RulesetFile {
 			return null;
 		}
 		try {
-			$ruleset = include $path;
+			$ruleset = @include $path;
 		}
 		catch ( \Throwable $e ) {
 			return null;

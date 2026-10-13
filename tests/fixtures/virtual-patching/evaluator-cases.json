@@ -232,6 +232,48 @@
       "expected": "match"
     },
     {
+      "name": "REST route with a trailing newline, which WordPress still dispatches",
+      "conditions": [ { "kind": "rest_route", "negate": false, "namespace": "example/v1", "operator": "equals_i", "value": "/forgot-password" } ],
+      "facts": { "rest_route": "/Example/v1/forgot-password\n" },
+      "expected": "match"
+    },
+    {
+      "name": "REST namespace root with a trailing newline",
+      "conditions": [ { "kind": "rest_route", "negate": false, "namespace": "example/v1", "operator": "equals_i", "value": "" } ],
+      "facts": { "rest_route": "/example/v1\n" },
+      "expected": "match"
+    },
+    {
+      "name": "only one trailing newline is removed from a REST route",
+      "conditions": [ { "kind": "rest_route", "negate": false, "namespace": "example/v1", "operator": "equals_i", "value": "/forgot-password" } ],
+      "facts": { "rest_route": "/example/v1/forgot-password\n\n" },
+      "expected": "no_match"
+    },
+    {
+      "name": "negated branch in an or group",
+      "conditions": [
+        { "kind": "path", "negate": false, "operator": "equals", "value": "/wp-admin/admin-ajax.php" },
+        { "kind": "or", "conditions": [
+          { "kind": "parameter_value", "negate": false, "source": "form", "name": "action", "operator": "equals", "value": "example_export" },
+          { "kind": "user_capability", "negate": true, "capability": "manage_options" }
+        ] }
+      ],
+      "facts": { "path": "/wp-admin/admin-ajax.php", "form": { "action": "heartbeat" }, "user_capabilities": [ "read" ] },
+      "expected": "match"
+    },
+    {
+      "name": "negated branch in an or group, user has the capability",
+      "conditions": [
+        { "kind": "path", "negate": false, "operator": "equals", "value": "/wp-admin/admin-ajax.php" },
+        { "kind": "or", "conditions": [
+          { "kind": "parameter_value", "negate": false, "source": "form", "name": "action", "operator": "equals", "value": "example_export" },
+          { "kind": "user_capability", "negate": true, "capability": "manage_options" }
+        ] }
+      ],
+      "facts": { "path": "/wp-admin/admin-ajax.php", "form": { "action": "heartbeat" }, "user_capabilities": [ "manage_options" ] },
+      "expected": "no_match"
+    },
+    {
       "name": "no REST dispatch",
       "conditions": [ { "kind": "rest_route", "negate": false, "namespace": "example/v1", "operator": "equals_i", "value": "/forgot-password" } ],
       "facts": { "rest_route": null },

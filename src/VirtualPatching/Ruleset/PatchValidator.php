@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\Ruleset;
 
+use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\RuleEvaluator;
+
 /**
  * Checks a virtual patch (a Factory Candidate, contract version 2) before it is used. The checks mirror the
  * Factory's own contract so that a patch Shield accepts is one the Factory could have produced and tested.
@@ -13,22 +15,7 @@ class PatchValidator {
 	private const MAX_FIELD_LENGTH = 256;
 
 	private const METHODS = [ 'GET', 'POST', 'HEAD', 'OPTIONS', 'PUT', 'PATCH', 'DELETE' ];
-	private const STRING_OPERATORS = [ 'equals', 'equals_i', 'contains', 'contains_i', 'regex' ];
 	private const REST_ROUTE_OPERATORS = [ 'equals_i', 'regex' ];
-
-	private const FIELDS = [
-		'parameter_exists'      => [ 'source', 'name' ],
-		'rest_parameter_exists' => [ 'name' ],
-		'parameter_value'       => [ 'source', 'name', 'operator', 'value' ],
-		'path'                  => [ 'operator', 'value' ],
-		'script'                => [ 'operator', 'value' ],
-		'user_capability'       => [ 'capability' ],
-		'plugin_active'         => [ 'pluginFile' ],
-		'theme_active'          => [ 'theme' ],
-		'wp_is_admin'           => [],
-		'method'                => [ 'value' ],
-		'rest_route'            => [ 'namespace', 'operator', 'value' ],
-	];
 
 	private const REQUEST_CONDITIONS = [
 		'parameter_exists',
@@ -74,8 +61,8 @@ class PatchValidator {
 		}
 
 		$ids = $patch[ 'publicVulnerabilityIds' ] ?? null;
-		if ( !\is_array( $ids ) || empty( $ids ) ) {
-			$problems[] = 'publicVulnerabilityIds is required';
+		if ( !\is_array( $ids ) || !\array_is_list( $ids ) ) {
+			$problems[] = 'publicVulnerabilityIds must be a list';
 		}
 		else {
 			foreach ( $ids as $id ) {
@@ -208,10 +195,10 @@ class PatchValidator {
 			return [ 'a condition must be an object' ];
 		}
 		$kind = $leaf[ 'kind' ] ?? null;
-		if ( !\is_string( $kind ) || !isset( self::FIELDS[ $kind ] ) ) {
+		if ( !\is_string( $kind ) || !isset( RuleEvaluator::KINDS[ $kind ][ 'fields' ] ) ) {
 			return [ 'unsupported condition kind' ];
 		}
-		$expected = \array_merge( [ 'kind', 'negate' ], self::FIELDS[ $kind ] );
+		$expected = \array_merge( [ 'kind', 'negate' ], RuleEvaluator::KINDS[ $kind ][ 'fields' ] );
 		$keys = \array_keys( $leaf );
 		\sort( $expected );
 		\sort( $keys );
@@ -223,7 +210,7 @@ class PatchValidator {
 		}
 
 		$problems = [];
-		foreach ( self::FIELDS[ $kind ] as $field ) {
+		foreach ( RuleEvaluator::KINDS[ $kind ][ 'fields' ] as $field ) {
 			$value = $leaf[ $field ];
 			if ( !\is_string( $value ) ) {
 				$problems[] = $field.' must be a string';
@@ -253,12 +240,12 @@ class PatchValidator {
 				}
 				break;
 			case 'user_capability':
-				if ( \preg_match( '/^[a-zA-Z0-9_-]+$/', $leaf[ 'capability' ] ) !== 1 ) {
+				if ( \preg_match( '/^[a-zA-Z0-9_-]+$/D', $leaf[ 'capability' ] ) !== 1 ) {
 					$problems[] = 'invalid capability';
 				}
 				break;
 			case 'theme_active':
-				if ( \preg_match( '/^[A-Za-z0-9._-]+$/', $leaf[ 'theme' ] ) !== 1 || \in_array( $leaf[ 'theme' ], [ '.', '..' ], true ) ) {
+				if ( \preg_match( '/^[A-Za-z0-9._-]+$/D', $leaf[ 'theme' ] ) !== 1 || \in_array( $leaf[ 'theme' ], [ '.', '..' ], true ) ) {
 					$problems[] = 'invalid theme directory';
 				}
 				break;
@@ -273,7 +260,7 @@ class PatchValidator {
 				}
 				break;
 			case 'rest_route':
-				if ( \preg_match( '#^[A-Za-z0-9_-]+(?:/[A-Za-z0-9._-]+)*$#', $leaf[ 'namespace' ] ) !== 1 ) {
+				if ( \preg_match( '#^[A-Za-z0-9_-]+(?:/[A-Za-z0-9._-]+)*$#D', $leaf[ 'namespace' ] ) !== 1 ) {
 					$problems[] = 'invalid REST namespace';
 				}
 				break;
@@ -282,7 +269,7 @@ class PatchValidator {
 		}
 
 		if ( isset( $leaf[ 'operator' ] ) ) {
-			$operators = $kind === 'rest_route' ? self::REST_ROUTE_OPERATORS : self::STRING_OPERATORS;
+			$operators = $kind === 'rest_route' ? self::REST_ROUTE_OPERATORS : RuleEvaluator::OPERATORS;
 			if ( !\in_array( $leaf[ 'operator' ], $operators, true ) ) {
 				$problems[] = 'unsupported operator';
 			}
@@ -335,7 +322,7 @@ class PatchValidator {
 			return null;
 		}
 		$modifiers = \substr( $pattern, $end + 1 );
-		return \preg_match( '/^[a-zA-Z]*$/', $modifiers ) === 1
+		return \preg_match( '/^[a-zA-Z]*$/D', $modifiers ) === 1
 			? [ 'body' => \substr( $pattern, 1, $end - 1 ), 'modifiers' => $modifiers ]
 			: null;
 	}

@@ -7,8 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\Ruleset\RulesetFile;
 /**
  * Checks virtual patching rules inside WordPress, each at the earliest point where its conditions can be decided:
  * - load: as soon as Shield's plugin file is included, for request, plugin, theme and admin-area conditions;
- * - user: at 'init', once WordPress has set up the current user, for capability conditions;
- * - rest: at 'rest_pre_dispatch', on every dispatch, for REST route and parameter conditions.
+ * - user: at 'plugins_loaded', once WordPress's pluggable user functions exist, for capability conditions. The
+ *   current user is only looked up when the rule's earlier conditions already match;
+ * - rest: at 'rest_pre_dispatch', on every dispatch, for REST route and parameter conditions, using the method
+ *   WordPress dispatches (which honours method overrides) rather than the HTTP method.
  *
  * Shield's plugin file includes this before Composer loads, so it only uses the self-contained virtual patching
  * classes and WordPress functions. It never throws: a failure leaves the request to WordPress as before.
@@ -48,19 +50,29 @@ final class RequestGuard {
 
 	public static function boot() :void {
 		try {
-			if ( self::$instance !== null || \PHP_SAPI === 'cli' || !\function_exists( 'get_option' ) || !\function_exists( 'add_action' )
-				 || ( \function_exists( 'is_multisite' ) && is_multisite() ) ) {
-				return;
-			}
-			$path = get_option( self::OPTION_RULESET_PATH );
-			$ruleset = \is_string( $path ) && $path !== '' ? RulesetFile::read( $path ) : null;
-			if ( $ruleset !== null && !empty( $ruleset[ 'rules' ] ) ) {
-				self::$instance = new self( $ruleset );
-				self::$instance->start();
+			if ( self::$instance === null && \PHP_SAPI !== 'cli' ) {
+				self::$instance = self::fromSite();
+				if ( self::$instance !== null ) {
+					self::$instance->start();
+				}
 			}
 		}
 		catch ( \Throwable $e ) {
 		}
+	}
+
+	/**
+	 * A guard for the site's current ruleset, or null when there is nothing to check: on multisite, before
+	 * WordPress's options are available, or without a readable ruleset that has rules.
+	 */
+	public static function fromSite( ?callable $respond = null ) :?self {
+		if ( !\function_exists( 'get_option' ) || !\function_exists( 'add_action' )
+			 || ( \function_exists( 'is_multisite' ) && is_multisite() ) ) {
+			return null;
+		}
+		$path = get_option( self::OPTION_RULESET_PATH );
+		$ruleset = \is_string( $path ) && $path !== '' ? RulesetFile::read( $path ) : null;
+		return $ruleset !== null && !empty( $ruleset[ 'rules' ] ) ? new self( $ruleset, $respond ) : null;
 	}
 
 	public function start() :void {
@@ -83,7 +95,7 @@ final class RequestGuard {
 			$this->runLoadRules();
 		}
 		if ( !empty( $this->rulesByPoint[ self::POINT_USER ] ) ) {
-			did_action( 'init' ) ? $this->runUserRules() : add_action( 'init', [ $this, 'runUserRules' ], \PHP_INT_MIN, 0 );
+			did_action( 'plugins_loaded' ) ? $this->runUserRules() : add_action( 'plugins_loaded', [ $this, 'runUserRules' ], \PHP_INT_MIN, 0 );
 		}
 		if ( !empty( $this->rulesByPoint[ self::POINT_REST ] ) ) {
 			add_filter( 'rest_pre_dispatch', [ $this, 'checkRestDispatch' ], \PHP_INT_MIN, 3 );
@@ -111,6 +123,7 @@ final class RequestGuard {
 			return $result;
 		}
 		$blocked = $this->run( self::POINT_REST, \array_merge( $this->requestFacts(), [
+			'method'         => $request->get_method(),
 			'rest_route'     => $request->get_route(),
 			'rest_has_param' => fn( string $name ) :bool => $request->has_param( $name ),
 		] ) );

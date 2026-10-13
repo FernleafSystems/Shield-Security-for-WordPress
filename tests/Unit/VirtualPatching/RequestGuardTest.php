@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\{
 	BlockLog,
 	RequestGuard
 };
+use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\Ruleset\RulesetFile;
 
 class RequestGuardTest extends BaseUnitTest {
 
@@ -134,7 +135,7 @@ class RequestGuardTest extends BaseUnitTest {
 		$this->assertSame( [ [ 'admin', RequestGuard::POINT_LOAD ] ], $this->blocks );
 	}
 
-	public function testCapabilityRulesWaitForInit() :void {
+	public function testCapabilityRulesWaitForPluginsLoaded() :void {
 		$rule = $this->rule( 'settings', [
 			[ 'kind' => 'path', 'negate' => false, 'operator' => 'equals', 'value' => '/wp-admin/admin-ajax.php' ],
 			[ 'kind' => 'user_capability', 'negate' => true, 'capability' => 'manage_options' ],
@@ -143,7 +144,7 @@ class RequestGuardTest extends BaseUnitTest {
 		$guard->start();
 
 		$this->assertSame( [], $this->blocks );
-		$this->assertSame( [ [ $guard, 'runUserRules' ], \PHP_INT_MIN ], $this->actions[ 'init' ] );
+		$this->assertSame( [ [ $guard, 'runUserRules' ], \PHP_INT_MIN ], $this->actions[ 'plugins_loaded' ] );
 
 		$this->capabilities = [ 'manage_options' ];
 		$guard->runUserRules();
@@ -168,6 +169,41 @@ class RequestGuardTest extends BaseUnitTest {
 		$this->assertSame( 'blocked', $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'POST', '/example/v1/settings', [ 'callback' => 'x' ] ) ) );
 		$this->assertSame( 'earlier result', $guard->checkRestDispatch( 'earlier result', null, new \WP_REST_Request( 'GET', '/other/v1/x', [] ) ) );
 		$this->assertCount( 1, $this->blocks );
+	}
+
+	public function testRestRulesUseTheMethodWordPressDispatches() :void {
+		// The HTTP request is a GET; ?_method=POST makes WordPress dispatch the POST handler.
+		$_SERVER[ 'REQUEST_METHOD' ] = 'GET';
+		$rule = $this->rule( 'rest-post', [
+			[ 'kind' => 'method', 'negate' => false, 'value' => 'POST' ],
+			[ 'kind' => 'rest_route', 'negate' => false, 'namespace' => 'example/v1', 'operator' => 'equals_i', 'value' => '/upload' ],
+		] );
+		$guard = $this->guard( $this->ruleset( [ $rule ] ) );
+		$guard->start();
+
+		$this->assertSame( 'blocked', $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'POST', '/example/v1/upload', [] ) ) );
+		$this->assertNull( $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'GET', '/example/v1/upload', [] ) ) );
+	}
+
+	public function testGuardIsBuiltOnlyForAReadableRulesetWithRules() :void {
+		$dir = $this->createTrackedTempDir();
+		$valid = $this->ruleset( [ $this->rule( 'export', self::AJAX_EXPORT ) ] );
+		unset( $valid[ 'hash' ] );
+		\file_put_contents( $dir.'/valid.php', RulesetFile::render( $valid ) );
+		\file_put_contents( $dir.'/empty.php', RulesetFile::render( \array_merge( $valid, [ 'rules' => [] ] ) ) );
+		\file_put_contents( $dir.'/corrupt.php', '<?php return [' );
+
+		$this->assertNull( RequestGuard::fromSite(), 'no ruleset option' );
+		foreach ( [ 'empty.php', 'corrupt.php', 'missing.php' ] as $file ) {
+			update_option( RequestGuard::OPTION_RULESET_PATH, $dir.'/'.$file );
+			$this->assertNull( RequestGuard::fromSite(), $file );
+		}
+
+		update_option( RequestGuard::OPTION_RULESET_PATH, $dir.'/valid.php' );
+		$this->assertInstanceOf( RequestGuard::class, RequestGuard::fromSite() );
+
+		Functions\when( 'is_multisite' )->justReturn( true );
+		$this->assertNull( RequestGuard::fromSite(), 'multisite' );
 	}
 
 	public function testRestBlockIsAForbiddenError() :void {

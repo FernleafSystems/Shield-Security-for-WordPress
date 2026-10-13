@@ -13,7 +13,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching;
  * each leaf optionally negated.
  *
  * Facts are plain values describing the request:
- * - method:         REQUEST_METHOD as sent
+ * - method:         REQUEST_METHOD as sent, or at REST dispatch the method WordPress dispatches
  * - path:           see pathFromRequestUri()
  * - script:         see scriptFromServer()
  * - query, form:    unslashed $_GET and $_POST
@@ -52,35 +52,27 @@ final class RuleEvaluator {
 		'pcre.jit'             => '0',
 	];
 
-	private const LEAF_FACTS = [
-		'method'                => [ 'method' ],
-		'path'                  => [ 'path' ],
-		'script'                => [ 'script' ],
-		'parameter_value'       => [],
-		'parameter_exists'      => [],
-		'user_capability'       => [ 'user_can' ],
-		'plugin_active'         => [ 'active_plugins' ],
-		'theme_active'          => [ 'active_themes' ],
-		'wp_is_admin'           => [ 'is_admin' ],
-		'rest_route'            => [ 'rest_route' ],
-		'rest_parameter_exists' => [ 'rest_has_param' ],
+	/**
+	 * For each condition kind: the string fields it needs, and the facts it reads. Parameter conditions read the
+	 * query, the form or both, as their source says.
+	 */
+	public const KINDS = [
+		'method'                => [ 'fields' => [ 'value' ], 'facts' => [ 'method' ] ],
+		'path'                  => [ 'fields' => [ 'operator', 'value' ], 'facts' => [ 'path' ] ],
+		'script'                => [ 'fields' => [ 'operator', 'value' ], 'facts' => [ 'script' ] ],
+		'parameter_value'       => [ 'fields' => [ 'source', 'name', 'operator', 'value' ], 'facts' => [] ],
+		'parameter_exists'      => [ 'fields' => [ 'source', 'name' ], 'facts' => [] ],
+		'user_capability'       => [ 'fields' => [ 'capability' ], 'facts' => [ 'user_can' ] ],
+		'plugin_active'         => [ 'fields' => [ 'pluginFile' ], 'facts' => [ 'active_plugins' ] ],
+		'theme_active'          => [ 'fields' => [ 'theme' ], 'facts' => [ 'active_themes' ] ],
+		'wp_is_admin'           => [ 'fields' => [], 'facts' => [ 'is_admin' ] ],
+		'rest_route'            => [ 'fields' => [ 'namespace', 'operator', 'value' ], 'facts' => [ 'rest_route' ] ],
+		'rest_parameter_exists' => [ 'fields' => [ 'name' ], 'facts' => [ 'rest_has_param' ] ],
 	];
 
-	private const LEAF_FIELDS = [
-		'method'                => [ 'value' ],
-		'path'                  => [ 'operator', 'value' ],
-		'script'                => [ 'operator', 'value' ],
-		'parameter_value'       => [ 'source', 'name', 'operator', 'value' ],
-		'parameter_exists'      => [ 'source', 'name' ],
-		'user_capability'       => [ 'capability' ],
-		'plugin_active'         => [ 'pluginFile' ],
-		'theme_active'          => [ 'theme' ],
-		'wp_is_admin'           => [],
-		'rest_route'            => [ 'namespace', 'operator', 'value' ],
-		'rest_parameter_exists' => [ 'name' ],
-	];
+	public const OPERATORS = [ 'equals', 'equals_i', 'contains', 'contains_i', 'regex' ];
 
-	private const OPERATORS = [ 'equals', 'equals_i', 'contains', 'contains_i', 'regex' ];
+	private ?array $patternFailure = null;
 
 	/**
 	 * Every leaf is checked here before any is evaluated, so a malformed rule is rejected with an exception and
@@ -97,7 +89,7 @@ final class RuleEvaluator {
 				$sourceFacts = $leaf[ 'source' ] === 'either' ? [ 'query', 'form' ] : [ $leaf[ 'source' ] ];
 			}
 			else {
-				$sourceFacts = self::LEAF_FACTS[ $kind ];
+				$sourceFacts = self::KINDS[ $kind ][ 'facts' ];
 			}
 			foreach ( $sourceFacts as $fact ) {
 				$facts[ $fact ] = true;
@@ -112,6 +104,7 @@ final class RuleEvaluator {
 	 * @throws \InvalidArgumentException
 	 */
 	public function evaluate( array $rule, array $facts ) :string {
+		$this->patternFailure = null;
 		$missing = \array_diff( $this->requiredFacts( $rule ), \array_keys( $facts ) );
 		if ( !empty( $missing ) ) {
 			throw new \InvalidArgumentException( 'Missing request facts: '.\implode( ', ', $missing ) );
@@ -231,11 +224,15 @@ final class RuleEvaluator {
 
 	/**
 	 * The route must be in the rule's namespace, bounded by "/" or the end of the route, and the rest of the
-	 * route is compared with the rule's value. WordPress matches routes case-insensitively.
+	 * route is compared with the rule's value. WordPress matches routes case-insensitively, and its anchored
+	 * route patterns also accept one trailing newline, so that newline is removed before comparing.
 	 */
 	private function restRoute( ?string $route, array $leaf ) :?bool {
 		if ( $route === null ) {
 			return false;
+		}
+		if ( \substr( $route, -1 ) === "\n" ) {
+			$route = \substr( $route, 0, -1 );
 		}
 		$prefix = '/'.$leaf[ 'namespace' ];
 		$length = \strlen( $prefix );
@@ -277,12 +274,15 @@ final class RuleEvaluator {
 				}
 			}
 		}
-		\set_error_handler( static function () :bool {
+		$warning = null;
+		\set_error_handler( static function ( int $level, string $message ) use ( &$warning ) :bool {
+			$warning = $message;
 			return true;
 		} );
 		try {
 			$result = \preg_match( $pattern, $subject );
 			$error = \preg_last_error();
+			$message = \function_exists( 'preg_last_error_msg' ) ? \preg_last_error_msg() : '';
 		}
 		finally {
 			\restore_error_handler();
@@ -290,7 +290,25 @@ final class RuleEvaluator {
 				@\ini_set( $setting, (string)$value );
 			}
 		}
-		return ( $result === false || $error !== \PREG_NO_ERROR ) ? null : $result === 1;
+		if ( $result !== false && $error === \PREG_NO_ERROR ) {
+			return $result === 1;
+		}
+		$this->patternFailure = [
+			'compile'  => \is_string( $warning ) && \preg_match( '/Compilation failed|delimiter|Unknown modifier|Empty regular expression/', $warning ) === 1,
+			'pcreCode' => $error,
+			'message'  => $message,
+			'warning'  => $warning,
+		];
+		return null;
+	}
+
+	/**
+	 * Why the last evaluate() returned PATTERN_FAILURE: whether the pattern failed to compile, the PCRE error
+	 * code and message, and any PHP warning. Null when the last evaluation had no pattern failure.
+	 * @return array{compile: bool, pcreCode: int, message: string, warning: ?string}|null
+	 */
+	public function lastPatternFailure() :?array {
+		return $this->patternFailure;
 	}
 
 	/**
@@ -329,13 +347,13 @@ final class RuleEvaluator {
 	 */
 	private function checkLeaf( array $leaf ) :void {
 		$kind = $leaf[ 'kind' ] ?? null;
-		if ( !\is_string( $kind ) || !isset( self::LEAF_FIELDS[ $kind ] ) ) {
+		if ( !\is_string( $kind ) || !isset( self::KINDS[ $kind ] ) ) {
 			throw new \InvalidArgumentException( 'Unsupported condition kind.' );
 		}
 		if ( \array_key_exists( 'negate', $leaf ) && !\is_bool( $leaf[ 'negate' ] ) ) {
 			throw new \InvalidArgumentException( 'Invalid negate flag.' );
 		}
-		foreach ( self::LEAF_FIELDS[ $kind ] as $field ) {
+		foreach ( self::KINDS[ $kind ][ 'fields' ] as $field ) {
 			if ( !\is_string( $leaf[ $field ] ?? null ) ) {
 				throw new \InvalidArgumentException( 'Missing or invalid condition field: '.$field );
 			}

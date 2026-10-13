@@ -88,6 +88,25 @@ class RuleEvaluatorTest extends TestCase {
 		];
 	}
 
+	public function testPatternFailureDetailsDistinguishCompileFromRuntimeFailures() :void {
+		$evaluator = new RuleEvaluator();
+		$path = fn( string $pattern ) => $this->rule( [ [ 'kind' => 'path', 'negate' => false, 'operator' => 'regex', 'value' => $pattern ] ] );
+
+		$evaluator->evaluate( $path( '#(#' ), [ 'path' => '/' ] );
+		$compile = $evaluator->lastPatternFailure();
+		$this->assertTrue( $compile[ 'compile' ] );
+		$this->assertSame( \PREG_INTERNAL_ERROR, $compile[ 'pcreCode' ] );
+
+		$evaluator->evaluate( $path( '/^(a|aa)+$/' ), [ 'path' => \str_repeat( 'a', 40 ).'!' ] );
+		$runtime = $evaluator->lastPatternFailure();
+		$this->assertFalse( $runtime[ 'compile' ] );
+		$this->assertSame( \PREG_BACKTRACK_LIMIT_ERROR, $runtime[ 'pcreCode' ] );
+		$this->assertSame( 'Backtrack limit exhausted', $runtime[ 'message' ] );
+
+		$evaluator->evaluate( $path( '#^/#' ), [ 'path' => '/' ] );
+		$this->assertNull( $evaluator->lastPatternFailure() );
+	}
+
 	public function testPcreSettingsAreRestored() :void {
 		$settings = [ 'pcre.backtrack_limit', 'pcre.recursion_limit', 'pcre.jit' ];
 		$before = \array_map( '\ini_get', $settings );
