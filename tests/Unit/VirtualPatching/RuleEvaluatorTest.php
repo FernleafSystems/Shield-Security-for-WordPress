@@ -62,9 +62,30 @@ class RuleEvaluatorTest extends TestCase {
 		);
 	}
 
-	public function testUnknownConditionKindIsRejected() :void {
+	#[DataProvider( 'providerMalformedConditions' )]
+	public function testMalformedConditionIsRejectedBeforeEvaluation( array $condition ) :void {
 		$this->expectException( \InvalidArgumentException::class );
-		( new RuleEvaluator() )->requiredFacts( $this->rule( [ [ 'kind' => 'cookie', 'negate' => false ] ] ) );
+		( new RuleEvaluator() )->evaluate( $this->rule( [ $condition ] ), [
+			'method' => 'GET',
+			'path'   => '/',
+			'script' => 'index.php',
+			'query'  => [],
+			'form'   => [],
+		] );
+	}
+
+	public static function providerMalformedConditions() :array {
+		return [
+			'unknown kind'         => [ [ 'kind' => 'cookie', 'negate' => false ] ],
+			'missing value'        => [ [ 'kind' => 'path', 'negate' => false, 'operator' => 'equals' ] ],
+			'missing operator'     => [ [ 'kind' => 'path', 'negate' => false, 'value' => '/' ] ],
+			'value not a string'   => [ [ 'kind' => 'method', 'negate' => false, 'value' => [ 'GET' ] ] ],
+			'unknown operator'     => [ [ 'kind' => 'path', 'negate' => false, 'operator' => 'starts_with', 'value' => '/' ] ],
+			'unknown source'       => [ [ 'kind' => 'parameter_exists', 'negate' => false, 'source' => 'cookie', 'name' => 'a' ] ],
+			'either for a value'   => [ [ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'either', 'name' => 'a', 'operator' => 'equals', 'value' => 'b' ] ],
+			'negate not a boolean' => [ [ 'kind' => 'path', 'negate' => 'yes', 'operator' => 'equals', 'value' => '/' ] ],
+			'or without branches'  => [ [ 'kind' => 'or' ] ],
+		];
 	}
 
 	public function testPcreSettingsAreRestored() :void {

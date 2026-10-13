@@ -66,20 +66,35 @@ final class RuleEvaluator {
 		'rest_parameter_exists' => [ 'rest_has_param' ],
 	];
 
+	private const LEAF_FIELDS = [
+		'method'                => [ 'value' ],
+		'path'                  => [ 'operator', 'value' ],
+		'script'                => [ 'operator', 'value' ],
+		'parameter_value'       => [ 'source', 'name', 'operator', 'value' ],
+		'parameter_exists'      => [ 'source', 'name' ],
+		'user_capability'       => [ 'capability' ],
+		'plugin_active'         => [ 'pluginFile' ],
+		'theme_active'          => [ 'theme' ],
+		'wp_is_admin'           => [],
+		'rest_route'            => [ 'namespace', 'operator', 'value' ],
+		'rest_parameter_exists' => [ 'name' ],
+	];
+
+	private const OPERATORS = [ 'equals', 'equals_i', 'contains', 'contains_i', 'regex' ];
+
 	/**
+	 * Every leaf is checked here before any is evaluated, so a malformed rule is rejected with an exception and
+	 * never reaches a PHP warning.
 	 * @return string[]
 	 * @throws \InvalidArgumentException
 	 */
 	public function requiredFacts( array $rule ) :array {
 		$facts = [];
 		foreach ( $this->leaves( $rule ) as $leaf ) {
-			$kind = $leaf[ 'kind' ] ?? null;
-			if ( !\is_string( $kind ) || !isset( self::LEAF_FACTS[ $kind ] ) ) {
-				throw new \InvalidArgumentException( 'Unsupported condition kind.' );
-			}
+			$this->checkLeaf( $leaf );
+			$kind = $leaf[ 'kind' ];
 			if ( $kind === 'parameter_exists' || $kind === 'parameter_value' ) {
-				$source = $leaf[ 'source' ] ?? null;
-				$sourceFacts = $source === 'either' ? [ 'query', 'form' ] : [ $source ];
+				$sourceFacts = $leaf[ 'source' ] === 'either' ? [ 'query', 'form' ] : [ $leaf[ 'source' ] ];
 			}
 			else {
 				$sourceFacts = self::LEAF_FACTS[ $kind ];
@@ -292,7 +307,10 @@ final class RuleEvaluator {
 				throw new \InvalidArgumentException( 'Invalid condition.' );
 			}
 			if ( ( $node[ 'kind' ] ?? null ) === 'or' ) {
-				foreach ( \is_array( $node[ 'conditions' ] ?? null ) ? $node[ 'conditions' ] : [] as $branch ) {
+				if ( !\is_array( $node[ 'conditions' ] ?? null ) || empty( $node[ 'conditions' ] ) ) {
+					throw new \InvalidArgumentException( 'An or group needs conditions.' );
+				}
+				foreach ( $node[ 'conditions' ] as $branch ) {
 					if ( !\is_array( $branch ) ) {
 						throw new \InvalidArgumentException( 'Invalid condition.' );
 					}
@@ -304,6 +322,31 @@ final class RuleEvaluator {
 			}
 		}
 		return $leaves;
+	}
+
+	/**
+	 * @throws \InvalidArgumentException
+	 */
+	private function checkLeaf( array $leaf ) :void {
+		$kind = $leaf[ 'kind' ] ?? null;
+		if ( !\is_string( $kind ) || !isset( self::LEAF_FIELDS[ $kind ] ) ) {
+			throw new \InvalidArgumentException( 'Unsupported condition kind.' );
+		}
+		if ( \array_key_exists( 'negate', $leaf ) && !\is_bool( $leaf[ 'negate' ] ) ) {
+			throw new \InvalidArgumentException( 'Invalid negate flag.' );
+		}
+		foreach ( self::LEAF_FIELDS[ $kind ] as $field ) {
+			if ( !\is_string( $leaf[ $field ] ?? null ) ) {
+				throw new \InvalidArgumentException( 'Missing or invalid condition field: '.$field );
+			}
+		}
+		if ( isset( $leaf[ 'operator' ] ) && !\in_array( $leaf[ 'operator' ], self::OPERATORS, true ) ) {
+			throw new \InvalidArgumentException( 'Unsupported operator.' );
+		}
+		if ( isset( $leaf[ 'source' ] )
+			 && !\in_array( $leaf[ 'source' ], $kind === 'parameter_exists' ? [ 'query', 'form', 'either' ] : [ 'query', 'form' ], true ) ) {
+			throw new \InvalidArgumentException( 'Unsupported parameter source.' );
+		}
 	}
 
 	private static function asciiLower( string $value ) :string {
