@@ -678,6 +678,13 @@ class EventStrings {
 					__( "The offending request parameter was '{{param}}' with a value of '{{value}}'.", 'wp-simple-firewall' ),
 				],
 			],
+			'virtual_patch_block'          => [
+				'name'  => __( 'Virtual Patch Block', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Request blocked by virtual patch {{rule}} for {{advisories}}.', 'wp-simple-firewall' ),
+					__( 'Request from {{ip}}: {{method}} {{path}}', 'wp-simple-firewall' ),
+				],
+			],
 			'fw_email_success'             => [
 				'name'  => __( 'Firewall Block Email Success', 'wp-simple-firewall' ),
 				'audit' => [
