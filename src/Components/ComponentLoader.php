@@ -39,6 +39,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAd
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogger;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend\UserSuspendController;
 use FernleafSystems\Wordpress\Plugin\Shield\Render\RenderService;
+use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\VirtualPatchingCon;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
 
 /**
@@ -87,6 +88,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property Profiles\SecurityProfilesCon           $security_profiles
  * @property ShieldNetApiController                 $shieldnet
  * @property UserSuspendController                  $user_suspend
+ * @property VirtualPatchingCon                     $virtual_patching
  * @property CompCons\WhitelabelCon                 $whitelabel
  * @property MerlinController                       $wizards
  * @property CompCons\WpCliCon                      $wpcli
@@ -155,6 +157,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'scans_queue'           => Scan\Queue\Controller::class,
 			'security_profiles'     => Profiles\SecurityProfilesCon::class,
 			'user_suspend'          => UserSuspendController::class,
+			'virtual_patching'      => VirtualPatchingCon::class,
 			'whitelabel'            => CompCons\WhitelabelCon::class,
 			'wizards'               => MerlinController::class,
 			'wpcli'                 => CompCons\WpCliCon::class,

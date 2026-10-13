@@ -1028,6 +1028,17 @@
         ],
         "level": "warning"
     },
+    "virtual_patch_block": {
+        "audit_params": [
+            "rule",
+            "advisories",
+            "ip",
+            "method",
+            "path"
+        ],
+        "level": "warning",
+        "recent": true
+    },
     "whitelist_site_added": {
         "audit_params": [
             "site"
