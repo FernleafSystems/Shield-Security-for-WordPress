@@ -28,6 +28,13 @@ final class MarkedBlock {
 	}
 
 	/**
+	 * .htaccess uses # comments; every other file Shield writes to is a per-directory INI file.
+	 */
+	public static function forFile( string $path ) :self {
+		return \basename( $path ) === '.htaccess' ? self::htaccess() : self::userIni();
+	}
+
+	/**
 	 * @throws MalformedBlockException
 	 */
 	public function has( string $content ) :bool {
@@ -51,8 +58,11 @@ final class MarkedBlock {
 			return (string)\preg_replace_callback( $this->blockPattern(), fn() => $block, $content, 1 );
 		}
 
-		$content = \rtrim( $content, "\r\n" );
-		return ( $content === '' ? '' : $content."\n\n" ).$block;
+		if ( $content === '' ) {
+			return $block;
+		}
+		// The existing content stays byte for byte; a blank line separates it from the block.
+		return $content.( \substr( $content, -1 ) === "\n" ? "\n" : "\n\n" ).$block;
 	}
 
 	/**
@@ -60,8 +70,16 @@ final class MarkedBlock {
 	 */
 	public function remove( string $content ) :string {
 		$this->assertWellFormed( $content );
-		$removed = (string)\preg_replace( $this->blockPattern(), '', $content );
-		return \preg_replace( "#(\r?\n){3,}#", "\n\n", $removed ) ?? $removed;
+		if ( \preg_match( $this->blockPattern(), $content, $match, \PREG_OFFSET_CAPTURE ) !== 1 ) {
+			return $content;
+		}
+		$before = \substr( $content, 0, $match[ 0 ][ 1 ] );
+		$after = \substr( $content, $match[ 0 ][ 1 ] + \strlen( $match[ 0 ][ 0 ] ) );
+		if ( $after === '' ) {
+			// Only the blank line apply() put before the block goes; the rest of the file is untouched.
+			$before = (string)\preg_replace( "#(?<=\n)\n\z#", '', $before );
+		}
+		return $before.$after;
 	}
 
 	/**

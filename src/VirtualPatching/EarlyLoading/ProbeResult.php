@@ -30,8 +30,13 @@ final class ProbeResult {
 		return new self( false, 0 );
 	}
 
-	public function isServerError() :bool {
-		return $this->reachable && $this->status >= 500;
+	/**
+	 * A stub requested directly answers with only its marker. An error status, or other output with status
+	 * 200 (a displayed fatal error, for example), means the server can't run it. A refused or failed request
+	 * proves nothing either way.
+	 */
+	public function smokeFailed() :bool {
+		return $this->reachable && ( $this->status >= 500 || ( $this->status === 200 && !$this->smokeMarkerSeen ) );
 	}
 
 	public function isVerificationResponse() :bool {
