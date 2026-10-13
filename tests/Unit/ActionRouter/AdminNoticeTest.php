@@ -31,9 +31,7 @@ class AdminNoticeTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider providerWpNoticeClassMappings
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerWpNoticeClassMappings' )]
 	public function testRenderDataIncludesWordPressNoticeClassForType( string $type, string $expectedClass ) :void {
 		$component = new AdminNoticeTestDouble( [
 			'raw_notice_data' => [

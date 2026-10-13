@@ -18,9 +18,7 @@ class PhpFileActivityClassifierTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider provideInertPhpPayloads
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInertPhpPayloads' )]
 	public function testClassifiesInertPhpPayloads( string $content ) :void {
 		$this->assertSame(
 			PhpFileActivity::Inert,

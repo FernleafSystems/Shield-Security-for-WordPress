@@ -17,9 +17,7 @@ class EventStringsCompletenessTest extends TestCase {
 
 	use PluginPathsTrait;
 
-	/**
-	 * @dataProvider provideSpecEventKeys
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideSpecEventKeys' )]
 	public function testSpecEventHasStrings( string $eventKey ) :void {
 		$stringKeys = $this->getEventStringKeys();
 		$this->assertContains(
@@ -33,9 +31,7 @@ class EventStringsCompletenessTest extends TestCase {
 		);
 	}
 
-	/**
-	 * @dataProvider provideEventStringKeys
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideEventStringKeys' )]
 	public function testEventStringHasSpecEntry( string $eventKey ) :void {
 		$specKeys = $this->getSpecEventKeys();
 		$this->assertContains(

@@ -11,9 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class AjaxRenderTargetPolicyTest extends BaseUnitTest {
 
-	/**
-	 * @dataProvider allowedRenderTargetProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'allowedRenderTargetProvider' )]
 	public function test_current_ajax_render_producer_targets_are_allowed( string $actionClass ) :void {
 		$policy = new AjaxRenderTargetPolicy();
 
@@ -21,9 +19,7 @@ class AjaxRenderTargetPolicyTest extends BaseUnitTest {
 		$this->assertTrue( $policy->isAllowed( $actionClass::SLUG ) );
 	}
 
-	/**
-	 * @dataProvider blockedRenderTargetProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'blockedRenderTargetProvider' )]
 	public function test_public_or_internal_render_targets_are_denied( string $classOrSlug ) :void {
 		$this->assertFalse( ( new AjaxRenderTargetPolicy() )->isAllowed( $classOrSlug ) );
 	}

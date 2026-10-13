@@ -8,6 +8,12 @@ class WordPressPhpUnitCompatibilityPatcher {
 
 	private const PATCH_MARKER = 'Shield PHPUnit 11 compatibility: WordPress-owned annotation reader.';
 
+	/**
+	 * PHPUnit parses this prose on WordPress's deprecated checkRequirements() as group metadata and
+	 * reports a doc-comment metadata deprecation for every WordPress test class.
+	 */
+	private const STALE_GROUP_PROSE = 'by using @group annotations.';
+
 	public function patch( string $wpTestsDir ) :void {
 		$path = Path::join( $wpTestsDir, 'includes', 'abstract-testcase.php' );
 		if ( !\is_file( $path ) ) {
@@ -18,8 +24,20 @@ class WordPressPhpUnitCompatibilityPatcher {
 		if ( !\is_string( $contents ) ) {
 			throw new \RuntimeException( 'Failed to read WordPress test base class: '.$path );
 		}
+
+		$patched = \str_replace(
+			self::STALE_GROUP_PROSE,
+			'by using group annotations.',
+			$this->patchAnnotationReader( $contents, $path )
+		);
+		if ( $patched !== $contents && \file_put_contents( $path, $patched ) === false ) {
+			throw new \RuntimeException( 'Failed to write WordPress PHPUnit compatibility patch: '.$path );
+		}
+	}
+
+	private function patchAnnotationReader( string $contents, string $path ) :string {
 		if ( \str_contains( $contents, self::PATCH_MARKER ) ) {
-			return;
+			return $contents;
 		}
 
 		if ( \preg_match( $this->legacyAnnotationReaderPattern(), $contents, $matches, \PREG_OFFSET_CAPTURE ) !== 1 ) {
@@ -29,10 +47,7 @@ class WordPressPhpUnitCompatibilityPatcher {
 		}
 		$matchedReader = $matches[ 0 ][ 0 ];
 		$matchedOffset = $matches[ 0 ][ 1 ];
-		$patched = \substr_replace( $contents, self::replacementAnnotationReader(), $matchedOffset, \strlen( $matchedReader ) );
-		if ( \file_put_contents( $path, $patched ) === false ) {
-			throw new \RuntimeException( 'Failed to write WordPress PHPUnit compatibility patch: '.$path );
-		}
+		return \substr_replace( $contents, self::replacementAnnotationReader(), $matchedOffset, \strlen( $matchedReader ) );
 	}
 
 	private function legacyAnnotationReaderPattern() :string {

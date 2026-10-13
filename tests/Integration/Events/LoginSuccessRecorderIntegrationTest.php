@@ -108,7 +108,7 @@ class LoginSuccessRecorderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertLoginSuccessCount( 2 );
 	}
 
-	/** @dataProvider disabledRecordingProvider */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'disabledRecordingProvider' )]
 	public function test_disabled_and_uninitialized_recorders_do_not_emit( bool $execute, bool $enabled, bool $forceOff ) :void {
 		$con = $this->requireController();
 		$options = $this->snapshotSelectedOptions( [ 'global_enable_plugin_features' ] );

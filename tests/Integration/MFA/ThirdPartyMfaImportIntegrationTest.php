@@ -260,7 +260,7 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( ImportController::STATUS_COMPLETED, $state[ 'status' ] );
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_wordfence_import_run_imports_ga_and_backup_codes() :void {
 		$recoveryCodes = [ 'abcdef1234567890', '1122334455667788' ];
 		$this->runWithPersistentDatabaseMutation(

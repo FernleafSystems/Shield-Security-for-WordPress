@@ -193,9 +193,7 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		$this->assertCount( 1, $heartbeatQueries );
 	}
 
-	/**
-	 * @dataProvider provideScanScopesWithoutFullAfsReadiness
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideScanScopesWithoutFullAfsReadiness' )]
 	public function test_scoped_afs_and_other_scan_families_skip_full_snapshot_readiness(
 		string $scan,
 		string $scopeType
@@ -270,9 +268,7 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		}
 	}
 
-	/**
-	 * @dataProvider provideInvalidBuiltReadbacks
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidBuiltReadbacks' )]
 	public function test_nonempty_scan_fails_closed_when_built_state_readback_does_not_match(
 		?string $readbackStatus,
 		?string $readbackMeta,
@@ -366,9 +362,7 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		$this->assertIsCallable( $scanController->lastAction->progress_callback );
 	}
 
-	/**
-	 * @dataProvider provideEmptyCompletionPersistenceFailures
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideEmptyCompletionPersistenceFailures' )]
 	public function test_empty_scan_completion_fails_closed_on_write_or_raw_metadata_mismatch(
 		int $writeResult,
 		string $readbackMeta

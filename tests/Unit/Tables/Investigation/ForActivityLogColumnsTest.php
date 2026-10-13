@@ -15,9 +15,7 @@ class ForActivityLogColumnsTest extends BaseUnitTest {
 		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => htmlspecialchars( $text ) );
 	}
 
-	/**
-	 * @dataProvider supportedActivitySubjectsProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'supportedActivitySubjectsProvider' )]
 	public function testInvestigationActivityColumnsMatchFullActivityColumns( string $subjectType, string $subjectId ) :void {
 		$this->assertSame(
 			( new FullActivityLogTable() )->exportColumnsToDisplay(),

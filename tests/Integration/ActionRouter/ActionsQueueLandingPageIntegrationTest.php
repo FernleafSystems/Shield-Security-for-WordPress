@@ -1456,7 +1456,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
-	/** @dataProvider scanEnableCapabilitiesProvider */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'scanEnableCapabilitiesProvider' )]
 	public function test_scan_enable_uses_effective_capabilities( string $scan, array $capabilities, bool $premium, bool $expected ) :void {
 		if ( $premium ) {
 			$this->enablePremiumCapabilities( $capabilities );
@@ -1508,7 +1508,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		];
 	}
 
-	/** @dataProvider protectionEnableInvalidInputProvider */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'protectionEnableInvalidInputProvider' )]
 	public function test_protection_enable_rejects_invalid_input_without_mutation( string $action, string $key, $value ) :void {
 		$this->enablePremiumCapabilities( [ 'scan_file_locker', 'scan_malware_local' ] );
 		$before = $this->requireController()->opts->values();
@@ -1533,7 +1533,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		return $cases;
 	}
 
-	/** @dataProvider protectionEnableActionProvider */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'protectionEnableActionProvider' )]
 	public function test_protection_enable_requires_input_key( string $action ) :void {
 		$snapshot = $this->seedActionNonceContext( $action );
 		try {

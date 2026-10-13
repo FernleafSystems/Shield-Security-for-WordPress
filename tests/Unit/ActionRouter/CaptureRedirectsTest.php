@@ -116,9 +116,7 @@ class CaptureRedirectsTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider providerLegacyScanRoutes
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerLegacyScanRoutes' )]
 	public function test_legacy_scan_routes_redirect_to_actions_queue( string $subNav ) :void {
 		$this->request->query = [
 			'page'                => 'icwp-wpsf-plugin',
@@ -142,9 +140,7 @@ class CaptureRedirectsTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider providerLegacyReportsRoutes
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerLegacyReportsRoutes' )]
 	public function test_legacy_reports_routes_redirect_to_canonical_workspace( string $subNav, string $workspace ) :void {
 		$this->request->query = [
 			'page'                => 'icwp-wpsf-plugin',
@@ -179,7 +175,7 @@ class CaptureRedirectsTest extends BaseUnitTest {
 		$this->assertSame( '', $this->responseCapture->redirectTo );
 	}
 
-	/** @dataProvider providerOldPageSlugs */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerOldPageSlugs' )]
 	public function test_old_page_slugs_preserve_the_final_destination( string $nav, ?string $subNav, string $destination ) :void {
 		$query = [
 			'page' => 'icwp-wpsf-'.$nav,

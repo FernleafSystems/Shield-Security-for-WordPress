@@ -167,7 +167,7 @@ class ReleaseOperatorCommandTest extends TestCase {
 		$this->assertSame( [ PHP_BINARY, 'bin/prepare-release.php', '--version=24.1.0', '--release-timestamp='.$timestamp, '--build=auto' ], $runner->calls[ 0 ][ 'command' ] );
 	}
 
-	/** @dataProvider providerInvalidRememberedState */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerInvalidRememberedState' )]
 	public function testInvalidRememberedStateAllowsConfiguredDefaults( string $contents ) :void {
 		$root = $this->projectRoot( '25.1.0' );
 		mkdir( $root.'/tmp' );
@@ -212,7 +212,7 @@ class ReleaseOperatorCommandTest extends TestCase {
 		$this->assertSame( [ 'target' => $target ], $this->readState( $root )[ 'inputs' ] );
 	}
 
-	/** @dataProvider providerInvalidSavedTarget */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerInvalidSavedTarget' )]
 	public function testSavedTargetUsesExistingValidationAndRetry( string $kind ) :void {
 		$root = $this->projectRoot();
 		$target = $kind === 'missing' ? $root.'/missing' : $root;
@@ -329,9 +329,7 @@ class ReleaseOperatorCommandTest extends TestCase {
 		], $runner->calls[ 0 ][ 'command' ] );
 	}
 
-	/**
-	 * @dataProvider providerFixedActions
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerFixedActions' )]
 	public function testSuccessfulFixedActionsWriteStateBeforeRunning( string $action ) :void {
 		$root = $this->projectRoot();
 		$runner = new StateObservingProcessRunner( [ 0 ], $root.'/tmp/operator-state.json' );

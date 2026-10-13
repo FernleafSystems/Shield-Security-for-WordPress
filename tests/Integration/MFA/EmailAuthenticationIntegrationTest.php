@@ -398,7 +398,7 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 0, $this->capturedMails() );
 	}
 
-	/** @dataProvider rejectedAutoLoginProvider */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'rejectedAutoLoginProvider' )]
 	public function test_rejected_email_auto_login_does_not_record_success( string $failure ) :void {
 		$user = \get_user_by( 'id', $this->createAdministratorUser() );
 		$this->seedLoginIntent( $user, 'rejected-auto-login' );

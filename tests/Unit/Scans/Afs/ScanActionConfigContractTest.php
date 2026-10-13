@@ -77,9 +77,7 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider provideInvalidOuterExtensionValues
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidOuterExtensionValues' )]
 	public function test_non_array_extension_filter_values_use_documented_defaults( $filtered ) :void {
 		self::$filterValues[ 'shield/scan_ptg_file_exts' ] = $filtered;
 
@@ -133,9 +131,7 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		$this->assertSame( self::DEFAULT_EXTENSIONS, ( new ExposedBuildScanAction() )->fileExts() );
 	}
 
-	/**
-	 * @dataProvider providePersistedExtensionValues
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providePersistedExtensionValues' )]
 	public function test_reconstructed_action_publishes_canonical_extension_list( array $meta, array $expected ) :void {
 		$action = ( new ScanActionVO() )->applyFromArray( $meta );
 
@@ -158,9 +154,7 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider providePersistedMaxFileSizes
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providePersistedMaxFileSizes' )]
 	public function test_reconstructed_action_publishes_canonical_max_file_size( array $meta, int $expected ) :void {
 		$action = ( new ScanActionVO() )->applyFromArray( $meta );
 
@@ -192,9 +186,7 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		$this->assertSame( [ 'scan' => 'afs' ], $action->getRawData() );
 	}
 
-	/**
-	 * @dataProvider provideInvalidMaxFileSizes
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidMaxFileSizes' )]
 	public function test_invalid_max_file_size_filter_values_use_default( $filtered ) :void {
 		self::$filterValues[ 'shield/file_scan_size_max' ] = $filtered;
 		$action = $this->prepareScanItems();
@@ -346,9 +338,7 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		$this->assertFalse( $rehydrated->markAssetComparisonIncomplete( 'theme', 'theme' ) );
 	}
 
-	/**
-	 * @dataProvider provideInvalidAssetComparisonIncomplete
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidAssetComparisonIncomplete' )]
 	public function test_malformed_asset_comparison_incomplete_is_preserved_and_fails_full_scan_closed( $invalid ) :void {
 		$eligibility = [
 			'plugin' => [
@@ -432,9 +422,7 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'asset_snapshot_eligibility', $missing->getRawData() );
 	}
 
-	/**
-	 * @dataProvider provideInvalidSnapshotEligibility
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidSnapshotEligibility' )]
 	public function test_invalid_snapshot_eligibility_is_rejected_for_direct_and_hydrated_actions( $invalid ) :void {
 		$direct = new ScanActionVO();
 		$direct->asset_snapshot_eligibility = $invalid;

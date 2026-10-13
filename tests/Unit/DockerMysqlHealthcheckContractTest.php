@@ -6,9 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 class DockerMysqlHealthcheckContractTest extends TestCase {
 
-	/**
-	 * @dataProvider provideDockerMysqlHealthcheckFiles
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideDockerMysqlHealthcheckFiles' )]
 	public function test_mysql_healthchecks_use_tcp_ready_probe( string $relativePath, int $expectedProbeCount ) :void {
 		$content = $this->readProjectFile( $relativePath );
 		$this->assertSame( $expectedProbeCount, \substr_count( $content, '"mysqladmin", "ping", "--protocol=tcp", "-h", "127.0.0.1"' ) );

@@ -77,9 +77,9 @@ class FileLockerControllerTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @dataProvider permanentExceptionProvider
 	 * @param class-string<\Exception> $exceptionClass
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'permanentExceptionProvider' )]
 	public function test_permanent_failure_removes_only_current_type_and_continues(
 		string $fileType,
 		string $exceptionClass
@@ -105,9 +105,9 @@ class FileLockerControllerTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @dataProvider retryableExceptionProvider
 	 * @param class-string<\Exception> $exceptionClass
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'retryableExceptionProvider' )]
 	public function test_retryable_failure_retains_selection_records_state_and_stops( string $exceptionClass ) :void {
 		$message = 'retryable '.$exceptionClass;
 		[ $subject, $opts ] = $this->runCreation( [
@@ -156,9 +156,7 @@ class FileLockerControllerTest extends BaseUnitTest {
 		$this->assertSame( '', $opts->optGet( 'filelocker_state' )[ 'last_error' ] );
 	}
 
-	/**
-	 * @dataProvider cooldownProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'cooldownProvider' )]
 	public function test_creation_waits_full_cooldown( string $stateField ) :void {
 		[ $subject ] = $this->runCreation( [
 			'files' => [ 'wpconfig' ],
@@ -243,9 +241,7 @@ class FileLockerControllerTest extends BaseUnitTest {
 		$this->assertSame( [], $this->actions );
 	}
 
-	/**
-	 * @dataProvider malformedOuterSelectionProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'malformedOuterSelectionProvider' )]
 	public function test_malformed_outer_stored_selection_disables_runtime( $files ) :void {
 		[ $subject ] = $this->runCreation( [ 'files' => $files ] );
 

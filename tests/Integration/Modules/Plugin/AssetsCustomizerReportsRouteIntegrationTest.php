@@ -34,9 +34,7 @@ class AssetsCustomizerReportsRouteIntegrationTest extends ShieldIntegrationTestC
 		parent::tear_down();
 	}
 
-	/**
-	 * @dataProvider reportsWorkspaceProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'reportsWorkspaceProvider' )]
 	public function test_reports_workspace_assets_are_localized_for_canonical_reports_shell( ?string $workspace ) :void {
 		$comps = $this->getMainLocalisedComponentsForRoute(
 			PluginNavs::NAV_REPORTS,

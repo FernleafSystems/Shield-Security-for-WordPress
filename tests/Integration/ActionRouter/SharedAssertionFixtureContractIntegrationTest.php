@@ -126,9 +126,9 @@ class SharedAssertionFixtureContractIntegrationTest extends ShieldIntegrationTes
 	}
 
 	/**
-	 * @dataProvider noScenarioInspectableFixtureProvider
 	 * @param list<string> $seedArgs
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'noScenarioInspectableFixtureProvider' )]
 	public function test_no_scenario_inspectable_fixtures_dispatch_through_registry(
 		string $fixture,
 		array $seedArgs,

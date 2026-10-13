@@ -26,27 +26,21 @@ class BotTrackFakeWebCrawlerRuleBehaviorTest extends ShieldIntegrationTestCase {
 		parent::tear_down();
 	}
 
-	/**
-	 * @dataProvider fakeCrawlerUserAgentProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'fakeCrawlerUserAgentProvider' )]
 	public function test_full_rule_matches_fake_web_crawler_claim( string $userAgent ) :void {
 		$this->prepareAnonymousRequest( $userAgent );
 
 		$this->assertTrue( $this->evaluateFullRule() );
 	}
 
-	/**
-	 * @dataProvider strictIdentityFalsePositiveUserAgentProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'strictIdentityFalsePositiveUserAgentProvider' )]
 	public function test_full_rule_rejects_strict_identity_false_positives( string $userAgent ) :void {
 		$this->prepareAnonymousRequest( $userAgent );
 
 		$this->assertFalse( $this->evaluateFullRule() );
 	}
 
-	/**
-	 * @dataProvider botTrackModeProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'botTrackModeProvider' )]
 	public function test_fake_web_crawler_response_uses_bottrack_mode_contract(
 		string $mode,
 		int $expectedOffenseCount,

@@ -19,9 +19,7 @@ class PerformConditionMatchTest extends TestCase {
 	// REGEX MATCHING TESTS - Core firewall pattern matching
 	// =========================================================================
 
-	/**
-	 * @dataProvider providerSqlInjectionPatterns
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerSqlInjectionPatterns' )]
 	public function testRegexDetectsSqlInjectionPatterns( string $pattern, string $input, bool $shouldMatch ) :void {
 		$matcher = new PerformConditionMatch( $input, $pattern, EnumMatchTypes::MATCH_TYPE_REGEX );
 		$this->assertSame(
@@ -72,9 +70,7 @@ class PerformConditionMatchTest extends TestCase {
 		];
 	}
 
-	/**
-	 * @dataProvider providerXssPatterns
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerXssPatterns' )]
 	public function testRegexDetectsXssPatterns( string $pattern, string $input, bool $shouldMatch ) :void {
 		$matcher = new PerformConditionMatch( $input, $pattern, EnumMatchTypes::MATCH_TYPE_REGEX );
 		$this->assertSame(
@@ -124,9 +120,7 @@ class PerformConditionMatchTest extends TestCase {
 		];
 	}
 
-	/**
-	 * @dataProvider providerDirectoryTraversalPatterns
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerDirectoryTraversalPatterns' )]
 	public function testRegexDetectsDirectoryTraversal( string $pattern, string $input, bool $shouldMatch ) :void {
 		$matcher = new PerformConditionMatch( $input, $pattern, EnumMatchTypes::MATCH_TYPE_REGEX );
 		$this->assertSame(
@@ -270,9 +264,7 @@ class PerformConditionMatchTest extends TestCase {
 	// REAL-WORLD FIREWALL PATTERN TESTS
 	// =========================================================================
 
-	/**
-	 * @dataProvider providerRealWorldAttackPatterns
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerRealWorldAttackPatterns' )]
 	public function testRealWorldAttackDetection( string $description, string $pattern, string $attackPayload ) :void {
 		$matcher = new PerformConditionMatch( $attackPayload, $pattern, EnumMatchTypes::MATCH_TYPE_REGEX );
 		$this->assertTrue(

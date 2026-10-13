@@ -43,10 +43,10 @@ class BuildScanActionCoverageTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @dataProvider provideScopeCoverage
 	 * @param array<string,bool> $enabled
 	 * @param list<string> $expected
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideScopeCoverage' )]
 	public function test_build_derives_ordered_coverage_from_scope_and_enabled_scanners(
 		string $scopeType,
 		array $enabled,

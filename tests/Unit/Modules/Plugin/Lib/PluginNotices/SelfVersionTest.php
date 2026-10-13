@@ -61,9 +61,7 @@ class SelfVersionTest extends BaseUnitTest {
 		$this->assertSame( [ 'shield_admin_top_page' ], $issue[ 'locations' ] );
 	}
 
-	/**
-	 * @dataProvider provideHostileReleaseVersionMembers
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideHostileReleaseVersionMembers' )]
 	public function testCheckUsesStandardNoticeForHostileReleaseVersionMembers( $hostileVersion ) :void {
 		$this->installEnvironment( '22.1.3', true );
 

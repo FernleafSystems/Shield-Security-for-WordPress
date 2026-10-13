@@ -214,7 +214,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( [], ( new WhitelistNotifyQueue( SiteRepository::OLD_QUEUE_ACTION, $this->requireController()->prefix() ) )->get_batches() );
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_registry_repairs_from_fallback_after_table_loss() :void {
 		$this->runWithImportExportSitesPersistentMutation( function () :void {
 			$con = $this->requireController();
@@ -233,7 +233,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		} );
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_registry_repairs_from_fallback_after_warm_ready_cache_table_loss() :void {
 		$this->runWithImportExportSitesPersistentMutation( function () :void {
 			$con = $this->requireController();
@@ -264,7 +264,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		} );
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_scheduled_upgrade_imports_legacy_settings_into_registry() :void {
 		$this->runWithSeededCronPreservationCheck(
 			$this->requireController()->prefix( 'integration-test-upgrade-import-enabled-cron-owner' ),
@@ -298,7 +298,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		);
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_scheduled_upgrade_imports_registry_without_scheduling_disabled_sync() :void {
 		$this->runWithSeededCronPreservationCheck(
 			$this->requireController()->prefix( 'integration-test-upgrade-import-disabled-cron-owner' ),
@@ -330,7 +330,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		);
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_config_rebuild_imports_legacy_settings_into_registry_without_upgrade_cron() :void {
 		$this->runWithImportExportSitesPersistentMutation( function () :void {
 			$con = $this->requireController();
@@ -358,7 +358,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_config_rebuild_imports_registry_without_scheduling_disabled_sync() :void {
 		$this->runWithImportExportSitesPersistentMutation( function () :void {
 			$con = $this->requireController();
@@ -385,7 +385,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_same_version_config_signature_rebuild_imports_legacy_settings_into_registry() :void {
 		$this->runWithImportExportSitesPersistentMutation( function () :void {
 			$con = $this->requireController();
@@ -3447,7 +3447,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		}
 	}
 
-	/** @group database-transaction-exception */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_add_only_schema_alignment_preserves_populated_rows_and_extra_columns() :void {
 		$url = 'https://schema.example.com';
 		$this->assertNull( $this->repo()->findByUrl( $url, true ) );

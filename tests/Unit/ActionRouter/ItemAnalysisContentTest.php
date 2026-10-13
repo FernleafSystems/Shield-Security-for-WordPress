@@ -29,9 +29,7 @@ class ItemAnalysisContentTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider providerFilePathToHighlightLanguage
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerFilePathToHighlightLanguage' )]
 	public function testRenderDataMapsFilePathToHighlightLanguage( string $path, string $expectedLanguage ) :void {
 		$fullPath = \rtrim( ABSPATH, '/\\' ).'/'.\ltrim( $path, '/\\' );
 		if ( !\is_dir( \dirname( $fullPath ) ) ) {

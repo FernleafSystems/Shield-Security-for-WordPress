@@ -107,9 +107,7 @@ class AltChaV2Pbkdf2Test extends BaseUnitTest {
 		);
 	}
 
-	/**
-	 * @dataProvider provideMalformedSolutions
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideMalformedSolutions' )]
 	public function test_malformed_solution_shape_is_rejected( array $solution ) :void {
 		$subject = new AltChaV2Pbkdf2();
 		$challenge = $this->buildChallenge( $subject, 7, 2000000000 );

@@ -144,9 +144,7 @@ class ExternalActionTransportPolicyTest extends BaseUnitTest {
 		) );
 	}
 
-	/**
-	 * @dataProvider directRenderActionProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'directRenderActionProvider' )]
 	public function test_direct_render_actions_are_denied_from_external_transports( string $actionClass ) :void {
 		$policy = new ExternalActionTransportPolicy();
 

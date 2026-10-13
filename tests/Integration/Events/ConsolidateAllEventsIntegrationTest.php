@@ -41,7 +41,7 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 		parent::tear_down();
 	}
 
-	/** @group database-compat */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
 	public function test_compaction_preserves_sum_latest_identity_and_timestamp() :void {
 		$event = self::EVENT_PREFIX.'sum';
 		$start = Carbon::create( 2026, 6, 22, 0, 0, 0, 'America/New_York' );
@@ -66,7 +66,7 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 10, $this->sumEvent( $event ) );
 	}
 
-	/** @group database-compat */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
 	public function test_selected_latest_event_timestamps_are_grouped_in_one_result_set() :void {
 		$olderEvent = self::EVENT_PREFIX.'latest_older';
 		$newerEvent = self::EVENT_PREFIX.'latest_newer';
@@ -95,7 +95,7 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $queryCount, $wpdb->num_queries );
 	}
 
-	/** @group database-compat */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
 	public function test_update_and_cleanup_failures_never_create_a_loss_window() :void {
 		$event = self::EVENT_PREFIX.'failures';
 		$start = Carbon::create( 2026, 6, 23, 0, 0, 0, 'America/New_York' );
@@ -141,7 +141,7 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 1, $this->countEvent( $event ) );
 	}
 
-	/** @group database-compat */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
 	public function test_newer_interleaved_row_survives_captured_id_cleanup() :void {
 		$event = self::EVENT_PREFIX.'interleaved';
 		$start = Carbon::create( 2026, 6, 24, 0, 0, 0, 'America/New_York' );
@@ -222,7 +222,7 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 12, $this->sumEvent( $event ) );
 	}
 
-	/** @group database-compat */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
 	public function test_occupied_guard_suppresses_nested_compaction() :void {
 		$event = self::EVENT_PREFIX.'guarded_overlap';
 		$reference = Carbon::create( 2026, 7, 20, 12, 0, 0, 'America/New_York' );
@@ -402,7 +402,7 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	/** @group database-compat */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
 	public function test_grouped_sums_zero_fill_missing_events() :void {
 		$event = self::EVENT_PREFIX.'grouped';
 		$this->insertEvent( $event, 4, 1000 );
@@ -417,26 +417,20 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, $counts[ self::EVENT_PREFIX.'missing' ] );
 	}
 
-	/**
-	 * @group database-compat
-	 * @group database-transaction-exception
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_daily_database_maintenance_applies_event_range_index_to_existing_table() :void {
 		$this->runDailyDatabaseMaintenanceScenario( false );
 	}
 
-	/**
-	 * @group database-compat
-	 * @group database-transaction-exception
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_daily_database_maintenance_preserves_absent_file_locker_baseline() :void {
 		$this->runDailyDatabaseMaintenanceScenario( true );
 	}
 
-	/**
-	 * @group database-compat
-	 * @group database-transaction-exception
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_daily_database_maintenance_restores_known_entry_after_baseline_capture_failure() :void {
 		$fileLockerTable = $this->newPassiveFileLockerHandler()->getTableSchema()->table;
 		$this->assertTrue(
@@ -751,10 +745,8 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	/**
-	 * @group database-compat
-	 * @group database-transaction-exception
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_compaction_correctness_does_not_depend_on_optional_index() :void {
 		$dbh = self::con()->db_con->events;
 		$table = $dbh->getTableSchema()->table;
@@ -790,10 +782,8 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	/**
-	 * @group database-compat
-	 * @group database-transaction-exception
-	 */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
+	#[\PHPUnit\Framework\Attributes\Group( 'database-transaction-exception' )]
 	public function test_compaction_preserves_totals_on_non_transactional_myisam_table() :void {
 		$dbh = self::con()->db_con->events;
 		$table = $dbh->getTableSchema()->table;

@@ -30,9 +30,7 @@ class ScansResultsRailTabAvailabilityTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider availabilityProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'availabilityProvider' )]
 	public function test_cloaked_plugins_tab_follows_its_explicit_capability( bool $available ) :void {
 		UnitTestControllerFactory::install(
 			null,

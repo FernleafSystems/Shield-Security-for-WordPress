@@ -209,9 +209,9 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
-	 * @dataProvider provideCoveredIssueFamilies
 	 * @param array<string,int|string> $meta
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideCoveredIssueFamilies' )]
 	public function test_full_completion_resolves_each_covered_issue_family(
 		string $case,
 		array $meta,
@@ -289,9 +289,9 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
-	 * @dataProvider provideIssuePrecedence
 	 * @param array<string,int|string> $meta
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideIssuePrecedence' )]
 	public function test_issue_precedence_uses_highest_issue_family(
 		string $case,
 		array $meta,
@@ -653,9 +653,9 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
-	 * @dataProvider invalidAssetEligibilityProvider
 	 * @param array<string,mixed>|null $eligibility
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidAssetEligibilityProvider' )]
 	public function test_full_completion_fails_closed_for_invalid_asset_eligibility( ?array $eligibility ) :void {
 		$plugin = $this->afsAssetScenario( 'plugin' );
 		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
@@ -802,9 +802,9 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
-	 * @dataProvider provideInvalidCoverageMetadata
 	 * @param array<string,mixed> $scanMeta
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidCoverageMetadata' )]
 	public function test_invalid_coverage_metadata_fails_closed( array $scanMeta ) :void {
 		$plugin = $this->afsAssetScenario( 'plugin' );
 		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
@@ -886,9 +886,7 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFindingResolved( $finding, false );
 	}
 
-	/**
-	 * @dataProvider provideCleanRescanCompletionScopes
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideCleanRescanCompletionScopes' )]
 	public function test_scan_completion_uses_clean_rescan_for_non_asset_change_runs(
 		string $scopeType,
 		string $scopeKey,

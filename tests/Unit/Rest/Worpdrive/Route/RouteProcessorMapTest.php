@@ -34,9 +34,7 @@ class RouteProcessorMapTest extends WorpdriveUnitTestCase {
 		] );
 	}
 
-	/**
-	 * @dataProvider invalidRequiredZipPayloadProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidRequiredZipPayloadProvider' )]
 	public function test_filesystem_zip_route_rejects_invalid_required_paths_before_zip_creation( array $filePaths ) :void {
 		$request = new \WP_REST_Request( [
 			'file_paths' => $filePaths,

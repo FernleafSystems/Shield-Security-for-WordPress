@@ -85,9 +85,7 @@ class BaseWorpdriveRuntimeTest extends WorpdriveUnitTestCase {
 		$this->assertRuntimeReset();
 	}
 
-	/**
-	 * @dataProvider validDirProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'validDirProvider' )]
 	public function test_dir_validation_accepts_exact_supported_roots( string $dir ) :void {
 		$this->assertTrue( $this->invokeValidateRequestArg(
 			new FilesystemZip( [ 'strict_parameters' => false ] ),
@@ -106,9 +104,7 @@ class BaseWorpdriveRuntimeTest extends WorpdriveUnitTestCase {
 		];
 	}
 
-	/**
-	 * @dataProvider invalidDirProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidDirProvider' )]
 	public function test_dir_validation_rejects_sibling_prefixes( string $dir ) :void {
 		$this->assertInstanceOf(
 			\WP_Error::class,

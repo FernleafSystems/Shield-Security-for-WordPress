@@ -125,9 +125,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	/**
-	 * @dataProvider classLikeTrustPathTypesProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'classLikeTrustPathTypesProvider' )]
 	public function test_authentication_verification_normalizes_class_like_trust_path_type( string $trustPathType ) :void {
 		$userId = $this->createAdministratorUser();
 		$user = \get_user_by( 'id', $userId );
@@ -365,9 +363,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
-	/**
-	 * @dataProvider classLikeTrustPathTypesProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'classLikeTrustPathTypesProvider' )]
 	public function test_login_intent_validation_succeeds_for_class_like_passkey_record( string $trustPathType ) :void {
 		$this->captureShieldEvents();
 

@@ -66,9 +66,7 @@ class RuleBuilderActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertIsNumeric( $payload[ 'edit_rule_id' ] );
 	}
 
-	/**
-	 * @dataProvider readinessMatrixProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'readinessMatrixProvider' )]
 	public function test_rule_builder_form_readiness_matrix(
 		array $overrides,
 		array $unsetFields,

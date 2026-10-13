@@ -17,9 +17,7 @@ class PrepareWpDiffInputTest extends TestCase {
 		);
 	}
 
-	/**
-	 * @dataProvider provideValidInputs
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideValidInputs' )]
 	public function test_valid_utf8_pairs_are_unchanged( string $original, string $current ) :void {
 		$this->assertSame(
 			[
@@ -37,9 +35,7 @@ class PrepareWpDiffInputTest extends TestCase {
 		];
 	}
 
-	/**
-	 * @dataProvider provideInvalidInputs
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideInvalidInputs' )]
 	public function test_invalidity_on_either_side_encodes_both(
 		string $original,
 		string $current,

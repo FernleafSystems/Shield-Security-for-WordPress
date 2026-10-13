@@ -28,16 +28,12 @@ class GetIPLookupsTest extends BaseUnitTest {
 		$this->assertSame( $response, $this->apiWithResponse( GetIPReputation::class, $response )->retrieve() );
 	}
 
-	/**
-	 * @dataProvider invalidResponseProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidResponseProvider' )]
 	public function test_info_lookup_returns_empty_for_unsuccessful_response( ?array $response ) :void {
 		$this->assertSame( [], $this->apiWithResponse( GetIPInfo::class, $response )->retrieve() );
 	}
 
-	/**
-	 * @dataProvider invalidResponseProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidResponseProvider' )]
 	public function test_reputation_lookup_returns_empty_for_unsuccessful_response( ?array $response ) :void {
 		$this->assertSame( [], $this->apiWithResponse( GetIPReputation::class, $response )->retrieve() );
 	}

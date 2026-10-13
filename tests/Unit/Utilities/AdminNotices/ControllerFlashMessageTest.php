@@ -68,9 +68,7 @@ class ControllerFlashMessageTest extends BaseUnitTest {
 		$this->assertNull( $meta->flash_msg );
 	}
 
-	/**
-	 * @dataProvider loginMessageProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'loginMessageProvider' )]
 	public function testLoginMessageAdapterNormalizesMixedFilterValues( $value, string $expected ) :void {
 		$this->installEnvironment( (object)[ 'flash_msg' => null ] );
 

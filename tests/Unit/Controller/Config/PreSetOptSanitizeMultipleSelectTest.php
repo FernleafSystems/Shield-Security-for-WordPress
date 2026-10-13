@@ -29,9 +29,7 @@ class PreSetOptSanitizeMultipleSelectTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider validValueProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'validValueProvider' )]
 	public function test_valid_string_members_are_preserved( array $value ) :void {
 		$this->assertSame( $value, ( new PreSetOptSanitize( 'file_locker', $value ) )->run() );
 	}
@@ -45,9 +43,7 @@ class PreSetOptSanitizeMultipleSelectTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider invalidValueProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidValueProvider' )]
 	public function test_invalid_member_is_rejected_with_controlled_exception( $invalid ) :void {
 		$this->expectException( \Exception::class );
 		( new PreSetOptSanitize( 'file_locker', [ 'wpconfig', $invalid, 'root_index' ] ) )->run();
@@ -67,9 +63,7 @@ class PreSetOptSanitizeMultipleSelectTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider invalidOuterValueProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidOuterValueProvider' )]
 	public function test_invalid_outer_value_is_rejected_with_controlled_exception( $value ) :void {
 		$this->expectException( \Exception::class );
 		( new PreSetOptSanitize( 'file_locker', $value ) )->run();

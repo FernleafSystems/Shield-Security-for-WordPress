@@ -7,9 +7,7 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 class DiffPercentageCalculationTest extends TestCase {
 
-	/**
-	 * @dataProvider providerDiffPercentage
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerDiffPercentage' )]
 	public function test_diff_percentage( int $current, int $previous, int $expected ) :void {
 		$this->assertSame( $expected, BuildForStats::calcDiffPercentage( $current, $previous ) );
 	}

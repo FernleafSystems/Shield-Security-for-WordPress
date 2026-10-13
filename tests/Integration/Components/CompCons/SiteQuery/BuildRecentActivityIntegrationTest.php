@@ -47,7 +47,7 @@ class BuildRecentActivityIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( self::con()->comps->events->getEventName( $missingKey ), $itemsByKey[ $missingKey ][ 'label' ] );
 	}
 
-	/** @group database-compat */
+	#[\PHPUnit\Framework\Attributes\Group( 'database-compat' )]
 	public function test_compaction_preserves_latest_real_occurrence_timestamp() :void {
 		$recentEvents = \array_filter(
 			self::con()->comps->events->getEvents(),

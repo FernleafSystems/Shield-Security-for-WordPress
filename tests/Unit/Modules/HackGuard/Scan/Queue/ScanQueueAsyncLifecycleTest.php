@@ -848,9 +848,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 1, $harness->async->scheduledHookAttempts( 'icwp_wpsf_shield_scanqbuild_cron' ) );
 	}
 
-	/**
-	 * @dataProvider scheduledWatchdogCronProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'scheduledWatchdogCronProvider' )]
 	public function test_scheduled_watchdog_finalizes_last_active_terminal_scan( bool $isCron ) :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$harness->controller->opts->optSet( 'is_scan_cron', $isCron );

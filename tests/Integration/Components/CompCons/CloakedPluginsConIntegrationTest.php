@@ -220,7 +220,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [], $this->capturedMails() );
 	}
 
-	/** @dataProvider emptyStandardListStages */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'emptyStandardListStages' )]
 	public function testEmptyStandardListDoesNotAccusePlugins( string $stage ) :void {
 		$GLOBALS[ 'pagenow' ] = 'plugins.php';
 		$this->createStandardCloakedPlugin( 'shi-cloaked-empty-a', 'Empty A' );
@@ -275,7 +275,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 0, $this->capturedMails() );
 	}
 
-	/** @dataProvider malformedDiscoveryIgnoreCases */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'malformedDiscoveryIgnoreCases' )]
 	public function testMalformedDiscoveryPreservesSavedFindings( bool $ignored ) :void {
 		$GLOBALS[ 'pagenow' ] = 'plugins.php';
 		$muFile = $this->createMustUseCloakedPlugin( 'shi-cloaked-malformed-mu.php', 'Saved MU' );
@@ -407,7 +407,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayHasKey( $shieldFile, $recoveredItems );
 	}
 
-	/** @dataProvider muEvidenceChecks */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'muEvidenceChecks' )]
 	public function testEmptyStandardListPreservesIndependentMustUseEvidence( string $check, string $stage ) :void {
 		$GLOBALS[ 'pagenow' ] = 'plugins.php';
 		$file = $this->createMustUseCloakedPlugin( 'shi-cloaked-independent.php', 'Independent MU' );
@@ -467,7 +467,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		return $cases;
 	}
 
-	/** @dataProvider savedStandardFindingCases */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'savedStandardFindingCases' )]
 	public function testEmptyListPreservesStandardFinding( string $stage, bool $ignored ) :void {
 		$GLOBALS[ 'pagenow' ] = 'plugins.php';
 		$file = $this->createStandardCloakedPlugin( 'shi-cloaked-saved', 'Saved finding' );
@@ -528,7 +528,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		return $result;
 	}
 
-	/** @dataProvider incompleteObservations */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'incompleteObservations' )]
 	public function testIncompleteObservationPreservesSavedEvidence( $list ) :void {
 		$GLOBALS[ 'pagenow' ] = 'plugins.php';
 		$file = $this->createStandardCloakedPlugin( 'shi-cloaked-incomplete', 'Incomplete' );
@@ -705,7 +705,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		return $this->requireController()->comps->hidden_plugins->currentFindings();
 	}
 
-	/** @dataProvider backgroundEntryPoints */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'backgroundEntryPoints' )]
 	public function testBackgroundEntryPointFollowedByAdminObservationDetectsCloaking( string $entryPoint ) :void {
 		unset( $GLOBALS[ 'pagenow' ] );
 		$file = $this->createStandardCloakedPlugin( 'shi-cloaked-entry', 'Entry point' );
@@ -729,7 +729,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		return [ 'hourly' => [ 'hourly' ], 'activation' => [ 'activation' ] ];
 	}
 
-	/** @dataProvider realTableFilters */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'realTableFilters' )]
 	public function testRealWordPressTableAndAlertsAgree( string $hook, bool $stateful, bool $hide ) :void {
 		$GLOBALS[ 'pagenow' ] = 'plugins.php';
 		$file = $this->createStandardCloakedPlugin( 'shi-cloaked-table', 'Table fixture' );
@@ -783,7 +783,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		];
 	}
 
-	/** @dataProvider transientWholeListHooks */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'transientWholeListHooks' )]
 	public function testTransientWholeListReplayDoesNotAccuseVisiblePluginsAcrossRequests( string $hook ) :void {
 		$GLOBALS[ 'pagenow' ] = 'plugins.php';
 		$files = [
@@ -851,7 +851,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		return [ 'all_plugins' => [ 'all_plugins' ], 'plugins_list' => [ 'plugins_list' ] ];
 	}
 
-	/** @dataProvider restrictedListContexts */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'restrictedListContexts' )]
 	public function testRestrictedListCannotClearAnExistingFinding( array $query ) :void {
 		$GLOBALS[ 'pagenow' ] = 'plugins.php';
 		$file = $this->createStandardCloakedPlugin( 'shi-cloaked-restricted', 'Restricted' );
@@ -960,7 +960,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		};
 	}
 
-	/** @dataProvider supportedWordPressVersions */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'supportedWordPressVersions' )]
 	public function testWordPressVersionGatesDetection( string $version, bool $available ) :void {
 		$GLOBALS[ 'pagenow' ] = 'plugins.php';
 		$this->createStandardCloakedPlugin( 'shi-cloaked-version', 'Version boundary' );

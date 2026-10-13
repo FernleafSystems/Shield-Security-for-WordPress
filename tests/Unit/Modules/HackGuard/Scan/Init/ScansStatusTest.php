@@ -37,9 +37,7 @@ class ScansStatusTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider activeAfsStatusProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'activeAfsStatusProvider' )]
 	public function test_has_active_afs_detects_every_persisted_active_status( string $status ) :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$harness->insertScan( [
@@ -67,9 +65,7 @@ class ScansStatusTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider activeAfsStatusProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'activeAfsStatusProvider' )]
 	public function test_has_active_scans_detects_every_persisted_active_status( string $status ) :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$harness->insertScan( [
@@ -111,9 +107,7 @@ class ScansStatusTest extends BaseUnitTest {
 		) );
 	}
 
-	/**
-	 * @dataProvider failedActiveScanQueryProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'failedActiveScanQueryProvider' )]
 	public function test_has_active_scans_rejects_failed_query( $result, ?\Throwable $error, string $dbError ) :void {
 		( new ScanQueueLifecycleHarness() )->install();
 		ServicesState::mergeItems( [
@@ -319,9 +313,7 @@ class ScansStatusTest extends BaseUnitTest {
 		$this->assertSame( [ 'shield-security', 'twentytwentysix' ], \array_column( $activeScans, 'scope_key' ) );
 	}
 
-	/**
-	 * @dataProvider activeCurrentStatusProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'activeCurrentStatusProvider' )]
 	public function test_active_snapshot_reports_unfinished_active_status_as_current_before_queued_scan( string $activeStatus ) :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$harness->insertScan( [

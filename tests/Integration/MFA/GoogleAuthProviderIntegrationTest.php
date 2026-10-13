@@ -107,9 +107,7 @@ class GoogleAuthProviderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertEmpty( $this->requireController()->user_metas->for( $user )->ga_temp_secret );
 	}
 
-	/**
-	 * @dataProvider invalidActivationOtpProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidActivationOtpProvider' )]
 	public function test_invalid_activation_otp_fails_without_creating_record( string $otp ) :void {
 		$user = \get_user_by( 'id', $this->createAdministratorUser() );
 		$provider = new GoogleAuth( $user );

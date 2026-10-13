@@ -119,9 +119,9 @@ class PackageFullTestLaneTest extends TestCase {
 	}
 
 	/**
-	 * @dataProvider providerRuntimeFailurePositions
 	 * @param int[] $exitCodes
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerRuntimeFailurePositions' )]
 	public function testRuntimeFailuresAggregateAcrossBothWordpressStreams( array $exitCodes ) :void {
 		$rootDir = $this->createRoot();
 		$dockerComposeExecutor = RecordingDockerComposeExecutor::strict( $exitCodes );

@@ -16,7 +16,7 @@ class LeafPageOperatorShellIntegrationTest extends ShieldIntegrationTestCase {
 		$this->loginAsSecurityAdmin();
 	}
 
-	/** @dataProvider leafPages */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'leafPages' )]
 	public function test_distinct_pages_keep_their_content_in_the_shared_shell( string $renderer, string $mode, array $contentPath ) :void {
 		$payload = $this->processActionPayloadWithAdminBypass( $renderer::SLUG );
 		$this->assertNotSame( '', $this->assertRouteRenderOutputHealthy( $payload, $renderer ) );

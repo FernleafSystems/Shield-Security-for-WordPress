@@ -223,9 +223,7 @@ class RequestMetaProcessorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'verb', $meta );
 	}
 
-	/**
-	 * @dataProvider provider_real_request_detector_uses_canonical_ip
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provider_real_request_detector_uses_canonical_ip' )]
 	public function test_real_request_detector_uses_canonical_ip_without_transport_attribution(
 		string $preferredSource,
 		array $server
@@ -271,9 +269,7 @@ class RequestMetaProcessorTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider provider_cloudflare_transport_addresses
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provider_cloudflare_transport_addresses' )]
 	public function test_cloudflare_transport_is_logged_when_real_detector_has_no_canonical_ip( string $transportIp ) :void {
 		$this->prepareServer( [
 			'REMOTE_ADDR'          => $transportIp,
@@ -307,9 +303,7 @@ class RequestMetaProcessorTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider provider_transport_attribution_rejections
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provider_transport_attribution_rejections' )]
 	public function test_transport_attribution_rejections_leave_empty_canonical_ip( $remoteAddr, ServiceProviders $providers ) :void {
 		$this->prepareServer( [ 'REMOTE_ADDR' => $remoteAddr ] );
 		$this->installRealRequestMetaServices(

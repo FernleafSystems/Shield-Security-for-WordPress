@@ -399,9 +399,9 @@ class StoreTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @dataProvider persistenceFailureProvider
 	 * @param list<string> $expectedStages
 	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'persistenceFailureProvider' )]
 	public function test_store_stops_at_failed_persistence_stage(
 		bool $hasExistingResult,
 		string $failureStage,

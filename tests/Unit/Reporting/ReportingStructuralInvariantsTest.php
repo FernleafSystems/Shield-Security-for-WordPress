@@ -19,9 +19,7 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase;
  */
 class ReportingStructuralInvariantsTest extends TestCase {
 
-	/**
-	 * @dataProvider providerReportBuildExceptionSubclasses
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerReportBuildExceptionSubclasses' )]
 	public function test_exception_extends_report_build_exception( string $exceptionClass ) :void {
 		$this->assertTrue(
 			\is_a( $exceptionClass, Exceptions\ReportBuildException::class, true ),

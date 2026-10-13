@@ -184,9 +184,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'ip_detect', $this->getLocalisedIpDetectComponent() );
 	}
 
-	/**
-	 * @dataProvider ajaxRenderComponentProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'ajaxRenderComponentProvider' )]
 	public function test_component_ajax_render_payloads_are_policy_allowed(
 		array $query,
 		string $componentKey,

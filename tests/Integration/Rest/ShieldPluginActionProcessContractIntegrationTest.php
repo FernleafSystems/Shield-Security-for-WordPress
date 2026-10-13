@@ -114,9 +114,7 @@ class ShieldPluginActionProcessContractIntegrationTest extends ShieldIntegration
 		$this->assertFalse( (bool)( $result[ 'data' ][ 'success' ] ?? true ) );
 	}
 
-	/**
-	 * @dataProvider directRenderRestRequestProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'directRenderRestRequestProvider' )]
 	public function test_process_rejects_direct_render_action_slugs( string $renderSlug, array $payload ) :void {
 		$result = ( new ShieldPluginActionProcessTestDouble() )->processForTest( [
 			'ex'      => $renderSlug,

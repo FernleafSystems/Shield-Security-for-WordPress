@@ -23,9 +23,7 @@ class NotBotHandlerGateTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider gateProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'gateProvider' )]
 	public function test_gate_combines_threshold_database_readiness_and_final_override(
 		bool $thresholdEnabled,
 		bool $databaseReady,

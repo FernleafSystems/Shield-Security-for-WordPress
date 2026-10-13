@@ -90,9 +90,7 @@ class MfaInitialLoginRequestBoundaryIntegrationTest extends ShieldIntegrationTes
 		$this->assertCanonicalRenderData( $renderData );
 	}
 
-	/**
-	 * @dataProvider finalSkipFilterProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'finalSkipFilterProvider' )]
 	public function test_final_skip_filter_accepts_literal_boolean_only( $filterResult, bool $expectSkip ) :void {
 		$user = $this->createMfaUser();
 		$filter = static fn() => $filterResult;

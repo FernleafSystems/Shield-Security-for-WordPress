@@ -20,9 +20,7 @@ class FilesystemLifecycleContractTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	/**
-	 * @dataProvider unsafeFixtureProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'unsafeFixtureProvider' )]
 	public function testPolicyDetectsUnsafeFixturePattern( string $body ) :void {
 		$violations = ( new FilesystemFixturePolicy() )->scanSource( "<?php\n".$body );
 
@@ -51,9 +49,7 @@ class FilesystemLifecycleContractTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider allowedFixtureProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'allowedFixtureProvider' )]
 	public function testPolicyAllowsNonFixturePattern( string $body ) :void {
 		$this->assertSame( [], ( new FilesystemFixturePolicy() )->scanSource( "<?php\n".$body ) );
 	}
