@@ -83,7 +83,11 @@ final class Mechanism {
 	 * is read on every request under mod_php, but LiteSpeed and .user.ini are cached.
 	 */
 	public function cacheSeconds( int $userIniCacheTtl ) :int {
-		return $this->key === self::APACHE_MOD_PHP ? 0 : \max( 300, $userIniCacheTtl );
+		return self::cacheSecondsFor( $this->key, $userIniCacheTtl );
+	}
+
+	public static function cacheSecondsFor( string $key, int $userIniCacheTtl ) :int {
+		return $key === self::APACHE_MOD_PHP ? 0 : \max( 300, $userIniCacheTtl );
 	}
 
 	public static function isUsableUserIniFilename( string $filename ) :bool {
