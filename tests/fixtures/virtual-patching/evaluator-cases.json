@@ -1,0 +1,286 @@
+{
+  "format": 1,
+  "description": "Rule evaluation cases shared by every pass that uses the virtual patching rule evaluator. In facts, user_capabilities stands for the user_can callable and rest_params for rest_has_param.",
+  "cases": [
+    {
+      "name": "method matches exactly",
+      "conditions": [ { "kind": "method", "negate": false, "value": "POST" } ],
+      "facts": { "method": "POST" },
+      "expected": "match"
+    },
+    {
+      "name": "method comparison is case-sensitive",
+      "conditions": [ { "kind": "method", "negate": false, "value": "POST" } ],
+      "facts": { "method": "post" },
+      "expected": "no_match"
+    },
+    {
+      "name": "path equals",
+      "conditions": [ { "kind": "path", "negate": false, "operator": "equals", "value": "/wp-admin/admin-ajax.php" } ],
+      "facts": { "path": "/wp-admin/admin-ajax.php" },
+      "expected": "match"
+    },
+    {
+      "name": "path equals is case-sensitive",
+      "conditions": [ { "kind": "path", "negate": false, "operator": "equals", "value": "/wp-admin/admin-ajax.php" } ],
+      "facts": { "path": "/WP-ADMIN/admin-ajax.php" },
+      "expected": "no_match"
+    },
+    {
+      "name": "path equals_i ignores ASCII case",
+      "conditions": [ { "kind": "path", "negate": false, "operator": "equals_i", "value": "/wp-admin/admin-ajax.php" } ],
+      "facts": { "path": "/WP-ADMIN/Admin-Ajax.php" },
+      "expected": "match"
+    },
+    {
+      "name": "path contains",
+      "conditions": [ { "kind": "path", "negate": false, "operator": "contains", "value": "/plugins/example/" } ],
+      "facts": { "path": "/wp-content/plugins/example/upload.php" },
+      "expected": "match"
+    },
+    {
+      "name": "path contains_i",
+      "conditions": [ { "kind": "path", "negate": false, "operator": "contains_i", "value": "/PLUGINS/example/" } ],
+      "facts": { "path": "/wp-content/plugins/Example/upload.php" },
+      "expected": "match"
+    },
+    {
+      "name": "path regex",
+      "conditions": [ { "kind": "path", "negate": false, "operator": "regex", "value": "#/plugins/example/[a-z]+\\.php$#" } ],
+      "facts": { "path": "/wp-content/plugins/example/upload.php" },
+      "expected": "match"
+    },
+    {
+      "name": "path regex miss",
+      "conditions": [ { "kind": "path", "negate": false, "operator": "regex", "value": "#/plugins/example/[a-z]+\\.php$#" } ],
+      "facts": { "path": "/wp-content/plugins/other/upload.php" },
+      "expected": "no_match"
+    },
+    {
+      "name": "script equals",
+      "conditions": [ { "kind": "script", "negate": false, "operator": "equals", "value": "admin-post.php" } ],
+      "facts": { "script": "admin-post.php" },
+      "expected": "match"
+    },
+    {
+      "name": "query parameter exists",
+      "conditions": [ { "kind": "parameter_exists", "negate": false, "source": "query", "name": "export" } ],
+      "facts": { "query": { "export": "1" }, "form": {} },
+      "expected": "match"
+    },
+    {
+      "name": "query parameter exists ignores form",
+      "conditions": [ { "kind": "parameter_exists", "negate": false, "source": "query", "name": "export" } ],
+      "facts": { "query": {}, "form": { "export": "1" } },
+      "expected": "no_match"
+    },
+    {
+      "name": "either parameter exists in form",
+      "conditions": [ { "kind": "parameter_exists", "negate": false, "source": "either", "name": "export" } ],
+      "facts": { "query": {}, "form": { "export": "1" } },
+      "expected": "match"
+    },
+    {
+      "name": "parameter exists with an array value",
+      "conditions": [ { "kind": "parameter_exists", "negate": false, "source": "form", "name": "ids" } ],
+      "facts": { "query": {}, "form": { "ids": [ "1", "2" ] } },
+      "expected": "match"
+    },
+    {
+      "name": "numeric parameter name exists",
+      "conditions": [ { "kind": "parameter_exists", "negate": false, "source": "query", "name": "0" } ],
+      "facts": { "query": { "0": "x" } },
+      "expected": "match"
+    },
+    {
+      "name": "form parameter value equals",
+      "conditions": [ { "kind": "parameter_value", "negate": false, "source": "form", "name": "action", "operator": "equals", "value": "example_export" } ],
+      "facts": { "form": { "action": "example_export" } },
+      "expected": "match"
+    },
+    {
+      "name": "array parameter value never matches",
+      "conditions": [ { "kind": "parameter_value", "negate": false, "source": "form", "name": "action", "operator": "regex", "value": "#example#" } ],
+      "facts": { "form": { "action": [ "example_export" ] } },
+      "expected": "no_match"
+    },
+    {
+      "name": "missing parameter value does not match",
+      "conditions": [ { "kind": "parameter_value", "negate": false, "source": "query", "name": "action", "operator": "equals", "value": "example_export" } ],
+      "facts": { "query": {} },
+      "expected": "no_match"
+    },
+    {
+      "name": "negated parameter value matches when the parameter is missing",
+      "conditions": [
+        { "kind": "path", "negate": false, "operator": "equals", "value": "/wp-admin/admin-ajax.php" },
+        { "kind": "parameter_value", "negate": true, "source": "query", "name": "mode", "operator": "equals", "value": "safe" }
+      ],
+      "facts": { "path": "/wp-admin/admin-ajax.php", "query": {} },
+      "expected": "match"
+    },
+    {
+      "name": "all outer conditions must hold",
+      "conditions": [
+        { "kind": "path", "negate": false, "operator": "equals", "value": "/wp-admin/admin-ajax.php" },
+        { "kind": "parameter_value", "negate": false, "source": "form", "name": "action", "operator": "equals", "value": "example_export" }
+      ],
+      "facts": { "path": "/wp-admin/admin-ajax.php", "form": { "action": "something_else" } },
+      "expected": "no_match"
+    },
+    {
+      "name": "or group matches on any branch",
+      "conditions": [
+        { "kind": "or", "conditions": [
+          { "kind": "parameter_value", "negate": false, "source": "query", "name": "action", "operator": "equals", "value": "example_export" },
+          { "kind": "parameter_value", "negate": false, "source": "form", "name": "action", "operator": "equals", "value": "example_export" }
+        ] }
+      ],
+      "facts": { "query": {}, "form": { "action": "example_export" } },
+      "expected": "match"
+    },
+    {
+      "name": "or group without a true branch does not match",
+      "conditions": [
+        { "kind": "or", "conditions": [
+          { "kind": "parameter_value", "negate": false, "source": "query", "name": "action", "operator": "equals", "value": "example_export" },
+          { "kind": "parameter_value", "negate": false, "source": "form", "name": "action", "operator": "equals", "value": "example_export" }
+        ] }
+      ],
+      "facts": { "query": { "action": "other" }, "form": {} },
+      "expected": "no_match"
+    },
+    {
+      "name": "negated capability leaves users with the capability alone",
+      "conditions": [
+        { "kind": "path", "negate": false, "operator": "equals", "value": "/wp-admin/admin-ajax.php" },
+        { "kind": "user_capability", "negate": true, "capability": "manage_options" }
+      ],
+      "facts": { "path": "/wp-admin/admin-ajax.php", "user_capabilities": [ "manage_options" ] },
+      "expected": "no_match"
+    },
+    {
+      "name": "negated capability blocks users without the capability",
+      "conditions": [
+        { "kind": "path", "negate": false, "operator": "equals", "value": "/wp-admin/admin-ajax.php" },
+        { "kind": "user_capability", "negate": true, "capability": "manage_options" }
+      ],
+      "facts": { "path": "/wp-admin/admin-ajax.php", "user_capabilities": [ "read" ] },
+      "expected": "match"
+    },
+    {
+      "name": "plugin active",
+      "conditions": [
+        { "kind": "path", "negate": false, "operator": "equals", "value": "/" },
+        { "kind": "plugin_active", "negate": false, "pluginFile": "example/example.php" }
+      ],
+      "facts": { "path": "/", "active_plugins": [ "example/example.php" ] },
+      "expected": "match"
+    },
+    {
+      "name": "plugin inactive",
+      "conditions": [
+        { "kind": "path", "negate": false, "operator": "equals", "value": "/" },
+        { "kind": "plugin_active", "negate": false, "pluginFile": "example/example.php" }
+      ],
+      "facts": { "path": "/", "active_plugins": [ "other/other.php" ] },
+      "expected": "no_match"
+    },
+    {
+      "name": "parent theme counts as active",
+      "conditions": [
+        { "kind": "path", "negate": false, "operator": "equals", "value": "/" },
+        { "kind": "theme_active", "negate": false, "theme": "example-parent" }
+      ],
+      "facts": { "path": "/", "active_themes": [ "example-child", "example-parent" ] },
+      "expected": "match"
+    },
+    {
+      "name": "admin request",
+      "conditions": [ { "kind": "wp_is_admin", "negate": false } ],
+      "facts": { "is_admin": true },
+      "expected": "match"
+    },
+    {
+      "name": "REST route in namespace",
+      "conditions": [ { "kind": "rest_route", "negate": false, "namespace": "example/v1", "operator": "equals_i", "value": "/forgot-password" } ],
+      "facts": { "rest_route": "/example/v1/forgot-password" },
+      "expected": "match"
+    },
+    {
+      "name": "REST route matching ignores case",
+      "conditions": [ { "kind": "rest_route", "negate": false, "namespace": "example/v1", "operator": "equals_i", "value": "/forgot-password" } ],
+      "facts": { "rest_route": "/Example/V1/Forgot-Password" },
+      "expected": "match"
+    },
+    {
+      "name": "REST namespace must end at a slash",
+      "conditions": [ { "kind": "rest_route", "negate": false, "namespace": "example/v1", "operator": "equals_i", "value": "0/forgot-password" } ],
+      "facts": { "rest_route": "/example/v10/forgot-password" },
+      "expected": "no_match"
+    },
+    {
+      "name": "REST namespace root with an empty value",
+      "conditions": [ { "kind": "rest_route", "negate": false, "namespace": "example/v1", "operator": "equals_i", "value": "" } ],
+      "facts": { "rest_route": "/example/v1" },
+      "expected": "match"
+    },
+    {
+      "name": "REST route regex",
+      "conditions": [ { "kind": "rest_route", "negate": false, "namespace": "example/v1", "operator": "regex", "value": "#^/items/\\d+/export$#i" } ],
+      "facts": { "rest_route": "/example/v1/items/42/export" },
+      "expected": "match"
+    },
+    {
+      "name": "no REST dispatch",
+      "conditions": [ { "kind": "rest_route", "negate": false, "namespace": "example/v1", "operator": "equals_i", "value": "/forgot-password" } ],
+      "facts": { "rest_route": null },
+      "expected": "no_match"
+    },
+    {
+      "name": "REST parameter exists",
+      "conditions": [
+        { "kind": "rest_route", "negate": false, "namespace": "example/v1", "operator": "equals_i", "value": "/settings" },
+        { "kind": "rest_parameter_exists", "negate": false, "name": "callback" }
+      ],
+      "facts": { "rest_route": "/example/v1/settings", "rest_params": [ "callback" ] },
+      "expected": "match"
+    },
+    {
+      "name": "REST parameter missing",
+      "conditions": [
+        { "kind": "rest_route", "negate": false, "namespace": "example/v1", "operator": "equals_i", "value": "/settings" },
+        { "kind": "rest_parameter_exists", "negate": false, "name": "callback" }
+      ],
+      "facts": { "rest_route": "/example/v1/settings", "rest_params": [ "name" ] },
+      "expected": "no_match"
+    },
+    {
+      "name": "invalid regex is a pattern failure",
+      "conditions": [ { "kind": "path", "negate": false, "operator": "regex", "value": "#(#" } ],
+      "facts": { "path": "/" },
+      "expected": "pattern_failure"
+    },
+    {
+      "name": "negation does not hide a pattern failure",
+      "conditions": [ { "kind": "path", "negate": true, "operator": "regex", "value": "#(#" } ],
+      "facts": { "path": "/" },
+      "expected": "pattern_failure"
+    },
+    {
+      "name": "backtrack limit is a pattern failure",
+      "conditions": [ { "kind": "parameter_value", "negate": false, "source": "query", "name": "q", "operator": "regex", "value": "/^(a|aa)+$/" } ],
+      "facts": { "query": { "q": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!" } },
+      "expected": "pattern_failure"
+    },
+    {
+      "name": "a failing pattern after a false condition is not reached",
+      "conditions": [
+        { "kind": "path", "negate": false, "operator": "equals", "value": "/other" },
+        { "kind": "path", "negate": false, "operator": "regex", "value": "#(#" }
+      ],
+      "facts": { "path": "/" },
+      "expected": "no_match"
+    }
+  ]
+}

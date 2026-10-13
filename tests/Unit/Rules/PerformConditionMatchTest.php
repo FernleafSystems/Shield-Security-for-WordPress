@@ -253,6 +253,28 @@ class PerformConditionMatchTest extends TestCase {
 		$this->assertTrue( $matcher->doMatch() );
 	}
 
+	public function testArrayValueNeverMatchesStringPatterns() :void {
+		// e.g. ?author[]=1 against the author discovery rule's regex
+		$cases = [
+			EnumMatchTypes::MATCH_TYPE_REGEX      => '#\\d#',
+			EnumMatchTypes::MATCH_TYPE_EQUALS     => 'Array',
+			EnumMatchTypes::MATCH_TYPE_EQUALS_I   => '1',
+			EnumMatchTypes::MATCH_TYPE_CONTAINS_I => '1',
+		];
+		foreach ( $cases as $matchType => $pattern ) {
+			$matcher = new PerformConditionMatch( [ '1' ], $pattern, $matchType );
+			$this->assertFalse( $matcher->doMatch(), $matchType );
+		}
+	}
+
+	public function testIntegerValueComparesAsString() :void {
+		// e.g. a numeric parameter name such as ?0=x
+		$this->assertTrue( ( new PerformConditionMatch( 0, '0', EnumMatchTypes::MATCH_TYPE_EQUALS_I ) )->doMatch() );
+		$this->assertTrue( ( new PerformConditionMatch( 123, '#^\\d+$#', EnumMatchTypes::MATCH_TYPE_REGEX ) )->doMatch() );
+		$this->assertTrue( ( new PerformConditionMatch( 123, '2', EnumMatchTypes::MATCH_TYPE_CONTAINS_I ) )->doMatch() );
+		$this->assertFalse( ( new PerformConditionMatch( 5, '6', EnumMatchTypes::MATCH_TYPE_EQUALS_I ) )->doMatch() );
+	}
+
 	public function testUnsupportedMatchTypeThrowsException() :void {
 		$matcher = new PerformConditionMatch( 'test', 'test', 'invalid_match_type' );
 		$this->expectException( \Exception::class );
