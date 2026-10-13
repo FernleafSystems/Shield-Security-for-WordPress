@@ -22,6 +22,11 @@ class EarlyLoadingController {
 	 */
 	private const ADMIN_CHECK_INTERVAL = 300;
 
+	/**
+	 * Longer than an install's loopback requests can take.
+	 */
+	private const GUARD_TTL = 180;
+
 	protected function run() {
 		$this->verifyRequest()->respondIfRequested();
 		add_action( self::con()->prefix( 'pre_deactivate_plugin' ), [ $this, 'onDeactivate' ] );
@@ -40,6 +45,11 @@ class EarlyLoadingController {
 	 * Applies a change to the setting. A failed install switches the setting back off.
 	 */
 	public function applyOption() :void {
+		$guard = $this->acquireGuard();
+		if ( $guard === '' ) {
+			// Another request is changing the early loader; maintain() reconciles with the setting afterwards.
+			return;
+		}
 		try {
 			if ( !$this->isEnabled() ) {
 				$this->remove();
@@ -55,6 +65,9 @@ class EarlyLoadingController {
 		}
 		catch ( InstallException $e ) {
 			// Recorded in the state for the settings page.
+		}
+		finally {
+			$this->releaseGuard( $guard );
 		}
 	}
 
@@ -83,6 +96,12 @@ class EarlyLoadingController {
 	 * confirms installs, keeps the stub current and completes removals.
 	 */
 	public function maintain() :void {
+		// While a settings save is installing or removing, its own loopback requests can start WP-Cron, which
+		// would still see the previous setting.
+		$guard = $this->acquireGuard();
+		if ( $guard === '' ) {
+			return;
+		}
 		$state = $this->state();
 		try {
 			if ( !$this->isEnabled() ) {
@@ -104,6 +123,9 @@ class EarlyLoadingController {
 		}
 		catch ( InstallException $e ) {
 			// Recorded in the state for the settings page.
+		}
+		finally {
+			$this->releaseGuard( $guard );
 		}
 	}
 
@@ -195,6 +217,25 @@ class EarlyLoadingController {
 	 */
 	private function isWebRequest() :bool {
 		return \PHP_SAPI !== 'cli' && !Services::WpGeneral()->isWpCli();
+	}
+
+	private function acquireGuard() :string {
+		$key = self::con()->prefix( 'early_loading_guard', '_' );
+		if ( \get_transient( $key ) !== false ) {
+			return '';
+		}
+		$token = \wp_generate_uuid4();
+		if ( !\set_transient( $key, $token, self::GUARD_TTL ) ) {
+			return '';
+		}
+		return \get_transient( $key ) === $token ? $token : '';
+	}
+
+	private function releaseGuard( string $token ) :void {
+		$key = self::con()->prefix( 'early_loading_guard', '_' );
+		if ( \hash_equals( $token, (string)\get_transient( $key ) ) ) {
+			\delete_transient( $key );
+		}
 	}
 
 	private function verifyRequest() :VerifyRequest {
