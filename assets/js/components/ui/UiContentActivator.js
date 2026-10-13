@@ -101,6 +101,7 @@ export class UiContentActivator {
 				vars: {
 					table_selector: '#'+tableEl.id,
 					datatables_init: datatablesInit,
+					malware_refresh: UiContentActivator.parseJsonObject( tableEl.dataset.malwareRefresh || '' ),
 				},
 			} );
 			tableEl.dataset.shieldScanResultsInitialized = '1';

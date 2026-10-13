@@ -201,7 +201,7 @@ class PluginVersionsTest extends BaseUnitTest {
 		$this->assertSame( $expected, PluginVersions::normalizeReleaseVersion( $version ) );
 	}
 
-	public function provideReleaseVersionNormalizationCases() :array {
+	public static function provideReleaseVersionNormalizationCases() :array {
 		return [
 			'standard version'  => [ '22.1.3', '22.1.3' ],
 			'padded version'    => [ ' 22.1.3 ', '22.1.3' ],
@@ -234,7 +234,7 @@ class PluginVersionsTest extends BaseUnitTest {
 		);
 	}
 
-	public function provideMajorVersionCases() :array {
+	public static function provideMajorVersionCases() :array {
 		return [
 			'non-version tags are ignored'              => [
 				[ 'importexport-b2', '22.1.3', '22.1.2' ],

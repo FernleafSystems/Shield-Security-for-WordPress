@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retri
 	RetrieveItems
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\MalwareAssessmentPresenter;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Decorate\FormatBytes;
@@ -100,14 +100,9 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 
 		if ( $item->is_mal ) {
 			$malRecord = $item->getMalwareRecord();
-			if ( $malRecord !== null ) {
-				$data[ 'mal_sig' ] = sprintf( '<code style="white-space: nowrap">%s</code>', esc_html( $malRecord->sig ) );
-				$data[ 'mal_details' ] = $this->getColumnContent_MalwareDetailsForRecord(
-					$item,
-					$malRecord,
-					$data[ 'mal_sig' ]
-				);
-			}
+			$data[ 'mal_sig' ] = $malRecord === null ? ''
+				: sprintf( '<code style="white-space: nowrap">%s</code>', esc_html( $malRecord->sig ) );
+			$data[ 'mal_details' ] = $this->getColumnContent_MalwareDetailsForRecord( $item, $malRecord, $data[ 'mal_sig' ] );
 		}
 
 		return $data;
@@ -295,45 +290,27 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return esc_html( $this->fileExtensionForDisplay( $item ) );
 	}
 
-	protected function getColumnContent_MalwareDetailsForRecord( ResultItem $item, MalwareRecord $record, string $sig ): string {
-		switch ( $record->malai_status ) {
-			case MalwareStatus::STATUS_MALWARE:
-			case MalwareStatus::STATUS_PREDICTED_MALWARE:
-				$colourStyle = 'danger';
-				break;
-			case MalwareStatus::STATUS_CLEAN:
-			case MalwareStatus::STATUS_FP:
-				$colourStyle = 'success';
-				break;
-			default:
-				$colourStyle = 'warning';
-				break;
+	protected function getColumnContent_MalwareDetailsForRecord( ResultItem $item, ?MalwareRecord $record, string $sig ): string {
+		$assessment = ( new MalwareAssessmentPresenter() )->present( $record, self::con()->caps->canScanMalwareMalai() );
+		$meta = [];
+		if ( $sig !== '' ) {
+			$meta[] = sprintf( '%s: %s', esc_html__( 'Pattern Detected', 'wp-simple-firewall' ), $sig );
 		}
-
-		return sprintf( '<ul style="list-style: square inside"><li>%s</li></ul>',
-			\implode( '</li><li>', [
-				sprintf( '%s: <span class="badge text-bg-%s">%s</span>',
-					__( 'MAL{ai} Malware Status', 'wp-simple-firewall' ),
-					$colourStyle,
-					( new MalwareStatus() )->nameFromStatusLabel( $record->malai_status )
-				),
-				sprintf( '%s: %s', __( 'Pattern Detected', 'wp-simple-firewall' ), $sig ),
-				sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
-					Services::Request()
-					        ->carbon()
-					        ->setTimestamp( Services::WpFs()->getModifiedTime( $item->path_full ) )
-					        ->diffForHumans()
-				)
-			] )
-		);
-	}
-
-	protected function getColumnContent_MalwareDetails( int $confidence, string $sig ): string {
-		return sprintf( '<ul style="list-style: square inside"><li>%s</li></ul>',
-			\implode( '</li><li>', [
-				sprintf( '%s: %s', __( 'False Positive Confidence', 'wp-simple-firewall' ), $confidence ),
-				sprintf( '%s: %s', __( 'Pattern Detected', 'wp-simple-firewall' ), $sig ),
-			] )
+		if ( Services::WpFs()->isAccessibleFile( $item->path_full ) ) {
+			$meta[] = esc_html( sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
+				Services::Request()->carbon()->setTimestamp( Services::WpFs()->getModifiedTime( $item->path_full ) )->diffForHumans()
+			) );
+		}
+		return sprintf(
+			'<button type="button" class="action view-file shield-button-link scan-results-malware-assessment" data-rid="%d" data-scan-result-action="view" aria-label="%s"><span class="badge text-bg-%s"><i class="bi %s" aria-hidden="true"></i> %s</span><span class="scan-results-malware-assessment__summary">%s</span>%s<span class="scan-results-malware-assessment__details text-primary text-decoration-underline">%s</span></button>',
+			$item->VO->resultitem_id,
+			esc_attr( sprintf( __( 'View details: %1$s — %2$s', 'wp-simple-firewall' ), $item->path_fragment, $assessment[ 'label' ] ) ),
+			esc_attr( $assessment[ 'tone' ] ),
+			esc_attr( $assessment[ 'icon' ] ),
+			esc_html( $assessment[ 'label' ] ),
+			esc_html( $assessment[ 'summary' ] ),
+			\implode( '', \array_map( static fn( string $line ) :string => '<span class="scan-results-malware-assessment__meta">'.$line.'</span>', $meta ) ),
+			esc_html__( 'View details', 'wp-simple-firewall' )
 		);
 	}
 

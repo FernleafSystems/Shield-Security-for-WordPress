@@ -50,6 +50,23 @@ class SourceStaticAnalysisLaneTest extends TestCase {
 		$this->assertSame( 'plugin_init.php', $command[ \count( $command ) - 1 ] );
 	}
 
+	public function testLongNarrowedPathListsAreBatchedForWindowsProcessCompatibility() :void {
+		$processRunner = RecordingProcessRunner::strict( [ 0, 0 ] );
+		$setupCoordinator = $this->createSetupCoordinator( false, 'fingerprint-batched-paths' );
+		$lane = new SourceStaticAnalysisLane( $processRunner, $setupCoordinator );
+		$paths = [
+			'src/'.\str_repeat( 'a', 2800 ).'.php',
+			'src/'.\str_repeat( 'b', 2800 ).'.php',
+			'src/'.\str_repeat( 'c', 2800 ).'.php',
+		];
+
+		$this->assertSame( 0, $this->runLaneSilencedWithPaths( $lane, false, $paths ) );
+		$this->assertCount( 2, $processRunner->calls );
+		$this->assertContains( $paths[ 0 ], $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertContains( $paths[ 1 ], $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertContains( $paths[ 2 ], $processRunner->calls[ 1 ][ 'command' ] );
+	}
+
 	public function testCacheMissRunsBuildConfigThenPhpStan() :void {
 		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$setupCoordinator = $this->createSetupCoordinator( true, 'fingerprint-b' );

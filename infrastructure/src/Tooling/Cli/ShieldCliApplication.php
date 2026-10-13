@@ -97,31 +97,31 @@ class ShieldCliApplication {
 				'operator:build-zip' => static function () use ( $projectRoot ) :Command {
 					return new ReleaseOperatorCommand( 'operator:build-zip', 'build-zip', $projectRoot, new ProcessRunner() );
 				},
-				'test:browser' => static function () use ( $projectRoot ) :Command {
+				TestBrowserCommand::NAME => static function () use ( $projectRoot ) :Command {
 					return new TestBrowserCommand( $projectRoot, new BrowserTestLane() );
 				},
-				'test:browser:cleanup' => static function () use ( $projectRoot ) :Command {
+				TestBrowserCleanupCommand::NAME => static function () use ( $projectRoot ) :Command {
 					return new TestBrowserCleanupCommand( $projectRoot );
 				},
-				'test:docker:cleanup' => static function () use ( $projectRoot ) :Command {
+				TestDockerCleanupCommand::NAME => static function () use ( $projectRoot ) :Command {
 					return new TestDockerCleanupCommand( $projectRoot );
 				},
-				'test:cross-site' => static function () use ( $projectRoot ) :Command {
+				TestCrossSiteCommand::NAME => static function () use ( $projectRoot ) :Command {
 					return new TestCrossSiteCommand( $projectRoot, new CrossSiteTestLane() );
 				},
-				'test:source' => static function () use ( $projectRoot, $environmentResolver ) :Command {
+				TestSourceCommand::NAME => static function () use ( $projectRoot, $environmentResolver ) :Command {
 					return new TestSourceCommand(
 						$projectRoot,
 						new SourceRuntimeTestLane( null, $environmentResolver )
 					);
 				},
-				'test:integration-local' => static function () use ( $projectRoot, $environmentResolver ) :Command {
+				TestIntegrationLocalCommand::NAME => static function () use ( $projectRoot, $environmentResolver ) :Command {
 					return new TestIntegrationLocalCommand(
 						$projectRoot,
 						new LocalIntegrationTestLane( null, $environmentResolver )
 					);
 				},
-				'test:package-targeted' => static function () use (
+				TestPackageTargetedCommand::NAME => static function () use (
 					$projectRoot,
 					$packagePathResolver,
 					$environmentResolver
@@ -131,7 +131,7 @@ class ShieldCliApplication {
 						new PackageTargetedTestLane( null, $packagePathResolver, $environmentResolver )
 					);
 				},
-				'test:package-full' => static function () use (
+				TestPackageFullCommand::NAME => static function () use (
 					$projectRoot,
 					$packagePathResolver,
 					$environmentResolver
@@ -141,25 +141,25 @@ class ShieldCliApplication {
 						new PackageFullTestLane( null, $packagePathResolver, $environmentResolver )
 					);
 				},
-				'test:upgrade-public' => static function () use ( $projectRoot, $environmentResolver ) :Command {
+				TestUpgradePublicCommand::NAME => static function () use ( $projectRoot, $environmentResolver ) :Command {
 					return new TestUpgradePublicCommand(
 						$projectRoot,
 						new PublicUpgradeTestLane( null, $environmentResolver )
 					);
 				},
-				'test:popular-plugins' => static function () use ( $projectRoot, $environmentResolver ) :Command {
+				TestPopularPluginsCommand::NAME => static function () use ( $projectRoot, $environmentResolver ) :Command {
 					return new TestPopularPluginsCommand(
 						$projectRoot,
 						new PopularPluginsCompatibilityTestLane( null, $environmentResolver )
 					);
 				},
-				'analyze:source' => static function () use ( $projectRoot ) :Command {
+				AnalyzeSourceCommand::NAME => static function () use ( $projectRoot ) :Command {
 					return new AnalyzeSourceCommand( $projectRoot, new SourceStaticAnalysisLane() );
 				},
-				'analyze:tooling' => static function () use ( $projectRoot ) :Command {
+				AnalyzeToolingCommand::NAME => static function () use ( $projectRoot ) :Command {
 					return new AnalyzeToolingCommand( $projectRoot, new ToolingAnalysisLane() );
 				},
-				'analyze:package' => static function () use (
+				AnalyzePackageCommand::NAME => static function () use (
 					$projectRoot,
 					$packagePathResolver,
 					$environmentResolver
@@ -169,7 +169,7 @@ class ShieldCliApplication {
 						new PackageStaticAnalysisLane( $packagePathResolver, $environmentResolver )
 					);
 				},
-				'git:pre-commit' => static function () use ( $projectRoot ) :Command {
+				GitPreCommitCommand::NAME => static function () use ( $projectRoot ) :Command {
 					return new GitPreCommitCommand( $projectRoot, new PreCommitChangedFileLane() );
 				},
 			]

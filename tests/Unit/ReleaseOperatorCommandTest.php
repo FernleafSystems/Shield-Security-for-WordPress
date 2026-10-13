@@ -11,8 +11,9 @@ use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Filesystem\Path;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
-class ReleaseOperatorCommandTest extends BaseUnitTest {
+class ReleaseOperatorCommandTest extends TestCase {
 
 	use TempDirLifecycleTrait;
 
@@ -179,7 +180,7 @@ class ReleaseOperatorCommandTest extends BaseUnitTest {
 		$this->assertSame( '--version=25.1.0', $runner->calls[ 0 ][ 'command' ][ 2 ] );
 	}
 
-	public function providerInvalidRememberedState() :array {
+	public static function providerInvalidRememberedState() :array {
 		return [
 			'invalid JSON' => [ '{' ],
 			'scalar root' => [ 'false' ],
@@ -234,7 +235,7 @@ class ReleaseOperatorCommandTest extends BaseUnitTest {
 		$this->assertSame( $replacement, $this->readState( $root )[ 'inputs' ][ 'target' ] );
 	}
 
-	public function providerInvalidSavedTarget() :array {
+	public static function providerInvalidSavedTarget() :array {
 		return [ 'missing' => [ 'missing' ], 'internal' => [ 'internal' ] ];
 	}
 
@@ -331,9 +332,21 @@ class ReleaseOperatorCommandTest extends BaseUnitTest {
 	/**
 	 * @dataProvider providerFixedActions
 	 */
-	public function testSuccessfulFixedActionsWriteStateBeforeRunning( string $action, array $answers, array $expectedCommand ) :void {
+	public function testSuccessfulFixedActionsWriteStateBeforeRunning( string $action ) :void {
 		$root = $this->projectRoot();
 		$runner = new StateObservingProcessRunner( [ 0 ], $root.'/tmp/operator-state.json' );
+		$answers = [ 'y' ];
+		$expectedCommand = [ 'composer', 'build-zip' ];
+		if ( $action === 'package-svn' ) {
+			$target = $this->createTrackedTempDir( 'shield-svn-target-' );
+			$canonicalTarget = Path::normalize( (string)\realpath( $target ) );
+			$answers = [ $target, 'y' ];
+			$expectedCommand = [ 'composer', 'package-plugin', '--', '--output='.$canonicalTarget ];
+		}
+		elseif ( $action === 'prepare-release' ) {
+			$answers = [ '21.1.2', '2026020401', '202602.0401', 'y' ];
+			$expectedCommand = [ PHP_BINARY, 'bin/prepare-release.php', '--version=21.1.2', '--release-timestamp=2026020401', '--build=202602.0401' ];
+		}
 
 		$exitCode = $this->execute( new ReleaseOperatorCommand( 'operator:'.$action, $action, $root, $runner ), $answers );
 
@@ -385,13 +398,11 @@ class ReleaseOperatorCommandTest extends BaseUnitTest {
 	}
 
 	/** @return array<string,array{string,array<int,string>,string[]}> */
-	public function providerFixedActions() :array {
-		$target = $this->createTrackedTempDir( 'shield-svn-target-' );
-		$canonicalTarget = Path::normalize( (string)\realpath( $target ) );
+	public static function providerFixedActions() :array {
 		return [
-			'package svn' => [ 'package-svn', [ $target, 'y' ], [ 'composer', 'package-plugin', '--', '--output='.$canonicalTarget ] ],
-			'prepare release' => [ 'prepare-release', [ '21.1.2', '2026020401', '202602.0401', 'y' ], [ PHP_BINARY, 'bin/prepare-release.php', '--version=21.1.2', '--release-timestamp=2026020401', '--build=202602.0401' ] ],
-			'build zip' => [ 'build-zip', [ 'y' ], [ 'composer', 'build-zip' ] ],
+			'package svn' => [ 'package-svn' ],
+			'prepare release' => [ 'prepare-release' ],
+			'build zip' => [ 'build-zip' ],
 		];
 	}
 

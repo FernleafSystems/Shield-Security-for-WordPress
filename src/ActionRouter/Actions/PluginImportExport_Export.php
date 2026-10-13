@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Export;
 
 class PluginImportExport_Export extends PluginImportExport_Base {
 

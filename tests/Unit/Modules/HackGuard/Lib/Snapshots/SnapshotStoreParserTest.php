@@ -105,7 +105,7 @@ class SnapshotStoreParserTest extends BaseUnitTest {
 		$this->assertSame( 0, $this->compressedReads( $store->getSnapStorePath() ) );
 	}
 
-	public function provideMismatchedMetadata() :array {
+	public static function provideMismatchedMetadata() :array {
 		return [
 			'wrong identity' => [ [
 				'unique_id' => 'other/plugin.php',
@@ -141,7 +141,7 @@ class SnapshotStoreParserTest extends BaseUnitTest {
 		$this->assertFalse( $store->isUsable() );
 	}
 
-	public function provideInvalidStrictPayloads() :array {
+	public static function provideInvalidStrictPayloads() :array {
 		return [
 			'empty' => [ '' ],
 			'blank only' => [ " \n\t" ],

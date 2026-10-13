@@ -2,19 +2,23 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties;
 
-use Base64Url\Base64Url;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops as MfaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Passkey;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpUserConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use Symfony\Component\Serializer\Normalizer\{
+	DenormalizerInterface,
+	NormalizerInterface
+};
 use Webauthn\{
-	PublicKeyCredentialSource,
-	PublicKeyCredentialSourceRepository,
+	AttestationStatement\AttestationStatementSupportManager,
+	CredentialRecord,
+	Denormalizer\WebauthnSerializerFactory,
 	PublicKeyCredentialUserEntity
 };
 
-class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
+class PasskeySourcesHandler {
 
 	use PluginControllerConsumer;
 	use WpUserConsumer;
@@ -23,38 +27,38 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 		return \count( $this->getUserSourceRecords() );
 	}
 
-	public function findOneByCredentialId( string $publicKeyCredentialId ) :?PublicKeyCredentialSource {
+	public function findOneByCredentialId( string $publicKeyCredentialId ) :?CredentialRecord {
 		$record = $this->getRecordFromSourceID( $publicKeyCredentialId );
-		return empty( $record ) ? null : $this->getSourceFromRecord( $record );
+		return $record === null ? null : $this->getCredentialRecordFromRecord( $record );
 	}
 
 	/**
-	 * @return PublicKeyCredentialSource[]
+	 * @return list<CredentialRecord>
 	 * @throws \Exception
 	 */
 	public function findAllForUserEntity( PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity ) :array {
-		$user = Services::WpUsers()->getUserByUsername( $publicKeyCredentialUserEntity->getName() );
-		if ( $user->ID !== $this->getWpUser()->ID ) {
-			throw new \Exception( 'Invalid user query!!' );
+		$user = Services::WpUsers()->getUserByUsername( $publicKeyCredentialUserEntity->name );
+		if ( !$user instanceof \WP_User || $user->ID !== $this->getWpUser()->ID ) {
+			throw new \Exception( 'Invalid user query.' );
 		}
-		return $this->getSourcesFromRecords( $this->getUserSourceRecords() );
+		return $this->getCredentialRecordsFromMfaRecords( $this->getUserSourceRecords() );
 	}
 
 	/**
-	 * @return MfaDB\Record[]
+	 * @return list<MfaDB\Record>
 	 */
 	public function getUserSourceRecords() :array {
-		return ( new MfaRecordsHandler() )->loadFor( $this->getWpUser(), Passkey::ProviderSlug() );
+		return \array_values( ( new MfaRecordsHandler() )->loadFor( $this->getWpUser(), Passkey::ProviderSlug() ) );
 	}
 
 	/**
-	 * @return PublicKeyCredentialSource[]
+	 * @return list<CredentialRecord>
 	 */
-	public function getExcludedSourcesFromAllUsers() :array {
-		return $this->getSourcesFromRecords(
+	public function getExcludedCredentialRecordsForCurrentUser() :array {
+		return $this->getCredentialRecordsFromMfaRecords(
 			\array_filter(
-				( new MfaRecordsHandler() )->loadFor( $this->getWpUser(), Passkey::ProviderSlug() ),
-				fn( MfaDB\Record $record ) => $record->passwordless
+				$this->getUserSourceRecords(),
+				static fn( MfaDB\Record $record ) => $record->passwordless
 			)
 		);
 	}
@@ -62,17 +66,17 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 	/**
 	 * @throws \Exception
 	 */
-	public function saveCredentialSource( PublicKeyCredentialSource $publicKeyCredentialSource ) :void {
-		$this->saveCredentialData( $publicKeyCredentialSource->jsonSerialize() );
+	public function saveCredentialRecord( CredentialRecord $credentialRecord ) :void {
+		$this->saveCredentialData( $this->credentialRecordToArray( $credentialRecord ) );
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	public function saveCredentialData( array $credentialData ) :void {
-		$credentialData = $this->normalizeCredentialData( $credentialData );
+		$credentialData = $this->normalizeCredentialDataForStorage( $credentialData );
 		$preExistingSource = $this->getRecordFromCredentialData( $credentialData );
-		if ( empty( $preExistingSource ) ) {
+		if ( $preExistingSource === null ) {
 			/** @var MfaDB\Record $record */
 			$record = self::con()->db_con->mfa->getRecord();
 			$record->user_id = $this->getWpUser()->ID;
@@ -92,31 +96,32 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 	/**
 	 * @throws \Exception
 	 */
-	public function updateSource( PublicKeyCredentialSource $publicKeyCredentialSource, array $data = [] ) :void {
-		$this->updateCredentialData( $publicKeyCredentialSource->jsonSerialize(), $data );
+	public function updateCredentialRecord( CredentialRecord $credentialRecord, array $data = [] ) :void {
+		$this->updateCredentialData( $this->credentialRecordToArray( $credentialRecord ), $data );
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	public function updateCredentialData( array $credentialData, array $data = [] ) :void {
-		$credentialData = $this->normalizeCredentialData( $credentialData );
+		$credentialData = $this->normalizeCredentialDataForStorage( $credentialData );
 		$record = $this->getRecordFromCredentialData( $credentialData );
-		if ( empty( $record ) ) {
+		if ( $record === null ) {
 			throw new \Exception( 'Source does not exist.' );
 		}
 
-		$data[ 'data' ] = \base64_encode( \wp_json_encode( $credentialData ) );
+		$data[ 'data' ] = \base64_encode( $this->encodeCredentialData( $credentialData ) );
 
 		( new MfaRecordsHandler() )->update( $record, $data );
 	}
 
-	public function deleteSource( string $encodedID ) :bool {
-		/** @var MfaDB\Delete $deleter */
-		$deleter = self::con()->db_con->mfa->getQueryDeleter();
-		$deleter->filterBySlug( Passkey::ProviderSlug() )
-				->filterByUniqueID( $encodedID )
-				->queryWithResult();
+	public function deleteSource( string $uniqueID ) :bool {
+		$record = $this->getRecordFromUniqueID( $uniqueID );
+		if ( $record === null ) {
+			return false;
+		}
+
+		( new MfaRecordsHandler() )->delete( $record );
 		return true;
 	}
 
@@ -125,56 +130,118 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 	}
 
 	private function getRecordFromCredentialData( array $credentialData ) :?MfaDB\Record {
-		try {
-			$sourceId = Base64Url::decode( (string)( $credentialData[ 'publicKeyCredentialId' ] ?? '' ) );
-		}
-		catch ( \Throwable $e ) {
-			$sourceId = '';
-		}
-		return empty( $sourceId ) ? null : $this->getRecordFromSourceID( $sourceId );
+		$sourceId = $this->sourceIdFromCredentialData( $credentialData );
+		return $sourceId === null ? null : $this->getRecordFromSourceID( $sourceId );
 	}
 
 	private function getRecordFromSourceID( string $publicKeyCredentialId ) :?MfaDB\Record {
-		$records = \array_filter(
-			( new MfaRecordsHandler() )->loadFor( $this->getWpUser(), Passkey::ProviderSlug() ),
-			function ( MfaDB\Record $record ) use ( $publicKeyCredentialId ) {
-				return $record->unique_id === $this->normalisedSourceID( $publicKeyCredentialId );
-			}
-		);
-		return empty( $records ) ? null : \reset( $records );
+		return $this->getRecordFromUniqueID( $this->normalisedSourceID( $publicKeyCredentialId ) );
 	}
 
-	private function getSourceFromRecord( MfaDB\Record $record ) :?PublicKeyCredentialSource {
+	private function getRecordFromUniqueID( string $uniqueID ) :?MfaDB\Record {
+		foreach ( $this->getUserSourceRecords() as $record ) {
+			if ( $record->unique_id === $uniqueID ) {
+				return $record;
+			}
+		}
+		return null;
+	}
+
+	private function getCredentialRecordFromRecord( MfaDB\Record $record ) :?CredentialRecord {
 		try {
-			$source = PublicKeyCredentialSource::createFromArray(
-				$this->normalizeCredentialData( $record->data )
-			);
+			$credentialRecord = $this->credentialRecordFromArray( $record->data );
 		}
-		catch ( \InvalidArgumentException $e ) {
-			$source = null;
+		catch ( \Throwable $e ) {
+			// Stored MFA rows are a DB boundary; ignore corrupt passkey records without blocking login.
+			$credentialRecord = null;
 		}
-		return $source;
+		return $credentialRecord;
 	}
 
 	/**
 	 * @param MfaDB\Record[] $records
+	 * @return list<CredentialRecord>
 	 */
-	private function getSourcesFromRecords( array $records ) :array {
-		return \array_filter( \array_map(
+	private function getCredentialRecordsFromMfaRecords( array $records ) :array {
+		return \array_values( \array_filter( \array_map(
 			function ( MfaDB\Record $record ) {
-				return $this->getSourceFromRecord( $record );
+				return $this->getCredentialRecordFromRecord( $record );
 			},
 			$records
-		) );
+		) ) );
 	}
 
 	private function normalisedSourceIDFromCredentialData( array $credentialData ) :string {
-		return $this->normalisedSourceID(
-			Base64Url::decode( (string)( $credentialData[ 'publicKeyCredentialId' ] ?? '' ) )
-		);
+		$sourceId = $this->sourceIdFromCredentialData( $credentialData );
+		if ( $sourceId === null ) {
+			throw new \InvalidArgumentException( 'Invalid passkey credential ID.' );
+		}
+
+		return $this->normalisedSourceID( $sourceId );
 	}
 
-	private function normalizeCredentialData( array $credentialData ) :array {
-		return ( new PasskeyCredentialDataNormalizer() )->normalize( $credentialData );
+	private function sourceIdFromCredentialData( array $credentialData ) :?string {
+		if ( !\array_key_exists( 'publicKeyCredentialId', $credentialData )
+			 || !\is_string( $credentialData[ 'publicKeyCredentialId' ] )
+			 || $credentialData[ 'publicKeyCredentialId' ] === '' ) {
+			return null;
+		}
+
+		try {
+			$sourceId = PasskeyBase64Url::decode( $credentialData[ 'publicKeyCredentialId' ] );
+		}
+		catch ( \Throwable $e ) {
+			return null;
+		}
+
+		return $sourceId === '' ? null : $sourceId;
+	}
+
+	private function credentialRecordFromArray( array $credentialData ) :CredentialRecord {
+		$credentialRecord = $this->serializer()->denormalize(
+			$this->normalizeCredentialDataForWebauthn( $credentialData ),
+			CredentialRecord::class
+		);
+		if ( !$credentialRecord instanceof CredentialRecord ) {
+			throw new \InvalidArgumentException( 'Invalid CredentialRecord payload.' );
+		}
+		return $credentialRecord;
+	}
+
+	private function credentialRecordToArray( CredentialRecord $credentialRecord ) :array {
+		$normalized = $this->serializer()->normalize( $credentialRecord );
+		if ( !\is_array( $normalized ) ) {
+			throw new \UnexpectedValueException( sprintf(
+				'Expected WebAuthn normalizer to return an array, got %s.',
+				\get_debug_type( $normalized )
+			) );
+		}
+		return $this->normalizeCredentialDataForStorage( $normalized );
+	}
+
+	private function encodeCredentialData( array $credentialData ) :string {
+		$encoded = \wp_json_encode( $credentialData );
+		if ( !\is_string( $encoded ) ) {
+			throw new \UnexpectedValueException( 'Passkey credential data could not be encoded.' );
+		}
+
+		return $encoded;
+	}
+
+	private function normalizeCredentialDataForStorage( array $credentialData ) :array {
+		return ( new PasskeyCredentialDataNormalizer() )->normalizeForStorage( $credentialData );
+	}
+
+	private function normalizeCredentialDataForWebauthn( array $credentialData ) :array {
+		return ( new PasskeyCredentialDataNormalizer() )->normalizeForWebauthn( $credentialData );
+	}
+
+	private function serializer() :NormalizerInterface&DenormalizerInterface {
+		$serializer = ( new WebauthnSerializerFactory( new AttestationStatementSupportManager() ) )->create();
+		if ( !$serializer instanceof NormalizerInterface || !$serializer instanceof DenormalizerInterface ) {
+			throw new \UnexpectedValueException( 'Expected WebAuthn serializer to support normalization and denormalization.' );
+		}
+
+		return $serializer;
 	}
 }

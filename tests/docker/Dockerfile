@@ -71,7 +71,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     php${PHP_VERSION}-zip \
     php${PHP_VERSION}-gd \
     php${PHP_VERSION}-intl \
-    php${PHP_VERSION}-bcmath \
     php${PHP_VERSION}-soap \
     php${PHP_VERSION}-sqlite3 \
     php${PHP_VERSION}-dev
@@ -91,21 +90,14 @@ RUN echo "memory_limit=512M" > /etc/php/${PHP_VERSION}/cli/conf.d/99-testing.ini
 FROM php-runtime AS test-framework
 ARG PHP_VERSION
 
-# Install PHPUnit based on PHP version compatibility with composer cache mount
-# PHPUnit 9.6: PHP >=7.3 (works with 7.4, 8.0, 8.1)
+# Install PHPUnit for Shield's PHP 8.2+ test matrix with composer cache mount
 # PHPUnit 11.x: PHP >=8.2 (works with 8.2, 8.3, 8.4)
 # Note: PHPUnit 10.x is NOT supported by yoast/phpunit-polyfills 4.x
-# yoast/phpunit-polyfills 4.x: Supports PHPUnit ^7.5|^8.0|^9.0|^11.0|^12.0
+# yoast/phpunit-polyfills 4.x supports the PHPUnit 11.x lane used here.
 RUN --mount=type=cache,target=/root/.composer/cache \
-    if [ "$(echo ${PHP_VERSION} | cut -d. -f1)" = "7" ] || [ "${PHP_VERSION}" = "8.0" ] || [ "${PHP_VERSION}" = "8.1" ]; then \
-        composer global require --no-interaction \
-            phpunit/phpunit:^9.6 \
-            yoast/phpunit-polyfills:^4.0; \
-    else \
-        composer global require --no-interaction \
-            phpunit/phpunit:^11.5 \
-            yoast/phpunit-polyfills:^4.0; \
-    fi
+    composer global require --no-interaction \
+        phpunit/phpunit:^11.5 \
+        yoast/phpunit-polyfills:^4.0
 
 # Add composer global bin to PATH
 ENV PATH="/root/.composer/vendor/bin:${PATH}"

@@ -12,13 +12,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ProfilesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\{
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\ImportExportController;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\NetworkInviteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\{
 	ObservationStore,
 	SyncObservation
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTestCase {
@@ -376,7 +376,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 
 		$this->assertStringContainsString( 'id="ImportExportClientSecretKey"', $html );
 		$this->assertStringContainsString( 'readonly', $html );
-		$this->assertStringContainsString( ( new ImportExportController() )->getImportExportSecretKey(), $html );
+		$this->assertStringContainsString( $this->requireController()->comps->import_export->getImportExportSecretKey(), $html );
 	}
 
 	public function test_set_enabled_action_stores_disabled_state_and_clears_pending_invites() :void {

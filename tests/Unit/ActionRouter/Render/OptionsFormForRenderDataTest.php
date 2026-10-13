@@ -13,26 +13,35 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
 	PluginControllerInstaller
 };
+use FernleafSystems\Wordpress\Services\Utilities\DataManipulation;
 
 class OptionsFormForRenderDataTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
+
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'esc_attr' )->alias( static fn( $text ) => $text );
 		Functions\when( 'esc_html' )->alias( static fn( $text ) => $text );
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::mergeItems( [
+			'service_datamanipulation' => new DataManipulation(),
+		] );
 		$this->installControllerStub();
 	}
 
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 

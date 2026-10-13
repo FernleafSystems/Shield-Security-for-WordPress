@@ -40,6 +40,7 @@ class LoginGuardCoreFixtureBuilder {
 
 	private const OPTION_KEYS = [
 		'allow_backupcodes',
+		'antibot_minimum',
 		'bot_protection_locations',
 		'email_any_user_set',
 		'email_can_send_verified_at',
@@ -50,12 +51,14 @@ class LoginGuardCoreFixtureBuilder {
 		'license_activated_at',
 		'license_data',
 		'license_deactivated_at',
+		'login_limit_interval',
 		'mfa_skip',
 		'mfa_verify_page',
 		'rename_wplogin_path',
 		'rename_wplogin_redirect',
 		'suresend_emails',
 		'two_factor_auth_user_roles',
+		'user_form_providers',
 	];
 
 	/**
@@ -104,6 +107,10 @@ class LoginGuardCoreFixtureBuilder {
 			] );
 
 			switch ( $scenario ) {
+				case 'silentcaptcha-login':
+					$contract = $this->seedSilentCaptchaLogin( $state );
+					break;
+
 				case 'hide-login':
 					$contract = $this->seedHideLogin();
 					break;
@@ -195,7 +202,7 @@ class LoginGuardCoreFixtureBuilder {
 	 * @phpstan-param FixtureState $state
 	 */
 	public function cleanup( array $state ) :void {
-		RuntimeTestState::ensureDb( [ 'mfa' ] );
+		RuntimeTestState::ensureDb( [ 'mfa', 'user_meta' ] );
 		if ( $state === [] ) {
 			\delete_option( self::RUNTIME_OPTION );
 			return;
@@ -230,6 +237,11 @@ class LoginGuardCoreFixtureBuilder {
 				require_once ABSPATH.'wp-admin/includes/user.php';
 			}
 			\wp_delete_user( $userID );
+			$deleter = $con->db_con->user_meta->getQueryDeleter();
+			$deleter->filterByUser( $userID )->query();
+			if ( $deleter->getLastQueryResult() === false ) {
+				throw new \RuntimeException( 'Failed to clean fixture user metadata.' );
+			}
 		}
 
 		RuntimeTestState::restoreOptions(
@@ -286,6 +298,33 @@ class LoginGuardCoreFixtureBuilder {
 		return [
 			'old_login_path' => '/wp-login.php',
 			'admin_path'     => '/wp-admin/',
+		];
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 * @return array<string,mixed>
+	 */
+	private function seedSilentCaptchaLogin( array &$state ) :array {
+		$paths = $this->seedHideLoginDisabled();
+		$user = $this->createFixtureUser( 'silentcaptcha' );
+		$state[ 'user_id' ] = $user->ID;
+		$state[ 'created_user_ids' ][] = $user->ID;
+		$state[ 'user_login' ] = $user->user_login;
+		$state[ 'user_pass' ] = 'shield-browser-pass';
+
+		RuntimeTestState::restoreOptions( [
+			'user_form_providers'        => [ 'wordpress' ],
+			'bot_protection_locations'   => [ 'login' ],
+			'antibot_minimum'            => 45,
+			'login_limit_interval'       => 0,
+			'two_factor_auth_user_roles' => [],
+		] );
+
+		return [
+			'user_login' => $state[ 'user_login' ],
+			'user_pass'  => $state[ 'user_pass' ],
+			'login_path' => $paths[ 'old_login_path' ],
 		];
 	}
 

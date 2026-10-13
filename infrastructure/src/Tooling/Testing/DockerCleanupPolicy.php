@@ -191,6 +191,18 @@ class DockerCleanupPolicy {
 	}
 
 	/**
+	 * Values used only to satisfy required Compose interpolation during cleanup.
+	 *
+	 * @return array<string,string>
+	 */
+	public function composeCleanupEnvironment() :array {
+		return $this->scope === self::SCOPE_SOURCE ? [
+			'WP_VERSION_LATEST' => 'cleanup-only',
+			'WP_VERSION_PREVIOUS' => 'cleanup-only',
+		] : [];
+	}
+
+	/**
 	 * @return array<string,string>
 	 */
 	public function labelEnvironment(

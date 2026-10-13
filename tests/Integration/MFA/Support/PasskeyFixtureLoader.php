@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\MFA\Support;
 
-use Base64Url\Base64Url;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeyBase64Url;
 
 class PasskeyFixtureLoader {
 
@@ -13,56 +13,68 @@ class PasskeyFixtureLoader {
 			$fixturesDir = \dirname( \dirname( \dirname( __DIR__ ) ) ).'/fixtures/passkeys';
 			$localPath = $fixturesDir.'/fixture_ceremony.local.json';
 			$path = \is_file( $localPath ) ? $localPath : $fixturesDir.'/fixture_ceremony.json';
-			$data = \json_decode( (string)\file_get_contents( $path ), true );
-			self::$fixture = \is_array( $data ) ? $data : [];
+			$content = \file_get_contents( $path );
+			if ( $content === false ) {
+				throw new \UnexpectedValueException( sprintf( 'Unable to read passkey fixture: %s', $path ) );
+			}
+
+			$data = \json_decode( $content, true );
+			if ( !\is_array( $data ) ) {
+				throw new \UnexpectedValueException( sprintf(
+					'Passkey fixture must decode to an array: %s (%s)',
+					$path,
+					\json_last_error_msg()
+				) );
+			}
+			self::$fixture = $data;
 		}
 
 		return self::$fixture;
 	}
 
 	public static function credentialId() :string {
-		return (string)( self::load()[ 'credential' ][ 'id' ] ?? '' );
+		return self::stringAt( 'credential', 'id' );
 	}
 
 	public static function credentialUniqueId() :string {
-		return (string)( self::load()[ 'credential' ][ 'unique_id' ] ?? '' );
+		return self::stringAt( 'credential', 'unique_id' );
 	}
 
 	public static function registrationCredentialId() :string {
-		return (string)( self::load()[ 'registration' ][ 'credential' ][ 'id' ] ?? '' );
+		return self::stringAt( 'registration', 'credential', 'id' );
 	}
 
 	public static function registrationCredentialUniqueId() :string {
-		return (string)( self::load()[ 'registration' ][ 'credential' ][ 'unique_id' ] ?? '' );
+		return self::stringAt( 'registration', 'credential', 'unique_id' );
 	}
 
 	public static function legacyRecord() :array {
-		return (array)( self::load()[ 'legacy_record' ] ?? [] );
+		return self::arrayAt( 'legacy_record' );
 	}
 
 	public static function legacyRecordCounter() :int {
-		return (int)( self::legacyRecord()[ 'counter' ] ?? 0 );
+		return self::intAt( 'legacy_record', 'counter' );
 	}
 
 	public static function registrationOptions() :array {
-		return (array)( self::load()[ 'registration' ][ 'options' ] ?? [] );
+		return self::arrayAt( 'registration', 'options' );
 	}
 
 	public static function registrationExpectedCounter() :int {
-		return (int)( self::load()[ 'registration' ][ 'verified_record' ][ 'counter' ] ?? 0 );
+		return self::intAt( 'registration', 'verified_record', 'counter' );
 	}
 
 	public static function authenticationOptions() :array {
-		return (array)( self::load()[ 'authentication' ][ 'options' ] ?? [] );
+		return self::arrayAt( 'authentication', 'options' );
 	}
 
 	public static function authenticationExpectedCounter() :int {
-		return (int)( self::load()[ 'authentication' ][ 'verified_record' ][ 'counter' ] ?? 0 );
+		return self::intAt( 'authentication', 'verified_record', 'counter' );
 	}
 
 	public static function registrationResponse( array $overrides = [], array $clientDataOverrides = [] ) :string {
 		return self::encodeResponse(
-			(array)( self::load()[ 'registration' ][ 'response' ] ?? [] ),
+			self::arrayAt( 'registration', 'response' ),
 			$overrides,
 			$clientDataOverrides
 		);
@@ -70,44 +82,112 @@ class PasskeyFixtureLoader {
 
 	public static function authenticationResponse( array $overrides = [], array $clientDataOverrides = [] ) :string {
 		return self::encodeResponse(
-			(array)( self::load()[ 'authentication' ][ 'response' ] ?? [] ),
+			self::arrayAt( 'authentication', 'response' ),
 			$overrides,
 			$clientDataOverrides
 		);
 	}
 
 	public static function requestHost() :string {
-		return (string)( self::load()[ 'meta' ][ 'rp_id' ] ?? '' );
+		return self::stringAt( 'meta', 'rp_id' );
 	}
 
 	public static function requestScheme() :string {
-		return (string)( self::load()[ 'meta' ][ 'request_scheme' ] ?? 'https' );
+		return self::stringAt( 'meta', 'request_scheme' );
 	}
 
 	public static function userHandleRaw() :string {
-		return (string)( self::load()[ 'meta' ][ 'user_handle_raw' ] ?? '' );
+		return self::stringAt( 'meta', 'user_handle_raw' );
 	}
 
 	private static function encodeResponse( array $response, array $overrides, array $clientDataOverrides ) :string {
 		$response = \array_replace_recursive( $response, $overrides );
 		if ( !empty( $clientDataOverrides ) ) {
 			$clientData = self::decodeClientData(
-				(string)( $response[ 'response' ][ 'clientDataJSON' ] ?? '' )
+				self::stringFromArray( $response, [ 'response', 'clientDataJSON' ] )
 			);
 			$response[ 'response' ][ 'clientDataJSON' ] = self::encodeClientData(
 				\array_replace_recursive( $clientData, $clientDataOverrides )
 			);
 		}
 
-		return \wp_json_encode( $response );
+		return self::jsonEncode( $response );
 	}
 
 	private static function decodeClientData( string $encoded ) :array {
-		$data = \json_decode( Base64Url::decode( $encoded ), true );
-		return \is_array( $data ) ? $data : [];
+		$data = \json_decode( PasskeyBase64Url::decode( $encoded ), true );
+		if ( !\is_array( $data ) ) {
+			throw new \UnexpectedValueException( 'Passkey fixture clientDataJSON must decode to an array.' );
+		}
+
+		return $data;
 	}
 
 	private static function encodeClientData( array $clientData ) :string {
-		return Base64Url::encode( (string)\wp_json_encode( $clientData ) );
+		return PasskeyBase64Url::encode( self::jsonEncode( $clientData ) );
+	}
+
+	private static function jsonEncode( array $data ) :string {
+		$encoded = \wp_json_encode( $data );
+		if ( !\is_string( $encoded ) ) {
+			throw new \UnexpectedValueException( 'Passkey fixture data could not be JSON encoded.' );
+		}
+
+		return $encoded;
+	}
+
+	private static function stringAt( string ...$path ) :string {
+		return self::stringFromArray( self::load(), $path );
+	}
+
+	private static function intAt( string ...$path ) :int {
+		$value = self::valueFromArray( self::load(), $path );
+		if ( !\is_int( $value ) ) {
+			throw new \UnexpectedValueException( sprintf(
+				'Passkey fixture path must be an integer: %s',
+				\implode( '.', $path )
+			) );
+		}
+
+		return $value;
+	}
+
+	private static function arrayAt( string ...$path ) :array {
+		$value = self::valueFromArray( self::load(), $path );
+		if ( !\is_array( $value ) ) {
+			throw new \UnexpectedValueException( sprintf(
+				'Passkey fixture path must be an array: %s',
+				\implode( '.', $path )
+			) );
+		}
+
+		return $value;
+	}
+
+	private static function stringFromArray( array $source, array $path ) :string {
+		$value = self::valueFromArray( $source, $path );
+		if ( !\is_string( $value ) || $value === '' ) {
+			throw new \UnexpectedValueException( sprintf(
+				'Passkey fixture path must be a non-empty string: %s',
+				\implode( '.', $path )
+			) );
+		}
+
+		return $value;
+	}
+
+	private static function valueFromArray( array $source, array $path ) {
+		$value = $source;
+		foreach ( $path as $key ) {
+			if ( !\is_array( $value ) || !\array_key_exists( $key, $value ) ) {
+				throw new \UnexpectedValueException( sprintf(
+					'Passkey fixture path is missing: %s',
+					\implode( '.', $path )
+				) );
+			}
+			$value = $value[ $key ];
+		}
+
+		return $value;
 	}
 }

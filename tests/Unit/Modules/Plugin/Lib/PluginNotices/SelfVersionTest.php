@@ -74,7 +74,7 @@ class SelfVersionTest extends BaseUnitTest {
 		$this->assertSame( [ 'shield_admin_top_page' ], $issue[ 'locations' ] );
 	}
 
-	public function provideHostileReleaseVersionMembers() :array {
+	public static function provideHostileReleaseVersionMembers() :array {
 		return [
 			'null'  => [ null ],
 			'false' => [ false ],

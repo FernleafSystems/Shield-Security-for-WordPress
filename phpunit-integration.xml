@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
          bootstrap="tests/Integration/bootstrap.php"
          colors="true"
          testdox="true"
-         verbose="true"
          beStrictAboutOutputDuringTests="false"
          beStrictAboutTestsThatDoNotTestAnything="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         convertDeprecationsToExceptions="true"
          stopOnError="false"
-         stopOnFailure="false">
+         stopOnFailure="false"
+         cacheDirectory=".phpunit.cache">
     <testsuites>
         <testsuite name="Infrastructure Smoke Tests">
             <file>tests/Integration/InfrastructureSmokeTest.php</file>
@@ -44,7 +40,7 @@
             <exclude>tests/Integration/ActionRouter/ZoneComponentConfigRenderIntegrationTest.php</exclude>
         </testsuite>
     </testsuites>
-    <coverage processUncoveredFiles="true">
+    <source>
         <include>
             <directory suffix=".php">src</directory>
         </include>
@@ -53,5 +49,5 @@
             <directory>vendor</directory>
             <directory>vendor_prefixed</directory>
         </exclude>
-    </coverage>
+    </source>
 </phpunit>

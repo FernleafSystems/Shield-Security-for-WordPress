@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\HashVerificationResult;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\MalwareAssessmentPresenter;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Wp\Repo;
 
@@ -33,20 +33,16 @@ class Info extends BaseComponent {
 					'file_status'           => $this->getFileStatus(),
 					'file_description'      => $this->getFileDescriptionLines(),
 					'recommendations_lines' => $this->getFileRecommendations(),
+					'malware_assessment'    => ( new MalwareAssessmentPresenter() )->present(
+						$item->is_mal ? $item->getMalwareRecord() : null,
+						$item->is_mal && self::con()->caps->canScanMalwareMalai()
+					),
 				],
 				'strings' => [
 					'info'                  => CommonDisplayStrings::get( 'info_label' ),
-					'heading_malai_status'  => sprintf( __( 'Malware status report from %s', 'wp-simple-firewall' ), 'MAL{ai} ' ),
-					'malware_status_of'     => __( 'Malware status of this file is currently', 'wp-simple-firewall' ),
-					'malai_status'          => $this->getMalaiStatus(),
-					'malai_status_notes'    => [
-						__( "[Known] means that the code has been reviewed and is known and confirmed to be either clean or malware.", 'wp-simple-firewall' ),
-						__( "[False Positive] means the code looks like malware, but it's actually clean.", 'wp-simple-firewall' ),
-						__( "[Predicted] means the clean/malware status has been assessed by the MAL{ai} engine, but hasn't been manually reviewed (yet).", 'wp-simple-firewall' ),
-					],
+					'heading_malai_status'   => __( 'Malware assessment', 'wp-simple-firewall' ),
 					'file_status_label'      => __( 'File Status', 'wp-simple-firewall' ),
 					'file_full_path_label'   => __( 'Full Path To File', 'wp-simple-firewall' ),
-					'note'                  => __( 'Note', 'wp-simple-firewall' ),
 					'file_description'      => __( 'Description', 'wp-simple-firewall' ),
 					'recommendations'       => __( 'Recommendations', 'wp-simple-firewall' ),
 					'view_file_vcs'         => __( 'View Original File Contents', 'wp-simple-firewall' ),
@@ -63,21 +59,6 @@ class Info extends BaseComponent {
 	/**
 	 * @throws ActionException
 	 */
-	private function getMalaiStatus() :string {
-		$item = $this->getScanItem();
-		return $item->is_mal
-			? ( new MalwareStatus() )->nameFromStatusLabel( $this->getMalaiStatusLabel() )
-			: '';
-	}
-
-	private function getMalaiStatusLabel() :string {
-		$record = $this->getScanItem()->getMalwareRecord();
-		return $record === null ? MalwareStatus::STATUS_UNKNOWN : $record->malai_status;
-	}
-
-	/**
-	 * @throws ActionException
-	 */
 	private function getFileDescriptionLines() :array {
 		$item = $this->getScanItem();
 		$comparisonBasis = (string)$item->comparison_basis;
@@ -86,31 +67,6 @@ class Info extends BaseComponent {
 		$isMalwareOnly = $item->is_mal && !$item->hasNonMalwareFinding();
 
 		$description = [];
-
-		if ( $item->is_mal ) {
-			$malaiStatus = $this->getMalaiStatusLabel();
-			if ( $malaiStatus === MalwareStatus::STATUS_MALWARE ) {
-				$description[] = sprintf( '<span class="text-danger">%s</span>',
-					__( "This file contains malicious code - it's malware!", 'wp-simple-firewall' ).
-					' '.__( 'Please take remedial action as soon as possible.', 'wp-simple-firewall' )
-				);
-			}
-			elseif ( $malaiStatus === MalwareStatus::STATUS_CLEAN ) {
-				$description[] = sprintf( '<span class="text-success">%s</span>',
-					__( 'This file is confirmed to be clean and free from malware.', 'wp-simple-firewall' )
-				);
-			}
-			elseif ( $malaiStatus === MalwareStatus::STATUS_FP ) {
-				$description[] = sprintf( '<span class="text-success">%s</span>',
-					__( "This file is confirmed a malware false positive - it contains code that looks like malware, but it is clean.", 'wp-simple-firewall' )
-				);
-			}
-			else {
-				$description[] = sprintf( '<span class="text-warning">%s</span>',
-					__( 'This file is triggers the malware scanner but the status is not confirmed.', 'wp-simple-firewall' )
-					.' '.__( 'Please take a moment to review the contents of the file as it may contain malicious code.', 'wp-simple-firewall' ) );
-			}
-		}
 
 		if ( $item->is_in_core ) {
 			if ( $item->is_unrecognised ) {
@@ -220,7 +176,7 @@ class Info extends BaseComponent {
 
 		$status = [];
 		if ( $item->is_mal ) {
-			$status[] = __( 'Potential Malware', 'wp-simple-firewall' );
+			$status[] = __( 'Malware pattern detected', 'wp-simple-firewall' );
 		}
 
 		if ( $item->is_unrecognised ) {

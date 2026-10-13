@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteDefinitions;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteManager;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\MinimumRequirements;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingDockerComposeExecutor;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalSiteProbe;
@@ -59,7 +60,7 @@ class LocalSiteManagerTest extends TestCase {
 			$dockerComposeExecutor->calls[ 0 ][ 'sub_command' ]
 		);
 		$this->assertSame( 'shield-local-site', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'COMPOSE_PROJECT_NAME' ] );
-		$this->assertSame( '8.2', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'PHP_VERSION' ] );
+		$this->assertSame( MinimumRequirements::PHP, $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'PHP_VERSION' ] );
 		$this->assertSame( 'shield-plugin-dev-site', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_DOCKER_LABEL_HARNESS' ] );
 		$this->assertSame( 'dev', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_DOCKER_LABEL_LANE' ] );
 		$this->assertSame( 'reusable', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_DOCKER_CONTAINER_LIFECYCLE' ] );
@@ -116,6 +117,32 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertCount( 0, $dockerComposeExecutor->calls );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
 		$this->assertCount( 3, $processRunner->calls );
+	}
+
+	public function testProvisioningFailureRetainsOutputWhenSetupIsQuiet() :void {
+		$processRunner = RecordingProcessRunner::strict( [ 0, 0, [
+			'exit_code' => 1,
+			'stdout' => "WordPress installation failed.\n",
+			'stderr' => "Database connection refused.\n",
+		] ] );
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
+			$processRunner,
+			new RecordingTestingEnvironmentResolver(),
+			new RecordingDockerComposeExecutor(),
+			new RecordingLocalSiteProbe( [ true, true ], [ true ], [ false ] ),
+			new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] )
+		);
+
+		try {
+			$manager->wpCapture( $this->projectRoot, [ 'option', 'get', 'home' ] );
+			$this->fail( 'A failed provision command must stop site preparation.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertStringContainsString( 'Failed to provision', $exception->getMessage() );
+			$this->assertStringContainsString( 'WordPress installation failed.', $exception->getMessage() );
+			$this->assertStringContainsString( 'Database connection refused.', $exception->getMessage() );
+		}
 	}
 
 	public function testUpReusesHealthySiteWithoutBaselineProvisioning() :void {

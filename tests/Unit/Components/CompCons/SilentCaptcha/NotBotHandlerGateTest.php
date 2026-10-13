@@ -42,7 +42,7 @@ class NotBotHandlerGateTest extends BaseUnitTest {
 		$this->assertSame( $expected, ( new NotBotHandlerGateTestDouble() )->canRunForTest() );
 	}
 
-	public function gateProvider() :array {
+	public static function gateProvider() :array {
 		return [
 			'enabled and ready'             => [ true, true, null, true ],
 			'disabled threshold'            => [ false, true, null, false ],

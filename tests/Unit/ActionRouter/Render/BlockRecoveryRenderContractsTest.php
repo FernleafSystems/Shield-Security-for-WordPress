@@ -122,7 +122,7 @@ class BlockRecoveryRenderContractsTest extends BaseUnitTest {
 	/**
 	 * @return array<string,array{0:string,1:string,2:string,3:string,4:string}>
 	 */
-	public function provideStableActionContracts() :array {
+	public static function provideStableActionContracts() :array {
 		return [
 			'ip shield email unblock'       => [
 				'IP_Shield',

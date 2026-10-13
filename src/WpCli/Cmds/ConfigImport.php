@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\ObservationPresenter;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\ObservationPresenter;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Import;
 
 class ConfigImport extends BaseCmd {
 
@@ -81,7 +81,7 @@ class ConfigImport extends BaseCmd {
 					}
 				}
 
-				$networkImport = new Lib\ImportExport\Import();
+				$networkImport = new Import();
 				$networkImport->fromSite(
 					$source,
 					(string)$secret,
@@ -89,7 +89,7 @@ class ConfigImport extends BaseCmd {
 				);
 			}
 			else {
-				( new Lib\ImportExport\Import() )->fromFile( $source, (bool)\WP_CLI\Utils\get_flag_value( $args, 'delete-file', false ) );
+				( new Import() )->fromFile( $source, (bool)\WP_CLI\Utils\get_flag_value( $args, 'delete-file', false ) );
 			}
 		}
 		catch ( \Exception $e ) {

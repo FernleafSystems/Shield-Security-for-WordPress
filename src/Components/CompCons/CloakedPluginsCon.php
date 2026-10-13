@@ -56,12 +56,12 @@ class CloakedPluginsCon {
 		( new PluginPageView() )->addHooks();
 	}
 
-	public function triggerDetection( ...$args ) :void {
+	public function triggerDetection( mixed ...$args ) :void {
 		unset( $args );
 		$this->detect();
 	}
 
-	public function observePluginsList( $plugins ) {
+	public function observePluginsList( mixed $plugins ) :mixed {
 		$observation = $this->visibility === null ? null : $this->visibility->finishPluginsList( $plugins );
 		if ( $observation !== null
 			 && !$this->isDetecting
@@ -105,7 +105,7 @@ class CloakedPluginsCon {
 			$classifier = new PhpFileActivityClassifier();
 			$entries = \array_values( \array_filter(
 				( new RawPluginInventory() )->scan(),
-				static fn( PluginEntry $entry ) :bool => PhpFileActivity::isAlertable( $classifier->classify( $entry->path ) )
+				static fn( PluginEntry $entry ) :bool => $classifier->classify( $entry->path )->isAlertable()
 			) );
 
 			$visibility = $visibility ?? ( new AdminPluginVisibility() )->snapshot();

@@ -209,6 +209,28 @@ class DockerResourceSweeperTest extends TestCase {
 		] ) );
 	}
 
+	public function testSourceFullCleanupSuppliesRequiredComposeInterpolationValues() :void {
+		$runner = new ScriptedProcessRunner( [] );
+
+		( new DockerResourceSweeper( $runner, DockerCleanupPolicy::source() ) )->cleanupRunResources(
+			$this->createTrackedTempDir( 'shield-sweeper-source-compose-' ),
+			'run-1',
+			1,
+			true
+		);
+
+		foreach ( $runner->calls as $call ) {
+			if ( \array_slice( $call[ 'command' ], 0, 2 ) !== [ 'docker', 'compose' ] ) {
+				continue;
+			}
+			$this->assertSame( 'cleanup-only', $call[ 'env_overrides' ][ 'WP_VERSION_LATEST' ] ?? null );
+			$this->assertSame( 'cleanup-only', $call[ 'env_overrides' ][ 'WP_VERSION_PREVIOUS' ] ?? null );
+			return;
+		}
+
+		$this->fail( 'Expected source cleanup to run docker compose down.' );
+	}
+
 	private function inspectJson( string $lifecycle, string $runId, string $expiresAt, string $harness = LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE ) :string {
 		return \json_encode( [
 			[

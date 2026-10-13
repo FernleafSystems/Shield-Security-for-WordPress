@@ -24,8 +24,10 @@ class PostStraussCleanup {
 	/**
 	 * Clean up duplicate and development files from the package.
 	 * Removes files that are no longer needed after Strauss prefixing.
+	 *
+	 * @param string[] $prefixedPackages
 	 */
-	public function cleanPackageFiles( string $targetDir, ?string $straussForkRepo = null ) :void {
+	public function cleanPackageFiles( string $targetDir, ?string $straussForkRepo = null, array $prefixedPackages = [] ) :void {
 		$fs = new Filesystem();
 
 		// Remove Strauss fork directory if it exists (only when not in Docker)
@@ -39,11 +41,18 @@ class PostStraussCleanup {
 
 		// Remove duplicate vendor libraries after Strauss prefixing.
 		$this->log( 'Removing duplicate libraries from main vendor...' );
-		$directoriesToRemove = [
-			Path::join( $targetDir, 'vendor', 'twig' ),
-			Path::join( $targetDir, 'vendor', 'monolog' ),
-			Path::join( $targetDir, 'vendor', 'bin' ),
-		];
+		$directoriesToRemove = [ Path::join( $targetDir, 'vendor', 'bin' ) ];
+		$namespaceDirs = [];
+		foreach ( $prefixedPackages as $package ) {
+			$parts = \explode( '/', $package );
+			if ( \count( $parts ) !== 2 || $parts[ 0 ] === '' || $parts[ 1 ] === '' ) {
+				continue;
+			}
+
+			$namespaceDir = Path::join( $targetDir, 'vendor', $parts[ 0 ] );
+			$namespaceDirs[ $namespaceDir ] = $namespaceDir;
+			$directoriesToRemove[] = Path::join( $namespaceDir, $parts[ 1 ] );
+		}
 
 		foreach ( $directoriesToRemove as $dir ) {
 			if ( is_dir( $dir ) ) {
@@ -57,18 +66,13 @@ class PostStraussCleanup {
 			}
 		}
 
-		// Remove temporary build inputs that must not ship in the final package.
-		$temporaryDirectoriesToRemove = [
-			Path::join( $targetDir, 'packages', 'thecodingmachine-safe' ),
-		];
-
-		foreach ( $temporaryDirectoriesToRemove as $dir ) {
-			if ( is_dir( $dir ) ) {
+		foreach ( $namespaceDirs as $namespaceDir ) {
+			if ( \is_dir( $namespaceDir ) && $this->directoryIsEmpty( $namespaceDir ) ) {
 				try {
-					$this->directoryRemover->removeSubdirectoryOf( $dir, $targetDir );
+					$this->directoryRemover->removeSubdirectoryOf( $namespaceDir, $targetDir );
 				}
 				catch ( \Exception $e ) {
-					$this->log( sprintf( '  Warning: Could not remove directory: %s (%s)', $dir, $e->getMessage() ) );
+					$this->log( sprintf( '  Warning: Could not remove directory: %s (%s)', $namespaceDir, $e->getMessage() ) );
 				}
 			}
 		}
@@ -131,10 +135,12 @@ class PostStraussCleanup {
 	}
 
 	/**
-	 * Clean autoload files to remove twig references.
+	 * Clean autoload files to remove references to packages now loaded from vendor_prefixed.
 	 * Preserves original line endings (CRLF/LF).
+	 *
+	 * @param string[] $prefixedPackages
 	 */
-	public function cleanAutoloadFiles( string $targetDir ) :void {
+	public function cleanAutoloadFiles( string $targetDir, array $prefixedPackages = [] ) :void {
 		$this->log( 'Cleaning autoload files...' );
 
 		$composerDir = Path::join( $targetDir, 'vendor', 'composer' );
@@ -172,19 +178,20 @@ class PostStraussCleanup {
 			// Split into lines, preserving the line ending detection
 			$lines = explode( $lineEnding, $content );
 
-			// Count twig references before cleaning
-			$twigCountBefore = 0;
+			// Count prefixed package references before cleaning
+			$packageCountBefore = 0;
 			foreach ( $lines as $line ) {
-				if ( strpos( $line, '/twig/twig/' ) !== false ) {
-					$twigCountBefore++;
+				if ( $this->containsPrefixedPackagePath( $line, $prefixedPackages ) ) {
+					$packageCountBefore++;
 				}
 			}
-			$this->log( sprintf( '  - Found %d twig references', $twigCountBefore ) );
+			$this->log( sprintf( '  - Found %d prefixed package references', $packageCountBefore ) );
 
-			// Filter out lines containing /twig/twig/
-			$filteredLines = array_filter( $lines, static function ( string $line ) :bool {
-				return strpos( $line, '/twig/twig/' ) === false;
-			} );
+			// Filter out lines containing prefixed package paths.
+			$filteredLines = array_filter(
+				$lines,
+				fn( string $line ) :bool => !$this->containsPrefixedPackagePath( $line, $prefixedPackages )
+			);
 
 			// Re-index array and join back with original line ending
 			$newContent = implode( $lineEnding, array_values( $filteredLines ) );
@@ -196,15 +203,33 @@ class PostStraussCleanup {
 				continue;
 			}
 
-			// Count twig references after cleaning
-			$twigCountAfter = 0;
+			// Count prefixed package references after cleaning
+			$packageCountAfter = 0;
 			foreach ( $filteredLines as $line ) {
-				if ( strpos( $line, '/twig/twig/' ) !== false ) {
-					$twigCountAfter++;
+				if ( $this->containsPrefixedPackagePath( $line, $prefixedPackages ) ) {
+					$packageCountAfter++;
 				}
 			}
-			$this->log( sprintf( '  - After cleaning: %d twig references', $twigCountAfter ) );
+			$this->log( sprintf( '  - After cleaning: %d prefixed package references', $packageCountAfter ) );
 		}
+	}
+
+	/**
+	 * @param string[] $prefixedPackages
+	 */
+	private function containsPrefixedPackagePath( string $line, array $prefixedPackages ) :bool {
+		foreach ( $prefixedPackages as $package ) {
+			if ( \strpos( $line, '/'.$package.'/' ) !== false ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private function directoryIsEmpty( string $dir ) :bool {
+		$entries = \scandir( $dir );
+		return $entries !== false && \array_values( \array_diff( $entries, [ '.', '..' ] ) ) === [];
 	}
 
 	private function log( string $message ) :void {

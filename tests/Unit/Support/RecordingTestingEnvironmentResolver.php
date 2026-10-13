@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support;
 
 use FernleafSystems\ShieldPlatform\Tooling\Testing\TestingEnvironmentResolver;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\MinimumRequirements;
 
 class RecordingTestingEnvironmentResolver extends TestingEnvironmentResolver {
 
@@ -16,7 +17,7 @@ class RecordingTestingEnvironmentResolver extends TestingEnvironmentResolver {
 	/**
 	 * @param array{string,string} $wordpressVersions
 	 */
-	public function __construct( string $phpVersion = '8.2', array $wordpressVersions = [ '6.9', '6.8.3' ] ) {
+	public function __construct( string $phpVersion = MinimumRequirements::PHP, array $wordpressVersions = [ '6.9', '6.8.3' ] ) {
 		parent::__construct();
 		$this->phpVersion = $phpVersion;
 		$this->wordpressVersions = $wordpressVersions;

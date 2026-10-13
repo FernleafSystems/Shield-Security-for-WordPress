@@ -142,9 +142,9 @@ async function submitWordPressLogin( page ) {
 	] );
 }
 
-async function fillWordPressLoginForm( loginForm ) {
+async function fillWordPressLoginForm( loginForm, username = 'admin', password = 'password' ) {
 	for ( let attempt = 0; attempt < 3; attempt++ ) {
-		const values = await loginForm.evaluate( ( form ) => {
+		const values = await loginForm.evaluate( ( form, { username, password } ) => {
 			const setValue = ( selector, value ) => {
 				const input = form.querySelector( selector );
 				if ( input === null ) {
@@ -157,12 +157,12 @@ async function fillWordPressLoginForm( loginForm ) {
 			};
 
 			return {
-				username: setValue( '#user_login', 'admin' ),
-				password: setValue( '#user_pass', 'password' ),
+				username: setValue( '#user_login', username ),
+				password: setValue( '#user_pass', password ),
 			};
-		} );
+		}, { username, password } );
 
-		if ( values.username === 'admin' && values.password === 'password' ) {
+		if ( values.username === username && values.password === password ) {
 			return;
 		}
 	}
@@ -446,8 +446,17 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 					}
 				}
 			},
-			async inspectNotBotAltchaFixture() {
-				return runFixture( 'notbot-altcha', 'inspect' );
+			async inspectNotBotAltchaFixture( ip = '' ) {
+				return runFixture( 'notbot-altcha', 'inspect', [ ip ] );
+			},
+			async addNotBotIp( ip ) {
+				return runFixture( 'notbot-altcha', 'add-ip', [ ip ] );
+			},
+			async setNotBotMode( mode ) {
+				return runFixture( 'notbot-altcha', 'mode', [ mode ] );
+			},
+			async setNotBotTiming( timing ) {
+				return runFixture( 'notbot-altcha', 'timing', [ JSON.stringify( timing ) ] );
 			},
 			async withNotBotAltchaFixture( ipOrRunScenario, maybeRunScenario ) {
 				let seeded = false;
@@ -561,6 +570,7 @@ module.exports = {
 	AxeBuilder,
 	buildShieldUrl,
 	dismissBlockingDialogs,
+	fillWordPressLoginForm,
 	expect: base.expect,
 	openShieldRoute,
 	test,

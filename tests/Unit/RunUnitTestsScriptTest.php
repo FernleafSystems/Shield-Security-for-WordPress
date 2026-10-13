@@ -59,6 +59,7 @@ class RunUnitTestsScriptTest extends BaseUnitTest {
 			'bin/run-unit-tests.php',
 			[
 				'--runner-mode=auto',
+				'--processes=1',
 				'--filter',
 				'testBuildCommandUsesParatestFunctionalWhenFilterIsPresent',
 				'tests/Unit/UnitTestExecutionSelectorTest.php',
@@ -74,6 +75,7 @@ class RunUnitTestsScriptTest extends BaseUnitTest {
 			'bin/run-unit-tests.php',
 			[
 				'--runner-mode=auto',
+				'--processes=1',
 				'--filter=testBuildCommandUsesParatestFunctionalWhenEqualsFilterIsPresent',
 				'tests/Unit/UnitTestExecutionSelectorTest.php',
 			]
@@ -88,6 +90,7 @@ class RunUnitTestsScriptTest extends BaseUnitTest {
 			'bin/run-unit-tests.php',
 			[
 				'--runner-mode=auto',
+				'--processes=1',
 				'--filter',
 				'testBuildCommandUsesParatestFunctionalForMethodFilterPlusPath',
 				'tests/Unit/UnitTestExecutionSelectorTest.php',

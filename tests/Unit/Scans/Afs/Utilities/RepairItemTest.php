@@ -53,7 +53,7 @@ class RepairItemTest extends BaseUnitTest {
 		$this->assertFalse( $repairItem->canRepair() );
 	}
 
-	public function provideMissingPathFragments() :array {
+	public static function provideMissingPathFragments() :array {
 		return [
 			'null'       => [ null ],
 			'empty'      => [ '' ],

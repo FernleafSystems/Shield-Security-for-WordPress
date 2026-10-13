@@ -222,7 +222,7 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		);
 	}
 
-	public function provideActiveScanStatuses() :array {
+	public static function provideActiveScanStatuses() :array {
 		return [
 			'queued'   => [ ScanStatus::QUEUED ],
 			'building' => [ ScanStatus::BUILDING ],
@@ -448,7 +448,7 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertSame( 0, $report->alert_digest[ 'summary' ][ 'new_total' ] );
 	}
 
-	public function provideAfsAssetScopes() :array {
+	public static function provideAfsAssetScopes() :array {
 		return [
 			'plugin' => [ 'plugin' ],
 			'theme'  => [ 'theme' ],

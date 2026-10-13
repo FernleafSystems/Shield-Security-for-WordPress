@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Exceptions\SecurityAdminRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\{
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\{
 	InvitationMetadata,
 	QueueScheduler,
 	SiteRepository

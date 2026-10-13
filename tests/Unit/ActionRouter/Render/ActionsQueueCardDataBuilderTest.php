@@ -86,7 +86,7 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		];
 	}
 
-	private function attentionItem( string $key, string $zone, int $count, string $severity, string $label = '' ) :array {
+	private static function attentionItem( string $key, string $zone, int $count, string $severity, string $label = '' ) :array {
 		return [
 			'key'                => $key,
 			'zone'               => $zone,
@@ -284,24 +284,24 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		$this->assertSame( $expectedTitle, $overall[ 'title' ] );
 	}
 
-	public function dashboardStripPrecedenceProvider() :array {
+	public static function dashboardStripPrecedenceProvider() :array {
 		return [
 			'all clear'                    => [ [], [], 'good', 'All Clear' ],
 			'critical maintenance'         => [
-				[ $this->attentionItem( 'plugin_files', 'scans', 1, 'warning' ) ],
-				[ $this->attentionItem( 'wp_updates', 'maintenance', 1, 'critical' ) ],
+				[ self::attentionItem( 'plugin_files', 'scans', 1, 'warning' ) ],
+				[ self::attentionItem( 'wp_updates', 'maintenance', 1, 'critical' ) ],
 				'critical',
 				'Critical Action Required',
 			],
 			'warning security before upkeep' => [
-				[ $this->attentionItem( 'plugin_files', 'scans', 1, 'warning' ) ],
-				[ $this->attentionItem( 'wp_updates', 'maintenance', 1, 'warning' ) ],
+				[ self::attentionItem( 'plugin_files', 'scans', 1, 'warning' ) ],
+				[ self::attentionItem( 'wp_updates', 'maintenance', 1, 'warning' ) ],
 				'warning',
 				'Security Action Required',
 			],
 			'maintenance only'             => [
 				[],
-				[ $this->attentionItem( 'wp_updates', 'maintenance', 1, 'warning' ) ],
+				[ self::attentionItem( 'wp_updates', 'maintenance', 1, 'warning' ) ],
 				'warning',
 				'Maintenance Action Required',
 			],

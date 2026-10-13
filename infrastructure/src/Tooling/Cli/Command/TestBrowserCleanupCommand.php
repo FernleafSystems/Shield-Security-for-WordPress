@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TestBrowserCleanupCommand extends Command {
 
-	protected static $defaultName = 'test:browser:cleanup';
+	public const NAME = 'test:browser:cleanup';
 
 	private string $projectRoot;
 
@@ -28,7 +28,7 @@ class TestBrowserCleanupCommand extends Command {
 		?LocalSiteRuntimeRefresher $runtimeRefresher = null,
 		?BrowserTestLanePool $lanePool = null
 	) {
-		parent::__construct();
+		parent::__construct( self::NAME );
 		$this->projectRoot = $projectRoot;
 		$this->resourceSweeper = $resourceSweeper ?? new DockerResourceSweeper();
 		$this->runtimeRefresher = $runtimeRefresher ?? new LocalSiteRuntimeRefresher();

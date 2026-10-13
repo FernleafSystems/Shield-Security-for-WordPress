@@ -23,6 +23,9 @@ class RecordingSourceRuntimeSetupCacheCoordinator extends SourceSetupCacheCoordi
 
 	public int $clearCalls = 0;
 
+	/** @var string[] */
+	public array $nodeImageRootDirs = [];
+
 	/**
 	 * @param array{
 	 *   needs_composer_install:bool,
@@ -54,5 +57,10 @@ class RecordingSourceRuntimeSetupCacheCoordinator extends SourceSetupCacheCoordi
 
 	public function getNodeModulesVolumeName( string $rootDir ) :string {
 		return $this->decision[ 'node_modules_volume' ];
+	}
+
+	public function getNodeImageTag( string $rootDir ) :string {
+		$this->nodeImageRootDirs[] = $rootDir;
+		return 'node:fixture';
 	}
 }

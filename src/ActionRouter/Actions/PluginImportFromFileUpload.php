@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Import;
 
 class PluginImportFromFileUpload extends BaseAction {
 

@@ -20,7 +20,7 @@ on:
 jobs:
   build-package:
     name: Run Package Build
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_UBUNTU_RUNNER }}
 
     steps:
     - name: Checkout code
@@ -29,14 +29,14 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.4'
+        php-version: '8.2'
         coverage: none
         tools: composer:v2
 
     - name: Setup Node.js
       uses: actions/setup-node@v5
       with:
-        node-version: '20.10'
+        node-version-file: .nvmrc
         cache: npm
 
     - name: Prepare Private Packagist Composer auth

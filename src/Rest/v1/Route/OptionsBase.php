@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Route;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Export;
 
 abstract class OptionsBase extends Base {
 

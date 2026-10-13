@@ -229,7 +229,7 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		$this->assertSame( 0, $this->assetCoordinator->calls );
 	}
 
-	public function provideScanScopesWithoutFullAfsReadiness() :array {
+	public static function provideScanScopesWithoutFullAfsReadiness() :array {
 		return [
 			'scoped AFS'     => [ 'afs', 'plugin' ],
 			'other full scan' => [ 'wpv', 'full' ],
@@ -306,7 +306,7 @@ class PopulateScanItemsTest extends BaseUnitTest {
 			->run();
 	}
 
-	public function provideInvalidBuiltReadbacks() :array {
+	public static function provideInvalidBuiltReadbacks() :array {
 		return [
 			'write failure'            => [ null, null, false ],
 			'wrong status'             => [ ScanStatus::BUILDING, null, true ],
@@ -400,7 +400,7 @@ class PopulateScanItemsTest extends BaseUnitTest {
 			->run();
 	}
 
-	public function provideEmptyCompletionPersistenceFailures() :array {
+	public static function provideEmptyCompletionPersistenceFailures() :array {
 		return [
 			'completion update failure' => [ 0, \base64_encode( '[]' ) ],
 			'raw metadata mismatch'     => [ 1, \base64_encode( '{"different":true}' ) ],

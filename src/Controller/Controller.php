@@ -20,7 +20,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	License,
 	LoginGuard,
 	Plugin,
-	Plugin\Lib\ImportExport\ImportExportController,
 	Plugin\Lib\Ops\ResetPlugin,
 	SecurityAdmin
 };
@@ -376,23 +375,10 @@ class Controller extends DynPropertiesClass {
 		}
 
 		$this->db_con->execute();
-		$this->importExportSitesRegistryOnConfigRebuild();
 		$this->comps->execute();
 		$this->comps->asset_coordinator->execute();
 
 		( new Updates\HandleUpgrade() )->execute();
-	}
-
-	private function importExportSitesRegistryOnConfigRebuild() :void {
-		if ( !$this->cfg->rebuilt ) {
-			return;
-		}
-
-		try {
-			( new ImportExportController() )->refreshRegistryAndScheduleQueueIfEnabled();
-		}
-		catch ( \Throwable $e ) {
-		}
 	}
 
 	/**

@@ -33,7 +33,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	ServicesState,
 	UnitTestRequest
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\AssetSnapshots\SnapshotFs;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\AssetSnapshots\{
+	SnapshotFs,
+	SnapshotWpGeneral
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\CacheStoreTestCacheDir;
 use FernleafSystems\Wordpress\Services\Core\{
 	Plugins,
@@ -572,9 +575,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$this->assertResolveContextMiss( $resolver, $path );
 	}
 
-	/**
-	 * @dataProvider unknownAssetDirectoryProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'unknownAssetDirectoryProvider' )]
 	public function test_repeated_unknown_asset_directory_miss_is_memoized( string $path ) :void {
 		$this->installEnvironment( [ 'alpha/alpha.php' ], [ 'clean' ] );
 		$resolver = new AssetTrustResolver();
@@ -602,9 +603,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @dataProvider siblingPathProvider
-	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'siblingPathProvider' )]
 	public function test_root_sibling_paths_are_rejected( string $path ) :void {
 		$this->installEnvironment( [ 'alpha/alpha.php' ], [ 'clean' ] );
 
@@ -629,7 +628,10 @@ class AssetTrustResolverTest extends BaseUnitTest {
 	}
 
 	private function installHashStoreEnvironment( Plugins $plugins, Themes $themes, string $cacheRoot ) :void {
+		$general = new SnapshotWpGeneral();
+		$general->setTransient( 'apto-wphashes-api-available-routes', '' );
 		ServicesState::installItems( [
+			'service_wpgeneral' => $general,
 			'service_request'   => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
 			'service_wpfs'      => new ResolverFs(),
 			'service_wpplugins' => $plugins,
@@ -641,11 +643,6 @@ class AssetTrustResolverTest extends BaseUnitTest {
 	private function installController( string $cacheRoot ) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->caps = new class {
-			public function canScanPluginsThemesRemote() :bool {
-				return false;
-			}
-		};
 		$controller->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
 
 		PluginControllerInstaller::install( $controller );
@@ -814,6 +811,8 @@ class ResolverThemeVo extends WpThemeVo {
 
 	public function __get( string $key ) {
 		switch ( $key ) {
+			case 'version':
+				return $this->Version;
 			case 'asset_type':
 			case 'unique_id':
 			case 'slug':

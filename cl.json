@@ -119,8 +119,23 @@
     "patches":     [
       {
         "version":     "3",
-        "released_at": 1789123336,
+        "released_at": 1790000000,
         "items":       [
+          {
+            "type":        "improved",
+            "title":       "Improved detection of Cloaked Plugin",
+            "commit":      "a69aa5dc",
+            "description": [
+              "Improve the reliability of cloaked plugin detection - fewer false positives; more accurate detection."
+            ]
+          },
+          {
+            "type":        "improved",
+            "title":       "Site-to-Site Sync Improvements",
+            "description": [
+              "Continue the development and improvements of the automatic site-to-site network sync feature."
+            ]
+          },
           {
             "type":        "fixed",
             "title":       "Ignore verified Shield cache index files",
@@ -128,6 +143,31 @@
             "description": [
               "Ensure Shield-owned dynamic files are not published in scan results."
             ]
+          }
+        ]
+      },
+      {
+        "version":     "5",
+        "released_at": 1791200000,
+        "items":       [
+          {
+            "type":        "improved",
+            "title":       "Updated Malware/MAL{ai} Results Presentation",
+            "description": [
+              "Enhanced the presentation of malware scanning results based on the improvements with MAL{ai} v3."
+            ],
+            "href":        "https://clk.shldscrty.com/om"
+          }
+        ]
+      },
+      {
+        "version":     "6",
+        "released_at": 1791227000,
+        "items":       [
+          {
+            "type":        "fixed",
+            "title":       "Fatal Error for PHP 8.5+",
+            "description": []
           }
         ]
       }

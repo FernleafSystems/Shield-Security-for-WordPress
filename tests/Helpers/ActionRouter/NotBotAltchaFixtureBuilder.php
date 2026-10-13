@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\LoadBotSignalRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 	RuntimeTestState,
 	TestDataFactory
@@ -12,6 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @phpstan-type FixtureState array{
  *   ip:string,
  *   bot_signal_ids:list<int>,
+ *   signal_snapshots:list<array<string,mixed>>,
  *   created_ip_ids:list<int>,
  *   options:array<string,mixed>
  * }
@@ -34,18 +36,14 @@ class NotBotAltchaFixtureBuilder {
 		$state = [
 			'ip'             => $ip,
 			'bot_signal_ids' => [],
+			'signal_snapshots' => [],
 			'created_ip_ids' => [],
-			'options'        => RuntimeTestState::snapshotOptions( [ 'silentcaptcha_complexity' ] ),
+			'options'        => RuntimeTestState::snapshotOptions( [ 'silentcaptcha_complexity', 'silentcaptcha_cookie_free' ] ),
 		];
 
 		try {
-			$existingIpId = $this->findIpId( $ip );
-			RuntimeTestState::restoreOptions( [ 'silentcaptcha_complexity' => 'low' ] );
-			$state[ 'bot_signal_ids' ][] = TestDataFactory::insertBotSignal( $ip, [
-				'notbot_at' => 0,
-				'altcha_at' => 0,
-			] );
-			$this->trackCreatedIpId( $ip, $existingIpId, $state );
+			RuntimeTestState::restoreOptions( [ 'silentcaptcha_complexity' => 'low', 'silentcaptcha_cookie_free' => 'N' ] );
+			$this->seedIp( $ip, $state );
 
 			return [
 				'contract' => [
@@ -63,15 +61,54 @@ class NotBotAltchaFixtureBuilder {
 	/**
 	 * @return array{ip:string,notbot_at:int,altcha_at:int}
 	 */
-	public function inspect( array $state ) :array {
+	public function inspect( array $state, string $ip = '' ) :array {
 		RuntimeTestState::ensureDb( self::REQUIRED_DB_KEYS );
-		$record = $this->loadBotSignalRecord( $state );
+		$ip = $ip === '' ? (string)( $state[ 'ip' ] ?? '' ) : $ip;
+		try {
+			$record = ( new LoadBotSignalRecords() )->setIP( $ip )->loadRecord();
+		}
+		catch ( \Exception $e ) {
+			$record = null;
+		}
 
 		return [
-			'ip'        => (string)( $state[ 'ip' ] ?? '' ),
+			'ip'        => $ip,
 			'notbot_at' => (int)( $record->notbot_at ?? 0 ),
 			'altcha_at' => (int)( $record->altcha_at ?? 0 ),
 		];
+	}
+
+	public function addIp( array $state, string $ip ) :array {
+		$ip = $this->fixtureIp( $ip );
+		$this->seedIp( $ip, $state );
+		return $state;
+	}
+
+	/** @phpstan-param FixtureState $state */
+	private function seedIp( string $ip, array &$state ) :void {
+		$existingIpId = $this->findIpId( $ip );
+		$db = RuntimeTestState::controller()->db_con->bot_signals;
+		$added = [ 'ip' => $ip, 'options' => [], 'bot_signal_ids' => [], 'signal_snapshots' => [], 'created_ip_ids' => [] ];
+		try {
+			if ( $existingIpId > 0 ) {
+				$records = $db->getQuerySelector()->filterByIP( $existingIpId )->queryWithResult();
+				foreach ( $records as $record ) {
+					if ( !$db->getQueryDeleter()->deleteById( (int)$record->id ) ) {
+						throw new \RuntimeException( 'Failed to isolate NotBot fixture signals.' );
+					}
+					$added[ 'signal_snapshots' ][] = $record->getRawData();
+				}
+			}
+			$added[ 'bot_signal_ids' ][] = TestDataFactory::insertBotSignal( $ip, [ 'notbot_at' => 0, 'altcha_at' => 0 ] );
+			$this->trackCreatedIpId( $ip, $existingIpId, $added );
+		}
+		catch ( \Throwable $throwable ) {
+			$this->cleanup( $added );
+			throw $throwable;
+		}
+		foreach ( [ 'bot_signal_ids', 'signal_snapshots', 'created_ip_ids' ] as $key ) {
+			$state[ $key ] = \array_merge( $state[ $key ], $added[ $key ] );
+		}
 	}
 
 	/**
@@ -91,6 +128,12 @@ class NotBotAltchaFixtureBuilder {
 				$con->db_con->ips->getQueryDeleter()->deleteById( $ipId );
 			}
 		}
+		foreach ( $state[ 'signal_snapshots' ] ?? [] as $snapshot ) {
+			$record = $con->db_con->bot_signals->getRecord()->applyFromArray( $snapshot );
+			if ( !$con->db_con->bot_signals->getQueryInserter()->insert( $record ) ) {
+				throw new \RuntimeException( 'Failed to restore NotBot fixture signals.' );
+			}
+		}
 		if ( \is_array( $state[ 'options' ] ?? null ) ) {
 			RuntimeTestState::restoreOptions( $state[ 'options' ] );
 		}
@@ -104,20 +147,6 @@ class NotBotAltchaFixtureBuilder {
 
 		$ip = \trim( (string)( RuntimeTestState::controller()->this_req->ip ?? '' ) );
 		return $ip === '' ? Services::Request()->ip() : $ip;
-	}
-
-	/**
-	 * @return object|null
-	 */
-	private function loadBotSignalRecord( array $state ) {
-		$botSignalIds = $state[ 'bot_signal_ids' ] ?? [];
-		$botSignalId = \is_array( $botSignalIds ) ? (int)( \end( $botSignalIds ) ?: 0 ) : 0;
-		if ( $botSignalId > 0 ) {
-			return RuntimeTestState::controller()->db_con->bot_signals
-				->getQuerySelector()
-				->byId( $botSignalId );
-		}
-		return null;
 	}
 
 	/**

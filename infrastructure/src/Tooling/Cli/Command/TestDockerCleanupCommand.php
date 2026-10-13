@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TestDockerCleanupCommand extends Command {
 
-	protected static $defaultName = 'test:docker:cleanup';
+	public const NAME = 'test:docker:cleanup';
 
 	private string $projectRoot;
 
@@ -26,7 +26,7 @@ class TestDockerCleanupCommand extends Command {
 		?ProcessRunner $processRunner = null,
 		?BrowserTestLanePool $lanePool = null
 	) {
-		parent::__construct();
+		parent::__construct( self::NAME );
 		$this->projectRoot = $projectRoot;
 		$this->processRunner = $processRunner;
 		$this->lanePool = $lanePool ?? new BrowserTestLanePool();

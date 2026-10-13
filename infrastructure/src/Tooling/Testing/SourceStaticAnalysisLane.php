@@ -7,6 +7,8 @@ use Symfony\Component\Filesystem\Path;
 
 class SourceStaticAnalysisLane {
 
+	private const MAX_ANALYSIS_COMMAND_LENGTH = 6000;
+
 	private ProcessRunner $processRunner;
 
 	private SourceSetupCacheCoordinator $setupCacheCoordinator;
@@ -57,9 +59,45 @@ class SourceStaticAnalysisLane {
 			'--memory-limit=2G',
 		];
 
-		return $this->processRunner->runForExitCode(
-			\array_merge( $command, $phpStanPaths ),
-			$rootDir
-		);
+		foreach ( $this->phpStanCommands( $command, $phpStanPaths ) as $phpStanCommand ) {
+			$exitCode = $this->processRunner->runForExitCode( $phpStanCommand, $rootDir );
+			if ( $exitCode !== 0 ) {
+				return $exitCode;
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * Symfony's Windows process transport uses a command-line form with a much
+	 * smaller practical limit than CreateProcess. Batch narrowed PHPStan paths
+	 * so the pre-commit lane remains usable on large merges.
+	 *
+	 * @param string[] $command
+	 * @param string[] $paths
+	 * @return array<int,string[]>
+	 */
+	private function phpStanCommands( array $command, array $paths ) :array {
+		if ( $paths === [] ) {
+			return [ $command ];
+		}
+
+		$commands = [];
+		$currentCommand = $command;
+		$baseLength = \strlen( \implode( ' ', $command ) );
+		$currentLength = $baseLength;
+		foreach ( $paths as $path ) {
+			$pathLength = \strlen( $path ) + 1;
+			if ( \count( $currentCommand ) > \count( $command )
+				&& $currentLength + $pathLength > self::MAX_ANALYSIS_COMMAND_LENGTH ) {
+				$commands[] = $currentCommand;
+				$currentCommand = $command;
+				$currentLength = $baseLength;
+			}
+			$currentCommand[] = $path;
+			$currentLength += $pathLength;
+		}
+		$commands[] = $currentCommand;
+		return $commands;
 	}
 }

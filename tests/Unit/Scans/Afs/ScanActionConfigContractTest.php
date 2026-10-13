@@ -86,7 +86,7 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		$this->assertSame( self::DEFAULT_EXTENSIONS, ( new ExposedBuildScanAction() )->fileExts() );
 	}
 
-	public function provideInvalidOuterExtensionValues() :array {
+	public static function provideInvalidOuterExtensionValues() :array {
 		return [
 			'null'       => [ null ],
 			'false'      => [ false ],
@@ -143,7 +143,7 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		$this->assertSame( $expected, $action->getRawData()[ 'file_exts' ] );
 	}
 
-	public function providePersistedExtensionValues() :array {
+	public static function providePersistedExtensionValues() :array {
 		return [
 			'missing'             => [ [], [] ],
 			'null'                => [ [ 'file_exts' => null ], [] ],
@@ -168,7 +168,7 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		$this->assertSame( $expected, $action->getRawData()[ 'max_file_size' ] );
 	}
 
-	public function providePersistedMaxFileSizes() :array {
+	public static function providePersistedMaxFileSizes() :array {
 		return [
 			'missing'        => [ [], ScanActionVO::DEFAULT_MAX_FILE_SIZE ],
 			'null'           => [ [ 'max_file_size' => null ], ScanActionVO::DEFAULT_MAX_FILE_SIZE ],
@@ -202,7 +202,7 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		$this->assertSame( ScanActionVO::DEFAULT_MAX_FILE_SIZE, $action->max_file_size );
 	}
 
-	public function provideInvalidMaxFileSizes() :array {
+	public static function provideInvalidMaxFileSizes() :array {
 		return [
 			'null'            => [ null ],
 			'false'           => [ false ],
@@ -377,7 +377,7 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		}
 	}
 
-	public function provideInvalidAssetComparisonIncomplete() :array {
+	public static function provideInvalidAssetComparisonIncomplete() :array {
 		return [
 			'not array'        => [ 'plugin' ],
 			'missing group'    => [ [ 'plugin' => [] ] ],
@@ -449,7 +449,7 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		}
 	}
 
-	public function provideInvalidSnapshotEligibility() :array {
+	public static function provideInvalidSnapshotEligibility() :array {
 		$entry = [
 			'version'             => '1.0',
 			'comparison_eligible' => true,

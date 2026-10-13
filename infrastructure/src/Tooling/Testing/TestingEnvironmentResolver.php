@@ -5,6 +5,7 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 use FernleafSystems\ShieldPlatform\Tooling\Process\BashCommandResolver;
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PackagerConfigResolver;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\MinimumRequirements;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
@@ -141,15 +142,15 @@ class TestingEnvironmentResolver {
 	private function readDefaultPhpFromMatrixConfig( string $rootDir ) :string {
 		$matrixFile = Path::join( $rootDir, '.github', 'config', 'matrix.conf' );
 		if ( !\is_file( $matrixFile ) ) {
-			return '8.2';
+			return MinimumRequirements::PHP;
 		}
 
 		$content = (string)\file_get_contents( $matrixFile );
 		if ( \preg_match( '/^DEFAULT_PHP="?([^"\r\n]+)"?/m', $content, $matches ) !== 1 ) {
-			return '8.2';
+			return MinimumRequirements::PHP;
 		}
 
 		$defaultPhp = \trim( (string)( $matches[ 1 ] ?? '' ) );
-		return $defaultPhp !== '' ? $defaultPhp : '8.2';
+		return $defaultPhp !== '' ? $defaultPhp : MinimumRequirements::PHP;
 	}
 }

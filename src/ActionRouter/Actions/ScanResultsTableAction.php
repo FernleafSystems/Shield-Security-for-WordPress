@@ -8,6 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retri
 	ScanResultsScopeResolver
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\BuildScanTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\RetrieveMalwareMalaiStatus;
+use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class ScanResultsTableAction extends ScansBase {
 
@@ -16,6 +19,9 @@ class ScanResultsTableAction extends ScansBase {
 	protected function exec() {
 		try {
 			switch ( $this->action_data[ 'sub_action' ] ?? '' ) {
+				case 'refresh_malware_assessments':
+					$response = $this->refreshMalwareAssessments();
+					break;
 				case 'retrieve_table_data':
 					$response = $this->retrieveTableData();
 					break;
@@ -49,6 +55,63 @@ class ScanResultsTableAction extends ScansBase {
 			->setPayloadSuccess( $payloadSuccess );
 	}
 
+	private function refreshMalwareAssessments() :array {
+		$response = [
+			'success' => false,
+			'page_reload' => false,
+			'table_reload' => false,
+			'message' => __( 'Malware assessment refresh is not available.', 'wp-simple-firewall' ),
+		];
+		if ( ( $this->action_data[ 'type' ] ?? null ) !== ScanResultsScopeResolver::SCOPE_TYPE_MALWARE
+			 || ( $this->action_data[ 'file' ] ?? null ) !== ScanResultsScopeResolver::SCOPE_TYPE_MALWARE
+			 || !self::con()->caps->canScanMalwareMalai()
+			 || self::con()->comps->scans->AFS()->isRestricted() ) {
+			return $response;
+		}
+
+		$response[ 'message' ] = __( 'The refresh could not be completed. Please try again.', 'wp-simple-firewall' );
+		try {
+			$key = self::con()->prefix( 'malai_manual_refresh', '_' );
+			$now = Services::Request()->ts();
+			$remaining = (int)Transient::Get( $key, 0 ) - $now;
+			if ( $remaining > 0 ) {
+				$response[ 'message' ] = sprintf(
+					/* translators: 1: minutes remaining, 2: seconds remaining */
+					__( 'Malware assessments can be refreshed once every 5 minutes. Please wait %1$d min %2$d sec and try again.', 'wp-simple-firewall' ),
+					\intdiv( $remaining, 60 ), $remaining % 60
+				);
+				return $response;
+			}
+			Transient::Set( $key, $now + 300, 300 );
+			$response[ 'table_reload' ] = true;
+			try {
+				$result = ( new RetrieveMalwareMalaiStatus() )->reconcileActiveResults( RetrieveMalwareMalaiStatus::MODE_MANUAL );
+			}
+			finally {
+				$this->refreshScanSummary();
+			}
+			$response[ 'success' ] = !$result[ 'has_failures' ];
+			if ( $result[ 'has_failures' ] ) {
+				$response[ 'message' ] = __( 'Some malware assessments could not be refreshed. Updated results are shown in the table. Please try again.', 'wp-simple-firewall' );
+			}
+			else {
+				$response[ 'message' ] = $result[ 'has_results' ]
+					? __( 'Malware assessments refreshed.', 'wp-simple-firewall' )
+					: __( 'There are no active malware findings to refresh.', 'wp-simple-firewall' );
+			}
+		}
+		catch ( \Throwable $e ) {
+			error_log( 'Shield malware assessment refresh failed: '.$e->getMessage() );
+		}
+		return $response;
+	}
+
+	private function refreshScanSummary() :void {
+		$scans = self::con()->comps->scans;
+		$scans->resetScanResultsCountMemoization();
+		$scans->getAdminBarScanSummaryCache()->refresh( $scans->getScanResultsCount() );
+	}
+
 	/**
 	 * @throws \Exception
 	 */
@@ -60,9 +123,7 @@ class ScanResultsTableAction extends ScansBase {
 		}
 
 		if ( $successfulItemCount > 0 ) {
-			$scans = self::con()->comps->scans;
-			$scans->resetScanResultsCountMemoization();
-			$scans->getAdminBarScanSummaryCache()->refresh( $scans->getScanResultsCount() );
+			$this->refreshScanSummary();
 		}
 
 		return $this->buildActionResponse( $action, $itemCount, $successfulItemCount );

@@ -39,7 +39,7 @@ class AssetTrustState {
 	public function verifyAssetContext( string $path, AssetFileContext $context ) :?HashVerificationResult {
 		if ( \in_array( $context->assetType, [ 'plugin', 'theme' ], true ) ) {
 			if ( $this->action->scope_type !== 'full' ) {
-				return $this->resolver->verifyStoredContext( $path, $context );
+				return $this->resolver->verifyScanContext( $path, $context );
 			}
 			if ( !$this->action->hasValidAssetSnapshotEligibility()
 				 || !$this->action->hasValidAssetComparisonIncomplete()
@@ -60,13 +60,13 @@ class AssetTrustState {
 				return null;
 			}
 
-			$verification = $this->resolver->verifyStoredContext( $path, $context );
+			$verification = $this->resolver->verifyScanContext( $path, $context );
 			if ( \is_null( $verification ) ) {
 				$this->action->markAssetComparisonIncomplete( $context->assetType, $context->assetKey );
 			}
 			return $verification;
 		}
-		return $this->resolver->verifyStoredContext( $path, $context );
+		return $this->resolver->verifyScanContext( $path, $context );
 	}
 
 	public function trustedFileContextFromVerification( HashVerificationResult $verification ) :TrustedFileContext {

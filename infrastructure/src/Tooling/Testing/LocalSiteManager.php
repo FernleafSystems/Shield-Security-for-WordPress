@@ -769,13 +769,17 @@ class LocalSiteManager {
 		array $envOverrides,
 		?callable $onOutput = null
 	) :void {
-		if ( $this->processRunner->runForExitCode(
+		$process = $this->processRunner->run(
 			$this->buildProvisionCommand(),
 			$rootDir,
 			$onOutput,
 			$envOverrides
-		) !== 0 ) {
-			throw new \RuntimeException( 'Failed to provision the '.$this->definition->label().' baseline.' );
+		);
+		if ( ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			throw new \RuntimeException(
+				'Failed to provision the '.$this->definition->label().' baseline.'
+				."\n".\trim( $process->getOutput()."\n".$process->getErrorOutput() )
+			);
 		}
 
 		if ( !$this->isSiteHealthy() ) {

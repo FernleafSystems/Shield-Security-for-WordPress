@@ -10,7 +10,7 @@ on:
       php_version:
         description: PHP version used for the unit lane
         required: false
-        default: '7.4'
+        default: '8.2'
         type: string
       allow_failure:
         description: Mark command failures as advisory warnings
@@ -24,7 +24,7 @@ on:
 jobs:
   unit-tests:
     name: Run Unit Test Command
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_UBUNTU_RUNNER }}
 
     steps:
     - name: Checkout code

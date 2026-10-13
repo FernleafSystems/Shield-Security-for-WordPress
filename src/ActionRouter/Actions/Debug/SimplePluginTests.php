@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\Security
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsParser;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\NotifyWhitelist;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
 	IPs\Lib\CrowdSec\Capi\Enroll,
@@ -139,7 +140,7 @@ class SimplePluginTests extends BaseAction {
 
 	private function dbg_importnotify() {
 		try {
-			( new Plugin\Lib\ImportExport\NotifyWhitelist() )->execute();
+			( new NotifyWhitelist() )->execute();
 		}
 		catch ( \Exception $e ) {
 			var_dump( $e->getMessage() );

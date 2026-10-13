@@ -45,7 +45,6 @@ class RuntimeTestState {
 	 * @return mixed
 	 */
 	public static function requireDbHandler( string $dbKey, bool $reload = false ) {
-		$con = self::controller();
 		$handler = self::loadDbHandler( $dbKey, $reload );
 
 		if ( empty( $handler ) ) {

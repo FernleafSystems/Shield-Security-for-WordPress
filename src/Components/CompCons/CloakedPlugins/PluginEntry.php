@@ -17,9 +17,6 @@ class PluginEntry {
 
 	public string $path;
 
-	/**
-	 * @phpstan-param value-of<PluginType::ALL> $type
-	 */
 	public function __construct(
 		string $type,
 		string $file,

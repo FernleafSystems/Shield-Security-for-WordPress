@@ -39,32 +39,59 @@ class PostStraussCleanupTest extends TestCase {
 		return new PostStraussCleanup( $directoryRemover, $logger ?? function () {} );
 	}
 
+	/**
+	 * @return string[]
+	 */
+	private function prefixedPackages() :array {
+		return [
+			'twig/twig',
+			'monolog/monolog',
+		];
+	}
+
 	// =========================================================================
 	// cleanPackageFiles() tests
 	// =========================================================================
 
-	public function testCleanPackageFilesRemovesVendorTwig() :void {
-		// Setup: Create vendor/twig directory
-		$twigDir = $this->tempPath( 'vendor/twig' );
-		$this->fs->mkdir( $twigDir );
-		$this->fs->dumpFile( Path::join( $twigDir, 'file.php' ), '<?php' );
+	public function testCleanPackageFilesRemovesVendorTwigPackageAndEmptyNamespace() :void {
+		$twigNamespaceDir = $this->tempPath( 'vendor/twig' );
+		$twigPackageDir = $this->tempPath( 'vendor/twig/twig' );
+		$this->fs->mkdir( $twigPackageDir );
+		$this->fs->dumpFile( Path::join( $twigPackageDir, 'file.php' ), '<?php' );
 
 		$cleanup = $this->createCleanup();
-		$cleanup->cleanPackageFiles( $this->tempDir );
+		$cleanup->cleanPackageFiles( $this->tempDir, null, $this->prefixedPackages() );
 
-		$this->assertDirectoryDoesNotExist( $twigDir );
+		$this->assertDirectoryDoesNotExist( $twigPackageDir );
+		$this->assertDirectoryDoesNotExist( $twigNamespaceDir );
 	}
 
-	public function testCleanPackageFilesRemovesVendorMonolog() :void {
-		// Setup: Create vendor/monolog directory
-		$monologDir = $this->tempPath( 'vendor/monolog' );
-		$this->fs->mkdir( $monologDir );
-		$this->fs->dumpFile( Path::join( $monologDir, 'file.php' ), '<?php' );
+	public function testCleanPackageFilesRemovesVendorMonologPackageAndEmptyNamespace() :void {
+		$monologNamespaceDir = $this->tempPath( 'vendor/monolog' );
+		$monologPackageDir = $this->tempPath( 'vendor/monolog/monolog' );
+		$this->fs->mkdir( $monologPackageDir );
+		$this->fs->dumpFile( Path::join( $monologPackageDir, 'file.php' ), '<?php' );
 
 		$cleanup = $this->createCleanup();
-		$cleanup->cleanPackageFiles( $this->tempDir );
+		$cleanup->cleanPackageFiles( $this->tempDir, null, $this->prefixedPackages() );
 
-		$this->assertDirectoryDoesNotExist( $monologDir );
+		$this->assertDirectoryDoesNotExist( $monologPackageDir );
+		$this->assertDirectoryDoesNotExist( $monologNamespaceDir );
+	}
+
+	public function testCleanPackageFilesKeepsNamespaceWithUnprefixedSibling() :void {
+		$serializerDir = $this->tempPath( 'vendor/symfony/serializer' );
+		$stringDir = $this->tempPath( 'vendor/symfony/string' );
+		$this->fs->mkdir( [ $serializerDir, $stringDir ] );
+		$this->fs->dumpFile( Path::join( $serializerDir, 'Serializer.php' ), '<?php' );
+		$this->fs->dumpFile( Path::join( $stringDir, 'UnicodeString.php' ), '<?php' );
+
+		$cleanup = $this->createCleanup();
+		$cleanup->cleanPackageFiles( $this->tempDir, null, [ 'symfony/serializer' ] );
+
+		$this->assertDirectoryDoesNotExist( $serializerDir );
+		$this->assertDirectoryExists( $stringDir );
+		$this->assertDirectoryExists( $this->tempPath( 'vendor/symfony' ) );
 	}
 
 	public function testCleanPackageFilesRemovesVendorBin() :void {
@@ -74,21 +101,9 @@ class PostStraussCleanupTest extends TestCase {
 		$this->fs->dumpFile( Path::join( $binDir, 'phpunit' ), '#!/bin/bash' );
 
 		$cleanup = $this->createCleanup();
-		$cleanup->cleanPackageFiles( $this->tempDir );
+		$cleanup->cleanPackageFiles( $this->tempDir, null, $this->prefixedPackages() );
 
 		$this->assertDirectoryDoesNotExist( $binDir );
-	}
-
-	public function testCleanPackageFilesRemovesTemporarySafePackageSource() :void {
-		$safePackageDir = $this->tempPath( 'packages/thecodingmachine-safe' );
-		$this->fs->mkdir( $safePackageDir );
-		$this->fs->dumpFile( Path::join( $safePackageDir, 'composer.json' ), '{}' );
-
-		$cleanup = $this->createCleanup();
-		$cleanup->cleanPackageFiles( $this->tempDir );
-
-		$this->assertDirectoryDoesNotExist( $safePackageDir );
-		$this->assertDirectoryDoesNotExist( $this->tempPath( 'packages' ) );
 	}
 
 	public function testCleanPackageFilesRemovesAutoloadFilesPhp() :void {
@@ -98,7 +113,7 @@ class PostStraussCleanupTest extends TestCase {
 		$this->fs->dumpFile( $autoloadFile, '<?php' );
 
 		$cleanup = $this->createCleanup();
-		$cleanup->cleanPackageFiles( $this->tempDir );
+		$cleanup->cleanPackageFiles( $this->tempDir, null, $this->prefixedPackages() );
 
 		$this->assertFileDoesNotExist( $autoloadFile );
 	}
@@ -109,7 +124,7 @@ class PostStraussCleanupTest extends TestCase {
 		$this->fs->dumpFile( $straussPhar, '<?php' );
 
 		$cleanup = $this->createCleanup();
-		$cleanup->cleanPackageFiles( $this->tempDir );
+		$cleanup->cleanPackageFiles( $this->tempDir, null, $this->prefixedPackages() );
 
 		$this->assertFileDoesNotExist( $straussPhar );
 	}
@@ -117,7 +132,7 @@ class PostStraussCleanupTest extends TestCase {
 	public function testCleanPackageFilesHandlesMissingDirectoriesGracefully() :void {
 		// No directories exist - should not throw
 		$cleanup = $this->createCleanup();
-		$cleanup->cleanPackageFiles( $this->tempDir );
+		$cleanup->cleanPackageFiles( $this->tempDir, null, $this->prefixedPackages() );
 
 		$this->assertTrue( true ); // If we get here, no exception was thrown
 	}
@@ -126,8 +141,8 @@ class PostStraussCleanupTest extends TestCase {
 	// cleanAutoloadFiles() tests
 	// =========================================================================
 
-	public function testCleanAutoloadFilesRemovesTwigReferences() :void {
-		// Setup: Create autoload file with twig references
+	public function testCleanAutoloadFilesRemovesPrefixedPackageReferences() :void {
+		// Setup: Create autoload file with prefixed package references.
 		$composerDir = $this->tempPath( 'vendor/composer' );
 		$this->fs->mkdir( $composerDir );
 		$autoloadFile = Path::join( $composerDir, 'autoload_files.php' );
@@ -144,11 +159,11 @@ PHP;
 		$this->fs->dumpFile( $autoloadFile, $content );
 
 		$cleanup = $this->createCleanup();
-		$cleanup->cleanAutoloadFiles( $this->tempDir );
+		$cleanup->cleanAutoloadFiles( $this->tempDir, $this->prefixedPackages() );
 
 		$newContent = file_get_contents( $autoloadFile );
 		$this->assertStringNotContainsString( '/twig/twig/', $newContent );
-		$this->assertStringContainsString( '/monolog/monolog/', $newContent );
+		$this->assertStringNotContainsString( '/monolog/monolog/', $newContent );
 	}
 
 	public function testCleanAutoloadFilesPreservesLineEndings() :void {
@@ -161,7 +176,7 @@ PHP;
 		$this->fs->dumpFile( $autoloadFile, $content );
 
 		$cleanup = $this->createCleanup();
-		$cleanup->cleanAutoloadFiles( $this->tempDir );
+		$cleanup->cleanAutoloadFiles( $this->tempDir, $this->prefixedPackages() );
 
 		$newContent = file_get_contents( $autoloadFile );
 		// Should still have CRLF line endings (minus the removed line)
@@ -174,7 +189,7 @@ PHP;
 		$cleanup = $this->createCleanup( function ( string $msg ) use ( &$messages ) {
 			$messages[] = $msg;
 		} );
-		$cleanup->cleanAutoloadFiles( $this->tempDir );
+		$cleanup->cleanAutoloadFiles( $this->tempDir, $this->prefixedPackages() );
 
 		$this->assertTrue( \count( \array_filter(
 			$messages,
@@ -191,12 +206,12 @@ PHP;
 		foreach ( $files as $file ) {
 			$this->fs->dumpFile(
 				Path::join( $composerDir, $file ),
-				"<?php\n// twig/twig reference\n"
+				"<?php\n// /twig/twig/ reference\n"
 			);
 		}
 
 		$cleanup = $this->createCleanup();
-		$cleanup->cleanAutoloadFiles( $this->tempDir );
+		$cleanup->cleanAutoloadFiles( $this->tempDir, $this->prefixedPackages() );
 
 		foreach ( $files as $file ) {
 			$content = file_get_contents( Path::join( $composerDir, $file ) );

@@ -1044,6 +1044,19 @@
         "description": "SureSend Emails."
     },
     {
+        "key": "silentcaptcha_cookie_free",
+        "section": "section_silentcaptcha",
+        "zone_comp_slugs": [
+            "silent_captcha",
+            "module_ips"
+        ],
+        "default": "N",
+        "type": "checkbox",
+        "name": "Cookie-free silentCAPTCHA",
+        "summary": "Run silentCAPTCHA without setting its visitor cookie",
+        "description": "Browsers keep silentCAPTCHA check times in local storage instead of a cookie, and check in more often. Purge your page cache after changing this option."
+    },
+    {
         "key": "silentcaptcha_complexity",
         "section": "section_silentcaptcha",
         "zone_comp_slugs": [

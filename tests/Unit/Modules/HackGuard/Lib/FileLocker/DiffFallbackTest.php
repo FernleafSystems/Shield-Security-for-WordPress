@@ -75,7 +75,7 @@ class DiffFallbackTest extends BaseUnitTest {
 		$this->assertSame( $expectedHtml, $subject->run( $original, $current ) );
 	}
 
-	public function provideApiThrowables() :array {
+	public static function provideApiThrowables() :array {
 		return [
 			'exception' => [ new \RuntimeException( 'API exception' ) ],
 			'error'     => [ new \TypeError( 'API type error' ) ],
@@ -97,7 +97,7 @@ class DiffFallbackTest extends BaseUnitTest {
 		$this->assertSame( $expectedHtml, $subject->run( 'original', 'current' ) );
 	}
 
-	public function provideUnusableApiResponses() :array {
+	public static function provideUnusableApiResponses() :array {
 		$validContent = \base64_encode( '<table>diff</table>' );
 		$validCss = \base64_encode( '.diff{}' );
 

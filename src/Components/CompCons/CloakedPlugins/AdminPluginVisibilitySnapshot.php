@@ -4,40 +4,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlu
 
 class AdminPluginVisibilitySnapshot {
 
-	public ?array $wpDiscoveredPlugins;
-
-	public ?array $adminAllPlugins;
-
-	public array $wpDiscoveredMuPlugins;
-
 	public ?bool $showMustUsePlugins;
 
-	public ?array $finalPluginsList;
-
-	public array $activePlugins;
-
-	public array $networkActivePlugins;
-
-	public bool $isPageObservation;
-
 	public function __construct(
-		?array $wpDiscoveredPlugins,
-		?array $adminAllPlugins,
-		array $wpDiscoveredMuPlugins,
+		public ?array $wpDiscoveredPlugins,
+		public ?array $adminAllPlugins,
+		public array $wpDiscoveredMuPlugins,
 		bool $showMustUsePlugins,
-		?array $finalPluginsList,
-		array $activePlugins,
-		array $networkActivePlugins,
-		bool $isPageObservation = false
+		public ?array $finalPluginsList,
+		public array $activePlugins,
+		public array $networkActivePlugins,
+		public bool $isPageObservation = false
 	) {
-		$this->wpDiscoveredPlugins = $wpDiscoveredPlugins;
-		$this->adminAllPlugins = $adminAllPlugins;
-		$this->wpDiscoveredMuPlugins = $wpDiscoveredMuPlugins;
 		$this->showMustUsePlugins = $showMustUsePlugins;
-		$this->finalPluginsList = $finalPluginsList;
-		$this->activePlugins = $activePlugins;
-		$this->networkActivePlugins = $networkActivePlugins;
-		$this->isPageObservation = $isPageObservation;
 	}
 
 	public function isActive( string $file ) :bool {
@@ -83,7 +62,7 @@ class AdminPluginVisibilitySnapshot {
 		return $this->isPageObservation && $this->canCompare( $type );
 	}
 
-	private function isPluginMap( $plugins ) :bool {
+	private function isPluginMap( mixed $plugins ) :bool {
 		if ( !\is_array( $plugins ) ) {
 			return false;
 		}

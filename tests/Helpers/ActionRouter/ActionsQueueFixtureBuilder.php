@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
  *   result_item_ids:list<int>,
  *   meta_ids:list<int>,
  *   file_lock_ids:list<int>,
+ *   malware_ids:list<int>,
  *   raw_option_stores:array<string,mixed>|null,
  *   cloaked_plugin_paths:list<string>
  * }
@@ -143,8 +144,12 @@ class ActionsQueueFixtureBuilder {
 		if ( !empty( $state[ 'file_lock_ids' ] ) ) {
 			RuntimeTestState::requireDbHandler( 'file_locker', true );
 		}
+		if ( !empty( $state[ 'malware_ids' ] ) ) {
+			RuntimeTestState::requireDbHandler( 'malware', true );
+		}
 
 		foreach ( [
+			[ 'malware', $state[ 'malware_ids' ] ?? [] ],
 			[ 'file_locker', $state[ 'file_lock_ids' ] ?? [] ],
 			[ 'scan_result_item_meta', $state[ 'meta_ids' ] ?? [] ],
 			[ 'scan_results', $state[ 'scan_result_ids' ] ?? [] ],
@@ -192,6 +197,8 @@ class ActionsQueueFixtureBuilder {
 				return $this->seedMalaiLookupContexts( $state );
 			case 'malware_direct_table':
 				return $this->seedMalwareDirectTable( $state );
+			case 'malware_assessments':
+				return $this->seedMalwareAssessments( $state );
 			case 'ignored_plugin_direct_table':
 				return $this->seedIgnoredPluginDirectTable( $state );
 			case 'ignored_wordpress_direct_table':
@@ -657,6 +664,34 @@ class ActionsQueueFixtureBuilder {
 		];
 	}
 
+	/** @phpstan-param FixtureState $state */
+	private function seedMalwareAssessments( array &$state ) :array {
+		$definition = $this->seedMalwareDirectTable( $state );
+		RuntimeTestState::applyPremiumCapabilities( [ 'scan_malware_local', 'scan_malware_malai' ] );
+		$definition[ 'scenario' ] = 'malware_assessments';
+		RuntimeTestState::requireDbHandler( 'malware', true );
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$this->trackId( $state, 'scan_ids', $scanId );
+		foreach ( [
+			[ 'wp-load.php', 'predicted_clean', '' ],
+			[ 'wp-settings.php', 'predicted_malware', '' ],
+			[ 'wp-blog-header.php', 'unclassified', 'inconclusive' ],
+		] as [ $path, $status, $context ] ) {
+			$id = TestDataFactory::insertMalwareRecord( $path, 'browser-assessment-'.$status, [
+				'malai_status' => $status,
+				'malai_status_context' => $context,
+				'reported_at' => \time(),
+				'last_malai_status_at' => \time(),
+			] );
+			$this->trackId( $state, 'malware_ids', $id );
+			$this->trackScanResult( $state, TestDataFactory::insertAfsFileScanResultTracked( $scanId, $path, [
+				'is_mal' => 1,
+				'malware_record_id' => $id,
+			] ) );
+		}
+		return $definition;
+	}
+
 	/**
 	 * @phpstan-param FixtureState $state
 	 * @return ScenarioDefinition
@@ -914,6 +949,7 @@ class ActionsQueueFixtureBuilder {
 			'result_item_ids'  => [],
 			'meta_ids'         => [],
 			'file_lock_ids'        => [],
+			'malware_ids'          => [],
 			'raw_option_stores'    => null,
 			'cloaked_plugin_paths' => [],
 		];
@@ -933,7 +969,7 @@ class ActionsQueueFixtureBuilder {
 
 	/**
 	 * @phpstan-param FixtureState $state
-	 * @phpstan-param 'scan_ids'|'scan_result_ids'|'result_item_ids'|'meta_ids'|'file_lock_ids' $key
+	 * @phpstan-param 'scan_ids'|'scan_result_ids'|'result_item_ids'|'meta_ids'|'file_lock_ids'|'malware_ids' $key
 	 */
 	private function trackId( array &$state, string $key, int $id ) :void {
 		if ( $id > 0 ) {

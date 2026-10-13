@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\OptionsCorrections;
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalaiEarlyRecheck;
 use FernleafSystems\Wordpress\Services\Services;
 
 class HandleUpgrade {
@@ -40,7 +40,7 @@ class HandleUpgrade {
 
 	private function runScheduledUpgrade() :void {
 		$con = self::con();
-		$importExport = new ImportExportController();
+		$importExport = $con->comps->import_export;
 
 		( new OptionsCorrections() )->runUpgradeMigrations();
 		$this->runUpgradeSideEffect( 'import/export site registry legacy import', function () use ( $importExport ) {
@@ -54,6 +54,7 @@ class HandleUpgrade {
 
 		Services::ServiceProviders()->clearProviders();
 		$con->plugin->deleteAllPluginCrons();
+		$this->runUpgradeSideEffect( 'MALai early recheck schedule', fn() => ( new MalaiEarlyRecheck() )->schedule() );
 		$this->runUpgradeSideEffect(
 			'asset coordinator wakeup reconciliation',
 			fn() => $con->comps->asset_coordinator->reconcileWakeup()

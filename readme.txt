@@ -5,10 +5,10 @@ License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: firewall, bots, activity log, 2fa, security
 Requires at least: 5.7
-Requires PHP: 7.4
+Requires PHP: 8.2
 Recommended PHP: 8.2
 Tested up to: 7.1
-Stable tag: 22.2.2
+Stable tag: 22.2.6
 Smart WordPress security that blocks bots automatically, guides you to what matters, and repairs problems — without drowning you in noise.
 
 == Description ==

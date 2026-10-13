@@ -175,7 +175,7 @@ class MalaiPendingAlertIntegrationTest extends ShieldIntegrationTestCase {
 			'last_malai_status_at' => Services::Request()->ts(),
 		] );
 
-		$this->assertSame( 1, ( new RetrieveMalwareMalaiStatus() )->reconcileActiveResults() );
+		$this->assertSame( 1, ( new RetrieveMalwareMalaiStatus() )->reconcileActiveResults()[ 'reconciled' ] );
 		$entries = $this->buildEntries();
 
 		$this->assertSame( [], $entries[ 'afs_malware' ][ 'notification_target_ids' ] );

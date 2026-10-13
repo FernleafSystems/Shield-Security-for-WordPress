@@ -7,6 +7,55 @@ use FernleafSystems\Wordpress\Services\Utilities\File\ConvertLineEndings;
 
 class CompareFileHash {
 
+	/** @param list<string> $expectedHashes */
+	public function isAnyEqual( string $path, array $expectedHashes ) :bool {
+		if ( empty( $expectedHashes ) ) {
+			return false;
+		}
+		if ( !Services::WpFs()->isFile( $path ) ) {
+			throw new \InvalidArgumentException( 'File does not exist on disk to compare' );
+		}
+
+		$byAlgorithm = [];
+		foreach ( $expectedHashes as $expected ) {
+			$byAlgorithm[ $this->algorithmForHash( $expected ) ][] = $expected;
+		}
+		$candidates = null;
+		foreach ( $byAlgorithm as $algorithm => $hashes ) {
+			$rawHash = $this->hashFile( $algorithm, $path );
+			if ( !\is_string( $rawHash ) ) {
+				continue;
+			}
+			foreach ( $hashes as $expected ) {
+				if ( \hash_equals( $rawHash, $expected ) ) {
+					return true;
+				}
+			}
+
+			if ( $candidates === null ) {
+				$candidates = [];
+				$content = $this->readFile( $path );
+				if ( \is_string( $content ) ) {
+					$lineEndings = new ConvertLineEndings();
+					foreach ( \array_unique( [ $lineEndings->dosToLinux( $content ), $lineEndings->linuxToDos( $content ) ] ) as $candidate ) {
+						if ( $candidate !== $content ) {
+							$candidates[] = $candidate;
+						}
+					}
+				}
+			}
+			foreach ( $candidates as $candidate ) {
+				$hash = \hash( $algorithm, $candidate );
+				foreach ( $hashes as $expected ) {
+					if ( \hash_equals( $hash, $expected ) ) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 	public function isEqual( string $path, string $expectedHash ) :bool {
 		if ( !Services::WpFs()->isFile( $path ) ) {
 			throw new \InvalidArgumentException( 'File does not exist on disk to compare' );

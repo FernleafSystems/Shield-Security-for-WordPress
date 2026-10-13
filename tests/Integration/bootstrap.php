@@ -380,6 +380,7 @@ function shield_integration_bootstrap_phase_bootstrap_wordpress( array $state ) 
 		shield_test_error( 'ERROR: WordPress test bootstrap file not found at: '.shield_test_format_path_for_log( $wp_tests_bootstrap_file ) );
 		exit( 1 );
 	}
+	( new \FernleafSystems\ShieldPlatform\Tooling\Testing\WordPressPhpUnitCompatibilityPatcher() )->patch( $_tests_dir );
 
 	require_once $wp_tests_bootstrap_file;
 

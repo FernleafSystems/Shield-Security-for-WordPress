@@ -3,10 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Diagnostics\ObservationPresenter;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Import;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\ObservationPresenter;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 
 class ImportExportNetworkInviteAccept extends BaseAction {
@@ -24,7 +23,7 @@ class ImportExportNetworkInviteAccept extends BaseAction {
 			if ( ( $form[ 'confirm' ] ?? '' ) !== 'Y' ) {
 				throw new \RuntimeException( __( 'Please check the box to confirm this action.', 'wp-simple-firewall' ) );
 			}
-			if ( !( new ImportExportController() )->isSyncEnabled() ) {
+			if ( !self::con()->comps->import_export->isSyncEnabled() ) {
 				throw new \RuntimeException( __( 'Import and export is not enabled.', 'wp-simple-firewall' ) );
 			}
 			if ( !$repo->canReviewInvites() ) {

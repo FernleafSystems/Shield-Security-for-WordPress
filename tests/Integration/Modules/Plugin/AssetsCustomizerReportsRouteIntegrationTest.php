@@ -49,7 +49,7 @@ class AssetsCustomizerReportsRouteIntegrationTest extends ShieldIntegrationTestC
 		$this->assertReportsCreateFormLocalized( $comps );
 	}
 
-	public function reportsWorkspaceProvider() :array {
+	public static function reportsWorkspaceProvider() :array {
 		return [
 			'default workspace'  => [ null ],
 			'list workspace'     => [ PluginNavs::SUBNAV_REPORTS_LIST ],

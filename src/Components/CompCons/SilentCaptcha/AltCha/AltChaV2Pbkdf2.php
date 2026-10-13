@@ -180,7 +180,7 @@ class AltChaV2Pbkdf2 {
 		$salt = $this->hexToBinary( (string)( $parameters[ 'salt' ] ?? '' ), 'salt' );
 
 		$derived = \hash_pbkdf2( self::HMAC_ALGORITHM, $password, $salt, $cost, $keyLength, true );
-		if ( !\is_string( $derived ) || \strlen( $derived ) !== self::KEY_LENGTH ) {
+		if ( \strlen( $derived ) !== self::KEY_LENGTH ) {
 			throw new \Exception( 'ALTCHA KDF failed.' );
 		}
 		return $derived;

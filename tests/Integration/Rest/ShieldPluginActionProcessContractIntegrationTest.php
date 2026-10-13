@@ -127,7 +127,7 @@ class ShieldPluginActionProcessContractIntegrationTest extends ShieldIntegration
 		$this->assertFalse( (bool)( $result[ 'data' ][ 'success' ] ?? true ) );
 	}
 
-	public function directRenderRestRequestProvider() :array {
+	public static function directRenderRestRequestProvider() :array {
 		$reportPayload = [
 			'report' => [
 				'type'       => 'info',

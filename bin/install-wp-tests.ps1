@@ -18,10 +18,17 @@ $WP_CORE_DIR = "$TMPDIR\wordpress"
 Function Test-WordPressCoreValid {
     $wpLoad = Join-Path $WP_CORE_DIR "wp-load.php"
     $httpBootstrap = Join-Path $WP_CORE_DIR "wp-includes\class-wp-http.php"
+    $diffRenderer = Join-Path $WP_CORE_DIR "wp-includes\Text\Diff\Renderer.php"
+    $inlineDiffRenderer = Join-Path $WP_CORE_DIR "wp-includes\Text\Diff\Renderer\inline.php"
     $requestsAutoload = Join-Path $WP_CORE_DIR "wp-includes\Requests\src\Autoload.php"
     $legacyRequests = Join-Path $WP_CORE_DIR "wp-includes\class-requests.php"
 
-    if (-Not (Test-Path $wpLoad) -or -Not (Test-Path $httpBootstrap)) {
+    if (
+        -Not (Test-Path $wpLoad) -or
+        -Not (Test-Path $httpBootstrap) -or
+        -Not (Test-Path $diffRenderer) -or
+        -Not (Test-Path $inlineDiffRenderer)
+    ) {
         return $false
     }
 

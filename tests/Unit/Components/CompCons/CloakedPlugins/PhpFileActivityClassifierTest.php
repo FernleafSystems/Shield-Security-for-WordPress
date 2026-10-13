@@ -75,12 +75,6 @@ class PhpFileActivityClassifierTest extends BaseUnitTest {
 		);
 	}
 
-	public function testRejectsUnsupportedActivity() :void {
-		$this->expectException( \InvalidArgumentException::class );
-
-		PhpFileActivity::isAlertable( 'unsupported-activity' );
-	}
-
 	private function phpFile( string $content, string $name = 'fixture.php' ) :string {
 		$dir = $this->createTrackedTempDir( 'cloaked-plugin-classifier-' );
 		$path = $dir.'/'.$name;

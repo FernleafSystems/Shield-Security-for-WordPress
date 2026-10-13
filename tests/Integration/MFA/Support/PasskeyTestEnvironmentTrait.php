@@ -144,11 +144,10 @@ trait PasskeyTestEnvironmentTrait {
 	}
 
 	protected function assertPasskeyRuntimeCompatible() :void {
-		$required = ( new PasskeyCompatibilityCheck() )->requiredExtensions();
-		$loaded = \array_values( \array_filter( $required, '\extension_loaded' ) );
-		$this->assertNotEmpty(
-			$loaded,
-			'Passkey tests require at least one loaded extension: '.\implode( ', ', $required ).'.'
+		$checker = new PasskeyCompatibilityCheck();
+		$this->assertTrue(
+			$checker->run(),
+			'Passkey tests require the WebAuthn runtime capabilities.'
 		);
 	}
 
