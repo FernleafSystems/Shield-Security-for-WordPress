@@ -89,6 +89,8 @@ class Processor {
 			$components->mfa->execute();
 		}
 
+		// Runs whether or not Shield's features are enabled, so that disabling them removes the ruleset.
+		$components->virtual_patching->execute();
 		$components->early_loading->execute();
 		$components->mainwp->execute();
 		$components->shieldnet->execute();

@@ -1,0 +1,199 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\VirtualPatching;
+
+use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\{
+	BlockLog,
+	RequestGuard
+};
+
+class RequestGuardTest extends BaseUnitTest {
+
+	use TempDirLifecycleTrait;
+
+	private const AJAX_EXPORT = [
+		[ 'kind' => 'path', 'negate' => false, 'operator' => 'equals', 'value' => '/wp-admin/admin-ajax.php' ],
+		[ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'form', 'name' => 'action', 'operator' => 'equals', 'value' => "it's_export" ],
+	];
+
+	private array $blocks = [];
+
+	private array $actions = [];
+
+	private array $filters = [];
+
+	private array $done = [];
+
+	private bool $admin = false;
+
+	private array $capabilities = [];
+
+	private array $serverBackup;
+
+	protected function setUp() :void {
+		parent::setUp();
+		$this->serverBackup = $_SERVER;
+		$_GET = [];
+		$_POST = [];
+		$_SERVER = [
+			'REQUEST_METHOD' => 'POST',
+			'REQUEST_URI'    => '/wp-admin/admin-ajax.php',
+			'SCRIPT_NAME'    => '/wp-admin/admin-ajax.php',
+			'REMOTE_ADDR'    => '203.0.113.9',
+		];
+
+		Functions\when( 'add_action' )->alias( function ( string $hook, $callback, int $priority = 10 ) :bool {
+			$this->actions[ $hook ] = [ $callback, $priority ];
+			return true;
+		} );
+		Functions\when( 'add_filter' )->alias( function ( string $hook, $callback, int $priority = 10 ) :bool {
+			$this->filters[ $hook ] = [ $callback, $priority ];
+			return true;
+		} );
+		Functions\when( 'did_action' )->alias( fn( string $hook ) :int => $this->done[ $hook ] ?? 0 );
+		Functions\when( 'is_admin' )->alias( fn() :bool => $this->admin );
+		Functions\when( 'is_network_admin' )->justReturn( false );
+		Functions\when( 'wp_unslash' )->alias( fn( $value ) => \is_array( $value ) ? \array_map( 'stripslashes', $value ) : \stripslashes( $value ) );
+		Functions\when( 'current_user_can' )->alias( fn( string $capability ) :bool => \in_array( $capability, $this->capabilities, true ) );
+	}
+
+	protected function tearDown() :void {
+		$_SERVER = $this->serverBackup;
+		$_GET = [];
+		$_POST = [];
+		$this->cleanupTrackedTempDirs();
+		parent::tearDown();
+	}
+
+	public function testMatchingRequestIsBlockedWhenShieldLoadsAndLogged() :void {
+		$_POST = [ 'action' => "it's_export" ];
+		$events = $this->createTrackedTempDir().'/events.php';
+
+		$this->guard( $this->ruleset( [ $this->rule( 'export', self::AJAX_EXPORT ) ], [ 'events' => $events ] ) )->start();
+
+		$this->assertSame( [ [ 'export', RequestGuard::POINT_LOAD ] ], $this->blocks );
+		$entry = BlockLog::read( $events )[ 0 ];
+		$this->assertSame( [ 'export', [ 'CVE-2026-0001' ], '203.0.113.9', 'POST', '/wp-admin/admin-ajax.php', 'load', 'match' ], [
+			$entry[ 'rule' ], $entry[ 'advisories' ], $entry[ 'ip' ], $entry[ 'method' ], $entry[ 'path' ], $entry[ 'pass' ], $entry[ 'verdict' ],
+		] );
+	}
+
+	public function testOtherRequestsPass() :void {
+		$_POST = [ 'action' => 'heartbeat' ];
+		$this->guard( $this->ruleset( [ $this->rule( 'export', self::AJAX_EXPORT ) ] ) )->start();
+		$this->assertSame( [], $this->blocks );
+	}
+
+	public function testSlashedValuesAreUnslashedAfterWordPressAddsSlashes() :void {
+		$this->done[ 'sanitize_comment_cookies' ] = 1;
+		$_POST = [ 'action' => "it\\'s_export" ];
+
+		$this->guard( $this->ruleset( [ $this->rule( 'export', self::AJAX_EXPORT ) ] ) )->start();
+
+		$this->assertCount( 1, $this->blocks );
+	}
+
+	public function testPatternFailureBlocks() :void {
+		$rule = $this->rule( 'broken', [ [ 'kind' => 'path', 'negate' => false, 'operator' => 'regex', 'value' => '#(#' ] ] );
+		$this->guard( $this->ruleset( [ $rule ] ) )->start();
+		$this->assertSame( [ [ 'broken', RequestGuard::POINT_LOAD ] ], $this->blocks );
+	}
+
+	public function testBypassedIpSkipsEveryRule() :void {
+		$_POST = [ 'action' => "it's_export" ];
+		$ruleset = $this->ruleset( [ $this->rule( 'export', self::AJAX_EXPORT ) ], [
+			'bypass' => [ 'ip_source' => 'REMOTE_ADDR', 'ips' => [ '203.0.113.0/24' ] ],
+		] );
+
+		$this->guard( $ruleset )->start();
+
+		$this->assertSame( [], $this->blocks );
+		$this->assertSame( [], $this->actions );
+	}
+
+	public function testRulesTheEarlyPassCheckedAreSkippedOnlyForTheSameRuleset() :void {
+		if ( !\defined( 'SHIELD_EARLY_RAN' ) ) {
+			\define( 'SHIELD_EARLY_RAN', 'hash-from-early-pass' );
+		}
+		$_POST = [ 'action' => "it's_export" ];
+
+		$this->guard( $this->ruleset( [ $this->rule( 'export', self::AJAX_EXPORT ) ], [ 'hash' => 'hash-from-early-pass' ] ) )->start();
+		$this->assertSame( [], $this->blocks );
+
+		$this->guard( $this->ruleset( [ $this->rule( 'export', self::AJAX_EXPORT ) ], [ 'hash' => 'another-ruleset' ] ) )->start();
+		$this->assertCount( 1, $this->blocks );
+	}
+
+	public function testAdminAreaConditionIsCheckedWhenShieldLoads() :void {
+		$this->admin = true;
+		$rule = $this->rule( 'admin', [ [ 'kind' => 'wp_is_admin', 'negate' => false ] ] );
+		$this->guard( $this->ruleset( [ $rule ] ) )->start();
+		$this->assertSame( [ [ 'admin', RequestGuard::POINT_LOAD ] ], $this->blocks );
+	}
+
+	public function testCapabilityRulesWaitForInit() :void {
+		$rule = $this->rule( 'settings', [
+			[ 'kind' => 'path', 'negate' => false, 'operator' => 'equals', 'value' => '/wp-admin/admin-ajax.php' ],
+			[ 'kind' => 'user_capability', 'negate' => true, 'capability' => 'manage_options' ],
+		] );
+		$guard = $this->guard( $this->ruleset( [ $rule ] ) );
+		$guard->start();
+
+		$this->assertSame( [], $this->blocks );
+		$this->assertSame( [ [ $guard, 'runUserRules' ], \PHP_INT_MIN ], $this->actions[ 'init' ] );
+
+		$this->capabilities = [ 'manage_options' ];
+		$guard->runUserRules();
+		$this->assertSame( [], $this->blocks );
+
+		$this->capabilities = [ 'read' ];
+		$guard->runUserRules();
+		$this->assertSame( [ [ 'settings', RequestGuard::POINT_USER ] ], $this->blocks );
+	}
+
+	public function testRestRulesAreCheckedOnEveryDispatch() :void {
+		$rule = $this->rule( 'rest', [
+			[ 'kind' => 'rest_route', 'negate' => false, 'namespace' => 'example/v1', 'operator' => 'equals_i', 'value' => '/settings' ],
+			[ 'kind' => 'rest_parameter_exists', 'negate' => false, 'name' => 'callback' ],
+		] );
+		$guard = $this->guard( $this->ruleset( [ $rule ] ) );
+		$guard->start();
+
+		$this->assertSame( [ [ $guard, 'checkRestDispatch' ], \PHP_INT_MIN ], $this->filters[ 'rest_pre_dispatch' ] );
+
+		$this->assertNull( $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'POST', '/example/v1/settings', [ 'name' => 'x' ] ) ) );
+		$this->assertSame( 'blocked', $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'POST', '/example/v1/settings', [ 'callback' => 'x' ] ) ) );
+		$this->assertSame( 'earlier result', $guard->checkRestDispatch( 'earlier result', null, new \WP_REST_Request( 'GET', '/other/v1/x', [] ) ) );
+		$this->assertCount( 1, $this->blocks );
+	}
+
+	public function testRestBlockIsAForbiddenError() :void {
+		$error = ( new RequestGuard( [] ) )->sendForbidden( [], RequestGuard::POINT_REST );
+		$this->assertInstanceOf( \WP_Error::class, $error );
+		$this->assertSame( 'shield_virtual_patch', $error->get_error_code() );
+	}
+
+	private function guard( array $ruleset ) :RequestGuard {
+		return new RequestGuard( $ruleset, function ( array $rule, string $point ) {
+			$this->blocks[] = [ $rule[ 'id' ], $point ];
+			return 'blocked';
+		} );
+	}
+
+	private function ruleset( array $rules, array $extra = [] ) :array {
+		return \array_merge( [
+			'format'         => 1,
+			'hash'           => 'hash',
+			'active_plugins' => [],
+			'active_themes'  => [],
+			'rules'          => $rules,
+		], $extra );
+	}
+
+	private function rule( string $id, array $conditions ) :array {
+		return [ 'id' => $id, 'advisories' => [ 'CVE-2026-0001' ], 'conditions' => $conditions ];
+	}
+}
