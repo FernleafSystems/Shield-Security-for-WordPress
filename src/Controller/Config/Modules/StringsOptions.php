@@ -191,11 +191,8 @@ class StringsOptions {
 					),
 				];
 
-				if ( $caps->canScanPluginsThemesRemote() ) {
+				if ( $caps->canScanPluginsThemesLocal() ) {
 					$additional = __( 'Premium plugins are also supported on your plan.', 'wp-simple-firewall' );
-				}
-				elseif ( $caps->canScanPluginsThemesLocal() ) {
-					$additional = __( 'Upgrade your plan to add support for premium plugins.', 'wp-simple-firewall' );
 				}
 				else {
 					$additional = __( 'Please upgrade to support scanning of all plugin files for tampering.', 'wp-simple-firewall' );
@@ -207,11 +204,8 @@ class StringsOptions {
 					] )
 				);
 
-				if ( $caps->canScanPluginsThemesRemote() ) {
+				if ( $caps->canScanPluginsThemesLocal() ) {
 					$additional = __( 'Premium themes are also supported on your plan.', 'wp-simple-firewall' );
-				}
-				elseif ( $caps->canScanPluginsThemesLocal() ) {
-					$additional = __( 'Upgrade your plan to add support for premium themes.', 'wp-simple-firewall' );
 				}
 				else {
 					$additional = __( 'Upgrade your plan to support scanning of theme files for tampering.', 'wp-simple-firewall' );
