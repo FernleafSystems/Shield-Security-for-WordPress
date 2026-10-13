@@ -18,6 +18,24 @@ final class BlockLog {
 	 */
 	public const MAX_BYTES = 1048576;
 
+	/**
+	 * The log entry for a blocked request. The IP is read the way the bypass list reads it, falling back to
+	 * REMOTE_ADDR when the ruleset names no usable source.
+	 */
+	public static function entry( array $ruleset, array $rule, array $facts, array $server, string $pass, string $verdict ) :array {
+		$remote = $server[ 'REMOTE_ADDR' ] ?? '';
+		return [
+			'ts'         => \time(),
+			'rule'       => (string)( $rule[ 'id' ] ?? '' ),
+			'advisories' => \is_array( $rule[ 'advisories' ] ?? null ) ? $rule[ 'advisories' ] : [],
+			'ip'         => IpBypass::requestIp( $ruleset[ 'bypass' ][ 'ip_source' ] ?? null, $server ) ?? ( \is_string( $remote ) ? $remote : '' ),
+			'method'     => $facts[ 'method' ],
+			'path'       => $facts[ 'path' ],
+			'pass'       => $pass,
+			'verdict'    => $verdict,
+		];
+	}
+
 	public static function append( string $path, array $entry ) :bool {
 		$line = \json_encode( $entry, \JSON_UNESCAPED_SLASHES|\JSON_UNESCAPED_UNICODE|\JSON_INVALID_UTF8_SUBSTITUTE );
 		if ( !\is_string( $line ) ) {

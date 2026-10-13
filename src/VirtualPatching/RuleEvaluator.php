@@ -142,6 +142,16 @@ final class RuleEvaluator {
 	}
 
 	/**
+	 * The plugin and theme activity facts every pass takes from the exported ruleset.
+	 */
+	public static function rulesetFacts( array $ruleset ) :array {
+		return [
+			'active_plugins' => \is_array( $ruleset[ 'active_plugins' ] ?? null ) ? $ruleset[ 'active_plugins' ] : [],
+			'active_themes'  => \is_array( $ruleset[ 'active_themes' ] ?? null ) ? $ruleset[ 'active_themes' ] : [],
+		];
+	}
+
+	/**
 	 * The request path: the absolute-form scheme and authority removed, everything from the first "?" removed,
 	 * percent-decoded once, and repeated slashes collapsed, so that equivalent requests for the same resource
 	 * give the same path. An empty path is "/".

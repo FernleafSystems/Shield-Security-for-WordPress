@@ -164,8 +164,7 @@ final class RequestGuard {
 			$unslash ? $this->unslash( $_GET ) : $_GET,
 			$unslash ? $this->unslash( $_POST ) : $_POST
 		);
-		$facts[ 'active_plugins' ] = \is_array( $this->ruleset[ 'active_plugins' ] ?? null ) ? $this->ruleset[ 'active_plugins' ] : [];
-		$facts[ 'active_themes' ] = \is_array( $this->ruleset[ 'active_themes' ] ?? null ) ? $this->ruleset[ 'active_themes' ] : [];
+		$facts = \array_merge( $facts, RuleEvaluator::rulesetFacts( $this->ruleset ) );
 		$facts[ 'is_admin' ] = ( \function_exists( 'is_admin' ) && is_admin() )
 							   || ( \function_exists( 'is_network_admin' ) && is_network_admin() );
 		return $facts;
@@ -194,18 +193,7 @@ final class RequestGuard {
 		if ( !\is_string( $path ) || $path === '' ) {
 			return;
 		}
-		$server = $this->server();
-		$remote = $server[ 'REMOTE_ADDR' ] ?? '';
-		BlockLog::append( $path, [
-			'ts'         => \time(),
-			'rule'       => (string)( $rule[ 'id' ] ?? '' ),
-			'advisories' => \is_array( $rule[ 'advisories' ] ?? null ) ? $rule[ 'advisories' ] : [],
-			'ip'         => IpBypass::requestIp( $this->ruleset[ 'bypass' ][ 'ip_source' ] ?? null, $server ) ?? ( \is_string( $remote ) ? $remote : '' ),
-			'method'     => $facts[ 'method' ],
-			'path'       => $facts[ 'path' ],
-			'pass'       => $point,
-			'verdict'    => $verdict,
-		] );
+		BlockLog::append( $path, BlockLog::entry( $this->ruleset, $rule, $facts, $this->server(), $point, $verdict ) );
 	}
 
 	/**

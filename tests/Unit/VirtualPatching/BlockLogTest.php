@@ -25,6 +25,19 @@ class BlockLogTest extends TestCase {
 		$this->assertSame( [ 'a', 'b' ], \array_column( BlockLog::read( $path ), 'rule' ) );
 	}
 
+	public function testEntryReadsTheIpLikeTheBypassListWithRemoteAddrFallback() :void {
+		$rule = [ 'id' => 'r', 'advisories' => [ 'CVE-2026-0001' ] ];
+		$facts = [ 'method' => 'POST', 'path' => '/x' ];
+		$server = [ 'REMOTE_ADDR' => '10.0.0.5', 'HTTP_CF_CONNECTING_IP' => '203.0.113.9' ];
+
+		$fromSource = BlockLog::entry( [ 'bypass' => [ 'ip_source' => 'HTTP_CF_CONNECTING_IP', 'ips' => [] ] ], $rule, $facts, $server, 'early', 'match' );
+		$this->assertSame( [ 'r', [ 'CVE-2026-0001' ], '203.0.113.9', 'POST', '/x', 'early', 'match' ], [
+			$fromSource[ 'rule' ], $fromSource[ 'advisories' ], $fromSource[ 'ip' ], $fromSource[ 'method' ], $fromSource[ 'path' ], $fromSource[ 'pass' ], $fromSource[ 'verdict' ],
+		] );
+
+		$this->assertSame( '10.0.0.5', BlockLog::entry( [], $rule, $facts, $server, 'load', 'match' )[ 'ip' ] );
+	}
+
 	public function testDrainEmptiesTheLog() :void {
 		$dir = $this->createTrackedTempDir();
 		$path = $dir.'/events.php';
