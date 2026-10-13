@@ -162,6 +162,7 @@ class Installer {
 
 		if ( !$mechanism->isAutomatic() ) {
 			$stub->write( $this->stubContent( $hostPrepend ) );
+			$this->removeBlocksOutside( [] );
 			$state->status = State::MANUAL;
 			return $state;
 		}
@@ -183,6 +184,7 @@ class Installer {
 		}
 
 		$snapshots = [];
+		$path = '';
 		try {
 			foreach ( $edits as $path => [ $block, $body ] ) {
 				[ $before ] = ( new ConfigFile( $path ) )->modify(
@@ -193,7 +195,7 @@ class Installer {
 		}
 		catch ( ConfigFileException|MalformedBlockException $e ) {
 			$this->rollBack( $snapshots, $previous );
-			throw new InstallException( InstallException::CONFIG_WRITE_FAILED, (string)\array_key_last( $snapshots ) );
+			throw new InstallException( InstallException::CONFIG_WRITE_FAILED, $path );
 		}
 
 		$verify = $this->probe->verify();
@@ -215,14 +217,12 @@ class Installer {
 	 * @param string[] $keep
 	 */
 	private function removeBlocksOutside( array $keep ) :void {
-		foreach ( $this->paths->configFiles() as $path => $block ) {
+		foreach ( \array_keys( $this->paths->configFiles() ) as $path ) {
 			if ( !\in_array( $path, $keep, true ) ) {
 				try {
-					( new ConfigFile( $path ) )->modify(
-						fn( ?string $content ) => $content !== null && $block->has( $content ) ? $block->remove( $content ) : null
-					);
+					$this->removeBlock( $path );
 				}
-				catch ( ConfigFileException|MalformedBlockException $e ) {
+				catch ( InstallException $e ) {
 				}
 			}
 		}
@@ -317,18 +317,26 @@ class Installer {
 	 * @throws InstallException
 	 */
 	private function removeBlocks() :void {
-		foreach ( $this->paths->configFiles() as $path => $block ) {
-			try {
-				( new ConfigFile( $path ) )->modify(
-					fn( ?string $content ) => $content !== null && $block->has( $content ) ? $block->remove( $content ) : null
-				);
-			}
-			catch ( ConfigFileException $e ) {
-				throw new InstallException( InstallException::CONFIG_WRITE_FAILED, $path );
-			}
-			catch ( MalformedBlockException $e ) {
-				throw new InstallException( InstallException::MALFORMED_MARKERS, $path );
-			}
+		foreach ( \array_keys( $this->paths->configFiles() ) as $path ) {
+			$this->removeBlock( $path );
+		}
+	}
+
+	/**
+	 * @throws InstallException
+	 */
+	private function removeBlock( string $path ) :void {
+		$block = $this->paths->configFiles()[ $path ];
+		try {
+			( new ConfigFile( $path ) )->modify(
+				fn( ?string $content ) => $content !== null && $block->has( $content ) ? $block->remove( $content ) : null
+			);
+		}
+		catch ( ConfigFileException $e ) {
+			throw new InstallException( InstallException::CONFIG_WRITE_FAILED, $path );
+		}
+		catch ( MalformedBlockException $e ) {
+			throw new InstallException( InstallException::MALFORMED_MARKERS, $path );
 		}
 	}
 
