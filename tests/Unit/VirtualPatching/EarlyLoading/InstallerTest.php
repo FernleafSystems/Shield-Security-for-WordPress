@@ -40,7 +40,8 @@ class InstallerTest extends TestCase {
 			$this->root.'/.htaccess',
 			$this->root.'/.user.ini',
 			$this->root.'/wp-content/plugins/wp-simple-firewall/src/VirtualPatching/EarlyLoading/bootstrap.php',
-			$this->root.'/wp-content/shield/virtual-patching/ruleset.php'
+			$this->root.'/wp-content/shield/virtual-patching/ruleset.php',
+			[ $this->root ]
 		);
 		$this->store = new InstallerTestStore();
 		$this->probe = new InstallerTestProbe();
@@ -96,18 +97,30 @@ class InstallerTest extends TestCase {
 
 	public function testHomePageBreakingAfterTheChangeIsReverted() :void {
 		$this->probe->verifyResults = [ $this->verified( false ), $this->verified( true ) ];
-		$this->probe->homeResults = [ new ProbeResult( true, 200 ), new ProbeResult( true, 500 ) ];
+		$this->probe->homeResults = [ $this->verified( false ), new ProbeResult( true, 500 ) ];
 
 		$this->assertInstallFails( InstallException::SITE_FAILED_REVERTED, $this->installer( 'apache2handler' ) );
 
 		$this->assertFileDoesNotExist( $this->paths->htaccess );
 	}
 
-	public function testHomePageAlreadyFailingBeforehandIsNotBlamedOnTheChange() :void {
+	public function testDisplayedFatalErrorWithStatus200IsReverted() :void {
 		$this->probe->verifyResults = [ $this->verified( false ), $this->verified( true ) ];
-		$this->probe->homeResults = [ new ProbeResult( true, 503 ), new ProbeResult( true, 503 ) ];
+		$this->probe->homeResults = [ $this->verified( false ), new ProbeResult( true, 200 ) ];
 
-		$this->assertSame( State::INSTALLED, $this->installer( 'apache2handler' )->install()->status );
+		$this->assertInstallFails( InstallException::SITE_FAILED_REVERTED, $this->installer( 'apache2handler' ) );
+
+		$this->assertFileDoesNotExist( $this->paths->htaccess );
+	}
+
+	public function testHomePageThatCannotBeVerifiedBeforehandBlocksTheChange() :void {
+		$this->probe->verifyResults = [ $this->verified( false ) ];
+		$this->probe->homeResults = [ new ProbeResult( true, 503 ) ];
+
+		$this->assertInstallFails( InstallException::LOOPBACK_UNAVAILABLE, $this->installer( 'apache2handler' ) );
+
+		$this->assertFileDoesNotExist( $this->paths->stub );
+		$this->assertFileDoesNotExist( $this->paths->htaccess );
 	}
 
 	public function testAnotherPrependInUserIniBlocksInstallWithoutWritingAnything() :void {
@@ -278,7 +291,7 @@ class InstallerTest extends TestCase {
 		$env = new Environment( $sapi, $userIni, 300, $currentPrepend, $software, $multisite, $directFs, true, $now );
 		$paths = $this->paths;
 		if ( !Mechanism::isUsableUserIniFilename( $userIni ) ) {
-			$paths = new Paths( $paths->stub, $paths->stubUrl, $paths->htaccess, null, $paths->bootstrap, $paths->ruleset );
+			$paths = new Paths( $paths->stub, $paths->stubUrl, $paths->htaccess, null, $paths->bootstrap, $paths->ruleset, $paths->scope );
 		}
 		return new Installer( $paths, $env, $this->probe, $this->store );
 	}
@@ -342,7 +355,10 @@ class InstallerTestProbe implements LoopbackProbe {
 	}
 
 	public function home() :ProbeResult {
-		return \array_shift( $this->homeResults ) ?? new ProbeResult( true, 200 );
+		return \array_shift( $this->homeResults ) ?? new ProbeResult( true, 200, false );
+	}
+
+	public function prepare() :void {
 	}
 
 	public function smoke() :ProbeResult {

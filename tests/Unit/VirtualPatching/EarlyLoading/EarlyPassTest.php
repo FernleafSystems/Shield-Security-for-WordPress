@@ -76,6 +76,34 @@ class EarlyPassTest extends TestCase {
 		$this->assertFalse( $pass->isComplete() );
 	}
 
+	public function testOnlyThisSitesWordPressFilesAreCovered() :void {
+		$root = $this->createTrackedTempDir( 'shield-early-scope-' );
+		$content = $this->createTrackedTempDir( 'shield-early-content-' );
+		foreach ( [
+			$root.'/wp-login.php',
+			$root.'/wp-content/plugins/demo/install.php',
+			$root.'/shop/wp-load.php',
+			$root.'/shop/wp-content/plugins/demo/install.php',
+			$root.'/other-app/install.php',
+			$content.'/plugins/demo/install.php',
+		] as $file ) {
+			if ( !\is_dir( \dirname( $file ) ) ) {
+				\mkdir( \dirname( $file ), 0777, true );
+			}
+			\file_put_contents( $file, '<?php' );
+		}
+		\file_put_contents( $root.'/wp-load.php', '<?php' );
+		$scope = [ $root, $content ];
+
+		$this->assertTrue( EarlyPass::coversScript( $root.'/wp-login.php', $scope ) );
+		$this->assertTrue( EarlyPass::coversScript( $root.'/wp-content/plugins/demo/install.php', $scope ) );
+		$this->assertTrue( EarlyPass::coversScript( $content.'/plugins/demo/install.php', $scope ), 'Content directory outside ABSPATH' );
+		$this->assertFalse( EarlyPass::coversScript( $root.'/shop/wp-content/plugins/demo/install.php', $scope ), 'Another WordPress site in a folder' );
+		$this->assertFalse( EarlyPass::coversScript( $root.'/other-app/install.php', [ $root.'/wp-content' ] ), 'Another application outside WordPress' );
+		$this->assertFalse( EarlyPass::coversScript( $root.'/missing.php', $scope ) );
+		$this->assertFalse( EarlyPass::coversScript( '', $scope ) );
+	}
+
 	private function installerRule() :array {
 		return [
 			'id'         => 'demo-installer',

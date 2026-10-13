@@ -53,8 +53,14 @@ class StubFile {
 		return @\unlink( $this->path ) || !$this->exists();
 	}
 
+	/**
+	 * WordPress's own helper checks that OPcache allows this before invalidating.
+	 */
 	private function invalidateOpcache() :void {
-		if ( \function_exists( 'opcache_invalidate' ) ) {
+		if ( \function_exists( 'wp_opcache_invalidate' ) ) {
+			\wp_opcache_invalidate( $this->path, true );
+		}
+		elseif ( \function_exists( 'opcache_invalidate' ) ) {
 			@\opcache_invalidate( $this->path, true );
 		}
 	}

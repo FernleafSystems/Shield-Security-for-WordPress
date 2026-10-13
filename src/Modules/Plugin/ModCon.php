@@ -8,7 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\{
 	CacheDirHandler,
-	Integration\WhitelistUs
+	Integration\WhitelistUs,
+	SiteLoopback
 };
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\{
@@ -144,24 +145,7 @@ class ModCon {
 	}
 
 	public function canSiteLoopback(): bool {
-		$can = false;
-
-		if ( !\class_exists( '\WP_Site_Health' ) && \defined( 'ABSPATH' ) ) {
-			$siteHealthFile = path_join( ABSPATH, '/wp-admin/includes/class-wp-site-health.php' );
-			if ( Services::WpFs()->isAccessibleFile( $siteHealthFile ) ) {
-				require_once $siteHealthFile;
-			}
-		}
-
-		if ( \class_exists( '\WP_Site_Health' )
-		     // @phpstan-ignore function.alreadyNarrowedType
-		     && \method_exists( '\WP_Site_Health', 'get_instance' )
-		     && \method_exists( \WP_Site_Health::get_instance(), 'get_test_loopback_requests' ) ) {
-			$result = \WP_Site_Health::get_instance()->get_test_loopback_requests();
-			$can = \is_array( $result ) && ( $result[ 'status' ] ?? '' ) === 'good';
-		}
-
-		return $can;
+		return ( new SiteLoopback() )->canLoopback();
 	}
 
 	public function storeRealInstallDate(): int {
