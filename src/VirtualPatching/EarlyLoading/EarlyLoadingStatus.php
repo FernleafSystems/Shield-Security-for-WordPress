@@ -21,7 +21,7 @@ class EarlyLoadingStatus {
 		$now = Services::Request()->ts();
 
 		$notices = [];
-		if ( $state->status === State::INSTALLED && $state->confirmed ) {
+		if ( $state->status === InstallStatus::Installed && $state->confirmed ) {
 			$notices[] = __( 'Early loading is active: PHP runs Shield before WordPress on every request.', 'wp-simple-firewall' );
 		}
 		elseif ( $state->isPending( $now ) ) {
@@ -30,7 +30,7 @@ class EarlyLoadingStatus {
 				(int)\ceil( ( $state->settledAt() - $now )/60 )
 			);
 		}
-		elseif ( $state->status === State::MANUAL ) {
+		elseif ( $state->status === InstallStatus::Manual ) {
 			$directives = $early->manualDirectives();
 			$notices[] = $state->confirmed ?
 				__( 'Early loading is active through your own PHP configuration.', 'wp-simple-firewall' )
@@ -42,8 +42,8 @@ class EarlyLoadingStatus {
 					),
 				] );
 		}
-		elseif ( $state->status === State::REMOVING ) {
-			$notices[] = $state->mechanism === Mechanism::MANUAL ?
+		elseif ( $state->status === InstallStatus::Removing ) {
+			$notices[] = $state->mechanism === MechanismKind::Manual ?
 				__( "Remove the auto_prepend_file line you added for Shield from the PHP configuration. Shield removes its loader file once PHP stops using it.", 'wp-simple-firewall' )
 				: __( 'Early loading has been removed from the PHP configuration. Shield removes its loader file once PHP stops using it.', 'wp-simple-firewall' );
 		}
@@ -57,58 +57,30 @@ class EarlyLoadingStatus {
 		$state = self::con()->comps->early_loading->state();
 
 		$warnings = [];
-		if ( $state->status === State::INSTALLED && !$state->confirmed && !$state->isPending( Services::Request()->ts() ) ) {
+		if ( $state->status === InstallStatus::Installed && !$state->confirmed && !$state->isPending( Services::Request()->ts() ) ) {
 			$warnings[] = __( "Early loading is set up, but PHP isn't running it. The server may ignore .htaccess or .user.ini settings.", 'wp-simple-firewall' );
 		}
-		if ( $state->error !== '' ) {
+		if ( $state->error !== null ) {
 			$warnings[] = $this->errorMessage( $state->error, $state->errorFile );
 		}
 		return $warnings;
 	}
 
-	public function errorMessage( string $reason, string $file ) :string {
-		switch ( $reason ) {
-			case InstallException::MULTISITE:
-				$msg = __( "Early loading isn't available on WordPress multisite yet.", 'wp-simple-firewall' );
-				break;
-			case InstallException::FILESYSTEM_NOT_DIRECT:
-				$msg = __( "Early loading couldn't be set up because WordPress can't write files directly on this server.", 'wp-simple-firewall' );
-				break;
-			case InstallException::UNSAFE_PATH:
-			case InstallException::HOST_PREPEND_NOT_ABSOLUTE:
-				$msg = __( "Early loading couldn't be set up because a file path can't be written safely to the PHP configuration.", 'wp-simple-firewall' );
-				break;
-			case InstallException::CONFLICT:
-				$msg = sprintf( __( 'Early loading wasn\'t set up because another product already sets auto_prepend_file in %s.', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', esc_html( $file ) ) );
-				break;
-			case InstallException::MALFORMED_MARKERS:
-				$msg = sprintf( __( "Shield's early loading section in %s is damaged. Remove it by hand, then try again.", 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', esc_html( $file ) ) );
-				break;
-			case InstallException::LOOPBACK_UNAVAILABLE:
-				$msg = __( "Early loading wasn't set up because this site can't make requests to itself, so the change couldn't be checked safely.", 'wp-simple-firewall' );
-				break;
-			case InstallException::STUB_WRITE_FAILED:
-				$msg = __( "Early loading couldn't be set up because Shield couldn't write its loader file to the WordPress folder.", 'wp-simple-firewall' );
-				break;
-			case InstallException::STUB_SMOKE_FAILED:
-				$msg = __( "Early loading wasn't set up because the web server returned an error when running Shield's loader file.", 'wp-simple-firewall' );
-				break;
-			case InstallException::CONFIG_WRITE_FAILED:
-				$msg = sprintf( __( "Early loading couldn't be set up because %s couldn't be updated.", 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', esc_html( $file ) ) );
-				break;
-			case InstallException::INSTALL_INTERRUPTED:
-				$msg = __( 'Early loading was undone automatically because setting it up was interrupted before it could be checked.', 'wp-simple-firewall' );
-				break;
-			case InstallException::SITE_FAILED_REVERTED:
-				$msg = __( 'Early loading was undone automatically because the site stopped responding normally after the change.', 'wp-simple-firewall' );
-				break;
-			default:
-				$msg = __( "Early loading couldn't be set up.", 'wp-simple-firewall' );
-				break;
-		}
-		return $msg;
+	public function errorMessage( InstallFailure $reason, string $file ) :string {
+		$code = sprintf( '<code>%s</code>', esc_html( $file ) );
+		return match ( $reason ) {
+			InstallFailure::Multisite => __( "Early loading isn't available on WordPress multisite yet.", 'wp-simple-firewall' ),
+			InstallFailure::FilesystemNotDirect => __( "Early loading couldn't be set up because WordPress can't write files directly on this server.", 'wp-simple-firewall' ),
+			InstallFailure::UnsafePath,
+			InstallFailure::HostPrependNotAbsolute => __( "Early loading couldn't be set up because a file path can't be written safely to the PHP configuration.", 'wp-simple-firewall' ),
+			InstallFailure::Conflict => sprintf( __( 'Early loading wasn\'t set up because another product already sets auto_prepend_file in %s.', 'wp-simple-firewall' ), $code ),
+			InstallFailure::MalformedMarkers => sprintf( __( "Shield's early loading section in %s is damaged. Remove it by hand, then try again.", 'wp-simple-firewall' ), $code ),
+			InstallFailure::LoopbackUnavailable => __( "Early loading wasn't set up because this site can't make requests to itself, so the change couldn't be checked safely.", 'wp-simple-firewall' ),
+			InstallFailure::StubWriteFailed => __( "Early loading couldn't be set up because Shield couldn't write its loader file to the WordPress folder.", 'wp-simple-firewall' ),
+			InstallFailure::StubSmokeFailed => __( "Early loading wasn't set up because the web server returned an error when running Shield's loader file.", 'wp-simple-firewall' ),
+			InstallFailure::ConfigWriteFailed => sprintf( __( "Early loading couldn't be set up because %s couldn't be updated.", 'wp-simple-firewall' ), $code ),
+			InstallFailure::InstallInterrupted => __( 'Early loading was undone automatically because setting it up was interrupted before it could be checked.', 'wp-simple-firewall' ),
+			InstallFailure::SiteFailedReverted => __( 'Early loading was undone automatically because the site stopped responding normally after the change.', 'wp-simple-firewall' ),
+		};
 	}
 }

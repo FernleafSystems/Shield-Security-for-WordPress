@@ -7,34 +7,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading;
  */
 final class State {
 
-	/**
-	 * Nothing installed.
-	 */
-	public const OFF = 'off';
+	public InstallStatus $status = InstallStatus::Off;
 
 	/**
-	 * Configuration files are being edited. Seen by a later request, the install was interrupted.
+	 * Null when nothing was installed, for example when a stub is found with no recorded state.
 	 */
-	public const INSTALLING = 'installing';
-
-	/**
-	 * Stub written; the administrator sets auto_prepend_file.
-	 */
-	public const MANUAL = 'manual';
-
-	/**
-	 * Stub and Shield's blocks written.
-	 */
-	public const INSTALLED = 'installed';
-
-	/**
-	 * Shield's blocks removed; the stub stays until PHP can no longer be using it.
-	 */
-	public const REMOVING = 'removing';
-
-	public string $status = self::OFF;
-
-	public string $mechanism = '';
+	public ?MechanismKind $mechanism = null;
 
 	/**
 	 * The auto_prepend_file configured before installation, chained from the stub.
@@ -63,7 +41,7 @@ final class State {
 
 	public int $checkedAt = 0;
 
-	public string $error = '';
+	public ?InstallFailure $error = null;
 
 	public string $errorFile = '';
 
@@ -81,18 +59,20 @@ final class State {
 	 */
 	public array $files = [];
 
+	/**
+	 * Reads the stored option, which may be missing, from an older version, or damaged.
+	 */
 	public static function fromArray( array $data ) :self {
 		$state = new self();
-		$state->status = \in_array( $data[ 'status' ] ?? '', [ self::INSTALLING, self::MANUAL, self::INSTALLED, self::REMOVING ], true )
-			? $data[ 'status' ] : self::OFF;
-		$state->mechanism = (string)( $data[ 'mechanism' ] ?? '' );
-		$state->hostPrepend = isset( $data[ 'host_prepend' ] ) && \is_string( $data[ 'host_prepend' ] ) ? $data[ 'host_prepend' ] : null;
+		$state->status = InstallStatus::tryFrom( (string)( $data[ 'status' ] ?? '' ) ) ?? InstallStatus::Off;
+		$state->mechanism = MechanismKind::tryFrom( (string)( $data[ 'mechanism' ] ?? '' ) );
+		$state->hostPrepend = \is_string( $data[ 'host_prepend' ] ?? null ) ? $data[ 'host_prepend' ] : null;
 		$state->since = (int)( $data[ 'since' ] ?? 0 );
 		$state->cacheSeconds = (int)( $data[ 'cache_seconds' ] ?? 0 );
 		$state->confirmed = (bool)( $data[ 'confirmed' ] ?? false );
 		$state->settled = (bool)( $data[ 'settled' ] ?? false );
 		$state->checkedAt = (int)( $data[ 'checked_at' ] ?? 0 );
-		$state->error = (string)( $data[ 'error' ] ?? '' );
+		$state->error = InstallFailure::tryFrom( (string)( $data[ 'error' ] ?? '' ) );
 		$state->errorFile = (string)( $data[ 'error_file' ] ?? '' );
 
 		foreach ( \is_array( $data[ 'edits' ] ?? null ) ? $data[ 'edits' ] : [] as $path => $edit ) {
@@ -110,15 +90,15 @@ final class State {
 
 	public function toArray() :array {
 		return [
-			'status'        => $this->status,
-			'mechanism'     => $this->mechanism,
+			'status'        => $this->status->value,
+			'mechanism'     => $this->mechanism->value ?? '',
 			'host_prepend'  => $this->hostPrepend,
 			'since'         => $this->since,
 			'cache_seconds' => $this->cacheSeconds,
 			'confirmed'     => $this->confirmed,
 			'settled'       => $this->settled,
 			'checked_at'    => $this->checkedAt,
-			'error'         => $this->error,
+			'error'         => $this->error->value ?? '',
 			'error_file'    => $this->errorFile,
 			'edits'         => $this->edits,
 			'files'         => $this->files,
@@ -126,17 +106,10 @@ final class State {
 	}
 
 	/**
-	 * Whether PHP may still be configured to prepend the stub.
-	 */
-	public function stubMayBeInUse() :bool {
-		return $this->status !== self::OFF;
-	}
-
-	/**
 	 * Installed, not yet seen running, and still inside the time PHP may take to pick up the change.
 	 */
 	public function isPending( int $now ) :bool {
-		return $this->status === self::INSTALLED && !$this->confirmed && $now < $this->settledAt();
+		return $this->status === InstallStatus::Installed && !$this->confirmed && $now < $this->settledAt();
 	}
 
 	/**
@@ -144,5 +117,38 @@ final class State {
 	 */
 	public function settledAt() :int {
 		return $this->since + $this->cacheSeconds + 60;
+	}
+
+	/**
+	 * Shield took its blocks out because of a failure: the install broke the site or was interrupted, or a
+	 * removal couldn't finish. Such an install isn't put back automatically.
+	 */
+	public function wasUndone() :bool {
+		return $this->status === InstallStatus::Removing && $this->error !== null;
+	}
+
+	/**
+	 * Shield's blocks have been, or are about to be, taken out; the stub stays until PHP has stopped using it.
+	 * A removal already under way keeps its start time, so its cache window isn't extended.
+	 */
+	public function startRemoving( int $now, int $userIniCacheTtl ) :void {
+		if ( $this->status !== InstallStatus::Removing ) {
+			$this->status = InstallStatus::Removing;
+			$this->since = $now;
+			$this->cacheSeconds = ( $this->mechanism ?? MechanismKind::Manual )->cacheSeconds( $userIniCacheTtl );
+		}
+		$this->confirmed = false;
+		$this->settled = false;
+		$this->edits = [];
+	}
+
+	public function recordError( InstallException $e ) :void {
+		$this->error = $e->reason();
+		$this->errorFile = $e->configFile();
+	}
+
+	public function clearError() :void {
+		$this->error = null;
+		$this->errorFile = '';
 	}
 }
