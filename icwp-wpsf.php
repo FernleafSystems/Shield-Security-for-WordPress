@@ -40,6 +40,7 @@ if ( defined( 'ABSPATH' ) ) {
 
 		try {
 			require_once( dirname( __FILE__ ).'/plugin_compatibility.php' );
+			require_once( dirname( __FILE__ ).'/src/VirtualPatching/boot.php' );
 
 			add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
 			function icwp_wpsf_init() {

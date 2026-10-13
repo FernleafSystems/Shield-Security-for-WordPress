@@ -170,6 +170,10 @@ namespace {
 				return $this->params[ $key ] ?? null;
 			}
 
+			public function has_param( string $key ) :bool {
+				return \array_key_exists( $key, $this->params );
+			}
+
 			public function get_json_params() :array {
 				return $this->params;
 			}
