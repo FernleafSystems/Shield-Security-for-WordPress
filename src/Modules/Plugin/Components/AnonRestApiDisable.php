@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\ArrayOps;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AnonRestApiDisable {
@@ -36,12 +35,7 @@ class AnonRestApiDisable {
 		if ( !empty( $namespace ) && $mStatus !== true && !is_wp_error( $mStatus ) ) {
 			$con = self::con();
 
-			$exclusions = \array_unique( \array_merge(
-				ArrayOps::CleanStrings(
-					apply_filters( 'shield/anonymous_rest_api_exclusions', $con->opts->optGet( 'api_namespace_exclusions' ) ),
-					'#[^\da-z_-]#i'
-				)
-			) );
+			$exclusions = $con->comps->opts_lookup->getAnonymousRestApiExclusions();
 
 			if ( !\in_array( $namespace, $exclusions ) ) {
 				$mStatus = new \WP_Error(

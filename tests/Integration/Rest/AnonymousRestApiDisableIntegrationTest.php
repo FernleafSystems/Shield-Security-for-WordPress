@@ -153,6 +153,22 @@ class AnonymousRestApiDisableIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [], $this->getCapturedEventsByKey( 'block_anonymous_restapi' ) );
 	}
 
+	public function test_filtered_namespaces_use_shared_normalisation_for_anonymous_access() :void {
+		$this->clearHook( 'shield/anonymous_rest_api_exclusions' );
+		\add_filter( 'shield/anonymous_rest_api_exclusions', static function ( array $exclusions ) :array {
+			return \array_merge( $exclusions, [ ' custom-api! ', 'custom-api', '!!!', 123, null ] );
+		} );
+		$this->setRestNamespace( 'custom-api' );
+		$this->captureShieldEvents();
+
+		$this->assertSame(
+			[ 'shield', 'custom-api' ],
+			$this->requireController()->comps->opts_lookup->getAnonymousRestApiExclusions()
+		);
+		$this->assertNull( ( new AnonRestApiDisable() )->disableAnonymousRestApi( null ) );
+		$this->assertSame( [], $this->getCapturedEventsByKey( 'block_anonymous_restapi' ) );
+	}
+
 	public function test_execute_registers_rest_authentication_filter_for_anonymous_requests_when_enabled() :void {
 		$this->clearHook( 'init' );
 		$this->clearHook( 'rest_authentication_errors' );
