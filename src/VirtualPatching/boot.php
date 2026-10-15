@@ -12,14 +12,17 @@ if ( !\defined( 'ABSPATH' ) ) {
 ( static function () :void {
 	try {
 		$namespace = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\VirtualPatching\\';
+		// Part way through a plugin update or deletion, a file can be missing, and a failed require is a fatal
+		// error that can't be caught, so nothing is required unless it's there.
+		if ( !\is_file( __DIR__.'/rule-package.php' ) ) {
+			return;
+		}
 		$files = require __DIR__.'/rule-package.php';
 		foreach ( [ 'IpBypass', 'BlockLog', 'Ruleset\\RulesetFile', 'RequestGuard' ] as $class ) {
 			$files[ $namespace.$class ] = __DIR__.'/'.\str_replace( '\\', '/', $class ).'.php';
 		}
 		foreach ( $files as $class => $file ) {
 			if ( !\class_exists( $class, false ) ) {
-				// Part way through a plugin update or deletion, a file can be missing, and a failed require
-				// is a fatal error that can't be caught, so nothing is required unless it's there.
 				if ( !\is_file( $file ) ) {
 					return;
 				}
