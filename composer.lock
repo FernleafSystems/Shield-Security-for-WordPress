@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ff56f204b48b4068e9db51051d14f062",
+    "content-hash": "30f0a49753fff8138d8e076e8356775b",
     "packages": [
         {
             "name": "brick/math",
@@ -487,7 +487,13 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/FernleafSystems/Orle-Virtual-Patching-Rules/zipball/cce9592f6f4fbf3eee2a2ceaf63139765dc11436",
                 "reference": "cce9592f6f4fbf3eee2a2ceaf63139765dc11436",
-                "shasum": ""
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://repo.packagist.com/fernleafsystems/dists/%package%/%version%/r%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
             },
             "require": {
                 "php": ">=8.2"
@@ -498,6 +504,7 @@
                     "FernleafSystems\\Orle\\VirtualPatchingRules\\": "src/"
                 }
             },
+            "notification-url": "https://repo.packagist.com/fernleafsystems/downloads/",
             "license": [
                 "proprietary"
             ],
