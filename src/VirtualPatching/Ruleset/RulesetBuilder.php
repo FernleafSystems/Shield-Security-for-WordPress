@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\Ruleset;
 
+use FernleafSystems\Orle\VirtualPatchingRules\PatchValidator;
+
 /**
  * Turns virtual patches into the ruleset the request passes use. Only valid patches for a plugin or theme that
  * is installed at an affected version are kept; the rest are reported with the reason.
@@ -21,7 +23,7 @@ class RulesetBuilder {
 	}
 
 	/**
-	 * @param array[] $patches
+	 * @param mixed[] $patches decoded JSON with objects kept as objects, as PatchValidator requires
 	 * @param array   $extra   further top-level ruleset keys, such as bypass settings
 	 * @return array{ruleset: array, rejected: array<string, string>, not_applicable: array<string, string>}
 	 */
@@ -31,14 +33,15 @@ class RulesetBuilder {
 		$notApplicable = [];
 
 		foreach ( \array_values( $patches ) as $index => $patch ) {
-			$id = \is_array( $patch ) && \is_string( $patch[ 'candidateRevisionId' ] ?? null )
-				? $patch[ 'candidateRevisionId' ] : '#'.$index;
+			$id = $patch instanceof \stdClass && \is_string( $patch->candidateRevisionId ?? null )
+				? $patch->candidateRevisionId : '#'.$index;
 
-			$problems = \is_array( $patch ) ? $this->validator->validate( $patch ) : [ 'a patch must be an object' ];
+			$problems = $patch instanceof \stdClass ? $this->validator->validate( $patch ) : [ 'a patch must be an object' ];
 			if ( !empty( $problems ) ) {
 				$rejected[ $id ] = \implode( '; ', $problems );
 				continue;
 			}
+			$patch = \json_decode( (string)\json_encode( $patch ), true );
 			if ( isset( $rules[ $id ] ) ) {
 				$rejected[ $id ] = 'duplicate candidateRevisionId';
 				continue;

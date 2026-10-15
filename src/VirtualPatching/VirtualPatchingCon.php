@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching;
 
+use FernleafSystems\Orle\VirtualPatchingRules\WordPressFacts;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
@@ -222,8 +223,8 @@ class VirtualPatchingCon {
 
 	/**
 	 * Until rule delivery exists, patches come from patches.json beside the ruleset: a list of Factory
-	 * Candidates, or an object with a 'patches' list.
-	 * @return array[]
+	 * Candidates, or an object with a 'patches' list. JSON objects are kept as objects, as PatchValidator requires.
+	 * @return mixed[]
 	 */
 	private function loadPatches() :array {
 		$path = $this->patchesPath();
@@ -231,21 +232,12 @@ class VirtualPatchingCon {
 		if ( $path === '' || !$FS->isAccessibleFile( $path ) ) {
 			return [];
 		}
-		$decoded = \json_decode( (string)$FS->getFileContent( $path ), true );
-		$patches = \is_array( $decoded ) && \is_array( $decoded[ 'patches' ] ?? null ) ? $decoded[ 'patches' ] : $decoded;
-		return \is_array( $patches ) && \array_is_list( $patches ) ? $patches : [];
+		$decoded = \json_decode( (string)$FS->getFileContent( $path ) );
+		$patches = $decoded instanceof \stdClass ? ( $decoded->patches ?? null ) : $decoded;
+		return \is_array( $patches ) ? $patches : [];
 	}
 
-	/**
-	 * Active plugins and themes are read from the stored options, not through their filters, so a plugin that
-	 * unloads plugins for the current request (or troubleshooting mode) can't hide a target from the ruleset.
-	 */
 	private function siteState() :SiteState {
-		$options = wp_load_alloptions();
-		$stored = fn( string $key ) => \array_key_exists( $key, $options ) ? maybe_unserialize( $options[ $key ] ) : get_option( $key );
-
-		$activePlugins = $stored( 'active_plugins' );
-
 		$pluginVersions = [];
 		foreach ( Services::WpPlugins()->getPlugins() as $file => $headers ) {
 			$pluginVersions[ (string)$file ] = (string)( $headers[ 'Version' ] ?? '' );
@@ -256,9 +248,10 @@ class VirtualPatchingCon {
 			$themeVersions[ (string)$stylesheet ] = (string)$theme->get( 'Version' );
 		}
 
+		$activity = WordPressFacts::activity();
 		return new SiteState(
-			\array_values( \array_filter( \is_array( $activePlugins ) ? $activePlugins : [], '\is_string' ) ),
-			\array_values( \array_unique( \array_filter( [ $stored( 'stylesheet' ), $stored( 'template' ) ], '\is_string' ) ) ),
+			$activity[ 'active_plugins' ],
+			$activity[ 'active_themes' ],
 			$pluginVersions,
 			$themeVersions
 		);
