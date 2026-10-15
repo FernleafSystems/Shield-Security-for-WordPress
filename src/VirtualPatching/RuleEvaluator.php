@@ -5,6 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching;
 /**
  * Decides whether one virtual patching rule matches a request.
  *
+ * The Shield Virtual Patching Orchestrator owns this file and its evaluation cases, in its
+ * src/assessment/rule-language directory. The orchestrator defines the rule language and its assessment lab
+ * decides rules with this class. Shield runs the same file unchanged: change it in the orchestrator and copy it
+ * to Shield with the orchestrator's scripts/sync-rule-evaluator.mjs. Never edit Shield's copy.
+ *
  * The early pass loads this file before WordPress and without Composer, so it must stay self-contained:
  * no other classes, no WordPress or global functions, no output and no translations.
  *
@@ -71,6 +76,11 @@ final class RuleEvaluator {
 	];
 
 	public const OPERATORS = [ 'equals', 'equals_i', 'contains', 'contains_i', 'regex' ];
+
+	/**
+	 * Where a parameter condition looks: the query, the form, or either of them.
+	 */
+	public const SOURCES = [ 'query', 'form', 'either' ];
 
 	private ?array $patternFailure = null;
 
@@ -213,8 +223,15 @@ final class RuleEvaluator {
 				}
 				return \array_key_exists( $name, $facts[ $leaf[ 'source' ] ] );
 			case 'parameter_value':
-				$value = $facts[ $leaf[ 'source' ] ][ (string)$leaf[ 'name' ] ] ?? null;
-				return \is_string( $value ) ? $this->compare( $value, $leaf ) : false;
+				// An 'either' leaf holds when the query or the form value matches. The query is compared first.
+				foreach ( $leaf[ 'source' ] === 'either' ? [ 'query', 'form' ] : [ $leaf[ 'source' ] ] as $source ) {
+					$value = $facts[ $source ][ (string)$leaf[ 'name' ] ] ?? null;
+					$matched = \is_string( $value ) ? $this->compare( $value, $leaf ) : false;
+					if ( $matched !== false ) {
+						return $matched;
+					}
+				}
+				return false;
 			case 'user_capability':
 				return (bool)( $facts[ 'user_can' ] )( (string)$leaf[ 'capability' ] );
 			case 'plugin_active':
@@ -371,8 +388,7 @@ final class RuleEvaluator {
 		if ( isset( $leaf[ 'operator' ] ) && !\in_array( $leaf[ 'operator' ], self::OPERATORS, true ) ) {
 			throw new \InvalidArgumentException( 'Unsupported operator.' );
 		}
-		if ( isset( $leaf[ 'source' ] )
-			 && !\in_array( $leaf[ 'source' ], $kind === 'parameter_exists' ? [ 'query', 'form', 'either' ] : [ 'query', 'form' ], true ) ) {
+		if ( isset( $leaf[ 'source' ] ) && !\in_array( $leaf[ 'source' ], self::SOURCES, true ) ) {
 			throw new \InvalidArgumentException( 'Unsupported parameter source.' );
 		}
 	}

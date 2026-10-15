@@ -32,6 +32,10 @@ class PatchValidatorTest extends TestCase {
 					[ 'kind' => 'parameter_exists', 'negate' => false, 'source' => 'form', 'name' => 'export' ],
 				] ],
 			] ) ],
+			'value from query or form'      => [ self::patch( [
+				self::PATH,
+				[ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'either', 'name' => 'action', 'operator' => 'equals', 'value' => 'example_export' ],
+			] ) ],
 			'negated capability'            => [ self::patch( [
 				self::PATH,
 				[ 'kind' => 'user_capability', 'negate' => true, 'capability' => 'manage_options' ],
@@ -102,7 +106,7 @@ class PatchValidatorTest extends TestCase {
 " ] + self::REST ] ) ],
 			'invalid capability'              => [ self::patch( [ self::PATH, [ 'kind' => 'user_capability', 'negate' => false, 'capability' => 'edit posts' ] ] ) ],
 			'plugin file outside plugins'     => [ self::patch( [ self::PATH, [ 'kind' => 'plugin_active', 'negate' => false, 'pluginFile' => '../example.php' ] ] ) ],
-			'invalid parameter source'        => [ self::patch( [ [ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'either', 'name' => 'a', 'operator' => 'equals', 'value' => 'b' ] ] ) ],
+			'invalid parameter source'        => [ self::patch( [ [ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'cookie', 'name' => 'a', 'operator' => 'equals', 'value' => 'b' ] ] ) ],
 		];
 	}
 }

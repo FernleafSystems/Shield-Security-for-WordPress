@@ -309,6 +309,30 @@ class VirtualPatchingConTest extends BaseUnitTest {
 		$this->assertSame( [], BlockLog::read( $events ) );
 	}
 
+	public function testRejectedPatchIsReportedOnceUntilItsReasonChanges() :void {
+		$this->writePatches( [ self::patch(), self::patch( [], [ 'candidateRevisionId' => 'candidate-2', 'contractVersion' => 1 ] ) ] );
+
+		$this->con()->runHourlyCron();
+		$this->con()->export();
+		$this->con()->runHourlyCron();
+
+		$this->assertSame( [ [ 'virtual_patch_rejected', [
+			'audit_params' => [
+				'rule'   => 'candidate-2',
+				'reason' => 'contractVersion must be 2',
+			],
+		] ] ], $this->events );
+
+		$this->writePatches( [ self::patch(), self::patch( [], [
+			'candidateRevisionId' => 'candidate-2',
+			'virtualPatch'        => [ 'action' => 'log' ] + self::patch()[ 'virtualPatch' ],
+		] ) ] );
+		$this->con()->runHourlyCron();
+
+		$this->assertCount( 2, $this->events );
+		$this->assertSame( 'virtualPatch.action must be block', $this->events[ 1 ][ 1 ][ 'audit_params' ][ 'reason' ] );
+	}
+
 	private function con() :VirtualPatchingCon {
 		return new class extends VirtualPatchingCon {
 			protected function bypassIps() :array {
