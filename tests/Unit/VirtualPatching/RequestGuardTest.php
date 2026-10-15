@@ -209,19 +209,31 @@ class RequestGuardTest extends BaseUnitTest {
 	}
 
 	public function testBootLoadsTheGuardAndRulePackageWithoutComposer() :void {
-		// A fresh PHP process with no autoloader, as when Shield's plugin file is included.
-		$boot = \dirname( __DIR__, 3 ).'/src/VirtualPatching/boot.php';
+		$this->assertSame( '[true,true]', $this->boot( \dirname( __DIR__, 3 ).'/src/VirtualPatching/boot.php' ) );
+	}
+
+	public function testBootLeavesTheRequestAloneWhenFilesAreMissingPartWayThroughAnUpdate() :void {
+		$dir = $this->createTrackedTempDir();
+		\copy( \dirname( __DIR__, 3 ).'/src/VirtualPatching/boot.php', $dir.'/boot.php' );
+		$this->assertSame( '[false,false]', $this->boot( $dir.'/boot.php' ) );
+	}
+
+	/**
+	 * Includes boot.php in a fresh PHP process with no autoloader and errors displayed, as when Shield's plugin
+	 * file is included on a host that shows errors.
+	 * @return string everything the process printed, which reports whether the guard and package classes loaded
+	 */
+	private function boot( string $boot ) :string {
 		$script = \sprintf(
 			'define( "ABSPATH", "/" ); function get_option( $name ) { return ""; } function add_action() {} require %s; echo json_encode( [ class_exists( %s, false ), class_exists( %s, false ) ] );',
 			\var_export( $boot, true ),
 			\var_export( RequestGuard::class, true ),
 			\var_export( EvaluationPoint::class, true )
 		);
-		$process = \proc_open( [ \PHP_BINARY, '-n', '-r', $script ], [ 1 => [ 'pipe', 'w' ], 2 => [ 'pipe', 'w' ] ], $pipes );
-		$output = \stream_get_contents( $pipes[ 1 ] );
-		$errors = \stream_get_contents( $pipes[ 2 ] );
+		$process = \proc_open( [ \PHP_BINARY, '-n', '-d', 'display_errors=1', '-d', 'error_reporting=-1', '-r', $script ], [ 1 => [ 'pipe', 'w' ], 2 => [ 'pipe', 'w' ] ], $pipes );
+		$output = \stream_get_contents( $pipes[ 1 ] ).\stream_get_contents( $pipes[ 2 ] );
 		\proc_close( $process );
-		$this->assertSame( '[true,true]', $output, $errors );
+		return $output;
 	}
 
 	public function testRestBlockIsAForbiddenError() :void {
