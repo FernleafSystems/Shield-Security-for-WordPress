@@ -23,14 +23,8 @@
       "type": "composer",
       "url":  "https://repo.packagist.com/fernleafsystems/",
       "only": [
+        "fernleafsystems/orle-virtual-patching-rules",
         "fernleafsystems/worpdrive-client"
-      ]
-    },
-    {
-      "type": "vcs",
-      "url":  "https://github.com/FernleafSystems/Orle-Virtual-Patching-Rules",
-      "only": [
-        "fernleafsystems/orle-virtual-patching-rules"
       ]
     }
   ],
