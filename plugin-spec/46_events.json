@@ -1039,6 +1039,13 @@
         "level": "warning",
         "recent": true
     },
+    "virtual_patch_rejected": {
+        "audit_params": [
+            "rule",
+            "reason"
+        ],
+        "level": "warning"
+    },
     "whitelist_site_added": {
         "audit_params": [
             "site"

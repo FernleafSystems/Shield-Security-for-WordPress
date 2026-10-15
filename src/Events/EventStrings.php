@@ -654,6 +654,12 @@ class EventStrings {
 					__( 'Request from {{ip}}: {{method}} {{path}}', 'wp-simple-firewall' ),
 				],
 			],
+			'virtual_patch_rejected'       => [
+				'name'  => __( 'Virtual Patch Rejected', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Virtual patch {{rule}} was not loaded: {{reason}}.', 'wp-simple-firewall' ),
+				],
+			],
 			'fw_email_success'             => [
 				'name'  => __( 'Firewall Block Email Success', 'wp-simple-firewall' ),
 				'audit' => [

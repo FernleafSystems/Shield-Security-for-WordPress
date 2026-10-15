@@ -230,13 +230,9 @@ class PatchValidator {
 
 		switch ( $kind ) {
 			case 'parameter_exists':
-				if ( !\in_array( $leaf[ 'source' ], [ 'query', 'form', 'either' ], true ) ) {
-					$problems[] = 'source must be query, form or either';
-				}
-				break;
 			case 'parameter_value':
-				if ( !\in_array( $leaf[ 'source' ], [ 'query', 'form' ], true ) ) {
-					$problems[] = 'source must be query or form';
+				if ( !\in_array( $leaf[ 'source' ], RuleEvaluator::SOURCES, true ) ) {
+					$problems[] = 'source must be one of: '.\implode( ', ', RuleEvaluator::SOURCES );
 				}
 				break;
 			case 'user_capability':

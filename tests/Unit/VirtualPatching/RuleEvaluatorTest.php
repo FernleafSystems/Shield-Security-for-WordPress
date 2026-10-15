@@ -82,7 +82,7 @@ class RuleEvaluatorTest extends TestCase {
 			'value not a string'   => [ [ 'kind' => 'method', 'negate' => false, 'value' => [ 'GET' ] ] ],
 			'unknown operator'     => [ [ 'kind' => 'path', 'negate' => false, 'operator' => 'starts_with', 'value' => '/' ] ],
 			'unknown source'       => [ [ 'kind' => 'parameter_exists', 'negate' => false, 'source' => 'cookie', 'name' => 'a' ] ],
-			'either for a value'   => [ [ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'either', 'name' => 'a', 'operator' => 'equals', 'value' => 'b' ] ],
+			'unknown value source' => [ [ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'cookie', 'name' => 'a', 'operator' => 'equals', 'value' => 'b' ] ],
 			'negate not a boolean' => [ [ 'kind' => 'path', 'negate' => 'yes', 'operator' => 'equals', 'value' => '/' ] ],
 			'or without branches'  => [ [ 'kind' => 'or' ] ],
 		];
