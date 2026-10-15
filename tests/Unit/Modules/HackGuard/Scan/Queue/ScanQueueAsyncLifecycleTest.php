@@ -38,6 +38,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState
 };
+use FernleafSystems\Wordpress\Services\Core\Db;
 
 class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 	use TempDirLifecycleTrait;
@@ -935,9 +936,12 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$harness->insertScanItem( $scanID, [ 'wpv-a' ], 0, 1699999990 );
 		$scanBefore = $harness->scanRow( $scanID );
 		$watchdog = new QueueWatchdog();
+		$harness->sql->resetQueryLog();
 
 		$watchdog->runScheduled();
+		$queries = $harness->sql->queryLog();
 
+		$this->assertCount( 2, $queries );
 		$this->assertSame( $scanBefore, $harness->scanRow( $scanID ) );
 		$this->assertSame( 1, $harness->countScanItems( $scanID ) );
 		$this->assertSame( 0, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
@@ -1996,14 +2000,82 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 'queued', $harness->scanRow( $failedScanID + 1 )[ 'status' ] );
 	}
 
-	public function test_watchdog_unschedules_when_no_active_scans_remain() :void {
+	public function test_watchdog_leaves_last_event_pending_when_no_active_scans_remain() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$watchdog = new QueueWatchdog();
 		$harness->async->scheduleEvent( 1700000060, $watchdog->hook(), 'single' );
 
 		$watchdog->scheduleIfActive();
+		$watchdog->scheduleIfActive();
+
+		$this->assertSame( 1700000060, $harness->async->nextScheduled( $watchdog->hook() ) );
+		$this->assertSame( 1, $harness->async->scheduledHookAttempts( $watchdog->hook() ) );
+	}
+
+	public function test_watchdog_reuses_pending_event_for_new_scan_and_rearms_after_consumption() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$watchdog = new QueueWatchdog();
+		$harness->async->scheduleEvent( 1700000060, $watchdog->hook(), 'single' );
+		$scanID = $harness->insertScan( [
+			'scan'       => 'afs',
+			'status'     => 'building',
+			'created_at' => 1699999950,
+		] );
+
+		$watchdog->scheduleIfActive();
+
+		$this->assertSame( 1, $harness->async->scheduledHookAttempts( $watchdog->hook() ) );
+		// WordPress consumes a one-off event before invoking its callback.
+		$harness->async->unscheduleEvent( 1700000060, $watchdog->hook() );
+		$watchdog->runScheduled();
+
+		$this->assertSame( 'building', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+		$this->assertSame( 2, $harness->async->scheduledHookAttempts( $watchdog->hook() ) );
+	}
+
+	public function test_watchdog_schedules_new_scan_after_idle_callback() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$watchdog = new QueueWatchdog();
+		$watchdog->runScheduled();
 
 		$this->assertFalse( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+		$harness->insertScan( [
+			'scan'       => 'afs',
+			'status'     => 'queued',
+			'created_at' => 1700000000,
+		] );
+		$watchdog->scheduleIfActive();
+
+		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+	}
+
+	public function test_watchdog_rechecks_scheduling_after_initial_active_scan_read_fails() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'       => 'afs',
+			'status'     => 'building',
+			'created_at' => 1699999950,
+		] );
+		ServicesState::mergeItems( [
+			'service_wpdb' => new class extends Db {
+				private bool $failFirstRead = true;
+
+				public function getVar( $sql ) {
+					if ( $this->failFirstRead ) {
+						$this->failFirstRead = false;
+						return null;
+					}
+					return 1;
+				}
+			},
+		] );
+		$watchdog = new QueueWatchdog();
+
+		$watchdog->runScheduled();
+
+		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+		$this->assertSame( 'building', $harness->scanRow( $scanID )[ 'status' ] );
 	}
 
 	public function test_queue_maintenance_completes_ready_scan_when_all_items_are_finished() :void {
