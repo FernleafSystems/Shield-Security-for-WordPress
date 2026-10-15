@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "description": "Rule evaluation cases shared by every pass that uses the virtual patching rule evaluator. In facts, user_capabilities stands for the user_can callable and rest_params for rest_has_param.",
+  "description": "Rule evaluation cases owned by the Shield Virtual Patching Orchestrator with RuleEvaluator.php, run by every pass that uses that evaluator. In facts, user_capabilities stands for the user_can callable and rest_params for rest_has_param.",
   "cases": [
     {
       "name": "method matches exactly",
@@ -118,6 +118,54 @@
       ],
       "facts": { "path": "/wp-admin/admin-ajax.php", "query": {} },
       "expected": "match"
+    },
+    {
+      "name": "either parameter value matches the query when the form differs",
+      "conditions": [ { "kind": "parameter_value", "negate": false, "source": "either", "name": "action", "operator": "equals", "value": "example_export" } ],
+      "facts": { "query": { "action": "example_export" }, "form": { "action": "other" } },
+      "expected": "match"
+    },
+    {
+      "name": "either parameter value matches the form when the query differs",
+      "conditions": [ { "kind": "parameter_value", "negate": false, "source": "either", "name": "action", "operator": "equals", "value": "example_export" } ],
+      "facts": { "query": { "action": "other" }, "form": { "action": "example_export" } },
+      "expected": "match"
+    },
+    {
+      "name": "either parameter value without a matching carrier does not match",
+      "conditions": [ { "kind": "parameter_value", "negate": false, "source": "either", "name": "action", "operator": "equals", "value": "example_export" } ],
+      "facts": { "query": { "action": "other" }, "form": {} },
+      "expected": "no_match"
+    },
+    {
+      "name": "either parameter value skips an array carrier",
+      "conditions": [ { "kind": "parameter_value", "negate": false, "source": "either", "name": "action", "operator": "equals", "value": "example_export" } ],
+      "facts": { "query": { "action": [ "example_export" ] }, "form": { "action": "example_export" } },
+      "expected": "match"
+    },
+    {
+      "name": "negated either parameter value holds only when neither carrier matches",
+      "conditions": [ { "kind": "parameter_value", "negate": true, "source": "either", "name": "action", "operator": "equals", "value": "example_export" } ],
+      "facts": { "query": { "action": "other" }, "form": { "action": "example_export" } },
+      "expected": "no_match"
+    },
+    {
+      "name": "negated either parameter value with no carrier matches",
+      "conditions": [ { "kind": "parameter_value", "negate": true, "source": "either", "name": "action", "operator": "equals", "value": "example_export" } ],
+      "facts": { "query": {}, "form": {} },
+      "expected": "match"
+    },
+    {
+      "name": "either parameter value stops at a query match before a failing form pattern",
+      "conditions": [ { "kind": "parameter_value", "negate": false, "source": "either", "name": "action", "operator": "regex", "value": "/^(a|aa)+$/" } ],
+      "facts": { "query": { "action": "aa" }, "form": { "action": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!" } },
+      "expected": "match"
+    },
+    {
+      "name": "either parameter value reports a form pattern failure",
+      "conditions": [ { "kind": "parameter_value", "negate": false, "source": "either", "name": "action", "operator": "regex", "value": "/^(a|aa)+$/" } ],
+      "facts": { "query": { "action": "b" }, "form": { "action": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!" } },
+      "expected": "pattern_failure"
     },
     {
       "name": "all outer conditions must hold",

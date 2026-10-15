@@ -28,6 +28,7 @@ class VirtualPatchingCon {
 	use PluginCronsConsumer;
 
 	public const EVENT_BLOCK = 'virtual_patch_block';
+	public const EVENT_REJECTED = 'virtual_patch_rejected';
 	public const OPTION_STATUS = 'icwp_wpsf_virtual_patching_status';
 	private const MAX_IMPORT = 500;
 
@@ -74,6 +75,33 @@ class VirtualPatchingCon {
 	public function runHourlyCron() {
 		$this->importBlocks();
 		$this->export();
+		$this->reportRejected();
+	}
+
+	/**
+	 * Each patch the last export rejected is recorded as an activity log event, so a patch Shield can't use is
+	 * never dropped unseen. A patch is reported again only when its reason changes. This runs on the hourly cron:
+	 * an export at shutdown runs after Shield has already written its activity log for the request.
+	 */
+	public function reportRejected() :void {
+		$status = get_option( self::OPTION_STATUS );
+		if ( !\is_array( $status ) ) {
+			return;
+		}
+		$rejected = \is_array( $status[ 'rejected' ] ?? null ) ? $status[ 'rejected' ] : [];
+		$reported = \is_array( $status[ 'rejected_reported' ] ?? null ) ? $status[ 'rejected_reported' ] : [];
+		foreach ( $rejected as $rule => $reason ) {
+			if ( ( $reported[ $rule ] ?? null ) !== $reason ) {
+				self::con()->comps->events->fireEvent( self::EVENT_REJECTED, [
+					'audit_params' => [
+						'rule'   => (string)$rule,
+						'reason' => (string)$reason,
+					],
+				] );
+			}
+		}
+		$status[ 'rejected_reported' ] = $rejected;
+		update_option( self::OPTION_STATUS, $status, false );
 	}
 
 	/**
@@ -129,13 +157,15 @@ class VirtualPatchingCon {
 			$this->removeRuleset();
 		}
 
+		$previous = get_option( self::OPTION_STATUS );
 		update_option( self::OPTION_STATUS, [
-			'ts'              => Services::Request()->ts(),
-			'rules'           => \count( $built[ 'ruleset' ][ 'rules' ] ?? [] ),
-			'written'         => $written,
-			'rejected'        => $built[ 'rejected' ] ?? [],
-			'not_applicable'  => $built[ 'not_applicable' ] ?? [],
-			'import_dropped'  => $this->importDropped,
+			'ts'                => Services::Request()->ts(),
+			'rules'             => \count( $built[ 'ruleset' ][ 'rules' ] ?? [] ),
+			'written'           => $written,
+			'rejected'          => $built[ 'rejected' ] ?? [],
+			'rejected_reported' => \is_array( $previous ) && \is_array( $previous[ 'rejected_reported' ] ?? null ) ? $previous[ 'rejected_reported' ] : [],
+			'not_applicable'    => $built[ 'not_applicable' ] ?? [],
+			'import_dropped'    => $this->importDropped,
 		], false );
 	}
 
