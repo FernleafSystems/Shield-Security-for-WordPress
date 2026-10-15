@@ -26,20 +26,17 @@ if ( !\defined( 'SHIELD_EARLY_RULESET' ) || !\defined( 'SHIELD_EARLY_SCOPE' ) ||
 	try {
 		$script = $_SERVER[ 'SCRIPT_FILENAME' ] ?? '';
 		$namespace = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\VirtualPatching\\';
-		foreach (
-			[
-				'RuleEvaluator',
-				'IpBypass',
-				'BlockLog',
-				'Ruleset\\RulesetFile',
-				'RequestGuard',
-				'EarlyLoading\\EarlyPass',
-			] as $class
-		) {
-			if ( !\class_exists( $namespace.$class, false ) ) {
-				// Part way through a plugin update or deletion, a file can be missing; on PHP 7 a failed
-				// require can't be caught, so nothing is required unless it's there.
-				$file = \dirname( __DIR__ ).'/'.\str_replace( '\\', '/', $class ).'.php';
+		if ( !\is_file( \dirname( __DIR__ ).'/rule-package.php' ) ) {
+			return;
+		}
+		$files = require \dirname( __DIR__ ).'/rule-package.php';
+		foreach ( [ 'IpBypass', 'BlockLog', 'Ruleset\\RulesetFile', 'RequestGuard', 'EarlyLoading\\EarlyPass' ] as $class ) {
+			$files[ $namespace.$class ] = \dirname( __DIR__ ).'/'.\str_replace( '\\', '/', $class ).'.php';
+		}
+		foreach ( $files as $class => $file ) {
+			if ( !\class_exists( $class, false ) ) {
+				// Part way through a plugin update or deletion, a file can be missing, and a failed require is a
+				// fatal error that can't be caught, so nothing is required unless it's there.
 				if ( !\is_file( $file ) ) {
 					return;
 				}
