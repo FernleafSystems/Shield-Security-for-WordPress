@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aa00ffb3c5b1fc718ff5af9186c1724d",
+    "content-hash": "deaf59151dbf8e682a3bd724e4d3d4e2",
     "packages": [
         {
             "name": "brick/math",
@@ -473,6 +473,39 @@
                 "source": "https://github.com/elliotchance/iterator/tree/v1.1.0"
             },
             "time": "2017-11-09T22:25:19+00:00"
+        },
+        {
+            "name": "fernleafsystems/orle-virtual-patching-rules",
+            "version": "v0.0.1",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:FernleafSystems/Orle-Virtual-Patching-Rules.git",
+                "reference": "cce9592f6f4fbf3eee2a2ceaf63139765dc11436"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/FernleafSystems/Orle-Virtual-Patching-Rules/zipball/cce9592f6f4fbf3eee2a2ceaf63139765dc11436",
+                "reference": "cce9592f6f4fbf3eee2a2ceaf63139765dc11436",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "FernleafSystems\\Orle\\VirtualPatchingRules\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "The virtual patching rule language: schema, evaluator, validator and WordPress facts.",
+            "support": {
+                "source": "https://github.com/FernleafSystems/Orle-Virtual-Patching-Rules/tree/v0.0.1",
+                "issues": "https://github.com/FernleafSystems/Orle-Virtual-Patching-Rules/issues"
+            },
+            "time": "2026-10-15T10:46:26+00:00"
         },
         {
             "name": "fernleafsystems/utilities",

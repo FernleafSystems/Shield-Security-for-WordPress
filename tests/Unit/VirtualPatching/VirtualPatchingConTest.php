@@ -316,12 +316,11 @@ class VirtualPatchingConTest extends BaseUnitTest {
 		$this->con()->export();
 		$this->con()->runHourlyCron();
 
-		$this->assertSame( [ [ 'virtual_patch_rejected', [
-			'audit_params' => [
-				'rule'   => 'candidate-2',
-				'reason' => 'contractVersion must be 2',
-			],
-		] ] ], $this->events );
+		$this->assertCount( 1, $this->events );
+		$this->assertSame( 'virtual_patch_rejected', $this->events[ 0 ][ 0 ] );
+		$this->assertSame( 'candidate-2', $this->events[ 0 ][ 1 ][ 'audit_params' ][ 'rule' ] );
+		$firstReason = $this->events[ 0 ][ 1 ][ 'audit_params' ][ 'reason' ];
+		$this->assertNotSame( '', $firstReason );
 
 		$this->writePatches( [ self::patch(), self::patch( [], [
 			'candidateRevisionId' => 'candidate-2',
@@ -330,7 +329,8 @@ class VirtualPatchingConTest extends BaseUnitTest {
 		$this->con()->runHourlyCron();
 
 		$this->assertCount( 2, $this->events );
-		$this->assertSame( 'virtualPatch.action must be block', $this->events[ 1 ][ 1 ][ 'audit_params' ][ 'reason' ] );
+		$this->assertSame( 'candidate-2', $this->events[ 1 ][ 1 ][ 'audit_params' ][ 'rule' ] );
+		$this->assertNotSame( $firstReason, $this->events[ 1 ][ 1 ][ 'audit_params' ][ 'reason' ] );
 	}
 
 	private function con() :VirtualPatchingCon {

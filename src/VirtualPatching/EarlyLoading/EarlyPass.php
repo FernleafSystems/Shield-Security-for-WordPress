@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading;
 
+use FernleafSystems\Orle\VirtualPatchingRules\RuleEvaluator;
 use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\{
 	BlockLog,
-	IpBypass,
-	RuleEvaluator
+	IpBypass
 };
 
 /**

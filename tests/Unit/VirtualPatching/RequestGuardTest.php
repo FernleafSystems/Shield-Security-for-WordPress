@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\VirtualPatching;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Orle\VirtualPatchingRules\EvaluationPoint;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\{
@@ -75,9 +76,9 @@ class RequestGuardTest extends BaseUnitTest {
 
 		$this->guard( $this->ruleset( [ $this->rule( 'export', self::AJAX_EXPORT ) ], [ 'events' => $events ] ) )->start();
 
-		$this->assertSame( [ [ 'export', RequestGuard::POINT_LOAD ] ], $this->blocks );
+		$this->assertSame( [ [ 'export', EvaluationPoint::Request->value ] ], $this->blocks );
 		$entry = BlockLog::read( $events )[ 0 ];
-		$this->assertSame( [ 'export', [ 'CVE-2026-0001' ], '203.0.113.9', 'POST', '/wp-admin/admin-ajax.php', 'load', 'match' ], [
+		$this->assertSame( [ 'export', [ 'CVE-2026-0001' ], '203.0.113.9', 'POST', '/wp-admin/admin-ajax.php', EvaluationPoint::Request->value, 'match' ], [
 			$entry[ 'rule' ], $entry[ 'advisories' ], $entry[ 'ip' ], $entry[ 'method' ], $entry[ 'path' ], $entry[ 'pass' ], $entry[ 'verdict' ],
 		] );
 	}
@@ -100,7 +101,7 @@ class RequestGuardTest extends BaseUnitTest {
 	public function testPatternFailureBlocks() :void {
 		$rule = $this->rule( 'broken', [ [ 'kind' => 'path', 'negate' => false, 'operator' => 'regex', 'value' => '#(#' ] ] );
 		$this->guard( $this->ruleset( [ $rule ] ) )->start();
-		$this->assertSame( [ [ 'broken', RequestGuard::POINT_LOAD ] ], $this->blocks );
+		$this->assertSame( [ [ 'broken', EvaluationPoint::Request->value ] ], $this->blocks );
 	}
 
 	public function testBypassedIpSkipsEveryRule() :void {
@@ -132,10 +133,10 @@ class RequestGuardTest extends BaseUnitTest {
 		$this->admin = true;
 		$rule = $this->rule( 'admin', [ [ 'kind' => 'wp_is_admin', 'negate' => false ] ] );
 		$this->guard( $this->ruleset( [ $rule ] ) )->start();
-		$this->assertSame( [ [ 'admin', RequestGuard::POINT_LOAD ] ], $this->blocks );
+		$this->assertSame( [ [ 'admin', EvaluationPoint::Request->value ] ], $this->blocks );
 	}
 
-	public function testCapabilityRulesWaitForPluginsLoaded() :void {
+	public function testCapabilityRulesWaitForWordPressToSetUpTheUserAtInit() :void {
 		$rule = $this->rule( 'settings', [
 			[ 'kind' => 'path', 'negate' => false, 'operator' => 'equals', 'value' => '/wp-admin/admin-ajax.php' ],
 			[ 'kind' => 'user_capability', 'negate' => true, 'capability' => 'manage_options' ],
@@ -144,7 +145,8 @@ class RequestGuardTest extends BaseUnitTest {
 		$guard->start();
 
 		$this->assertSame( [], $this->blocks );
-		$this->assertSame( [ [ $guard, 'runUserRules' ], \PHP_INT_MIN ], $this->actions[ 'plugins_loaded' ] );
+		$this->assertSame( [ [ $guard, 'runUserRules' ], \PHP_INT_MIN ], $this->actions[ 'init' ] );
+		$this->assertArrayNotHasKey( 'plugins_loaded', $this->actions );
 
 		$this->capabilities = [ 'manage_options' ];
 		$guard->runUserRules();
@@ -152,7 +154,7 @@ class RequestGuardTest extends BaseUnitTest {
 
 		$this->capabilities = [ 'read' ];
 		$guard->runUserRules();
-		$this->assertSame( [ [ 'settings', RequestGuard::POINT_USER ] ], $this->blocks );
+		$this->assertSame( [ [ 'settings', EvaluationPoint::User->value ] ], $this->blocks );
 	}
 
 	public function testRestRulesAreCheckedOnEveryDispatch() :void {
@@ -206,8 +208,24 @@ class RequestGuardTest extends BaseUnitTest {
 		$this->assertNull( RequestGuard::fromSite(), 'multisite' );
 	}
 
+	public function testBootLoadsTheGuardAndRulePackageWithoutComposer() :void {
+		// A fresh PHP process with no autoloader, as when Shield's plugin file is included.
+		$boot = \dirname( __DIR__, 3 ).'/src/VirtualPatching/boot.php';
+		$script = \sprintf(
+			'define( "ABSPATH", "/" ); function get_option( $name ) { return ""; } function add_action() {} require %s; echo json_encode( [ class_exists( %s, false ), class_exists( %s, false ) ] );',
+			\var_export( $boot, true ),
+			\var_export( RequestGuard::class, true ),
+			\var_export( EvaluationPoint::class, true )
+		);
+		$process = \proc_open( [ \PHP_BINARY, '-n', '-r', $script ], [ 1 => [ 'pipe', 'w' ], 2 => [ 'pipe', 'w' ] ], $pipes );
+		$output = \stream_get_contents( $pipes[ 1 ] );
+		$errors = \stream_get_contents( $pipes[ 2 ] );
+		\proc_close( $process );
+		$this->assertSame( '[true,true]', $output, $errors );
+	}
+
 	public function testRestBlockIsAForbiddenError() :void {
-		$error = ( new RequestGuard( [] ) )->sendForbidden( [], RequestGuard::POINT_REST );
+		$error = ( new RequestGuard( [] ) )->sendForbidden( [], EvaluationPoint::Rest->value );
 		$this->assertInstanceOf( \WP_Error::class, $error );
 		$this->assertSame( 'shield_virtual_patch', $error->get_error_code() );
 	}

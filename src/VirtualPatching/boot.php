@@ -2,7 +2,8 @@
 
 /**
  * Starts the virtual patching checks as soon as Shield's plugin file is included. Composer isn't loaded yet, so
- * the self-contained classes are required directly. Nothing here may stop the site loading.
+ * the self-contained classes, and the rule package classes they use, are required directly. Nothing here may stop
+ * the site loading.
  */
 if ( !\defined( 'ABSPATH' ) ) {
 	return;
@@ -11,9 +12,18 @@ if ( !\defined( 'ABSPATH' ) ) {
 ( static function () :void {
 	try {
 		$namespace = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\VirtualPatching\\';
-		foreach ( [ 'RuleEvaluator', 'IpBypass', 'BlockLog', 'Ruleset\\RulesetFile', 'RequestGuard' ] as $class ) {
-			if ( !\class_exists( $namespace.$class, false ) ) {
-				require_once __DIR__.'/'.\str_replace( '\\', '/', $class ).'.php';
+		$files = require __DIR__.'/rule-package.php';
+		foreach ( [ 'IpBypass', 'BlockLog', 'Ruleset\\RulesetFile', 'RequestGuard' ] as $class ) {
+			$files[ $namespace.$class ] = __DIR__.'/'.\str_replace( '\\', '/', $class ).'.php';
+		}
+		foreach ( $files as $class => $file ) {
+			if ( !\class_exists( $class, false ) ) {
+				// Part way through a plugin update or deletion, a file can be missing, and a failed require
+				// is a fatal error that can't be caught, so nothing is required unless it's there.
+				if ( !\is_file( $file ) ) {
+					return;
+				}
+				require_once $file;
 			}
 		}
 		\FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\RequestGuard::boot();
