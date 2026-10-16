@@ -146,14 +146,18 @@ class EarlyLoaderServerTest extends TestCase {
 		$this->port = (int)\substr( (string)\strrchr( (string)\stream_socket_get_name( $socket, false ), ':' ), 1 );
 		\fclose( $socket );
 
-		$log = $this->createTrackedTempDir( 'shield-early-server-log-' ).'/server.log';
+		// An open handle, not a ['file', ...] descriptor: under the unit bootstrap's Patchwork stream wrapper,
+		// proc_open() can't hand a file it opens itself to the child, which then exits 127.
+		$log = \fopen( $this->createTrackedTempDir( 'shield-early-server-log-' ).'/server.log', 'a' );
+		$this->assertIsResource( $log );
 		$this->server = \proc_open( [
 			\PHP_BINARY, '-n',
 			'-d', 'display_errors=0',
 			'-d', 'auto_prepend_file='.$this->root.'/'.StubBuilder::FILE_NAME,
 			'-S', '127.0.0.1:'.$this->port,
 			'-t', $this->root,
-		], [ 1 => [ 'file', $log, 'a' ], 2 => [ 'file', $log, 'a' ] ], $pipes );
+		], [ 1 => $log, 2 => $log ], $pipes );
+		\fclose( $log );
 		$this->assertIsResource( $this->server );
 
 		$deadline = \microtime( true ) + 10;
