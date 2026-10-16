@@ -198,6 +198,21 @@ class RequestGuardTest extends BaseUnitTest {
 		$this->assertSame( 'blocked', $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'GET', '/example/v1/profile', [] ) ) );
 	}
 
+	public function testRestRulesCheckTheUsersCapabilityAtDispatch() :void {
+		$rule = $this->rule( 'missing-permission-check', [
+			[ 'kind' => 'rest_route', 'negate' => false, 'namespace' => 'example/v1', 'operator' => 'equals_i', 'value' => '/settings' ],
+			[ 'kind' => 'user_capability', 'negate' => true, 'capability' => 'manage_options' ],
+		] );
+		$guard = $this->guard( $this->ruleset( [ $rule ] ) );
+		$guard->start();
+
+		$this->assertArrayNotHasKey( 'init', $this->actions );
+		$this->capabilities = [ 'manage_options' ];
+		$this->assertNull( $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'POST', '/example/v1/settings', [] ) ) );
+		$this->capabilities = [ 'read' ];
+		$this->assertSame( 'blocked', $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'POST', '/example/v1/settings', [] ) ) );
+	}
+
 	public function testHeaderRulesAreCheckedWhenShieldLoads() :void {
 		$rule = $this->rule( 'header', [
 			[ 'kind' => 'header_value', 'negate' => false, 'name' => 'X-Forwarded-For', 'operator' => 'contains', 'value' => '<' ],
