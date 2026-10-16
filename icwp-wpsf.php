@@ -8,7 +8,7 @@
  * Domain Path: /languages
  * Author: Shield Security
  * Author URI: https://clk.shldscrty.com/bv
- * Requires at least: 5.7
+ * Requires at least: 6.6
  * Requires PHP: 8.2
  */
 

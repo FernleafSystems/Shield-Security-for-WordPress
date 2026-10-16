@@ -4,7 +4,7 @@ Donate link: https://clk.shldscrty.com/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: firewall, bots, activity log, 2fa, security
-Requires at least: 5.7
+Requires at least: 6.6
 Requires PHP: 8.2
 Recommended PHP: 8.2
 Tested up to: 7.1
