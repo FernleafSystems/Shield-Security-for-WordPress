@@ -288,10 +288,14 @@ class RequestGuardTest extends BaseUnitTest {
 		return $output;
 	}
 
-	public function testRestBlockIsAForbiddenError() :void {
-		$error = ( new RequestGuard( [] ) )->sendForbidden( [], EvaluationPoint::Rest->value );
-		$this->assertInstanceOf( \WP_Error::class, $error );
-		$this->assertSame( 'shield_virtual_patch', $error->get_error_code() );
+	public function testRestBlockIsAForbiddenResponse() :void {
+		Functions\when( 'rest_convert_error_to_response' )->alias( function ( \WP_Error $error ) :\WP_REST_Response {
+			return new \WP_REST_Response( [ 'code' => $error->get_error_code() ], $error->get_error_data()[ 'status' ] );
+		} );
+		$response = ( new RequestGuard( [] ) )->sendForbidden( [], EvaluationPoint::Rest->value );
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( [ 'code' => 'shield_virtual_patch' ], $response->get_data() );
 	}
 
 	private function guard( array $ruleset ) :RequestGuard {
