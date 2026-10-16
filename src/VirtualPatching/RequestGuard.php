@@ -12,9 +12,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\Ruleset\RulesetFile;
 /**
  * Checks virtual patching rules inside WordPress, each at the evaluation point the rule package gives it:
  * - request: as soon as Shield's plugin file is included;
- * - user: at 'init', once WordPress has set up the current user. The user is only looked up when the rule's
- *   earlier conditions already match;
- * - rest: at 'rest_pre_dispatch', on every dispatch.
+ * - user: at 'init', once WordPress has set up the current user;
+ * - rest: at 'rest_pre_dispatch', on every dispatch, with the current user as REST authentication left it.
  *
  * Shield's plugin file includes this before Composer loads, so it only uses the self-contained virtual patching
  * classes, the rule package's classes it requires by path, and WordPress functions. It never throws: a failure
@@ -121,7 +120,7 @@ final class RequestGuard {
 		if ( !$request instanceof \WP_REST_Request ) {
 			return $result;
 		}
-		$blocked = $this->run( EvaluationPoint::Rest, \array_merge( $this->requestFacts(), WordPressFacts::rest( $request ) ) );
+		$blocked = $this->run( EvaluationPoint::Rest, \array_merge( $this->requestFacts(), WordPressFacts::user(), WordPressFacts::rest( $request ) ) );
 		return $blocked === null ? $result : $blocked;
 	}
 

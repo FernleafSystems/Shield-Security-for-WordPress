@@ -44,6 +44,19 @@ class EarlyPassTest extends TestCase {
 		$this->assertSame( [], BlockLog::read( $this->events ) );
 	}
 
+	public function testHeaderRulesAreDecidedBeforeWordPress() :void {
+		$rule = [
+			'id'         => 'header',
+			'advisories' => [],
+			'conditions' => [
+				[ 'kind' => 'header_value', 'negate' => false, 'name' => 'X-Forwarded-For', 'operator' => 'contains', 'value' => '<' ],
+			],
+		];
+		$server = $this->server( 'GET', '/' ) + [ 'HTTP_X_FORWARDED_FOR' => '198.51.100.23<script>' ];
+
+		$this->assertSame( 'header', ( new EarlyPass( $this->ruleset( [ $rule ] ), $server, [], [] ) )->run()[ 'id' ] ?? null );
+	}
+
 	public function testRulesNeedingWordPressAreLeftAlone() :void {
 		$rule = [
 			'id'         => 'needs-user',
