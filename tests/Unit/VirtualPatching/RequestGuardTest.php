@@ -33,6 +33,8 @@ class RequestGuardTest extends BaseUnitTest {
 
 	private array $capabilities = [];
 
+	private int $userId = 0;
+
 	private array $serverBackup;
 
 	protected function setUp() :void {
@@ -60,6 +62,7 @@ class RequestGuardTest extends BaseUnitTest {
 		Functions\when( 'is_network_admin' )->justReturn( false );
 		Functions\when( 'wp_unslash' )->alias( fn( $value ) => \is_array( $value ) ? \array_map( 'stripslashes', $value ) : \stripslashes( $value ) );
 		Functions\when( 'current_user_can' )->alias( fn( string $capability ) :bool => \in_array( $capability, $this->capabilities, true ) );
+		Functions\when( 'get_current_user_id' )->alias( fn() :int => $this->userId );
 	}
 
 	protected function tearDown() :void {
@@ -155,6 +158,55 @@ class RequestGuardTest extends BaseUnitTest {
 		$this->capabilities = [ 'read' ];
 		$guard->runUserRules();
 		$this->assertSame( [ [ 'settings', EvaluationPoint::User->value ] ], $this->blocks );
+	}
+
+	public function testSignedInAndOwnUserRulesWaitForWordPressToSetUpTheUserAtInit() :void {
+		// Blocks a signed-in user acting on another user's ID.
+		$rule = $this->rule( 'other-user', [
+			[ 'kind' => 'parameter_exists', 'negate' => false, 'source' => 'form', 'name' => 'user_id' ],
+			[ 'kind' => 'parameter_current_user_id', 'negate' => true, 'source' => 'form', 'name' => 'user_id' ],
+			[ 'kind' => 'user_authenticated', 'negate' => false ],
+		] );
+		$guard = $this->guard( $this->ruleset( [ $rule ] ) );
+		$guard->start();
+
+		$this->assertSame( [ [ $guard, 'runUserRules' ], \PHP_INT_MIN ], $this->actions[ 'init' ] );
+
+		$_POST = [ 'user_id' => '05' ];
+		$guard->runUserRules();
+		$this->userId = 5;
+		$guard->runUserRules();
+		$this->assertSame( [], $this->blocks );
+
+		$this->userId = 2;
+		$guard->runUserRules();
+		$this->assertSame( [ [ 'other-user', EvaluationPoint::User->value ] ], $this->blocks );
+	}
+
+	public function testRestRulesReadTheUserAtDispatch() :void {
+		$rule = $this->rule( 'signed-out', [
+			[ 'kind' => 'rest_route', 'negate' => false, 'namespace' => 'example/v1', 'operator' => 'equals_i', 'value' => '/profile' ],
+			[ 'kind' => 'user_authenticated', 'negate' => true ],
+		] );
+		$guard = $this->guard( $this->ruleset( [ $rule ] ) );
+		$guard->start();
+
+		$this->assertArrayNotHasKey( 'init', $this->actions );
+		$this->userId = 3;
+		$this->assertNull( $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'GET', '/example/v1/profile', [] ) ) );
+		$this->userId = 0;
+		$this->assertSame( 'blocked', $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'GET', '/example/v1/profile', [] ) ) );
+	}
+
+	public function testHeaderRulesAreCheckedWhenShieldLoads() :void {
+		$rule = $this->rule( 'header', [
+			[ 'kind' => 'header_value', 'negate' => false, 'name' => 'X-Forwarded-For', 'operator' => 'contains', 'value' => '<' ],
+		] );
+		$_SERVER[ 'HTTP_X_FORWARDED_FOR' ] = '198.51.100.23<script>';
+
+		$this->guard( $this->ruleset( [ $rule ] ) )->start();
+
+		$this->assertSame( [ [ 'header', EvaluationPoint::Request->value ] ], $this->blocks );
 	}
 
 	public function testRestRulesAreCheckedOnEveryDispatch() :void {
