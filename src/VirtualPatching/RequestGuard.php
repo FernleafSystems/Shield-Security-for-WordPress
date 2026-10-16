@@ -163,12 +163,14 @@ final class RequestGuard {
 	}
 
 	/**
+	 * A REST block answers only the dispatch it blocks, as a response: a batch passes 'rest_pre_dispatch' results on
+	 * unconverted, and a bare WP_Error there breaks the whole batch.
 	 * @param string $point an EvaluationPoint value, or 'early' for the early pass
-	 * @return \WP_Error|never
+	 * @return \WP_REST_Response|never
 	 */
 	public function sendForbidden( array $rule, string $point ) {
-		if ( $point === EvaluationPoint::Rest->value && \class_exists( '\WP_Error' ) ) {
-			return new \WP_Error( 'shield_virtual_patch', 'Forbidden', [ 'status' => 403 ] );
+		if ( $point === EvaluationPoint::Rest->value && \function_exists( 'rest_convert_error_to_response' ) ) {
+			return rest_convert_error_to_response( new \WP_Error( 'shield_virtual_patch', 'Forbidden', [ 'status' => 403 ] ) );
 		}
 		if ( !\headers_sent() ) {
 			\function_exists( 'status_header' ) ? status_header( 403 ) : \http_response_code( 403 );
