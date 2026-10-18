@@ -134,12 +134,16 @@ namespace {
 			 * @param array<string,mixed>|string $arg1
 			 * @param array<string,mixed>|string|null $arg2
 			 * @param array<string,mixed> $arg3
+			 * @param array<string|int,mixed> $headers only with a method and route; a numeric name becomes an integer key, as in a decoded batch item
 			 */
-			public function __construct( $arg1 = [], $arg2 = null, array $arg3 = [] ) {
+			public function __construct( $arg1 = [], $arg2 = null, array $arg3 = [], array $headers = [] ) {
 				if ( \is_string( $arg1 ) ) {
 					$this->method = $arg1;
 					$this->route = \is_string( $arg2 ) ? $arg2 : '';
 					$this->params = $arg3;
+					foreach ( $headers as $name => $value ) {
+						$this->headers[ \strtolower( (string)$name ) ] = (string)$value;
+					}
 					return;
 				}
 
