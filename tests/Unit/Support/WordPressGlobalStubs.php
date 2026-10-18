@@ -174,8 +174,34 @@ namespace {
 				return \array_key_exists( $key, $this->params );
 			}
 
+			public function get_params() :array {
+				return $this->params;
+			}
+
+			/**
+			 * @return array<string,string[]>
+			 */
+			public function get_headers() :array {
+				return \array_map( static fn( string $value ) :array => [ $value ], $this->headers );
+			}
+
+			/**
+			 * The constructor's params stand for a JSON body, so there are no separate query or form maps.
+			 */
 			public function get_json_params() :array {
 				return $this->params;
+			}
+
+			public function get_query_params() :array {
+				return [];
+			}
+
+			public function get_body_params() :array {
+				return [];
+			}
+
+			public function get_body() :string {
+				return '';
 			}
 		}
 	}
