@@ -264,6 +264,21 @@ class RequestGuardTest extends BaseUnitTest {
 		$this->assertCount( 1, $this->blocks );
 	}
 
+	public function testRestDispatchWithAnIntegerHeaderKeyIsDecidedNormally() :void {
+		$rule = $this->rule( 'rest', [
+			[ 'kind' => 'rest_route', 'negate' => false, 'namespace' => 'example/v1', 'operator' => 'equals_i', 'value' => '/settings' ],
+			[ 'kind' => 'rest_parameter_exists', 'negate' => false, 'name' => 'callback' ],
+		] );
+		$guard = $this->guard( $this->ruleset( [ $rule ] ) );
+		$guard->start();
+
+		// A batch item's header map is decoded JSON, so a header named "0" arrives as the integer key 0.
+		$headers = [ 0 => 'x', 'X-Test' => 'y' ];
+		$this->assertNull( $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'POST', '/example/v1/settings', [ 'name' => 'x' ], $headers ) ) );
+		$this->assertSame( 'blocked', $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'POST', '/example/v1/settings', [ 'callback' => 'x' ], $headers ) ) );
+		$this->assertSame( [ [ 'rest', EvaluationPoint::Rest->value ] ], $this->blocks );
+	}
+
 	public function testRestRulesUseTheMethodWordPressDispatches() :void {
 		// The HTTP request is a GET; ?_method=POST makes WordPress dispatch the POST handler.
 		$_SERVER[ 'REQUEST_METHOD' ] = 'GET';

@@ -156,15 +156,15 @@ final class RequestGuard {
 	}
 
 	/**
-	 * Plugin and theme activity come from the ruleset, as the early pass takes them. There are no REST values
-	 * outside a REST dispatch, which a rule that reads them needs stated (see RuleEvaluator::alsoAtRest()); a
-	 * dispatch's own facts replace this.
+	 * Plugin and theme activity come from the ruleset, as the early pass takes them. The rule package owns the
+	 * absence of REST values outside a REST dispatch: WordPressFacts::request() sets 'rest_values' to null, which
+	 * a rule that reads them needs stated (see RuleEvaluator::alsoAtRest()); a dispatch's own facts replace it.
 	 */
 	private function requestFacts() :array {
 		return \array_merge(
 			WordPressFacts::request(),
 			RuleEvaluator::rulesetFacts( $this->ruleset ),
-			[ 'is_admin' => WordPressFacts::isAdmin(), 'rest_values' => null ]
+			[ 'is_admin' => WordPressFacts::isAdmin() ]
 		);
 	}
 
