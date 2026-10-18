@@ -21,6 +21,30 @@ class RequestGuardTest extends BaseUnitTest {
 		[ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'form', 'name' => 'action', 'operator' => 'equals', 'value' => "it's_export" ],
 	];
 
+	/**
+	 * Stored markup in an editor field, sent as a form value or as REST JSON, from a caller without unfiltered_html.
+	 * The rule needs the user, so its own point is 'user'; its REST branch makes it also checked at REST dispatch.
+	 */
+	private const MARKUP_ANYWHERE = [
+		[ 'kind' => 'user_capability', 'negate' => true, 'capability' => 'unfiltered_html' ],
+		[ 'kind' => 'or', 'conditions' => [
+			[ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'form', 'name' => 'post_content', 'operator' => 'contains', 'value' => 'onfocus' ],
+			[ 'kind' => 'rest_parameter_value', 'negate' => false, 'name' => 'content', 'operator' => 'contains', 'value' => 'onfocus' ],
+		] ],
+	];
+
+	/**
+	 * The same from anyone, so its own point is 'request'.
+	 */
+	private const MARKUP_ANYWHERE_FROM_ANYONE = [
+		[ 'kind' => 'or', 'conditions' => [
+			[ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'form', 'name' => 'post_content', 'operator' => 'contains', 'value' => 'onfocus' ],
+			[ 'kind' => 'rest_parameter_value', 'negate' => false, 'name' => 'content', 'operator' => 'contains', 'value' => 'onfocus' ],
+		] ],
+	];
+
+	private const MARKUP = 'x" onfocus="y';
+
 	private array $blocks = [];
 
 	private array $actions = [];
@@ -252,6 +276,90 @@ class RequestGuardTest extends BaseUnitTest {
 
 		$this->assertSame( 'blocked', $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'POST', '/example/v1/upload', [] ) ) );
 		$this->assertNull( $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'GET', '/example/v1/upload', [] ) ) );
+	}
+
+	public function testRuleThatAlsoReadsRestValuesBlocksAClassicRequestAtItsOwnPoint() :void {
+		$guard = $this->guard( $this->ruleset( [ $this->rule( 'markup', self::MARKUP_ANYWHERE ) ] ) );
+		$guard->start();
+
+		$this->assertSame( [ [ $guard, 'runUserRules' ], \PHP_INT_MIN ], $this->actions[ 'init' ] );
+		$this->assertSame( [ [ $guard, 'checkRestDispatch' ], \PHP_INT_MIN ], $this->filters[ 'rest_pre_dispatch' ] );
+
+		$this->capabilities = [ 'edit_posts' ];
+		$_POST = [ 'post_content' => self::MARKUP ];
+		$guard->runUserRules();
+		$this->assertSame( [ [ 'markup', EvaluationPoint::User->value ] ], $this->blocks );
+
+		$this->capabilities = [ 'edit_posts', 'unfiltered_html' ];
+		$guard->runUserRules();
+		$this->assertCount( 1, $this->blocks );
+	}
+
+	public function testRuleThatAlsoReadsRestValuesIsDecidedAtTheRequestPointWithNoRestValues() :void {
+		$_POST = [ 'post_content' => self::MARKUP ];
+		$guard = $this->guard( $this->ruleset( [ $this->rule( 'markup', self::MARKUP_ANYWHERE_FROM_ANYONE ) ] ) );
+		$guard->start();
+
+		$this->assertSame( [ [ 'markup', EvaluationPoint::Request->value ] ], $this->blocks );
+		$this->assertArrayNotHasKey( 'init', $this->actions );
+		$this->assertArrayHasKey( 'rest_pre_dispatch', $this->filters );
+	}
+
+	public function testRuleThatAlsoReadsRestValuesBlocksARestDispatchCarryingTheValueInItsJsonBody() :void {
+		Functions\when( 'rest_convert_error_to_response' )->alias( function ( \WP_Error $error ) :\WP_REST_Response {
+			return new \WP_REST_Response( [ 'code' => $error->get_error_code() ], $error->get_error_data()[ 'status' ] );
+		} );
+		$events = $this->createTrackedTempDir().'/events.php';
+		$guard = new RequestGuard( $this->ruleset( [ $this->rule( 'markup', self::MARKUP_ANYWHERE ) ], [ 'events' => $events ] ) );
+		$guard->start();
+		$this->capabilities = [ 'edit_posts' ];
+
+		$response = $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'POST', '/wp/v2/posts/7', [ 'content' => self::MARKUP ] ) );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( [ 'code' => 'shield_virtual_patch' ], $response->get_data() );
+		$this->assertSame( [ EvaluationPoint::Rest->value ], \array_column( BlockLog::read( $events ), 'pass' ) );
+
+		// Only that dispatch is answered: the next one, in the same request, is left to WordPress.
+		$this->assertSame( 'earlier result', $guard->checkRestDispatch( 'earlier result', null, new \WP_REST_Request( 'POST', '/wp/v2/posts/7', [ 'content' => 'Hello' ] ) ) );
+	}
+
+	public function testRuleThatAlsoReadsRestValuesLeavesOtherRequestsAndDispatchesAlone() :void {
+		$guard = $this->guard( $this->ruleset( [ $this->rule( 'markup', self::MARKUP_ANYWHERE ) ] ) );
+		$guard->start();
+		$this->capabilities = [ 'edit_posts' ];
+
+		$_POST = [ 'post_content' => 'Hello' ];
+		$guard->runUserRules();
+		$this->assertSame( [], $this->blocks );
+
+		// Another field carrying the value, a dispatch with no value at all, and a caller who may post markup.
+		$this->assertNull( $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'POST', '/wp/v2/posts/7', [ 'title' => self::MARKUP ] ) ) );
+		$this->assertNull( $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'GET', '/wp/v2/posts', [] ) ) );
+		$this->capabilities = [ 'edit_posts', 'unfiltered_html' ];
+		$this->assertNull( $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'POST', '/wp/v2/posts/7', [ 'content' => self::MARKUP ] ) ) );
+
+		$this->assertSame( [], $this->blocks );
+	}
+
+	public function testRuleThatAlsoReadsRestValuesIsStillCheckedAtRestWhenTheEarlyPassRan() :void {
+		if ( !\defined( 'SHIELD_EARLY_RAN' ) ) {
+			\define( 'SHIELD_EARLY_RAN', 'hash-from-early-pass' );
+		}
+		$_POST = [ 'action' => "it's_export", 'post_content' => self::MARKUP ];
+		$guard = $this->guard( $this->ruleset(
+			[ $this->rule( 'export', self::AJAX_EXPORT ), $this->rule( 'markup', self::MARKUP_ANYWHERE ) ],
+			[ 'hash' => \constant( 'SHIELD_EARLY_RAN' ) ]
+		) );
+		$guard->start();
+		$this->capabilities = [ 'edit_posts' ];
+
+		// The early pass took the export rule; the markup rule needs WordPress, at its own point and at dispatch.
+		$guard->runUserRules();
+		$this->assertSame( [ [ 'markup', EvaluationPoint::User->value ] ], $this->blocks );
+		$this->assertSame( 'blocked', $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'POST', '/wp/v2/posts/7', [ 'content' => self::MARKUP ] ) ) );
+		$this->assertSame( [ 'markup', 'markup' ], \array_column( $this->blocks, 0 ) );
 	}
 
 	public function testGuardIsBuiltOnlyForAReadableRulesetWithRules() :void {

@@ -72,6 +72,24 @@ class EarlyPassTest extends TestCase {
 		$this->assertTrue( $pass->isComplete() );
 	}
 
+	public function testRulesThatReadRestValuesAreLeftToWordPress() :void {
+		$rule = [
+			'id'         => 'markup',
+			'advisories' => [],
+			'conditions' => [
+				[ 'kind' => 'or', 'conditions' => [
+					[ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'form', 'name' => 'post_content', 'operator' => 'contains', 'value' => 'onfocus' ],
+					[ 'kind' => 'rest_parameter_value', 'negate' => false, 'name' => 'content', 'operator' => 'contains', 'value' => 'onfocus' ],
+				] ],
+			],
+		];
+		$pass = new EarlyPass( $this->ruleset( [ $rule ] ), $this->server( 'POST', '/wp-admin/post.php' ), [], [ 'post_content' => 'x" onfocus="y' ] );
+
+		$this->assertNull( $pass->run() );
+		$this->assertTrue( $pass->isComplete() );
+		$this->assertSame( [], BlockLog::read( $this->events ) );
+	}
+
 	public function testBypassedIpIsNeverBlocked() :void {
 		$ruleset = $this->ruleset( [ $this->installerRule() ] );
 		$ruleset[ 'bypass' ] = [ 'ip_source' => 'REMOTE_ADDR', 'ips' => [ '203.0.113.0/24' ] ];
