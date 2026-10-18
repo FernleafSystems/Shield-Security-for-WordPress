@@ -15,6 +15,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\Ruleset\RulesetFile;
  * - user: at 'init', once WordPress has set up the current user;
  * - rest: at 'rest_pre_dispatch', on every dispatch, with the current user as REST authentication left it.
  *
+ * A rule that reads REST values without a REST route (RuleEvaluator::alsoAtRest()) is checked twice: at its own
+ * point with no REST values, and again at 'rest_pre_dispatch' with the dispatch's facts, so one rule covers an
+ * ordinary request and a REST dispatch carrying the same value. A match at either check blocks. The REST check
+ * also runs on internal dispatches, such as rest_do_request() and editor preloading, because they pass through
+ * WP_REST_Server::dispatch(). REST values aren't an early fact, so the early pass never covers such a rule's own
+ * point, and its REST check is scheduled regardless.
+ *
  * Shield's plugin file includes this before Composer loads, so it only uses the self-contained virtual patching
  * classes, the rule package's classes it requires by path, and WordPress functions. It never throws: a failure
  * leaves the request to WordPress as before.
@@ -83,8 +90,13 @@ final class RequestGuard {
 		$earlyRan = \defined( 'SHIELD_EARLY_RAN' ) && \constant( 'SHIELD_EARLY_RAN' ) === ( $this->ruleset[ 'hash' ] ?? null );
 		foreach ( $this->ruleset[ 'rules' ] as $rule ) {
 			try {
+				$point = $this->evaluator->pointFor( $rule );
+				$alsoAtRest = $this->evaluator->alsoAtRest( $rule );
 				if ( !( $earlyRan && $this->evaluator->isEarlyCapable( $rule ) ) ) {
-					$this->rulesByPoint[ $this->evaluator->pointFor( $rule )->value ][] = $rule;
+					$this->rulesByPoint[ $point->value ][] = $rule;
+				}
+				if ( $alsoAtRest ) {
+					$this->rulesByPoint[ EvaluationPoint::Rest->value ][] = $rule;
 				}
 			}
 			catch ( \Throwable $e ) {
@@ -144,13 +156,15 @@ final class RequestGuard {
 	}
 
 	/**
-	 * Plugin and theme activity come from the ruleset, as the early pass takes them.
+	 * Plugin and theme activity come from the ruleset, as the early pass takes them. There are no REST values
+	 * outside a REST dispatch, which a rule that reads them needs stated (see RuleEvaluator::alsoAtRest()); a
+	 * dispatch's own facts replace this.
 	 */
 	private function requestFacts() :array {
 		return \array_merge(
 			WordPressFacts::request(),
 			RuleEvaluator::rulesetFacts( $this->ruleset ),
-			[ 'is_admin' => WordPressFacts::isAdmin() ]
+			[ 'is_admin' => WordPressFacts::isAdmin(), 'rest_values' => null ]
 		);
 	}
 
