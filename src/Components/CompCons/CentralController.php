@@ -125,7 +125,7 @@ class CentralController {
 		return [ 'success' => true ];
 	}
 
-	public function syncCollect( string $siteUuid, array $connectionMaterial ) :array {
+	public function syncCollect( string $siteUuid, array $connectionMaterial, ?string $dailyTotalsSince = null ) :array {
 		$this->assertEnabled();
 		if ( !( new ConnectionStore() )->verify( $siteUuid, $connectionMaterial ) ) {
 			return $this->failure(
@@ -135,7 +135,7 @@ class CentralController {
 			);
 		}
 
-		return ( new BuildSyncPayload() )->build();
+		return ( new BuildSyncPayload() )->build( $dailyTotalsSince );
 	}
 
 	private function failure( string $diagnosticCode, string $message, bool $reconnectRequired = false ) :array {
