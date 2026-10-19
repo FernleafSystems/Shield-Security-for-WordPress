@@ -204,6 +204,18 @@ namespace {
 				return [];
 			}
 
+			public function get_file_params() :array {
+				return [];
+			}
+
+			/**
+			 * @return string[]|null
+			 */
+			public function get_header_as_array( string $name ) :?array {
+				$value = $this->headers[ \strtolower( \str_replace( '_', '-', $name ) ) ] ?? null;
+				return $value === null ? null : [ $value ];
+			}
+
 			public function get_body() :string {
 				return '';
 			}

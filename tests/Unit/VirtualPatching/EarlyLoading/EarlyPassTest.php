@@ -24,7 +24,7 @@ class EarlyPassTest extends TestCase {
 	}
 
 	public function testMatchingEarlyRuleBlocksAndIsLogged() :void {
-		$pass = new EarlyPass( $this->ruleset( [ $this->installerRule() ] ), $this->server( 'POST', '/wp-content/plugins/demo/install.php' ), [], [ 'step' => '2' ] );
+		$pass = new EarlyPass( $this->ruleset( [ $this->installerRule() ] ), $this->server( 'POST', '/wp-content/plugins/demo/install.php' ), [], [ 'step' => '2' ], [] );
 
 		$blocked = $pass->run();
 
@@ -37,7 +37,7 @@ class EarlyPassTest extends TestCase {
 	}
 
 	public function testNormalRequestPassesAndEarlyRulesCountAsDecided() :void {
-		$pass = new EarlyPass( $this->ruleset( [ $this->installerRule() ] ), $this->server( 'GET', '/wp-content/plugins/demo/install.php' ), [], [] );
+		$pass = new EarlyPass( $this->ruleset( [ $this->installerRule() ] ), $this->server( 'GET', '/wp-content/plugins/demo/install.php' ), [], [], [] );
 
 		$this->assertNull( $pass->run() );
 		$this->assertTrue( $pass->isComplete() );
@@ -54,7 +54,7 @@ class EarlyPassTest extends TestCase {
 		];
 		$server = $this->server( 'GET', '/' ) + [ 'HTTP_X_FORWARDED_FOR' => '198.51.100.23<script>' ];
 
-		$this->assertSame( 'header', ( new EarlyPass( $this->ruleset( [ $rule ] ), $server, [], [] ) )->run()[ 'id' ] ?? null );
+		$this->assertSame( 'header', ( new EarlyPass( $this->ruleset( [ $rule ] ), $server, [], [], [] ) )->run()[ 'id' ] ?? null );
 	}
 
 	public function testRulesNeedingWordPressAreLeftAlone() :void {
@@ -66,7 +66,7 @@ class EarlyPassTest extends TestCase {
 				[ 'kind' => 'user_capability', 'negate' => true, 'capability' => 'manage_options' ],
 			],
 		];
-		$pass = new EarlyPass( $this->ruleset( [ $rule ] ), $this->server( 'GET', '/wp-content/plugins/demo/x.php' ), [], [] );
+		$pass = new EarlyPass( $this->ruleset( [ $rule ] ), $this->server( 'GET', '/wp-content/plugins/demo/x.php' ), [], [], [] );
 
 		$this->assertNull( $pass->run() );
 		$this->assertTrue( $pass->isComplete() );
@@ -83,17 +83,38 @@ class EarlyPassTest extends TestCase {
 				] ],
 			],
 		];
-		$pass = new EarlyPass( $this->ruleset( [ $rule ] ), $this->server( 'POST', '/wp-admin/post.php' ), [], [ 'post_content' => 'x" onfocus="y' ] );
+		$pass = new EarlyPass( $this->ruleset( [ $rule ] ), $this->server( 'POST', '/wp-admin/post.php' ), [], [ 'post_content' => 'x" onfocus="y' ], [] );
 
 		$this->assertNull( $pass->run() );
 		$this->assertTrue( $pass->isComplete() );
 		$this->assertSame( [], BlockLog::read( $this->events ) );
 	}
 
+	public function testUploadRulesAreDecidedFromTheUploadedFiles() :void {
+		$rule = [
+			'id'         => 'upload',
+			'advisories' => [],
+			'conditions' => [
+				[ 'kind' => 'path', 'negate' => false, 'operator' => 'equals', 'value' => '/wp-admin/async-upload.php' ],
+				[ 'kind' => 'uploaded_file_extension', 'negate' => false, 'extensions' => [ 'apk', 'exe', 'msi' ] ],
+			],
+		];
+		$server = $this->server( 'POST', '/wp-admin/async-upload.php' );
+		$files = [
+			'async-upload' => [ 'name' => 'setup.EXE', 'type' => 'image/png', 'tmp_name' => '/tmp/php1', 'error' => 0, 'size' => 1 ],
+		];
+
+		$this->assertSame( 'upload', ( new EarlyPass( $this->ruleset( [ $rule ] ), $server, [], [], $files ) )->run()[ 'id' ] ?? null );
+
+		$withoutFile = new EarlyPass( $this->ruleset( [ $rule ] ), $server, [], [], [] );
+		$this->assertNull( $withoutFile->run() );
+		$this->assertTrue( $withoutFile->isComplete() );
+	}
+
 	public function testBypassedIpIsNeverBlocked() :void {
 		$ruleset = $this->ruleset( [ $this->installerRule() ] );
 		$ruleset[ 'bypass' ] = [ 'ip_source' => 'REMOTE_ADDR', 'ips' => [ '203.0.113.0/24' ] ];
-		$pass = new EarlyPass( $ruleset, $this->server( 'POST', '/wp-content/plugins/demo/install.php' ), [], [ 'step' => '2' ] );
+		$pass = new EarlyPass( $ruleset, $this->server( 'POST', '/wp-content/plugins/demo/install.php' ), [], [ 'step' => '2' ], [] );
 
 		$this->assertNull( $pass->run() );
 		$this->assertTrue( $pass->isComplete() );
@@ -101,7 +122,7 @@ class EarlyPassTest extends TestCase {
 
 	public function testRuleThatCannotBeEvaluatedLeavesThePassIncomplete() :void {
 		$broken = [ 'id' => 'broken', 'advisories' => [], 'conditions' => [ [ 'kind' => 'not_a_condition', 'negate' => false ] ] ];
-		$pass = new EarlyPass( $this->ruleset( [ $broken ] ), $this->server( 'GET', '/' ), [], [] );
+		$pass = new EarlyPass( $this->ruleset( [ $broken ] ), $this->server( 'GET', '/' ), [], [], [] );
 
 		$this->assertNull( $pass->run() );
 		$this->assertFalse( $pass->isComplete() );

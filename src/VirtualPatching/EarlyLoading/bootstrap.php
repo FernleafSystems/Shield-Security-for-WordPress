@@ -48,7 +48,7 @@ if ( !\defined( 'SHIELD_EARLY_RULESET' ) || !\defined( 'SHIELD_EARLY_SCOPE' ) ||
 			 && \FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\EarlyPass::coversScript( $script, $scope ) ) {
 			$ruleset = \FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\Ruleset\RulesetFile::read( $rulesetPath );
 			if ( $ruleset !== null && !empty( $ruleset[ 'rules' ] ) ) {
-				$pass = new \FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\EarlyPass( $ruleset, $_SERVER, $_GET, $_POST );
+				$pass = new \FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\EarlyPass( $ruleset, $_SERVER, $_GET, $_POST, $_FILES );
 				$blocked = $pass->run();
 				$complete = $pass->isComplete();
 			}
