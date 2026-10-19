@@ -112,7 +112,7 @@ abstract class BaseExtension {
 				'min' => '20.0',
 			],
 			'wp'     => [
-				'min' => '5.7',
+				'min' => '6.6',
 			],
 		];
 	}
