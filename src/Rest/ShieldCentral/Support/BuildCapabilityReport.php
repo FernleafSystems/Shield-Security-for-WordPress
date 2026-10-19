@@ -14,6 +14,8 @@ class BuildCapabilityReport {
 			'supports_hmac'         => true,
 			'supports_url_fallback' => false,
 			'supports_callback'     => false,
+			// ShieldCentral sends sync/collect's daily_totals_since only to a plugin reporting this (BuildDailyTotals).
+			'supports_daily_totals' => true,
 			'can_handshake'         => true,
 			'can_wordpress_write'   => $this->canWordPressWrite(),
 			'has_ext_pdo'           => \extension_loaded( 'pdo' ),
