@@ -17,7 +17,9 @@ class BuildSyncPayload {
 		'sync/collect',
 	];
 
-	public function build() :array {
+	public function build( ?string $dailyTotalsSince ) :array {
+		$dailyTotals = ( new BuildDailyTotals() )->build( $dailyTotalsSince, Services::Request()->carbon( true ) );
+
 		return [
 			'success'            => true,
 			'site_name'          => $this->siteName(),
@@ -30,6 +32,8 @@ class BuildSyncPayload {
 			'plugins'            => $this->plugins(),
 			'themes'             => $this->themes(),
 			'security_issues'    => ( new BuildSecurityIssues() )->build(),
+			// Left out when the counts couldn't be read: Central then keeps nothing and asks for the same days again.
+			...( $dailyTotals === null ? [] : [ 'daily_totals' => $dailyTotals ] ),
 		];
 	}
 

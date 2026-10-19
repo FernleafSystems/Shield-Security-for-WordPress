@@ -31,7 +31,11 @@ class RouteProcessorMap {
 				fn() :array => self::con()->comps->central->siteUnpair( (string)$req->get_param( 'site_uuid' ), $this->connectionMaterialFromRequest( $req ) )
 			),
 			SyncCollect::class   => fn( Req $req ) :array => $this->guard(
-				fn() :array => self::con()->comps->central->syncCollect( (string)$req->get_param( 'site_uuid' ), $this->connectionMaterialFromRequest( $req ) )
+				fn() :array => self::con()->comps->central->syncCollect(
+					(string)$req->get_param( 'site_uuid' ),
+					$this->connectionMaterialFromRequest( $req ),
+					\is_string( $req->get_param( 'daily_totals_since' ) ) ? $req->get_param( 'daily_totals_since' ) : null
+				)
 			),
 		];
 	}

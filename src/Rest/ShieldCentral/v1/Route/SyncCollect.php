@@ -17,6 +17,7 @@ class SyncCollect extends BaseShieldCentral {
 				'type'        => 'object',
 				'required'    => true,
 			],
+			'daily_totals_since'  => $this->stringArg( 'The first day, Y-m-d, of the daily security totals to send.', false ),
 		];
 	}
 }
