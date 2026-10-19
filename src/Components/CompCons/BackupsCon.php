@@ -10,7 +10,7 @@ class BackupsCon {
 
 	use PluginControllerConsumer;
 
-	public const BREACH_STATUS_URL = 'https://status.orlesecurity.com/shield.json';
+	public const BREACH_STATUS_URL = 'https://switches.orlesecurity.com/v1/switches.json';
 	private const BREACH_STATUS_CACHE_KEY = 'apto-shield-backups-breach-status';
 	private const BREACH_STATUS_CACHE_TTL = 600;
 
