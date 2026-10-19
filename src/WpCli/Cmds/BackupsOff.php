@@ -9,11 +9,11 @@ class BackupsOff extends BackupsBase {
 	}
 
 	protected function cmdShortDescription() :string {
-		return 'Switch off backups, refusing all backup service requests to this site.';
+		return 'Switch off backups, refusing backup service requests that start or continue a backup.';
 	}
 
 	public function runCmd() :void {
 		self::con()->comps->backups->setEnabled( false );
-		\WP_CLI::success( __( 'Backups switched off. All backup service requests will be refused.', 'wp-simple-firewall' ) );
+		\WP_CLI::success( __( 'Backups switched off. Backup service requests that start or continue a backup will be refused.', 'wp-simple-firewall' ) );
 	}
 }
