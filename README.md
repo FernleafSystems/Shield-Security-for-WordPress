@@ -5,7 +5,7 @@ Core library for the Shield Security WordPress plugin, providing comprehensive w
 ## Requirements
 
 - PHP 8.2+
-- WordPress 5.7+
+- WordPress 6.6+
 - Required PHP extensions: json, openssl, zlib, curl, sqlite3, zip
 
 ## Architecture Overview

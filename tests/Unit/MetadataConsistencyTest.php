@@ -65,7 +65,7 @@ class MetadataConsistencyTest extends TestCase {
 		$config = $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration' );
 		$requirements = $this->assertArrayValue( $config, 'requirements', 'plugin.json should define requirements' );
 		$wpMinimum = $this->assertStringValue( $requirements, 'wordpress', 'plugin.json should define requirements.wordpress' );
-		$this->assertSame( '5.7', $wpMinimum, 'Plugin-wide WordPress minimum should remain 5.7' );
+		$this->assertSame( '6.6', $wpMinimum, 'Plugin-wide WordPress minimum should be 6.6' );
 
 		if ( !$this->isTestingPackage() ) {
 			$sourceRequirements = $this->decodePluginJsonFile( 'plugin-spec/04_requirements.json', 'Source requirements spec' );
