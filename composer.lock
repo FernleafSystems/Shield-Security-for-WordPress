@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7472753a4a12b335641f540a850b5ae1",
+    "content-hash": "7ede3b3462c08b7f192f39f3363ee452",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -627,16 +627,16 @@
         },
         {
             "name": "fernleafsystems/worpdrive-client",
-            "version": "0.4.0",
+            "version": "0.4.1",
             "source": {
                 "type": "git",
                 "url": "git@github.com:FernleafSystems/worpdrive-client.git",
-                "reference": "2828ce71782a10ad4d921ec8a0504d3257c29510"
+                "reference": "71fa8de58db649b4d2e12a302eb43378fdf4c0dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FernleafSystems/worpdrive-client/zipball/2828ce71782a10ad4d921ec8a0504d3257c29510",
-                "reference": "2828ce71782a10ad4d921ec8a0504d3257c29510",
+                "url": "https://api.github.com/repos/FernleafSystems/worpdrive-client/zipball/71fa8de58db649b4d2e12a302eb43378fdf4c0dd",
+                "reference": "71fa8de58db649b4d2e12a302eb43378fdf4c0dd",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -706,10 +706,10 @@
             ],
             "description": "The WorpDrive Client Library",
             "support": {
-                "source": "https://github.com/FernleafSystems/worpdrive-client/tree/0.4.0",
+                "source": "https://github.com/FernleafSystems/worpdrive-client/tree/0.4.1",
                 "issues": "https://github.com/FernleafSystems/worpdrive-client/issues"
             },
-            "time": "2026-06-18T09:54:42+00:00"
+            "time": "2026-10-19T12:31:40+00:00"
         },
         {
             "name": "fernleafsystems/zxcvbn-php",
