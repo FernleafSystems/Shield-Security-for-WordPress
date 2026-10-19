@@ -77,6 +77,42 @@
         "level": "warning",
         "offense": true
     },
+    "backup_finished": {
+        "audit_params": [
+            "result",
+            "duration"
+        ],
+        "level": "notice",
+        "stat": false
+    },
+    "backup_refused_disabled": {
+        "audit_params": [
+            "ip",
+            "route"
+        ],
+        "level": "warning",
+        "stat": false
+    },
+    "backup_refused_ip": {
+        "audit_params": [
+            "ip",
+            "route"
+        ],
+        "level": "warning",
+        "stat": false
+    },
+    "backup_refused_paused": {
+        "audit_params": [
+            "ip",
+            "route"
+        ],
+        "level": "warning",
+        "stat": false
+    },
+    "backup_started": {
+        "level": "notice",
+        "stat": false
+    },
     "block_anonymous_restapi": {
         "audit_params": [
             "namespace"

@@ -151,6 +151,37 @@ class EventStrings {
 					__( "MCP ability '{{ability}}' was called with status '{{status}}'.", 'wp-simple-firewall' ),
 				],
 			],
+			'backup_started'               => [
+				'name'  => __( 'Backup Started', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'A site backup started.', 'wp-simple-firewall' ),
+				],
+			],
+			'backup_finished'              => [
+				'name'  => __( 'Backup Finished', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "A site backup finished with result '{{result}}' after {{duration}} seconds.", 'wp-simple-firewall' ),
+				],
+			],
+			'backup_refused_ip'            => [
+				'name'  => __( 'Backup Request Refused: Unknown IP', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'A backup request ({{route}}) used the correct backup key but came from IP address {{ip}}, which is not a backup service address.', 'wp-simple-firewall' ),
+					__( 'The request was refused. If this is unexpected, the backup key may have been exposed.', 'wp-simple-firewall' ),
+				],
+			],
+			'backup_refused_disabled'      => [
+				'name'  => __( 'Backup Request Refused: Backups Off', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'A backup request ({{route}}) from IP address {{ip}} was refused because backups are switched off on this site.', 'wp-simple-firewall' ),
+				],
+			],
+			'backup_refused_paused'        => [
+				'name'  => __( 'Backup Request Refused: Backups Paused', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'A backup request ({{route}}) from IP address {{ip}} was refused because backups are paused by the backup service status.', 'wp-simple-firewall' ),
+				],
+			],
 			'test_cron_run'                => [
 				'name'  => __( 'Test Cron Run', 'wp-simple-firewall' ),
 				'audit' => [

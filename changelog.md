@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Record backup starts, finishes and refused backup requests in the Activity Log, including a correct backup key sent from an IP outside the backup service. Show the last backup on the License page. Add `wp shield backups on|off|status` and a remote backup pause through a general Shield status file that fails open; backups behave as before unless either switch is used.
+
 - Hash binary files byte for byte in crowd-sourced hash submissions, matching the AptoWeb API: a file whose first 8,000 bytes contain a NUL byte keeps its bytes, while text files still have line endings normalised to LF. Submitted collections for plugins and themes that ship `.ico` or `.mo` files can then verify against the API's WordPress.org hashes. Scan comparisons are unchanged and accept both forms.
 
 - Request SHA256 for new plugin/theme snapshots and eligible published promotions in Shield's scan preparation, snapshot maintenance, and update cleanup. Support explicit MD5, SHA1, or SHA256 helper parameters with validated references and matching metadata; preserve helper MD5 defaults, existing baselines, local-versus-published trust, and SHA1 crowd submission contracts.

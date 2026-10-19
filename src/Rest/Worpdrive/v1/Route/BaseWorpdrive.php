@@ -24,14 +24,20 @@ abstract class BaseWorpdrive extends \FernleafSystems\Wordpress\Plugin\Shield\Re
 	protected function verifyPermission( \WP_REST_Request $req ) {
 		/** @var \WP_Error|bool $v */
 		$v = apply_filters( 'shield/rest_api_verify_permission', parent::verifyPermission( $req ), $req );
-		return $v === true || $this->isVerifiedWorpdriveRequest( $req );
+		return ( $v === true || $this->isVerifiedWorpdriveRequest( $req ) )
+			   && self::con()->comps->backups->isRequestPermitted( (string)$req->get_route() );
 	}
 
 	protected function isVerifiedWorpdriveRequest( \WP_REST_Request $req ) :bool {
 		try {
-			return !empty( $req->get_param( 'auth_key' ) ) && !empty( $this->getStoredAuth() )
-				   && \hash_equals( $this->getStoredAuth(), \hash( 'sha512', $req->get_param( 'auth_key' ) ) )
-				   && IpID::IsIpInServiceCollection( self::con()->this_req->ip, ServiceProviders::PROVIDER_WORPDRIVE );
+			$keyVerified = !empty( $req->get_param( 'auth_key' ) ) && !empty( $this->getStoredAuth() )
+						   && \hash_equals( $this->getStoredAuth(), \hash( 'sha512', $req->get_param( 'auth_key' ) ) );
+			$verified = $keyVerified
+						&& IpID::IsIpInServiceCollection( self::con()->this_req->ip, ServiceProviders::PROVIDER_WORPDRIVE );
+			if ( $keyVerified && !$verified ) {
+				self::con()->comps->backups->recordRefusedRequest( 'backup_refused_ip', (string)$req->get_route() );
+			}
+			return $verified;
 		}
 		catch ( \Exception $e ) {
 			return false;
