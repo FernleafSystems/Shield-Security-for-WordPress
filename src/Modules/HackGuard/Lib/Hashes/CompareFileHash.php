@@ -7,8 +7,11 @@ use FernleafSystems\Wordpress\Services\Utilities\File\ConvertLineEndings;
 
 class CompareFileHash {
 
-	/** @param list<string> $expectedHashes */
-	public function isAnyEqual( string $path, array $expectedHashes ) :bool {
+	/**
+	 * @param list<string> $expectedHashes
+	 * @param string       $relativePath Path relative to the asset root, which selects any AssetFileRules rule.
+	 */
+	public function isAnyEqual( string $path, array $expectedHashes, string $relativePath = '' ) :bool {
 		if ( empty( $expectedHashes ) ) {
 			return false;
 		}
@@ -33,16 +36,8 @@ class CompareFileHash {
 			}
 
 			if ( $candidates === null ) {
-				$candidates = [];
 				$content = $this->readFile( $path );
-				if ( \is_string( $content ) ) {
-					$lineEndings = new ConvertLineEndings();
-					foreach ( \array_unique( [ $lineEndings->dosToLinux( $content ), $lineEndings->linuxToDos( $content ) ] ) as $candidate ) {
-						if ( $candidate !== $content ) {
-							$candidates[] = $candidate;
-						}
-					}
-				}
+				$candidates = \is_string( $content ) ? $this->alternativeContents( $content, $relativePath ) : [];
 			}
 			foreach ( $candidates as $candidate ) {
 				$hash = \hash( $algorithm, $candidate );
@@ -56,7 +51,10 @@ class CompareFileHash {
 		return false;
 	}
 
-	public function isEqual( string $path, string $expectedHash ) :bool {
+	/**
+	 * @param string $relativePath Path relative to the asset root, which selects any AssetFileRules rule.
+	 */
+	public function isEqual( string $path, string $expectedHash, string $relativePath = '' ) :bool {
 		if ( !Services::WpFs()->isFile( $path ) ) {
 			throw new \InvalidArgumentException( 'File does not exist on disk to compare' );
 		}
@@ -75,17 +73,36 @@ class CompareFileHash {
 			return false;
 		}
 
-		$lineEndings = new ConvertLineEndings();
-		foreach ( [
-			$content,
-			$lineEndings->dosToLinux( $content ),
-			$lineEndings->linuxToDos( $content ),
-		] as $candidate ) {
+		foreach ( \array_merge( [ $content ], $this->alternativeContents( $content, $relativePath ) ) as $candidate ) {
 			if ( \hash_equals( \hash( $algorithm, $candidate ), $expectedHash ) ) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * The content's other line-ending variants, then its file rule applied to the content and to each variant.
+	 * @return list<string>
+	 */
+	private function alternativeContents( string $content, string $relativePath ) :array {
+		$lineEndings = new ConvertLineEndings();
+		$variants = \array_values( \array_unique( [
+			$content,
+			$lineEndings->dosToLinux( $content ),
+			$lineEndings->linuxToDos( $content ),
+		] ) );
+		$alternatives = \array_slice( $variants, 1 );
+		if ( $relativePath !== '' ) {
+			$rules = new AssetFileRules();
+			foreach ( $variants as $variant ) {
+				$ruled = $rules->apply( $relativePath, $variant );
+				if ( $ruled !== null ) {
+					$alternatives[] = $ruled;
+				}
+			}
+		}
+		return \array_values( \array_unique( $alternatives ) );
 	}
 
 	private function algorithmForHash( string $hash ) :string {
