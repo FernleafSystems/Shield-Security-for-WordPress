@@ -10,9 +10,9 @@ class BackupsCon {
 
 	use PluginControllerConsumer;
 
-	public const BREACH_STATUS_URL = 'https://switches.orlesecurity.com/v1/switches.json';
-	private const BREACH_STATUS_CACHE_KEY = 'apto-shield-backups-breach-status';
-	private const BREACH_STATUS_CACHE_TTL = 600;
+	public const SWITCHES_URL = 'https://switches.orlesecurity.com/v1/switches.json';
+	private const SWITCHES_CACHE_KEY = 'apto-shield-backups-switches';
+	private const SWITCHES_CACHE_TTL = 600;
 
 	private array $status;
 
@@ -68,10 +68,10 @@ class BackupsCon {
 	 * Fails open: anything other than an explicit {"backups": {"paused": true}} leaves backups running.
 	 */
 	public function isPausedRemotely() :bool {
-		$cached = Transient::Get( self::BREACH_STATUS_CACHE_KEY );
+		$cached = Transient::Get( self::SWITCHES_CACHE_KEY );
 		if ( !\is_array( $cached ) ) {
 			try {
-				$decoded = \json_decode( Services::HttpRequest()->getContent( self::BREACH_STATUS_URL, [ 'timeout' => 3 ] ), true );
+				$decoded = \json_decode( Services::HttpRequest()->getContent( self::SWITCHES_URL, [ 'timeout' => 3 ] ), true );
 			}
 			catch ( \Throwable $e ) {
 				$decoded = null;
@@ -79,7 +79,7 @@ class BackupsCon {
 			$cached = [
 				'paused' => ( $decoded[ 'backups' ][ 'paused' ] ?? false ) === true,
 			];
-			Transient::Set( self::BREACH_STATUS_CACHE_KEY, $cached, self::BREACH_STATUS_CACHE_TTL );
+			Transient::Set( self::SWITCHES_CACHE_KEY, $cached, self::SWITCHES_CACHE_TTL );
 		}
 		return !empty( $cached[ 'paused' ] );
 	}
@@ -92,7 +92,8 @@ class BackupsCon {
 	}
 
 	/**
-	 * @return array{started_at:int,finished_at:int,result:string,duration:int}|null - null when no backup has run.
+	 * finished_at and duration are null while the backup is running.
+	 * @return array{started_at:int,finished_at:?int,result:'success'|'failed'|'running',duration:?int}|null - null when no backup has run.
 	 */
 	public function lastBackup() :?array {
 		if ( empty( $this->status[ 'last_archive_begin_at' ] ) ) {
@@ -101,9 +102,9 @@ class BackupsCon {
 		$running = $this->isBackupRunning();
 		return [
 			'started_at'  => (int)$this->status[ 'last_archive_begin_at' ],
-			'finished_at' => $running ? 0 : (int)$this->status[ 'last_archive_end_at' ],
+			'finished_at' => $running ? null : (int)$this->status[ 'last_archive_end_at' ],
 			'result'      => $running ? 'running' : ( $this->status[ 'last_archive_aborted' ] ? 'failed' : 'success' ),
-			'duration'    => $running ? 0 : (int)$this->status[ 'last_archive_duration' ],
+			'duration'    => $running ? null : (int)$this->status[ 'last_archive_duration' ],
 		];
 	}
 

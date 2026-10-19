@@ -90,7 +90,7 @@ class BackupsAccessAndActivityTest extends BaseUnitTest {
 		$this->assertTrue( $this->verify( $this->request( self::AUTH_KEY ) ) );
 	}
 
-	public function test_breach_file_saying_paused_refuses_verified_request() :void {
+	public function test_switches_file_saying_paused_refuses_verified_request() :void {
 		$this->http->body = '{"backups": {"paused": true}}';
 
 		$this->assertFalse( $this->verify( $this->request( self::AUTH_KEY ) ) );
@@ -103,9 +103,9 @@ class BackupsAccessAndActivityTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @dataProvider providerUnusableBreachFile
+	 * @dataProvider providerUnusableSwitchesFile
 	 */
-	public function test_unusable_breach_file_lets_requests_through_and_is_cached( string $body ) :void {
+	public function test_unusable_switches_file_lets_requests_through_and_is_cached( string $body ) :void {
 		$this->http->body = $body;
 
 		$this->assertTrue( $this->verify( $this->request( self::AUTH_KEY ) ) );
@@ -115,7 +115,7 @@ class BackupsAccessAndActivityTest extends BaseUnitTest {
 		$this->assertSame( [], $this->events->fired );
 	}
 
-	public function providerUnusableBreachFile() :array {
+	public function providerUnusableSwitchesFile() :array {
 		return [
 			'unreachable'           => [ '' ],
 			'not json'              => [ '<html>502 Bad Gateway</html>' ],
@@ -150,7 +150,12 @@ class BackupsAccessAndActivityTest extends BaseUnitTest {
 
 	public function test_backup_signals_record_start_and_finish_events() :void {
 		$this->comps->backups->processSignal( 'backup', [ 'state' => 'begin' ] );
-		$this->assertSame( 'running', $this->comps->backups->lastBackup()[ 'result' ] );
+		$this->assertSame( [
+			'started_at'  => 1000,
+			'finished_at' => null,
+			'result'      => 'running',
+			'duration'    => null,
+		], $this->comps->backups->lastBackup() );
 
 		$this->installServices( 1600 );
 		$this->comps->backups->processSignal( 'backup', [ 'state' => 'end', 'success' => false ] );
@@ -231,7 +236,7 @@ class BackupsTestHttp extends HttpRequest {
 
 	public function getContent( string $url, $args = [] ) :string {
 		$this->calls++;
-		return $url === BackupsCon::BREACH_STATUS_URL ? $this->body : '';
+		return $url === BackupsCon::SWITCHES_URL ? $this->body : '';
 	}
 }
 

@@ -11,7 +11,7 @@ class BackupsStatus extends BackupsBase {
 	}
 
 	protected function cmdShortDescription() :string {
-		return 'Show the backups switch, the backup service status, and the last backup.';
+		return 'Show the backups switch, the remote pause, and the last backup.';
 	}
 
 	public function runCmd() :void {
@@ -19,18 +19,18 @@ class BackupsStatus extends BackupsBase {
 		$WP = Services::WpGeneral();
 
 		\WP_CLI::log( sprintf( 'Backups: %s', $backups->isEnabled() ? 'on' : 'off' ) );
-		\WP_CLI::log( sprintf( 'Backup service status: %s', $backups->isPausedRemotely() ? 'paused' : 'not paused' ) );
+		\WP_CLI::log( sprintf( 'Remote pause: %s', $backups->isPausedRemotely() ? 'paused' : 'not paused' ) );
 
 		$last = $backups->lastBackup();
-		if ( empty( $last ) ) {
+		if ( $last === null ) {
 			\WP_CLI::log( 'Last backup: none recorded' );
 		}
 		else {
 			\WP_CLI::log( sprintf( 'Last backup started: %s', $WP->getTimeStampForDisplay( $last[ 'started_at' ] ) ) );
 			\WP_CLI::log( sprintf( 'Last backup finished: %s',
-				empty( $last[ 'finished_at' ] ) ? '-' : $WP->getTimeStampForDisplay( $last[ 'finished_at' ] ) ) );
+				$last[ 'finished_at' ] === null ? '-' : $WP->getTimeStampForDisplay( $last[ 'finished_at' ] ) ) );
 			\WP_CLI::log( sprintf( 'Last backup result: %s', $last[ 'result' ] ) );
-			\WP_CLI::log( sprintf( 'Last backup duration: %ss', $last[ 'duration' ] ) );
+			\WP_CLI::log( sprintf( 'Last backup duration: %s', $last[ 'duration' ] === null ? '-' : $last[ 'duration' ].'s' ) );
 		}
 	}
 }

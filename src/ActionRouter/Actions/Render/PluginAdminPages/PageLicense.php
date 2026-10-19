@@ -155,10 +155,11 @@ class PageLicense extends PageModeLandingBase {
 
 	/**
 	 * Empty until this site has run a backup.
+	 * @return array<string,string>
 	 */
 	private function buildBackupTable() :array {
 		$last = self::con()->comps->backups->lastBackup();
-		if ( empty( $last ) ) {
+		if ( $last === null ) {
 			return [];
 		}
 		$WP = Services::WpGeneral();
@@ -169,9 +170,9 @@ class PageLicense extends PageModeLandingBase {
 		];
 		return [
 			__( 'Last Backup Started', 'wp-simple-firewall' )  => $WP->getTimeStampForDisplay( $last[ 'started_at' ] ),
-			__( 'Last Backup Finished', 'wp-simple-firewall' ) => empty( $last[ 'finished_at' ] ) ? '-' : $WP->getTimeStampForDisplay( $last[ 'finished_at' ] ),
+			__( 'Last Backup Finished', 'wp-simple-firewall' ) => $last[ 'finished_at' ] === null ? '-' : $WP->getTimeStampForDisplay( $last[ 'finished_at' ] ),
 			__( 'Result', 'wp-simple-firewall' )               => $results[ $last[ 'result' ] ],
-			__( 'Duration', 'wp-simple-firewall' )             => empty( $last[ 'duration' ] ) ? '-' : \human_time_diff( 0, $last[ 'duration' ] ),
+			__( 'Duration', 'wp-simple-firewall' )             => $last[ 'duration' ] === null ? '-' : \human_time_diff( 0, $last[ 'duration' ] ),
 		];
 	}
 

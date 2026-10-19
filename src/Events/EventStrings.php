@@ -179,7 +179,7 @@ class EventStrings {
 			'backup_refused_paused'        => [
 				'name'  => __( 'Backup Request Refused: Backups Paused', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'A backup request ({{route}}) from IP address {{ip}} was refused because backups are paused by the backup service status.', 'wp-simple-firewall' ),
+					__( 'A backup request ({{route}}) from IP address {{ip}} was refused because backups are paused remotely.', 'wp-simple-firewall' ),
 				],
 			],
 			'test_cron_run'                => [
