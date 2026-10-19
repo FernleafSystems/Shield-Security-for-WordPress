@@ -25,15 +25,21 @@ final class EarlyPass {
 
 	private array $form;
 
+	private array $files;
+
 	private RuleEvaluator $evaluator;
 
 	private bool $complete = false;
 
-	public function __construct( array $ruleset, array $server, array $query, array $form ) {
+	/**
+	 * @param array $files the uploaded files as PHP built $_FILES
+	 */
+	public function __construct( array $ruleset, array $server, array $query, array $form, array $files ) {
 		$this->ruleset = $ruleset;
 		$this->server = $server;
 		$this->query = $query;
 		$this->form = $form;
+		$this->files = $files;
 		$this->evaluator = new RuleEvaluator();
 	}
 
@@ -104,6 +110,7 @@ final class EarlyPass {
 
 		$facts = \array_merge(
 			RuleEvaluator::requestFacts( $this->server, $this->query, $this->form ),
+			RuleEvaluator::uploadFacts( $this->files ),
 			RuleEvaluator::rulesetFacts( $this->ruleset )
 		);
 
