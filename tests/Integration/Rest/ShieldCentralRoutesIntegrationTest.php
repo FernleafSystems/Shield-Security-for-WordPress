@@ -96,6 +96,7 @@ class ShieldCentralRoutesIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( $health[ 'success' ] );
 		$this->assertIsArray( $health[ 'capability_report' ] );
+		$this->assertTrue( $health[ 'capability_report' ][ 'supports_daily_totals' ] );
 		$this->assertContains( 'sync/collect', $health[ 'reported_actions' ] );
 
 		$siteUuid = \wp_generate_uuid4();
