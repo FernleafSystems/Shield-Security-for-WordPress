@@ -6,7 +6,9 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\BackupsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\v1\Route\{
 	BaseWorpdrive,
-	Checks
+	Checks,
+	Clean,
+	Signal
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -172,17 +174,34 @@ class BackupsAccessAndActivityTest extends BaseUnitTest {
 		], $this->comps->backups->lastBackup() );
 	}
 
-	private function verify( \WP_REST_Request $request ) :bool {
-		$method = new \ReflectionMethod( BaseWorpdrive::class, 'verifyPermission' );
-		$method->setAccessible( true );
-		return $method->invoke( new Checks( [ 'strict_parameters' => false ] ), $request );
+	public function test_cleanup_and_backup_end_get_through_while_backups_are_refused() :void {
+		$this->comps->backups->setEnabled( false );
+		$end = $this->request( self::AUTH_KEY, [ 'context' => 'backup', 'signal_data' => [ 'state' => 'end', 'success' => false ] ] );
+		$begin = $this->request( self::AUTH_KEY, [ 'context' => 'backup', 'signal_data' => [ 'state' => 'begin' ] ] );
+
+		$this->assertTrue( $this->verify( $this->request( self::AUTH_KEY ), new Clean( [ 'strict_parameters' => false ] ) ) );
+		$this->assertTrue( $this->verify( $end, new Signal( [ 'strict_parameters' => false ] ) ) );
+		$this->assertFalse( $this->verify( $begin, new Signal( [ 'strict_parameters' => false ] ) ) );
+		$this->assertFalse( $this->verify( $this->request( self::AUTH_KEY ) ) );
 	}
 
-	private function request( string $authKey ) :\WP_REST_Request {
-		return new \WP_REST_Request( 'POST', self::ROUTE, [
+	public function test_cleanup_still_needs_a_verified_request() :void {
+		$this->comps->backups->setEnabled( false );
+
+		$this->assertFalse( $this->verify( $this->request( 'wrong-key' ), new Clean( [ 'strict_parameters' => false ] ) ) );
+	}
+
+	private function verify( \WP_REST_Request $request, ?BaseWorpdrive $route = null ) :bool {
+		$method = new \ReflectionMethod( BaseWorpdrive::class, 'verifyPermission' );
+		$method->setAccessible( true );
+		return $method->invoke( $route ?? new Checks( [ 'strict_parameters' => false ] ), $request );
+	}
+
+	private function request( string $authKey, array $params = [] ) :\WP_REST_Request {
+		return new \WP_REST_Request( 'POST', self::ROUTE, \array_merge( [
 			'auth_key' => $authKey,
 			'uuid'     => 'gate-test',
-		] );
+		], $params ) );
 	}
 
 	private function installServices( int $ts ) :void {

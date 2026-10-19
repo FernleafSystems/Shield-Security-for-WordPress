@@ -55,6 +55,11 @@ class Signal extends BaseWorpdrive {
 		];
 	}
 
+	protected function isStoppedByBackupSwitches( \WP_REST_Request $req ) :bool {
+		$data = $req->get_param( 'signal_data' );
+		return !\is_array( $data ) || ( $data[ 'state' ] ?? '' ) !== 'end';
+	}
+
 	private function enumContexts() :array {
 		return [
 			'backup',

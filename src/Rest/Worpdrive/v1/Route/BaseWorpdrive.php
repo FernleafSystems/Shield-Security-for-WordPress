@@ -25,7 +25,16 @@ abstract class BaseWorpdrive extends \FernleafSystems\Wordpress\Plugin\Shield\Re
 		/** @var \WP_Error|bool $v */
 		$v = apply_filters( 'shield/rest_api_verify_permission', parent::verifyPermission( $req ), $req );
 		return ( $v === true || $this->isVerifiedWorpdriveRequest( $req ) )
-			   && self::con()->comps->backups->isRequestPermitted( (string)$req->get_route() );
+			   && ( !$this->isStoppedByBackupSwitches( $req )
+					|| self::con()->comps->backups->isRequestPermitted( (string)$req->get_route() ) );
+	}
+
+	/**
+	 * The backup switches refuse requests that start or continue a backup. Cleaning up and reporting a backup's end
+	 * still get through, so a backup interrupted by a switch leaves no files behind and isn't left running.
+	 */
+	protected function isStoppedByBackupSwitches( \WP_REST_Request $req ) :bool {
+		return true;
 	}
 
 	protected function isVerifiedWorpdriveRequest( \WP_REST_Request $req ) :bool {
