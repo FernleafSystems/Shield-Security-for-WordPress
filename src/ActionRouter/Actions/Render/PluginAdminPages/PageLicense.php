@@ -86,6 +86,7 @@ class PageLicense extends PageModeLandingBase {
 			'incase_debug'                 => __( 'In case of activation problems, click the link', 'wp-simple-firewall' ),
 			'cta_upgrade'                  => sprintf( __( 'Upgrade To %s Pro Now', 'wp-simple-firewall' ), $con->labels->Name ),
 			'cta_view_features'            => __( 'See All PRO Features and Extras', 'wp-simple-firewall' ),
+			'backups_eyebrow'              => $con->labels->getBrandName( 'shieldbackups' ),
 		];
 
 		return \array_replace_recursive( parent::getRenderData(), [
@@ -127,6 +128,7 @@ class PageLicense extends PageModeLandingBase {
 				'activation_url'   => $con->comps->license->activationURL(),
 				'pro_feature_tiles' => $this->buildProFeatureTiles( $proFeatures ),
 				'status_card'      => $this->buildStatusCardVars( !$isPro && $hasLicence, $strings ),
+				'backup_table'     => $this->buildBackupTable(),
 			],
 		] );
 	}
@@ -149,6 +151,29 @@ class PageLicense extends PageModeLandingBase {
 
 	protected function hasOperatorModeParent() :bool {
 		return true;
+	}
+
+	/**
+	 * Empty until this site has run a backup.
+	 * @return array<string,string>
+	 */
+	private function buildBackupTable() :array {
+		$last = self::con()->comps->backups->lastBackup();
+		if ( $last === null ) {
+			return [];
+		}
+		$WP = Services::WpGeneral();
+		$results = [
+			'success' => __( 'Success', 'wp-simple-firewall' ),
+			'failed'  => __( 'Failed', 'wp-simple-firewall' ),
+			'running' => __( 'In Progress', 'wp-simple-firewall' ),
+		];
+		return [
+			__( 'Last Backup Started', 'wp-simple-firewall' )  => $WP->getTimeStampForDisplay( $last[ 'started_at' ] ),
+			__( 'Last Backup Finished', 'wp-simple-firewall' ) => $last[ 'finished_at' ] === null ? '-' : $WP->getTimeStampForDisplay( $last[ 'finished_at' ] ),
+			__( 'Result', 'wp-simple-firewall' )               => $results[ $last[ 'result' ] ],
+			__( 'Duration', 'wp-simple-firewall' )             => $last[ 'duration' ] === null ? '-' : \human_time_diff( 0, $last[ 'duration' ] ),
+		];
 	}
 
 	private function buildProFeatureTiles( array $proFeatures ) :array {

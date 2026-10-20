@@ -30,7 +30,7 @@ class ExtractSubConditions {
 			foreach ( $conditionsVO->conditions as $condition ) {
 				$subConditions = $this->fromConditions( $condition );
 				$classes = \array_merge( $classes, $subConditions[ 'classes' ] );
-				$callables = \array_merge( $classes, $subConditions[ 'callables' ] );
+				$callables = \array_merge( $callables, $subConditions[ 'callables' ] );
 			}
 		}
 		elseif ( $conditionsVO->is_single ) {

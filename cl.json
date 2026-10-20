@@ -1,4 +1,60 @@
 {
+  "22.3": {
+    "version":     "22.3",
+    "released_at": 1792000000,
+    "hrefs":       {
+      "release": "https://clk.shldscrty.com/shieldrelease223",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide223"
+    },
+    "title":       "Cookie-Free silentCAPTCHA and Smarter File Scans",
+    "description": [
+      "Protect your site from bots with silentCAPTCHA, now without needing a visitor cookie.",
+      "File scans recognise more genuine plugin and theme files, so you see fewer false alarms."
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "title":       "Cookie-Free silentCAPTCHA",
+        "description": [
+          "A new option runs silentCAPTCHA without setting a visitor cookie, while Shield's server-side bot checks stay fully in force.",
+          "Visitors whose IP address changes are re-checked promptly. Purge your page cache after switching this option.",
+          "Note: This is the last major release that supports PHP 7.4, 8.0 and 8.1. Shield v23+ will require PHP 8.2+"
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "More Dependable silentCAPTCHA",
+        "description": [
+          "Fewer genuine visitors are asked to repeat silentCAPTCHA checks unnecessarily.",
+          "If a check result can't be saved, Shield keeps protection in place and tries again, rather than losing track of the visitor."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Fewer False File Scan Alerts",
+        "description": [
+          "File scans verify plugin and theme files against trusted references for the exact versions you have installed, so more genuine files are recognised and fewer are flagged for review.",
+          "Plugins and themes that include icons, translation files and other binary files now verify correctly."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Stronger File Fingerprints",
+        "description": [
+          "New plugin and theme file snapshots use stronger SHA-256 fingerprints. Your existing snapshots keep working."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Custom Hosting Layouts",
+        "description": [
+          "Scans work fully on sites whose files are reached through symlinked folders, such as Bedrock or Deployer setups.",
+          "Shield finds its cache folder and checks root-level files correctly on hosts that install WordPress at the filesystem root."
+        ]
+      }
+    ],
+    "patches":     []
+  },
   "22.2": {
     "version":     "22.2",
     "released_at": 1788860000,

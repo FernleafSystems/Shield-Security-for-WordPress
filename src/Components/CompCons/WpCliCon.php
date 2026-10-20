@@ -6,6 +6,9 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds\{
 	ActivityLogPrint,
+	BackupsOff,
+	BackupsOn,
+	BackupsStatus,
 	BaseCmd,
 	ConfigExport,
 	ConfigImport,
@@ -58,6 +61,9 @@ class WpCliCon {
 	protected function enumCmdHandlers() :array {
 		return [
 			ActivityLogPrint::class,
+			BackupsOff::class,
+			BackupsOn::class,
+			BackupsStatus::class,
 			ConfigOptsList::class,
 			ConfigOptGet::class,
 			ConfigOptSet::class,
