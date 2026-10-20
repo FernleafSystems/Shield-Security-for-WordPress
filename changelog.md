@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Stop flagging `vendor/build.json` as modified in Easy Digital Downloads Pro and its extensions. EDD writes a fresh `manifestChecksum` into that file on every download, so no published hash could match an install. When a file's own bytes don't match, Shield now compares it again with that one value emptied, as the WP Hashes API does for EDD releases; every other byte of the file is still verified.
+- Stop flagging `vendor/build.json` as modified in Easy Digital Downloads Pro and its extensions. EDD writes a fresh `manifestChecksum` into that file on every download, so no published hash could match an install. When a file's own bytes don't match, Shield now compares it again with that one value emptied, as the WP Hashes API does for EDD releases; every other byte of the file is still verified. Crowd-sourced hash submissions empty it the same way, so collections for one EDD release from different sites now agree.
 
 - Record backup starts, finishes and refused backup requests in the Activity Log, including a correct backup key sent from an IP outside the backup service. Show the last backup on the License page. Add `wp shield backups on|off|status` and a remote backup pause through a general status file that fails open; backups behave as before unless either switch is used.
 - Stop a backup's database export from retrying without end when a request fails on the site. Shield no longer turns the failed request's progress into the map WorpDrive resumes from, since that request made no archive, and WorpDrive client 0.5.0 names the table and the failure's class instead.

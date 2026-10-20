@@ -55,30 +55,7 @@ class CompareFileHash {
 	 * @param string $relativePath Path relative to the asset root, which selects any AssetFileRules rule.
 	 */
 	public function isEqual( string $path, string $expectedHash, string $relativePath = '' ) :bool {
-		if ( !Services::WpFs()->isFile( $path ) ) {
-			throw new \InvalidArgumentException( 'File does not exist on disk to compare' );
-		}
-
-		$algorithm = $this->algorithmForHash( $expectedHash );
-		$fileHash = $this->hashFile( $algorithm, $path );
-		if ( !\is_string( $fileHash ) ) {
-			return false;
-		}
-		if ( \hash_equals( $fileHash, $expectedHash ) ) {
-			return true;
-		}
-
-		$content = $this->readFile( $path );
-		if ( !\is_string( $content ) ) {
-			return false;
-		}
-
-		foreach ( \array_merge( [ $content ], $this->alternativeContents( $content, $relativePath ) ) as $candidate ) {
-			if ( \hash_equals( \hash( $algorithm, $candidate ), $expectedHash ) ) {
-				return true;
-			}
-		}
-		return false;
+		return $this->isAnyEqual( $path, [ $expectedHash ], $relativePath );
 	}
 
 	/**
