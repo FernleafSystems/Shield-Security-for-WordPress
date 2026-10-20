@@ -93,6 +93,16 @@
 				{% for desc in option.description %}
 					<p>{{ desc|raw }}</p>
 				{% endfor %}
+				{% if option.key == 'api_namespace_exclusions' and vars.filtered_api_namespace_exclusions is not empty %}
+					<div class="mt-3">
+						<p><strong>{{ strings.namespaces_added_by_filter }}</strong></p>
+						<ul class="small mb-0">
+							{% for namespace in vars.filtered_api_namespace_exclusions %}
+								<li><code>{{ namespace }}</code></li>
+							{% endfor %}
+						</ul>
+					</div>
+				{% endif %}
 			</div>
 
 			{% if flags.show_transfer_switch %}

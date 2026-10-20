@@ -123,7 +123,9 @@ class QueueWatchdog {
 	}
 
 	public function run() :void {
-		$hadActive = $this->hasActiveScans();
+		if ( !$this->hasActiveScans() ) {
+			return;
+		}
 		$cutoff = $this->cutoff();
 
 		$maintenance = new QueueMaintenance();
@@ -157,18 +159,13 @@ class QueueWatchdog {
 
 		$maintenance->run();
 
-		if ( $hadActive && $builderDispatchAllowed ) {
+		if ( $builderDispatchAllowed ) {
 			( new CompleteQueue() )->complete();
 		}
 	}
 
 	public function scheduleIfActive() :void {
-		if ( !$this->hasActiveScans() ) {
-			$this->clearScheduled();
-			return;
-		}
-
-		if ( !wp_next_scheduled( $this->hook() ) ) {
+		if ( $this->hasActiveScans() && !wp_next_scheduled( $this->hook() ) ) {
 			wp_schedule_single_event(
 				Services::Request()->ts() + self::CHECK_INTERVAL,
 				$this->hook()
@@ -373,12 +370,5 @@ class QueueWatchdog {
 
 	private function cutoff() :int {
 		return Services::Request()->ts() - self::STALE_AFTER;
-	}
-
-	private function clearScheduled() :void {
-		$timestamp = wp_next_scheduled( $this->hook() );
-		if ( \is_numeric( $timestamp ) ) {
-			wp_unschedule_event( (int)$timestamp, $this->hook() );
-		}
 	}
 }

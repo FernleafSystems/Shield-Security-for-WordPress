@@ -24,14 +24,29 @@ abstract class BaseWorpdrive extends \FernleafSystems\Wordpress\Plugin\Shield\Re
 	protected function verifyPermission( \WP_REST_Request $req ) {
 		/** @var \WP_Error|bool $v */
 		$v = apply_filters( 'shield/rest_api_verify_permission', parent::verifyPermission( $req ), $req );
-		return $v === true || $this->isVerifiedWorpdriveRequest( $req );
+		return ( $v === true || $this->isVerifiedWorpdriveRequest( $req ) )
+			   && ( !$this->isStoppedByBackupSwitches( $req )
+					|| self::con()->comps->backups->isRequestPermitted( (string)$req->get_route() ) );
+	}
+
+	/**
+	 * The backup switches refuse requests that start or continue a backup. Cleaning up and reporting a backup's end
+	 * still get through, so a backup interrupted by a switch leaves no files behind and isn't left running.
+	 */
+	protected function isStoppedByBackupSwitches( \WP_REST_Request $req ) :bool {
+		return true;
 	}
 
 	protected function isVerifiedWorpdriveRequest( \WP_REST_Request $req ) :bool {
 		try {
-			return !empty( $req->get_param( 'auth_key' ) ) && !empty( $this->getStoredAuth() )
-				   && \hash_equals( $this->getStoredAuth(), \hash( 'sha512', $req->get_param( 'auth_key' ) ) )
-				   && IpID::IsIpInServiceCollection( self::con()->this_req->ip, ServiceProviders::PROVIDER_WORPDRIVE );
+			$keyVerified = !empty( $req->get_param( 'auth_key' ) ) && !empty( $this->getStoredAuth() )
+						   && \hash_equals( $this->getStoredAuth(), \hash( 'sha512', $req->get_param( 'auth_key' ) ) );
+			$verified = $keyVerified
+						&& IpID::IsIpInServiceCollection( self::con()->this_req->ip, ServiceProviders::PROVIDER_WORPDRIVE );
+			if ( $keyVerified && !$verified ) {
+				self::con()->comps->backups->recordRefusedRequest( 'backup_refused_ip', (string)$req->get_route() );
+			}
+			return $verified;
 		}
 		catch ( \Exception $e ) {
 			return false;

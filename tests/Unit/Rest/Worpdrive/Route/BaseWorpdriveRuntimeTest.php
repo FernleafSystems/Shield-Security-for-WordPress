@@ -81,7 +81,7 @@ class BaseWorpdriveRuntimeTest extends WorpdriveUnitTestCase {
 		$this->assertSame( 'db_export_invalid_map', $response[ 'status' ][ 'error' ][ 'code' ] );
 		$this->assertSame( 'database_data', $response[ 'status' ][ 'error' ][ 'stage' ] );
 		$this->assertTrue( $response[ 'status' ][ 'error' ][ 'retryable' ] );
-		$this->assertIsArray( $response[ 'status' ][ 'error_context' ][ 'table_export_map' ] );
+		$this->assertArrayNotHasKey( 'table_export_map', $response[ 'status' ][ 'error_context' ] );
 		$this->assertRuntimeReset();
 	}
 

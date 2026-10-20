@@ -29,10 +29,11 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 
 		return [
 			'strings' => [
-				'inner_page_title'    => __( 'Edit Settings', 'wp-simple-firewall' ),
-				'import_export'       => __( 'Import/Export', 'wp-simple-firewall' ),
-				'is_opt_importexport' => __( 'Include this setting during import/export', 'wp-simple-firewall' ),
-				'toggle_importexport' => __( 'Toggle whether this setting is included in import and export operations', 'wp-simple-firewall' ),
+				'inner_page_title'          => __( 'Edit Settings', 'wp-simple-firewall' ),
+				'import_export'             => __( 'Import/Export', 'wp-simple-firewall' ),
+				'is_opt_importexport'       => __( 'Include this setting during import/export', 'wp-simple-firewall' ),
+				'toggle_importexport'       => __( 'Toggle whether this setting is included in import and export operations', 'wp-simple-firewall' ),
+				'namespaces_added_by_filter' => __( 'Namespaces added by the filter', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
 				'show_section_navigation' => \count( $allOptions ) > 1,
@@ -44,19 +45,31 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 				],
 			],
 			'vars'    => [
-				'all_opts_keys'      => $options,
-				'all_options'        => $allOptions,
-				'form_context'       => $this->action_data[ 'form_context' ] ?? 'normal',
-				'options_save_action' => (string)( $this->action_data[ 'options_save_action' ] ?? 'form_save' ),
-				'transfer_action'    => $transferAction,
-				'xferable_opts'      => \is_array( $this->action_data[ 'xferable_opts' ] ?? null )
+				'all_opts_keys'                    => $options,
+				'all_options'                      => $allOptions,
+				'filtered_api_namespace_exclusions' => \in_array( 'api_namespace_exclusions', $options, true )
+					? $this->getFilteredApiNamespaceExclusions()
+					: [],
+				'form_context'                     => $this->action_data[ 'form_context' ] ?? 'normal',
+				'options_save_action'              => (string)( $this->action_data[ 'options_save_action' ] ?? 'form_save' ),
+				'transfer_action'                  => $transferAction,
+				'xferable_opts'                    => \is_array( $this->action_data[ 'xferable_opts' ] ?? null )
 					? $this->action_data[ 'xferable_opts' ]
 					: \array_keys( $con->cfg->configuration->transferableOptions() ),
-				'xfer_excluded_opts' => \is_array( $this->action_data[ 'xfer_excluded_opts' ] ?? null )
+				'xfer_excluded_opts'               => \is_array( $this->action_data[ 'xfer_excluded_opts' ] ?? null )
 					? $this->action_data[ 'xfer_excluded_opts' ]
 					: $con->comps->opts_lookup->getXferExcluded(),
 			],
 		];
+	}
+
+	private function getFilteredApiNamespaceExclusions() :array {
+		$lookup = self::con()->comps->opts_lookup;
+
+		return \array_values( \array_diff(
+			$lookup->getAnonymousRestApiExclusions(),
+			$lookup->getAnonymousRestApiExclusions( false )
+		) );
 	}
 
 	protected function getRequiredDataKeys() :array {

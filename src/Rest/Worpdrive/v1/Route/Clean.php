@@ -7,4 +7,8 @@ class Clean extends BaseWorpdrive {
 	public function getRoutePath() :string {
 		return '/clean';
 	}
+
+	protected function isStoppedByBackupSwitches( \WP_REST_Request $req ) :bool {
+		return false;
+	}
 }

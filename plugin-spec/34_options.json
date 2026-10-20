@@ -896,6 +896,13 @@
         "default": []
     },
     {
+        "key": "shieldbackups_enabled",
+        "section": "section_hidden",
+        "type": "checkbox",
+        "default": "Y",
+        "transferable": false
+    },
+    {
         "key": "delay_tracking",
         "section": "section_hidden",
         "type": "array",
