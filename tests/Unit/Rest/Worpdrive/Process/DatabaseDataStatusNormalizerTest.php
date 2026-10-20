@@ -26,7 +26,11 @@ class DatabaseDataStatusNormalizerTest extends BaseUnitTest {
 		$this->assertSame( $diagnostics, $status[ 'diagnostics' ] );
 	}
 
-	public function test_normalize_promotes_valid_context_map_when_top_level_map_is_empty_and_preserves_cursor() :void {
+	/**
+	 * A failed request made no archive, so a map in its error context must never become the map WorpDrive resumes
+	 * from: WorpDrive would skip the rows that request exported, or resend the same request forever.
+	 */
+	public function test_normalize_never_uses_the_error_context_map_as_the_map() :void {
 		$contextMap = [
 			'wp_options' => $this->tableStatus( [
 				'cursor' => [
@@ -46,7 +50,7 @@ class DatabaseDataStatusNormalizerTest extends BaseUnitTest {
 			],
 		] );
 
-		$this->assertSame( $contextMap, $status[ 'table_export_map' ] );
+		$this->assertSame( [], $status[ 'table_export_map' ] );
 		$this->assertSame( $contextMap, $status[ 'error_context' ][ 'table_export_map' ] );
 	}
 
@@ -68,28 +72,6 @@ class DatabaseDataStatusNormalizerTest extends BaseUnitTest {
 
 		$this->assertSame( $topLevelMap, $status[ 'table_export_map' ] );
 		$this->assertSame( $contextMap, $status[ 'error_context' ][ 'table_export_map' ] );
-	}
-
-	public function test_normalize_does_not_promote_invalid_context_map() :void {
-		$invalidMap = [
-			'wp_options' => [
-				'offset'        => 0,
-				'page'          => 0,
-				'completed_at'  => 0,
-				'exported_rows' => 0,
-				'max_page_rows' => 10,
-			],
-		];
-
-		$status = ( new DatabaseDataStatusNormalizer() )->normalize( [
-			'href'          => '',
-			'error_context' => [
-				'table_export_map' => $invalidMap,
-			],
-		] );
-
-		$this->assertSame( [], $status[ 'table_export_map' ] );
-		$this->assertSame( $invalidMap, $status[ 'error_context' ][ 'table_export_map' ] );
 	}
 
 	private function tableStatus( array $overrides = [] ) :array {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7ede3b3462c08b7f192f39f3363ee452",
+    "content-hash": "07b675f956569309ef588465fb5f96bc",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -627,16 +627,16 @@
         },
         {
             "name": "fernleafsystems/worpdrive-client",
-            "version": "0.4.1",
+            "version": "0.5.0",
             "source": {
                 "type": "git",
                 "url": "git@github.com:FernleafSystems/worpdrive-client.git",
-                "reference": "71fa8de58db649b4d2e12a302eb43378fdf4c0dd"
+                "reference": "7f4bbf297b11df0453f568c1a481f856a5cd43c1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FernleafSystems/worpdrive-client/zipball/71fa8de58db649b4d2e12a302eb43378fdf4c0dd",
-                "reference": "71fa8de58db649b4d2e12a302eb43378fdf4c0dd",
+                "url": "https://api.github.com/repos/FernleafSystems/worpdrive-client/zipball/7f4bbf297b11df0453f568c1a481f856a5cd43c1",
+                "reference": "7f4bbf297b11df0453f568c1a481f856a5cd43c1",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -657,6 +657,7 @@
                 "ext-mysqli": "*",
                 "ext-pdo_mysql": "*",
                 "phpunit/phpunit": "^9.6",
+                "symfony/process": "^5.4",
                 "yoast/phpunit-polyfills": "^4.0"
             },
             "type": "library",
@@ -686,6 +687,12 @@
                     "@scan:php-compat",
                     "@phpunit"
                 ],
+                "test:linux": [
+                    "@php bin/test-linux.php all"
+                ],
+                "test:linux:path-zip": [
+                    "@php bin/test-linux.php path-zip"
+                ],
                 "test:mysql": [
                     "phpunit --configuration phpunit.xml.dist tests/Integration/Database"
                 ],
@@ -706,10 +713,10 @@
             ],
             "description": "The WorpDrive Client Library",
             "support": {
-                "source": "https://github.com/FernleafSystems/worpdrive-client/tree/0.4.1",
+                "source": "https://github.com/FernleafSystems/worpdrive-client/tree/0.5.0",
                 "issues": "https://github.com/FernleafSystems/worpdrive-client/issues"
             },
-            "time": "2026-10-19T12:31:40+00:00"
+            "time": "2026-10-20T10:23:11+00:00"
         },
         {
             "name": "fernleafsystems/zxcvbn-php",
