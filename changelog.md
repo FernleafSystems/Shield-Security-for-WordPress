@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Record backup starts, finishes and refused backup requests in the Activity Log, including a correct backup key sent from an IP outside the backup service. Show the last backup on the License page. Add `wp shield backups on|off|status` and a remote backup pause through a general status file that fails open; backups behave as before unless either switch is used.
+- Stop a backup's database export from retrying without end when a request fails on the site. Shield no longer turns the failed request's progress into the map WorpDrive resumes from, since that request made no archive, and WorpDrive client 0.5.0 names the table and the failure's class instead.
 
 - Hash binary files byte for byte in crowd-sourced hash submissions, matching the AptoWeb API: a file whose first 8,000 bytes contain a NUL byte keeps its bytes, while text files still have line endings normalised to LF. Submitted collections for plugins and themes that ship `.ico` or `.mo` files can then verify against the API's WordPress.org hashes. Scan comparisons are unchanged and accept both forms.
 
