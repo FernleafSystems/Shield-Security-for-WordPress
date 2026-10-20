@@ -19,19 +19,23 @@ class Context {
 	}
 
 	public function isAjax() :bool {
-		return $this->req->wp_is_ajax;
+		return (bool)$this->req->wp_is_ajax;
 	}
 
 	public function isLoggedIn() :bool {
 		return Services::WpUsers()->isUserLoggedIn();
 	}
 
+	/**
+	 * Null until the rules engine checks it: a request that exits first isn't treated as a security admin's,
+	 * so it stays loggable.
+	 */
 	public function isSecurityAdmin() :bool {
-		return $this->req->is_security_admin;
+		return (bool)$this->req->is_security_admin;
 	}
 
 	public function isAdmin() :bool {
-		return $this->req->wp_is_admin;
+		return (bool)$this->req->wp_is_admin;
 	}
 
 	public function isPluginAdminPage() :bool {
@@ -43,11 +47,11 @@ class Context {
 	}
 
 	public function path() :string {
-		return $this->req->path;
+		return (string)$this->req->path;
 	}
 
 	public function scriptName() :string {
-		return $this->req->script_name;
+		return (string)$this->req->script_name;
 	}
 
 	public function nav() :string {

@@ -30,6 +30,12 @@ final class RequestGuard {
 
 	public const OPTION_RULESET_PATH = 'icwp_wpsf_virtual_patching_ruleset';
 
+	/**
+	 * Fired with the rule ID and point just before a block is answered, so that Shield, once loaded, can mark its
+	 * own request state before a block's response exits.
+	 */
+	public const HOOK_BLOCKED = 'shield/virtual_patching/blocked';
+
 	private static ?RequestGuard $instance = null;
 
 	private array $ruleset;
@@ -149,6 +155,7 @@ final class RequestGuard {
 			}
 			if ( $verdict !== RuleEvaluator::NO_MATCH ) {
 				$this->log( $rule, $point->value, $verdict, $facts );
+				$this->announce( $rule, $point->value );
 				return ( $this->respond )( $rule, $point->value );
 			}
 		}
@@ -174,6 +181,19 @@ final class RequestGuard {
 			return;
 		}
 		BlockLog::append( $path, BlockLog::entry( $this->ruleset, $rule, $facts, WordPressFacts::server(), $point, $verdict ) );
+	}
+
+	/**
+	 * A listener's failure never stops the block.
+	 */
+	private function announce( array $rule, string $point ) :void {
+		try {
+			if ( \function_exists( 'do_action' ) ) {
+				do_action( self::HOOK_BLOCKED, (string)( $rule[ 'id' ] ?? '' ), $point );
+			}
+		}
+		catch ( \Throwable $e ) {
+		}
 	}
 
 	/**

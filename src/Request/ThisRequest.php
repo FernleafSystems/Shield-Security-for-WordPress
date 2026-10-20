@@ -21,7 +21,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionV
  * @property BotSignalRecord $botsignal_record
  *
  * @property bool            $is_force_off
- * @property bool            $is_security_admin
+ * Null until the rules engine checks it, which a request that exits early may never reach.
+ * @property ?bool           $is_security_admin
  * @property bool            $is_ip_blocked
  * @property bool            $is_ip_blocked_crowdsec
  * @property bool            $is_ip_blocked_shield
@@ -32,6 +33,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionV
  * @property bool            $is_ip_whitelisted
  * @property bool            $request_bypasses_all_restrictions
  * @property bool            $request_subject_to_shield_restrictions
+ * Set when a virtual patch blocks this request, or a REST dispatch within it.
+ * @property ?bool           $is_virtual_patch_blocked
  * @property bool            $is_site_lockdown_active
  * @property bool            $is_site_lockdown_blocked
  * ** Dynamic **
