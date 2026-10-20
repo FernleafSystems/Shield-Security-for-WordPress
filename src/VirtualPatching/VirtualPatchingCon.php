@@ -62,6 +62,10 @@ class VirtualPatchingCon {
 			$this->deactivating = true;
 			$this->removeRuleset();
 		} );
+		// A block at 'init' exits before Shield has set up the rest of its request state, which shutdown must know.
+		add_action( RequestGuard::HOOK_BLOCKED, function () :void {
+			self::con()->this_req->is_virtual_patch_blocked = true;
+		} );
 		add_action( 'shutdown', function () :void {
 			try {
 				if ( !$this->deactivating && ( $this->exportRequired || $this->isFirstExportDue() ) ) {

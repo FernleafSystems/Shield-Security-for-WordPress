@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Traffic;
 
+use FernleafSystems\Orle\VirtualPatchingRules\EvaluationPoint;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\AjaxBatchRequests,
@@ -24,6 +25,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogger;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
+use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\RequestGuard;
 
 class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -516,6 +518,45 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		}
 	}
 
+	public function test_user_point_virtual_patch_block_before_security_admin_is_known_is_logged() :void {
+		$this->loginAsSecurityAdmin();
+		$req = $this->applyCurrentShieldAjaxRequest(
+			ActionData::BuildAjaxRender( DashboardLiveMonitorTicker::class, [ 'limit' => 12 ] ),
+			true
+		);
+		// A block at 'init' comes before the rules engine checks for a security admin.
+		unset( $req->is_security_admin );
+
+		$this->blockAtUserPoint();
+
+		$this->assertTrue( $req->is_virtual_patch_blocked );
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_virtual_patch_block_is_logged_even_when_the_request_would_be_suppressed() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldAjaxRequest(
+			ActionData::BuildAjaxRender( DashboardLiveMonitorTicker::class, [ 'limit' => 12 ] ),
+			true
+		);
+		$this->assertFalse( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+
+		$this->blockAtUserPoint();
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_unset_security_admin_state_leaves_shield_admin_requests_loggable() :void {
+		$this->loginAsSecurityAdmin();
+		$req = $this->applyCurrentShieldAjaxRequest(
+			ActionData::BuildAjaxRender( DashboardLiveMonitorTicker::class, [ 'limit' => 12 ] ),
+			true
+		);
+		unset( $req->is_security_admin );
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
 	public function test_dependent_log_creation_still_writes_suppressible_requests() :void {
 		$this->loginAsSecurityAdmin();
 		$this->applyCurrentShieldAjaxRequest(
@@ -644,6 +685,33 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 				'wp_is_ajax'       => false,
 			], $requestOverrides )
 		);
+	}
+
+	/**
+	 * Blocks the signed-in request with a virtual patch at its user point, answering without the default exit.
+	 */
+	private function blockAtUserPoint() :void {
+		$answered = [];
+		( new RequestGuard(
+			[
+				'format'         => 1,
+				'hash'           => 'integration',
+				'active_plugins' => [],
+				'active_themes'  => [],
+				'rules'          => [
+					[
+						'id'         => 'signed-in',
+						'advisories' => [],
+						'conditions' => [ [ 'kind' => 'user_authenticated', 'negate' => false ] ],
+					],
+				],
+			],
+			function ( array $rule, string $point ) use ( &$answered ) :void {
+				$answered[] = $point;
+			}
+		) )->start();
+
+		$this->assertSame( [ EvaluationPoint::User->value ], $answered );
 	}
 
 	private function withTrafficLoggingEnabled( callable $callback ) {

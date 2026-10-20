@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\VirtualPatching;
 
-use Brain\Monkey\Functions;
+use Brain\Monkey\{
+	Actions,
+	Functions
+};
 use FernleafSystems\Orle\VirtualPatchingRules\EvaluationPoint;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -111,9 +114,43 @@ class RequestGuardTest extends BaseUnitTest {
 	}
 
 	public function testOtherRequestsPass() :void {
+		Actions\expectDone( RequestGuard::HOOK_BLOCKED )->never();
 		$_POST = [ 'action' => 'heartbeat' ];
 		$this->guard( $this->ruleset( [ $this->rule( 'export', self::AJAX_EXPORT ) ] ) )->start();
 		$this->assertSame( [], $this->blocks );
+	}
+
+	public function testUserPointBlockIsAnnouncedBeforeItIsAnswered() :void {
+		$steps = [];
+		Actions\expectDone( RequestGuard::HOOK_BLOCKED )
+			->once()
+			->with( 'signed-in', EvaluationPoint::User->value )
+			->whenHappen( function () use ( &$steps ) :void {
+				$steps[] = 'announced';
+			} );
+		$guard = new RequestGuard(
+			$this->ruleset( [ $this->rule( 'signed-in', [ [ 'kind' => 'user_authenticated', 'negate' => false ] ] ) ] ),
+			function ( array $rule, string $point ) use ( &$steps ) :void {
+				$steps[] = 'answered '.$point;
+			}
+		);
+		$guard->start();
+
+		$this->userId = 3;
+		$guard->runUserRules();
+
+		$this->assertSame( [ 'announced', 'answered '.EvaluationPoint::User->value ], $steps );
+	}
+
+	public function testFailingBlockListenerStillBlocks() :void {
+		Actions\expectDone( RequestGuard::HOOK_BLOCKED )->whenHappen( function () :void {
+			throw new \RuntimeException( 'listener failed' );
+		} );
+		$_POST = [ 'action' => "it's_export" ];
+
+		$this->guard( $this->ruleset( [ $this->rule( 'export', self::AJAX_EXPORT ) ] ) )->start();
+
+		$this->assertSame( [ [ 'export', EvaluationPoint::Request->value ] ], $this->blocks );
 	}
 
 	public function testSlashedValuesAreUnslashedAfterWordPressAddsSlashes() :void {
