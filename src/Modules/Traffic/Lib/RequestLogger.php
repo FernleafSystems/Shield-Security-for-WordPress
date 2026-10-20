@@ -47,6 +47,9 @@ class RequestLogger {
 	/**
 	 * There is a card in here against logging when it is your own upgrade, but this will log anyway if the Audit Log
 	 * is triggered.
+	 *
+	 * A request a virtual patch blocked is never suppressed: the block can exit before Shield has set up the
+	 * request state the suppressions read.
 	 */
 	public function isLogged(): bool {
 		$con = self::con();
@@ -54,6 +57,7 @@ class RequestLogger {
 
 		if ( !$con->plugin_deleting && !$con->is_my_upgrade && apply_filters( 'shield/is_log_traffic', false ) ) {
 			$isLogged = $this->isDependentLog()
+			            || $con->this_req->is_virtual_patch_blocked === true
 			            || $con->comps->opts_lookup->getTrafficLiveLogTimeRemaining() > 0
 			            || !apply_filters( self::FILTER_BUILTIN_SUPPRESSIONS_ENABLED, true, $con->this_req )
 			            || !( new RequestLogSuppressor() )->shouldSuppress();
