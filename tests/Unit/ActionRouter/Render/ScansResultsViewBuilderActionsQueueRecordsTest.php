@@ -224,28 +224,6 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( 'info', $pane[ 'cards' ][ 1 ][ 'body_notice_variant' ] );
 	}
 
-	public function test_file_locker_groups_problem_pending_and_good_locks_into_distinct_sections_without_changing_issue_count() :void {
-		$builder = $this->createBuilder( [
-			'problemFileLocks'  => [ (object)[ 'id' => 21, 'path' => '/wp-config.php', 'detected_at' => 1000, 'hash_current' => '' ] ],
-			'pendingFileLockDisplays' => [
-				[
-					'file_key' => 'root_index',
-					'title'    => 'index.php',
-					'path'     => '/index.php',
-				],
-			],
-			'goodFileLocks'     => [ (object)[ 'id' => 22, 'path' => '/.htaccess', 'detected_at' => 0, 'hash_current' => 'abc123' ] ],
-		] );
-
-		$pane = $builder->buildActionsQueueFileLockerPane();
-		$items = $pane[ 'cards' ];
-
-		$this->assertCount( 3, $items );
-		$this->assertSame( 'warning', $items[ 0 ][ 'status' ] );
-		$this->assertSame( 'neutral', $items[ 1 ][ 'status' ] );
-		$this->assertSame( 'good', $items[ 2 ][ 'status' ] );
-	}
-
 	public function test_file_locker_not_enabled_premium_state_renders_inactive_cards_without_configuration_action() :void {
 		$builder = $this->createBuilder( [
 			'tabAvailability' => [

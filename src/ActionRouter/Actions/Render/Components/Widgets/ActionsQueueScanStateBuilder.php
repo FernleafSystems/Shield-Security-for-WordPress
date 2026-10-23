@@ -10,9 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
-	Counts
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\{
 	StatusPriority,
@@ -100,7 +98,7 @@ class ActionsQueueScanStateBuilder {
 		}
 
 		$count = $this->getDisplayCounts()->countWPFiles();
-		$status = $count > 0 ? 'critical' : 'good';
+		$status = $this->statusForProblemCount( $count );
 		$tabs[ 'wordpress' ] = [
 			'count'  => $count,
 			'status' => $status,
@@ -111,7 +109,7 @@ class ActionsQueueScanStateBuilder {
 			'wp_files',
 			$this->scanSectionLabel( 'wp_files', __( 'WordPress Files', 'wp-simple-firewall' ) ),
 			$count,
-			'critical',
+			$status,
 			\sprintf(
 				_n( '%s WordPress core file needs review.', '%s WordPress core files need review.', $count, 'wp-simple-firewall' ),
 				$count
@@ -147,12 +145,12 @@ class ActionsQueueScanStateBuilder {
 			$this->getQueueScanResultsOptions()->activeOnly()
 		);
 		$count = \count( $activeSummaries );
-		$status = $count > 0 ? 'critical' : 'good';
+		$status = $this->statusForProblemCount( $count );
 		$tabs[ $tabKey ] = [
 			'count'  => $count,
 			'status' => $status,
 		];
-		$accentStatuses[] = $tabs[ $tabKey ][ 'status' ];
+		$accentStatuses[] = $status;
 
 		$row = $this->buildScanRow(
 			$tabKey === 'plugins' ? 'plugin_files' : 'theme_files',
@@ -163,7 +161,7 @@ class ActionsQueueScanStateBuilder {
 					: __( 'Theme Files', 'wp-simple-firewall' )
 			),
 			$count,
-			'critical',
+			$status,
 			\sprintf(
 				_n(
 					$tabKey === 'plugins' ? '%s plugin needs review.' : '%s theme needs review.',
@@ -197,6 +195,8 @@ class ActionsQueueScanStateBuilder {
 		$displayCounts = $this->getDisplayCounts();
 		$vulnerableAssetsCount = $displayCounts->countDistinctVulnerableAssets();
 		$abandonedAssetsCount = $displayCounts->countDistinctAbandonedAssets();
+		$vulnerableStatus = $this->statusForProblemCount( $vulnerableAssetsCount );
+		$abandonedStatus = $this->statusForProblemCount( $abandonedAssetsCount );
 
 		if ( $vulnerabilitiesAvailability[ 'show_in_actions_queue' ] ) {
 			if ( !$vulnerabilitiesAvailability[ 'is_available' ] ) {
@@ -205,9 +205,9 @@ class ActionsQueueScanStateBuilder {
 			else {
 				$tabs[ 'vulnerabilities' ] = [
 					'count'  => $vulnerableAssetsCount,
-					'status' => $vulnerableAssetsCount > 0 ? 'critical' : 'good',
+					'status' => $vulnerableStatus,
 				];
-				$accentStatuses[] = $tabs[ 'vulnerabilities' ][ 'status' ];
+				$accentStatuses[] = $vulnerableStatus;
 			}
 		}
 
@@ -218,9 +218,9 @@ class ActionsQueueScanStateBuilder {
 			else {
 				$tabs[ 'abandoned' ] = [
 					'count'  => $abandonedAssetsCount,
-					'status' => $abandonedAssetsCount > 0 ? 'critical' : 'good',
+					'status' => $abandonedStatus,
 				];
-				$accentStatuses[] = $tabs[ 'abandoned' ][ 'status' ];
+				$accentStatuses[] = $abandonedStatus;
 			}
 		}
 
@@ -229,7 +229,7 @@ class ActionsQueueScanStateBuilder {
 				'vulnerable_assets',
 				__( 'Vulnerable Assets', 'wp-simple-firewall' ),
 				$vulnerableAssetsCount,
-				'critical',
+				$vulnerableStatus,
 				\sprintf(
 					_n( '%s vulnerable asset detected.', '%s vulnerable assets detected.', $vulnerableAssetsCount, 'wp-simple-firewall' ),
 					$vulnerableAssetsCount
@@ -246,7 +246,7 @@ class ActionsQueueScanStateBuilder {
 				'abandoned',
 				__( 'Abandoned Assets', 'wp-simple-firewall' ),
 				$abandonedAssetsCount,
-				'critical',
+				$abandonedStatus,
 				\sprintf(
 					_n( '%s abandoned asset detected.', '%s abandoned assets detected.', $abandonedAssetsCount, 'wp-simple-firewall' ),
 					$abandonedAssetsCount
@@ -280,7 +280,7 @@ class ActionsQueueScanStateBuilder {
 		}
 
 		$count = $this->getDisplayCounts()->countMalware();
-		$status = $count > 0 ? 'critical' : 'good';
+		$status = $this->statusForProblemCount( $count );
 		$tabs[ 'malware' ] = [
 			'count'  => $count,
 			'status' => $status,
@@ -291,7 +291,7 @@ class ActionsQueueScanStateBuilder {
 			'malware',
 			$this->scanSectionLabel( 'malware', __( 'Malware', 'wp-simple-firewall' ) ),
 			$count,
-			'critical',
+			$status,
 			\sprintf(
 				_n( '%s malware issue detected.', '%s malware issues detected.', $count, 'wp-simple-firewall' ),
 				$count
@@ -321,7 +321,7 @@ class ActionsQueueScanStateBuilder {
 
 		$count = $this->getProblemFileLockerCount();
 		$pendingCount = $this->getPendingFileLockerCount();
-		$status = $count > 0 ? 'warning' : 'good';
+		$status = $this->statusForProblemCount( $count );
 		$tabs[ 'file_locker' ] = [
 			'count'  => $count,
 			'status' => $status,
@@ -347,6 +347,13 @@ class ActionsQueueScanStateBuilder {
 		if ( $row !== null ) {
 			$rows[] = $row;
 		}
+	}
+
+	/**
+	 * Every scan finding belongs in the Actions Queue critical bucket.
+	 */
+	private function statusForProblemCount( int $count ) :string {
+		return $count > 0 ? 'critical' : 'good';
 	}
 
 	/**

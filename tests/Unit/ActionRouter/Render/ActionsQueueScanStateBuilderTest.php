@@ -47,26 +47,8 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_build_counts_plugin_tab_from_queue_visible_asset_summaries() :void {
-		$availability = new class extends ScansResultsRailTabAvailability {
-			public function build( string $tabKey ) :array {
-				return $tabKey === 'plugins'
-					? [
-						'is_available'          => true,
-						'show_in_actions_queue' => true,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					]
-					: [
-						'is_available'          => false,
-						'show_in_actions_queue' => false,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					];
-			}
-		};
-
 		$builder = new ActionsQueueScanStateBuilder();
-		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
+		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTabs( 'plugins' ) );
 		$assetBuilder = $this->newScanAssetCardsBuilderStub( [
 			'plugin' => [
 				$this->assetSummary( 'plugin-a/plugin-a.php' ),
@@ -80,32 +62,16 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$state = $builder->build();
 
 		$this->assertSame( 4, $state[ 'tabs' ][ 'plugins' ][ 'count' ] );
+		$this->assertSame( 'critical', $state[ 'tabs' ][ 'plugins' ][ 'status' ] );
 		$this->assertSame( 4, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
 		$this->assertSame( [ 'plugin_files' ], \array_column( $state[ 'rows' ], 'key' ) );
+		$this->assertSame( 'critical', $state[ 'rows' ][ 0 ][ 'severity' ] );
 		$this->assertSame( [ 'plugin' ], $assetBuilder->buildSummaryCalls );
 	}
 
 	public function test_build_ignores_fully_ignored_plugins_when_no_active_results() :void {
-		$availability = new class extends ScansResultsRailTabAvailability {
-			public function build( string $tabKey ) :array {
-				return $tabKey === 'plugins'
-					? [
-						'is_available'          => true,
-						'show_in_actions_queue' => true,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					]
-					: [
-						'is_available'          => false,
-						'show_in_actions_queue' => false,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					];
-			}
-		};
-
 		$builder = new ActionsQueueScanStateBuilder();
-		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
+		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTabs( 'plugins' ) );
 		$this->setPrivateProperty( $builder, 'scanAssetCardsBuilder', $this->newScanAssetCardsBuilderStub() );
 
 		$state = $builder->build();
@@ -119,26 +85,8 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_build_ignores_fully_ignored_themes_when_no_active_results() :void {
-		$availability = new class extends ScansResultsRailTabAvailability {
-			public function build( string $tabKey ) :array {
-				return $tabKey === 'themes'
-					? [
-						'is_available'          => true,
-						'show_in_actions_queue' => true,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					]
-					: [
-						'is_available'          => false,
-						'show_in_actions_queue' => false,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					];
-			}
-		};
-
 		$builder = new ActionsQueueScanStateBuilder();
-		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
+		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTabs( 'themes' ) );
 		$this->setPrivateProperty( $builder, 'scanAssetCardsBuilder', $this->newScanAssetCardsBuilderStub( [
 			'theme' => [],
 		] ) );
@@ -163,7 +111,7 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 
 		$builder = new ActionsQueueScanStateBuilder();
 		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
-		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTab( 'wordpress' ) );
+		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTabs( 'wordpress' ) );
 
 		$state = $builder->build();
 
@@ -184,7 +132,7 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 
 		$builder = new ActionsQueueScanStateBuilder();
 		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
-		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTab( 'wordpress' ) );
+		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTabs( 'wordpress' ) );
 
 		$state = $builder->build();
 
@@ -203,7 +151,7 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 
 		$builder = new ActionsQueueScanStateBuilder();
 		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
-		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTab( 'malware' ) );
+		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTabs( 'malware' ) );
 
 		$state = $builder->build();
 
@@ -211,6 +159,25 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'good', $state[ 'tabs' ][ 'malware' ][ 'status' ] );
 		$this->assertSame( 0, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
 		$this->assertSame( [], $state[ 'rows' ] );
+	}
+
+	public function test_build_marks_active_malware_results_critical() :void {
+		$counts = $this->getMockBuilder( Counts::class )
+					   ->disableOriginalConstructor()
+					   ->onlyMethods( [ 'countMalware' ] )
+					   ->getMock();
+		$counts->method( 'countMalware' )->willReturn( 3 );
+
+		$builder = new ActionsQueueScanStateBuilder();
+		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
+		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTabs( 'malware' ) );
+
+		$state = $builder->build();
+
+		$this->assertSame( 3, $state[ 'tabs' ][ 'malware' ][ 'count' ] );
+		$this->assertSame( 'critical', $state[ 'tabs' ][ 'malware' ][ 'status' ] );
+		$this->assertSame( [ 'malware' ], \array_column( $state[ 'rows' ], 'key' ) );
+		$this->assertSame( 'critical', $state[ 'rows' ][ 0 ][ 'severity' ] );
 	}
 
 	public function test_build_routes_abandoned_assets_to_separate_abandoned_tab_and_deduped_summary() :void {
@@ -226,27 +193,9 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$counts->method( 'countDistinctAbandonedAssets' )->willReturn( 2 );
 		$counts->method( 'countDistinctVulnerabilityReviewAssets' )->willReturn( 2 );
 
-		$availability = new class extends ScansResultsRailTabAvailability {
-			public function build( string $tabKey ) :array {
-				return \in_array( $tabKey, [ 'vulnerabilities', 'abandoned' ], true )
-					? [
-						'is_available'          => true,
-						'show_in_actions_queue' => true,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					]
-					: [
-						'is_available'          => false,
-						'show_in_actions_queue' => false,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					];
-			}
-		};
-
 		$builder = new ActionsQueueScanStateBuilder();
 		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
-		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
+		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTabs( 'vulnerabilities', 'abandoned' ) );
 
 		$state = $builder->build();
 
@@ -274,67 +223,22 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$counts->method( 'countDistinctAbandonedAssets' )->willReturn( 1 );
 		$counts->method( 'countDistinctVulnerabilityReviewAssets' )->willReturn( 1 );
 
-		$availability = new class extends ScansResultsRailTabAvailability {
-			public function build( string $tabKey ) :array {
-				return \in_array( $tabKey, [ 'vulnerabilities', 'abandoned' ], true )
-					? [
-						'is_available'          => true,
-						'show_in_actions_queue' => true,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					]
-					: [
-						'is_available'          => false,
-						'show_in_actions_queue' => false,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					];
-			}
-		};
-
 		$builder = new ActionsQueueScanStateBuilder();
 		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
-		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
+		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTabs( 'vulnerabilities', 'abandoned' ) );
 
 		$state = $builder->build();
 
 		$this->assertSame( 1, $state[ 'tabs' ][ 'vulnerabilities' ][ 'count' ] );
+		$this->assertSame( 'critical', $state[ 'tabs' ][ 'vulnerabilities' ][ 'status' ] );
 		$this->assertSame( 1, $state[ 'tabs' ][ 'abandoned' ][ 'count' ] );
 		$this->assertSame( 1, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
 		$this->assertSame( [ 'vulnerable_assets', 'abandoned' ], \array_column( $state[ 'rows' ], 'key' ) );
+		$this->assertSame( [ 'critical', 'critical' ], \array_column( $state[ 'rows' ], 'severity' ) );
 	}
 
 	public function test_build_surfaces_healthy_file_locker_row_without_changing_summary_count() :void {
-		$availability = new class extends ScansResultsRailTabAvailability {
-			public function build( string $tabKey ) :array {
-				return $tabKey === 'file_locker'
-					? [
-						'is_available'          => true,
-						'show_in_actions_queue' => true,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					]
-					: [
-						'is_available'          => false,
-						'show_in_actions_queue' => false,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					];
-			}
-		};
-
-		$builder = new class extends ActionsQueueScanStateBuilder {
-			protected function getProblemFileLockerCount() :int {
-				return 0;
-			}
-
-			protected function getPendingFileLockerCount() :int {
-				return 0;
-			}
-		};
-		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
-
-		$state = $builder->build();
+		$state = $this->newFileLockerStateBuilder( 0, 0 )->build();
 
 		$this->assertSame( 0, $state[ 'tabs' ][ 'file_locker' ][ 'count' ] );
 		$this->assertSame( 'good', $state[ 'tabs' ][ 'file_locker' ][ 'status' ] );
@@ -347,36 +251,7 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_build_surfaces_pending_file_locker_copy_without_changing_summary_count() :void {
-		$availability = new class extends ScansResultsRailTabAvailability {
-			public function build( string $tabKey ) :array {
-				return $tabKey === 'file_locker'
-					? [
-						'is_available'          => true,
-						'show_in_actions_queue' => true,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					]
-					: [
-						'is_available'          => false,
-						'show_in_actions_queue' => false,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					];
-			}
-		};
-
-		$builder = new class extends ActionsQueueScanStateBuilder {
-			protected function getProblemFileLockerCount() :int {
-				return 0;
-			}
-
-			protected function getPendingFileLockerCount() :int {
-				return 2;
-			}
-		};
-		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
-
-		$state = $builder->build();
+		$state = $this->newFileLockerStateBuilder( 0, 2 )->build();
 
 		$this->assertSame( 0, $state[ 'tabs' ][ 'file_locker' ][ 'count' ] );
 		$this->assertSame( 'good', $state[ 'tabs' ][ 'file_locker' ][ 'status' ] );
@@ -386,6 +261,17 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'file_locker' ], \array_column( $state[ 'rows' ], 'key' ) );
 		$this->assertSame( 0, $state[ 'rows' ][ 0 ][ 'count' ] );
 		$this->assertSame( 'good', $state[ 'rows' ][ 0 ][ 'severity' ] );
+	}
+
+	public function test_build_marks_changed_file_locker_files_critical() :void {
+		$state = $this->newFileLockerStateBuilder( 2, 0 )->build();
+
+		$this->assertSame( 2, $state[ 'tabs' ][ 'file_locker' ][ 'count' ] );
+		$this->assertSame( 'critical', $state[ 'tabs' ][ 'file_locker' ][ 'status' ] );
+		$this->assertSame( 'critical', $state[ 'rail_accent_status' ] );
+		$this->assertSame( [ 'file_locker' ], \array_column( $state[ 'rows' ], 'key' ) );
+		$this->assertSame( 2, $state[ 'rows' ][ 0 ][ 'count' ] );
+		$this->assertSame( 'critical', $state[ 'rows' ][ 0 ][ 'severity' ] );
 	}
 
 	private function setPrivateProperty( object $subject, string $property, $value ) :void {
@@ -438,16 +324,43 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		];
 	}
 
-	private function newAvailabilityForTab( string $availableTabKey ) :ScansResultsRailTabAvailability {
-		return new class( $availableTabKey ) extends ScansResultsRailTabAvailability {
-			private string $availableTabKey;
+	private function newFileLockerStateBuilder( int $problemCount, int $pendingCount ) :ActionsQueueScanStateBuilder {
+		$builder = new class( $problemCount, $pendingCount ) extends ActionsQueueScanStateBuilder {
+			private int $problemCount;
+			private int $pendingCount;
 
-			public function __construct( string $availableTabKey ) {
-				$this->availableTabKey = $availableTabKey;
+			public function __construct( int $problemCount, int $pendingCount ) {
+				$this->problemCount = $problemCount;
+				$this->pendingCount = $pendingCount;
+			}
+
+			protected function getProblemFileLockerCount() :int {
+				return $this->problemCount;
+			}
+
+			protected function getPendingFileLockerCount() :int {
+				return $this->pendingCount;
+			}
+		};
+		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTabs( 'file_locker' ) );
+
+		return $builder;
+	}
+
+	private function newAvailabilityForTabs( string ...$availableTabKeys ) :ScansResultsRailTabAvailability {
+		return new class( $availableTabKeys ) extends ScansResultsRailTabAvailability {
+			/** @var list<string> */
+			private array $availableTabKeys;
+
+			/**
+			 * @param list<string> $availableTabKeys
+			 */
+			public function __construct( array $availableTabKeys ) {
+				$this->availableTabKeys = $availableTabKeys;
 			}
 
 			public function build( string $tabKey ) :array {
-				return $tabKey === $this->availableTabKey
+				return \in_array( $tabKey, $this->availableTabKeys, true )
 					? [
 						'is_available'          => true,
 						'show_in_actions_queue' => true,
