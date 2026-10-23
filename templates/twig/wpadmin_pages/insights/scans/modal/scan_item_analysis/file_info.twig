@@ -1,37 +1,52 @@
-<div class="row">
-	<div class="col scan-item-history">
-		<h3 class="h4 mb-3">File: <span style="font-family: monospace">{{ vars.path_fragment|e }}</span></h3>
+<div class="scan-item-overview">
 
-		<h4 class="h6">{{ strings.info|e }}</h4>
-		<ul style="list-style: inside disc">
-			<li>{{ strings.file_full_path_label|e }}: <code>{{ vars.file_full_path|e }}</code></li>
-			<li>{{ strings.file_status_label|e }}: {{ vars.file_status|e }}</li>
-		</ul>
-
-		{% if vars.file_description is not empty %}
-			<h4 class="h6">{{ strings.file_description|e }}</h4>
-			<ul>
-				{% for line in vars.file_description %}
-					<li>{{ line|e }}</li>
-				{% endfor %}
-			</ul>
-		{% endif %}
-		{% if flags.show_malai_status %}
-			<h4 class="h6">{{ strings.heading_malai_status|e }}</h4>
-			<p><span class="badge text-bg-{{ vars.malware_assessment.tone|e('html_attr') }}"><i class="bi {{ vars.malware_assessment.icon|e('html_attr') }}" aria-hidden="true"></i> {{ vars.malware_assessment.label|e }}</span></p>
-			<p>{{ vars.malware_assessment.summary|e }}</p>
-			<p>{{ vars.malware_assessment.explanation|e }}</p>
-			<p>{{ vars.malware_assessment.guidance|e }}</p>
-		{% endif %}
-
-		{% if vars.recommendations_lines is not empty %}
-			<h4 class="h6">{{ strings.recommendations|e }}</h4>
-			<ul>
-				{% for line in vars.recommendations_lines %}
-					<li>{{ line|e }}</li>
-				{% endfor %}
-			</ul>
-		{% endif %}
-
+	<div class="scan-item-overview__verdict scan-item-overview__verdict--{{ vars.verdict_tone }}">
+		<div class="d-flex flex-wrap gap-1 mb-2">
+			{% for status in vars.file_statuses %}
+				<span class="badge text-bg-{{ status.tone }}">{{ status.label }}</span>
+			{% endfor %}
+		</div>
+		<h3 class="h6 mb-1">{{ vars.verdict_title }}</h3>
+		{% for line in vars.file_description %}
+			<p class="mb-1">{{ line }}</p>
+		{% endfor %}
 	</div>
+
+	<dl class="scan-item-overview__facts">
+		{% if vars.belongs_to is not empty %}
+			<dt>{{ strings.belongs_to_label }}</dt>
+			<dd>{{ vars.belongs_to }}</dd>
+		{% endif %}
+		<dt>{{ strings.file_full_path_label }}</dt>
+		<dd><code>{{ vars.file_full_path }}</code></dd>
+	</dl>
+
+	{% if flags.show_malai_status %}
+		<section class="scan-item-overview__card">
+			<h4 class="scan-item-overview__card-title">{{ strings.heading_malai_status }}</h4>
+			<p class="mb-1"><span class="badge text-bg-{{ vars.malware_assessment.tone }}"><i class="bi {{ vars.malware_assessment.icon }}" aria-hidden="true"></i> {{ vars.malware_assessment.label }}</span></p>
+			<p class="mb-1">{{ vars.malware_assessment.summary }}</p>
+			<details>
+				<summary>{{ strings.malai_more }}</summary>
+				<p class="mt-2 mb-1">{{ vars.malware_assessment.explanation }}</p>
+				<p class="mb-0">{{ vars.malware_assessment.guidance }}</p>
+			</details>
+		</section>
+	{% endif %}
+
+	<section class="scan-item-overview__card">
+		<h4 class="scan-item-overview__card-title">{{ strings.next_steps }}</h4>
+		{% if vars.recommendations_lines is not empty %}
+			<ul class="mb-2">
+				{% for line in vars.recommendations_lines %}
+					<li>{{ line }}</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+		<div class="d-flex flex-wrap gap-2">
+			<button type="button" class="btn btn-primary btn-sm" data-scan-item-show-tab="tabDiff-tab">{{ strings.review_changes }}</button>
+			<button type="button" class="btn btn-outline-primary btn-sm" data-scan-item-show-tab="tabContents-tab">{{ strings.view_contents }}</button>
+		</div>
+	</section>
+
 </div>

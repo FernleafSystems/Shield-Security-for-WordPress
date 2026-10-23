@@ -23,6 +23,45 @@ function isScanItemAnalysisRequest( request ) {
 	return params.get( 'render_slug' ) === 'scanitemanalysis_container';
 }
 
+test( 'changes tab builds its diff only when first shown', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
+		await new ActionsQueuePage( page ).drillToDetail( fixture );
+		const table = page.locator( '[data-scan-results-table="1"]' ).first();
+		await waitForScanResultsTableRows( table );
+
+		const diffRequests = [];
+		page.on( 'request', ( request ) => {
+			if ( new URLSearchParams( request.postData() || '' ).get( 'render_slug' ) === 'scanitemanalysis_diff' ) {
+				diffRequests.push( request );
+			}
+		} );
+
+		await table.locator( 'button[data-scan-result-action="view"]' ).first().click();
+		const modal = page.locator( '#ShieldModalContainer.modal.show' );
+		await expect( modal.locator( '#tabInfo' ) ).toBeVisible();
+		expect( diffRequests ).toHaveLength( 0 );
+
+		await modal.locator( '#tabInfo [data-scan-item-show-tab="tabDiff-tab"]' ).click();
+		await expect( modal.locator( '#tabDiff-tab' ) ).toHaveAttribute( 'aria-selected', 'true' );
+		const diffContainer = modal.locator( '#tabDiff [data-scan-item-diff="1"]' );
+		await expect( diffContainer ).toHaveAttribute( 'data-scan-item-diff-state', 'loaded', { timeout: 30_000 } );
+		await expect( diffContainer.locator( 'table.diff, .scan-item-diff-state__title' ).first() ).toBeVisible();
+		expect( diffRequests ).toHaveLength( 1 );
+		await expectNoAxeViolations( page, '#ShieldModalContainer' );
+		await test.info().attach( 'changes-tab', {
+			body: await page.screenshot( { animations: 'disabled', path: test.info().outputPath( 'changes-tab.png' ) } ),
+			contentType: 'image/png',
+		} );
+
+		await modal.locator( '#tabInfo-tab' ).click();
+		await modal.locator( '#tabDiff-tab' ).click();
+		await expect( diffContainer ).toHaveAttribute( 'data-scan-item-diff-state', 'loaded' );
+		expect( diffRequests ).toHaveLength( 1 );
+		await page.keyboard.press( 'Escape' );
+	} );
+} );
+
 test( 'malware assessments open the matching details without changing row selection', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'malware_assessments', async ( fixture ) => {
 		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
@@ -117,7 +156,7 @@ test( 'unavailable scan file download is disabled and skipped by keyboard naviga
 			await modal.locator( '.btn-close' ).focus();
 			await page.keyboard.press( 'Shift+Tab' );
 			await expect( download ).not.toBeFocused();
-			await expect( modal.getByRole( 'tab', { selected: true } ) ).toBeFocused();
+			await expect( modal.locator( '#tabInfo [data-scan-item-show-tab]' ).last() ).toBeFocused();
 			await modal.locator( '.btn-close' ).focus();
 			await page.keyboard.press( 'Tab' );
 			await expect( modal.getByRole( 'tab', { selected: true } ) ).toBeFocused();

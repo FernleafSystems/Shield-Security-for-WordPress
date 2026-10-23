@@ -1,14 +1,32 @@
-<style>
-	table.diff.diff-wrapper tbody tr td:nth-child(2) {
-	  width: auto;
-  }
-  table.diff.diff-wrapper {
-	  table-layout: auto;
-  }
-	{{ default_css|raw }}
-</style>
-<div class="row">
-	<div class="col">
-		{{ content|raw }}
+{% if flags.has_diff %}
+	<style>
+		table.diff.diff-wrapper tbody tr td:nth-child(2) {
+			width: auto;
+		}
+		table.diff.diff-wrapper {
+			table-layout: auto;
+		}
+		{{ vars.diff_css|raw }}
+	</style>
+	<p class="small text-body-secondary mb-2">
+		{{ vars.legend }}
+		<span class="scan-item-diff__key scan-item-diff__key--removed">{{ strings.removed }}</span>
+		<span class="scan-item-diff__key scan-item-diff__key--added">{{ strings.added }}</span>
+	</p>
+	<div class="row">
+		<div class="col">
+			{{ vars.diff_content|raw }}
+		</div>
 	</div>
-</div>
+{% else %}
+	<div class="scan-item-diff-state scan-item-diff-state--{{ vars.tone }}">
+		<div class="scan-item-diff-state__icon" aria-hidden="true"><i class="bi {{ vars.icon }}"></i></div>
+		<h3 class="scan-item-diff-state__title h6">{{ vars.title }}</h3>
+		{% for line in vars.lines %}
+			<p class="scan-item-diff-state__text">{{ line }}</p>
+		{% endfor %}
+		{% if flags.can_retry %}
+			<button type="button" class="btn btn-primary btn-sm mt-2" data-scan-item-diff-retry="1">{{ strings.retry }}</button>
+		{% endif %}
+	</div>
+{% endif %}
