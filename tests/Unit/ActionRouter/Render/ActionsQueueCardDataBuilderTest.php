@@ -160,7 +160,7 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			$this->attentionItem( 'plugin_files', 'scans', 5, 'warning', 'Plugin Files' ),
 			$this->attentionItem( 'theme_files', 'scans', 1, 'warning', 'Theme Files' ),
 			$this->attentionItem( 'abandoned', 'scans', 6, 'critical', 'Abandoned Assets' ),
-			$this->attentionItem( 'file_locker', 'scans', 2, 'warning', 'File Locker' ),
+			$this->attentionItem( 'file_locker', 'scans', 2, 'critical', 'File Locker' ),
 			$this->attentionItem( 'hidden_plugins', 'scans', 2, 'critical', 'Cloaked Plugins' ),
 		];
 		$data = $this->buildCardData(

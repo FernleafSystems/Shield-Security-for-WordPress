@@ -1217,7 +1217,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( FileLockerPane::SLUG, (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
 	}
 
-	public function test_file_locker_warning_clears_on_landing_immediately_after_reassessment() :void {
+	public function test_file_locker_problem_clears_on_landing_immediately_after_reassessment() :void {
 		$handler = $this->prepareFileLockerRuntime();
 
 		$tempPath = \tempnam( \sys_get_temp_dir(), 'shield-file-locker-landing-' );
@@ -1238,24 +1238,24 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		self::con()->comps->file_locker->clearLocks();
 
-		$warningPayload = $this->renderActionsQueueLandingPage();
-		$this->assertRouteRenderOutputHealthy( $warningPayload, 'actions queue landing file locker warning state' );
-		$warningVars = \is_array( $warningPayload[ 'render_data' ][ 'vars' ] ?? null )
-			? $warningPayload[ 'render_data' ][ 'vars' ]
+		$problemPayload = $this->renderActionsQueueLandingPage();
+		$this->assertRouteRenderOutputHealthy( $problemPayload, 'actions queue landing file locker problem state' );
+		$problemVars = \is_array( $problemPayload[ 'render_data' ][ 'vars' ] ?? null )
+			? $problemPayload[ 'render_data' ][ 'vars' ]
 			: [];
-		$warningScans = $this->findZoneTile(
-			\is_array( $warningVars[ 'zone_tiles' ] ?? null )
-				? $warningVars[ 'zone_tiles' ]
+		$problemScans = $this->findZoneTile(
+			\is_array( $problemVars[ 'zone_tiles' ] ?? null )
+				? $problemVars[ 'zone_tiles' ]
 				: [],
 			'scans'
 		);
-		$fileLockerWarningAssessments = \array_values( \array_filter(
-			\is_array( $warningScans[ 'assessment_rows' ] ?? null ) ? $warningScans[ 'assessment_rows' ] : [],
+		$fileLockerProblemAssessments = \array_values( \array_filter(
+			\is_array( $problemScans[ 'assessment_rows' ] ?? null ) ? $problemScans[ 'assessment_rows' ] : [],
 			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === 'file_locker'
 		) );
 
-		$this->assertCount( 1, $fileLockerWarningAssessments );
-		$this->assertSame( 'critical', (string)( $fileLockerWarningAssessments[ 0 ][ 'status' ] ?? '' ) );
+		$this->assertCount( 1, $fileLockerProblemAssessments );
+		$this->assertSame( 'critical', (string)( $fileLockerProblemAssessments[ 0 ][ 'status' ] ?? '' ) );
 
 		self::con()->comps->file_locker->reassessLocksNow();
 
@@ -1941,7 +1941,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$groups = $this->buildActionsQueueGroupMetrics();
 
 		$this->assertSame( 1, (int)( $groups[ 'file_locker' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'warning', (string)( $groups[ 'file_locker' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $groups[ 'file_locker' ][ 'status' ] ?? '' ) );
 	}
 
 	public function test_actions_queue_groups_dedupe_same_asset_across_vulnerable_and_abandoned_sections() :void {
