@@ -247,9 +247,9 @@ test( 'dashboard status strip renders all real attention outcomes', async ( { pa
 		await fixtureApi.withActionsQueueFixture( 'file_locker_lazy', async () => {
 			await openShieldRoute( page, contract.routes.dashboard );
 			await dismissBlockingDialogs( page );
-			const securityWarningOverview = page.locator( '.operator-mode-landing__overview' );
-			await expect( securityWarningOverview ).toHaveAttribute( 'data-shield-status', 'warning' );
-			await expect( securityWarningOverview.locator( '.operator-mode-overview__overall-title' ) ).toHaveText( 'Security Action Required' );
+			const fileLockerOverview = page.locator( '.operator-mode-landing__overview' );
+			await expect( fileLockerOverview ).toHaveAttribute( 'data-shield-status', 'critical' );
+			await expect( fileLockerOverview.locator( '.operator-mode-overview__overall-title' ) ).toHaveText( 'Critical Action Required' );
 		} );
 
 		await fixtureApi.withActionsQueueFixture( 'direct_table', async () => {

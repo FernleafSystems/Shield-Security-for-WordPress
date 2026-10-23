@@ -221,7 +221,7 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 
 	public function test_dashboard_strip_has_strict_group_owned_contract() :void {
 		$attentionQuery = $this->attentionQuery(
-			[ $this->attentionItem( 'plugin_files', 'scans', 2, 'warning', 'Plugin Files' ) ],
+			[ $this->attentionItem( 'plugin_files', 'scans', 2, 'critical', 'Plugin Files' ) ],
 			[ $this->attentionItem( 'wp_updates', 'maintenance', 3, 'warning', 'WordPress Updates' ) ]
 		);
 		$attentionQuery[ 'summary' ] = [
@@ -236,8 +236,8 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			[ 'status', 'icon_class', 'title', 'summary', 'accessible_label' ],
 			\array_keys( $strip[ 'overall' ] )
 		);
-		$this->assertSame( 'warning', $strip[ 'overall' ][ 'status' ] );
-		$this->assertSame( 'Security Action Required', $strip[ 'overall' ][ 'title' ] );
+		$this->assertSame( 'critical', $strip[ 'overall' ][ 'status' ] );
+		$this->assertSame( 'Critical Action Required', $strip[ 'overall' ][ 'title' ] );
 		$this->assertSame( '5 issues need your attention.', $strip[ 'overall' ][ 'summary' ] );
 		$this->assertSame(
 			[ 'scans', 'maintenance' ],
@@ -248,14 +248,14 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			\array_column( $strip[ 'summaries' ], 'label' )
 		);
 		$this->assertSame( [ 2, 3 ], \array_column( $strip[ 'summaries' ], 'count' ) );
-		$this->assertSame( [ 'warning', 'warning' ], \array_column( $strip[ 'summaries' ], 'status' ) );
+		$this->assertSame( [ 'critical', 'warning' ], \array_column( $strip[ 'summaries' ], 'status' ) );
 		$this->assertSame(
 			[ 'id', 'label', 'value', 'summary', 'accessible_label', 'count', 'status', 'href' ],
 			\array_keys( $strip[ 'summaries' ][ 0 ] )
 		);
-		$this->assertSame( [ '2 security issues', '3 items due' ], \array_column( $strip[ 'summaries' ], 'value' ) );
+		$this->assertSame( [ '2 critical issues', '3 items due' ], \array_column( $strip[ 'summaries' ], 'value' ) );
 		$this->assertSame(
-			[ 'Security findings need review.', 'Routine maintenance items require review.' ],
+			[ 'Critical security findings need review.', 'Routine maintenance items require review.' ],
 			\array_column( $strip[ 'summaries' ], 'summary' )
 		);
 		$this->assertSame(
@@ -288,16 +288,16 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		return [
 			'all clear'                    => [ [], [], 'good', 'All Clear' ],
 			'critical maintenance'         => [
-				[ $this->attentionItem( 'plugin_files', 'scans', 1, 'warning' ) ],
+				[],
 				[ $this->attentionItem( 'wp_updates', 'maintenance', 1, 'critical' ) ],
 				'critical',
 				'Critical Action Required',
 			],
-			'warning security before upkeep' => [
-				[ $this->attentionItem( 'plugin_files', 'scans', 1, 'warning' ) ],
+			'security issues are critical' => [
+				[ $this->attentionItem( 'plugin_files', 'scans', 1, 'critical' ) ],
 				[ $this->attentionItem( 'wp_updates', 'maintenance', 1, 'warning' ) ],
-				'warning',
-				'Security Action Required',
+				'critical',
+				'Critical Action Required',
 			],
 			'maintenance only'             => [
 				[],
