@@ -26,6 +26,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\{
 	CacheStoreWordPressFunctions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\CacheDirHandler;
+use FernleafSystems\Wordpress\Services\Core\Db;
 
 class HashesStorageDirTest extends BaseUnitTest {
 
@@ -174,6 +175,13 @@ class HashesStorageDirTest extends BaseUnitTest {
 	public function test_existing_only_lookup_with_real_cache_handler_does_not_create_missing_cache_root() :void {
 		$preferredBase = $this->makeTempDir( 'preferred-base' );
 		$cacheRoot = $preferredBase.'/shield';
+		ServicesState::mergeItems( [
+			'service_wpdb' => new class extends Db {
+				public function getPrefix( bool $siteBase = true ) :string {
+					return '';
+				}
+			},
+		] );
 		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin
 			->getController()
 			->cache_dir_handler = new CacheDirHandler( '', $preferredBase );

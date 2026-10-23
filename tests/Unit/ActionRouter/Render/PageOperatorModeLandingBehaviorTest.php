@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Handler as EventHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Select as EventSelect;
 use FernleafSystems\Wordpress\Services\Core\Request;
+use FernleafSystems\Wordpress\Services\Core\Users;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageOperatorModeLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TaskGuideDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\ChartOptions;
@@ -43,6 +44,11 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			'service_request' => new class extends Request {
 				public function carbon( $setTimezone = false, bool $userLocale = true ) :Carbon {
 					return Carbon::createFromTimestampUTC( 1700000000 )->locale( 'en' );
+				}
+			},
+			'service_wpusers' => new class extends Users {
+				public function getCurrentWpUser() {
+					return null;
 				}
 			},
 		] );
