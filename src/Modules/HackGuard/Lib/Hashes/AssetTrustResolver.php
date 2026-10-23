@@ -114,7 +114,7 @@ class AssetTrustResolver {
 		$hashData = $this->getHashDataForContext( $path, $context );
 		$compare = new CompareFileHash();
 		foreach ( $hashData[ 'hashes' ] as $hash ) {
-			if ( $compare->isEqual( $path, $hash ) ) {
+			if ( $compare->isEqual( $path, $hash, $context->relativePath ) ) {
 				$verified = true;
 				break;
 			}
@@ -142,7 +142,7 @@ class AssetTrustResolver {
 		if ( $cache !== null ) {
 			$hashes = $cache[ 'hashes' ][ $context->relativePath ]
 				?? ( $cache[ 'hashes' ][ \strtolower( $context->relativePath ) ] ?? [] );
-			if ( ( new CompareFileHash() )->isAnyEqual( $path, $hashes ) ) {
+			if ( ( new CompareFileHash() )->isAnyEqual( $path, $hashes, $context->relativePath ) ) {
 				return new HashVerificationResult(
 					true,
 					$cache[ 'meta' ][ 'trusted' ],
@@ -190,7 +190,7 @@ class AssetTrustResolver {
 		if ( $recognised ) {
 			$compare = new CompareFileHash();
 			foreach ( $hashes as $hash ) {
-				if ( $compare->isEqual( $path, $hash ) ) {
+				if ( $compare->isEqual( $path, $hash, $context->relativePath ) ) {
 					$verified = true;
 					break;
 				}
