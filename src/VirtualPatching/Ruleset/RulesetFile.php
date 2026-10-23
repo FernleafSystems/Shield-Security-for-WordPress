@@ -9,10 +9,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\Ruleset;
  *
  * The hash is the SHA-256 of the JSON encoding (unescaped slashes and unicode) of the ruleset without its
  * 'hash' key. A file that is missing, unreadable, of another format or whose hash does not match is ignored.
+ *
+ * Format 2 gives each rule a mode, log or block. An older Shield, after a rollback, ignores a format 2 file
+ * rather than treating its log rules as block rules.
  */
 final class RulesetFile {
 
-	public const FORMAT = 1;
+	public const FORMAT = 2;
 
 	public static function hash( array $ruleset ) :string {
 		unset( $ruleset[ 'hash' ] );
@@ -27,7 +30,10 @@ final class RulesetFile {
 		return "<?php\n// Shield virtual patching ruleset. Generated: do not edit.\nreturn ".\var_export( $ruleset, true ).";\n";
 	}
 
-	public static function read( string $path ) :?array {
+	/**
+	 * @param int|null $format the format required, or null to read any format with a valid hash
+	 */
+	public static function read( string $path, ?int $format = self::FORMAT ) :?array {
 		if ( !\is_file( $path ) ) {
 			return null;
 		}
@@ -38,7 +44,7 @@ final class RulesetFile {
 			return null;
 		}
 		return \is_array( $ruleset )
-			   && ( $ruleset[ 'format' ] ?? null ) === self::FORMAT
+			   && ( $format === null ? \is_int( $ruleset[ 'format' ] ?? null ) : ( $ruleset[ 'format' ] ?? null ) === $format )
 			   && \is_array( $ruleset[ 'rules' ] ?? null )
 			   && \is_string( $ruleset[ 'hash' ] ?? null )
 			   && \hash_equals( self::hash( $ruleset ), $ruleset[ 'hash' ] )

@@ -62,6 +62,7 @@ class HandleUpgrade {
 		$this->runUpgradeSideEffect( 'import/export sites queue schedule', function () use ( $importExport ) {
 			$importExport->scheduleQueueSoonIfSyncEnabled();
 		} );
+		$this->runUpgradeSideEffect( 'virtual patching ruleset rebuild', fn() => $con->comps->virtual_patching->onUpgrade() );
 		$this->clearCaches();
 
 		if ( $con->extensions_controller->canRunExtensions() ) {

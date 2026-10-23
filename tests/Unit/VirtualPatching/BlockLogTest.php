@@ -25,6 +25,24 @@ class BlockLogTest extends TestCase {
 		$this->assertSame( [ 'a', 'b' ], \array_column( BlockLog::read( $path ), 'rule' ) );
 	}
 
+	public function testLogEntriesStopEarlierSoTheyCannotCrowdOutBlocks() :void {
+		$path = $this->createTrackedTempDir().'/events.php';
+		$padding = \str_repeat( 'x', 4096 );
+		while ( BlockLog::append( $path, [ 'rule' => 'observed', 'mode' => 'log', 'path' => $padding ] ) ) {
+		}
+		$this->assertLessThanOrEqual( BlockLog::MAX_LOG_BYTES, \filesize( $path ) );
+		$this->assertTrue( BlockLog::append( $path, [ 'rule' => 'blocked', 'path' => $padding ] ) );
+	}
+
+	public function testEachLogRuleIsObservedOncePerRequest() :void {
+		BlockLog::forgetObservations();
+		$this->assertTrue( BlockLog::firstObservation( 'r' ) );
+		$this->assertFalse( BlockLog::firstObservation( 'r' ) );
+		$this->assertTrue( BlockLog::firstObservation( 's' ) );
+		$this->assertTrue( BlockLog::isLogRule( [ 'mode' => 'log' ] ) );
+		$this->assertFalse( BlockLog::isLogRule( [] ), 'a rule from before modes existed blocks' );
+	}
+
 	public function testEntryReadsTheIpLikeTheBypassListWithRemoteAddrFallback() :void {
 		$rule = [ 'id' => 'r', 'advisories' => [ 'CVE-2026-0001' ] ];
 		$facts = [ 'method' => 'POST', 'path' => '/x' ];

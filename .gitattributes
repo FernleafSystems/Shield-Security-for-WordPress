@@ -208,3 +208,6 @@ yarn.lock text eol=lf
 # .po and .mo files excluded - translations downloaded at runtime from ShieldNET
 /languages/*.po export-ignore
 /languages/*.mo export-ignore
+
+# The shared virtual patch vectors are signed bytes from the orchestrator; never normalise them.
+tests/fixtures/rule-delivery-v1/** -text
