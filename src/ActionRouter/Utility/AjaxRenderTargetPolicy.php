@@ -43,6 +43,7 @@ class AjaxRenderTargetPolicy {
 		Actions\Render\PluginAdminPages\InvestigateByCorePanelBody::class,
 		Actions\Render\PluginAdminPages\TrafficLogLivePanelBody::class,
 		Actions\Render\Components\Scans\ItemAnalysis\Container::class,
+		Actions\Render\Components\Scans\ItemAnalysis\Diff::class,
 	];
 
 	public function isAllowed( string $classOrSlug ) :bool {

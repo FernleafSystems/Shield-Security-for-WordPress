@@ -219,6 +219,8 @@ module.exports = {
 					/^shield-detail-expansion__form--/,
 					/^shield-action-chip--/,
 					/^shield-file-status--/,
+					/^scan-item-overview__verdict--/,
+					/^scan-item-diff-state--/,
 					/^status-icon--/,
 					/^badge-/,
 				],
