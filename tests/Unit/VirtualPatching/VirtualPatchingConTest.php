@@ -11,11 +11,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	ServicesState,
 	UnitTestRequest
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\VirtualPatching\Delivery\DeliveryFixtures;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\VirtualPatching\Ruleset\PatchFixtures;
 use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\{
 	BlockLog,
 	RequestGuard,
 	VirtualPatchingCon
+};
+use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\Delivery\{
+	FeedClient,
+	FeedResponse,
+	FeedState,
+	RuleFeed,
+	RuleFileStore,
+	RuleFileVerifier,
+	TrustedKeys
 };
 use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\Ruleset\RulesetFile;
 use FernleafSystems\Wordpress\Services\Core\{
@@ -26,6 +36,7 @@ use FernleafSystems\Wordpress\Services\Core\{
 
 class VirtualPatchingConTest extends BaseUnitTest {
 
+	use DeliveryFixtures;
 	use PatchFixtures;
 	use TempDirLifecycleTrait;
 
@@ -42,6 +53,21 @@ class VirtualPatchingConTest extends BaseUnitTest {
 	private object $state;
 
 	private array $servicesSnapshot = [];
+
+	/**
+	 * @var array<string, FeedResponse> what the API answers, by "kind/slug"
+	 */
+	private array $responses = [];
+
+	/**
+	 * @var string[] "kind/slug" in the order asked
+	 */
+	private array $asked = [];
+
+	/**
+	 * @var array[] each scheduled event as [ hook, args ]
+	 */
+	private array $scheduled = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -78,6 +104,14 @@ class VirtualPatchingConTest extends BaseUnitTest {
 		Functions\when( 'current_user_can' )->alias( fn() :bool => $this->site[ 'manager' ] );
 		Functions\when( 'is_multisite' )->alias( fn() :bool => $this->site[ 'multisite' ] );
 		Functions\when( 'wp_load_alloptions' )->alias( fn() :array => $this->site[ 'alloptions' ] );
+		Functions\when( 'wp_next_scheduled' )->alias( fn( string $hook, array $args = [] ) => \in_array( [ $hook, $args ], $this->scheduled, true ) ? 1700000000 : false );
+		Functions\when( 'wp_schedule_single_event' )->alias( function ( int $ts, string $hook, array $args = [] ) :bool {
+			$this->scheduled[] = [ $hook, $args ];
+			return true;
+		} );
+		BlockLog::forgetObservations();
+		// Delivered files are issued before this test's request time.
+		self::$issuedAt = '2023-11-14T00:00:00.000Z';
 		Functions\when( 'maybe_unserialize' )->alias( fn( $value ) => \is_string( $value ) && \str_starts_with( $value, 'a:' ) ? \unserialize( $value ) : $value );
 		Functions\when( 'wp_get_themes' )->alias( fn() :array => [
 			'child'  => new class { public function get( string $key ) :string { return '1.0'; } },
@@ -333,12 +367,166 @@ class VirtualPatchingConTest extends BaseUnitTest {
 		$this->assertNotSame( $firstReason, $this->events[ 1 ][ 1 ][ 'audit_params' ][ 'reason' ] );
 	}
 
+	public function testDeliveredRulesAreFetchedVerifiedAndExportedWithTheirModes() :void {
+		$this->responses[ 'plugin/example' ] = new FeedResponse( FeedResponse::FILE, self::ruleFile( 'plugin', 'example', 1, [
+			self::publishedRule( 'observed' ),
+			self::publishedRule( 'blocking', [ 'mode' => 'block' ] ),
+		] ) );
+
+		$this->con()->runHourlyCron();
+
+		$this->assertContains( 'plugin/example', $this->asked );
+		$ruleset = RulesetFile::read( $this->dir.'/virtual-patching/ruleset.php' );
+		$this->assertSame( [ [ 'observed', 'log' ], [ 'blocking', 'block' ] ], \array_map(
+			fn( array $rule ) :array => [ $rule[ 'id' ], $rule[ 'mode' ] ],
+			$ruleset[ 'rules' ]
+		) );
+		$this->assertSame( [], $this->events );
+	}
+
+	public function testADeliveredRuleShieldCannotUseIsReportedAndARefusedFileOnce() :void {
+		$this->responses[ 'plugin/example' ] = new FeedResponse( FeedResponse::FILE, self::ruleFile( 'plugin', 'example', 1, [
+			self::publishedRule( 'no-title', [ 'title' => '' ] ),
+		] ) );
+		$this->responses[ 'theme/child' ] = new FeedResponse( FeedResponse::FILE, self::ruleFile( 'theme', 'child', 1, [], 3 ) );
+
+		$this->con()->runHourlyCron();
+		$this->con()->runHourlyCron();
+
+		$this->assertSame( [
+			[ 'virtual_patch_rejected', 'no-title' ],
+			[ 'virtual_patch_feed', 'theme/child' ],
+		], \array_map( fn( array $event ) :array => [ $event[ 0 ], \reset( $event[ 1 ][ 'audit_params' ] ) ], $this->events ) );
+	}
+
+	public function testUpdatesAndActivationsScheduleAFetchAndADeletionDropsTheFile() :void {
+		$con = $this->con();
+		$con->execute();
+		$hook = 'icwp-wpsf-virtual_patching_fetch';
+
+		$this->fire( 'activated_plugin', 'example/example.php' );
+		$this->fire( 'upgrader_process_complete', null, [ 'type' => 'theme', 'themes' => [ 'child' ] ] );
+		$this->fire( 'shield/plugin_activated' );
+		$this->assertSame( [
+			[ $hook, [ [ 'plugin/example' ] ] ],
+			[ $hook, [ [ 'theme/child' ] ] ],
+			[ $hook, [ null ] ],
+		], $this->scheduled );
+
+		$this->responses[ 'plugin/example' ] = new FeedResponse( FeedResponse::FILE, self::ruleFile( 'plugin', 'example', 1, [ self::publishedRule() ] ) );
+		$this->fire( $hook, [ 'plugin/example' ] );
+		$this->assertNotNull( $this->ruleStore()->read( 'plugin', 'example' ) );
+		$this->assertFileExists( $this->dir.'/virtual-patching/ruleset.php' );
+
+		$this->fire( 'deleted_plugin', 'example/example.php', true );
+		$this->assertNull( $this->ruleStore()->read( 'plugin', 'example' ) );
+		$this->assertNull( FeedState::load()->asset( 'plugin', 'example' ) );
+	}
+
+	public function testNothingIsReportedOrKeptForWhatShieldNoLongerFetches() :void {
+		$this->responses[ 'plugin/example' ] = new FeedResponse( FeedResponse::FILE, self::ruleFile( 'plugin', 'example', 1, [], 3 ) );
+		$this->con()->fetchRules();
+		$this->state->capability = false;
+
+		$this->con()->reportFeedProblems();
+		$this->assertSame( [], $this->events, 'unavailable' );
+
+		$this->state->capability = true;
+		$this->ruleStore()->write( 'plugin', 'removed', self::ruleFile( 'plugin', 'removed', 1 ) );
+		$state = FeedState::load();
+		$state->record( 'plugin', 'removed', 1700000000, true, null, null );
+		$state->save();
+		$this->con()->fetchRules();
+		$this->assertNull( FeedState::load()->asset( 'plugin', 'removed' ) );
+		$this->assertNull( $this->ruleStore()->read( 'plugin', 'removed' ) );
+	}
+
+	public function testWithoutACacheDirectoryNothingIsFetchedOrStored() :void {
+		$this->dir = '';
+		$this->installController();
+
+		$this->con()->fetchRules();
+
+		$this->assertSame( [], $this->asked );
+		$this->assertSame( [], FeedState::load()->assets );
+	}
+
+	public function testImportRecordsBlocksBeforeObservations() :void {
+		$events = $this->dir.'/virtual-patching/events.php';
+		\mkdir( \dirname( $events ), 0755, true );
+		BlockLog::append( $events, [ 'rule' => 'observed', 'mode' => 'log', 'advisories' => [], 'ip' => '203.0.113.9', 'method' => 'GET', 'path' => '/' ] );
+		BlockLog::append( $events, [ 'rule' => 'blocked', 'mode' => 'block', 'advisories' => [], 'ip' => '203.0.113.9', 'method' => 'GET', 'path' => '/' ] );
+
+		$this->con()->importBlocks();
+
+		$this->assertSame( [ [ 'virtual_patch_block', 'blocked' ], [ 'virtual_patch_observed', 'observed' ] ], \array_map(
+			fn( array $event ) :array => [ $event[ 0 ], $event[ 1 ][ 'audit_params' ][ 'rule' ] ],
+			$this->events
+		) );
+	}
+
 	private function con() :VirtualPatchingCon {
-		return new class extends VirtualPatchingCon {
+		return new class( $this ) extends VirtualPatchingCon {
+			private VirtualPatchingConTest $test;
+
+			public function __construct( VirtualPatchingConTest $test ) {
+				$this->test = $test;
+			}
+
 			protected function bypassIps() :array {
 				return [ '198.51.100.0/24' ];
 			}
+
+			protected function localPatchesEnabled() :bool {
+				return true;
+			}
+
+			protected function trustedKeys() :TrustedKeys {
+				return $this->test->keys();
+			}
+
+			protected function ruleFeed() :RuleFeed {
+				return $this->test->feed( new RuleFileStore( $this->rulesDir() ) );
+			}
 		};
+	}
+
+	/**
+	 * @internal for the controller under test
+	 */
+	public function keys() :TrustedKeys {
+		return self::testKeys();
+	}
+
+	/**
+	 * @internal for the controller under test: a feed whose API answers from $responses
+	 */
+	public function feed( RuleFileStore $store ) :RuleFeed {
+		$client = new class( $this ) extends FeedClient {
+			private VirtualPatchingConTest $test;
+
+			public function __construct( VirtualPatchingConTest $test ) {
+				parent::__construct( '22.3.0' );
+				$this->test = $test;
+			}
+
+			public function fetch( string $kind, string $slug, int $schema ) :FeedResponse {
+				return $this->test->answer( $kind.'/'.$slug );
+			}
+		};
+		return new RuleFeed( $client, $store, new RuleFileVerifier( self::testKeys() ), 7 );
+	}
+
+	/**
+	 * @internal for the fake API
+	 */
+	public function answer( string $key ) :FeedResponse {
+		$this->asked[] = $key;
+		return $this->responses[ $key ] ?? new FeedResponse( FeedResponse::NONE );
+	}
+
+	private function ruleStore() :RuleFileStore {
+		return new RuleFileStore( $this->dir.'/virtual-patching/rules' );
 	}
 
 	private function installController() :void {
@@ -347,7 +535,13 @@ class VirtualPatchingConTest extends BaseUnitTest {
 		$events = &$this->events;
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->cfg = (object)[ 'properties' => [ 'slug_parent' => 'icwp', 'slug_plugin' => 'wpsf' ] ];
+		$controller->cfg = new class {
+			public array $properties = [ 'slug_parent' => 'icwp', 'slug_plugin' => 'wpsf' ];
+
+			public function version() :string {
+				return '22.3.0';
+			}
+		};
 		$controller->base_file = self::SHIELD;
 		$controller->cache_dir_handler = new class( $dir ) {
 			private string $dir;
@@ -357,7 +551,7 @@ class VirtualPatchingConTest extends BaseUnitTest {
 			}
 
 			public function cacheItemPath( string $item ) :string {
-				return $this->dir.'/'.$item;
+				return $this->dir === '' ? '' : $this->dir.'/'.$item;
 			}
 		};
 		$controller->caps = new class( $state ) {

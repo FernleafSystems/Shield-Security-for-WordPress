@@ -1,0 +1,250 @@
+{
+  "now": "2026-10-23T12:00:00.000Z",
+  "keys": "keys.json",
+  "cases": [
+    {
+      "name": "genuine index",
+      "file": "index.json",
+      "context": "index",
+      "aptoweb": "accepted"
+    },
+    {
+      "name": "genuine asset",
+      "file": "asset.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "index": "index.json",
+      "aptoweb": "accepted",
+      "shield": {
+        "outcome": "accepted",
+        "rules": [
+          "candidate-revision-001"
+        ],
+        "skipped": []
+      }
+    },
+    {
+      "name": "larger than 512 KiB",
+      "file": "refused/oversize.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "aptoweb": "refused",
+      "shield": {
+        "outcome": "refused"
+      }
+    },
+    {
+      "name": "unknown format",
+      "file": "refused/format.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "aptoweb": "refused",
+      "shield": {
+        "outcome": "refused"
+      }
+    },
+    {
+      "name": "untrusted key",
+      "file": "refused/unknown-key.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "aptoweb": "refused",
+      "shield": {
+        "outcome": "refused"
+      }
+    },
+    {
+      "name": "payload changed after signing",
+      "file": "refused/signature.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "aptoweb": "refused",
+      "shield": {
+        "outcome": "refused"
+      }
+    },
+    {
+      "name": "index context for an asset",
+      "file": "refused/context.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "aptoweb": "refused",
+      "shield": {
+        "outcome": "refused"
+      }
+    },
+    {
+      "name": "payload without rules",
+      "file": "refused/payload.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "aptoweb": "refused",
+      "shield": {
+        "outcome": "refused"
+      }
+    },
+    {
+      "name": "issuedAt more than a day ahead",
+      "file": "refused/future.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "aptoweb": "refused",
+      "shield": {
+        "outcome": "refused"
+      }
+    },
+    {
+      "name": "another asset",
+      "file": "refused/asset.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "aptoweb": "refused",
+      "shield": {
+        "outcome": "refused"
+      }
+    },
+    {
+      "name": "another schema than requested",
+      "file": "refused/schema.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "aptoweb": "refused",
+      "shield": {
+        "outcome": "refused"
+      }
+    },
+    {
+      "name": "lower ordering than the stored file",
+      "file": "kept/lower-ordering.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "stored": "asset.json",
+      "aptoweb": "kept",
+      "shield": {
+        "outcome": "unchanged"
+      }
+    },
+    {
+      "name": "index entry with a bad slug",
+      "file": "aptoweb/index-entry.json",
+      "context": "index",
+      "aptoweb": "refused"
+    },
+    {
+      "name": "SHA-256 differs from the index entry",
+      "file": "aptoweb/sha-mismatch.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "index": "index.json",
+      "aptoweb": "refused"
+    },
+    {
+      "name": "rule without a title",
+      "file": "rules/shape.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "aptoweb": "accepted",
+      "shield": {
+        "outcome": "accepted",
+        "rules": [
+          "candidate-revision-001"
+        ],
+        "skipped": [
+          "candidate-revision-002"
+        ]
+      }
+    },
+    {
+      "name": "unknown mode",
+      "file": "rules/mode.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "aptoweb": "accepted",
+      "shield": {
+        "outcome": "accepted",
+        "rules": [
+          "candidate-revision-001"
+        ],
+        "skipped": [
+          "candidate-revision-002"
+        ]
+      }
+    },
+    {
+      "name": "rule the validator refuses",
+      "file": "rules/invalid-patch.json",
+      "context": "asset",
+      "asset": {
+        "kind": "plugin",
+        "slug": "example-plugin"
+      },
+      "schema": 7,
+      "aptoweb": "accepted",
+      "shield": {
+        "outcome": "accepted",
+        "rules": [
+          "candidate-revision-001"
+        ],
+        "skipped": [
+          "candidate-revision-002"
+        ]
+      }
+    }
+  ]
+}

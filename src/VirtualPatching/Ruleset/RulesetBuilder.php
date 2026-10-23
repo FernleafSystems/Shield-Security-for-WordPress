@@ -2,69 +2,65 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\Ruleset;
 
-use FernleafSystems\Orle\VirtualPatchingRules\PatchValidator;
-
 /**
- * Turns virtual patches into the ruleset the request passes use. Only valid patches for a plugin or theme that
- * is installed at an affected version are kept; the rest are reported with the reason.
+ * Turns checked virtual patch rules into the ruleset the request passes use. Only rules for a plugin or theme that
+ * is installed at an affected version are kept; the rest are reported with the reason. Each rule keeps its mode:
+ * a log rule records what it would have blocked, and a block rule blocks.
  *
- * A patch for an installed but inactive plugin is kept: its files can still be requested directly, and the
- * patch's own plugin_active condition decides whether activity matters.
+ * A rule for an installed but inactive plugin is kept: its files can still be requested directly, and the rule's
+ * own plugin_active condition decides whether activity matters.
  */
 class RulesetBuilder {
 
-	private PatchValidator $validator;
+	public const MODES = [ 'log', 'block' ];
 
 	private AffectedVersions $versions;
 
-	public function __construct( ?PatchValidator $validator = null, ?AffectedVersions $versions = null ) {
-		$this->validator = $validator ?? new PatchValidator();
+	public function __construct( ?AffectedVersions $versions = null ) {
 		$this->versions = $versions ?? new AffectedVersions();
 	}
 
 	/**
-	 * @param mixed[] $patches decoded JSON with objects kept as objects, as PatchValidator requires
+	 * @param array[] $entries each { kind, slug, mode, rule }, the rule already checked and decoded to arrays: its
+	 *                         id, publicVulnerabilityIds, affectedVersionRanges and conditions
 	 * @param array   $extra   further top-level ruleset keys, such as bypass settings
 	 * @return array{ruleset: array, rejected: array<string, string>, not_applicable: array<string, string>}
 	 */
-	public function build( array $patches, SiteState $site, int $generatedAt, array $extra = [] ) :array {
+	public function build( array $entries, SiteState $site, int $generatedAt, array $extra = [] ) :array {
 		$rules = [];
 		$rejected = [];
 		$notApplicable = [];
 
-		foreach ( \array_values( $patches ) as $index => $patch ) {
-			$id = $patch instanceof \stdClass && \is_string( $patch->candidateRevisionId ?? null )
-				? $patch->candidateRevisionId : '#'.$index;
-
-			$problems = $patch instanceof \stdClass ? $this->validator->validate( $patch ) : [ 'a patch must be an object' ];
-			if ( !empty( $problems ) ) {
-				$rejected[ $id ] = \implode( '; ', $problems );
-				continue;
-			}
-			$patch = \json_decode( (string)\json_encode( $patch ), true );
+		foreach ( $entries as $entry ) {
+			$rule = $entry[ 'rule' ];
+			$id = (string)$rule[ 'id' ];
 			if ( isset( $rules[ $id ] ) ) {
-				$rejected[ $id ] = 'duplicate candidateRevisionId';
+				$rejected[ $id ] = 'duplicate rule id';
+				continue;
+			}
+			if ( !\in_array( $entry[ 'mode' ], self::MODES, true ) ) {
+				$rejected[ $id ] = 'mode must be log or block';
 				continue;
 			}
 
-			$target = $patch[ 'targetExtension' ];
-			$installed = $site->installedVersion( $target[ 'kind' ], $target[ 'slug' ] );
+			$installed = $site->installedVersion( $entry[ 'kind' ], $entry[ 'slug' ] );
 			if ( $installed === null ) {
 				$notApplicable[ $id ] = 'not installed';
 				continue;
 			}
-			if ( !$this->versions->isAffected( $installed, $target[ 'affectedVersionRanges' ] ) ) {
+			if ( !$this->versions->isAffected( $installed, $rule[ 'affectedVersionRanges' ] ) ) {
 				$notApplicable[ $id ] = 'installed version '.$installed.' is not affected';
 				continue;
 			}
 
 			$rules[ $id ] = [
 				'id'         => $id,
+				'mode'       => $entry[ 'mode' ],
 				'advisories' => \array_values( \array_unique( \array_map(
 					fn( array $vulnerabilityId ) => $vulnerabilityId[ 'identifier' ],
-					$patch[ 'publicVulnerabilityIds' ]
+					$rule[ 'publicVulnerabilityIds' ]
 				) ) ),
-				'conditions' => $patch[ 'virtualPatch' ][ 'matcher' ][ 'conditions' ],
+				'conditions' => $rule[ 'conditions' ],
 			];
 		}
 

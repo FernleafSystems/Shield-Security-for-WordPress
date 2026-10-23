@@ -128,10 +128,18 @@ final class EarlyPass {
 				continue;
 			}
 
-			if ( $verdict !== RuleEvaluator::NO_MATCH ) {
-				$this->log( $rule, $verdict, $facts );
-				return $rule;
+			if ( $verdict === RuleEvaluator::NO_MATCH ) {
+				continue;
 			}
+			// A log rule's match is recorded and checking carries on, so it can't hide a block rule after it.
+			if ( BlockLog::isLogRule( $rule ) ) {
+				if ( BlockLog::firstObservation( (string)( $rule[ 'id' ] ?? '' ) ) ) {
+					$this->log( $rule, $verdict, $facts );
+				}
+				continue;
+			}
+			$this->log( $rule, $verdict, $facts );
+			return $rule;
 		}
 
 		$this->complete = $evaluatedAll;

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\VirtualPatching\Ear
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\BlockLog;
 use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\EarlyLoading\EarlyPass;
+use FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\Ruleset\RulesetFile;
 use PHPUnit\Framework\TestCase;
 
 class EarlyPassTest extends TestCase {
@@ -16,6 +17,7 @@ class EarlyPassTest extends TestCase {
 	protected function setUp() :void {
 		parent::setUp();
 		$this->events = $this->createTrackedTempDir( 'shield-early-pass-' ).'/events.php';
+		BlockLog::forgetObservations();
 	}
 
 	protected function tearDown() :void {
@@ -34,6 +36,28 @@ class EarlyPassTest extends TestCase {
 		$this->assertSame( [ 'demo-installer', 'early', 'match', '203.0.113.9' ], [
 			$entries[ 0 ][ 'rule' ], $entries[ 0 ][ 'pass' ], $entries[ 0 ][ 'verdict' ], $entries[ 0 ][ 'ip' ],
 		] );
+	}
+
+	public function testALogRuleIsRecordedAndCannotHideABlockRuleAfterIt() :void {
+		$log = [ 'id' => 'demo-observed', 'mode' => 'log' ] + $this->installerRule();
+		$pass = new EarlyPass( $this->ruleset( [ $log, $this->installerRule() ] ), $this->server( 'POST', '/wp-content/plugins/demo/install.php' ), [], [ 'step' => '2' ], [] );
+
+		$this->assertSame( 'demo-installer', $pass->run()[ 'id' ] ?? null );
+		$this->assertSame( [ [ 'demo-observed', 'log' ], [ 'demo-installer', 'block' ] ], \array_map(
+			fn( array $entry ) :array => [ $entry[ 'rule' ], $entry[ 'mode' ] ],
+			BlockLog::read( $this->events )
+		) );
+	}
+
+	public function testALogRuleAloneLetsTheRequestThroughAndIsRecordedOnce() :void {
+		$log = [ 'id' => 'demo-observed', 'mode' => 'log' ] + $this->installerRule();
+		$server = $this->server( 'POST', '/wp-content/plugins/demo/install.php' );
+		$pass = new EarlyPass( $this->ruleset( [ $log ] ), $server, [], [ 'step' => '2' ], [] );
+
+		$this->assertNull( $pass->run() );
+		$this->assertTrue( $pass->isComplete() );
+		$this->assertNull( ( new EarlyPass( $this->ruleset( [ $log ] ), $server, [], [ 'step' => '2' ], [] ) )->run() );
+		$this->assertSame( [ 'demo-observed' ], \array_column( BlockLog::read( $this->events ), 'rule' ) );
 	}
 
 	public function testNormalRequestPassesAndEarlyRulesCountAsDecided() :void {
@@ -180,7 +204,7 @@ class EarlyPassTest extends TestCase {
 
 	private function ruleset( array $rules ) :array {
 		return [
-			'format'         => 1,
+			'format'         => RulesetFile::FORMAT,
 			'hash'           => 'test',
 			'active_plugins' => [],
 			'active_themes'  => [],

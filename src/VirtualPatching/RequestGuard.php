@@ -143,7 +143,10 @@ final class RequestGuard {
 	}
 
 	/**
-	 * @return mixed whatever the responder returns for a block, or null when nothing matched
+	 * Every rule is checked: a log rule's match is recorded and checking carries on, so a log rule listed first
+	 * can't hide a block rule after it. A log match never announces a block or shows the visitor anything.
+	 *
+	 * @return mixed whatever the responder returns for a block, or null when nothing blocked
 	 */
 	private function run( EvaluationPoint $point, array $facts ) {
 		foreach ( $this->rulesByPoint[ $point->value ] ?? [] as $rule ) {
@@ -153,11 +156,18 @@ final class RequestGuard {
 			catch ( \Throwable $e ) {
 				continue;
 			}
-			if ( $verdict !== RuleEvaluator::NO_MATCH ) {
-				$this->log( $rule, $point->value, $verdict, $facts );
-				$this->announce( $rule, $point->value );
-				return ( $this->respond )( $rule, $point->value );
+			if ( $verdict === RuleEvaluator::NO_MATCH ) {
+				continue;
 			}
+			if ( BlockLog::isLogRule( $rule ) ) {
+				if ( BlockLog::firstObservation( (string)( $rule[ 'id' ] ?? '' ) ) ) {
+					$this->log( $rule, $point->value, $verdict, $facts );
+				}
+				continue;
+			}
+			$this->log( $rule, $point->value, $verdict, $facts );
+			$this->announce( $rule, $point->value );
+			return ( $this->respond )( $rule, $point->value );
 		}
 		return null;
 	}
