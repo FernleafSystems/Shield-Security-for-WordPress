@@ -157,10 +157,10 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			$this->attentionItem( 'malware', 'scans', 4, 'critical', 'Malware' ),
 			$this->attentionItem( 'vulnerable_assets', 'scans', 3, 'critical', 'Vulnerabilities' ),
 			$this->attentionItem( 'wp_files', 'scans', 2, 'critical', 'WordPress Files' ),
-			$this->attentionItem( 'plugin_files', 'scans', 5, 'warning', 'Plugin Files' ),
-			$this->attentionItem( 'theme_files', 'scans', 1, 'warning', 'Theme Files' ),
+			$this->attentionItem( 'plugin_files', 'scans', 5, 'critical', 'Plugin Files' ),
+			$this->attentionItem( 'theme_files', 'scans', 1, 'critical', 'Theme Files' ),
 			$this->attentionItem( 'abandoned', 'scans', 6, 'critical', 'Abandoned Assets' ),
-			$this->attentionItem( 'file_locker', 'scans', 2, 'warning', 'File Locker' ),
+			$this->attentionItem( 'file_locker', 'scans', 2, 'critical', 'File Locker' ),
 			$this->attentionItem( 'hidden_plugins', 'scans', 2, 'critical', 'Cloaked Plugins' ),
 		];
 		$data = $this->buildCardData(
@@ -221,7 +221,7 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 
 	public function test_dashboard_strip_has_strict_group_owned_contract() :void {
 		$attentionQuery = $this->attentionQuery(
-			[ $this->attentionItem( 'plugin_files', 'scans', 2, 'warning', 'Plugin Files' ) ],
+			[ $this->attentionItem( 'plugin_files', 'scans', 2, 'critical', 'Plugin Files' ) ],
 			[ $this->attentionItem( 'wp_updates', 'maintenance', 3, 'warning', 'WordPress Updates' ) ]
 		);
 		$attentionQuery[ 'summary' ] = [
@@ -236,8 +236,8 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			[ 'status', 'icon_class', 'title', 'summary', 'accessible_label' ],
 			\array_keys( $strip[ 'overall' ] )
 		);
-		$this->assertSame( 'warning', $strip[ 'overall' ][ 'status' ] );
-		$this->assertSame( 'Security Action Required', $strip[ 'overall' ][ 'title' ] );
+		$this->assertSame( 'critical', $strip[ 'overall' ][ 'status' ] );
+		$this->assertSame( 'Critical Action Required', $strip[ 'overall' ][ 'title' ] );
 		$this->assertSame( '5 issues need your attention.', $strip[ 'overall' ][ 'summary' ] );
 		$this->assertSame(
 			[ 'scans', 'maintenance' ],
@@ -248,14 +248,14 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			\array_column( $strip[ 'summaries' ], 'label' )
 		);
 		$this->assertSame( [ 2, 3 ], \array_column( $strip[ 'summaries' ], 'count' ) );
-		$this->assertSame( [ 'warning', 'warning' ], \array_column( $strip[ 'summaries' ], 'status' ) );
+		$this->assertSame( [ 'critical', 'warning' ], \array_column( $strip[ 'summaries' ], 'status' ) );
 		$this->assertSame(
 			[ 'id', 'label', 'value', 'summary', 'accessible_label', 'count', 'status', 'href' ],
 			\array_keys( $strip[ 'summaries' ][ 0 ] )
 		);
-		$this->assertSame( [ '2 security issues', '3 items due' ], \array_column( $strip[ 'summaries' ], 'value' ) );
+		$this->assertSame( [ '2 critical issues', '3 items due' ], \array_column( $strip[ 'summaries' ], 'value' ) );
 		$this->assertSame(
-			[ 'Security findings need review.', 'Routine maintenance items require review.' ],
+			[ 'Critical security findings need review.', 'Routine maintenance items require review.' ],
 			\array_column( $strip[ 'summaries' ], 'summary' )
 		);
 		$this->assertSame(
@@ -286,16 +286,16 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		return [
 			'all clear'                    => [ [], [], 'good', 'All Clear' ],
 			'critical maintenance'         => [
-				[ self::attentionItem( 'plugin_files', 'scans', 1, 'warning' ) ],
+				[],
 				[ self::attentionItem( 'wp_updates', 'maintenance', 1, 'critical' ) ],
 				'critical',
 				'Critical Action Required',
 			],
-			'warning security before upkeep' => [
-				[ self::attentionItem( 'plugin_files', 'scans', 1, 'warning' ) ],
+			'security issues are critical' => [
+				[ self::attentionItem( 'plugin_files', 'scans', 1, 'critical' ) ],
 				[ self::attentionItem( 'wp_updates', 'maintenance', 1, 'warning' ) ],
-				'warning',
-				'Security Action Required',
+				'critical',
+				'Critical Action Required',
 			],
 			'maintenance only'             => [
 				[],
