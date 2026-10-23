@@ -15,9 +15,11 @@ export class ScanItemDiffTab {
 		contextEl.querySelectorAll( '[data-scan-item-diff="1"]' ).forEach(
 			( container ) => ScanItemDiffTab.initializeContainer( contextEl, container )
 		);
-		contextEl.querySelectorAll( '[data-scan-item-show-tab]' ).forEach(
-			( button ) => button.addEventListener( 'click', () => ScanItemDiffTab.showTab( contextEl, button.dataset.scanItemShowTab ) )
-		);
+		contextEl.querySelectorAll( '[data-scan-item-show-tab]' ).forEach( ( button ) => {
+			if ( button instanceof HTMLElement ) {
+				button.addEventListener( 'click', () => ScanItemDiffTab.showTab( contextEl, button.dataset.scanItemShowTab ) );
+			}
+		} );
 	}
 
 	static initializeContainer( contextEl, container ) {
