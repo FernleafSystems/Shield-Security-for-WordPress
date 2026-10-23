@@ -41,6 +41,7 @@ use FernleafSystems\Wordpress\Services\Core\{
 	CoreFileHashes,
 	Cron,
 	Db,
+	General,
 	Plugins,
 	Request,
 	Themes
@@ -465,6 +466,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		];
 		$this->persistWrites = false;
 		$this->updateResult = false;
+		$this->installReadinessResponses( [], new \RuntimeException( 'Synthetic readiness read failure.' ) );
 
 		( new AssetCoordinator() )->runDueWork();
 
@@ -700,6 +702,16 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'service_wpplugins' => new SnapshotPlugins( [
 				new SnapshotPluginVo( 'missing-snapshot/plugin.php', '1.0.0' ),
 			] ),
+			// No WP Hashes API routes are cached, so the snapshot build makes no API request.
+			'service_wpgeneral' => new class extends General {
+				public function canUseTransients() :bool {
+					return true;
+				}
+
+				public function getTransient( $sKey ) {
+					return '';
+				}
+			},
 		] );
 		$coordinator = new AssetCoordinator();
 
@@ -919,6 +931,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->addCron( 1700000040, 'icwp-wpsf-ondemand_scan_wpv', [] );
 		$this->persistWrites = false;
 		$this->updateResult = false;
+		$this->installReadinessResponses( [], new \RuntimeException( 'Synthetic readiness read failure.' ) );
 
 		( new AssetCoordinator() )->execute();
 

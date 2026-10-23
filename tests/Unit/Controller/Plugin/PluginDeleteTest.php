@@ -146,7 +146,7 @@ class PluginDeleteTest extends BaseUnitTest {
 	}
 
 	private function newDbCon() :object {
-		$dbCon = new class {
+		$dbCon = new class extends \stdClass {
 			public function reset() :void {
 			}
 		};

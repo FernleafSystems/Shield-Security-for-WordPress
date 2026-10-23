@@ -560,7 +560,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 		}
 
 		private function newResetDbCon() :object {
-			$dbCon = new class {
+			$dbCon = new class extends \stdClass {
 				public function reset() :void {
 				}
 			};
