@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\AssetFileRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
@@ -20,13 +21,15 @@ class BuildHashesForCrowdSource {
 
 	/**
 	 * All file keys are their normalised file paths, with the asset root dir stripped from it.
-	 * Text files are hashed with LF line endings; binary files are hashed byte for byte.
+	 * Text files are hashed with LF line endings; binary files are hashed byte for byte. A file covered by an
+	 * AssetFileRules rule is hashed as the API publishes it, so collections from different downloads agree.
 	 * @param WpPluginVo|WpThemeVo $asset
 	 * @return string[]
 	 */
 	public function build( $asset, array $exts ) :array {
 		$hashes = [];
 		$converter = new ConvertLineEndings();
+		$rules = new AssetFileRules();
 		$dir = wp_normalize_path( $asset->getInstallDir() );
 		try {
 			if ( empty( $exts ) ) {
@@ -39,7 +42,8 @@ class BuildHashesForCrowdSource {
 					$key = \strtolower( \str_replace( $dir, '', wp_normalize_path( $fullPath ) ) );
 					$content = (string)Services::WpFs()->getFileContent( $fullPath );
 					$isBinary = \str_contains( \substr( $content, 0, self::BINARY_PROBE_BYTES ), "\0" );
-					$hashes[ $key ] = \hash( 'sha1', $isBinary ? $content : $converter->dosToLinux( $content ) );
+					$normalised = $isBinary ? $content : $converter->dosToLinux( $content );
+					$hashes[ $key ] = \hash( 'sha1', $rules->apply( $key, $normalised ) ?? $normalised );
 				}
 			}
 			\ksort( $hashes, \SORT_NATURAL );

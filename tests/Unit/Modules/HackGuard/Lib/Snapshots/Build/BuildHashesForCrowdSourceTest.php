@@ -63,6 +63,14 @@ class BuildHashesForCrowdSourceTest extends BaseUnitTest {
 		] ) );
 	}
 
+	public function test_vendor_build_json_from_different_downloads_submits_the_hash_the_api_publishes() :void {
+		// EDD writes a fresh manifestChecksum on every download; the API publishes the file with it emptied.
+		$build = '{"buildDate":1792016945,"buildMeta":{"fileChecksum":"22e7a10707420c21b3802eb4b8a2ecee","manifestChecksum":"%s"}}';
+		$published = [ 'vendor/build.json' => \sha1( \sprintf( $build, '' ) ) ];
+		$this->assertSame( $published, $this->build( [ 'vendor/build.json' => \sprintf( $build, '14771e1a-6c34-43nM72YBhyPIs3jtZugiQY4siKSziB2Mf0ZKzTLe3VSJcR7Sx+bcfA6Od=' ) ] ) );
+		$this->assertSame( $published, $this->build( [ 'vendor/build.json' => \sprintf( $build, '1900a92e-567d-40O0TYMeyeHsToMThKjy3wdXBsL4oa\/iek73sSa==' ) ] ) );
+	}
+
 	/**
 	 * @param array<string,string> $files
 	 * @return array<string,string>
@@ -70,11 +78,14 @@ class BuildHashesForCrowdSourceTest extends BaseUnitTest {
 	private function build( array $files ) :array {
 		$dir = $this->createTrackedTempDir( 'shield-crowd-source-' );
 		foreach ( $files as $name => $contents ) {
+			if ( !\is_dir( \dirname( $dir.'/'.$name ) ) ) {
+				\mkdir( \dirname( $dir.'/'.$name ), 0777, true );
+			}
 			\file_put_contents( $dir.'/'.$name, $contents );
 		}
 		return ( new BuildHashesForCrowdSource() )->build(
 			new BuildHashesForCrowdSourcePluginVo( \str_replace( '\\', '/', $dir ).'/' ),
-			[ 'php', 'ico', 'mo', 'js', 'css' ]
+			[ 'php', 'ico', 'mo', 'js', 'css', 'json' ]
 		);
 	}
 }
