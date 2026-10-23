@@ -654,10 +654,23 @@ class EventStrings {
 					__( 'Request from {{ip}}: {{method}} {{path}}', 'wp-simple-firewall' ),
 				],
 			],
+			'virtual_patch_observed'       => [
+				'name'  => __( 'Virtual Patch Observed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Request matched virtual patch {{rule}} for {{advisories}}, which is in log mode, so it was not blocked.', 'wp-simple-firewall' ),
+					__( 'Request from {{ip}}: {{method}} {{path}}', 'wp-simple-firewall' ),
+				],
+			],
 			'virtual_patch_rejected'       => [
 				'name'  => __( 'Virtual Patch Rejected', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Virtual patch {{rule}} was not loaded: {{reason}}.', 'wp-simple-firewall' ),
+				],
+			],
+			'virtual_patch_feed'           => [
+				'name'  => __( 'Virtual Patch Update Problem', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Virtual patches for {{asset}} could not be updated: {{reason}}.', 'wp-simple-firewall' ),
 				],
 			],
 			'fw_email_success'             => [

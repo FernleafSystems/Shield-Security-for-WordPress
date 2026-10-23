@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f9dc27875975882df3629940a0a689e3",
+    "content-hash": "2a1bb6d38c76af7b5249a200081061dc",
     "packages": [
         {
             "name": "brick/math",
@@ -476,16 +476,16 @@
         },
         {
             "name": "fernleafsystems/orle-virtual-patching-rules",
-            "version": "0.0.7",
+            "version": "0.0.10",
             "source": {
                 "type": "git",
                 "url": "git@github.com:FernleafSystems/Orle-Virtual-Patching-Rules.git",
-                "reference": "6af2173f35628458758cc460ecca7522308698ff"
+                "reference": "6b6173beb0045d0f2c7064db111eb4693688ed29"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FernleafSystems/Orle-Virtual-Patching-Rules/zipball/6af2173f35628458758cc460ecca7522308698ff",
-                "reference": "6af2173f35628458758cc460ecca7522308698ff",
+                "url": "https://api.github.com/repos/FernleafSystems/Orle-Virtual-Patching-Rules/zipball/6b6173beb0045d0f2c7064db111eb4693688ed29",
+                "reference": "6b6173beb0045d0f2c7064db111eb4693688ed29",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -509,10 +509,10 @@
             ],
             "description": "The virtual patching rule language: schema, evaluator, validator and WordPress facts.",
             "support": {
-                "source": "https://github.com/FernleafSystems/Orle-Virtual-Patching-Rules/tree/0.0.7",
+                "source": "https://github.com/FernleafSystems/Orle-Virtual-Patching-Rules/tree/0.0.10",
                 "issues": "https://github.com/FernleafSystems/Orle-Virtual-Patching-Rules/issues"
             },
-            "time": "2026-10-22T21:31:25+00:00"
+            "time": "2026-10-23T15:08:10+00:00"
         },
         {
             "name": "fernleafsystems/utilities",

@@ -266,6 +266,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			) ) );
 		}
 
+		public function test_scheduled_upgrade_rebuilds_the_virtual_patching_ruleset() :void {
+			$actions = [];
+			$this->captureUpgradeAction( $actions );
+			$state = $this->installController( '2.0.0' );
+
+			( new HandleUpgrade() )->execute();
+			$this->runCapturedUpgradeCallback( $actions );
+
+			$this->assertContains( 'virtual_patching_upgrade', $state->operations->calls );
+		}
+
 		public function test_scheduled_upgrade_does_not_require_scan_queue_component() :void {
 			$actions = [];
 			$this->captureUpgradeAction( $actions );
@@ -487,6 +498,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 					'asset_coordinator' => $assetCoordinator,
 					'scans'             => $scans,
 					'import_export'     => new ImportExportController(),
+					'virtual_patching'  => new HandleUpgradeTestVirtualPatching( $operations ),
 				],
 			] );
 
@@ -544,6 +556,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				new HandleUpgradeTestExtension( $extensionHandler ),
 			] );
 			$controller->comps->asset_coordinator = $assetCoordinator;
+			$controller->comps->virtual_patching = new HandleUpgradeTestVirtualPatching( $operations );
 			$controller->comps->scans = $scanFacade;
 			$controller->comps->import_export = new ImportExportController();
 			PluginControllerInstaller::install( $controller );
@@ -708,6 +721,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 		public function reconcileWakeup() :void {
 			$this->reconciliations++;
 			$this->operations->calls[] = 'reconcile_wakeup';
+		}
+	}
+
+	class HandleUpgradeTestVirtualPatching {
+
+		private HandleUpgradeTestOperations $operations;
+
+		public function __construct( HandleUpgradeTestOperations $operations ) {
+			$this->operations = $operations;
+		}
+
+		public function onUpgrade() :void {
+			$this->operations->calls[] = 'virtual_patching_upgrade';
 		}
 	}
 

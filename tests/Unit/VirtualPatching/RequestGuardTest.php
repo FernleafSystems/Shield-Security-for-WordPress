@@ -90,6 +90,7 @@ class RequestGuardTest extends BaseUnitTest {
 		Functions\when( 'wp_unslash' )->alias( fn( $value ) => \is_array( $value ) ? \array_map( 'stripslashes', $value ) : \stripslashes( $value ) );
 		Functions\when( 'current_user_can' )->alias( fn( string $capability ) :bool => \in_array( $capability, $this->capabilities, true ) );
 		Functions\when( 'get_current_user_id' )->alias( fn() :int => $this->userId );
+		BlockLog::forgetObservations();
 	}
 
 	protected function tearDown() :void {
@@ -111,6 +112,34 @@ class RequestGuardTest extends BaseUnitTest {
 		$this->assertSame( [ 'export', [ 'CVE-2026-0001' ], '203.0.113.9', 'POST', '/wp-admin/admin-ajax.php', EvaluationPoint::Request->value, 'match' ], [
 			$entry[ 'rule' ], $entry[ 'advisories' ], $entry[ 'ip' ], $entry[ 'method' ], $entry[ 'path' ], $entry[ 'pass' ], $entry[ 'verdict' ],
 		] );
+	}
+
+	public function testALogRuleIsRecordedWithoutBlockingAndCannotHideABlockRuleAfterIt() :void {
+		$_POST = [ 'action' => "it's_export" ];
+		$events = $this->createTrackedTempDir().'/events.php';
+		$observed = [ 'mode' => 'log' ] + $this->rule( 'observed', self::AJAX_EXPORT );
+
+		$this->guard( $this->ruleset( [ $observed, $this->rule( 'export', self::AJAX_EXPORT ) ], [ 'events' => $events ] ) )->start();
+
+		$this->assertSame( [ [ 'export', EvaluationPoint::Request->value ] ], $this->blocks );
+		$this->assertSame( [ [ 'observed', 'log' ], [ 'export', 'block' ] ], \array_map(
+			fn( array $entry ) :array => [ $entry[ 'rule' ], $entry[ 'mode' ] ],
+			BlockLog::read( $events )
+		) );
+	}
+
+	public function testALogRuleNeverAnnouncesABlockAndIsRecordedOnceAcrossChecks() :void {
+		Actions\expectDone( RequestGuard::HOOK_BLOCKED )->never();
+		$_POST = [ 'post_content' => self::MARKUP ];
+		$events = $this->createTrackedTempDir().'/events.php';
+		$observed = [ 'mode' => 'log' ] + $this->rule( 'observed', self::MARKUP_ANYWHERE_FROM_ANYONE );
+
+		$guard = $this->guard( $this->ruleset( [ $observed ], [ 'events' => $events ] ) );
+		$guard->start();
+		$this->assertNull( $guard->checkRestDispatch( null, null, new \WP_REST_Request( 'POST', '/wp/v2/posts', [ 'content' => self::MARKUP ] ) ) );
+
+		$this->assertSame( [], $this->blocks );
+		$this->assertSame( [ 'observed' ], \array_column( BlockLog::read( $events ), 'rule' ) );
 	}
 
 	public function testOtherRequestsPass() :void {
@@ -482,7 +511,7 @@ class RequestGuardTest extends BaseUnitTest {
 
 	private function ruleset( array $rules, array $extra = [] ) :array {
 		return \array_merge( [
-			'format'         => 1,
+			'format'         => RulesetFile::FORMAT,
 			'hash'           => 'hash',
 			'active_plugins' => [],
 			'active_themes'  => [],

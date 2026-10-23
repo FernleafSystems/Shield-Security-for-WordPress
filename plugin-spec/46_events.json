@@ -1039,6 +1039,23 @@
         "level": "warning",
         "recent": true
     },
+    "virtual_patch_feed": {
+        "audit_params": [
+            "asset",
+            "reason"
+        ],
+        "level": "warning"
+    },
+    "virtual_patch_observed": {
+        "audit_params": [
+            "rule",
+            "advisories",
+            "ip",
+            "method",
+            "path"
+        ],
+        "level": "notice"
+    },
     "virtual_patch_rejected": {
         "audit_params": [
             "rule",

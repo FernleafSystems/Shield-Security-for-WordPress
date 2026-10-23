@@ -32,7 +32,7 @@
     "php":                                   ">=8.2",
     "crowdsec/capi-client":                  "^3.5",
     "dolondro/google-authenticator":         "^2.2",
-    "fernleafsystems/orle-virtual-patching-rules": "^0.0.7",
+    "fernleafsystems/orle-virtual-patching-rules": "^0.0.10",
     "fernleafsystems/wordpress-plugin-core": "^2.4",
     "fernleafsystems/worpdrive-client":      "0.4",
     "fernleafsystems/zxcvbn-php":            "^1.1",

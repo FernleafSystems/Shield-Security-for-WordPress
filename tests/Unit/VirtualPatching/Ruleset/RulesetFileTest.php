@@ -11,13 +11,14 @@ class RulesetFileTest extends TestCase {
 	use TempDirLifecycleTrait;
 
 	public const RULESET = [
-		'format'         => 1,
+		'format'         => RulesetFile::FORMAT,
 		'generated_at'   => 1700000000,
 		'active_plugins' => [ 'example/example.php' ],
 		'active_themes'  => [ 'theme' ],
 		'rules'          => [
 			[
 				'id'         => 'candidate-1',
+				'mode'       => 'block',
 				'advisories' => [ 'CVE-2026-0001' ],
 				'conditions' => [
 					[ 'kind' => 'path', 'negate' => false, 'operator' => 'regex', 'value' => "#^/it's/\\d+\$#" ],
@@ -42,9 +43,19 @@ class RulesetFileTest extends TestCase {
 	}
 
 	public function testOtherFormatIsIgnored() :void {
-		$otherFormat = self::RULESET;
-		$otherFormat[ 'format' ] = 2;
-		$this->assertNull( RulesetFile::read( $this->writeFile( RulesetFile::render( $otherFormat ) ) ) );
+		foreach ( [ 1, RulesetFile::FORMAT + 1 ] as $format ) {
+			$otherFormat = self::RULESET;
+			$otherFormat[ 'format' ] = $format;
+			$this->assertNull( RulesetFile::read( $this->writeFile( RulesetFile::render( $otherFormat ) ) ), (string)$format );
+		}
+	}
+
+	public function testAnyFormatCanBeReadWhenAsked() :void {
+		$previous = self::RULESET;
+		$previous[ 'format' ] = 1;
+		$path = $this->writeFile( RulesetFile::render( $previous ) );
+		$this->assertSame( 1, RulesetFile::read( $path, null )[ 'format' ] ?? null );
+		$this->assertNull( RulesetFile::read( $this->writeFile( \str_replace( 'candidate-1', 'x', RulesetFile::render( $previous ) ) ), null ) );
 	}
 
 	public function testUnreadableOrMissingFileIsIgnored() :void {
