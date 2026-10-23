@@ -136,6 +136,30 @@ class CompareFileHashTest extends BaseUnitTest {
 		( new CompareFileHash() )->isAnyEqual( $path, [ \md5( 'content' ) ] );
 	}
 
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideAlgorithms' )]
+	public function test_asset_file_rule_verifies_only_its_path_with_every_other_byte_intact( string $algorithm ) :void {
+		// The WP Hashes API publishes vendor/build.json with EDD's per-download manifestChecksum emptied.
+		$published = \hash( $algorithm, $this->eddBuild( '' ) );
+		$path = $this->writeFile( $this->eddBuild( '1900a92e-567d-40O0TYMey\/eHs=' ) );
+		$compare = new CompareFileHash();
+
+		$this->assertTrue( $compare->isEqual( $path, $published, 'vendor/build.json' ) );
+		$this->assertTrue( $compare->isAnyEqual( $path, [ \hash( $algorithm, 'different' ), $published ], 'vendor/build.json' ) );
+		$this->assertFalse( $compare->isEqual( $path, $published ) );
+		$this->assertFalse( $compare->isAnyEqual( $path, [ $published ], 'vendor/other.json' ) );
+
+		$edited = $this->writeFile( \str_replace( '"fileCount":5623', '"fileCount":1', $this->eddBuild( '1900a92e-567d-40O0TYMey\/eHs=' ) ) );
+		$this->assertFalse( $compare->isEqual( $edited, $published, 'vendor/build.json' ) );
+		$this->assertFalse( $compare->isAnyEqual( $edited, [ $published ], 'vendor/build.json' ) );
+
+		$windows = $this->writeFile( $this->eddBuild( '1900a92e-567d-40O0TYMey\/eHs=' )."\r\n" );
+		$this->assertTrue( $compare->isEqual( $windows, \hash( $algorithm, $this->eddBuild( '' )."\n" ), 'vendor/build.json' ) );
+	}
+
+	private function eddBuild( string $manifestChecksum ) :string {
+		return '{"buildDate":1792016945,"buildMeta":{"buildAuthor":"@cklosowski","fileCount":5623,"fileChecksum":"22e7a10707420c21b3802eb4b8a2ecee","manifestChecksum":"'.$manifestChecksum.'"}}';
+	}
+
 	private function writeFile( string $content ) :string {
 		$path = $this->createTrackedTempPath( 'shield-compare-file-hash-' );
 		\file_put_contents( $path, $content );
