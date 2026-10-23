@@ -45,11 +45,49 @@
         ]
       },
       {
+        "type":        "improved",
+        "title":       "Backup Security",
+        "description": [
+          "New safeguards help protect your backup data, including the ability to pause Shield backups quickly if there's a security incident."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "File Locker Changes Are Critical",
+        "description": [
+          "Changes to locked files are now treated as critical in the Actions Queue and on the dashboard."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Anonymous REST API Exclusions",
+        "description": [
+          "The setting now shows every REST namespace that's excluded, including those added by other plugins."
+        ]
+      },
+      {
         "type":        "fixed",
         "title":       "Custom Hosting Layouts",
         "description": [
           "Scans work fully on sites whose files are reached through symlinked folders, such as Bedrock or Deployer setups.",
           "Shield finds its cache folder and checks root-level files correctly on hosts that install WordPress at the filesystem root."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Complete, Reliable Backups",
+        "description": [
+          "Backups no longer miss files or fail to finish when files change during a backup.",
+          "Database exports no longer retry endlessly after a failure.",
+          "Backup activity is now recorded in the Activity Log."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Fewer Errors and General Improvements",
+        "description": [
+          "Certain unusual requests no longer cause a PHP fatal error.",
+          "Plus other smaller fixes and quality-of-life improvements."
         ]
       }
     ],
