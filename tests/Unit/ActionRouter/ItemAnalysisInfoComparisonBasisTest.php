@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis\Info;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis\{
+	Info,
+	OriginalFileSource
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\HashVerificationResult;
@@ -49,6 +52,7 @@ class ItemAnalysisInfoComparisonBasisTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
+		ItemAnalysisInfoComparisonBasisTestDouble::$source = null;
 		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
@@ -155,6 +159,44 @@ class ItemAnalysisInfoComparisonBasisTest extends BaseUnitTest {
 		$this->assertSame( $withoutMalware[ 'vars' ][ 'file_description' ], $data[ 'vars' ][ 'file_description' ] );
 	}
 
+	public function test_overview_leads_with_the_malware_verdict_and_lists_every_status() :void {
+		$data = ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $this->pluginItem( [
+			'is_mal'          => true,
+			'is_checksumfail' => true,
+		] ) ] ) )->renderDataForTest();
+
+		$this->assertSame( 'danger', $data[ 'vars' ][ 'verdict_tone' ] );
+		$this->assertStringContainsString( 'malware', $data[ 'vars' ][ 'verdict_title' ] );
+		$this->assertSame( [
+			[ 'label' => 'Malware pattern detected', 'tone' => 'danger' ],
+			[ 'label' => 'Modified', 'tone' => 'warning' ],
+		], $data[ 'vars' ][ 'file_statuses' ] );
+	}
+
+	public function test_overview_without_malware_uses_the_finding_as_its_verdict() :void {
+		$data = ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $this->themeItem( [
+			'is_unrecognised' => true,
+		] ) ] ) )->renderDataForTest();
+
+		$this->assertSame( 'warning', $data[ 'vars' ][ 'verdict_tone' ] );
+		$this->assertStringContainsString( 'recognised', $data[ 'vars' ][ 'verdict_title' ] );
+		$this->assertSame( [ [ 'label' => 'Unrecognised', 'tone' => 'warning' ] ], $data[ 'vars' ][ 'file_statuses' ] );
+	}
+
+	public function test_overview_names_the_owning_asset_only_when_there_is_one() :void {
+		$item = $this->pluginItem( [ 'is_checksumfail' => true ] );
+		ItemAnalysisInfoComparisonBasisTestDouble::$source = new OriginalFileSource(
+			OriginalFileSource::KIND_PREMIUM_PLUGIN, 'Easy Digital Downloads Pro', '3.7.2'
+		);
+		$premium = ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $item ] ) )->renderDataForTest();
+		ItemAnalysisInfoComparisonBasisTestDouble::$source = null;
+		$unowned = ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $item ] ) )->renderDataForTest();
+
+		$this->assertStringContainsString( 'Easy Digital Downloads Pro 3.7.2', $premium[ 'vars' ][ 'belongs_to' ] );
+		$this->assertStringContainsString( 'premium', $premium[ 'vars' ][ 'belongs_to' ] );
+		$this->assertSame( '', $unowned[ 'vars' ][ 'belongs_to' ] );
+	}
+
 	private function pluginItem( array $properties ) :ResultItem {
 		return $this->item( [ 'is_in_plugin' => true ] + $properties );
 	}
@@ -176,7 +218,13 @@ class ItemAnalysisInfoComparisonBasisTest extends BaseUnitTest {
 
 class ItemAnalysisInfoComparisonBasisTestDouble extends Info {
 
+	public static ?OriginalFileSource $source = null;
+
 	public function renderDataForTest() :array {
 		return $this->getRenderData();
+	}
+
+	protected function resolveSource() :OriginalFileSource {
+		return self::$source ?? new OriginalFileSource( OriginalFileSource::KIND_NONE, '', '' );
 	}
 }

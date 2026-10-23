@@ -76,8 +76,16 @@
 
 	<div class="tab-pane" id="tabDiff" role="tabpanel" aria-labelledby="tabDiff-tab">
 		<div class="row">
-			<div class="col pt-3">
-				{{ content.tab_diff|raw }}
+			<div class="col pt-3"
+				 data-scan-item-diff="1"
+				 data-scan-item-diff-render="{{ vars.diff_render_action }}"
+				 data-scan-item-diff-failed="{{ strings.diff_failed }}"
+				 data-scan-item-diff-retry-label="{{ strings.diff_retry }}"
+				 aria-live="polite">
+				<div class="scan-item-diff-state scan-item-diff-state--neutral" aria-busy="true">
+					<div class="spinner-border spinner-border-sm text-secondary mb-2" role="status"></div>
+					<p class="scan-item-diff-state__text">{{ strings.diff_loading }}</p>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -3,34 +3,31 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\HashVerificationResult;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\MalwareAssessmentPresenter;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Wp\Repo;
 
+/**
+ * @phpstan-type FileStatus array{label:string,tone:string}
+ */
 class Info extends BaseComponent {
 
 	public const SLUG = 'scanitemanalysis_info';
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_info.twig';
 
 	protected function getRenderData() :array {
-		$WP = Services::WpGeneral();
 		$item = $this->getScanItem();
-		$isCore = Services::CoreFileHashes()->isCoreFile( $item->path_fragment );
 		try {
 			$data = [
 				'flags'   => [
 					'show_malai_status' => $item->is_mal
 				],
-				'hrefs'   => [
-					'file_vcs' => $isCore ?
-						( new Repo() )->getVcsUrlForFileAndVersion( $item->path_fragment, $WP->getVersion(), false ) : ''
-				],
 				'vars'    => [
-					'path_fragment'         => $item->path_fragment,
 					'file_full_path'        => $item->path_full,
-					'file_status'           => $this->getFileStatus(),
+					'verdict_tone'          => $item->is_mal ? 'danger' : 'warning',
+					'verdict_title'         => $this->getVerdictTitle(),
+					'file_statuses'         => $this->getFileStatuses(),
+					'belongs_to'            => $this->resolveSource()->label(),
 					'file_description'      => $this->getFileDescriptionLines(),
 					'recommendations_lines' => $this->getFileRecommendations(),
 					'malware_assessment'    => ( new MalwareAssessmentPresenter() )->present(
@@ -39,13 +36,13 @@ class Info extends BaseComponent {
 					),
 				],
 				'strings' => [
-					'info'                  => CommonDisplayStrings::get( 'info_label' ),
-					'heading_malai_status'   => __( 'Malware assessment', 'wp-simple-firewall' ),
-					'file_status_label'      => __( 'File Status', 'wp-simple-firewall' ),
-					'file_full_path_label'   => __( 'Full Path To File', 'wp-simple-firewall' ),
-					'file_description'      => __( 'Description', 'wp-simple-firewall' ),
-					'recommendations'       => __( 'Recommendations', 'wp-simple-firewall' ),
-					'view_file_vcs'         => __( 'View Original File Contents', 'wp-simple-firewall' ),
+					'heading_malai_status' => __( 'Malware assessment', 'wp-simple-firewall' ),
+					'malai_more'           => __( 'Why, and what this means', 'wp-simple-firewall' ),
+					'belongs_to_label'     => __( 'Belongs to', 'wp-simple-firewall' ),
+					'file_full_path_label' => __( 'Full path', 'wp-simple-firewall' ),
+					'next_steps'           => __( 'What you can do', 'wp-simple-firewall' ),
+					'review_changes'       => __( 'Review the changes', 'wp-simple-firewall' ),
+					'view_contents'        => __( 'View file contents', 'wp-simple-firewall' ),
 				],
 			];
 		}
@@ -168,33 +165,68 @@ class Info extends BaseComponent {
 		return $recs;
 	}
 
+	protected function resolveSource() :OriginalFileSource {
+		return OriginalFileSource::forItem( $this->getScanItem() );
+	}
+
+	private function getVerdictTitle() :string {
+		if ( $this->getScanItem()->is_mal ) {
+			return __( 'Shield found a malware pattern in this file', 'wp-simple-firewall' );
+		}
+		switch ( $this->getFileFinding() ) {
+			case 'unrecognised':
+				return __( "This file isn't recognised", 'wp-simple-firewall' );
+			case 'missing':
+				return __( 'This file is missing', 'wp-simple-firewall' );
+			case 'modified':
+				return __( 'This file has been modified', 'wp-simple-firewall' );
+			case 'unidentified':
+				return __( "This file isn't a known WordPress file", 'wp-simple-firewall' );
+			default:
+				return __( 'This file needs review', 'wp-simple-firewall' );
+		}
+	}
+
 	/**
-	 * @throws ActionException
+	 * @return list<FileStatus>
 	 */
-	private function getFileStatus() :string {
+	private function getFileStatuses() :array {
+		$labels = [
+			'unrecognised' => __( 'Unrecognised', 'wp-simple-firewall' ),
+			'missing'      => __( 'Missing', 'wp-simple-firewall' ),
+			'modified'     => __( 'Modified', 'wp-simple-firewall' ),
+			'unidentified' => __( 'Unidentified', 'wp-simple-firewall' ),
+		];
+
+		$statuses = [];
+		if ( $this->getScanItem()->is_mal ) {
+			$statuses[] = [ 'label' => __( 'Malware pattern detected', 'wp-simple-firewall' ), 'tone' => 'danger' ];
+		}
+		$finding = $this->getFileFinding();
+		if ( $finding !== '' ) {
+			$statuses[] = [ 'label' => $labels[ $finding ], 'tone' => 'warning' ];
+		}
+		elseif ( empty( $statuses ) ) {
+			$statuses[] = [ 'label' => __( 'Unknown', 'wp-simple-firewall' ), 'tone' => 'secondary' ];
+		}
+		return $statuses;
+	}
+
+	/**
+	 * The file finding that leads the Overview, in precedence order.
+	 * @return 'unrecognised'|'missing'|'modified'|'unidentified'|''
+	 */
+	private function getFileFinding() :string {
 		$item = $this->getScanItem();
-
-		$status = [];
-		if ( $item->is_mal ) {
-			$status[] = __( 'Malware pattern detected', 'wp-simple-firewall' );
-		}
-
 		if ( $item->is_unrecognised ) {
-			$status[] = __( 'Unrecognised', 'wp-simple-firewall' );
+			return 'unrecognised';
 		}
-		elseif ( $item->is_missing ) {
-			$status[] = __( 'Missing', 'wp-simple-firewall' );
+		if ( $item->is_missing ) {
+			return 'missing';
 		}
-		elseif ( $item->is_checksumfail ) {
-			$status[] = __( 'Modified', 'wp-simple-firewall' );
+		if ( $item->is_checksumfail ) {
+			return 'modified';
 		}
-		elseif ( $item->is_unidentified ) {
-			$status[] = __( 'Unidentified', 'wp-simple-firewall' );
-		}
-		elseif ( empty( $status ) ) {
-			$status[] = __( 'Unknown', 'wp-simple-firewall' );
-		}
-
-		return \implode( ' / ', $status );
+		return $item->is_unidentified ? 'unidentified' : '';
 	}
 }
