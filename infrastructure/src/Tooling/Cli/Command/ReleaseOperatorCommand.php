@@ -178,7 +178,7 @@ class ReleaseOperatorCommand extends Command {
 	 */
 	private function writeState( string $statePath, string $action, array $inputs, array $command ) :bool {
 		$stateDirectory = \dirname( $statePath );
-		if ( !\is_dir( $stateDirectory ) && !\mkdir( $stateDirectory, 0777, true ) && !\is_dir( $stateDirectory ) ) {
+		if ( !\is_dir( $stateDirectory ) && !@\mkdir( $stateDirectory, 0777, true ) && !\is_dir( $stateDirectory ) ) {
 			return false;
 		}
 

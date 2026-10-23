@@ -88,12 +88,12 @@ trait BrainMonkeyWordPressTestFunctions {
 
 		Functions\when( 'get_site_transient' )->alias(
 			static function ( string $key ) use ( &$siteTransients ) {
-				return BrainMonkeyWordPressTestFunctions::readTransientStore( $siteTransients, $key );
+				return self::readTransientStore( $siteTransients, $key );
 			}
 		);
 		Functions\when( 'set_site_transient' )->alias(
 			static function ( string $key, $value, int $expiration = 0 ) use ( &$siteTransients ) :bool {
-				BrainMonkeyWordPressTestFunctions::writeTransientStore( $siteTransients, $key, $value, $expiration );
+				self::writeTransientStore( $siteTransients, $key, $value, $expiration );
 				return true;
 			}
 		);

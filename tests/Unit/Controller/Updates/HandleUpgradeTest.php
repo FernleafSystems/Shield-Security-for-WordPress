@@ -631,6 +631,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 
 		public object $scans;
 
+		public ?object $import_export_sites = null;
+
 		public function __construct() {
 			$this->malware = new class {
 				public function getTableSchema() :object {

@@ -254,7 +254,7 @@ class AllowBetaUpgradesTest extends BaseUnitTest {
 			] ) ),
 			'service_wpgeneral' => new AllowBetaUpgradesGeneralStub( [
 				$this->cacheKeyForSlug( $slug ) => [
-					23.1     => 'https://downloads.wordpress.org/plugin/wp-simple-firewall.23.1.zip',
+					23       => 'https://downloads.wordpress.org/plugin/wp-simple-firewall.23.1.zip',
 					'23.2.0' => false,
 					'23.3.0' => [],
 					'bad-tag' => 'https://downloads.wordpress.org/plugin/wp-simple-firewall.bad-tag.zip',
