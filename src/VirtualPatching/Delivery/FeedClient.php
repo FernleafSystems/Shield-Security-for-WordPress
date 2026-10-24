@@ -10,7 +10,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\VirtualPatching\Delivery;
  */
 class FeedClient {
 
-	public const BASE_URL = 'https://api.orlesecurity.com/api/apto-wphashes/v2/virtual-patches';
+	public const BASE_URL = 'https://api.orlesecurity.com/api/apto/v1/virtual-patches';
 
 	public const MARKER_HEADER = 'x-orle-virtual-patches';
 
