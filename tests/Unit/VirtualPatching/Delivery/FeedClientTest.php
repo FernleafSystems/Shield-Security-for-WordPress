@@ -37,7 +37,7 @@ class FeedClientTest extends BaseUnitTest {
 		( new FeedClient( '22.3.0' ) )->fetch( 'plugin', 'example', 7 );
 
 		[ $url, $args ] = $this->requests[ 0 ];
-		$this->assertSame( 'https://api.orlesecurity.com/api/apto-wphashes/v2/virtual-patches/7/plugin/example', $url );
+		$this->assertSame( 'https://api.orlesecurity.com/api/apto/v1/virtual-patches/7/plugin/example', $url );
 		$this->assertSame( [ 10, 0, 'Shield/22.3.0', RuleFileVerifier::MAX_BYTES + 1 ], [
 			$args[ 'timeout' ], $args[ 'redirection' ], $args[ 'user-agent' ], $args[ 'limit_response_size' ],
 		] );
