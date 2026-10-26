@@ -1018,6 +1018,9 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 					],
 				],
 				'opts' => $this->opts,
+				'db_con' => (object)[
+					'import_export_sites' => null,
+				],
 				'caps' => $caps ?? new class {
 					public function canImportExportSync() :bool {
 						return true;

@@ -4,11 +4,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PluginBadgeMode;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\ArrayOps;
 use FernleafSystems\Wordpress\Services\Services;
 
 class OptsLookup {
 
 	use PluginControllerConsumer;
+
+	/** @return 'cookie'|'cookie_free' */
+	public function silentCaptchaMode() :string {
+		return self::con()->opts->optIs( 'silentcaptcha_cookie_free', 'Y' )
+			? 'cookie_free' : 'cookie';
+	}
 
 	public function enabledSilentCaptchaCommentSpam() :bool {
 		return self::con()->opts->optIs( 'enable_antibot_comments', 'Y' );
@@ -69,6 +76,18 @@ class OptsLookup {
 
 	public function getActivatedPeriod() :int {
 		return Services::Request()->ts() - self::con()->opts->optGet( 'activated_at' );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getAnonymousRestApiExclusions( bool $applyFilter = true ) :array {
+		$exclusions = self::con()->opts->optGet( 'api_namespace_exclusions' );
+		if ( $applyFilter ) {
+			$exclusions = apply_filters( 'shield/anonymous_rest_api_exclusions', $exclusions );
+		}
+
+		return \array_unique( ArrayOps::CleanStrings( $exclusions, '#[^\da-z_-]#i' ) );
 	}
 
 	public function getSilentCaptchaBotThreshold() :int {

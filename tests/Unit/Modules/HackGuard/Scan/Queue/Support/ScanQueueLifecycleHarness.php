@@ -284,6 +284,8 @@ class ScanQueueLifecycleHarness {
 			'scan_results'          => new LifecycleEmptyDbHandler( 'scan_results', $this->sql ),
 			'scan_result_items'     => $this->resultItemsDb,
 			'scan_result_item_meta' => new LifecycleEmptyDbHandler( 'scan_result_item_meta', $this->sql ),
+			'malware'               => null,
+			'import_export_sites'   => null,
 		];
 		$this->queueComponent->scansComponent = new LifecycleScansComponent( $this->itemsByScan );
 		$controller->comps = (object)[

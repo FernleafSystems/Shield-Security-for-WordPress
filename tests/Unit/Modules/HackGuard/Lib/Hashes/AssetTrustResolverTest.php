@@ -31,9 +31,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState,
-	UnitTestRequest
+	UnitTestRequest,
+	WrittenFixtureFiles
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\AssetSnapshots\SnapshotFs;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\AssetSnapshots\{
+	SnapshotFs,
+	SnapshotWpGeneral
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\CacheStoreTestCacheDir;
 use FernleafSystems\Wordpress\Services\Core\{
 	Plugins,
@@ -47,6 +51,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 class AssetTrustResolverTest extends BaseUnitTest {
 
 	use TempDirLifecycleTrait;
+	use WrittenFixtureFiles;
 
 	private const PLUGIN_HASH = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 	private const FIRST_HASH = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
@@ -83,6 +88,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$this->resetHashesStorageDir();
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
+		$this->removeWrittenFixtureFiles();
 		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
@@ -426,6 +432,35 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$this->assertNull( $resolver->verifyStoredContext( $path, $context ) );
 	}
 
+	public function test_stored_verification_applies_the_file_rule_only_at_its_relative_path() :void {
+		// EDD writes a fresh manifestChecksum into vendor/build.json on every download; snapshots hold it emptied.
+		$build = '{"buildMeta":{"fileChecksum":"22e7a10707420c21b3802eb4b8a2ecee","manifestChecksum":"%s"}}';
+		$downloaded = \sprintf( $build, '1900a92e-567d-40O0TYMeyeHsToMThKjy3wdXBsL4oa\/iek73sSa==' );
+		$published = \md5( \sprintf( $build, '' ) );
+		$cacheRoot = $this->createTrackedTempDir( 'shield-resolver-file-rule-' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		$this->installHashStoreEnvironment(
+			new ResolverPlugins( [ 'alpha/alpha.php' ], '1.0.0' ),
+			new ResolverThemes( [] ),
+			$cacheRoot
+		);
+		$this->writeStore( new ResolverPluginVo( 'alpha/alpha.php', '1.0.0' ), [
+			'vendor/build.json' => $published,
+			'vendor/copy.json'  => $published,
+		], $hashDir );
+		$resolver = new AssetTrustResolver();
+
+		foreach ( [ 'vendor/build.json' => true, 'vendor/copy.json' => false ] as $relativePath => $expectedVerified ) {
+			$path = $this->writePluginFile( 'alpha/'.$relativePath, $downloaded );
+			$result = $resolver->verifyStoredContext( $path, $resolver->resolveCurrentContext( $path ) );
+
+			$this->assertInstanceOf( HashVerificationResult::class, $result );
+			$this->assertTrue( $result->recognisedInSnapshot, $relativePath );
+			$this->assertSame( $expectedVerified, $result->verified, $relativePath );
+		}
+	}
+
 	public function test_repeated_same_theme_path_reuses_full_path_context() :void {
 		$this->installEnvironment( [], [ 'clean' ] );
 		$path = $this->normalisePath( WP_CONTENT_DIR.'/themes/clean/inc/File.php' );
@@ -629,7 +664,10 @@ class AssetTrustResolverTest extends BaseUnitTest {
 	}
 
 	private function installHashStoreEnvironment( Plugins $plugins, Themes $themes, string $cacheRoot ) :void {
+		$general = new SnapshotWpGeneral();
+		$general->setTransient( 'apto-wphashes-api-available-routes', '' );
 		ServicesState::installItems( [
+			'service_wpgeneral' => $general,
 			'service_request'   => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
 			'service_wpfs'      => new ResolverFs(),
 			'service_wpplugins' => $plugins,
@@ -641,11 +679,6 @@ class AssetTrustResolverTest extends BaseUnitTest {
 	private function installController( string $cacheRoot ) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->caps = new class {
-			public function canScanPluginsThemesRemote() :bool {
-				return false;
-			}
-		};
 		$controller->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
 
 		PluginControllerInstaller::install( $controller );
@@ -677,6 +710,15 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		return \str_replace( '\\', '/', $path );
 	}
 
+	private function writePluginFile( string $pluginRelativePath, string $content ) :string {
+		$path = $this->normalisePath( WP_PLUGIN_DIR.'/'.$pluginRelativePath );
+		if ( !\is_dir( \dirname( $path ) ) ) {
+			@\mkdir( \dirname( $path ), 0777, true );
+		}
+		\file_put_contents( $path, $content );
+		return $this->trackWrittenFixtureFile( $path );
+	}
+
 	private function resetHashesStorageDir() :void {
 		$reflection = new \ReflectionClass( HashesStorageDir::class );
 		foreach ( [ 'dir', 'rootDir' ] as $propertyName ) {
@@ -692,6 +734,10 @@ class AssetTrustResolverTest extends BaseUnitTest {
 
 class ResolverFs extends SnapshotFs {
 	public static int $isAbsPathCalls = 0;
+
+	public function isFile( $path ) :bool {
+		return \is_file( $path );
+	}
 
 	public function isAbsPath( $path ) {
 		self::$isAbsPathCalls++;
@@ -814,6 +860,8 @@ class ResolverThemeVo extends WpThemeVo {
 
 	public function __get( string $key ) {
 		switch ( $key ) {
+			case 'version':
+				return $this->Version;
 			case 'asset_type':
 			case 'unique_id':
 			case 'slug':

@@ -446,8 +446,17 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 					}
 				}
 			},
-			async inspectNotBotAltchaFixture() {
-				return runFixture( 'notbot-altcha', 'inspect' );
+			async inspectNotBotAltchaFixture( ip = '' ) {
+				return runFixture( 'notbot-altcha', 'inspect', [ ip ] );
+			},
+			async addNotBotIp( ip ) {
+				return runFixture( 'notbot-altcha', 'add-ip', [ ip ] );
+			},
+			async setNotBotMode( mode ) {
+				return runFixture( 'notbot-altcha', 'mode', [ mode ] );
+			},
+			async setNotBotTiming( timing ) {
+				return runFixture( 'notbot-altcha', 'timing', [ JSON.stringify( timing ) ] );
 			},
 			async withNotBotAltchaFixture( ipOrRunScenario, maybeRunScenario ) {
 				let seeded = false;

@@ -322,7 +322,10 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $beta, $this->newAction() ) );
 	}
 
-	public function test_known_valid_plugin_record_requires_current_published_snapshot() :void {
+	/**
+	 * @dataProvider provideSnapshotAlgorithms
+	 */
+	public function test_known_valid_plugin_record_requires_current_published_snapshot( string $algorithm ) :void {
 		$path = $this->writeFile( WP_PLUGIN_DIR.'/local/local.php', '<?php local();' );
 		$cacheDir = $this->makeTempDir( 'cache' );
 		$this->installEnvironment(
@@ -331,14 +334,18 @@ class FileScanOptimiserTest extends BaseUnitTest {
 			'6.5.0',
 			[ 'local/local.php' ]
 		);
-		$this->writeSnapshot( $cacheDir, new OptimiserPluginVo( 'local/local.php' ), [
-			'local.php' => \md5_file( $path ),
-		], false );
+		$asset = new OptimiserPluginVo( 'local/local.php' );
+		$hashes = [ 'local.php' => \hash_file( $algorithm, $path ) ];
+		$this->writeSnapshot( $cacheDir, $asset, $hashes, true );
 		$optimiser = new FileScanOptimiser();
 		$optimiser->recordKnownValidFile(
 			$path,
 			new TrustedFileContext( 'plugin', 'local/local.php', '1.0.0', 'local.php' )
 		);
+
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
+
+		$this->writeSnapshot( $cacheDir, $asset, $hashes, false );
 
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
 	}
@@ -662,20 +669,30 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertSame( 3, OptimiserThemes::$getThemeAsVoCalls );
 	}
 
-	public function test_known_valid_plugin_record_does_not_skip_after_same_version_snapshot_hash_replacement() :void {
+	/**
+	 * @dataProvider provideSnapshotAlgorithms
+	 */
+	public function test_known_valid_plugin_record_does_not_skip_after_same_version_snapshot_hash_replacement( string $algorithm ) :void {
 		$path = $this->writeFile( WP_PLUGIN_DIR.'/alpha/one.php', '<?php original();' );
 		$cacheDir = $this->makeTempDir( 'cache' );
 		$asset = new OptimiserPluginVo( 'alpha/alpha.php' );
 		$this->installEnvironment( $cacheDir, true, '6.5.0', [ 'alpha/alpha.php' ] );
-		$this->writePublishedSnapshot( $cacheDir, $asset, [ 'one.php' => \md5_file( $path ) ] );
+		$this->writePublishedSnapshot( $cacheDir, $asset, [ 'one.php' => \hash_file( $algorithm, $path ) ] );
 		$optimiser = new FileScanOptimiser();
 		$optimiser->recordKnownValidFile( $path, new TrustedFileContext( 'plugin', 'alpha/alpha.php', '1.0.0', 'one.php' ) );
 
 		$this->assertTrue( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
 
-		$this->writePublishedSnapshot( $cacheDir, $asset, [ 'one.php' => \md5( '<?php corrected();' ) ] );
+		$this->writePublishedSnapshot( $cacheDir, $asset, [ 'one.php' => \hash( $algorithm, '<?php corrected();' ) ] );
 
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
+	}
+
+	public function provideSnapshotAlgorithms() :array {
+		return [
+			'md5'    => [ 'md5' ],
+			'sha256' => [ 'sha256' ],
+		];
 	}
 
 	public function test_known_valid_theme_record_does_not_skip_after_same_version_snapshot_path_removal() :void {

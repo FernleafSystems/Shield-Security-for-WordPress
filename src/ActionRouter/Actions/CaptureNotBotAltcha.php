@@ -12,18 +12,21 @@ class CaptureNotBotAltcha extends BaseAction {
 	protected function exec() {
 		$response = $this->response();
 		try {
+			$verified = $this->verifyAltChaSolution( $this->action_data );
 			self::con()->comps->events->fireEvent( 'bottrack_multiple', [
 				'data' => [
 					'events' => \array_keys( \array_filter( [
 						'bottrack_notbot' => true,
-						'bottrack_altcha' => $this->verifyAltChaSolution( $this->action_data ),
+						'bottrack_altcha' => $verified,
 					] ) ),
 				]
 			] );
 
 			self::con()->comps->not_bot->sendNotBotFlagCookie();
 
-			$response->setPayloadSuccess( true );
+			$response->setPayload( [
+				'notbot_state' => self::con()->comps->not_bot->buildResponseState( $verified ),
+			] )->setPayloadSuccess( true );
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );

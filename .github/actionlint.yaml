@@ -1,0 +1,5 @@
+# The pinned actionlint release predates GitHub-hosted Ubuntu 26.04.
+paths:
+  '.github/workflows/**/*.{yml,yaml}':
+    ignore:
+      - 'label "ubuntu-26\.04" is unknown'

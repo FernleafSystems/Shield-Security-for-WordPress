@@ -159,7 +159,6 @@ yarn.lock text eol=lf
 /kb export-ignore
 /README.md export-ignore
 /TESTING.md export-ignore
-/changelog.md export-ignore
 /CONTEXT.md export-ignore
 
 # Dependency management (runtime deps installed separately in package)

@@ -310,14 +310,18 @@ test( 'actions queue keeps ignored Cloaked Plugins interactive with the Unignore
 } );
 
 test( 'actions queue warning breadcrumb uses warning palette', async ( { page, fixtureApi } ) => {
-	await fixtureApi.withActionsQueueFixture( 'file_locker_lazy', async ( fixture ) => {
+	await fixtureApi.withDashboardDefaultsFixture( async () => {
+		await fixtureApi.prepareDashboardActionsAllClearFixture();
+		await fixtureApi.prepareDashboardMaintenanceWarningFixture();
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',
 			nav_sub: 'overview',
 		} );
 
-		await actionsQueuePage.drillToDetail( fixture );
+		const reviewBucket = await actionsQueuePage.waitForBucket( 'review' );
+		await actionsQueuePage.clickElement( reviewBucket );
+		await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
 
 		const activeBreadcrumb = page.locator( '[data-operator-step-tab="1"][aria-current="step"]' );
 		await expect( activeBreadcrumb ).toHaveAttribute( 'data-color-key', 'warning' );

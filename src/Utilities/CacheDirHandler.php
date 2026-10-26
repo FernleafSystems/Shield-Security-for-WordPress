@@ -388,17 +388,22 @@ class CacheDirHandler {
 		return \preg_match( '#^[a-z]+$#i', $cacheBasename ) ? $cacheBasename : '';
 	}
 
+	protected function absPath() :string {
+		return ABSPATH;
+	}
+
 	private function isPathWithinAbsPath( string $path ) :bool {
-		$absPath = $this->pathForLexicalComparison( ABSPATH );
+		$absPath = $this->pathForLexicalComparison( $this->absPath() );
 		$path = $this->pathForLexicalComparison( $path );
-		return $absPath !== '' && ( $path === $absPath || \str_starts_with( $path.'/', $absPath.'/' ) );
+		return $absPath !== ''
+			   && ( $path === $absPath || \str_starts_with( $path.'/', \rtrim( $absPath, '/' ).'/' ) );
 	}
 
 	private function externalCacheBasename( string $cacheBasename ) :string {
 		if ( $this->externalCacheBasename === null ) {
 			$this->externalCacheBasename = '';
 			try {
-				$absPath = $this->pathForLexicalComparison( ABSPATH );
+				$absPath = $this->pathForLexicalComparison( $this->absPath() );
 				$dbHost = \defined( 'DB_HOST' ) ? (string)\constant( 'DB_HOST' ) : '';
 				$dbName = \defined( 'DB_NAME' ) ? (string)\constant( 'DB_NAME' ) : '';
 				$dbPrefix = Services::WpDb()->getPrefix();
@@ -429,8 +434,12 @@ class CacheDirHandler {
 		return \DIRECTORY_SEPARATOR === '\\' ? \strtolower( $path ) : $path;
 	}
 
+	/**
+	 * The filesystem root is kept as "/" rather than trimmed away, because chrooted hosts run WordPress with an
+	 * ABSPATH of "//". A leading "//" is only a network share prefix on Windows; elsewhere it is the root.
+	 */
 	private function normalisePathSegments( string $path ) :string {
-		$path = untrailingslashit( wp_normalize_path( $path ) );
+		$path = wp_normalize_path( $path );
 		if ( $path === '' ) {
 			return '';
 		}
@@ -441,7 +450,7 @@ class CacheDirHandler {
 			$prefix = $matches[ 1 ];
 			$rest = $matches[ 2 ] ?? '';
 		}
-		elseif ( \str_starts_with( $path, '//' ) ) {
+		elseif ( \DIRECTORY_SEPARATOR === '\\' && \str_starts_with( $path, '//' ) ) {
 			$prefix = '//';
 			$rest = \substr( $path, 2 );
 		}

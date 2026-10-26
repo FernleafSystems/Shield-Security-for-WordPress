@@ -41,6 +41,7 @@ use FernleafSystems\Wordpress\Services\Core\{
 	CoreFileHashes,
 	Cron,
 	Db,
+	General,
 	Plugins,
 	Request,
 	Themes
@@ -121,10 +122,35 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertHook( $this->actions, '_core_updated_successfully', 10, 1 );
 		$this->assertHook( $this->actions, 'deleted_plugin', 10, 2 );
 		$this->assertHook( $this->actions, 'deleted_theme', 10, 2 );
-		$this->assertHook( $this->actions, 'icwp-wpsf-hourly_cron', 10, 0 );
+		$hourly = \array_values( \array_filter( $this->actions,
+			static fn( array $hook ) :bool => $hook[ 'hook' ] === 'icwp-wpsf-hourly_cron' ) );
+		$this->assertSame( [ 'runSnapshotMaintenance', 'runScanHashCacheMaintenance' ],
+			\array_map( static fn( array $hook ) :string => $hook[ 'callback' ][ 1 ], $hourly ) );
+		$this->assertSame( [ 10, 10 ], \array_column( $hourly, 'priority' ) );
+		$this->assertSame( [ 0, 0 ], \array_column( $hourly, 'acceptedArgs' ) );
 		$this->assertHook( $this->actions, 'shield/scan_queue_completed', 10, 0 );
 		$this->assertHook( $this->actions, 'icwp-wpsf-asset_coordinator', 10, 1 );
 		$this->assertNotHooked( $this->actions, 'icwp-wpsf-pre_plugin_shutdown' );
+	}
+
+	public function test_scan_cache_maintenance_preserves_cache_when_scan_status_query_fails() :void {
+		$root = $this->createTrackedTempDir( 'shield-hourly-scan-hashes-' );
+		\mkdir( $root.'/scan-hashes' );
+		$marker = $root.'/scan-hashes/reference.json';
+		\file_put_contents( $marker, '{}' );
+		$this->controller->cache_dir_handler = new CacheStoreTestCacheDir( $root );
+		$this->controller->db_con = (object)[ 'scans' => new class {
+			public function getTable() :string {
+				return 'wp_icwp_wpsf_scans';
+			}
+		} ];
+		ServicesState::mergeItems( [ 'service_wpfs' => new CacheStoreTestFs() ] );
+		$db = $this->installReadinessResponses( [ [] ], new \RuntimeException( 'Synthetic read failure.' ) );
+
+		( new AssetCoordinator() )->runScanHashCacheMaintenance();
+
+		$this->assertCount( 1, $db->queries );
+		$this->assertFileExists( $marker );
 	}
 
 	/**
@@ -444,6 +470,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		];
 		$this->persistWrites = false;
 		$this->updateResult = false;
+		$this->installReadinessResponses( [], new \RuntimeException( 'Synthetic readiness read failure.' ) );
 
 		( new AssetCoordinator() )->runDueWork();
 
@@ -685,6 +712,16 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'service_wpplugins' => new SnapshotPlugins( [
 				new SnapshotPluginVo( 'missing-snapshot/plugin.php', '1.0.0' ),
 			] ),
+			// No WP Hashes API routes are cached, so the snapshot build makes no API request.
+			'service_wpgeneral' => new class extends General {
+				public function canUseTransients() :bool {
+					return true;
+				}
+
+				public function getTransient( $sKey ) {
+					return '';
+				}
+			},
 		] );
 		$coordinator = new AssetCoordinator();
 
@@ -906,6 +943,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->addCron( 1700000040, 'icwp-wpsf-ondemand_scan_wpv', [] );
 		$this->persistWrites = false;
 		$this->updateResult = false;
+		$this->installReadinessResponses( [], new \RuntimeException( 'Synthetic readiness read failure.' ) );
 
 		( new AssetCoordinator() )->execute();
 

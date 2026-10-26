@@ -9,7 +9,7 @@ class UnitTestControllerFactory {
 	public static function install(
 		?UnitTestPluginUrls $pluginUrls = null,
 		?UnitTestActionRouter $actionRouter = null,
-		object $extras = null
+		?object $extras = null
 	) :Controller {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();

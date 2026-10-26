@@ -125,4 +125,28 @@ class NormalizeHashMapTest extends BaseUnitTest {
 			] ],
 		];
 	}
+
+	/** @dataProvider provideSelectedAlgorithms */
+	public function test_selected_algorithm_validates_and_normalises_complete_maps( string $algorithm, string $hash ) :void {
+		$this->assertSame( [ 'src/File.php' => $hash ],
+			( new NormalizeHashMap() )->toScalarMapForAlgorithm( [ 'src\\File.php' => $hash ], $algorithm ) );
+	}
+
+	public static function provideSelectedAlgorithms() :array {
+		return [ [ 'md5', self::MD5 ], [ 'sha1', self::SHA1 ], [ 'sha256', self::SHA256 ] ];
+	}
+
+	public function test_selected_algorithm_rejects_wrong_and_mixed_maps_without_changing_legacy_acceptance() :void {
+		$normaliser = new NormalizeHashMap();
+		$map = [ 'first.php' => self::SHA256, 'second.php' => self::MD5 ];
+		$this->assertSame( [], $normaliser->toScalarMapForAlgorithm( $map, 'sha256' ) );
+		$this->assertSame( [], $normaliser->toScalarMapForAlgorithm( [ 'first.php' => self::MD5 ], 'sha256' ) );
+		$this->assertSame( $map, $normaliser->toScalarMap( $map ) );
+		$this->assertSame( [ 'first.php' => [ self::SHA256 ], 'second.php' => [ self::MD5 ] ], $normaliser->run( $map ) );
+	}
+
+	public function test_selected_algorithm_rejects_invalid_configuration_even_for_an_empty_map() :void {
+		$this->expectException( \InvalidArgumentException::class );
+		( new NormalizeHashMap() )->toScalarMapForAlgorithm( [], 'sha512' );
+	}
 }

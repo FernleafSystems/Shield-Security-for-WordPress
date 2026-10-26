@@ -160,6 +160,8 @@ class SourceRuntimeTestLaneTest extends TestCase {
 			'shield-source-node-modules-test:/app/node_modules',
 			\implode( ' ', $processRunner->calls[ 1 ][ 'command' ] )
 		);
+		$this->assertContains( 'node:fixture', $processRunner->calls[ 1 ][ 'command' ] );
+		$this->assertSame( [ $this->projectRoot ], $setupCoordinator->nodeImageRootDirs );
 		$this->assertContains(
 			'com.fernleaf.harness=shield-plugin-source',
 			$processRunner->calls[ 1 ][ 'command' ]

@@ -10,6 +10,7 @@ import { AjaxService } from "../services/AjaxService";
 import { BootstrapModals } from "../ui/BootstrapModals";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { ObjectOps } from "../../util/ObjectOps";
+import { ScanItemDiffTab } from "./ScanItemDiffTab";
 import { ScanItemMalaiForm } from "./ScanItemMalaiForm";
 
 hljs.registerLanguage( 'bash', bash );
@@ -66,6 +67,7 @@ export class ScanItemAnalysisModal {
 				}
 				ScanItemAnalysisModal.highlightModalCodeBlocks( modal );
 				ScanItemMalaiForm.initializeWithin( modalContent );
+				ScanItemDiffTab.initializeWithin( modalContent );
 				if ( modal.classList.contains( 'show' ) ) {
 					UiContentActivator.activateBootstrapTabsWithin( modalContent );
 				}

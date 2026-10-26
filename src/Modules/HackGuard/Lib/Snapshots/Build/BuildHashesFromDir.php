@@ -1,8 +1,9 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\FileHashAlgorithm;
 
 class BuildHashesFromDir {
 	protected int $depth = 0;
@@ -15,7 +16,7 @@ class BuildHashesFromDir {
 	private string $hashAlgo = 'md5';
 
 	/**
-	 * All file keys are their normalised file paths, stripped of ABSPATH.
+	 * File keys are lowercased normalised paths with the supplied directory stripped.
 	 * @return string[]
 	 */
 	public function build( string $dir, bool $binary = false ): array {
@@ -26,17 +27,21 @@ class BuildHashesFromDir {
 			foreach ( StandardDirectoryIterator::create( $dir, $this->depth, $this->fileExtensions ) as $file ) {
 				/** @var \SplFileInfo $file */
 				$path = $file->getPathname();
-				$snaps[ \strtolower( \str_replace( $dir, '', wp_normalize_path( $path ) ) ) ] =
-					\hash_file( $algo, $path, $binary );
+				$hash = \hash_file( $algo, $path, $binary );
+				if ( $hash === false ) {
+					return [];
+				}
+				$snaps[ \strtolower( \str_replace( $dir, '', wp_normalize_path( $path ) ) ) ] = $hash;
 			}
 		}
 		catch ( \Exception $e ) {
+			$snaps = [];
 		}
 		return $snaps;
 	}
 
 	public function getHashAlgo(): string {
-		return empty( $this->hashAlgo ) ? 'md5' : $this->hashAlgo;
+		return $this->hashAlgo;
 	}
 
 	public function setDepth( int $depth ) : self{
@@ -53,7 +58,7 @@ class BuildHashesFromDir {
 	}
 
 	public function setHashAlgo( string $hashAlgo ): self {
-		$this->hashAlgo = $hashAlgo;
+		$this->hashAlgo = FileHashAlgorithm::validate( $hashAlgo );
 		return $this;
 	}
 }

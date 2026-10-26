@@ -68,11 +68,13 @@ Source mode:
 
 1. Uses `tests/docker/docker-compose.yml`.
 2. Runs one setup pass before runtime streams.
-3. Starts, builds, and runs only the latest WordPress stream with `SHIELD_SKIP_INNER_SETUP=1` unless the caller explicitly selects the retained previous-major stream.
+3. Starts, builds, and runs only the latest WordPress stream with `SHIELD_SKIP_INNER_SETUP=1` unless the caller explicitly selects the retained previous release series.
 4. Uses setup cache by default for source dependency/build steps.
-5. Creates the source Node modules volume with source-harness labels before the Dockerized asset build, so warm reuse can be audited and CI cleanup can remove it explicitly.
+5. Creates the source Node modules volume with source-harness labels before the Dockerized asset build. The asset container uses the exact Node version declared in the repository `.nvmrc`, and that resolved image participates in the setup-cache fingerprint.
 6. Compose containers and networks are labeled under cleanup scope `source`.
 7. Use `php bin/shield test:source --refresh-setup` to force setup refresh.
+
+The source orchestrator detects the current two WordPress release series and writes `WP_VERSION_LATEST` and `WP_VERSION_PREVIOUS` to `tests/docker/.env`. Both variables are required by `docker-compose.yml`; invoking that Compose file without the orchestrator must supply them explicitly.
 
 Packaged modes (`test:package-targeted`, `test:package-full`, `analyze:package`):
 

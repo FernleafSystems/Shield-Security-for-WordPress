@@ -24,7 +24,7 @@ on:
 jobs:
   unit-tests:
     name: Run Unit Test Command
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_UBUNTU_RUNNER }}
 
     steps:
     - name: Checkout code

@@ -12,7 +12,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\OptsLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\BuildOptionsForDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -77,6 +79,72 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 		$this->assertTrue( \array_values( $data[ 'vars' ][ 'all_options' ] )[ 0 ][ 'is_focus' ] );
 	}
 
+	/**
+	 * @dataProvider filteredNamespaceProvider
+	 */
+	public function test_namespace_filter_additions_are_separate_from_the_editable_configuration(
+		array $filtered,
+		array $expected,
+		array $configured = [ 'shield', 'woocommerce' ]
+	) :void {
+		$this->installControllerStub( $configured );
+		Functions\expect( 'apply_filters' )
+			->once()
+			->with( 'shield/anonymous_rest_api_exclusions', $configured )
+			->andReturn( $filtered );
+
+		$action = new OptionsFormFor( [ 'options' => [ 'api_namespace_exclusions' ] ] );
+		$data = $this->invokeNonPublicMethod( $action, 'getRenderData' );
+		$options = \array_values( $data[ 'vars' ][ 'all_options' ] )[ 0 ][ 'options' ];
+
+		$this->assertSame( $expected, $data[ 'vars' ][ 'filtered_api_namespace_exclusions' ] );
+		$this->assertSame( \implode( "\n", $configured ), $options[ 0 ][ 'value' ] );
+	}
+
+	public function filteredNamespaceProvider() :array {
+		return [
+			'additional namespaces are listed once' => [
+				[ 'shield', 'woocommerce', 'contact-form-7', 'jetpack', 'jetpack' ],
+				[ 'contact-form-7', 'jetpack' ],
+			],
+			'configured namespaces are omitted' => [
+				[ 'shield', 'woocommerce', 'shield' ],
+				[],
+			],
+			'removed namespaces are not additions' => [
+				[],
+				[],
+			],
+			'additions use the REST restriction cleanup' => [
+				[ ' shield ', 'woocommerce', ' custom-api! ', 'custom-api', '', '!!!', 123, null ],
+				[ 'custom-api' ],
+			],
+			'cleanup differences do not misattribute configured namespaces' => [
+				[ 'shield', 'woocommerce', 'custom-api' ],
+				[],
+				[ 'shield', 'woocommerce', 'custom-api!' ],
+			],
+		];
+	}
+
+	public function test_unrelated_settings_do_not_evaluate_the_namespace_filter() :void {
+		Functions\expect( 'apply_filters' )->never();
+		$data = $this->invokeNonPublicMethod(
+			new OptionsFormFor( [ 'options' => [ 'unit_headers_flag' ] ] ),
+			'getRenderData'
+		);
+		$this->assertSame( [], $data[ 'vars' ][ 'filtered_api_namespace_exclusions' ] );
+	}
+
+	public function test_shared_option_builder_used_by_import_export_does_not_evaluate_the_namespace_filter() :void {
+		Functions\expect( 'apply_filters' )->never();
+		$sections = ( new BuildOptionsForDisplay( [ 'api_namespace_exclusions' ] ) )
+			->setValues( [ 'api_namespace_exclusions' => [ 'profile-api' ] ] )
+			->standard();
+
+		$this->assertSame( 'profile-api', \array_values( $sections )[ 0 ][ 'options' ][ 0 ][ 'value' ] );
+	}
+
 	private function isFocusedOptionPresent( array $options, string $key ) :bool {
 		foreach ( $options as $option ) {
 			if ( ( $option[ 'key' ] ?? '' ) === $key ) {
@@ -86,7 +154,7 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 		return false;
 	}
 
-	private function installControllerStub() :void {
+	private function installControllerStub( array $namespaceExclusions = [ 'shield', 'woocommerce' ] ) :void {
 		$optionDefinitions = [
 			'unit_security_admin_flag' => [
 				'key'          => 'unit_security_admin_flag',
@@ -109,6 +177,12 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 				'description'  => [
 					'Unit headers description.',
 				],
+			],
+			'api_namespace_exclusions' => [
+				'key'         => 'api_namespace_exclusions',
+				'section'     => 'section_security_headers',
+				'type'        => 'array',
+				'default'     => [ 'shield' ],
 			],
 		];
 
@@ -139,15 +213,16 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 				}
 			},
 		];
-		$controller->opts = new class( $optionDefinitions ) {
+		$controller->opts = new class( $optionDefinitions, $namespaceExclusions ) {
 			private array $defs;
 			private array $values;
 
-			public function __construct( array $definitions ) {
+			public function __construct( array $definitions, array $namespaceExclusions ) {
 				$this->defs = $definitions;
 				$this->values = [
 					'unit_security_admin_flag' => 'N',
 					'unit_headers_flag'        => 'Y',
+					'api_namespace_exclusions' => $namespaceExclusions,
 				];
 			}
 
@@ -184,7 +259,7 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 					return false;
 				}
 			},
-			'opts_lookup' => new class {
+			'opts_lookup' => new class extends OptsLookup {
 				public function getFirewallParametersWhitelist() :array {
 					return [];
 				}

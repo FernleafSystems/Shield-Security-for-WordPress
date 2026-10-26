@@ -173,5 +173,24 @@
 				</div>
 			</div>
 		{% endif %}
+
+		{% if vars.backup_table is not empty %}
+			<div class="sp-panel mt-3">
+				<div class="sp-panel-accent accent-green"></div>
+				<div class="status-card-body">
+					<div class="flex-grow-1">
+						<div class="status-eyebrow">{{ strings.backups_eyebrow }}</div>
+						<div class="lic-row-grid">
+							{% for backup_label, backup_val in vars.backup_table %}
+								<div>
+									<div class="lic-row-item-label">{{ backup_label }}</div>
+									<div class="lic-row-item-value">{{ backup_val }}</div>
+								</div>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+			</div>
+		{% endif %}
 	</div>
 {% endblock %}
