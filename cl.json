@@ -91,7 +91,21 @@
         ]
       }
     ],
-    "patches":     []
+    "patches":     [
+      {
+        "version":     "3",
+        "released_at": 1793140000,
+        "items":       [
+          {
+            "type":        "security",
+            "title":       "Address Responsibly Disclosed Security Advisory",
+            "description": [
+              "Further information regarding this vulnerability will be published in due course."
+            ]
+          }
+        ]
+      }
+    ]
   },
   "22.2": {
     "version":     "22.2",

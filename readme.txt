@@ -8,7 +8,7 @@ Requires at least: 5.7
 Requires PHP: 7.4
 Recommended PHP: 8.2
 Tested up to: 7.2
-Stable tag: 22.3.2
+Stable tag: 22.3.3
 Smart WordPress security that blocks bots automatically, guides you to what matters, and repairs problems — without drowning you in noise.
 
 == Description ==
