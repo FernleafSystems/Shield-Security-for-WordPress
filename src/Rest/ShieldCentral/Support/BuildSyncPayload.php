@@ -15,6 +15,8 @@ class BuildSyncPayload {
 		'pair/cleanup',
 		'site/unpair',
 		'sync/collect',
+		'options/get',
+		'options/set',
 	];
 
 	public function build( ?string $dailyTotalsSince ) :array {

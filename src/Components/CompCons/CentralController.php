@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rest\ShieldCentral\Support\{
 	BuildCapabilityReport,
 	BuildSyncPayload,
 	CentralDisabledException,
+	CentralOptions,
 	ConnectionStore,
 	PairingSessionStore,
 	PairingTokenStore
@@ -126,6 +127,30 @@ class CentralController {
 	}
 
 	public function syncCollect( string $siteUuid, array $connectionMaterial, ?string $dailyTotalsSince = null ) :array {
+		return $this->whenConnected(
+			$siteUuid,
+			$connectionMaterial,
+			fn() :array => ( new BuildSyncPayload() )->build( $dailyTotalsSince )
+		);
+	}
+
+	public function optionsGet( string $siteUuid, array $connectionMaterial, string $knownCatalogueHash ) :array {
+		return $this->whenConnected(
+			$siteUuid,
+			$connectionMaterial,
+			fn() :array => ( new CentralOptions() )->get( $knownCatalogueHash )
+		);
+	}
+
+	public function optionsSet( string $siteUuid, array $connectionMaterial, string $catalogueHash, array $options ) :array {
+		return $this->whenConnected(
+			$siteUuid,
+			$connectionMaterial,
+			fn() :array => ( new CentralOptions() )->set( $catalogueHash, $options )
+		);
+	}
+
+	private function whenConnected( string $siteUuid, array $connectionMaterial, \Closure $respond ) :array {
 		$this->assertEnabled();
 		if ( !( new ConnectionStore() )->verify( $siteUuid, $connectionMaterial ) ) {
 			return $this->failure(
@@ -135,7 +160,7 @@ class CentralController {
 			);
 		}
 
-		return ( new BuildSyncPayload() )->build( $dailyTotalsSince );
+		return $respond();
 	}
 
 	private function failure( string $diagnosticCode, string $message, bool $reconnectRequired = false ) :array {

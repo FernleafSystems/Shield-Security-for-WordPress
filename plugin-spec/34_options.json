@@ -128,6 +128,7 @@
         "link_info": "https://clk.shldscrty.com/a0",
         "link_blog": "https://clk.shldscrty.com/wpsf21",
         "beacon_id": 214,
+        "name": "Plugins",
         "summary": "Restrict Access To Key WordPress Plugin Actions",
         "description": "Careful: This will restrict access to plugin installation, update, activation and deletion. Note: Selecting 'Activate' will also restrict all other options."
     },
@@ -164,6 +165,7 @@
         "link_info": "https://clk.shldscrty.com/a0",
         "link_blog": "https://clk.shldscrty.com/wpsf21",
         "beacon_id": 214,
+        "name": "Themes",
         "summary": "Restrict Access To WordPress Theme Actions",
         "description": "Careful: This will restrict access to theme installation, update, activation and deletion."
     },
@@ -192,6 +194,7 @@
         "link_info": "https://clk.shldscrty.com/a0",
         "link_blog": "https://clk.shldscrty.com/wpsf21",
         "beacon_id": 214,
+        "name": "Pages",
         "summary": "Restrict Access To Key WordPress Posts And Pages Actions",
         "description": "Careful: This will restrict access to page/post creation, editing and deletion."
     },

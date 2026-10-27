@@ -37,6 +37,21 @@ class RouteProcessorMap {
 					\is_string( $req->get_param( 'daily_totals_since' ) ) ? $req->get_param( 'daily_totals_since' ) : null
 				)
 			),
+			OptionsGet::class    => fn( Req $req ) :array => $this->guard(
+				fn() :array => self::con()->comps->central->optionsGet(
+					(string)$req->get_param( 'site_uuid' ),
+					$this->connectionMaterialFromRequest( $req ),
+					(string)$req->get_param( 'known_catalogue_hash' )
+				)
+			),
+			OptionsSet::class    => fn( Req $req ) :array => $this->guard(
+				fn() :array => self::con()->comps->central->optionsSet(
+					(string)$req->get_param( 'site_uuid' ),
+					$this->connectionMaterialFromRequest( $req ),
+					(string)$req->get_param( 'catalogue_hash' ),
+					\is_array( $req->get_param( 'options' ) ) ? $req->get_param( 'options' ) : []
+				)
+			),
 		];
 	}
 

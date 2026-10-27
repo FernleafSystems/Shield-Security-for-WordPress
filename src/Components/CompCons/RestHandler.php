@@ -63,6 +63,8 @@ class RestHandler extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandle
 			'shieldcentral_pair_cleanup'   => ShieldCentralRoutes\PairCleanup::class,
 			'shieldcentral_site_unpair'    => ShieldCentralRoutes\SiteUnpair::class,
 			'shieldcentral_sync_collect'   => ShieldCentralRoutes\SyncCollect::class,
+			'shieldcentral_options_get'    => ShieldCentralRoutes\OptionsGet::class,
+			'shieldcentral_options_set'    => ShieldCentralRoutes\OptionsSet::class,
 		];
 	}
 }
