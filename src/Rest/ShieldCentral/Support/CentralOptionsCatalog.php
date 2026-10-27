@@ -7,7 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Ops\Read;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
- * The Shield options ShieldCentral reads and writes: the profile options, less the credentials, which Central never sees.
+ * The Shield options ShieldCentral reads and writes: the profile options, less the credentials, which Central never
+ * sees, and less the options Shield's extension plugins add.
  */
 class CentralOptionsCatalog {
 
@@ -29,8 +30,8 @@ class CentralOptionsCatalog {
 	}
 
 	/**
-	 * Built from plugin.json rather than the runtime configuration, which drops the labels and gains Pro extension
-	 * options: the catalogue must be the same for every site on the same version, whatever its licence or language.
+	 * Built from plugin.json rather than the runtime configuration, which drops the labels: the catalogue must be the
+	 * same for every site on the same version, whatever its licence or language.
 	 *
 	 * @return list<array<string,mixed>>
 	 */
@@ -46,6 +47,8 @@ class CentralOptionsCatalog {
 
 			$profileable = ( new ProfileOptionsCatalog() )->profileableOptions();
 			$this->catalogue = [];
+			// Only Shield's own options, from plugin.json. The profile options also hold those extension plugins add
+			// (ExtensionsCon), which depend on the extensions a site has and their versions, so are left out.
 			foreach ( $spec[ 'options' ] as $option ) {
 				if ( isset( $profileable[ $option[ 'key' ] ] ) && !\in_array( $option[ 'key' ], self::CREDENTIAL_KEYS, true ) ) {
 					$section = $sections[ $option[ 'section' ] ];

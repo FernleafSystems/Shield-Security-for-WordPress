@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\ShieldCentral\Support;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PreSetOptSanitize;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
@@ -25,12 +26,11 @@ class CentralOptions {
 	public function get( string $knownCatalogueHash ) :array {
 		$hash = $this->catalogue->hash();
 		return [
-			'success'        => true,
-			'version'        => self::con()->cfg->version(),
-			'catalogue_hash' => $hash,
-			'values'         => $this->values(),
-			// The options this site's licence doesn't allow.
-			'access'         => \array_values( \array_filter(
+			'success'             => true,
+			'version'             => self::con()->cfg->version(),
+			'catalogue_hash'      => $hash,
+			'values'              => $this->values(),
+			'unavailable_options' => \array_values( \array_filter(
 				$this->catalogue->keys(),
 				fn( string $key ) :bool => !self::con()->opts->optHasAccess( $key )
 			) ),
@@ -39,8 +39,9 @@ class CentralOptions {
 	}
 
 	/**
-	 * Assigns only the options sent. Each is "corrected" when the value stored differs from the one sent, and the
-	 * stored values of every option are returned, since Shield's corrections can change options that weren't sent.
+	 * Assigns only the options sent. Each is "applied" when the value stored is the one sent, "rejected" when the
+	 * stored value is still the one from before the write, and "corrected" otherwise. The stored values of every
+	 * option are returned, since Shield's corrections can change options that weren't sent.
 	 *
 	 * @param array<string,mixed> $options
 	 */
@@ -59,6 +60,7 @@ class CentralOptions {
 
 		$opts = self::con()->opts;
 		$keys = $this->catalogue->keys();
+		$before = $this->values();
 		$results = [];
 		$assigned = [];
 		foreach ( $options as $key => $value ) {
@@ -68,6 +70,11 @@ class CentralOptions {
 			}
 			elseif ( !$opts->optHasAccess( $key ) ) {
 				$results[ $key ] = $this->rejected( "This site's licence doesn't include this option." );
+			}
+			elseif ( \is_array( $value ) && \array_filter( $value, fn( $entry ) :bool => !\is_string( $entry ) ) !== [] ) {
+				// Every list option holds strings. PreSetOptSanitize checks only that a list is an array, and Shield's
+				// corrections fail on any other entry.
+				$results[ $key ] = $this->rejected( 'Every entry in the list must be text.' );
 			}
 			else {
 				try {
@@ -84,7 +91,15 @@ class CentralOptions {
 
 		$values = $this->values();
 		foreach ( $assigned as $key => $value ) {
-			$results[ $key ] = [ 'status' => $values[ $key ] === $value ? 'applied' : 'corrected' ];
+			if ( $values[ $key ] === $value ) {
+				$results[ $key ] = [ 'status' => 'applied' ];
+			}
+			elseif ( $values[ $key ] === $before[ $key ] ) {
+				$results[ $key ] = $this->rejected( 'Not saved.' );
+			}
+			else {
+				$results[ $key ] = [ 'status' => 'corrected' ];
+			}
 		}
 
 		return [
@@ -96,10 +111,15 @@ class CentralOptions {
 		];
 	}
 
+	/**
+	 * Read through a new handler, which loads the stored option rather than the plugin handler's in-memory copy: that
+	 * copy keeps a write WordPress didn't save.
+	 */
 	private function values() :array {
+		$stored = new OptsHandler();
 		$values = [];
 		foreach ( $this->catalogue->keys() as $key ) {
-			$values[ $key ] = self::con()->opts->optGet( $key );
+			$values[ $key ] = $stored->optGet( $key );
 		}
 		return $values;
 	}

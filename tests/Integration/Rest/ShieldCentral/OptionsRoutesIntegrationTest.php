@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rest\ShieldCentral;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Profiles\ProfileOptionsCatalog;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\NormaliseConfigComponents;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\ShieldCentral\Support\{
 	CentralOptionsCatalog,
 	ConnectionStore
@@ -64,7 +66,7 @@ class OptionsRoutesIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
-	public function test_get_sends_values_access_and_the_catalogue_only_when_its_hash_is_unknown() :void {
+	public function test_get_sends_values_unavailable_options_and_the_catalogue_only_when_its_hash_is_unknown() :void {
 		$response = $this->dispatch( 'options/get', $this->auth() );
 
 		$this->assertTrue( $response[ 'success' ] );
@@ -72,8 +74,8 @@ class OptionsRoutesIntegrationTest extends ShieldIntegrationTestCase {
 		$keys = \array_column( $response[ 'catalogue' ], 'key' );
 		$this->assertSame( $keys, \array_keys( $response[ 'values' ] ) );
 		$this->assertSame( [], \array_intersect( self::CREDENTIAL_KEYS, $keys ) );
-		$this->assertContains( 'xcsp_custom', $response[ 'access' ] );
-		$this->assertNotContains( 'x_frame', $response[ 'access' ] );
+		$this->assertContains( 'xcsp_custom', $response[ 'unavailable_options' ] );
+		$this->assertNotContains( 'x_frame', $response[ 'unavailable_options' ] );
 
 		$again = $this->dispatch( 'options/get', $this->auth( [ 'known_catalogue_hash' => $response[ 'catalogue_hash' ] ] ) );
 		$this->assertSame( $response[ 'catalogue_hash' ], $again[ 'catalogue_hash' ] );
@@ -95,7 +97,41 @@ class OptionsRoutesIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( $free[ 'catalogue_hash' ], $pro[ 'catalogue_hash' ] );
 		$this->assertSame( $free[ 'catalogue' ], $pro[ 'catalogue' ] );
-		$this->assertNotContains( 'xcsp_custom', $pro[ 'access' ] );
+		$this->assertNotContains( 'xcsp_custom', $pro[ 'unavailable_options' ] );
+	}
+
+	public function test_an_option_added_by_an_extension_plugin_is_left_out() :void {
+		$cfg = self::con()->cfg;
+		$original = $cfg->configuration;
+		// Added the way ExtensionsCon adds an extension's options.
+		$configuration = $cfg->configuration;
+		$configuration->options = \array_merge( $configuration->options, ( new NormaliseConfigComponents() )->indexOptions( [
+			[
+				'key'     => 'extension_test_option',
+				'section' => 'section_integrations',
+				'type'    => 'text',
+				'default' => '',
+			],
+		] ) );
+		$cfg->configuration = $configuration;
+		try {
+			$this->assertArrayHasKey( 'extension_test_option', ( new ProfileOptionsCatalog() )->profileableOptions() );
+
+			$get = $this->dispatch( 'options/get', $this->auth() );
+			$this->assertNotContains( 'extension_test_option', \array_column( $get[ 'catalogue' ], 'key' ) );
+			$this->assertArrayNotHasKey( 'extension_test_option', $get[ 'values' ] );
+			$this->assertNotContains( 'extension_test_option', $get[ 'unavailable_options' ] );
+
+			$set = $this->dispatch( 'options/set', $this->auth( [
+				'catalogue_hash' => $get[ 'catalogue_hash' ],
+				'options'        => [ 'extension_test_option' => 'value' ],
+			] ) );
+			$this->assertSame( 'rejected', $set[ 'results' ][ 'extension_test_option' ][ 'status' ] );
+			$this->assertArrayNotHasKey( 'extension_test_option', $set[ 'values' ] );
+		}
+		finally {
+			$cfg->configuration = $original;
+		}
 	}
 
 	public function test_hash_changes_with_the_version() :void {
@@ -167,6 +203,58 @@ class OptionsRoutesIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [ 'xcsp_custom' => [ 'status' => 'applied' ] ], $cleared[ 'results' ] );
 		$this->assertSame( [], $cleared[ 'values' ][ 'xcsp_custom' ] );
 		$this->assertSame( 'N', $cleared[ 'values' ][ 'enable_x_content_security_policy' ] );
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'malformedListEntryProvider' )]
+	public function test_a_list_with_a_malformed_entry_is_rejected_without_stopping_the_save( $entry ) :void {
+		$this->enablePremiumCapabilities( [ 'http_headers_csp' ] );
+		$hash = ( new CentralOptionsCatalog() )->hash();
+		// With rules already saved, Shield's correction of a changed rule list runs, and fails on a non-string entry.
+		$this->dispatch( 'options/set', $this->auth( [
+			'catalogue_hash' => $hash,
+			'options'        => [ 'xcsp_custom' => [ "default-src 'self';" ] ],
+		] ) );
+
+		$response = $this->dispatch( 'options/set', $this->auth( [
+			'catalogue_hash' => $hash,
+			'options'        => [
+				'xcsp_custom' => [ $entry ],
+				'x_frame'     => 'on_deny',
+			],
+		] ) );
+
+		$this->assertTrue( $response[ 'success' ] );
+		$this->assertSame( 'rejected', $response[ 'results' ][ 'xcsp_custom' ][ 'status' ] );
+		$this->assertNotEmpty( $response[ 'results' ][ 'xcsp_custom' ][ 'reason' ] );
+		$this->assertSame( [ "default-src 'self';" ], $response[ 'values' ][ 'xcsp_custom' ] );
+		$this->assertSame( [ 'status' => 'applied' ], $response[ 'results' ][ 'x_frame' ] );
+		$this->assertSame( 'on_deny', $response[ 'values' ][ 'x_frame' ] );
+	}
+
+	public static function malformedListEntryProvider() :array {
+		return [
+			'nested list' => [ [] ],
+			'number'      => [ 5 ],
+		];
+	}
+
+	public function test_an_option_wordpress_declines_to_save_is_reported_not_saved() :void {
+		$xFrame = self::con()->opts->optGet( 'x_frame' );
+		$decline = fn( $value, $oldValue ) => $oldValue;
+		$hook = 'pre_update_option_'.self::con()->prefix( 'opts_all', '_' );
+		\add_filter( $hook, $decline, 10, 2 );
+		try {
+			$response = $this->dispatch( 'options/set', $this->auth( [
+				'catalogue_hash' => ( new CentralOptionsCatalog() )->hash(),
+				'options'        => [ 'x_frame' => $xFrame === 'on_deny' ? 'off' : 'on_deny' ],
+			] ) );
+		}
+		finally {
+			\remove_filter( $hook, $decline );
+		}
+
+		$this->assertSame( [ 'status' => 'rejected', 'reason' => 'Not saved.' ], $response[ 'results' ][ 'x_frame' ] );
+		$this->assertSame( $xFrame, $response[ 'values' ][ 'x_frame' ] );
 	}
 
 	public function test_set_with_another_catalogue_hash_changes_nothing() :void {
