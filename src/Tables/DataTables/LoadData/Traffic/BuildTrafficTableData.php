@@ -64,7 +64,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 				$data[ 'ip' ] = $this->log->ip;
 				$data[ 'offense' ] = $this->log->offense ? 'Offense' : 'Not Offense';
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
-				$data[ 'path' ] = empty( $this->log->path ) ? '-' : $this->log->path;
+				$data[ 'path' ] = empty( $this->log->path ) ? '-' : esc_html( $this->log->path );
 
 				$data[ 'country' ] = ( new LookupMeta() )
 					->setIP( $this->log->ip )

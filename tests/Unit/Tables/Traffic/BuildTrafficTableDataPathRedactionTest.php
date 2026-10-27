@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Tables\Traffic;
 
 use Brain\Monkey\Functions;
+use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 	LogRecord,
 	Ops\Handler
@@ -10,10 +11,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Traffic\BuildTrafficTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{PluginControllerInstaller, ServicesState, UnitTestControllerFactory};
+use FernleafSystems\Wordpress\Services\Core\{General, Request};
+use FernleafSystems\Wordpress\Services\Utilities\IpUtils;
 
 class BuildTrafficTableDataPathRedactionTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
+
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -22,6 +28,46 @@ class BuildTrafficTableDataPathRedactionTest extends BaseUnitTest {
 		Functions\when( 'esc_html' )->alias(
 			static fn( string $text ) :string => \htmlspecialchars( $text, \ENT_QUOTES, 'UTF-8' )
 		);
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::installItems( [
+			'service_ip' => new IpUtils(),
+			'service_request' => new class extends Request {
+				public function carbon( $setTimezone = false, bool $userLocale = true ) :Carbon {
+					return Carbon::createFromTimestampUTC( 1713278100 );
+				}
+			},
+			'service_wpgeneral' => new class extends General {
+				public function getTimeStringForDisplay( $ts = null, $bShowTime = true, $bShowDate = true ) {
+					return '2024-04-16';
+				}
+			},
+		] );
+		UnitTestControllerFactory::install( null, null, (object)[
+			'this_req' => (object)[ 'ip' => '', 'ip_meta_record' => (object)[ 'country_iso2' => '' ] ],
+		] );
+	}
+
+	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
+		parent::tearDown();
+	}
+
+	public function test_hidden_path_cell_escapes_logged_request_path() :void {
+		$path = '/catalog<img/src=x/onerror=alert(1)>';
+		$record = $this->record( Handler::TYPE_HTTP, $path, 'x=1' );
+		$record->ip = '';
+		$record->uid = 0;
+		$record->code = 200;
+		$record->created_at = 1713278100;
+		$record->meta = \array_merge( $record->meta, [ 'ua' => '' ] );
+		$rows = $this->invokeNonPublicMethod( new BuildTrafficTableData(), 'buildTableRowsFromRawRecords', [ [ $record ] ] );
+
+		$this->assertSame( \htmlspecialchars( $path, \ENT_QUOTES, 'UTF-8' ), $rows[ 0 ][ 'path' ] );
+		$dom = new \DOMDocument();
+		$dom->loadHTML( '<td>'.$rows[ 0 ][ 'path' ].'</td>' );
+		$this->assertSame( 0, $dom->getElementsByTagName( 'img' )->length );
+		$this->assertSame( $path, $dom->getElementsByTagName( 'td' )->item( 0 )->textContent );
 	}
 
 	public function test_page_column_uses_redacted_display_path_for_http_rows() :void {
