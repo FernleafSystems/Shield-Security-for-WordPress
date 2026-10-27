@@ -71,9 +71,10 @@ class CentralOptions {
 			elseif ( !$opts->optHasAccess( $key ) ) {
 				$results[ $key ] = $this->rejected( "This site's licence doesn't include this option." );
 			}
-			elseif ( \is_array( $value ) && \array_filter( $value, fn( $entry ) :bool => !\is_string( $entry ) ) !== [] ) {
-				// Every list option holds strings. PreSetOptSanitize checks only that a list is an array, and Shield's
-				// corrections fail on any other entry.
+			elseif ( $opts->optType( $key ) === 'array' && \is_array( $value )
+					 && \array_filter( $value, fn( $entry ) :bool => !\is_string( $entry ) ) !== [] ) {
+				// Array options hold strings. PreSetOptSanitize checks a multiple select's entries, but only that an
+				// array option is an array, and Shield's corrections fail on an entry that isn't a string.
 				$results[ $key ] = $this->rejected( 'Every entry in the list must be text.' );
 			}
 			else {
