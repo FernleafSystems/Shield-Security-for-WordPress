@@ -986,6 +986,7 @@ test( 'cookie-free forged local freshness cannot authorize native login but real
 			await settled( page );
 			expect( counts ).toEqual( { basic: 2, altcha: 0 } );
 			expect( await fixtureApi.inspectNotBotAltchaFixture() ).toEqual( { ip, notbot_at: 0, altcha_at: 0 } );
+			await loginReady( page );
 			// No cut-off check leaves a failure behind, so the next login page checks straight away.
 			cutOff = false;
 			await page.goto( loginUrl );
