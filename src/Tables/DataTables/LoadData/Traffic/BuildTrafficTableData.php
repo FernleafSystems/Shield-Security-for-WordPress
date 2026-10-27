@@ -271,7 +271,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 
 		return $content.sprintf(
 			'%s: <code>%s</code>',
-			\strtoupper( $this->log->verb ),
+			esc_html( \strtoupper( $this->log->verb ) ),
 			$displayPath
 		);
 	}
@@ -284,7 +284,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 			$user = $this->resolveUser( $uid );
 			$display = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) :
 				sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
-					Services::WpUsers()->getAdminUrl_ProfileEdit( $user ), $user->user_login );
+					esc_url( Services::WpUsers()->getAdminUrl_ProfileEdit( $user ) ), esc_html( (string)$user->user_login ) );
 		}
 		return $display;
 	}

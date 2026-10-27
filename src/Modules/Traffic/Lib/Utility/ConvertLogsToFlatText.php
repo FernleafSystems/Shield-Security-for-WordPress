@@ -34,7 +34,7 @@ class ConvertLogsToFlatText {
 					$rec->uid
 				) : '-',
 			Services::WpGeneral()->getTimeStampForDisplay( $rec->created_at ),
-			$rec->verb,
+			$markUpHtml ? esc_html( $rec->verb ) : $rec->verb,
 			$markUpHtml ? esc_html( $path ) : $path,
 			$rec->code
 		);
