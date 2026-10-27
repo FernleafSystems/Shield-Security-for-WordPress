@@ -64,7 +64,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 				$data[ 'ip' ] = $this->log->ip;
 				$data[ 'offense' ] = $this->log->offense ? 'Offense' : 'Not Offense';
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
-				$data[ 'path' ] = empty( $this->log->path ) ? '-' : $this->log->path;
+				$data[ 'path' ] = empty( $this->log->path ) ? '-' : esc_html( $this->log->path );
 
 				$data[ 'country' ] = ( new LookupMeta() )
 					->setIP( $this->log->ip )
@@ -271,7 +271,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 
 		return $content.sprintf(
 			'%s: <code>%s</code>',
-			\strtoupper( $this->log->verb ),
+			esc_html( \strtoupper( $this->log->verb ) ),
 			$displayPath
 		);
 	}
@@ -284,7 +284,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 			$user = $this->resolveUser( $uid );
 			$display = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) :
 				sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
-					Services::WpUsers()->getAdminUrl_ProfileEdit( $user ), $user->user_login );
+					esc_url( Services::WpUsers()->getAdminUrl_ProfileEdit( $user ) ), esc_html( (string)$user->user_login ) );
 		}
 		return $display;
 	}

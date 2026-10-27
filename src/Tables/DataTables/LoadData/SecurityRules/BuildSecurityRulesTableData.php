@@ -31,6 +31,8 @@ class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shie
 			function ( SecurityRulesDB\Record $rule ) {
 				$data = $rule->getRawData();
 				$data[ 'rid' ] = $rule->id;
+				$data[ 'name' ] = esc_html( (string)$rule->name );
+				$data[ 'description' ] = esc_html( (string)$rule->description );
 				$data[ 'active' ] = $this->colActive( $rule );
 				$data[ 'actions' ] = $this->colActions( $rule );
 				$data[ 'details' ] = $this->colDetails( $rule );
@@ -94,7 +96,7 @@ class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shie
 	}
 
 	private function colDetails( SecurityRulesDB\Record $rule ) :string {
-		return sprintf( '<h6>%s</h6><p class="m-0">%s</p>', $rule->name, $rule->description );
+		return sprintf( '<h6>%s</h6><p class="m-0">%s</p>', esc_html( $rule->name ), esc_html( $rule->description ) );
 	}
 
 	private function colDrag( SecurityRulesDB\Record $rule ) :string {

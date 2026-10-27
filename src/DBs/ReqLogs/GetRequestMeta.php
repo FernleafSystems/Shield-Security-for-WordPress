@@ -70,7 +70,7 @@ class GetRequestMeta {
 				'verb' => [
 					'name'      => __( 'Method', 'wp-simple-firewall' ),
 					'formatter' => function ( $metaDatum ) {
-						return \strtoupper( $metaDatum );
+						return esc_html( \strtoupper( $metaDatum ) );
 					}
 				],
 				'path' => [

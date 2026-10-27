@@ -167,7 +167,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 		}
 
 		if ( $record->type === IpRulesDB\Handler::T_MANUAL_BYPASS ) {
-			$content[] = sprintf( '%s: %s', __( 'Label', 'wp-simple-firewall' ), $record->label );
+			$content[] = sprintf( '%s: %s', __( 'Label', 'wp-simple-firewall' ), esc_html( $record->label ) );
 		}
 
 		if ( \in_array( $record->type, [
