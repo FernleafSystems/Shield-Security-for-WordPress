@@ -5,10 +5,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Rules;
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\IsThemeActive;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\RulesController;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	MaintenanceThemeSelection,
-	ServicesState
+	PluginControllerInstaller,
+	ServicesState,
+	UnitTestControllerFactory
 };
 use FernleafSystems\Wordpress\Services\Core\Themes;
 
@@ -19,6 +22,7 @@ class IsThemeActiveTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\stubTranslationFunctions();
+		UnitTestControllerFactory::install( null, null, (object)[ 'rules' => new RulesController() ] );
 
 		$this->servicesSnapshot = ServicesState::snapshot();
 		ServicesState::mergeItems( [
@@ -36,6 +40,7 @@ class IsThemeActiveTest extends BaseUnitTest {
 
 	protected function tearDown() :void {
 		ServicesState::restore( $this->servicesSnapshot );
+		PluginControllerInstaller::reset();
 		parent::tearDown();
 	}
 

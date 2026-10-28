@@ -87,7 +87,7 @@ class RulesController {
 	 */
 	private function processRule( RuleVO $rule ) {
 		if ( !isset( $rule->result ) ) {
-			$this->resetConditionMeta();
+			$this->setConditionMeta( new ConditionMetaStore() );
 
 			$conditions = $rule->conditions ?? null;
 			if ( $conditions !== null ) {
@@ -128,7 +128,7 @@ class RulesController {
 		return $this->conditionMeta ??= new ConditionMetaStore();
 	}
 
-	private function resetConditionMeta() :void {
-		$this->conditionMeta = new ConditionMetaStore();
+	public function setConditionMeta( ConditionMetaStore $conditionMeta ) :void {
+		$this->conditionMeta = $conditionMeta;
 	}
 }

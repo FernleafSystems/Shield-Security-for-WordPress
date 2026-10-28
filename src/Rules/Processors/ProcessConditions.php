@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	ConditionMetaStore,
 	Conditions,
 	ConditionsVO,
 	Enum\EnumLogic,
@@ -101,13 +102,38 @@ class ProcessConditions {
 		$conditionHandler->setThisRequest( $this->req )
 						 ->setParams( $condition->params );
 
-		$cachedMatchStatus = self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ] ?? null;
-		if ( $cachedMatchStatus === null ) {
-			self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ] = $conditionHandler->run();
+		$hash = $this->hashHandler( $conditionHandler );
+		if ( !isset( self::$ConditionsCache[ $hash ] ) ) {
+			self::$ConditionsCache[ $hash ] = $this->runCapturingMeta( $conditionHandler );
 		}
 
-		$matched = self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ];
+		// Apply the condition's meta to the current rule, including when the result came from the cache.
+		$metaStore = self::con()->rules->getConditionMeta();
+		foreach ( self::$ConditionsCache[ $hash ][ 'meta' ] as $key => $value ) {
+			$metaStore->{$key} = $value;
+		}
+
+		$matched = self::$ConditionsCache[ $hash ][ 'matched' ];
 		return $condition->logic === EnumLogic::LOGIC_INVERT ? !$matched : $matched;
+	}
+
+	/**
+	 * Runs the handler against an empty meta store so the meta it records can be cached with its result.
+	 * @param Conditions\Base $handler
+	 */
+	private function runCapturingMeta( $handler ) :array {
+		$rules = self::con()->rules;
+		$ruleMeta = $rules->getConditionMeta();
+		$rules->setConditionMeta( new ConditionMetaStore() );
+		try {
+			return [
+				'matched' => $handler->run(),
+				'meta'    => $rules->getConditionMeta()->getRawData(),
+			];
+		}
+		finally {
+			$rules->setConditionMeta( $ruleMeta );
+		}
 	}
 
 	/**
