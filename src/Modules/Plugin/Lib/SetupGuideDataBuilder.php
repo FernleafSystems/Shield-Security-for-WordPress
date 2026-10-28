@@ -19,12 +19,9 @@ class SetupGuideDataBuilder {
 
 	use PluginControllerConsumer;
 
-	public const STEP_WELCOME = 'welcome_video';
-	private const WELCOME_VIDEO_ID = '269191603';
-
 	/**
-	 * Wizard steps that make sense inline. The wizard's welcome slide (an embedded video that is
-	 * slow to render on every page), newsletter and thank-you slides are left to the wizard itself.
+	 * Wizard steps that make sense inline. The wizard's welcome video, newsletter and thank-you
+	 * slides are left to the wizard itself.
 	 */
 	private const STEP_HANDLERS = [
 		Steps\License::class,
@@ -44,16 +41,7 @@ class SetupGuideDataBuilder {
 
 		$done = $state->doneSlugs();
 		$copy = $this->stepCopy();
-		$steps = [
-			[
-				'slug'    => self::STEP_WELCOME,
-				'name'    => $copy[ self::STEP_WELCOME ][ 0 ],
-				'hint'    => $copy[ self::STEP_WELCOME ][ 1 ],
-				'is_done' => \in_array( self::STEP_WELCOME, $done, true ),
-				'body'    => '',
-				'video_id' => self::WELCOME_VIDEO_ID,
-			],
-		];
+		$steps = [];
 		foreach ( self::STEP_HANDLERS as $handlerClass ) {
 			$handler = new $handlerClass();
 			if ( $handlerClass === Steps\License::class && $handler->skipStep() ) {
@@ -67,7 +55,6 @@ class SetupGuideDataBuilder {
 				'is_done'  => $isDone,
 				// Completed steps need no form, which keeps every page render light.
 				'body'     => $isDone ? '' : $handler->render(),
-				'video_id' => '',
 			];
 		}
 
@@ -96,10 +83,6 @@ class SetupGuideDataBuilder {
 				'skip'           => __( 'Skip this step', 'wp-simple-firewall' ),
 				'done'           => __( 'Done', 'wp-simple-firewall' ),
 				'steps_label'    => __( 'Setup steps', 'wp-simple-firewall' ),
-				'welcome_title'  => __( 'Welcome to Shield', 'wp-simple-firewall' ),
-				'welcome_text'   => __( 'Shield is already protecting this site with sensible defaults. These steps take a few minutes and make it yours. Start with the short introduction video.', 'wp-simple-firewall' ),
-				'watch_video'    => __( 'Play the introduction video', 'wp-simple-firewall' ),
-				'mark_watched'   => __( 'Mark as watched', 'wp-simple-firewall' ),
 				'all_done'       => __( 'Setup is complete. You can change any of this later in Configure.', 'wp-simple-firewall' ),
 				'reopen'         => __( 'Setup', 'wp-simple-firewall' ),
 				'sidebar_label'  => __( 'Setup guide', 'wp-simple-firewall' ),
@@ -116,7 +99,6 @@ class SetupGuideDataBuilder {
 	 */
 	private function stepCopy() :array {
 		return [
-			self::STEP_WELCOME               => [ __( 'Welcome to Shield', 'wp-simple-firewall' ), __( 'Short intro video', 'wp-simple-firewall' ) ],
 			Steps\License::SLUG              => [ __( 'Activate your Pro licence', 'wp-simple-firewall' ), __( 'Unlocks Pro protection', 'wp-simple-firewall' ) ],
 			Steps\ApplySecurityProfile::SLUG => [ __( 'Choose a protection level', 'wp-simple-firewall' ), __( 'Sets many options at once', 'wp-simple-firewall' ) ],
 			Steps\SecurityAdmin::SLUG        => [ __( 'Set a Security Admin PIN', 'wp-simple-firewall' ), __( 'Stops other admins changing Shield', 'wp-simple-firewall' ) ],

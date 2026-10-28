@@ -62,14 +62,6 @@
 					<h3 class="shield-setup-guide__pane-title">{{ step.name }}</h3>
 					{% if step.is_done %}
 						<p class="shield-setup-guide__done-note"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> {{ guide.strings.done }}</p>
-					{% elseif step.video_id is not empty %}
-						<p>{{ guide.strings.welcome_text }}</p>
-						<div class="shield-setup-guide__actions">
-							<button type="button" class="shield-setup-guide__primary option-video" data-vimeoid="{{ step.video_id }}">
-								<i class="bi bi-play-fill" aria-hidden="true"></i> {{ guide.strings.watch_video }}
-							</button>
-							<button type="button" class="shield-setup-guide__link" data-setup-guide-complete="{{ step.slug }}">{{ guide.strings.mark_watched }}</button>
-						</div>
 					{% else %}
 						<div class="shield-setup-guide__step-body">{{ step.body|raw }}</div>
 					{% endif %}

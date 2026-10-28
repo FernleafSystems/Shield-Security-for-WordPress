@@ -3,7 +3,7 @@
 $setup-guide-line: #dcdcde;
 $setup-guide-soft-line: #eef0f1;
 $setup-guide-muted: #646970;
-$setup-guide-sheet-height: 420px;
+$setup-guide-sheet-height: 640px;
 
 // Slides up into view; no fade, so the bar is never shown half-transparent.
 @keyframes shield-setup-guide-rise {
@@ -196,7 +196,7 @@ $setup-guide-sheet-height: 420px;
 .shield-setup-guide__sheet {
 	display: grid;
 	grid-template-columns: 260px minmax(0, 1fr);
-	height: min(#{$setup-guide-sheet-height}, calc(100vh - 160px));
+	height: min(#{$setup-guide-sheet-height}, calc(100vh - 110px));
 
 	&[hidden] {
 		display: none;
