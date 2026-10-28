@@ -49,6 +49,8 @@ class ProfileOptionsForm extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				'sync_exclude_group_label'    => __( 'Click to exclude this group from sync', 'wp-simple-firewall' ),
 				'sync_profile_settings_title' => __( 'Sync Profile Settings', 'wp-simple-firewall' ),
 				'sync_profile_settings_meta'  => __( 'Choose which settings are stored in this profile and included during network sync.', 'wp-simple-firewall' ),
+				'opt_edit'                    => __( 'Edit', 'wp-simple-firewall' ),
+				'opt_none_selected'           => __( 'None selected', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
 				'profile_available' => true,

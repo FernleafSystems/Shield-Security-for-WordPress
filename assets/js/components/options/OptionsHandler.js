@@ -1,6 +1,7 @@
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OptionsFormSubmit } from "./OptionsFormSubmit";
+import { OptionDirtyState } from "./OptionDirtyState";
 import { AjaxService } from "../services/AjaxService";
 import { Tooltip } from 'bootstrap';
 
@@ -9,6 +10,7 @@ export class OptionsHandler extends BaseAutoExecComponent {
 	run() {
 		new OptionsFormSubmit( this._base_data );
 		this.initializeProfileSearchInputs();
+		this.initializeDirtyTracking();
 
 		shieldEventsHandler_Main.add_Click(
 			'form.options_form_for .toggle-importexport-inclusion > input[type=checkbox]',
@@ -89,6 +91,23 @@ export class OptionsHandler extends BaseAutoExecComponent {
 				}
 			},
 			false
+		);
+	}
+
+	initializeDirtyTracking() {
+		// Capture before the control changes: pointerdown covers browsers that don't focus checkboxes on click.
+		const capture = ( evt ) => OptionDirtyState.captureInitial( evt.target );
+		document.addEventListener( 'pointerdown', capture, true );
+		document.addEventListener( 'focusin', capture, true );
+		document.addEventListener( 'keydown', capture, true );
+
+		const refresh = ( evt ) => OptionDirtyState.refresh( evt.target );
+		document.addEventListener( 'input', refresh );
+		document.addEventListener( 'change', refresh );
+
+		shieldEventsHandler_Main.add_Click(
+			`${OptionDirtyState.FORM_SELECTOR} [data-option-reset]`,
+			( targetEl ) => OptionDirtyState.resetToDefault( targetEl )
 		);
 	}
 

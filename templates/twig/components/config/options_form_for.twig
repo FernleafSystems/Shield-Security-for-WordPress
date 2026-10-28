@@ -93,7 +93,7 @@
 						<div class="shield-options-panel-body">
 							{% if opt_section.warnings|length %}
 								{% for section_warning in opt_section.warnings %}
-									<div class="alert alert-warning text-center">{{ section_warning|raw }}</div>
+									<div class="alert alert-warning shield-options-note">{{ section_warning|raw }}</div>
 								{% endfor %}
 							{% endif %}
 
@@ -108,7 +108,7 @@
 
 							{% if opt_section.notices|length %}
 								{% for section_notice in opt_section.notices %}
-									<div class="alert alert-info text-center">{{ section_notice|raw }}</div>
+									<div class="alert alert-info shield-options-note">{{ section_notice|raw }}</div>
 								{% endfor %}
 							{% endif %}
 
