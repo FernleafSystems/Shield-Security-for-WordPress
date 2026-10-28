@@ -49,6 +49,7 @@ class IpAnalysisDataBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( '198.51.100.10', $data[ 'ip' ] );
 		$this->assertSame( 4, $data[ 'ip_rules' ][ 'offenses' ] );
+		$this->assertSame( 'doubtful', $data[ 'standing' ][ 'level' ] );
 		$this->assertSame( 'US', $data[ 'geo' ][ 'country_code' ] );
 		$this->assertTrue( $data[ 'rdns' ][ 'is_available' ] );
 		$this->assertSame( 'crawler.example.test', $data[ 'rdns' ][ 'hostname' ] );
@@ -115,6 +116,17 @@ class IpAnalysisDataBuilderTest extends BaseUnitTest {
 						return '';
 					}
 				};
+			}
+
+			protected function buildStanding( string $ip ) :array {
+				unset( $ip );
+				return [
+					'level'         => 'doubtful',
+					'reasons'       => [ 'offenses' ],
+					'evidence'      => 4.5,
+					'offense_limit' => 10,
+					'hostile_until' => 0,
+				];
 			}
 
 			protected function buildIdentity( string $ip, IpRuleStatus $rules ) :array {

@@ -5,7 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalysis\IpAnalysisDataBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Standing\VisitorStanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
@@ -32,7 +34,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   bot_indicators:string,
  *   none_recorded:string,
  *   total:string,
- *   status:array{offenses:string,is_blocked:string,is_bypass:string,ip_reputation:string,snapi_ip_reputation:string,block_type:string},
+ *   status:array{offenses:string,is_blocked:string,is_bypass:string,standing:string,ip_reputation:string,snapi_ip_reputation:string,block_type:string},
  *   yes:string,
  *   no:string,
  *   identity:array{who_is_it:string,rdns:string,country:string},
@@ -41,6 +43,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  * @phpstan-type GeneralViewVars array{
  *   ip:string,
  *   status:array{offenses:int,is_blocked:bool,is_bypass:bool,snapi_reputation_score:string},
+ *   standing:array{label:string,badge_class:string,detail:string},
  *   overview:array{
  *     verdict_label:string,
  *     verdict_icon_class:string,
@@ -103,6 +106,7 @@ class GeneralViewDataBuilder {
 					'is_bypass'              => $rules[ 'is_bypass' ],
 					'snapi_reputation_score' => $shieldNet[ 'is_available' ] ? (string)$shieldNet[ 'score' ] : $dataUnavailable,
 				],
+				'standing' => $this->buildStanding( $analysis[ 'standing' ] ),
 				'overview' => [
 					'verdict_label'                    => $scoreAvailable
 						? ( $isBot ? __( 'Likely Bot', 'wp-simple-firewall' ) : __( 'Likely Human', 'wp-simple-firewall' ) )
@@ -153,6 +157,66 @@ class GeneralViewDataBuilder {
 	}
 
 	/**
+	 * @param array{level:string,reasons:list<string>,evidence:float,offense_limit:int,hostile_until:int} $standing
+	 * @return array{label:string,badge_class:string,detail:string}
+	 */
+	private function buildStanding( array $standing ) :array {
+		$details = [];
+		foreach ( $standing[ 'reasons' ] as $reason ) {
+			switch ( $reason ) {
+				case VisitorStanding::REASON_BYPASS:
+					$details[] = __( 'On the bypass list', 'wp-simple-firewall' );
+					break;
+				case VisitorStanding::REASON_TRUSTED_SERVICE:
+					$details[] = __( 'A trusted service', 'wp-simple-firewall' );
+					break;
+				case VisitorStanding::REASON_MANUAL_BLOCK:
+					$details[] = __( 'Manually blocked', 'wp-simple-firewall' );
+					break;
+				case VisitorStanding::REASON_CROWDSEC:
+					$details[] = __( 'On the CrowdSec list', 'wp-simple-firewall' );
+					break;
+				case VisitorStanding::REASON_CROWDSEC_UNBLOCKED:
+					$details[] = __( 'On the CrowdSec list, but unblocked', 'wp-simple-firewall' );
+					break;
+				case VisitorStanding::REASON_HOSTILE_HOLD:
+					$details[] = \sprintf(
+						__( 'Held as hostile until %s', 'wp-simple-firewall' ),
+						Services::Request()->carbon()->setTimestamp( $standing[ 'hostile_until' ] )->diffForHumans()
+					);
+					break;
+				case VisitorStanding::REASON_HIGH_REPUTATION:
+					$details[] = __( 'Kept below hostile by high reputation', 'wp-simple-firewall' );
+					break;
+				default:
+					break;
+			}
+		}
+		if ( $standing[ 'evidence' ] > 0 && $standing[ 'offense_limit' ] > 0 ) {
+			$details[] = \sprintf(
+				__( '%1$s of %2$s offenses', 'wp-simple-firewall' ),
+				\number_format_i18n( $standing[ 'evidence' ], 1 ),
+				$standing[ 'offense_limit' ]
+			);
+		}
+
+		$levels = [
+			VisitorStanding::TRUSTED  => [ __( 'Trusted', 'wp-simple-firewall' ), 'success' ],
+			VisitorStanding::NORMAL   => [ __( 'Normal', 'wp-simple-firewall' ), 'success' ],
+			VisitorStanding::DOUBTFUL => [ __( 'Doubtful', 'wp-simple-firewall' ), 'warning text-dark' ],
+			VisitorStanding::HOSTILE  => [ __( 'Hostile', 'wp-simple-firewall' ), 'danger' ],
+			VisitorStanding::BLOCKED  => [ __( 'Blocked', 'wp-simple-firewall' ), 'danger' ],
+		];
+		[ $label, $badgeClass ] = $levels[ $standing[ 'level' ] ] ?? $levels[ VisitorStanding::NORMAL ];
+
+		return [
+			'label'       => $label,
+			'badge_class' => $badgeClass,
+			'detail'      => \implode( '; ', $details ),
+		];
+	}
+
+	/**
 	 * @param array{offenses:int,is_blocked:bool,is_bypass:bool,block_type:string} $rules
 	 * @return array
 	 * @phpstan-return GeneralViewStrings
@@ -184,6 +248,7 @@ class GeneralViewDataBuilder {
 				'offenses'            => __( 'Offenses', 'wp-simple-firewall' ),
 				'is_blocked'          => __( 'IP Blocked', 'wp-simple-firewall' ),
 				'is_bypass'           => __( 'Bypass Listed', 'wp-simple-firewall' ),
+				'standing'            => __( 'Visitor Standing', 'wp-simple-firewall' ),
 				'ip_reputation'       => __( 'Local Reputation', 'wp-simple-firewall' ),
 				'snapi_ip_reputation' => \sprintf( __( '%s Score', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'shieldnet' ) ),
 				'block_type'          => $rules[ 'is_blocked' ] ? Handler::GetTypeName( $rules[ 'block_type' ] ) : '',

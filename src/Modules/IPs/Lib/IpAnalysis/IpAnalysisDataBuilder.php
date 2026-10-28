@@ -8,6 +8,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Si
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Standing\{
+	EvidenceWeights,
+	ResolveStanding
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPInfo;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
@@ -19,6 +23,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
  * @phpstan-type IpAnalysisData array{
  *   ip:string,
  *   ip_rules:array{offenses:int,is_blocked:bool,is_bypass:bool,block_type:string},
+ *   standing:array{level:string,reasons:list<string>,evidence:float,offense_limit:int,hostile_until:int},
  *   identity:array{key:string,name:string},
  *   geo:array{country_code:string},
  *   rdns:array{is_available:bool,hostname:string},
@@ -48,6 +53,7 @@ class IpAnalysisDataBuilder {
 				'is_bypass'  => $rules->isBypass(),
 				'block_type' => $rules->isBlocked() ? (string)$rules->getBlockType() : '',
 			],
+			'standing'              => $this->buildStanding( $ip ),
 			'identity'              => $this->buildIdentity( $ip, $rules ),
 			'geo'                   => [
 				'country_code' => $this->lookupCountryCode( $ip ),
@@ -70,6 +76,20 @@ class IpAnalysisDataBuilder {
 
 	protected function buildIpRules( string $ip ) :IpRuleStatus {
 		return new IpRuleStatus( $ip );
+	}
+
+	/**
+	 * @return array{level:string,reasons:list<string>,evidence:float,offense_limit:int,hostile_until:int}
+	 */
+	protected function buildStanding( string $ip ) :array {
+		$standing = ( new ResolveStanding() )->setIP( $ip )->resolve();
+		return [
+			'level'         => $standing->level,
+			'reasons'       => $standing->reasons,
+			'evidence'      => $standing->evidence/EvidenceWeights::UNITS_PER_OFFENSE,
+			'offense_limit' => \max( 0, self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit() ),
+			'hostile_until' => $standing->hostileUntil,
+		];
 	}
 
 	/**

@@ -21,6 +21,7 @@ class IpAnalyseGeneralViewDataBuilderTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'number_format_i18n' )->alias( static fn( $number, int $decimals = 0 ) :string => \number_format( (float)$number, $decimals ) );
 		Functions\when( 'rawurlencode_deep' )->alias( static fn( $value ) => \is_array( $value ) ? \array_map( 'rawurlencode', $value ) : \rawurlencode( (string)$value ) );
 		Functions\when( 'add_query_arg' )->alias(
 			static fn( array $params, string $url ) :string => $url.'?'.\http_build_query( $params )
@@ -44,6 +45,11 @@ class IpAnalyseGeneralViewDataBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'crawler.example.test', $data[ 'vars' ][ 'identity' ][ 'rdns' ] );
 		$this->assertSame( '+100', $data[ 'vars' ][ 'signals' ][ 'positive' ][ 'rows' ][ 0 ][ 'score_label' ] );
 		$this->assertSame( 'success', $data[ 'vars' ][ 'overview' ][ 'verdict_bar' ][ 'fill_class' ] );
+		$this->assertSame( [
+			'label'       => 'Doubtful',
+			'badge_class' => 'warning text-dark',
+			'detail'      => 'On the CrowdSec list, but unblocked; 4.5 of 10 offenses',
+		], $data[ 'vars' ][ 'standing' ] );
 	}
 
 	public function test_build_owns_unavailable_display_values() :void {
@@ -53,6 +59,11 @@ class IpAnalyseGeneralViewDataBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Data not available', $data[ 'vars' ][ 'identity' ][ 'rdns' ] );
 		$this->assertSame( 'secondary', $data[ 'vars' ][ 'overview' ][ 'shieldnet_reputation_badge_class' ] );
 		$this->assertSame( 'Unknown', $data[ 'vars' ][ 'signals' ][ 'negative' ][ 'rows' ][ 0 ][ 'name' ] );
+		$this->assertSame( [
+			'label'       => 'Normal',
+			'badge_class' => 'success',
+			'detail'      => '',
+		], $data[ 'vars' ][ 'standing' ] );
 	}
 
 	private function builder( bool $available ) :GeneralViewDataBuilder {
@@ -72,6 +83,21 @@ class IpAnalyseGeneralViewDataBuilderTest extends BaseUnitTest {
 						'is_bypass'  => false,
 						'block_type' => '',
 					],
+					'standing'             => $this->available
+						? [
+							'level'         => 'doubtful',
+							'reasons'       => [ 'offenses', 'crowdsec_unblocked' ],
+							'evidence'      => 4.5,
+							'offense_limit' => 10,
+							'hostile_until' => 0,
+						]
+						: [
+							'level'         => 'normal',
+							'reasons'       => [],
+							'evidence'      => 0.0,
+							'offense_limit' => 10,
+							'hostile_until' => 0,
+						],
 					'identity'             => [
 						'key'  => 'unknown',
 						'name' => 'Unknown',

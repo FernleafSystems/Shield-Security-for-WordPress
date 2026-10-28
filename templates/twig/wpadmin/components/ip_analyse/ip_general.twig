@@ -124,6 +124,18 @@
 						{{ vars.status.offenses > 0 ? vars.status.offenses : strings.no }}
 					</span>
 				</div>
+				<div style="display:flex; align-items:center; gap:.5rem; padding:.32rem 0; border-bottom:1px solid #f0f1f0; font-size:.81rem">
+					<i class="bi bi-person-badge" style="color:#5f6974; width:14px; text-align:center; font-size:.78rem"></i>
+					<span style="flex:1; color:#5f6974">
+						{{ strings.status.standing }}
+						{% if vars.standing.detail is not empty %}
+							<span style="display:block; font-size:.72rem; color:#8a939c">{{ vars.standing.detail }}</span>
+						{% endif %}
+					</span>
+					<span class="badge bg-{{ vars.standing.badge_class }}" style="font-size:.77rem; padding:.2rem .55rem; border-radius:4px; min-width:72px; text-align:center">
+						{{ vars.standing.label }}
+					</span>
+				</div>
 				<div style="display:flex; align-items:center; gap:.5rem; padding:.32rem 0; border-bottom:none; font-size:.81rem">
 					<i class="bi bi-shield-fill" style="color:#5f6974; width:14px; text-align:center; font-size:.78rem"></i>
 					<span style="flex:1; color:#5f6974">{{ strings.status.ip_reputation }}</span>
