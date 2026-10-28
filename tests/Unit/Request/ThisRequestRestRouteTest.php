@@ -181,6 +181,26 @@ class ThisRequestRestRouteTest extends BaseUnitTest {
 		$this->assertSame( 'wp/v2/users/me', $thisReq->getRestRoute() );
 	}
 
+	public function test_index_php_form_of_the_rest_prefix_is_rest() :void {
+		$thisReq = new ThisRequest( [
+			'request'                  => $this->buildRequest( [ 'REQUEST_URI' => '/index.php/wp-json/wp/v2/users/me' ] ),
+			'wp_is_permalinks_enabled' => true,
+			'rest_api_root'            => 'https://example.test/wp-json/',
+		] );
+
+		$this->assertSame( 'wp/v2/users/me', $thisReq->getRestRoute() );
+	}
+
+	public function test_encoded_route_parameters_are_kept_as_wordpress_routes_them() :void {
+		$thisReq = new ThisRequest( [
+			'request'                  => $this->buildRequest( [ 'REQUEST_URI' => '/wp-json/example/v1/file/a%2Fb' ] ),
+			'wp_is_permalinks_enabled' => true,
+			'rest_api_root'            => 'https://example.test/wp-json/',
+		] );
+
+		$this->assertSame( 'example/v1/file/a%2Fb', $thisReq->getRestRoute() );
+	}
+
 	public function test_path_sharing_only_a_prefix_with_the_rest_root_is_not_rest() :void {
 		$thisReq = new ThisRequest( [
 			'request'                  => $this->buildRequest( [ 'REQUEST_URI' => '/wp-jsonp/feed/' ] ),

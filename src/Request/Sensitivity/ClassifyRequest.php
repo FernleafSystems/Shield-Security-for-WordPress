@@ -9,14 +9,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler as RequestTy
  * recognised as viewing content is Open; anything else is at least Guarded.
  *
  * Before WordPress routes a request, a pretty URL can't be told apart from a plugin endpoint, so an Open
- * result without route facts is provisional and must be judged again once the request is routed.
+ * result is provisional until routing is complete. Routed query vars are judged as soon as WordPress has
+ * parsed them, before it dispatches REST and plugin endpoints; WooCommerce pages once the main query has run.
  */
 class ClassifyRequest {
 
 	private const VALUE_ID = '#^\d{1,20}$#';
 	private const VALUE_PAGE = '#^/?\d{0,20}$#';
 	private const VALUE_CATEGORY = '#^-?\d{1,20}(,-?\d{1,20})*$#';
-	private const VALUE_SLUG = '#^[\p{L}\p{N}_\-+,./%]{1,200}$#u';
+	/**
+	 * Values arrive URL-decoded, so a tag list's `+` is a space, and non-Latin slugs carry combining marks.
+	 */
+	private const VALUE_SLUG = '#^[\p{L}\p{M}\p{N}_\-+,./% ]{1,200}$#u';
+	private const VALUE_FLAG = '#^(true|1)$#';
 	private const VALUE_VERSION = '#^[A-Za-z0-9._\-]{1,40}$#';
 	private const VALUE_TRACKING = '#^[\p{L}\p{N}_\-+.~|: ]{0,256}$#u';
 
@@ -24,27 +29,38 @@ class ClassifyRequest {
 	 * Parameters and query vars that only choose which content to show, with the values that fit that role.
 	 */
 	private const CONTENT_VALUES = [
-		'p'             => self::VALUE_ID,
-		'page_id'       => self::VALUE_ID,
-		'attachment_id' => self::VALUE_ID,
-		'paged'         => self::VALUE_ID,
-		'cpage'         => self::VALUE_ID,
-		'year'          => self::VALUE_ID,
-		'monthnum'      => self::VALUE_ID,
-		'day'           => self::VALUE_ID,
-		'm'             => self::VALUE_ID,
-		'replytocom'    => self::VALUE_ID,
-		'error'         => self::VALUE_ID,
-		'page'          => self::VALUE_PAGE,
-		'cat'           => self::VALUE_CATEGORY,
-		'name'          => self::VALUE_SLUG,
-		'pagename'      => self::VALUE_SLUG,
-		'category_name' => self::VALUE_SLUG,
-		'tag'           => self::VALUE_SLUG,
-		'author_name'   => self::VALUE_SLUG,
-		'attachment'    => self::VALUE_SLUG,
-		'post_type'     => self::VALUE_SLUG,
-		'feed'          => self::VALUE_SLUG,
+		'p'                  => self::VALUE_ID,
+		'page_id'            => self::VALUE_ID,
+		'attachment_id'      => self::VALUE_ID,
+		'paged'              => self::VALUE_ID,
+		'cpage'              => self::VALUE_ID,
+		'year'               => self::VALUE_ID,
+		'monthnum'           => self::VALUE_ID,
+		'day'                => self::VALUE_ID,
+		'hour'               => self::VALUE_ID,
+		'minute'             => self::VALUE_ID,
+		'second'             => self::VALUE_ID,
+		'm'                  => self::VALUE_ID,
+		'replytocom'         => self::VALUE_ID,
+		'error'              => self::VALUE_ID,
+		'page'               => self::VALUE_PAGE,
+		'cat'                => self::VALUE_CATEGORY,
+		'name'               => self::VALUE_SLUG,
+		'pagename'           => self::VALUE_SLUG,
+		'category_name'      => self::VALUE_SLUG,
+		'tag'                => self::VALUE_SLUG,
+		'author_name'        => self::VALUE_SLUG,
+		'attachment'         => self::VALUE_SLUG,
+		'post_type'          => self::VALUE_SLUG,
+		'term'               => self::VALUE_SLUG,
+		'feed'               => self::VALUE_SLUG,
+		'withcomments'       => self::VALUE_FLAG,
+		'embed'              => self::VALUE_FLAG,
+		'sitemap'            => self::VALUE_SLUG,
+		'sitemap-subtype'    => self::VALUE_SLUG,
+		'sitemap-stylesheet' => self::VALUE_SLUG,
+		'robots'             => self::VALUE_FLAG,
+		'favicon'            => self::VALUE_FLAG,
 	];
 
 	/**
@@ -101,7 +117,7 @@ class ClassifyRequest {
 				break;
 
 			case $facts->type === RequestTypes::TYPE_AJAX:
-			case $this->pathEndsWith( $facts, '/wp-admin/admin-post.php' ):
+			case $this->isScriptNamed( $facts, 'admin-post.php' ):
 				$result = $facts->hasCredentials
 					? [ RequestSensitivity::CRITICAL, 'authenticated_admin' ]
 					: [ RequestSensitivity::GUARDED, 'anonymous_admin_code' ];
@@ -127,20 +143,20 @@ class ClassifyRequest {
 				$result = [ RequestSensitivity::GUARDED, 'script' ];
 				break;
 
-			case !$this->isContentQuery( $facts->query ):
+			case !$this->onlySelectsContent( $facts->query, $facts, self::PASSIVE_VALUES ):
 				$result = [ RequestSensitivity::GUARDED, 'query_input' ];
 				break;
 
-			case $facts->routeVars !== null && !$this->isContentRoute( $facts ):
+			case $facts->routeVars !== null && !$this->onlySelectsContent( $facts->routeVars, $facts, [] ):
 				$result = [ RequestSensitivity::GUARDED, 'route_input' ];
 				break;
 
-			case $facts->queriedObjectId > 0 && \in_array( $facts->queriedObjectId, $facts->wooPageIds, true ):
+			case $facts->queriedPostId > 0 && \in_array( $facts->queriedPostId, $facts->wooPageIds, true ):
 				$result = [ RequestSensitivity::GUARDED, 'woocommerce' ];
 				break;
 
 			default:
-				$result = [ RequestSensitivity::OPEN, 'content', $facts->routeVars === null ];
+				$result = [ RequestSensitivity::OPEN, 'content', !$facts->routingComplete ];
 				break;
 		}
 
@@ -186,36 +202,46 @@ class ClassifyRequest {
 	}
 
 	private function isLoginPage( RequestFacts $facts ) :bool {
-		return $this->pathEndsWith( $facts, '/wp-login.php' )
+		return $this->isScriptNamed( $facts, 'wp-login.php' )
 			   || \in_array( $this->normalisePath( $facts->path ), \array_map( [ $this, 'normalisePath' ], $facts->loginPaths ), true );
 	}
 
 	/**
-	 * A PHP file requested directly, such as wp-activate.php or a plugin's own script, rather than through WordPress.
+	 * A PHP file run directly, such as wp-activate.php or a plugin's own script, rather than through WordPress's
+	 * front controller. Judged on the script the server runs, so an encoded extension or a trailing path
+	 * (e.g. /wp-activate.ph%70 or /wp-activate.php/extra) is still recognised.
 	 */
 	private function isScript( RequestFacts $facts ) :bool {
-		$path = \strtolower( $facts->path );
-		return \str_ends_with( $path, '.php' ) && !\str_ends_with( $path, '/index.php' );
+		$script = $this->scriptFile( $facts );
+		return \str_ends_with( $script, '.php' ) && $script !== 'index.php';
 	}
 
-	private function isContentQuery( array $query ) :bool {
-		foreach ( $query as $param => $value ) {
-			$param = (string)$param;
-			$pattern = self::CONTENT_VALUES[ $param ]
-					   ?? self::PASSIVE_VALUES[ $param ]
-						  ?? ( \str_starts_with( $param, 'utm_' ) ? self::VALUE_TRACKING : null );
-			if ( $pattern === null || !$this->valueFits( $value, $pattern ) ) {
-				return false;
-			}
-		}
-		return true;
+	private function isScriptNamed( RequestFacts $facts, string $file ) :bool {
+		return $this->scriptFile( $facts ) === $file;
 	}
 
-	private function isContentRoute( RequestFacts $facts ) :bool {
-		foreach ( (array)$facts->routeVars as $var => $value ) {
+	private function scriptFile( RequestFacts $facts ) :string {
+		return \strtolower( \basename( $facts->scriptName !== '' ? $facts->scriptName : $facts->path ) );
+	}
+
+	/**
+	 * Every parameter or routed query var only chooses content, with a value that fits that role.
+	 * @param array<string, string> $passive parameters WordPress doesn't route on, with their values
+	 */
+	private function onlySelectsContent( array $vars, RequestFacts $facts, array $passive ) :bool {
+		foreach ( $vars as $var => $value ) {
 			$var = (string)$var;
-			$pattern = self::CONTENT_VALUES[ $var ] ?? ( \in_array( $var, $facts->contentVars, true ) ? self::VALUE_SLUG : null );
-			if ( $pattern === null || !$this->valueFits( $value, $pattern ) ) {
+			if ( $var === 'taxonomy' ) {
+				$fits = \is_string( $value ) && ( $value === '' || \in_array( $value, $facts->contentTaxonomies, true ) );
+			}
+			else {
+				$pattern = self::CONTENT_VALUES[ $var ]
+						   ?? $passive[ $var ]
+							  ?? ( !empty( $passive ) && \str_starts_with( $var, 'utm_' ) ? self::VALUE_TRACKING : null )
+								 ?? ( \in_array( $var, $facts->contentVars, true ) ? self::VALUE_SLUG : null );
+				$fits = $pattern !== null && $this->valueFits( $value, $pattern );
+			}
+			if ( !$fits ) {
 				return false;
 			}
 		}
@@ -228,10 +254,6 @@ class ClassifyRequest {
 	private function valueFits( $value, string $pattern ) :bool {
 		return \is_scalar( $value )
 			   && ( (string)$value === '' || ( \preg_match( $pattern, (string)$value ) === 1 && !\str_contains( (string)$value, '..' ) ) );
-	}
-
-	private function pathEndsWith( RequestFacts $facts, string $suffix ) :bool {
-		return \str_ends_with( \strtolower( $facts->path ), $suffix );
 	}
 
 	private function normalisePath( string $path ) :string {

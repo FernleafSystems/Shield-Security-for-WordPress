@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Request;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Request\Sensitivity\{
 	BuildRequestFacts,
+	ClassifyRequest,
 	RequestFacts,
 	RequestSensitivity,
 	ResolveRequestSensitivity
@@ -72,9 +73,35 @@ class RequestSensitivityTest extends ShieldIntegrationTestCase {
 		$sensitivity = ( new ResolveRequestSensitivity() )->resolve( $req );
 
 		$this->assertNotNull( $facts->routeVars );
-		$this->assertSame( $pageId, $facts->queriedObjectId );
+		$this->assertTrue( $facts->routingComplete );
+		$this->assertSame( $pageId, $facts->queriedPostId );
 		$this->assertSame( [ RequestSensitivity::OPEN, 'content' ], [ $sensitivity->level, $sensitivity->reason ] );
 		$this->assertFalse( $sensitivity->isProvisional );
+	}
+
+	public function test_an_archive_has_no_queried_post_and_gathering_its_facts_runs_no_queries() :void {
+		global $wpdb;
+		$termId = self::factory()->category->create();
+		$url = (string)\get_category_link( $termId );
+		$this->go_to( $url );
+
+		\parse_str( (string)\wp_parse_url( $url, \PHP_URL_QUERY ), $query );
+		$req = $this->applyCurrentRequestState( [ 'REQUEST_URI' => \str_replace( \home_url(), '', $url ) ], $query );
+		$queriesBefore = $wpdb->num_queries;
+		$facts = ( new BuildRequestFacts() )->build( $req );
+
+		$this->assertSame( $queriesBefore, $wpdb->num_queries );
+		$this->assertSame( 0, $facts->queriedPostId, 'A term ID is never taken for a page ID' );
+		$this->assertSame( RequestSensitivity::OPEN, ( new ClassifyRequest() )->classify( $facts )->level );
+	}
+
+	public function test_the_core_sitemap_routes_as_content() :void {
+		$this->go_to( \home_url( '/?sitemap=index' ) );
+
+		$req = $this->applyCurrentRequestState( [ 'REQUEST_URI' => '/?sitemap=index' ], [ 'sitemap' => 'index' ] );
+		$sensitivity = ( new ResolveRequestSensitivity() )->resolve( $req );
+
+		$this->assertSame( [ RequestSensitivity::OPEN, 'content' ], [ $sensitivity->level, $sensitivity->reason ] );
 	}
 
 	public function test_shields_renamed_login_page_is_treated_as_the_login_page() :void {

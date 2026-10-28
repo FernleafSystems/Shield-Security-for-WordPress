@@ -11,8 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Request\{
 
 /**
  * Gathers the facts about the current request that its sensitivity is judged on. Route facts are included
- * once WordPress has routed the request. Nothing here queries the database: WooCommerce page IDs and
- * Shield's options come from autoloaded options, and post types and taxonomies are registered in memory.
+ * as WordPress produces them: query vars from `parse_request`, the queried post from `wp`. Nothing here
+ * queries the database: WooCommerce page IDs and Shield's options come from autoloaded options, post types
+ * and taxonomies are registered in memory, and the queried post is already held by the main query.
  */
 class BuildRequestFacts {
 
@@ -24,23 +25,26 @@ class BuildRequestFacts {
 		$routeVars = $this->routeVars();
 
 		return new RequestFacts( [
-			'type'             => ( new RequestTypeResolver() )->resolve(),
-			'method'           => $request->getMethod(),
-			'path'             => (string)$req->path,
-			'restRoute'        => $req->getRestRoute() ?: (string)( $routeVars[ 'rest_route' ] ?? '' ),
-			'action'           => \is_string( $action ) ? $action : '',
-			'query'            => \is_array( $request->query ) ? $request->query : [],
-			'postParams'       => \array_map( 'strval', \array_keys( \is_array( $request->post ) ? $request->post : [] ) ),
-			'hasCredentials'   => $this->hasCredentials( $req ),
-			'isAdmin'          => (bool)$req->wp_is_admin,
-			'isShieldAction'   => $action === ActionData::FIELD_SHIELD
-								  && ActionData::isValidActionSlug( (string)$request->request( ActionData::FIELD_EXECUTE ) ),
-			'isServerLoopback' => (bool)$req->is_server_loopback,
-			'loginPaths'       => $this->loginPaths(),
-			'routeVars'        => $routeVars,
-			'contentVars'      => $routeVars === null ? [] : $this->contentVars(),
-			'queriedObjectId'  => \did_action( 'wp' ) ? (int)\get_queried_object_id() : 0,
-			'wooPageIds'       => $this->wooPageIds(),
+			'type'              => ( new RequestTypeResolver() )->resolve(),
+			'method'            => $request->getMethod(),
+			'path'              => (string)$req->path,
+			'scriptName'        => (string)$req->script_name,
+			'restRoute'         => $req->getRestRoute() ?: (string)( $routeVars[ 'rest_route' ] ?? '' ),
+			'action'            => \is_string( $action ) ? $action : '',
+			'query'             => \is_array( $request->query ) ? $request->query : [],
+			'postParams'        => \array_map( 'strval', \array_keys( \is_array( $request->post ) ? $request->post : [] ) ),
+			'hasCredentials'    => $this->hasCredentials( $req ),
+			'isAdmin'           => (bool)$req->wp_is_admin,
+			'isShieldAction'    => $action === ActionData::FIELD_SHIELD
+								   && ActionData::isValidActionSlug( (string)$request->request( ActionData::FIELD_EXECUTE ) ),
+			'isServerLoopback'  => (bool)$req->is_server_loopback,
+			'loginPaths'        => $this->loginPaths(),
+			'routeVars'         => $routeVars,
+			'contentVars'       => $routeVars === null ? [] : $this->contentVars(),
+			'contentTaxonomies' => $routeVars === null ? [] : \array_values( \get_taxonomies( [ 'public' => true ] ) ),
+			'routingComplete'   => (bool)\did_action( 'wp' ),
+			'queriedPostId'     => $this->queriedPostId(),
+			'wooPageIds'        => $this->wooPageIds(),
 		] );
 	}
 
@@ -75,6 +79,17 @@ class BuildRequestFacts {
 			}
 		}
 		return $vars;
+	}
+
+	/**
+	 * Only a single post or page: the main query already holds it, so there's no lookup, and an archive's term
+	 * or author ID can't be mistaken for a page's.
+	 */
+	private function queriedPostId() :int {
+		global $wp_query;
+		return \did_action( 'wp' ) && $wp_query instanceof \WP_Query && $wp_query->is_singular() && $wp_query->post instanceof \WP_Post
+			? (int)$wp_query->post->ID
+			: 0;
 	}
 
 	/**

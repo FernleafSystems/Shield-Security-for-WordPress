@@ -3,8 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Request\Sensitivity;
 
 /**
- * What a request is and what it carries, as needed to judge how much harm it could do. Route facts are only
- * known once WordPress has routed the request (the `wp` hook); before that, `routeVars` is null.
+ * What a request is and what it carries, as needed to judge how much harm it could do. Route facts arrive in
+ * two steps: the query vars once WordPress has parsed the request (`parse_request`), and the queried post once
+ * it has run its main query (`wp`). Before that, `routeVars` is null and `routingComplete` is false.
  */
 class RequestFacts {
 
@@ -19,6 +20,11 @@ class RequestFacts {
 	 * The request path, without the query string.
 	 */
 	public string $path = '/';
+
+	/**
+	 * The file name of the PHP script the server is running for this request, such as index.php.
+	 */
+	public string $scriptName = '';
 
 	/**
 	 * The REST route, if this is a REST request, however it was addressed.
@@ -70,9 +76,19 @@ class RequestFacts {
 	public array $contentVars = [];
 
 	/**
-	 * The ID of the post, page or term the request was routed to, once WordPress has run its main query.
+	 * @var string[] names of public taxonomies
 	 */
-	public int $queriedObjectId = 0;
+	public array $contentTaxonomies = [];
+
+	/**
+	 * WordPress has run its main query, so the queried post is known.
+	 */
+	public bool $routingComplete = false;
+
+	/**
+	 * The ID of the single post or page the request was routed to, or 0 for anything else.
+	 */
+	public int $queriedPostId = 0;
 
 	/**
 	 * @var int[] IDs of WooCommerce's cart, checkout and account pages, when WooCommerce is active

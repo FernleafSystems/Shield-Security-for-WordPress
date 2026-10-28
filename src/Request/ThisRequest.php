@@ -107,27 +107,43 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 	}
 
 	/**
-	 * The path is URL-decoded first, as WordPress also matches its rewrite rules against the decoded path,
-	 * so an encoded REST path (e.g. /%77p-json/...) is still recognised.
+	 * Matches the path as WordPress matches its rewrite rules: the raw path first, keeping any encoded route
+	 * parameters, then the URL-decoded path, so an encoded prefix (e.g. /%77p-json/...) is still recognised.
+	 * Both the REST prefix and its index.php/ form (e.g. /index.php/wp-json/...) are routed to REST.
 	 * @see \WP_REST_Request::from_url()
 	 * @see \WP::parse_request()
+	 * @see \rest_api_register_rewrites()
 	 */
 	public function getRestRoute() :string {
 		$route = $this->request->request( 'rest_route', false, '' );
 		if ( empty( $route ) && $this->wp_is_permalinks_enabled ) {
-			$requestPath = \trim( \rawurldecode( (string)$this->request->getPath() ), '/' );
 			$restBaseUrl = isset( $this->rest_api_root ) ? (string)$this->rest_api_root : '';
 			if ( $restBaseUrl === '' ) {
 				$restBaseUrl = (string)\rest_url( '/' );
 			}
 			$restBasePath = \trim( (string)\wp_parse_url( $restBaseUrl, \PHP_URL_PATH ), '/' );
+			$rawPath = (string)$this->request->getPath();
 
-			if ( $requestPath !== '' && $restBasePath !== ''
-				 && ( $requestPath === $restBasePath || \str_starts_with( $requestPath, $restBasePath.'/' ) ) ) {
-				$route = \substr( $requestPath, \strlen( $restBasePath ) );
-			}
+			$route = $this->routeAfterRestBase( $rawPath, $restBasePath )
+					 ?? $this->routeAfterRestBase( \rawurldecode( $rawPath ), $restBasePath )
+						?? '';
 		}
 		return \is_string( $route ) ? \trim( $route, '/' ) : '';
+	}
+
+	private function routeAfterRestBase( string $path, string $restBasePath ) :?string {
+		$route = null;
+		$path = \trim( $path, '/' );
+		if ( $path !== '' && $restBasePath !== '' ) {
+			$indexedBasePath = \preg_replace( '#(^|/)([^/]+)$#', '$1index.php/$2', $restBasePath );
+			foreach ( [ $restBasePath, $indexedBasePath ] as $basePath ) {
+				if ( $path === $basePath || \str_starts_with( $path, $basePath.'/' ) ) {
+					$route = \substr( $path, \strlen( $basePath ) );
+					break;
+				}
+			}
+		}
+		return $route;
 	}
 
 	public function getHostname() :string {
