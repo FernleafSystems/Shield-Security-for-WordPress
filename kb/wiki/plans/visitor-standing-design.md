@@ -170,9 +170,13 @@ Option labels and help text are rewritten to describe the new behaviour. There i
 
 ## 9. Storage
 
-- Standing lives on the existing per-IP auto-block record, extended with the faded score, when the score was last updated, and the hold time. No new table. The lookup is the IP rules lookup Shield already does on every request.
-- Standing is worked out when evidence arrives, not when it is read. The record stores the standing plus the time it next drops, so reading needs no calculation and fading needs no cron job.
-- Evidence is written once per request, at shutdown, folded into the offence write that already happens. The update is a single statement that adds to the stored score directly, so parallel requests from one IP do not lose evidence.
+- Standing lives on the existing per-IP auto-block record (`ip_rules`, type `AB`). No new table. The lookup is the IP rules lookup Shield already does on every request.
+- Columns added to `ip_rules`: `evidence_normal` and `evidence_strong` (hundredths of an offence, since the schema has no decimal type), `evidence_at` (when evidence was last added, the base for fading), `hostile_until` (the Hostile hold) and `meta`, which holds the weak evidence per signal under `evidence_weak`.
+- Standing is worked out from those columns when it is read. That is arithmetic on a record already loaded, so it needs no extra query and fading needs no cron job.
+- Evidence is written once per request, at shutdown, in the same offence processing that already writes the record. Normal and strong evidence are faded and added in a single `UPDATE`, so parallel requests from one IP do not lose them. Weak evidence is read, capped and written back in the same statement. A lost weak update hardly matters, because each weak signal is capped.
+- The Hostile hold is set in the same statement when the new total reaches the Offence Limit.
+- On upgrade, existing auto-block records seed their evidence: offences become normal evidence as of their last access, and blocked IPs are held as Hostile until their block would have expired.
+- Until Phase 5, the auto-block record keeps today's lifetime: it is deleted once the IP has been idle for the Auto Block Expiration, so standing only reflects evidence within that time. Phase 5 makes the record outlive its evidence, when the old block path that depends on today's lifetime goes.
 - Weak evidence updates from one IP are capped at one every few seconds, to bound writes during a flood.
 
 ## 10. Performance
@@ -233,10 +237,10 @@ Each phase is independently completable and verifiable.
 
 0. Clear the ground. On `feature/request-policy-engine`, keep the request-type resolver (with its classification tests) and the per-rule condition-meta snapshot. Remove the rest of the old request policy engine: its components, table, options, events, rule gate and `BaseAction` hook, and their tests. Shield's behaviour then matches the current release again.
 1. Evidence spec. Add `evidence_strength` to every offence event and `firewall_evidence_strengths` for the firewall categories, with a completeness test. No behaviour change. The XML-RPC bot-tracking event (`bottrack_xmlrpc`) is weighted weak until Phase 5 removes it.
-2. Standing, view only. Store and work out standing on the auto-block record, seed it from existing records, and show it in IP analysis. Add the development-only shadow constant. Enforcement unchanged.
+2. Standing, view only. Done in three slices: (a) weighted, fading evidence recorded on the auto-block record, alongside today's offence counts, and seeded from existing records; (b) standing worked out from that record plus CrowdSec, manual blocks, the bypass list, trusted services and high reputation; (c) standing shown in IP analysis. Enforcement unchanged. Only offences that today's settings count are recorded, so signals set to "log" start counting in Phase 5 when those settings go.
 3. Request sensitivity. Classifier, filter, core and WooCommerce classifications, scenario tests.
 4. Challenges. Interstitial page, proof-of-humanity check for non-page requests, deferred decision for REST requests carrying credentials, exemptions for Shield's own endpoints, throttle.
-5. Decision gate. One gate per request applying the table in section 7. It replaces the Shield and CrowdSec IP block rules and the offence-limit block. Remove the bot-tracking options, keeping only the link cheese switch. Remove the XML-RPC bot-tracking signal (`bottrack_xmlrpc` and its rule) and the unimplemented `track_useragent` option. Migrate settings, rewrite option labels and help text. Add the activity log events.
+5. Decision gate. One gate per request applying the table in section 7. Add the development-only shadow constant here, now that there are decisions to shadow. Make the auto-block record outlive its evidence, and track IPv6 per /64, since both change what the old block path enforces. It replaces the Shield and CrowdSec IP block rules and the offence-limit block. Remove the bot-tracking options, keeping only the link cheese switch. Remove the XML-RPC bot-tracking signal (`bottrack_xmlrpc` and its rule) and the unimplemented `track_useragent` option. Migrate settings, rewrite option labels and help text. Add the activity log events.
 6. Noise check. Per-visitor cancelling of weak evidence by proof of humanity, the per-site noise check for weak signals, and how both are shown to the admin.
 7. Validate and release, against section 13.
 
@@ -257,6 +261,8 @@ Each phase is independently completable and verifiable.
 | 10 | On multisite, standing is network-wide | Shield has no per-site settings |
 
 ## 16. Open questions
+
+0. A custom rule can block an IP outright (`TriggerIpBlock`). Today that blocks immediately. Under this design no signal makes a visitor Hostile on its own, but a rule the owner wrote is closer to a manual decision. Phase 5 must decide whether it means Hostile, or Blocked. Custom rules that add offences (`TriggerIpOffense`) count as normal evidence per offence.
 
 1. Should visitor self-unblock (`user_auto_recover`) be enabled by default with this release? It is off today, which means Hostile visitors on Open pages are blocked, not challenged.
 2. Integrations that log in with application passwords from cloud-hosting addresses that end up on the CrowdSec list are blocked, the same as a login attempt from a Hostile visitor. The bypass list is the fix. Is that enough, or should well-known management services be added to the trusted services?

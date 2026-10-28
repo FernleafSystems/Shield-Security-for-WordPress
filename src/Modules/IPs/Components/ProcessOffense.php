@@ -8,6 +8,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\{
 	AddRule,
 	IpRulesCache
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Standing\{
+	EvidenceLedger,
+	RecordEvidence
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class ProcessOffense {
@@ -18,10 +22,8 @@ class ProcessOffense {
 
 	protected function run() {
 		try {
-			$this->incrementOffenses(
-				self::con()->comps->offense_tracker->getOffenseCount(),
-				self::con()->comps->offense_tracker->isBlocked()
-			);
+			$tracker = self::con()->comps->offense_tracker;
+			$this->incrementOffenses( $tracker->getOffenseCount(), $tracker->getEvidence(), $tracker->isBlocked() );
 		}
 		catch ( \Exception $e ) {
 		}
@@ -30,7 +32,7 @@ class ProcessOffense {
 	/**
 	 * @throws \Exception
 	 */
-	public function incrementOffenses( int $incrementBy, bool $blockIP = false, bool $fireEvents = true ) :void {
+	public function incrementOffenses( int $incrementBy, EvidenceLedger $evidence, bool $blockIP = false, bool $fireEvents = true ) :void {
 		$con = self::con();
 		$limit = $con->comps->opts_lookup->getIpAutoBlockOffenseLimit();
 
@@ -62,6 +64,7 @@ class ProcessOffense {
 		/** @var IpRulesDB\Update $updater */
 		$updater = $con->db_con->ip_rules->getQueryUpdater();
 		$updater->updateTransgressions( $IP, $newCount );
+		( new RecordEvidence() )->toRecord( $IP, $evidence );
 
 		/**
 		 * When we block, we also want to increment offense stat, but we don't

@@ -630,6 +630,19 @@
                     "macro_type": "bool",
                     "default": 0,
                     "comment": "Can This IP Be Exported"
+                },
+                "evidence_normal": {
+                    "macro_type": "unsigned_int",
+                    "length": 10,
+                    "comment": "Normal Evidence (hundredths of an offense)"
+                },
+                "evidence_strong": {
+                    "macro_type": "unsigned_int",
+                    "length": 10,
+                    "comment": "Strong Evidence (hundredths of an offense)"
+                },
+                "meta": {
+                    "macro_type": "meta"
                 }
             },
             "cols_timestamps": {
@@ -650,6 +663,12 @@
                 },
                 "imported_at": {
                     "comment": "This IP rule was imported from a master site."
+                },
+                "evidence_at": {
+                    "comment": "Evidence Last Added"
+                },
+                "hostile_until": {
+                    "comment": "Held As Hostile Until"
                 }
             },
             "indices": [

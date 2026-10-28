@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\OffenseTracker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Standing\EvidenceWeights;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 /**
@@ -95,6 +96,26 @@ class OffenseTrackerTest extends BaseUnitTest {
 		$tracker->setIsBlocked( true );
 		$this->assertTrue( $tracker->hasVisitorOffended() );
 		$this->assertSame( 0, $tracker->getOffenseCount(), 'Blocked but no offense count' );
+	}
+
+	public function test_counted_offense_events_gather_weighted_evidence() {
+		$tracker = $this->makeTracker();
+
+		$ref = new \ReflectionMethod( $tracker, 'captureEvent' );
+		$ref->setAccessible( true );
+		$ref->invoke( $tracker, 'bottrack_loginfailed', [ 'offense_count' => 2 ], [ 'offense' => true, 'evidence_strength' => 'normal' ] );
+		$ref->invoke( $tracker, 'bottrack_404', [ 'suppress_offense' => true ], [ 'offense' => true, 'evidence_strength' => 'weak' ] );
+
+		$this->assertSame( 100, $tracker->getEvidence()->unitsFor( EvidenceWeights::NORMAL ), 'Evidence uses the event strength, not the offense count' );
+		$this->assertSame( [], $tracker->getEvidence()->weakSignals(), 'Suppressed offenses gather no evidence' );
+	}
+
+	public function test_custom_rule_offenses_count_and_gather_evidence() {
+		$tracker = $this->makeTracker();
+		$tracker->addCustomRuleOffenses( 2 );
+
+		$this->assertSame( 2, $tracker->getOffenseCount() );
+		$this->assertSame( 200, $tracker->getEvidence()->unitsFor( EvidenceWeights::NORMAL ) );
 	}
 
 	public function test_custom_offense_count_in_meta() {

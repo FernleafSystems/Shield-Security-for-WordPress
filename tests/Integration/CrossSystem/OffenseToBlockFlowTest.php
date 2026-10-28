@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\ProcessOffens
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\BlacklistHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\OffenseTracker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Standing\EvidenceLedger;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
@@ -70,7 +71,7 @@ class OffenseToBlockFlowTest extends ShieldIntegrationTestCase {
 
 		( new ProcessOffense() )
 			->setIP( $ip )
-			->incrementOffenses( 5 );
+			->incrementOffenses( 5, new EvidenceLedger() );
 
 		$this->resetIpCaches();
 		$status = new IpRuleStatus( $ip );
@@ -81,7 +82,7 @@ class OffenseToBlockFlowTest extends ShieldIntegrationTestCase {
 
 		( new ProcessOffense() )
 			->setIP( $ip )
-			->incrementOffenses( 1 );
+			->incrementOffenses( 1, new EvidenceLedger() );
 
 		$this->resetIpCaches();
 		$status = new IpRuleStatus( $ip );
@@ -132,7 +133,7 @@ class OffenseToBlockFlowTest extends ShieldIntegrationTestCase {
 		try {
 			( new ProcessOffense() )
 				->setIP( $ip )
-				->incrementOffenses( 6 );
+				->incrementOffenses( 6, new EvidenceLedger() );
 			$this->fail( 'Bypassed IPs must not be auto-blocked by offense processing.' );
 		}
 		catch ( \Exception $e ) {

@@ -4,7 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\OptionsCorrections;
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Handler as IpRulesHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Standing\EvidenceWeights;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalaiEarlyRecheck;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -51,6 +53,7 @@ class HandleUpgrade {
 		}
 		$this->runUpgradeSideEffect( 'MALai status column alignment', fn() => $this->alignMalaiStatusColumnWidth() );
 		$this->runUpgradeSideEffect( 'scan metadata column alignment', fn() => $this->alignScansMetaColumnWidth() );
+		$this->runUpgradeSideEffect( 'IP standing evidence seed', fn() => $this->seedIpStandingEvidence() );
 
 		Services::ServiceProviders()->clearProviders();
 		$con->plugin->deleteAllPluginCrons();
@@ -142,6 +145,30 @@ class HandleUpgrade {
 			$targetDefinition
 		) ) === false ) {
 			throw new \RuntimeException( 'Could not widen the scan metadata column.' );
+		}
+	}
+
+	/**
+	 * Auto-block records from before visitor standing carry their offenses over as normal evidence, and
+	 * blocked IPs are held as hostile for the rest of their block. Rows that already have evidence are left alone.
+	 */
+	private function seedIpStandingEvidence() :void {
+		$dbh = self::con()->db_con->ip_rules;
+		if ( !$dbh->isReady() ) {
+			throw new \RuntimeException( 'The IP rules table is not ready.' );
+		}
+		if ( Services::WpDb()->doSql( \sprintf(
+			"UPDATE `%s`
+			SET `evidence_normal` = `offenses`*%d,
+				`hostile_until` = IF( `blocked_at` > 0 AND `blocked_at` >= `unblocked_at`, `last_access_at` + %d, 0 ),
+				`evidence_at` = `last_access_at`
+			WHERE `type` = '%s' AND `evidence_at` = 0 AND `offenses` > 0;",
+			$dbh->getTable(),
+			EvidenceWeights::UNITS_PER_OFFENSE,
+			self::con()->comps->opts_lookup->getIpAutoBlockTTL(),
+			IpRulesHandler::T_AUTO_BLOCK
+		) ) === false ) {
+			throw new \RuntimeException( 'Could not seed IP standing evidence.' );
 		}
 	}
 

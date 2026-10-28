@@ -4,6 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\ProcessOffense;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Standing\{
+	EvidenceLedger,
+	EvidenceWeights
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class TrackCommentSpam {
@@ -25,9 +29,16 @@ class TrackCommentSpam {
 
 				try {
 					// self::con()->comps->events->fireEvent( 'comment_markspam' );
+					$evidence = new EvidenceLedger();
+					( new EvidenceWeights() )->addEvent(
+						$evidence,
+						'comment_markspam',
+						[],
+						(array)self::con()->comps->events->getEventDef( 'comment_markspam' )
+					);
 					( new ProcessOffense() )
 						->setIp( $comment->comment_author_IP )
-						->incrementOffenses( 1, false, false );
+						->incrementOffenses( 1, $evidence, false, false );
 				}
 				catch ( \Exception $e ) {
 				}
