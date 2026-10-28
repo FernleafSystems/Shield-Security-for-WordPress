@@ -30,13 +30,13 @@ class VisitorStanding {
 	public array $reasons;
 
 	/**
-	 * Faded offense evidence, in hundredths of an offense.
+	 * Faded offense evidence, in offenses.
 	 */
-	public int $evidence;
+	public float $evidence;
 
 	public int $hostileUntil;
 
-	public function __construct( string $level, array $reasons = [], int $evidence = 0, int $hostileUntil = 0 ) {
+	public function __construct( string $level, array $reasons = [], float $evidence = 0.0, int $hostileUntil = 0 ) {
 		$this->level = $level;
 		$this->reasons = $reasons;
 		$this->evidence = $evidence;

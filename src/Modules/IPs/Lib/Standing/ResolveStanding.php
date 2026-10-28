@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\TrustedServices
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 /**
@@ -19,31 +18,36 @@ class ResolveStanding {
 	use IpAddressConsumer;
 	use PluginControllerConsumer;
 
-	public function resolve() :VisitorStanding {
+	/**
+	 * The owner's decisions (bypass list, manual block) come before trust that Shield works out itself.
+	 */
+	public function resolve( int $now ) :VisitorStanding {
 		$status = new IpRuleStatus( $this->getIP() );
 
 		if ( $status->isBypass() ) {
 			$standing = new VisitorStanding( VisitorStanding::TRUSTED, [ VisitorStanding::REASON_BYPASS ] );
 		}
-		elseif ( $this->isTrustedService() ) {
-			$standing = new VisitorStanding( VisitorStanding::TRUSTED, [ VisitorStanding::REASON_TRUSTED_SERVICE ] );
-		}
 		elseif ( $status->hasManualBlock() ) {
 			$standing = new VisitorStanding( VisitorStanding::BLOCKED, [ VisitorStanding::REASON_MANUAL_BLOCK ] );
 		}
+		elseif ( $this->isTrustedService() ) {
+			$standing = new VisitorStanding( VisitorStanding::TRUSTED, [ VisitorStanding::REASON_TRUSTED_SERVICE ] );
+		}
 		else {
-			$standing = $this->fromEvidence( $status );
+			$standing = $this->fromEvidence( $status, $now );
 		}
 
 		return $standing;
 	}
 
-	private function fromEvidence( IpRuleStatus $status ) :VisitorStanding {
-		$now = Services::Request()->ts();
+	private function fromEvidence( IpRuleStatus $status, int $now ) :VisitorStanding {
+		$opts = self::con()->comps->opts_lookup;
 		$record = $status->getRuleForAutoBlock();
-		$evidence = empty( $record ) ? 0 : ( new StoredEvidence( $record ) )->total( $now );
-		$hostileUntil = empty( $record ) || $record->hostile_until <= $now ? 0 : $record->hostile_until;
-		$limit = \max( 0, self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit() );
+		$stored = empty( $record ) ? null : new StoredEvidence( $record );
+		$evidence = empty( $stored ) ? 0.0 : $stored->total( $now );
+		$hostileUntil = empty( $stored ) ? 0 : $stored->hostileUntil( $opts->getIpAutoBlockTTL() );
+		$hostileUntil = $hostileUntil > $now ? $hostileUntil : 0;
+		$limit = \max( 0, $opts->getIpAutoBlockOffenseLimit() );
 
 		$level = VisitorStanding::NORMAL;
 		$reasons = [];
@@ -53,11 +57,11 @@ class ResolveStanding {
 				$level = VisitorStanding::HOSTILE;
 				$reasons[] = VisitorStanding::REASON_HOSTILE_HOLD;
 			}
-			elseif ( $evidence >= $limit*EvidenceWeights::UNITS_PER_OFFENSE ) {
+			elseif ( $evidence >= $limit ) {
 				$level = VisitorStanding::HOSTILE;
 				$reasons[] = VisitorStanding::REASON_OFFENSES;
 			}
-			elseif ( $evidence >= (int)\ceil( $limit/3 )*EvidenceWeights::UNITS_PER_OFFENSE ) {
+			elseif ( $evidence >= \ceil( $limit/3 ) ) {
 				$level = VisitorStanding::DOUBTFUL;
 				$reasons[] = VisitorStanding::REASON_OFFENSES;
 			}
@@ -68,7 +72,7 @@ class ResolveStanding {
 			$reasons[] = VisitorStanding::REASON_HIGH_REPUTATION;
 		}
 
-		if ( self::con()->comps->opts_lookup->enabledCrowdSecAutoBlock() && $status->hasCrowdsecRule() ) {
+		if ( $opts->enabledCrowdSecAutoBlock() && $status->hasCrowdsecRule() ) {
 			if ( $status->hasCrowdsecBlock() ) {
 				$level = VisitorStanding::HOSTILE;
 				$reasons[] = VisitorStanding::REASON_CROWDSEC;
@@ -76,7 +80,7 @@ class ResolveStanding {
 			else {
 				// Passed the CrowdSec unblock: doubtful, and hostile again at half the offense limit.
 				$reasons[] = VisitorStanding::REASON_CROWDSEC_UNBLOCKED;
-				$level = ( $limit > 0 && $evidence*2 >= $limit*EvidenceWeights::UNITS_PER_OFFENSE )
+				$level = ( $limit > 0 && $evidence*2 >= $limit )
 					? VisitorStanding::HOSTILE
 					: ( $level === VisitorStanding::HOSTILE ? VisitorStanding::HOSTILE : VisitorStanding::DOUBTFUL );
 			}

@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Standing\{
 	RecordEvidence
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ProcessOffense {
 
@@ -61,10 +62,12 @@ class ProcessOffense {
 			);
 		}
 
+		// Evidence first, so a record from before visitor standing carries over only its earlier offenses.
+		( new RecordEvidence() )->toRecord( $IP, $evidence, Services::Request()->ts() );
+
 		/** @var IpRulesDB\Update $updater */
 		$updater = $con->db_con->ip_rules->getQueryUpdater();
 		$updater->updateTransgressions( $IP, $newCount );
-		( new RecordEvidence() )->toRecord( $IP, $evidence );
 
 		/**
 		 * When we block, we also want to increment offense stat, but we don't

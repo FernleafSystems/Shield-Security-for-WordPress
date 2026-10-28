@@ -17,8 +17,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops;
  * @property int    $expires_at
  * @property int    $imported_at
  * @property int    $updated_at
- * @property int    $evidence_normal
- * @property int    $evidence_strong
+ * @property float  $normal_evidence
+ * @property float  $strong_evidence
  * @property int    $evidence_at
  * @property int    $hostile_until
  * @property array  $meta
@@ -31,8 +31,11 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 		if ( \in_array( $key, [ 'label', 'type' ] ) ) {
 			$value = (string)$value;
 		}
-		elseif ( \in_array( $key, [ 'ip_ref', 'cidr', 'offenses', 'evidence_normal', 'evidence_strong', 'hostile_until' ] ) ) {
+		elseif ( \in_array( $key, [ 'ip_ref', 'cidr', 'offenses', 'hostile_until' ] ) ) {
 			$value = (int)$value;
+		}
+		elseif ( \in_array( $key, [ 'normal_evidence', 'strong_evidence' ] ) ) {
+			$value = (float)$value;
 		}
 		elseif ( \in_array( $key, [ 'is_range', 'can_export' ] ) ) {
 			$value = (bool)$value;

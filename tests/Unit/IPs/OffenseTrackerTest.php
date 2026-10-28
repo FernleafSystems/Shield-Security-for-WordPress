@@ -105,9 +105,11 @@ class OffenseTrackerTest extends BaseUnitTest {
 		$ref->setAccessible( true );
 		$ref->invoke( $tracker, 'bottrack_loginfailed', [ 'offense_count' => 2 ], [ 'offense' => true, 'evidence_strength' => 'normal' ] );
 		$ref->invoke( $tracker, 'bottrack_404', [ 'suppress_offense' => true ], [ 'offense' => true, 'evidence_strength' => 'weak' ] );
+		$ref->invoke( $tracker, 'bottrack_fakewebcrawler', [ 'offense_count' => 0 ], [ 'offense' => true, 'evidence_strength' => 'strong' ] );
 
-		$this->assertSame( 100, $tracker->getEvidence()->unitsFor( EvidenceWeights::NORMAL ), 'Evidence uses the event strength, not the offense count' );
+		$this->assertSame( 1.0, $tracker->getEvidence()->offensesFor( EvidenceWeights::NORMAL ), 'Evidence uses the event strength, not the offense count' );
 		$this->assertSame( [], $tracker->getEvidence()->weakSignals(), 'Suppressed offenses gather no evidence' );
+		$this->assertSame( 0.0, $tracker->getEvidence()->offensesFor( EvidenceWeights::STRONG ), 'Offenses counted as zero are only logged' );
 	}
 
 	public function test_custom_rule_offenses_count_and_gather_evidence() {
@@ -115,7 +117,7 @@ class OffenseTrackerTest extends BaseUnitTest {
 		$tracker->addCustomRuleOffenses( 2 );
 
 		$this->assertSame( 2, $tracker->getOffenseCount() );
-		$this->assertSame( 200, $tracker->getEvidence()->unitsFor( EvidenceWeights::NORMAL ) );
+		$this->assertSame( 2.0, $tracker->getEvidence()->offensesFor( EvidenceWeights::NORMAL ) );
 	}
 
 	public function test_custom_offense_count_in_meta() {

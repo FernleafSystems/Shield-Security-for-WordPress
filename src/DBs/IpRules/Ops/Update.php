@@ -50,39 +50,54 @@ class Update extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Updat
 	}
 
 	/**
-	 * Fades the stored normal and strong evidence and adds to it in one statement, so evidence from
-	 * parallel requests isn't lost. MySQL applies the assignments in order, so the hold check sees the
-	 * new totals and `evidence_at` must be set last.
-	 * @param array<string, int> $weakSignals faded and capped weak units per signal, as of now
-	 * @param int                $hostileAtUnits 0 when offense-based hostility is off
+	 * Fades the stored normal and strong evidence and adds to it in one statement, so evidence from parallel
+	 * requests isn't lost. A record from before visitor standing carries its offenses over as normal evidence
+	 * on its first write (see StoredEvidence). MySQL and MariaDB apply the assignments in order, so the hold
+	 * sees the new totals, and `evidence_at` must be set last. Elapsed time is clamped at zero, and
+	 * `evidence_at` never moves back, so a slower request writing after a newer one adds its evidence unfaded.
+	 * @param array<string, float> $weakSignals faded and capped weak offenses per signal, as of $now
+	 * @param float                $hostileAt   0 when offense-based hostility is off
 	 */
-	public function addEvidence( Record $record, int $normal, int $strong, array $weakSignals, int $hostileAtUnits, int $holdUntil ) :bool {
+	public function addEvidence( Record $record, float $normal, float $strong, array $weakSignals, float $hostileAt, int $holdSeconds, int $now ) :bool {
 		global $wpdb;
-		$now = Services::Request()->ts();
 		$table = $this->getDbH()->getTable();
 
 		$meta = $record->meta;
 		$meta[ StoredEvidence::META_WEAK ] = $weakSignals;
 
+		$sinceEvidence = \sprintf( '( GREATEST( %d, `evidence_at` ) - `evidence_at` )', $now );
+		$sinceAccess = \sprintf( '( GREATEST( %d, `last_access_at` ) - `last_access_at` )', $now );
+		// Approximate-value literals, so MySQL divides in floating point rather than rounding to 4 decimal places.
+		$halfLifeNormal = \sprintf( '%dE0', EvidenceWeights::HALF_LIFE[ EvidenceWeights::NORMAL ] );
+		$halfLifeStrong = \sprintf( '%dE0', EvidenceWeights::HALF_LIFE[ EvidenceWeights::STRONG ] );
+
 		$updated = $wpdb->query( $wpdb->prepare(
 			"UPDATE `{$table}`
-			SET `evidence_normal` = FLOOR( `evidence_normal`*POW( 0.5, GREATEST( 0, %d - `evidence_at` )/%d ) ) + %d,
-				`evidence_strong` = FLOOR( `evidence_strong`*POW( 0.5, GREATEST( 0, %d - `evidence_at` )/%d ) ) + %d,
-				`hostile_until` = IF( %d > 0 AND `evidence_normal` + `evidence_strong` + %d >= %d, GREATEST( `hostile_until`, %d ), `hostile_until` ),
+			SET `normal_evidence` = IF( `evidence_at` = 0,
+					`offenses`*POW( 0.5, {$sinceAccess}/{$halfLifeNormal} ),
+					`normal_evidence`*POW( 0.5, {$sinceEvidence}/{$halfLifeNormal} )
+				) + %f,
+				`strong_evidence` = IF( `evidence_at` = 0, 0, `strong_evidence`*POW( 0.5, {$sinceEvidence}/{$halfLifeStrong} ) ) + %f,
+				`hostile_until` = IF(
+					%f > 0 AND (
+						`normal_evidence` + `strong_evidence` + %f >= %f
+						OR IF( `evidence_at` = 0 AND `blocked_at` > 0 AND `blocked_at` >= `unblocked_at`, `last_access_at` + %d, `hostile_until` ) > %d
+					),
+					GREATEST( `hostile_until`, %d ),
+					`hostile_until`
+				),
 				`meta` = %s,
-				`evidence_at` = %d,
+				`evidence_at` = GREATEST( `evidence_at`, %d ),
 				`updated_at` = %d
 			WHERE `id` = %d",
-			$now,
-			EvidenceWeights::HALF_LIFE[ EvidenceWeights::NORMAL ],
 			$normal,
-			$now,
-			EvidenceWeights::HALF_LIFE[ EvidenceWeights::STRONG ],
 			$strong,
-			$hostileAtUnits,
-			(int)\array_sum( $weakSignals ),
-			$hostileAtUnits,
-			$holdUntil,
+			$hostileAt,
+			(float)\array_sum( $weakSignals ),
+			$hostileAt,
+			$holdSeconds,
+			$now,
+			$now + $holdSeconds,
 			(string)$record->arrayDataWrap( $meta ),
 			$now,
 			$now,

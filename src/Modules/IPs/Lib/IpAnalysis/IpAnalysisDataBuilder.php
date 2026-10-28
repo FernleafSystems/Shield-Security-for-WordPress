@@ -8,10 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Si
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Standing\{
-	EvidenceWeights,
-	ResolveStanding
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Standing\ResolveStanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPInfo;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
@@ -82,11 +79,11 @@ class IpAnalysisDataBuilder {
 	 * @return array{level:string,reasons:list<string>,evidence:float,offense_limit:int,hostile_until:int}
 	 */
 	protected function buildStanding( string $ip ) :array {
-		$standing = ( new ResolveStanding() )->setIP( $ip )->resolve();
+		$standing = ( new ResolveStanding() )->setIP( $ip )->resolve( Services::Request()->ts() );
 		return [
 			'level'         => $standing->level,
 			'reasons'       => $standing->reasons,
-			'evidence'      => $standing->evidence/EvidenceWeights::UNITS_PER_OFFENSE,
+			'evidence'      => $standing->evidence,
 			'offense_limit' => \max( 0, self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit() ),
 			'hostile_until' => $standing->hostileUntil,
 		];

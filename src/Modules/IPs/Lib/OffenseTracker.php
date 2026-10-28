@@ -18,11 +18,15 @@ class OffenseTracker extends EventsListener {
 
 	protected function captureEvent( string $evt, array $meta = [], array $def = [] ) {
 		if ( !empty( $def[ 'offense' ] ) && empty( $meta[ 'suppress_offense' ] ) ) {
-			$this->incrementCount( (int)( $meta[ 'offense_count' ] ?? 1 ) );
+			$count = (int)( $meta[ 'offense_count' ] ?? 1 );
+			$this->incrementCount( $count );
 			if ( !empty( $meta[ 'block' ] ) ) {
 				$this->setIsBlocked( true );
 			}
-			( new EvidenceWeights() )->addEvent( $this->getEvidence(), $evt, $meta, $def );
+			// An offense counted as zero is only being logged, so it isn't evidence either.
+			if ( $count > 0 ) {
+				( new EvidenceWeights() )->addEvent( $this->getEvidence(), $evt, $meta, $def );
+			}
 		}
 	}
 

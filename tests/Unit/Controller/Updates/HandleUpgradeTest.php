@@ -165,10 +165,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			( new HandleUpgrade() )->execute();
 			$this->runCapturedUpgradeCallback( $actions );
 
-			$this->assertCount( 1, $this->columnAlterations() );
+			$this->assertCount( 1, HandleUpgradeDbSpy::$writes );
 			$this->assertStringContainsString(
 				'ALTER TABLE `shield_malware` MODIFY COLUMN `malai_status` varchar(24)',
-				$this->columnAlterations()[ 0 ]
+				HandleUpgradeDbSpy::$writes[ 0 ]
 			);
 		}
 
@@ -180,7 +180,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			( new HandleUpgrade() )->execute();
 			$this->runCapturedUpgradeCallback( $actions );
 
-			$this->assertSame( [], $this->columnAlterations() );
+			$this->assertSame( [], HandleUpgradeDbSpy::$writes );
 		}
 
 		public function test_scheduled_upgrade_widens_text_scan_metadata_column() :void {
@@ -192,10 +192,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			( new HandleUpgrade() )->execute();
 			$this->runCapturedUpgradeCallback( $actions );
 
-			$this->assertCount( 1, $this->columnAlterations() );
+			$this->assertCount( 1, HandleUpgradeDbSpy::$writes );
 			$this->assertStringContainsString(
 				'ALTER TABLE `shield_scans` MODIFY COLUMN `meta` mediumtext',
-				$this->columnAlterations()[ 0 ]
+				HandleUpgradeDbSpy::$writes[ 0 ]
 			);
 		}
 
@@ -211,7 +211,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			( new HandleUpgrade() )->execute();
 			$this->runCapturedUpgradeCallback( $actions );
 
-			$this->assertSame( [], $this->columnAlterations() );
+			$this->assertSame( [], HandleUpgradeDbSpy::$writes );
 		}
 
 		public static function adequateScanMetadataColumnProvider() :array {
@@ -219,22 +219,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				'mediumtext' => [ 'mediumtext' ],
 				'longtext'   => [ 'longtext' ],
 			];
-		}
-
-		public function test_scheduled_upgrade_seeds_ip_standing_evidence() :void {
-			$actions = [];
-			$this->captureUpgradeAction( $actions );
-			$this->installController( '2.0.0' );
-
-			( new HandleUpgrade() )->execute();
-			$this->runCapturedUpgradeCallback( $actions );
-
-			$seeds = \array_filter(
-				HandleUpgradeDbSpy::$writes,
-				static fn( string $sql ) :bool => \str_starts_with( \trim( $sql ), 'UPDATE `shield_ip_rules`' )
-			);
-			$this->assertCount( 1, $seeds );
-			$this->assertSame( [], HandleUpgradeErrorLogSpy::$messages );
 		}
 
 		public function test_unexpected_scan_metadata_column_type_is_logged_and_worker_continues() :void {
@@ -246,7 +230,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			( new HandleUpgrade() )->execute();
 			$this->runCapturedUpgradeCallback( $actions );
 
-			$this->assertSame( [], $this->columnAlterations() );
+			$this->assertSame( [], HandleUpgradeDbSpy::$writes );
 			$this->assertCount( 1, $state->scans->startedScans );
 			$this->assertContains(
 				'Shield upgrade side effect failed: scan metadata column alignment: The scan metadata column has an unexpected type.',
@@ -503,11 +487,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 					'asset_coordinator' => $assetCoordinator,
 					'scans'             => $scans,
 					'import_export'     => new ImportExportController(),
-					'opts_lookup'       => new class {
-						public function getIpAutoBlockTTL() :int {
-							return \HOUR_IN_SECONDS;
-						}
-					},
 				],
 			] );
 
@@ -522,16 +501,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				'assetCoordinator'         => $assetCoordinator,
 				'scans'                    => $scans,
 			];
-		}
-
-		/**
-		 * @return string[] the column changes the upgrade wrote
-		 */
-		private function columnAlterations() :array {
-			return \array_values( \array_filter(
-				HandleUpgradeDbSpy::$writes,
-				static fn( string $sql ) :bool => \str_starts_with( \trim( $sql ), 'ALTER TABLE' )
-			) );
 		}
 
 		private function installLifecycleUpgradeController( ScanQueueLifecycleHarness $harness ) :object {
@@ -577,11 +546,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$controller->comps->asset_coordinator = $assetCoordinator;
 			$controller->comps->scans = $scanFacade;
 			$controller->comps->import_export = new ImportExportController();
-			$controller->db_con->ip_rules = new class {
-				public function isReady() :bool {
-					return false;
-				}
-			};
 			PluginControllerInstaller::install( $controller );
 
 			return (object)[
@@ -666,20 +630,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 
 		public object $scans;
 
-		public object $ip_rules;
-
 		public ?object $import_export_sites = null;
 
 		public function __construct() {
-			$this->ip_rules = new class {
-				public function isReady() :bool {
-					return true;
-				}
-
-				public function getTable() :string {
-					return 'shield_ip_rules';
-				}
-			};
 			$this->malware = new class {
 				public function getTableSchema() :object {
 					return new class {

@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Standing\{
+	EvidenceWeights,
+	StoredEvidence
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -59,9 +63,9 @@ class MergeAutoBlockRules {
 				->addWhereIn( 'id', $idsToDelete )
 				->query();
 
-			$updateData = [
+			$updateData = \array_merge( [
 				'offenses' => $toKeep->offenses + $extraOffenses,
-			];
+			], $this->mergeEvidence( $records, $toKeep ) );
 			if ( $updateData[ 'offenses' ] >= self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit()
 				 && $toKeep->blocked_at <= $toKeep->unblocked_at ) {
 				$updateData[ 'blocked_at' ] = Services::Request()->ts();
@@ -70,5 +74,38 @@ class MergeAutoBlockRules {
 			$dbh->getQueryUpdater()->updateRecord( $toKeep, $updateData );
 			$dbh->getQuerySelector()->byId( $toKeep->id );
 		}
+	}
+
+	/**
+	 * Every record's evidence faded to now and added together, keeping weak signal caps and the latest hold.
+	 * @param IpRuleRecord[] $records
+	 */
+	private function mergeEvidence( array $records, IpRuleRecord $toKeep ) :array {
+		$now = Services::Request()->ts();
+		$blockSeconds = self::con()->comps->opts_lookup->getIpAutoBlockTTL();
+
+		$normal = 0.0;
+		$strong = 0.0;
+		$weak = [];
+		$hostileUntil = 0;
+		foreach ( $records as $record ) {
+			$stored = new StoredEvidence( $record );
+			$normal += $stored->offensesFor( EvidenceWeights::NORMAL, $now );
+			$strong += $stored->offensesFor( EvidenceWeights::STRONG, $now );
+			foreach ( $stored->weakSignals( $now ) as $signal => $offenses ) {
+				$weak[ $signal ] = \min( EvidenceWeights::WEAK_SIGNAL_CAP, ( $weak[ $signal ] ?? 0.0 ) + $offenses );
+			}
+			$hostileUntil = \max( $hostileUntil, $stored->hostileUntil( $blockSeconds ) );
+		}
+
+		$meta = $toKeep->meta;
+		$meta[ StoredEvidence::META_WEAK ] = $weak;
+		return [
+			'normal_evidence' => $normal,
+			'strong_evidence' => $strong,
+			'evidence_at'     => $now,
+			'hostile_until'   => $hostileUntil,
+			'meta'            => (string)$toKeep->arrayDataWrap( $meta ),
+		];
 	}
 }

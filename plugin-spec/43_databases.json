@@ -631,15 +631,21 @@
                     "default": 0,
                     "comment": "Can This IP Be Exported"
                 },
-                "evidence_normal": {
-                    "macro_type": "unsigned_int",
-                    "length": 10,
-                    "comment": "Normal Evidence (hundredths of an offense)"
+                "normal_evidence": {
+                    "type": "double",
+                    "attr": [
+                        "NOT NULL"
+                    ],
+                    "default": 0,
+                    "comment": "Normal Evidence (offenses)"
                 },
-                "evidence_strong": {
-                    "macro_type": "unsigned_int",
-                    "length": 10,
-                    "comment": "Strong Evidence (hundredths of an offense)"
+                "strong_evidence": {
+                    "type": "double",
+                    "attr": [
+                        "NOT NULL"
+                    ],
+                    "default": 0,
+                    "comment": "Strong Evidence (offenses)"
                 },
                 "meta": {
                     "macro_type": "meta"
