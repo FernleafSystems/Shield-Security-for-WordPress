@@ -34,17 +34,17 @@ class FileScanning extends Base {
 			)
 		) ) ) ) {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( 'No primary WordPress file coverage is enabled.', 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( 'No primary WordPress file coverage is enabled.', 'wp-simple-firewall' ), 'file_scan_areas' );
 		}
 
 		foreach ( $this->scanControlDefinitions() as $areaKey => $definition ) {
 			if ( empty( $states[ 'scan_controls' ][ $areaKey ] ) ) {
-				$status[ 'exp' ][] = $definition[ 'disabled_message' ];
+				$status[ 'exp' ][] = $this->explanationFixedBy( $definition[ 'disabled_message' ], 'file_scan_areas' );
 			}
 		}
 		foreach ( $this->repairControlDefinitions() as $areaKey => $definition ) {
 			if ( empty( $states[ 'repair_controls' ][ $areaKey ] ) ) {
-				$status[ 'exp' ][] = $definition[ 'disabled_message' ];
+				$status[ 'exp' ][] = $this->explanationFixedBy( $definition[ 'disabled_message' ], 'file_repair_areas' );
 			}
 		}
 

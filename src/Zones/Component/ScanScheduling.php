@@ -32,7 +32,7 @@ class ScanScheduling extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
-			$status[ 'exp' ][] = __( 'Scans are only scheduled to run once per day.', 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Scans are only scheduled to run once per day.', 'wp-simple-firewall' ), 'scan_frequency' );
 		}
 
 		return $status;
@@ -47,7 +47,7 @@ class ScanScheduling extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( 'Scans are only scheduled to run once per day.', 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Scans are only scheduled to run once per day.', 'wp-simple-firewall' ), 'scan_frequency' );
 		}
 		return $status;
 	}

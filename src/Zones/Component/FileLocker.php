@@ -31,16 +31,16 @@ class FileLocker extends Base {
 
 		if ( empty( $toLock ) ) {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( 'FileLocker is not configured for any files.', 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( 'FileLocker is not configured for any files.', 'wp-simple-firewall' ), 'file_locker' );
 		}
 		if ( !\in_array( 'wpconfig', $toLock, true ) ) {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "wp-config.php isn't protected against tampering.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( "wp-config.php isn't protected against tampering.", 'wp-simple-firewall' ), 'file_locker' );
 		}
 
 		foreach ( $this->applicableFileLockDefinitions() as $fileKey => $definition ) {
 			if ( $fileKey !== 'wpconfig' && !\in_array( $fileKey, $toLock, true ) ) {
-				$status[ 'exp' ][] = $definition[ 'disabled_message' ];
+				$status[ 'exp' ][] = $this->explanationFixedBy( $definition[ 'disabled_message' ], 'file_locker' );
 			}
 		}
 

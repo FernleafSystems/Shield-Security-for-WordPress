@@ -126,11 +126,28 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		}
 
 		placeholder.replaceWith( form );
+		this.markIssueOptions( form, expansion );
 		this.setSaveButtonDisabled( expansion, false );
 		if ( expansion?.classList.contains( 'show' ) ) {
 			UiContentActivator.activateCurrentSubtree( expansion );
 			this.maybeFocusRequestedConfigItem( expansion );
 		}
+	}
+
+	/**
+	 * Marks the settings behind a component's warnings, so it's clear which ones need changing.
+	 */
+	markIssueOptions( form, expansion ) {
+		const issues = expansion?.querySelector( '[data-configure-issue-options]' );
+		if ( !( issues instanceof HTMLElement ) ) {
+			return;
+		}
+		const tone = issues.classList.contains( 'configure-expansion-issues--critical' ) ? 'critical' : 'warning';
+		// Option keys are plain identifiers; anything else is ignored rather than put in a selector.
+		String( issues.dataset.configureIssueOptions || '' ).split( ',' ).filter( ( key ) => /^[A-Za-z0-9_-]+$/.test( key ) ).forEach( ( key ) => {
+			form.querySelector( `.shield-option-item[data-option-key="${key}"]` )
+				?.classList.add( 'has-issue', `has-issue--${tone}` );
+		} );
 	}
 
 	preloadExpansionForms() {

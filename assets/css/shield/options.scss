@@ -473,26 +473,50 @@ $options-rail-width-max: 260px;
 }
 
 // ─── Chips (multi-selects with up to six choices) ───
+// An even grid: every chip the same width, with room kept for its tick so choosing one never
+// reflows the row.
 .shield-option-chipset {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  justify-content: flex-end;
-  max-width: 360px;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  width: 100%;
 }
 
 .shield-option-chip {
   align-items: center;
   background: #ffffff;
   border: 1px solid #c3c4c7;
-  border-radius: 999px;
+  border-radius: 6px;
+  color: #1d2327;
   cursor: pointer;
-  display: inline-flex;
-  font-size: 0.8rem;
-  gap: 0.3rem;
+  display: flex;
+  font-size: 12.5px;
+  font-weight: 500;
+  gap: 7px;
+  line-height: 1.25;
   margin: 0;
-  padding: 0.22rem 0.7rem;
+  min-height: 34px;
+  padding: 6px 10px;
   position: relative;
+}
+
+.shield-option-chip:hover {
+  border-color: #8c8f94;
+}
+
+.shield-option-chip__text::before {
+  align-items: center;
+  border: 1.5px solid #a7aaad;
+  border-radius: 4px;
+  content: "";
+  display: inline-flex;
+  flex: none;
+  font-size: 10px;
+  height: 14px;
+  justify-content: center;
+  margin-right: 7px;
+  vertical-align: -2px;
+  width: 14px;
 }
 
 .shield-option-chip__input {
@@ -510,8 +534,10 @@ $options-rail-width-max: 260px;
 }
 
 .shield-option-chip:has(.shield-option-chip__input:checked) .shield-option-chip__text::before {
+  background: #008000;
+  border-color: #008000;
+  color: #ffffff;
   content: "\2713";
-  margin-right: 0.3rem;
 }
 
 .shield-option-chip:has(.shield-option-chip__input:focus-visible) {

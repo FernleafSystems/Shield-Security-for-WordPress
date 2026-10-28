@@ -20,6 +20,24 @@
 					<span class="configure-expansion-heading__desc">{{ row.description }}</span>
 				{% endif %}
 			</div>
+			{# Why the component is flagged, in both layouts, with the settings that fix it marked once they load. #}
+			{% set issue_options = row.explanation_actions|default( [] )|map( a => a.attributes['data-option-key']|default('') )|filter( k => k is not empty ) %}
+			{% if row.status in [ 'warning', 'critical' ] and row.explanations is not empty %}
+				<ul class="configure-expansion-issues configure-expansion-issues--{{ row.status }}"
+					data-configure-issue-options="{{ issue_options|join(',') }}">
+					{% for explanation in row.explanations %}
+						{% set explanation_action = row.explanation_actions[ loop.index0 ]|default( null ) %}
+						<li>
+							<i class="bi {{ row.status == 'critical' ? 'bi-x-circle-fill' : 'bi-exclamation-triangle-fill' }}" aria-hidden="true"></i>
+							<span>{{ explanation }}</span>
+							{% if explanation_action is not null %}
+								<button type="button" class="configure-expansion-issues__show"
+										{% for attr_key, attr_value in explanation_action.attributes %}{{ attr_key }}="{{ attr_value|e('html_attr') }}" {% endfor %}>{{ explanation_action.label }}</button>
+							{% endif %}
+						</li>
+					{% endfor %}
+				</ul>
+			{% endif %}
 			<div data-configure-expand-ajax="1"
 				 {% for key, value in expand.data_attributes %}data-{{ key }}="{{ value|e('html_attr') }}"{% endfor %}></div>
 		{% endset %}
