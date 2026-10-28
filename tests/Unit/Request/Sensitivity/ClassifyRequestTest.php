@@ -108,6 +108,8 @@ class ClassifyRequestTest extends TestCase {
 			'routed unknown taxonomy'          => [ $routed + [ 'path' => '/', 'routeVars' => [ 'taxonomy' => 'secret', 'term' => 'x' ], 'contentTaxonomies' => [ 'genre' ] ], RequestSensitivity::GUARDED, 'route_input' ],
 			'core taxonomy query, unrouted'    => [ $http + [ 'path' => '/', 'query' => [ 'taxonomy' => 'category', 'term' => 'news' ], 'contentTaxonomies' => [ 'category', 'post_tag' ] ], RequestSensitivity::OPEN, 'content' ],
 			'plugin taxonomy query, unrouted'  => [ $http + [ 'path' => '/', 'query' => [ 'genre' => 'jazz' ], 'contentVars' => [ 'category_name', 'tag' ] ], RequestSensitivity::GUARDED, 'query_input' ],
+			'parsed rest index, credentials'   => [ $parsed + [ 'path' => '/blog/index.php/wp-json/', 'restRoute' => '/', 'routeVars' => [ 'rest_route' => '/' ], 'hasCredentials' => true ], RequestSensitivity::CRITICAL, 'authenticated_api' ],
+			'parsed rest index, anonymous'     => [ $parsed + [ 'path' => '/blog/index.php/wp-json/', 'restRoute' => '/', 'routeVars' => [ 'rest_route' => '/' ] ], RequestSensitivity::GUARDED, 'anonymous_api' ],
 			'parsed plugin endpoint'           => [ $parsed + [ 'path' => '/wc-api/paypal/', 'routeVars' => [ 'wc-api' => 'paypal' ] ], RequestSensitivity::GUARDED, 'route_input' ],
 			'parsed woocommerce page'          => [ $parsed + [ 'path' => '/cart/', 'routeVars' => [ 'pagename' => 'cart' ], 'wooPageIds' => [ 20 ] ], RequestSensitivity::OPEN, 'content' ],
 

@@ -29,6 +29,7 @@ class ThisRequestRestRouteTest extends BaseUnitTest {
 		Functions\when( 'add_action' )->justReturn( null );
 		Functions\when( 'rest_url' )->alias( static fn( string $path = '' ) :string => 'https://example.test/wp-json/'.\ltrim( $path, '/' ) );
 		Functions\when( 'wp_parse_url' )->alias( static fn( string $url, int $component = -1 ) => \parse_url( $url, $component ) );
+		Functions\when( 'rest_get_url_prefix' )->justReturn( 'wp-json' );
 
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->installServices();
@@ -202,7 +203,19 @@ class ThisRequestRestRouteTest extends BaseUnitTest {
 		$this->assertSame( '', $restRoute( '/index.php/index.php/wp-json/oembed/1.0/embed' ) );
 	}
 
+	public function test_front_controller_form_comes_from_the_rewrite_prefix_not_a_filtered_rest_root() :void {
+		$restRoute = fn( string $uri ) :string => ( new ThisRequest( [
+			'request'                  => $this->buildRequest( [ 'REQUEST_URI' => $uri ] ),
+			'wp_is_permalinks_enabled' => true,
+			'rest_api_root'            => 'https://example.test/api/wp-json/',
+		] ) )->getRestRoute();
+
+		$this->assertSame( '', $restRoute( '/index.php/api/wp-json/oembed/1.0/embed' ), 'WordPress does not route this to REST' );
+		$this->assertSame( 'wp/v2/posts', $restRoute( '/index.php/wp-json/wp/v2/posts' ) );
+	}
+
 	public function test_front_controller_form_comes_before_the_whole_custom_rest_prefix() :void {
+		Functions\when( 'rest_get_url_prefix' )->justReturn( 'custom/api' );
 		$thisReq = new ThisRequest( [
 			'request'                  => $this->buildRequest( [ 'REQUEST_URI' => '/index.php/custom/api/wp/v2/posts' ] ),
 			'wp_is_permalinks_enabled' => true,

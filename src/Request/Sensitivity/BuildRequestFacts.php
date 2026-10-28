@@ -31,7 +31,7 @@ class BuildRequestFacts {
 			'method'            => $request->getMethod(),
 			'path'              => (string)$req->path,
 			'scriptName'        => (string)$req->script_name,
-			'restRoute'         => $routeVars === null ? $req->getRestRoute() : \trim( (string)( $routeVars[ 'rest_route' ] ?? '' ), '/' ),
+			'restRoute'         => $routeVars === null ? $req->getRestRoute() : $this->parsedRestRoute( $routeVars ),
 			'action'            => \is_string( $action ) ? $action : '',
 			'query'             => \is_array( $request->query ) ? $request->query : [],
 			'postParams'        => \array_map( 'strval', \array_keys( \is_array( $request->post ) ? $request->post : [] ) ),
@@ -60,6 +60,15 @@ class BuildRequestFacts {
 						 || !empty( $request->server( 'REDIRECT_HTTP_AUTHORIZATION' ) )
 						 || !empty( $request->server( 'PHP_AUTH_USER' ) );
 		return $hasLoginCookie || $hasAuthHeader;
+	}
+
+	/**
+	 * Kept as WordPress parsed it: the REST index is `/`, which must not be trimmed to nothing, as it's still
+	 * REST even before core dispatches it and defines REST_REQUEST.
+	 */
+	private function parsedRestRoute( array $routeVars ) :string {
+		$route = $routeVars[ 'rest_route' ] ?? '';
+		return \is_string( $route ) ? $route : '';
 	}
 
 	/**

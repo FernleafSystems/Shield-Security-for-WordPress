@@ -110,8 +110,7 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 	/**
 	 * Matches the path as WordPress matches its rewrite rules: the raw path first, keeping any encoded route
 	 * parameters, then the URL-decoded path, so an encoded prefix (e.g. /%77p-json/...) is still recognised.
-	 * WordPress also routes the REST prefix behind its front controller (e.g. /index.php/wp-json/...), unless
-	 * the REST root already includes it, as it does with index.php permalinks.
+	 * WordPress also routes the REST prefix behind its front controller (e.g. /index.php/wp-json/...).
 	 * @see \WP_REST_Request::from_url()
 	 * @see \WP::parse_request()
 	 * @see \rest_api_register_rewrites()
@@ -134,21 +133,20 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 	}
 
 	/**
+	 * The REST root, and the two paths WordPress's own REST rewrites route: the home path followed by the
+	 * REST prefix, with and without the front controller. These come from the real rewrite prefix, not from
+	 * the REST root, which a filter may point somewhere WordPress doesn't route.
 	 * @return string[]
 	 */
 	private function restBasePaths( string $restBasePath ) :array {
-		$paths = [];
-		if ( $restBasePath !== '' ) {
-			$paths[] = $restBasePath;
-			if ( !\str_contains( '/'.$restBasePath.'/', '/index.php/' ) ) {
-				$homePath = \trim( (string)\wp_parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_PATH ), '/' );
-				$prefix = ( $homePath !== '' && \str_starts_with( $restBasePath, $homePath.'/' ) )
-					? \substr( $restBasePath, \strlen( $homePath ) + 1 )
-					: $restBasePath;
-				$paths[] = \ltrim( $homePath.'/index.php/'.$prefix, '/' );
-			}
+		$homePath = \trim( (string)\wp_parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_PATH ), '/' );
+		$prefix = \trim( (string)\rest_get_url_prefix(), '/' );
+		$paths = [ $restBasePath ];
+		if ( $prefix !== '' ) {
+			$paths[] = \ltrim( $homePath.'/'.$prefix, '/' );
+			$paths[] = \ltrim( $homePath.'/index.php/'.$prefix, '/' );
 		}
-		return $paths;
+		return \array_values( \array_unique( \array_filter( $paths ) ) );
 	}
 
 	/**
