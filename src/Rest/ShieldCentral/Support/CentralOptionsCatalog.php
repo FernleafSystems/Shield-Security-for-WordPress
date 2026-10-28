@@ -7,18 +7,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Ops\Read;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
- * The Shield options ShieldCentral reads and writes: the profile options, less the credentials, which Central never
- * sees, and less the options Shield's extension plugins add.
+ * The Shield options ShieldCentral reads and writes: the profile options, less the options Shield's extension plugins
+ * add. Its password options (the Security Admin PIN) are write-only: see CentralOptions.
  */
 class CentralOptionsCatalog {
 
 	use PluginControllerConsumer;
-
-	private const CREDENTIAL_KEYS = [
-		'admin_access_key',
-		'yubikey_app_id',
-		'yubikey_api_key',
-	];
 
 	private ?array $catalogue = null;
 
@@ -50,7 +44,7 @@ class CentralOptionsCatalog {
 			// Only Shield's own options, from plugin.json. The profile options also hold those extension plugins add
 			// (ExtensionsCon), which depend on the extensions a site has and their versions, so are left out.
 			foreach ( $spec[ 'options' ] as $option ) {
-				if ( isset( $profileable[ $option[ 'key' ] ] ) && !\in_array( $option[ 'key' ], self::CREDENTIAL_KEYS, true ) ) {
+				if ( isset( $profileable[ $option[ 'key' ] ] ) ) {
 					$section = $sections[ $option[ 'section' ] ];
 					$this->catalogue[] = [
 						'key'           => $option[ 'key' ],

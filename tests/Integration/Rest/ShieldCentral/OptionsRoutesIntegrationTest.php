@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rest\ShieldC
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Profiles\ProfileOptionsCatalog;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\NormaliseConfigComponents;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\VerifyPinRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\ShieldCentral\Support\{
 	CentralOptionsCatalog,
 	ConnectionStore
@@ -15,12 +16,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
  * ShieldCentral's options/get and options/set routes, called with JSON bodies as ShieldCentral sends them.
  */
 class OptionsRoutesIntegrationTest extends ShieldIntegrationTestCase {
-
-	private const CREDENTIAL_KEYS = [
-		'admin_access_key',
-		'yubikey_app_id',
-		'yubikey_api_key',
-	];
 
 	private string $siteUuid = '';
 
@@ -73,7 +68,9 @@ class OptionsRoutesIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( self::con()->cfg->version(), $response[ 'version' ] );
 		$keys = \array_column( $response[ 'catalogue' ], 'key' );
 		$this->assertSame( $keys, \array_keys( $response[ 'values' ] ) );
-		$this->assertSame( [], \array_intersect( self::CREDENTIAL_KEYS, $keys ) );
+		foreach ( [ 'admin_access_key', 'yubikey_app_id', 'yubikey_api_key' ] as $key ) {
+			$this->assertContains( $key, $keys );
+		}
 		$this->assertContains( 'xcsp_custom', $response[ 'unavailable_options' ] );
 		$this->assertNotContains( 'x_frame', $response[ 'unavailable_options' ] );
 
@@ -149,7 +146,6 @@ class OptionsRoutesIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_set_reports_applied_corrected_and_rejected_options() :void {
-		$credentials = RuntimeTestState::snapshotOptions( self::CREDENTIAL_KEYS );
 		$referrerPolicy = self::con()->opts->optGet( 'x_referrer_policy' );
 
 		$response = $this->dispatch( 'options/set', $this->auth( [
@@ -159,27 +155,82 @@ class OptionsRoutesIntegrationTest extends ShieldIntegrationTestCase {
 				'antibot_minimum'   => 150,
 				'x_referrer_policy' => 'not-a-policy',
 				'xcsp_custom'       => [ "default-src 'self'" ],
-				'admin_access_key'  => 'new-pin',
-				'yubikey_api_key'   => 'new-key',
+				'yubikey_app_id'    => '12345',
+				'yubikey_api_key'   => 'yubico-api-key',
 			],
 		] ) );
 
 		$this->assertTrue( $response[ 'success' ] );
-		$this->assertSame( [ 'status' => 'applied' ], $response[ 'results' ][ 'x_frame' ] );
+		foreach ( [ 'x_frame', 'yubikey_app_id', 'yubikey_api_key' ] as $applied ) {
+			$this->assertSame( [ 'status' => 'applied' ], $response[ 'results' ][ $applied ], $applied );
+		}
 		$this->assertSame( [ 'status' => 'corrected' ], $response[ 'results' ][ 'antibot_minimum' ] );
-		foreach ( [ 'x_referrer_policy', 'xcsp_custom', 'admin_access_key', 'yubikey_api_key' ] as $rejected ) {
+		foreach ( [ 'x_referrer_policy', 'xcsp_custom' ] as $rejected ) {
 			$this->assertSame( 'rejected', $response[ 'results' ][ $rejected ][ 'status' ], $rejected );
 			$this->assertNotEmpty( $response[ 'results' ][ $rejected ][ 'reason' ], $rejected );
 		}
 		$this->assertSame( 99, $response[ 'values' ][ 'antibot_minimum' ] );
-		$this->assertSame( [], \array_intersect( self::CREDENTIAL_KEYS, \array_keys( $response[ 'values' ] ) ) );
+		$this->assertSame( 'yubico-api-key', $response[ 'values' ][ 'yubikey_api_key' ] );
 
 		RuntimeTestState::resetOptionsRuntimeCache();
 		$opts = self::con()->opts;
 		$this->assertSame( 'on_deny', $opts->optGet( 'x_frame' ) );
 		$this->assertSame( 99, $opts->optGet( 'antibot_minimum' ) );
 		$this->assertSame( $referrerPolicy, $opts->optGet( 'x_referrer_policy' ) );
-		$this->assertSame( $credentials, RuntimeTestState::snapshotOptions( self::CREDENTIAL_KEYS ) );
+		$this->assertSame( '12345', $opts->optGet( 'yubikey_app_id' ) );
+	}
+
+	public function test_the_pin_is_set_from_a_bcrypt_hash_which_shield_then_checks_pins_against() :void {
+		$hash = \password_hash( 'a-shared-pin', \PASSWORD_BCRYPT );
+		$catalogueHash = ( new CentralOptionsCatalog() )->hash();
+		$this->assertFalse( $this->dispatch( 'options/get', $this->auth() )[ 'values' ][ 'admin_access_key' ] );
+
+		$set = $this->dispatch( 'options/set', $this->auth( [
+			'catalogue_hash' => $catalogueHash,
+			'options'        => [ 'admin_access_key' => $hash ],
+		] ) );
+		$get = $this->dispatch( 'options/get', $this->auth( [ 'known_catalogue_hash' => $catalogueHash ] ) );
+
+		$this->assertSame( [ 'admin_access_key' => [ 'status' => 'applied' ] ], $set[ 'results' ] );
+		foreach ( [ $set, $get ] as $response ) {
+			$this->assertTrue( $response[ 'values' ][ 'admin_access_key' ] );
+			$this->assertStringNotContainsString( \substr( $hash, 7 ), (string)\wp_json_encode( $response ) );
+		}
+
+		RuntimeTestState::resetOptionsRuntimeCache();
+		$this->assertSame( $hash, self::con()->opts->optGet( 'admin_access_key' ) );
+		$this->assertTrue( self::con()->comps->sec_admin->isEnabledSecAdmin() );
+		$this->assertFalse( ( new VerifyPinRequest() )->run( 'another-pin' ) );
+		$this->assertTrue( ( new VerifyPinRequest() )->run( 'a-shared-pin' ) );
+	}
+
+	public function test_the_pin_takes_only_a_bcrypt_hash_and_cant_be_emptied() :void {
+		$catalogueHash = ( new CentralOptionsCatalog() )->hash();
+		$hash = \password_hash( 'a-shared-pin', \PASSWORD_BCRYPT );
+		$this->dispatch( 'options/set', $this->auth( [
+			'catalogue_hash' => $catalogueHash,
+			'options'        => [ 'admin_access_key' => $hash ],
+		] ) );
+
+		foreach ( [
+			'empty'                 => '',
+			'the PIN itself'        => 'a-shared-pin',
+			'an md5 hash'           => \hash( 'md5', 'a-shared-pin' ),
+			'another bcrypt prefix' => \str_replace( '$2y$', '$2a$', $hash ),
+			'a cost crypt refuses'  => \substr_replace( $hash, '03', 4, 2 ),
+			'not text'              => [ $hash ],
+		] as $case => $value ) {
+			$response = $this->dispatch( 'options/set', $this->auth( [
+				'catalogue_hash' => $catalogueHash,
+				'options'        => [ 'admin_access_key' => $value ],
+			] ) );
+			$this->assertSame( 'rejected', $response[ 'results' ][ 'admin_access_key' ][ 'status' ], $case );
+			$this->assertNotEmpty( $response[ 'results' ][ 'admin_access_key' ][ 'reason' ], $case );
+			$this->assertTrue( $response[ 'values' ][ 'admin_access_key' ], $case );
+		}
+
+		RuntimeTestState::resetOptionsRuntimeCache();
+		$this->assertSame( $hash, self::con()->opts->optGet( 'admin_access_key' ) );
 	}
 
 	public function test_clearing_the_csp_rules_empties_the_list_and_turns_off_the_unsent_csp_option() :void {
