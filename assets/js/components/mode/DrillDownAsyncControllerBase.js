@@ -84,7 +84,10 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 		return '';
 	}
 
-	loadLayerContent( layerKey, renderAction, showPlaceholder, loadingText, onSuccess ) {
+	/**
+	 * A quiet load fills a layer the user isn't looking at yet, so it makes no announcements.
+	 */
+	loadLayerContent( layerKey, renderAction, showPlaceholder, loadingText, onSuccess, quiet = false ) {
 		if ( this.shellEl === null || ObjectOps.IsEmpty( renderAction ) ) {
 			return Promise.resolve( null );
 		}
@@ -101,7 +104,7 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 		if ( showPlaceholder ) {
 			this.replaceLayerBodyHtml( body, this.buildLoadingMarkup( loadingText ) );
 		}
-		this.setLayerBusy( layer, true, loadingText );
+		this.setLayerBusy( layer, true, quiet ? '' : loadingText );
 
 		return ( new AjaxService() )
 			.send( renderAction, false, true )
@@ -112,10 +115,12 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 
 				if ( !resp.success || typeof resp?.data?.html !== 'string' ) {
 					this.renderLayerFailure( body, layerKey );
-					this.announceLayerMessage( layer, this.getLayerFailureText( layerKey ), {
-						politeness: 'assertive',
-						allowRepeat: false,
-					} );
+					if ( !quiet ) {
+						this.announceLayerMessage( layer, this.getLayerFailureText( layerKey ), {
+							politeness: 'assertive',
+							allowRepeat: false,
+						} );
+					}
 					return null;
 				}
 
@@ -126,10 +131,12 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 			.catch( () => {
 				if ( this.layerRequests[ layerKey ] === requestKey ) {
 					this.renderLayerFailure( body, layerKey );
-					this.announceLayerMessage( layer, this.getLayerFailureText( layerKey ), {
-						politeness: 'assertive',
-						allowRepeat: false,
-					} );
+					if ( !quiet ) {
+						this.announceLayerMessage( layer, this.getLayerFailureText( layerKey ), {
+							politeness: 'assertive',
+							allowRepeat: false,
+						} );
+					}
 				}
 				return null;
 			} )

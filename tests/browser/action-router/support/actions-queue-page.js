@@ -15,19 +15,57 @@ class ActionsQueuePage {
 		).first();
 	}
 
+	/**
+	 * Group cards are listed in place on the landing, one section per queue area, and open their
+	 * results directly.
+	 */
 	async drillToDetail( fixture ) {
-		const bucket = await this.waitForBucket( fixture.bucket_key );
-		await this.clickElement( bucket );
-		await expect( this.page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
-
-		const group = await this.waitForGroupWithRetry( bucket, fixture.group_key );
-
-		if ( group === null ) {
-			throw new Error( `Unable to locate Actions Queue group "${fixture.group_key}" in the groups layer.` );
-		}
-
+		const group = await this.waitForLandingGroup( fixture.bucket_key, fixture.group_key );
 		await this.clickElement( group );
 		await expect( this.page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
+	}
+
+	/**
+	 * The lane page is reached only through the breadcrumb, after opening one of its groups.
+	 */
+	async openLane( bucketKey, viaGroupKey ) {
+		await this.drillToDetail( { bucket_key: bucketKey, group_key: viaGroupKey } );
+		await this.page.locator( '[data-step-tab-drill-index="1"]' ).click();
+		await expect( this.page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
+	}
+
+	landingSection( bucketKey ) {
+		return this.page.locator( `[data-actions-queue-sections="1"] [data-actions-queue-section-key="${bucketKey}"]` );
+	}
+
+	async findLandingGroup( bucketKey, groupKey ) {
+		return this.findDrillTargetBySelection(
+			this.landingSection( bucketKey ).locator( '[data-drill-target="detail"]' ),
+			'data-drill-group-selection',
+			groupKey
+		);
+	}
+
+	async waitForLandingGroup( bucketKey, groupKey, timeout = 20000 ) {
+		let group = null;
+
+		await expect.poll( async () => {
+			group = await this.findLandingGroup( bucketKey, groupKey );
+			return group === null ? '' : groupKey;
+		}, { timeout } ).toBe( groupKey );
+
+		return group;
+	}
+
+	/**
+	 * A landing group card; passing and not-covered cards sit in a disclosure that is opened first.
+	 */
+	async waitForLandingGroupOuter( groupKey, timeout = 20000 ) {
+		const group = this.page.locator( `[data-actions-queue-sections="1"] [data-actions-queue-group-key="${groupKey}"]` ).first();
+		await expect.poll( async () => await group.count(), { timeout } ).toBe( 1 );
+		await group.evaluate( ( element ) => element.closest( 'details' )?.setAttribute( 'open', '' ) );
+		await expect( group ).toBeVisible();
+		return group;
 	}
 
 	async openAssetPanel( panelTarget ) {
@@ -61,14 +99,6 @@ class ActionsQueuePage {
 		return group;
 	}
 
-	async findBucket( bucketKey ) {
-		return this.findDrillTargetBySelection(
-			this.page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]' ),
-			'data-drill-bucket-selection',
-			bucketKey
-		);
-	}
-
 	async waitForGroup( groupKey, timeout = 20000 ) {
 		let group = null;
 
@@ -78,34 +108,6 @@ class ActionsQueuePage {
 		}, { timeout } ).toBe( groupKey );
 
 		return group;
-	}
-
-	async waitForBucket( bucketKey, timeout = 20000 ) {
-		let bucket = null;
-
-		await expect.poll( async () => {
-			bucket = await this.findBucket( bucketKey );
-			return bucket === null ? '' : bucketKey;
-		}, { timeout } ).toBe( bucketKey );
-
-		return bucket;
-	}
-
-	async waitForGroupWithRetry( bucket, groupKey, timeout = 20000 ) {
-		for ( let attempt = 0; attempt < 2; attempt++ ) {
-			try {
-				return await this.waitForGroup( groupKey, timeout );
-			}
-			catch ( error ) {
-				if ( attempt > 0 ) {
-					break;
-				}
-				await this.clickElement( bucket );
-				await expect( this.page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
-			}
-		}
-
-		return await this.findGroup( groupKey );
 	}
 
 	async clickElement( locator ) {

@@ -59,6 +59,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 	}
 
 	async refreshAfterProtectionEnabled( launcher, isFile ) {
+		this.adoptLandingBucket( launcher );
 		await ( isFile
 			? this.refreshAfterNestedAction( true )
 			: this.loadGroupsLayer( { showPlaceholder: false, includeLandingRefresh: true } ) );
@@ -199,6 +200,8 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		const fromLanding = item.closest( '[data-actions-queue-sections="1"]' ) !== null;
 		if ( fromLanding ) {
 			drillCtrl.updateLayerHeader( shell, 1, this.selectedBucket.header, { announce: false } );
+			// Stepping back from the lane returns focus to this card on the landing.
+			drillCtrl.rememberLayerActivator( shell, 1, item );
 		}
 
 		drillCtrl.updateLayerHeader(
@@ -211,14 +214,33 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 		this.loadDetailLayer();
 		if ( fromLanding ) {
-			this.loadGroupsLayer( { showPlaceholder: false } );
+			this.loadGroupsLayer( { showPlaceholder: false, quiet: true } )
+				.then( () => this.rememberLaneGroupActivator( shell, group.key ) );
 		}
 	}
 
-	loadGroupsLayer( { showPlaceholder = true, includeSelectedGroup = false, includeLandingRefresh = false } = {} ) {
+	/**
+	 * Once the lane is filled in, stepping back from results focuses the same group in the lane.
+	 */
+	rememberLaneGroupActivator( shell, groupKey ) {
+		const drillCtrl = this.getDrillDownController();
+		if ( drillCtrl === null || this.selectedGroup?.key !== groupKey ) {
+			return;
+		}
+
+		const card = Array.from( shell.querySelectorAll( '[data-drill-layer-key="groups"] [data-drill-target="detail"]' ) )
+			.find( ( element ) => this.readGroupSelection( element ).key === groupKey );
+		if ( card instanceof HTMLElement ) {
+			drillCtrl.rememberLayerActivator( shell, 2, card );
+		}
+	}
+
+	loadGroupsLayer( { showPlaceholder = true, includeSelectedGroup = false, includeLandingRefresh = false, quiet = false } = {} ) {
 		if ( this.selectedBucket === null ) {
 			return Promise.resolve( null );
 		}
+		// While the landing is showing, the lane layer refreshes out of sight and says nothing.
+		quiet = quiet || ( this.shellEl !== null && getActiveLayerIndex( getLayersForShell( this.shellEl ) ) === 0 );
 
 		const extraData = {
 			bucket: this.selectedBucket.key,
@@ -235,7 +257,8 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			this.buildRenderAction( this.rootEl?.dataset.actionsQueueGroupsAction, extraData ),
 			showPlaceholder,
 			this.getGroupsLoadingText(),
-			( data ) => this.applyGroupsLayerResponse( data )
+			( data ) => this.applyGroupsLayerResponse( data ),
+			quiet
 		);
 	}
 
@@ -548,6 +571,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		evt.preventDefault();
 		this.rootEl = root;
 		this.shellEl = this.getShell( root );
+		this.adoptLandingBucket( target );
 		BootstrapTooltips.HideAndDisposeTooltip( target );
 
 		const actionData = this.parseJsonDataset( target.dataset.actionsQueueMaintenanceAction );
@@ -865,6 +889,30 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		return {
 			header: this.parseJsonDataset( layer?.dataset.drillLayerHeader || '{}' ),
 		};
+	}
+
+	/**
+	 * Actions taken on the landing (enabling a protection, ignoring a maintenance item) refresh
+	 * through the lane they belong to, so that lane becomes the selected one.
+	 */
+	adoptLandingBucket( element ) {
+		const section = element instanceof Element ? element.closest( '[data-actions-queue-section-key]' ) : null;
+		if ( !( section instanceof HTMLElement ) ) {
+			return false;
+		}
+		const bucket = this.readBucketSelectionPayload( this.parseJsonDataset( section.dataset.actionsQueueBucketSelection ) );
+		if ( bucket.key.length < 1 ) {
+			return false;
+		}
+		// The landing may not have been drilled into yet, so the shell isn't known.
+		const root = section.closest( '[data-actions-landing="1"]' );
+		if ( root instanceof HTMLElement && this.rootEl !== root ) {
+			this.rootEl = root;
+			this.shellEl = this.getShell( root );
+		}
+		this.selectedBucket = bucket;
+		this.selectedGroup = null;
+		return true;
 	}
 
 	readBucketSelection( item ) {

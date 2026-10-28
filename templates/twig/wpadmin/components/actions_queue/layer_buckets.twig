@@ -69,6 +69,7 @@
 		<section class="actions-queue-section status-{{ section.status }}"
 				 id="ActionsQueueSection-{{ section.key }}"
 				 data-actions-queue-section-key="{{ section.key }}"
+				 data-actions-queue-bucket-selection="{{ section.selection_json }}"
 				 data-tab-selected="{{ loop.first ? '1' : '0' }}"
 				 aria-labelledby="ActionsQueueSectionHead-{{ section.key }}">
 			<div class="actions-queue-section__header">
@@ -86,13 +87,6 @@
 				{% endif %}
 				<i class="bi bi-chevron-down actions-queue-section__chevron" aria-hidden="true"></i>
 			</button>
-			{# Optional: the lane on its own page, as before. Group cards below open their results directly. #}
-			{% if section.selection_json is not empty %}
-				<button type="button"
-						class="actions-queue-section__open"
-						data-drill-target="groups"
-						data-drill-bucket-selection="{{ section.selection_json }}">{{ strings.open_page|default('Open as page') }}</button>
-			{% endif %}
 			</div>
 
 			<div class="actions-queue-section__body"
@@ -111,6 +105,9 @@
 				{% else %}
 					{% set layer = bucket_groups[ section.key ]|default( {} ) %}
 					{% set quiet_count = 0 %}
+					{% for group_section in layer.healthy_sections|default( [] ) %}
+						{% set quiet_count = quiet_count + group_section.groups|length %}
+					{% endfor %}
 					<div class="actions-queue-groups{% if section.key == 'review' %} actions-queue-groups--review{% endif %}">
 						{% for group_section in layer.active_sections|default( [] ) %}
 							{% set needs_action = group_section.groups|filter( g => not ( g.status == 'good' or g.is_pro_upsell or g.enable_dialog_json is not empty ) ) %}
@@ -144,6 +141,15 @@
 												group: group,
 												bucket_selection: layer.bucket_selection,
 												is_healthy: group.status == 'good'
+											} only %}
+										{% endfor %}
+									{% endfor %}
+									{% for group_section in layer.healthy_sections|default( [] ) %}
+										{% for group in group_section.groups %}
+											{% include '/wpadmin/components/actions_queue/group_card.twig' with {
+												group: group,
+												bucket_selection: layer.bucket_selection,
+												is_healthy: true
 											} only %}
 										{% endfor %}
 									{% endfor %}

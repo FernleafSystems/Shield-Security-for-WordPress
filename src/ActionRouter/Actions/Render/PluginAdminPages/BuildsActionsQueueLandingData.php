@@ -150,7 +150,6 @@ trait BuildsActionsQueueLandingData {
 					'view_tabs'     => __( 'Tabs', 'wp-simple-firewall' ),
 					'looking_good'  => __( 'Looking good', 'wp-simple-firewall' ),
 					'nothing_here'  => __( 'Nothing to do here.', 'wp-simple-firewall' ),
-					'open_page'     => __( 'Open as page', 'wp-simple-firewall' ),
 					/* translators: %s: number of checks */
 					'quiet_label'   => __( 'Passing and not covered (%s)', 'wp-simple-firewall' ),
 				],
@@ -170,7 +169,7 @@ trait BuildsActionsQueueLandingData {
 			'summary'          => $statusOverview[ 'summary_text' ],
 			'focus'            => $statusOverview[ 'subtext' ],
 			'next_step'        => $this->hasDrilldownContent()
-				? __( 'Choose Fix now or Review next to see the issues that need your attention.', 'wp-simple-firewall' )
+				? __( 'Open a group below to see its results and act on them.', 'wp-simple-firewall' )
 				: __( 'Nothing requires your action right now.', 'wp-simple-firewall' ),
 			'icon_class'       => $summary[ 'icon_class' ],
 			'badge'            => $summary[ 'has_items' ]

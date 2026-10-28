@@ -2,6 +2,7 @@ const { openShieldRoute, test, expect } = require( './support/shield-test' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 const { expectNoAxeViolations } = require( './support/accessibility' );
 const { expectCardFocusRingWithinGrid } = require( './support/operator-landing-cards' );
+const { expectShieldAjaxSuccess, waitForShieldAjaxAction } = require( './support/security-assertions' );
 const {
 	expectFocusWithin,
 	expectModalHiddenWithoutAriaModal,
@@ -207,28 +208,20 @@ test( 'actions queue drills into groups and back out, opening details when avail
 			nav_sub: 'overview',
 		} );
 
-		const bucket = await actionsQueuePage.waitForBucket( fixture.bucket_key );
-		await expect( bucket ).toBeVisible();
-
+		await expect( actionsQueuePage.landingSection( fixture.bucket_key ) ).toBeVisible();
 		await expect( page.locator( '[data-actions-landing="1"] [data-healthy-disclosure-toggle="1"]' ) ).toHaveCount( 0 );
 		await expect( page.locator( '[data-actions-landing="1"] [data-healthy-disclosure-body="1"]' ) ).toHaveCount( 0 );
+		// No lane-page launcher: groups open straight from the landing.
+		await expect( page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]' ) ).toHaveCount( 0 );
 
-		await actionsQueuePage.clickElement( bucket );
-		await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
-		await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
-		const actionTabs = page.locator( '[data-operator-step-tab="1"]' );
 		const rail = page.locator( '[data-operator-context-rail="1"]' );
-		await expect( actionTabs ).toHaveCount( 3 );
-		await expect( actionTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
 		await expect( rail ).toBeHidden();
-
-		const group = await actionsQueuePage.waitForGroupWithRetry( bucket, fixture.group_key );
-		if ( group === null ) {
-			throw new Error( `Unable to locate Actions Queue group "${fixture.group_key}" in the groups layer.` );
-		}
+		const group = await actionsQueuePage.waitForLandingGroup( fixture.bucket_key, fixture.group_key );
 		await actionsQueuePage.clickElement( group );
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 		await expect( page.locator( '[data-drill-layer="1"]' ) ).toHaveClass( /drill-layer--compact/ );
+		const actionTabs = page.locator( '[data-operator-step-tab="1"]' );
+		await expect( actionTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
 		await expect( rail ).toBeVisible();
 		await waitForScanResultsTableRows( page.locator( '[data-scan-results-table="1"]' ).first() );
 
@@ -237,7 +230,7 @@ test( 'actions queue drills into groups and back out, opening details when avail
 		await expect( page.locator( '[data-drill-layer="2"]' ) ).toHaveClass( /drill-layer--hidden/ );
 
 		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
-		await expect( page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]' ).first() ).toBeVisible();
+		await expect( actionsQueuePage.landingSection( fixture.bucket_key ) ).toBeVisible();
 	} );
 } );
 
@@ -266,8 +259,11 @@ test( 'actions queue landing lists lanes in place and opens a group directly', a
 		await page.locator( '[data-actions-queue-view="tabs"]' ).click();
 		await expect( sections ).toHaveAttribute( 'data-view', 'tabs' );
 		await expect( page.locator( '[data-actions-queue-tab]' ).first() ).toHaveAttribute( 'aria-selected', 'true' );
+		// Wait for the saved preference so later tests start from the sections view.
+		const restoreView = waitForShieldAjaxAction( page, 'set_ui_preference' );
 		await page.locator( '[data-actions-queue-view="sections"]' ).click();
 		await expect( sections ).toHaveAttribute( 'data-view', 'sections' );
+		await expectShieldAjaxSuccess( await restoreView );
 	} );
 } );
 
@@ -284,9 +280,9 @@ test( 'actions queue keeps clear risks together with clickable vulnerability fin
 
 		try {
 			await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
-			const bucket = await actionsQueuePage.waitForBucket( fixture.bucket_key );
-			await actionsQueuePage.clickElement( bucket );
-			await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
+			// The lane page is reached through the breadcrumb after opening one of its groups.
+			await actionsQueuePage.openLane( fixture.bucket_key, 'vulnerabilities' );
+			const detailLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="detail"]' ).first();
 
 			const cloaked = await actionsQueuePage.waitForGroupOuter( fixture.group_key );
 			expect( await cloaked.evaluate( ( element ) => element.tagName ) ).toBe( 'DIV' );
@@ -296,7 +292,7 @@ test( 'actions queue keeps clear risks together with clickable vulnerability fin
 			await expect.poll( async () => await cloaked.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'default' );
 			await actionsQueuePage.clickElement( cloaked );
 			await delay( 250 );
-			await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toHaveCount( 0 );
+			await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 			expect( cloakedDetailRenderRequests ).toBe( 0 );
 
 			const abandoned = await actionsQueuePage.waitForGroupOuter( 'abandoned' );
@@ -322,9 +318,7 @@ test( 'actions queue keeps ignored Cloaked Plugins interactive with the Unignore
 	await fixtureApi.withActionsQueueFixture( 'ignored_cloaked_plugins', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
-		const bucket = await actionsQueuePage.waitForBucket( fixture.bucket_key );
-		await actionsQueuePage.clickElement( bucket );
-		const cloaked = await actionsQueuePage.waitForGroupOuter( fixture.group_key );
+		const cloaked = await actionsQueuePage.waitForLandingGroupOuter( fixture.group_key );
 		await expect( cloaked ).toHaveAttribute( 'data-drill-target', 'detail' );
 		await expect( cloaked ).toHaveAttribute( 'data-drill-group-selection', /"key":"hidden_plugins"/ );
 
@@ -339,7 +333,7 @@ test( 'actions queue keeps ignored Cloaked Plugins interactive with the Unignore
 	} );
 } );
 
-test( 'actions queue warning breadcrumb uses warning palette', async ( { page, fixtureApi } ) => {
+test( 'actions queue warning lane uses warning palette', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withDashboardDefaultsFixture( async () => {
 		await fixtureApi.prepareDashboardActionsAllClearFixture();
 		await fixtureApi.prepareDashboardMaintenanceWarningFixture();
@@ -349,18 +343,12 @@ test( 'actions queue warning breadcrumb uses warning palette', async ( { page, f
 			nav_sub: 'overview',
 		} );
 
-		const reviewBucket = await actionsQueuePage.waitForBucket( 'review' );
-		await actionsQueuePage.clickElement( reviewBucket );
-		await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
-
-		const activeBreadcrumb = page.locator( '[data-operator-step-tab="1"][aria-current="step"]' );
-		await expect( activeBreadcrumb ).toHaveAttribute( 'data-color-key', 'warning' );
+		const review = actionsQueuePage.landingSection( 'review' );
+		await expect( review ).toBeVisible();
+		await expect( review ).toHaveClass( /status-warning/ );
 		await expect.poll(
-			async () => activeBreadcrumb.evaluate( ( el ) => window.getComputedStyle( el ).backgroundColor )
+			async () => review.evaluate( ( el ) => window.getComputedStyle( el ).borderLeftColor )
 		).toBe( 'rgb(237, 180, 29)' );
-		await expect.poll(
-			async () => activeBreadcrumb.evaluate( ( el ) => window.getComputedStyle( el ).color )
-		).toBe( 'rgb(29, 35, 39)' );
 	} );
 } );
 

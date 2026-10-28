@@ -540,26 +540,6 @@
 	padding-right: 0.9rem;
 }
 
-.actions-queue-section__open {
-	background: none;
-	border: 0;
-	color: #0a58ca;
-	cursor: pointer;
-	flex-shrink: 0;
-	font-size: 0.78rem;
-	font-weight: 600;
-	padding: 0.2rem 0;
-	white-space: nowrap;
-
-	&:hover {
-		text-decoration: underline;
-	}
-
-	&:focus-visible {
-		@include shield-focus-ring();
-	}
-}
-
 .actions-queue-sections--tabs .actions-queue-section__header {
 	display: none;
 }
