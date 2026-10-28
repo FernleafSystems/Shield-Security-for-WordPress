@@ -131,6 +131,16 @@ Rules:
 - Plugins and site owners can classify their own routes and AJAX actions through a filter. Shield ships classifications for WordPress core and WooCommerce.
 - Classification runs only when the visitor's standing is Doubtful or Hostile. Normal and Trusted visitors are allowed everywhere, so their requests never need classifying (section 10).
 
+How the classifier decides (`src/Request/Sensitivity/`):
+
+- It works on facts gathered from the request: its type (from `RequestTypeResolver`), method, path, REST route, `action` parameter, the names of its query and POST parameters, whether it carries credentials, whether it's an admin or Shield action request, and the paths of WooCommerce's cart, checkout and account pages when WooCommerce is active. The rules are a pure function of those facts.
+- Credentials means a logged-in cookie or an `Authorization` header is present, not that it's valid. Presence only ever makes a request stricter (Critical instead of Guarded), so faking it gains a bot nothing. Checking validity isn't possible this early for application passwords on REST (section 7).
+- Front-end GET and HEAD requests are Open only if every query parameter is one that just chooses content or tracks a visit: `p`, `page_id`, `name`, `pagename`, `cat`, `category_name`, `tag`, `year`, `monthnum`, `day`, `m`, `paged`, `page`, `cpage`, `feed`, `attachment_id`, `replytocom`, `ver`, `gclid`, `fbclid`, `msclkid` and any `utm_*`. Search (`s`), author (`author`) and anything else make it Guarded.
+- `wp-login.php` is Guarded for viewing the login page and for registration and lost-password forms, and Critical for any other submission. AJAX and `admin-post.php` are Critical with credentials and Guarded without. Other admin requests are Critical. REST is Critical with credentials and Guarded without, except oEmbed reads, which are Open.
+- WooCommerce: cart, checkout and account pages, `wc-ajax` and `add-to-cart` requests are Guarded. A login through WooCommerce's account form is Critical.
+- WP-Cron and WP-CLI are not visitor requests and are Open.
+- The `shield/request_sensitivity` filter receives the level and the facts, and may return another level. Anything that isn't a known level is ignored.
+
 ## 7. Decisions and responses
 
 | Standing | Open | Guarded | Critical |
