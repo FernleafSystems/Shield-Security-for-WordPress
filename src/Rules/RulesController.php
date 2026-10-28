@@ -101,7 +101,6 @@ class RulesController {
 
 			if ( $rule->result ) {
 				$rule->condition_meta = $this->getConditionMeta()->getRawData();
-				do_action( 'shield/rules/rule_matched', $rule, $rule->condition_meta, $this->req );
 				( new Processors\ResponseProcessor( $rule ) )
 					->setThisRequest( $this->req )
 					->run();

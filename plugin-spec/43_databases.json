@@ -587,50 +587,6 @@
                 }
             }
         },
-        "ip_policy_state": {
-            "name": "IP Policy State",
-            "slug": "ip_policy_state",
-            "is_core": true,
-            "autoexpire": 0,
-            "has_updated_at": true,
-            "col_older_than": "updated_at",
-            "cols_custom": {
-                "ip_ref": {
-                    "macro_type": "foreign_key_id",
-                    "foreign_key": {
-                        "ref_table": "icwp_wpsf_ips"
-                    },
-                    "attr": [
-                        "UNSIGNED",
-                        "UNIQUE"
-                    ]
-                },
-                "risk_band": {
-                    "macro_type": "varchar",
-                    "length": 16,
-                    "comment": "Risk Band"
-                },
-                "last_evidence_at": {
-                    "macro_type": "timestamp",
-                    "comment": "Last Evidence"
-                },
-                "expires_at": {
-                    "macro_type": "timestamp",
-                    "comment": "Expires At"
-                },
-                "meta": {
-                    "macro_type": "meta"
-                }
-            },
-            "indices": [
-                {
-                    "key_name": "expires_at",
-                    "columns": [
-                        "expires_at"
-                    ]
-                }
-            ]
-        },
         "ip_rules": {
             "name": "IP Rules",
             "slug": "ip_rules",

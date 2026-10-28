@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\RequestPolicy\PolicyEvidence;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Enum,
@@ -52,18 +51,10 @@ class Firewall extends BuildRuleCoreShieldBase {
 
 	protected function getResponses() :array {
 		return [
+			self::eventResponseDefinition( $this->getCommonAuditParamsMapping() ),
 			[
-				'response' => Responses\RequestPolicyGate::class,
-				'params'   => [
-					'detector'         => PolicyEvidence::DETECTOR_FIREWALL,
-					'legacy_responses' => [
-						self::eventResponseDefinition( $this->getCommonAuditParamsMapping() ),
-						[
-							'response' => Responses\FirewallBlock::class,
-							'params'   => [],
-						],
-					],
-				],
+				'response' => Responses\FirewallBlock::class,
+				'params'   => [],
 			],
 		];
 	}

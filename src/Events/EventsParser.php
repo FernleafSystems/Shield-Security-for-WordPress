@@ -13,7 +13,6 @@ class EventsParser {
 			'ip_offense',
 			'ip_blocked',
 			'conn_kill',
-			'request_policy_block',
 		] );
 	}
 

@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\{
 	Zones
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\OptsLookup;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\RequestPolicy\RequestPolicyCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\TranslationDownloadController;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsService;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\LoginSuccessRecorder;
@@ -75,7 +74,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property OffenseTracker                         $offense_tracker
  * @property CompCons\OptsLookup                    $opts_lookup
  * @property ReportingController                    $reports
- * @property RequestPolicyCon                       $request_policy
  * @property RenderService                          $render
  * @property RequestLogger                          $requests_log
  * @property CompCons\RestHandler                   $rest
@@ -146,7 +144,6 @@ class ComponentLoader extends DynPropertiesClass {
 			'opts_lookup'           => OptsLookup::class,
 			'render'                => RenderService::class,
 			'reports'               => ReportingController::class,
-			'request_policy'        => RequestPolicyCon::class,
 			'requests_log'          => RequestLogger::class,
 			'rest'                  => CompCons\RestHandler::class,
 			'sec_admin'             => SecurityAdminController::class,

@@ -20,7 +20,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ImportExportProfiles,
 	ImportExportSites,
 	IpMeta,
-	IpPolicyState,
 	IpRules,
 	IPs,
 	Malware,
@@ -51,7 +50,6 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property ImportExportSites\Ops\Handler $import_export_sites
  * @property IPs\Ops\Handler              $ips
  * @property IpMeta\Ops\Handler           $ip_meta
- * @property IpPolicyState\Ops\Handler    $ip_policy_state
  * @property IpRules\Ops\Handler          $ip_rules
  * @property Malware\Ops\Handler          $malware
  * @property Mfa\Ops\Handler              $mfa
@@ -117,10 +115,6 @@ class DbCon extends DynPropertiesClass {
 		'ip_meta'               => [
 			'slug'          => 'ip_meta',
 			'handler_class' => IpMeta\Ops\Handler::class,
-		],
-		'ip_policy_state'       => [
-			'slug'          => 'ip_policy_state',
-			'handler_class' => IpPolicyState\Ops\Handler::class,
 		],
 		'ip_rules'              => [
 			'slug'          => 'ip_rules',

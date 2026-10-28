@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\BlockIpAddressCrowdsec;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\RequestPolicy\PolicyEvidence;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\RuleTraits,
@@ -49,35 +48,26 @@ class IpBlockedCrowdsec extends BuildRuleIpsBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\RequestPolicyGate::class,
+				'response' => Responses\UpdateIpRuleLastAccessAt::class,
+			],
+			[
+				'response' => Responses\DoAction::class,
 				'params'   => [
-					'detector'         => PolicyEvidence::DETECTOR_CROWDSEC,
-					'legacy_responses' => [
-						[
-							'response' => Responses\UpdateIpRuleLastAccessAt::class,
-							'params'   => [],
-						],
-						[
-							'response' => Responses\DoAction::class,
-							'params'   => [
-								'hook' => 'shield/maybe_intercept_block_crowdsec',
-							],
-						],
-						[
-							'response' => Responses\EventFire::class,
-							'params'   => [
-								'event' => 'conn_kill_crowdsec',
-							],
-						],
-						[
-							'response' => Responses\DisplayBlockPage::class,
-							'params'   => [
-								'block_page_slug' => BlockIpAddressCrowdsec::SLUG,
-								'hook'            => 'init',
-								'priority'        => HookTimings::INIT_RULES_RESPONSE_IP_BLOCK_REQUEST_CROWDSEC,
-							],
-						],
-					],
+					'hook' => 'shield/maybe_intercept_block_crowdsec',
+				],
+			],
+			[
+				'response' => Responses\EventFire::class,
+				'params'   => [
+					'event' => 'conn_kill_crowdsec',
+				],
+			],
+			[
+				'response' => Responses\DisplayBlockPage::class,
+				'params'   => [
+					'block_page_slug' => BlockIpAddressCrowdsec::SLUG,
+					'hook'            => 'init',
+					'priority'        => HookTimings::INIT_RULES_RESPONSE_IP_BLOCK_REQUEST_CROWDSEC,
 				],
 			],
 		];

@@ -52,12 +52,6 @@ class RequestTypeResolver {
 		return $type;
 	}
 
-	public function isShieldAction() :bool {
-		$request = Services::Request();
-		return $request->request( ActionData::FIELD_ACTION ) === ActionData::FIELD_SHIELD
-			   && ActionData::isValidActionSlug( (string)$request->request( ActionData::FIELD_EXECUTE ) );
-	}
-
 	private function isShieldMcpRoute( string $restRoute ) :bool {
 		$restRoute = \trim( $restRoute, '/' );
 
