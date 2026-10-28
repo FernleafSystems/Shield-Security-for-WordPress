@@ -43,10 +43,46 @@
 
 {% from _self import render_rows %}
 {% set diagnosis_id = 'configure-diagnosis-' ~ diagnosis.zone_key %}
-<div class="configure-diagnosis"
+{% set zone_layout = zone_tools.layout|default('expand') %}
+<div class="configure-diagnosis configure-diagnosis--layout-{{ zone_layout }}"
 	 data-configure-diagnosis="1"
 	 data-configure-zone="{{ diagnosis.zone_key }}"
+	 data-configure-layout="{{ zone_layout }}"
 	 id="{{ diagnosis_id }}">
+	{% if zone_tools is defined %}
+		<div class="configure-zone-tools" data-configure-zone-tools="1">
+			<div class="configure-zone-tools__filter">
+				<label class="screen-reader-text" for="ConfigureZoneFilter-{{ diagnosis.zone_key }}">{{ zone_tools.filter_label }}</label>
+				<i class="bi bi-search" aria-hidden="true"></i>
+				<input type="search"
+					   id="ConfigureZoneFilter-{{ diagnosis.zone_key }}"
+					   class="form-control form-control-sm"
+					   data-configure-zone-filter="1"
+					   autocomplete="off"
+					   placeholder="{{ zone_tools.filter_placeholder }}">
+			</div>
+			<div class="configure-zone-tools__group" role="group" aria-label="{{ zone_tools.show_label }}">
+				<button type="button" class="configure-zone-chip" data-configure-zone-show="all" aria-pressed="true">{{ zone_tools.show_all }}</button>
+				{% if zone_tools.attention_count > 0 %}
+					<button type="button" class="configure-zone-chip" data-configure-zone-show="attention" aria-pressed="false">
+						{{ zone_tools.show_attention }} <span class="configure-zone-chip__count">{{ zone_tools.attention_count }}</span>
+					</button>
+				{% endif %}
+			</div>
+			<div class="configure-zone-tools__group configure-zone-tools__layout" role="group" aria-label="{{ zone_tools.layout_label }}">
+				<button type="button" class="configure-zone-chip" data-configure-zone-layout="expand"
+						aria-pressed="{{ zone_layout == 'expand' ? 'true' : 'false' }}">
+					<i class="bi bi-view-stacked" aria-hidden="true"></i>{{ zone_tools.layout_expand }}
+				</button>
+				<button type="button" class="configure-zone-chip" data-configure-zone-layout="list"
+						aria-pressed="{{ zone_layout == 'list' ? 'true' : 'false' }}">
+					<i class="bi bi-layout-sidebar" aria-hidden="true"></i>{{ zone_tools.layout_list }}
+				</button>
+			</div>
+			<p class="configure-zone-tools__empty" data-configure-zone-empty="1" hidden>{{ zone_tools.filter_empty }}</p>
+		</div>
+	{% endif %}
+
 	{% if diagnosis.problem_rows is not empty %}
 		{{ render_rows(diagnosis.problem_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
 	{% endif %}

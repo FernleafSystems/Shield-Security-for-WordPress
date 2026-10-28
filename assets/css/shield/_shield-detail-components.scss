@@ -746,6 +746,30 @@
 		padding: 0.35rem 0.55rem;
 		font-size: 0.75rem;
 	}
+
+	// On phones the action column drops below the text so the copy keeps the full row width.
+	.shield-detail-row {
+		flex-wrap: wrap;
+	}
+
+	.shield-detail-row__copy {
+		flex: 1 1 calc(100% - 3rem);
+		min-width: 0;
+	}
+
+	.shield-detail-row__end {
+		margin-left: 2.2rem;
+		padding-left: 0;
+	}
+}
+
+// "Show me" flows with the explanation text instead of claiming its own column.
+.shield-detail-row__explanations li:has(.shield-detail-row__expl-action) {
+	display: block;
+
+	.shield-detail-row__expl-icon {
+		margin-right: 0.3rem;
+	}
 }
 
 .shield-file-status {

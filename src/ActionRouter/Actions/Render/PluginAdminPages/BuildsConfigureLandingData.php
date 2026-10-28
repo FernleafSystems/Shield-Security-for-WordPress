@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\UiPreferences;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 /**
@@ -132,6 +133,22 @@ trait BuildsConfigureLandingData {
 			// Built after the diagnosis above, so every component has recorded which option fixes each explanation.
 			'explanation_fixes' => Component\Base::explanationFixLookup(),
 			'show_me_label'  => __( 'Show me', 'wp-simple-firewall' ),
+			'zone_tools'     => [
+				'layout'             => ( new UiPreferences() )->get( UiPreferences::CONFIGURE_ZONE_LAYOUT ),
+				'attention_count'    => \count( \array_filter(
+					\array_merge( $diagnosis[ 'problem_rows' ], $diagnosis[ 'review_rows' ] ),
+					static fn( array $row ) :bool => \in_array( $row[ 'status' ], [ 'warning', 'critical' ], true )
+				) ),
+				'filter_label'       => __( 'Filter settings in this zone', 'wp-simple-firewall' ),
+				'filter_placeholder' => __( 'Filter settings', 'wp-simple-firewall' ),
+				'filter_empty'       => __( 'No settings in this zone match.', 'wp-simple-firewall' ),
+				'show_label'         => __( 'Show', 'wp-simple-firewall' ),
+				'show_all'           => __( 'All', 'wp-simple-firewall' ),
+				'show_attention'     => __( 'Needs attention', 'wp-simple-firewall' ),
+				'layout_label'       => __( 'Layout', 'wp-simple-firewall' ),
+				'layout_expand'      => __( 'Expand in place', 'wp-simple-firewall' ),
+				'layout_list'        => __( 'Component list', 'wp-simple-firewall' ),
+			],
 			'savebar'        => [
 				'label'        => __( 'Unsaved changes', 'wp-simple-firewall' ),
 				/* translators: %s: number of unsaved changes */

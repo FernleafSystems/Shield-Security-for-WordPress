@@ -1,0 +1,134 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
+	function shield_security_get_plugin() {
+		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
+	}
+}
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
+
+use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	Actions\PluginSetUiPreference,
+	Constants
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\UiPreferences;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	ServicesState,
+	UnitTestRequest
+};
+use FernleafSystems\Wordpress\Services\Core\Users;
+
+class PluginSetUiPreferenceTest extends BaseUnitTest {
+
+	private array $servicesSnapshot = [];
+
+	protected function setUp() :void {
+		parent::setUp();
+		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'sanitize_key' )->alias(
+			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \preg_replace( '/[^a-z0-9_\-]/', '', $text ) ) : ''
+		);
+		Functions\when( 'user_can' )->justReturn( true );
+		$this->servicesSnapshot = ServicesState::snapshot();
+	}
+
+	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
+		parent::tearDown();
+	}
+
+	public function test_known_preference_is_stored_for_the_current_user() :void {
+		$meta = $this->installEnvironment();
+
+		$action = new PluginSetUiPreference( $this->actionData( UiPreferences::CONFIGURE_ZONE_LAYOUT, 'list' ) );
+		$action->process();
+
+		$this->assertTrue( (bool)( $action->response()->payload()[ 'saved' ] ?? false ) );
+		$this->assertSame( [ UiPreferences::CONFIGURE_ZONE_LAYOUT => 'list' ], $meta->ui_prefs );
+		$this->assertSame( 'list', ( new UiPreferences() )->get( UiPreferences::CONFIGURE_ZONE_LAYOUT ) );
+	}
+
+	public function test_unknown_keys_and_values_are_rejected_and_defaults_apply() :void {
+		$meta = $this->installEnvironment( [ UiPreferences::ACTIONS_QUEUE_VIEW => 'tabs' ] );
+
+		foreach ( [ [ 'not_a_pref', 'list' ], [ UiPreferences::CONFIGURE_ZONE_LAYOUT, 'grid' ] ] as [ $key, $value ] ) {
+			$action = new PluginSetUiPreference( $this->actionData( $key, $value ) );
+			$action->process();
+			$this->assertFalse( (bool)( $action->response()->payload()[ 'saved' ] ?? true ) );
+		}
+
+		$this->assertSame( [ UiPreferences::ACTIONS_QUEUE_VIEW => 'tabs' ], $meta->ui_prefs );
+		$this->assertSame( 'expand', ( new UiPreferences() )->get( UiPreferences::CONFIGURE_ZONE_LAYOUT ) );
+		$this->assertSame( 'tabs', ( new UiPreferences() )->get( UiPreferences::ACTIONS_QUEUE_VIEW ) );
+	}
+
+	private function installEnvironment( array $prefs = [] ) :object {
+		$meta = (object)[
+			'ui_prefs' => $prefs,
+		];
+
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700001234 ),
+			'service_wpusers' => new class extends Users {
+				public function isUserLoggedIn() :bool {
+					return true;
+				}
+
+				public function getCurrentWpUser() {
+					return (object)[ 'ID' => 1 ];
+				}
+			},
+		] );
+		PluginControllerInstaller::install( new PluginSetUiPreferenceControllerStub( new PluginSetUiPreferenceUserMetasStub( $meta ) ) );
+		return $meta;
+	}
+
+	private function actionData( string $key, string $value ) :array {
+		return [
+			'pref_key'         => $key,
+			'pref_value'       => $value,
+			'action_overrides' => [
+				Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
+			],
+		];
+	}
+}
+
+class PluginSetUiPreferenceControllerStub extends Controller {
+
+	public function __construct( object $userMetas ) {
+		$this->cfg = (object)[
+			'properties' => [
+				'base_permissions' => 'manage_options',
+			],
+		];
+		$this->this_req = (object)[
+			'request_bypasses_all_restrictions' => false,
+			'is_ip_blocked'                     => false,
+			'wp_is_ajax'                        => true,
+			'is_security_admin'                 => false,
+		];
+		$this->user_metas = $userMetas;
+	}
+}
+
+class PluginSetUiPreferenceUserMetasStub {
+
+	private object $meta;
+
+	public function __construct( object $meta ) {
+		$this->meta = $meta;
+	}
+
+	public function current() :object {
+		return $this->meta;
+	}
+}
