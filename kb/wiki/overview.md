@@ -2,7 +2,7 @@
 title: Overview
 type: overview
 created: 2026-04-07
-updated: 2026-08-21
+updated: 2026-10-28
 sources: []
 tags: [overview, synthesis]
 ---
@@ -28,7 +28,7 @@ Last lint: none
 
 This wiki is intended to accumulate durable repo knowledge derived from documents imported into `kb/raw/`.
 
-Current coverage includes schema, repo configuration, glossary, control-page setup, and a WordPress 7.1 plugin-compatibility assessment for Shield.
+Current coverage includes schema, repo configuration, glossary, control-page setup, a WordPress 7.1 plugin-compatibility assessment for Shield, and a design spec for visitor standing (the planned replacement for offence-limit auto-blocking).
 
 ---
 
@@ -39,6 +39,7 @@ Current coverage includes schema, repo configuration, glossary, control-page set
 - portable universal schema plus minimal repo-local configuration
 - conservative category set that can grow only when needed
 - WordPress 7.1 compatibility risks and Shield's exposure
+- visitor standing and proportionate responses for IP protection
 
 ---
 
@@ -53,7 +54,6 @@ Current coverage includes schema, repo configuration, glossary, control-page set
 ## Knowledge Gaps
 
 - no source pages yet
-- no topic pages yet
 - no real category pressure yet
 
 ---
@@ -64,3 +64,4 @@ Current coverage includes schema, repo configuration, glossary, control-page set
 - [[glossary]] - terminology and style conventions
 - [[log]] - chronological record of wiki activity
 - [[wordpress-7-1-plugin-compatibility]] - WordPress 7.1 plugin compatibility assessment
+- [[visitor-standing-design]] - visitor standing design and spec

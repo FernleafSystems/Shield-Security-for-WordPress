@@ -50,3 +50,33 @@ Key notes: Dropped `personas` from the repo topic categories and added `plans` f
 Pages created: `wiki/analyses/wordpress-7-1-plugin-compatibility.md`
 Pages updated: `wiki/index.md`, `wiki/log.md`, `wiki/overview.md`
 Key notes: Recorded official WordPress 7.1 compatibility changes, a vendor-confirmed WP Rocket hook-callback fatal, and the source/runtime assessment for Shield.
+
+## [2026-10-28] plan | Design visitor standing to replace offence-limit auto-blocking
+
+Pages created: `wiki/plans/visitor-standing-design.md`
+Pages updated: `wiki/index.md`, `wiki/log.md`, `wiki/overview.md`, `wiki/glossary.md`
+Key notes: Follows the review of `feature/request-policy-engine`, which is not being taken forward. Combines weighted, fading offences, CrowdSec, bot signals and identity into one per-IP standing, with responses graded by request sensitivity. No user-facing shadow or legacy mode.
+
+## [2026-10-28] plan | Revise visitor standing design after owner feedback
+
+Pages created: none
+Pages updated: `wiki/plans/visitor-standing-design.md`, `wiki/log.md`
+Key notes: CrowdSec listings now mean Hostile. Bot-tracking options removed in favour of built-in weights, four on/off switches and a per-site noise check. Application-password REST requests are judged after WordPress checks the password. Standing is network-wide on multisite.
+
+## [2026-10-28] plan | Drop remaining signal switches from visitor standing design
+
+Pages created: none
+Pages updated: `wiki/plans/visitor-standing-design.md`, `wiki/log.md`
+Key notes: XML-RPC legitimacy now comes from the existing "Disable XML-RPC" option. Weak signals are capped per visitor, so empty user agents and 404s need no switch. Only link cheese keeps an on/off switch.
+
+## [2026-10-28] plan | Record 404 hotspot viewer as a follow-up idea
+
+Pages created: none
+Pages updated: `wiki/plans/visitor-standing-design.md`, `wiki/log.md`
+Key notes: Added a post-v1 idea to surface 404 paths with very high counts, so site owners can fix site-caused 404s that penalise real visitors.
+
+## [2026-10-28] plan | Keep feature/request-policy-engine as the working branch
+
+Pages created: none
+Pages updated: `wiki/plans/visitor-standing-design.md`, `wiki/log.md`
+Key notes: The visitor standing work happens on `feature/request-policy-engine`. The old request policy engine on that branch is removed in Phase 0 and replaced by this design. This supersedes the earlier note that the branch was not being taken forward.

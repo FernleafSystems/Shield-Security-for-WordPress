@@ -2,7 +2,7 @@
 title: Wiki Index
 type: index
 created: 2026-04-07
-updated: 2026-08-21
+updated: 2026-10-28
 sources: []
 tags: [index, catalog]
 ---
@@ -64,7 +64,7 @@ One entry per product or tool topic page.
 
 One entry per intended future work or execution design topic page.
 
-(Empty - will populate as source material is ingested.)
+- [[visitor-standing-design]] - Design and spec to replace offence-limit auto-blocking with per-IP visitor standing and proportionate responses | topic | updated 2026-10-28
 
 ---
 

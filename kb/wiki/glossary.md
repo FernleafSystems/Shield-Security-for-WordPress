@@ -2,7 +2,7 @@
 title: Glossary
 type: glossary
 created: 2026-04-07
-updated: 2026-04-21
+updated: 2026-10-28
 sources: []
 tags: [glossary, terminology, style]
 ---
@@ -29,7 +29,22 @@ Term (canonical form)
 
 ## Terminology
 
-(Empty - populate as raw sources are ingested.)
+Visitor standing
+: The single per-IP judgement (Trusted, Normal, Doubtful, Hostile, Blocked) worked out from weighted offences, CrowdSec, bot signals and identity. Replaces the offence-limit auto-block as the basis for IP decisions.
+- Preferred: `visitor standing`, `standing`
+- Avoid: `risk band`, `policy state`
+- See also: [[visitor-standing-design]]
+
+Request sensitivity
+: How much harm a request could do (Open, Guarded, Critical), judged by what it touches rather than its HTTP method.
+- Preferred: `request sensitivity`
+- Avoid: `surface`, `read vs mutation`
+- See also: [[visitor-standing-design]]
+
+Proof of humanity
+: A fresh silentCAPTCHA (notbot) or AltCha signal with a bot score at or above the silentCAPTCHA minimum, or a logged-in session. Satisfies a challenge.
+- Preferred: `proof of humanity`
+- See also: [[visitor-standing-design]]
 
 ---
 
