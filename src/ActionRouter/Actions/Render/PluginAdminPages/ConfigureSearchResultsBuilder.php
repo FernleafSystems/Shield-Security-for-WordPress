@@ -28,6 +28,15 @@ class ConfigureSearchResultsBuilder {
 
 	use PluginControllerConsumer;
 
+	/**
+	 * Name matches outrank summary matches, which outrank matches found only in descriptions
+	 * or section text, so "email" lists "Report Email" ahead of options that only mention email.
+	 */
+	private const WEIGHT_NAME = 10;
+	private const WEIGHT_SUMMARY = 4;
+	private const WEIGHT_ANY = 1;
+	private const BONUS_NAME_PHRASE = 20;
+
 	private ConfigureLandingViewBuilder $landingViewBuilder;
 	private SearchTextTokenBuilder $searchTextTokenBuilder;
 	private ?array $configureLandingViewDataCache = null;
@@ -44,14 +53,15 @@ class ConfigureSearchResultsBuilder {
 	 * @return list<ConfigureSearchResult>
 	 */
 	public function build( string $search ) :array {
-		$terms = $this->searchTextTokenBuilder->extractTerms( sanitize_text_field( $search ) );
+		$search = sanitize_text_field( $search );
+		$terms = $this->searchTextTokenBuilder->extractTerms( $search );
 		if ( empty( $terms ) ) {
 			return [];
 		}
 
 		$results = \array_merge(
-			$this->buildOptionResults( $terms ),
-			$this->buildZoneResults( $terms )
+			$this->buildOptionResults( $terms, $search ),
+			$this->buildZoneResults( $terms, $search )
 		);
 
 		\usort( $results, function ( array $a, array $b ) :int {
@@ -64,6 +74,12 @@ class ConfigureSearchResultsBuilder {
 				<=> $this->typePriority( $b[ 'type' ] );
 			if ( $typeCompare !== 0 ) {
 				return $typeCompare;
+			}
+
+			// Among equal scores a shorter name is the more specific match: "Report Email" before "Allow Email Override".
+			$lengthCompare = \strlen( $a[ 'label' ] ) <=> \strlen( $b[ 'label' ] );
+			if ( $lengthCompare !== 0 ) {
+				return $lengthCompare;
 			}
 
 			return \strcasecmp( $a[ 'label' ], $b[ 'label' ] );
@@ -88,14 +104,19 @@ class ConfigureSearchResultsBuilder {
 	/**
 	 * @return list<ScoredConfigureSearchResult>
 	 */
-	private function buildZoneResults( array $terms ) :array {
+	private function buildZoneResults( array $terms, string $search ) :array {
 		$results = [];
 		$landingViewData = $this->getConfigureLandingViewData();
 
 		foreach ( $landingViewData[ 'diagnoses' ] as $diagnosis ) {
 			$zoneSummary = $this->requireZoneSummary( $diagnosis[ 'zone_key' ] );
-			$tokens = $this->buildZoneTokens( $diagnosis, $zoneSummary );
-			$score = $this->searchTextTokenBuilder->countMatches( $tokens, $terms );
+			$score = $this->weightedScore(
+				$terms,
+				$search,
+				$diagnosis[ 'zone_label' ],
+				$zoneSummary,
+				$this->buildZoneTokens( $diagnosis, $zoneSummary )
+			);
 			if ( $score < 1 ) {
 				continue;
 			}
@@ -153,7 +174,7 @@ class ConfigureSearchResultsBuilder {
 	/**
 	 * @return list<ScoredConfigureSearchResult>
 	 */
-	private function buildOptionResults( array $terms ) :array {
+	private function buildOptionResults( array $terms, string $search ) :array {
 		$results = [];
 		$stringsOptions = new StringsOptions();
 
@@ -165,9 +186,12 @@ class ConfigureSearchResultsBuilder {
 				continue;
 			}
 
-			$score = $this->searchTextTokenBuilder->countMatches(
-				$this->buildOptionTokens( $optionKey ),
-				$terms
+			$score = $this->weightedScore(
+				$terms,
+				$search,
+				(string)$optionStrings[ 'name' ],
+				(string)( $optionStrings[ 'summary' ] ?? '' ),
+				$this->buildOptionTokens( $optionKey )
 			);
 			if ( $score < 1 ) {
 				continue;
@@ -189,6 +213,29 @@ class ConfigureSearchResultsBuilder {
 		}
 
 		return $results;
+	}
+
+	/**
+	 * Returns 0 when no term appears anywhere, so callers keep dropping non-matches with "score < 1".
+	 * @param list<string> $terms
+	 */
+	private function weightedScore( array $terms, string $search, string $name, string $summary, string $allTokens ) :int {
+		$tokens = $this->searchTextTokenBuilder;
+		$any = $tokens->countMatches( $allTokens, $terms );
+		if ( $any < 1 ) {
+			return 0;
+		}
+
+		$score = $any*self::WEIGHT_ANY
+				 + $tokens->countMatches( $tokens->build( [ $name ] ), $terms )*self::WEIGHT_NAME
+				 + $tokens->countMatches( $tokens->build( [ $summary ] ), $terms )*self::WEIGHT_SUMMARY;
+
+		$phrase = \strtolower( $search );
+		if ( $phrase !== '' && \str_contains( \strtolower( $name ), $phrase ) ) {
+			$score += self::BONUS_NAME_PHRASE;
+		}
+
+		return $score;
 	}
 
 	private function buildOptionTokens( string $optionKey ) :string {
