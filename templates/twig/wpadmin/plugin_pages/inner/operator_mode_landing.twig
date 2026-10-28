@@ -17,6 +17,25 @@
 					<div class="operator-mode-overview__overall-copy">
 						<h2 class="operator-mode-overview__overall-title">{{ vars.dashboard_strip.overall.title }}</h2>
 						<p class="operator-mode-overview__overall-summary">{{ vars.dashboard_strip.overall.summary }}</p>
+						{# The top groups, with one way into the queue rather than a link per item. #}
+						{% if vars.launchpad.items is not empty %}
+							<ul class="operator-mode-overview__top-items" aria-label="{{ vars.launchpad.heading }}">
+								{% for item in vars.launchpad.items %}
+									<li class="status-{{ item.severity }}">
+										<span class="operator-mode-overview__top-dot" aria-hidden="true"></span>
+										<span class="operator-mode-overview__top-label">{{ item.label }}</span>
+										<span class="operator-mode-overview__top-count">{{ item.count }}</span>
+									</li>
+								{% endfor %}
+								{% if vars.launchpad.more > 0 %}
+									<li class="operator-mode-overview__top-more">{{ vars.launchpad.more_label|format( vars.launchpad.more ) }}</li>
+								{% endif %}
+							</ul>
+							<a class="btn btn-sm operator-mode-overview__queue-cta status-{{ vars.dashboard_strip.overall.status }}"
+							   href="{{ vars.launchpad.queue_href }}">
+								{{ vars.launchpad.queue_label }} <i class="bi bi-arrow-right" aria-hidden="true"></i>
+							</a>
+						{% endif %}
 					</div>
 				</div>
 
@@ -109,6 +128,12 @@
 									<span class="dashboard-event-icon" aria-hidden="true"><i class="{{ chart.icon_class }}"></i></span>
 									<span>{{ chart.label }}</span>
 								</span>
+								<span class="stat-change stat-change--{{ chart.change > 0 ? 'up' : ( chart.change < 0 ? 'down' : 'flat' ) }}">{{ chart.change_label }}</span>
+								{% if chart.spark_points is not empty %}
+									<svg class="stat-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+										<polyline points="{{ chart.spark_points }}" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"></polyline>
+									</svg>
+								{% endif %}
 							</span>
 							<span class="stat-back" aria-hidden="true">
 								<span class="summary-chart"></span>
@@ -127,7 +152,7 @@
 			</div>
 
 			<ul class="stats-strip dashboard-recent-events list-unstyled m-0 p-0" aria-label="{{ vars.dashboard_recent_events_heading|e('html_attr') }}">
-				{% for event in vars.dashboard_recent_events %}
+				{% for event in vars.dashboard_recent_events|filter( e => e.has_record ) %}
 					<li class="stat-cell dashboard-recent-events__item{{ event.has_record ? '' : ' dashboard-recent-events__item--unrecorded' }}"
 							 tabindex="0"
 							 style="--dashboard-event-hue: {{ event.recency_hue }};"
@@ -142,6 +167,14 @@
 					</li>
 				{% endfor %}
 			</ul>
+			{# Event types that have never happened are listed in one line rather than as empty tiles. #}
+			{% set unrecorded = vars.dashboard_recent_events|filter( e => not e.has_record ) %}
+			{% if unrecorded is not empty %}
+				<p class="dashboard-recent-events__unrecorded">
+					{{ vars.dashboard_recent_events_unrecorded_label }}
+					{{ unrecorded|map( e => e.label )|join( ', ' ) }}
+				</p>
+			{% endif %}
 		</section>
 	</div>
 

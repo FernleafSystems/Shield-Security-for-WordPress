@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRend
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueCardDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\DashboardRecentEventsDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\DashboardEventIcons;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TaskGuideDataBuilder;
@@ -34,7 +36,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\
  *   value:int,
  *   href:string,
  *   accessible_label:string,
- *   icon_class:string
+ *   icon_class:string,
+ *   change:int,
+ *   change_label:string,
+ *   spark_points:string
  * }
  * @phpstan-type DashboardActivityChartData array{
  *   period_key:string,
@@ -71,8 +76,10 @@ class PageOperatorModeLanding extends BaseRender {
 				'dashboard_activity_charts_heading' => __( 'Stats (Previous 7 Days)', 'wp-simple-firewall' ),
 				'dashboard_recent_events'           => $dashboardRecentEvents,
 				'dashboard_recent_events_heading'   => __( 'Recent Events', 'wp-simple-firewall' ),
+				'dashboard_recent_events_unrecorded_label' => __( 'Not seen yet:', 'wp-simple-firewall' ),
 				'dashboard_launchpad_heading'       => __( 'Launchpad', 'wp-simple-firewall' ),
 				'dashboard_strip'                   => $queueCard[ 'dashboard_strip' ],
+				'launchpad'                         => $this->buildLaunchpadTopItems(),
 				'destination_cards'                 => $this->buildDestinationCards(),
 				'dashboard_task_guide'              => [ 'launcher' => $dashboardTaskGuideLauncher ],
 				'live_monitor'                      => $this->buildLiveMonitorVars(),
@@ -102,11 +109,13 @@ class PageOperatorModeLanding extends BaseRender {
 	private function buildDashboardActivityCharts( array $chartData ) :array {
 		$href = self::con()->plugin_urls->reportsHome( PluginNavs::SUBNAV_REPORTS_CHARTS );
 		$seriesByKey = \array_column( $chartData[ 'series' ], null, 'key' );
+		$previous = $this->buildPreviousWeekTotals();
 
 		return \array_map(
-			static function ( string $eventKey ) use ( $href, $seriesByKey ) :array {
+			function ( string $eventKey ) use ( $href, $seriesByKey, $previous ) :array {
 				$series = $seriesByKey[ $eventKey ];
 				$value = \array_sum( $series[ 'data' ] );
+				$change = $value - ( $previous[ $eventKey ] ?? 0 );
 				/* translators: %1$s: activity total, %2$s: activity label */
 				$accessibleLabel = \sprintf(
 					__( '%1$s %2$s in the last 7 days. View trend.', 'wp-simple-firewall' ),
@@ -120,10 +129,86 @@ class PageOperatorModeLanding extends BaseRender {
 					'href'             => $href,
 					'icon_class'       => ( new DashboardEventIcons() )->iconClassForKey( $eventKey ),
 					'accessible_label' => $accessibleLabel,
+					'change'           => $change,
+					'change_label'     => $this->changeLabel( $change ),
+					'spark_points'     => $this->sparkPoints( \array_map( 'intval', $series[ 'data' ] ) ),
 				];
 			},
 			self::DASHBOARD_ACTIVITY_EVENT_KEYS
 		);
+	}
+
+	/**
+	 * Totals for the seven calendar days before the seven shown, so each stat can say how it changed.
+	 * @return array<string,int>
+	 */
+	protected function buildPreviousWeekTotals() :array {
+		$today = Services::Request()->carbon( true )->startOfDay();
+		$startAt = ( clone $today )->subDays( 13 )->getTimestamp();
+		$endAt = ( clone $today )->subDays( 6 )->getTimestamp() - 1;
+
+		$totals = [];
+		foreach ( self::DASHBOARD_ACTIVITY_EVENT_KEYS as $eventKey ) {
+			/** @var EventsDB\Select $selector */
+			$selector = self::con()->db_con->events->getQuerySelector();
+			$totals[ $eventKey ] = (int)$selector->filterByBoundary( $startAt, $endAt )->sumEvent( $eventKey );
+		}
+		return $totals;
+	}
+
+	private function changeLabel( int $change ) :string {
+		if ( $change === 0 ) {
+			return __( 'Same as the 7 days before', 'wp-simple-firewall' );
+		}
+		/* translators: %s: signed change, such as +3 or -2 */
+		return \sprintf( __( '%s on the 7 days before', 'wp-simple-firewall' ), ( $change > 0 ? '+' : '−' ).\abs( $change ) );
+	}
+
+	/**
+	 * Polyline points for a small trend line in a 100 x 24 box; a flat line when there is no activity.
+	 * @param list<int> $values
+	 */
+	private function sparkPoints( array $values ) :string {
+		$count = \count( $values );
+		if ( $count < 2 ) {
+			return '';
+		}
+		$max = \max( 1, \max( $values ) );
+		$points = [];
+		foreach ( \array_values( $values ) as $i => $value ) {
+			$points[] = \sprintf( '%.1f,%.1f', $i*100/( $count - 1 ), 22 - ( $value/$max )*20 );
+		}
+		return \implode( ' ', $points );
+	}
+
+	/**
+	 * The most pressing queue groups, listed without links: the Launchpad has one way into the
+	 * Actions Queue, which lists every group with its own action.
+	 * @return array{items:list<array{label:string,count:int,severity:string}>,more:int,more_label:string,queue_href:string,queue_label:string,heading:string}
+	 */
+	private function buildLaunchpadTopItems() :array {
+		$items = \array_values( \array_filter(
+			$this->getAttentionQuery()[ 'items' ],
+			static fn( array $item ) :bool => $item[ 'count' ] > 0
+		) );
+		$top = \array_map(
+			static fn( array $item ) :array => [
+				'label'    => $item[ 'label' ],
+				'count'    => $item[ 'count' ],
+				'severity' => $item[ 'severity' ] === 'critical' ? 'critical' : 'warning',
+			],
+			\array_slice( $items, 0, 3 )
+		);
+
+		return [
+			'items'       => $top,
+			'more'        => \max( 0, \count( $items ) - \count( $top ) ),
+			/* translators: %s: number of further queue groups */
+			'more_label'  => __( 'and %s more', 'wp-simple-firewall' ),
+			'queue_href'  => self::con()->plugin_urls->actionsQueueScans(),
+			'queue_label' => __( 'Open Actions Queue', 'wp-simple-firewall' ),
+			'heading'     => __( 'Needs attention', 'wp-simple-firewall' ),
+		];
 	}
 
 	/**

@@ -49,7 +49,11 @@ class DashboardRecentEventsDataBuilderIntegrationTest extends ShieldIntegrationT
 		$queriesBefore = $wpdb->num_queries;
 		$items = \array_column( $builder->build(), null, 'key' );
 		$this->assertSame( 1, $wpdb->num_queries - $queriesBefore );
-		$this->assertSame( $keys, \array_keys( $items ) );
+		$this->assertEqualsCanonicalizing( $keys, \array_keys( $items ) );
+		// Recorded events lead, newest first; events never recorded follow.
+		$recorded = \array_column( $items, 'has_record' );
+		$recordedCount = \count( \array_filter( $recorded ) );
+		$this->assertSame( \array_fill( 0, $recordedCount, true ), \array_slice( $recorded, 0, $recordedCount ) );
 		$this->assertCount( 12, $items );
 		$this->assertTrue( $items[ 'login_success' ][ 'has_record' ] );
 		$this->assertSame(

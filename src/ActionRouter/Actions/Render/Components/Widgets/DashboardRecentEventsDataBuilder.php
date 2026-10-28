@@ -61,6 +61,11 @@ class DashboardRecentEventsDataBuilder {
 		foreach ( $labels as $key => $label ) {
 			$items[] = $this->buildItem( $key, $label, $latest[ $key ] ?? 0, $now );
 		}
+
+		// Newest first, so what just happened leads; events never recorded keep their listed order at the end.
+		$order = \array_flip( \array_keys( $labels ) );
+		\usort( $items, static fn( array $a, array $b ) :int => [ $latest[ $b[ 'key' ] ] ?? 0, $order[ $a[ 'key' ] ] ]
+																<=> [ $latest[ $a[ 'key' ] ] ?? 0, $order[ $b[ 'key' ] ] ] );
 		return $items;
 	}
 

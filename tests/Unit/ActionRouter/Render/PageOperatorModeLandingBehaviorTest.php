@@ -320,6 +320,10 @@ class PageOperatorModeLandingTestDouble extends PageOperatorModeLanding {
 		return $this->attentionQuery;
 	}
 
+	protected function buildPreviousWeekTotals() :array {
+		return [];
+	}
+
 	protected function buildDashboardActivityChartData() :array {
 		$eventDefinitions = ChartOptions::eventDefinitions();
 

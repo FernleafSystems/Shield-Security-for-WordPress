@@ -193,7 +193,13 @@ test( 'dashboard overview exposes status summaries and destination cards as acce
 	await expect( status ).toHaveRole( 'region' );
 	await expect( status ).toHaveAccessibleName( /\S/ );
 	await expect( status ).not.toHaveAttribute( 'href' );
-	await expect( status.locator( 'a' ) ).toHaveCount( 2 );
+	await expect( status.locator( '[data-summary-id]' ) ).toHaveCount( 2 );
+	// With queued items the Launchpad adds one "Open Actions Queue" link, and no link per item.
+	const queueCta = status.locator( 'a.operator-mode-overview__queue-cta' );
+	await expect( status.locator( 'a' ) ).toHaveCount( 2 + await queueCta.count() );
+	for ( const cta of await queueCta.all() ) {
+		await expect( cta ).toHaveAttribute( 'href', /nav=scans/ );
+	}
 
 	for ( const summary of await status.locator( '[data-summary-id]' ).all() ) {
 		await expect( summary ).toHaveRole( 'link' );
