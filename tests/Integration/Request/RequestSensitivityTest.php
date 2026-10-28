@@ -100,6 +100,36 @@ class RequestSensitivityTest extends ShieldIntegrationTestCase {
 		$this->assertSame( RequestSensitivity::OPEN, ( new ClassifyRequest() )->classify( $facts )->level );
 	}
 
+	public function test_parsed_rest_index_with_credentials_is_critical_before_core_dispatches_it() :void {
+		global $wp, $wp_actions;
+		$queryVars = $wp->query_vars;
+		$parseCount = $wp_actions[ 'parse_request' ] ?? null;
+		try {
+			// As at the parse_request checkpoint: query vars parsed, REST not yet dispatched.
+			$wp->query_vars = [ 'rest_route' => '/' ];
+			$wp_actions[ 'parse_request' ] = \max( 1, (int)$parseCount );
+			$req = $this->applyCurrentRequestState( [
+				'REQUEST_URI'        => '/index.php/wp-json/',
+				'HTTP_AUTHORIZATION' => 'Basic dXNlcjpwYXNz',
+			] );
+
+			$facts = ( new BuildRequestFacts() )->build( $req );
+			$sensitivity = ( new ClassifyRequest() )->classify( $facts );
+
+			$this->assertSame( '/', $facts->restRoute );
+			$this->assertSame( [ RequestSensitivity::CRITICAL, 'authenticated_api' ], [ $sensitivity->level, $sensitivity->reason ] );
+		}
+		finally {
+			$wp->query_vars = $queryVars;
+			if ( $parseCount === null ) {
+				unset( $wp_actions[ 'parse_request' ] );
+			}
+			else {
+				$wp_actions[ 'parse_request' ] = $parseCount;
+			}
+		}
+	}
+
 	public function test_the_core_sitemap_routes_as_content() :void {
 		$this->go_to( \home_url( '/?sitemap=index' ) );
 

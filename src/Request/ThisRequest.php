@@ -146,7 +146,7 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 			$paths[] = \ltrim( $homePath.'/'.$prefix, '/' );
 			$paths[] = \ltrim( $homePath.'/index.php/'.$prefix, '/' );
 		}
-		return \array_values( \array_unique( \array_filter( $paths ) ) );
+		return \array_values( \array_unique( \array_filter( $paths, fn( string $path ) => $path !== '' ) ) );
 	}
 
 	/**

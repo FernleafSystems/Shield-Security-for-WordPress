@@ -214,6 +214,17 @@ class ThisRequestRestRouteTest extends BaseUnitTest {
 		$this->assertSame( 'wp/v2/posts', $restRoute( '/index.php/wp-json/wp/v2/posts' ) );
 	}
 
+	public function test_rest_prefix_of_zero_is_kept() :void {
+		Functions\when( 'rest_get_url_prefix' )->justReturn( '0' );
+		$thisReq = new ThisRequest( [
+			'request'                  => $this->buildRequest( [ 'REQUEST_URI' => '/0/wp/v2/users/me' ] ),
+			'wp_is_permalinks_enabled' => true,
+			'rest_api_root'            => 'https://example.test/0/',
+		] );
+
+		$this->assertSame( 'wp/v2/users/me', $thisReq->getRestRoute() );
+	}
+
 	public function test_front_controller_form_comes_before_the_whole_custom_rest_prefix() :void {
 		Functions\when( 'rest_get_url_prefix' )->justReturn( 'custom/api' );
 		$thisReq = new ThisRequest( [
