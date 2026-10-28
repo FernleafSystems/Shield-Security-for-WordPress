@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginSetUiPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\UiPreferences;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -116,12 +119,41 @@ trait BuildsActionsQueueLandingData {
 		) );
 	}
 
+	/**
+	 * The landing shows each lane's groups in place, so a group opens its results directly
+	 * rather than through a separate lane page.
+	 */
 	protected function renderBucketsLayer() :string {
+		$groupsBuilder = new ActionsQueueGroupsBuilder();
+		$bucketGroups = [];
+		foreach ( $this->getBucketsData() as $bucket ) {
+			if ( $bucket[ 'is_interactive' ] ) {
+				$bucketGroups[ $bucket[ 'key' ] ] = $groupsBuilder->build(
+					$bucket[ 'key' ],
+					$this->getAttentionQuery(),
+					$this->getAssessmentRowsByZone()
+				);
+			}
+		}
+
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/actions_queue/layer_buckets.twig' )
 			->setData( [
-				'buckets'      => $this->getBucketsData(),
-				'healthy_rows' => $this->getHealthyRowsData(),
+				'buckets'       => $this->getBucketsData(),
+				'bucket_groups' => $bucketGroups,
+				'healthy_rows'  => $this->getHealthyRowsData(),
+				'view'          => ( new UiPreferences() )->get( UiPreferences::ACTIONS_QUEUE_VIEW ),
+				'set_view_action_json' => ActionData::BuildJson( PluginSetUiPreference::class ),
+				'strings'       => [
+					'view_label'    => __( 'Layout', 'wp-simple-firewall' ),
+					'view_sections' => __( 'Sections', 'wp-simple-firewall' ),
+					'view_tabs'     => __( 'Tabs', 'wp-simple-firewall' ),
+					'looking_good'  => __( 'Looking good', 'wp-simple-firewall' ),
+					'nothing_here'  => __( 'Nothing to do here.', 'wp-simple-firewall' ),
+					'open_page'     => __( 'Open as page', 'wp-simple-firewall' ),
+					/* translators: %s: number of checks */
+					'quiet_label'   => __( 'Passing and not covered (%s)', 'wp-simple-firewall' ),
+				],
 			] )
 			->render();
 	}

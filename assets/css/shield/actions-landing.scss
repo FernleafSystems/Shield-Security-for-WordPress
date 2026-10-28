@@ -322,3 +322,244 @@
 .actions-queue-asset-panel__body:empty {
 	display: none;
 }
+
+// ─── Landing sections: each lane shown in place, or as tabs ───
+.actions-queue-sections {
+	display: grid;
+	gap: 0.85rem;
+}
+
+.actions-queue-sections__bar {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.6rem 1rem;
+	justify-content: space-between;
+}
+
+.actions-queue-sections__tabs {
+	display: none;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+}
+
+.actions-queue-sections--tabs .actions-queue-sections__tabs {
+	border-bottom: 1px solid #dcdcde;
+	display: flex;
+	flex: 1 1 auto;
+}
+
+.actions-queue-sections__tab {
+	align-items: center;
+	background: none;
+	border: 0;
+	border-bottom: 3px solid transparent;
+	color: #646970;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: 0.85rem;
+	font-weight: 600;
+	gap: 0.4rem;
+	margin-bottom: -1px;
+	padding: 0.5rem 0.8rem;
+
+	&[aria-selected="true"] {
+		border-bottom-color: currentColor;
+		color: #1d2327;
+	}
+
+	&.status-critical[aria-selected="true"] { color: $status-text-color-critical; }
+	&.status-warning[aria-selected="true"] { color: $status-text-color-warning; }
+	&.status-good[aria-selected="true"] { color: $status-text-color-good; }
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+}
+
+.actions-queue-sections__count,
+.actions-queue-section__count {
+	background: rgba(0, 0, 0, 0.06);
+	border-radius: 999px;
+	font-size: 0.72rem;
+	font-variant-numeric: tabular-nums;
+	font-weight: 700;
+	padding: 0.05rem 0.5rem;
+}
+
+.actions-queue-sections__view {
+	display: inline-flex;
+	gap: 0.3rem;
+	margin-left: auto;
+}
+
+.actions-queue-sections__view-btn {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid #dcdcde;
+	border-radius: 999px;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: 0.8rem;
+	gap: 0.35rem;
+	padding: 0.25rem 0.7rem;
+
+	&[aria-pressed="true"] {
+		border-color: #8c8f94;
+		font-weight: 600;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+}
+
+.actions-queue-section {
+	background: #ffffff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-left-width: 4px;
+	border-radius: 10px;
+	overflow: hidden;
+
+	&.status-critical { border-left-color: $status-color-critical; }
+	&.status-warning { border-left-color: $status-color-warning; }
+	&.status-good { border-left-color: $status-color-good; }
+}
+
+.actions-queue-section__head {
+	align-items: center;
+	background: none;
+	border: 0;
+	cursor: pointer;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3rem 0.6rem;
+	padding: 0.8rem 1rem;
+	text-align: left;
+	width: 100%;
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+
+	.status-critical & .actions-queue-section__icon { color: $status-text-color-critical; }
+	.status-warning & .actions-queue-section__icon { color: $status-text-color-warning; }
+	.status-good & .actions-queue-section__icon { color: $status-text-color-good; }
+}
+
+.actions-queue-section__label {
+	font-size: 0.95rem;
+	font-weight: 700;
+}
+
+.actions-queue-section__summary {
+	color: #646970;
+	flex-basis: 100%;
+	font-size: 0.8rem;
+	padding-left: 1.6rem;
+}
+
+.actions-queue-section__chevron {
+	color: #646970;
+	margin-left: auto;
+	transition: transform 0.15s ease;
+
+	[aria-expanded="true"] > & {
+		transform: rotate(180deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.actions-queue-section__chevron {
+		transition: none;
+	}
+}
+
+.actions-queue-section__body {
+	border-top: 1px solid $border-color-neutral-subtle;
+	display: grid;
+	gap: 0.85rem;
+	padding: 0.9rem 1rem 1rem;
+}
+
+.actions-queue-section__empty {
+	color: #646970;
+	margin: 0;
+}
+
+// Tabs view: only the selected lane shows, always open, with no section header.
+.actions-queue-sections--tabs {
+	.actions-queue-section[data-tab-selected="0"] {
+		display: none;
+	}
+
+	.actions-queue-section__head {
+		display: none;
+	}
+
+	.actions-queue-section__body[hidden] {
+		display: grid;
+	}
+
+	.actions-queue-section__body {
+		border-top: 0;
+	}
+}
+
+.actions-queue-section__quiet {
+	> summary {
+		color: #50575e;
+		cursor: pointer;
+		font-size: 0.85rem;
+		font-weight: 600;
+		padding: 0.25rem 0;
+	}
+
+	> summary:focus-visible {
+		@include shield-focus-ring();
+	}
+
+	&[open] > summary {
+		margin-bottom: 0.6rem;
+	}
+}
+
+// Keep the chevron on the heading line; the summary wraps beneath it.
+.actions-queue-section__chevron {
+	order: 4;
+}
+
+.actions-queue-section__summary {
+	order: 5;
+}
+
+.actions-queue-section__header {
+	align-items: center;
+	display: flex;
+	gap: 0.5rem;
+	padding-right: 0.9rem;
+}
+
+.actions-queue-section__open {
+	background: none;
+	border: 0;
+	color: #0a58ca;
+	cursor: pointer;
+	flex-shrink: 0;
+	font-size: 0.78rem;
+	font-weight: 600;
+	padding: 0.2rem 0;
+	white-space: nowrap;
+
+	&:hover {
+		text-decoration: underline;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+}
+
+.actions-queue-sections--tabs .actions-queue-section__header {
+	display: none;
+}

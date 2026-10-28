@@ -1,36 +1,158 @@
-<div class="actions-queue-buckets shield-stack">
-	<div class="actions-queue-buckets__grid">
-		{% for bucket in buckets %}
-			<button type="button"
-					class="actions-queue-bucket-card operator-card-surface operator-tile-card status-{{ bucket.status }}"
-					data-drill-target="groups"
-					data-drill-bucket-selection="{{ bucket.selection.selection_json }}"
-					{% if not bucket.is_interactive %}disabled{% endif %}>
-				<div class="operator-tile-card__main">
-					<span class="operator-tile-card__icon">
-						<i class="{{ bucket.icon_class }}" aria-hidden="true"></i>
-					</span>
-					<div class="operator-tile-card__copy">
-						<div class="actions-queue-bucket-card__severity operator-tile-card__status">
-							<span class="actions-queue-bucket-card__severity-label">{{ bucket.state_label }}</span>
-							<span class="actions-queue-bucket-card__count">{{ bucket.display_count }}</span>
-						</div>
-						<span class="actions-queue-bucket-card__title operator-tile-card__title">{{ bucket.label }}</span>
-					</div>
-				</div>
-				<p class="actions-queue-bucket-card__summary operator-tile-card__summary">{{ bucket.summary_text }}</p>
-			</button>
-		{% endfor %}
-	</div>
-	{% if healthy_rows is not empty %}
-		<div class="item-box item-box--good">
-			<div class="item-box__grid">
-				{% for row in healthy_rows %}
-					{% include '/wpadmin/components/actions_queue/compact_summary_row.twig' with {
-						row: row
-					} only %}
+{#
+	Each lane (Fix now, Review next) is a section of group cards shown in place; a group card opens
+	its results directly. "Looking good" is collapsed. The same sections can show as tabs instead.
+#}
+{% set view = view|default('sections') %}
+{% set sections = [] %}
+{% for bucket in buckets %}
+	{% if bucket.is_interactive %}
+		{% set sections = sections|merge( [ {
+			key: bucket.key,
+			status: bucket.status,
+			label: bucket.label,
+			icon_class: bucket.icon_class,
+			count: bucket.display_count,
+			summary: bucket.summary_text,
+			selection_json: bucket.selection.selection_json,
+			is_open: true
+		} ] ) %}
+	{% endif %}
+{% endfor %}
+{% if healthy_rows is not empty %}
+	{% set sections = sections|merge( [ {
+		key: 'good',
+		status: 'good',
+		label: strings.looking_good|default('Looking good'),
+		icon_class: 'bi bi-check-circle-fill',
+		count: healthy_rows|length,
+		summary: '',
+		selection_json: '',
+		is_open: false
+	} ] ) %}
+{% endif %}
+
+<div class="actions-queue-sections actions-queue-sections--{{ view }}"
+	 data-actions-queue-sections="1"
+	 data-view="{{ view }}"
+	 data-set-view-action="{{ set_view_action_json|default('')|e('html_attr') }}">
+
+	{% if sections|length > 0 %}
+		<div class="actions-queue-sections__bar">
+			<div class="actions-queue-sections__tabs" role="tablist">
+				{% for section in sections %}
+					<button type="button"
+							class="actions-queue-sections__tab status-{{ section.status }}"
+							role="tab"
+							id="ActionsQueueTab-{{ section.key }}"
+							aria-controls="ActionsQueueSection-{{ section.key }}"
+							aria-selected="{{ loop.first ? 'true' : 'false' }}"
+							data-actions-queue-tab="{{ section.key }}">
+						<i class="{{ section.icon_class }}" aria-hidden="true"></i>{{ section.label }}
+						<span class="actions-queue-sections__count">{{ section.count }}</span>
+					</button>
 				{% endfor %}
+			</div>
+			<div class="actions-queue-sections__view" role="group" aria-label="{{ strings.view_label|default('Layout') }}">
+				<button type="button" class="actions-queue-sections__view-btn" data-actions-queue-view="sections"
+						aria-pressed="{{ view == 'sections' ? 'true' : 'false' }}">
+					<i class="bi bi-view-stacked" aria-hidden="true"></i>{{ strings.view_sections|default('Sections') }}
+				</button>
+				<button type="button" class="actions-queue-sections__view-btn" data-actions-queue-view="tabs"
+						aria-pressed="{{ view == 'tabs' ? 'true' : 'false' }}">
+					<i class="bi bi-segmented-nav" aria-hidden="true"></i>{{ strings.view_tabs|default('Tabs') }}
+				</button>
 			</div>
 		</div>
 	{% endif %}
+
+	{% for section in sections %}
+		<section class="actions-queue-section status-{{ section.status }}"
+				 id="ActionsQueueSection-{{ section.key }}"
+				 data-actions-queue-section-key="{{ section.key }}"
+				 data-tab-selected="{{ loop.first ? '1' : '0' }}"
+				 aria-labelledby="ActionsQueueSectionHead-{{ section.key }}">
+			<div class="actions-queue-section__header">
+			<button type="button"
+					class="actions-queue-section__head"
+					id="ActionsQueueSectionHead-{{ section.key }}"
+					data-actions-queue-section-toggle="1"
+					aria-expanded="{{ section.is_open ? 'true' : 'false' }}"
+					aria-controls="ActionsQueueSectionBody-{{ section.key }}">
+				<span class="actions-queue-section__icon"><i class="{{ section.icon_class }}" aria-hidden="true"></i></span>
+				<span class="actions-queue-section__label">{{ section.label }}</span>
+				<span class="actions-queue-section__count">{{ section.count }}</span>
+				{% if section.summary is not empty %}
+					<span class="actions-queue-section__summary">{{ section.summary }}</span>
+				{% endif %}
+				<i class="bi bi-chevron-down actions-queue-section__chevron" aria-hidden="true"></i>
+			</button>
+			{# Optional: the lane on its own page, as before. Group cards below open their results directly. #}
+			{% if section.selection_json is not empty %}
+				<button type="button"
+						class="actions-queue-section__open"
+						data-drill-target="groups"
+						data-drill-bucket-selection="{{ section.selection_json }}">{{ strings.open_page|default('Open as page') }}</button>
+			{% endif %}
+			</div>
+
+			<div class="actions-queue-section__body"
+				 id="ActionsQueueSectionBody-{{ section.key }}"
+				 {% if not section.is_open %}hidden{% endif %}>
+				{% if section.key == 'good' %}
+					<div class="item-box item-box--good">
+						<div class="item-box__grid">
+							{% for row in healthy_rows %}
+								{% include '/wpadmin/components/actions_queue/compact_summary_row.twig' with {
+									row: row
+								} only %}
+							{% endfor %}
+						</div>
+					</div>
+				{% else %}
+					{% set layer = bucket_groups[ section.key ]|default( {} ) %}
+					{% set quiet_count = 0 %}
+					<div class="actions-queue-groups{% if section.key == 'review' %} actions-queue-groups--review{% endif %}">
+						{% for group_section in layer.active_sections|default( [] ) %}
+							{% set needs_action = group_section.groups|filter( g => not ( g.status == 'good' or g.is_pro_upsell or g.enable_dialog_json is not empty ) ) %}
+							{% set quiet_count = quiet_count + ( group_section.groups|length - needs_action|length ) %}
+							{% if needs_action is not empty %}
+								<div class="actions-queue-section__group">
+									{% if group_section.heading_label is not empty %}
+										<div class="finding-group__heading">{{ group_section.heading_label }}</div>
+									{% endif %}
+									<div class="configure-zones__grid">
+										{% for group in needs_action %}
+											{% include '/wpadmin/components/actions_queue/group_card.twig' with {
+												group: group,
+												bucket_selection: layer.bucket_selection,
+												is_healthy: false
+											} only %}
+										{% endfor %}
+									</div>
+								</div>
+							{% endif %}
+						{% endfor %}
+
+						{# Passing checks and checks that aren't running stay out of the way until asked for. #}
+						{% if quiet_count > 0 %}
+							<details class="actions-queue-section__quiet">
+								<summary>{{ strings.quiet_label|default('Passing and not covered')|format( quiet_count ) }}</summary>
+								<div class="configure-zones__grid">
+									{% for group_section in layer.active_sections|default( [] ) %}
+										{% for group in group_section.groups|filter( g => g.status == 'good' or g.is_pro_upsell or g.enable_dialog_json is not empty ) %}
+											{% include '/wpadmin/components/actions_queue/group_card.twig' with {
+												group: group,
+												bucket_selection: layer.bucket_selection,
+												is_healthy: group.status == 'good'
+											} only %}
+										{% endfor %}
+									{% endfor %}
+								</div>
+							</details>
+						{% endif %}
+					</div>
+				{% endif %}
+			</div>
+		</section>
+	{% endfor %}
 </div>

@@ -241,6 +241,36 @@ test( 'actions queue drills into groups and back out, opening details when avail
 	} );
 } );
 
+test( 'actions queue landing lists lanes in place and opens a group directly', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
+
+		const actionsQueuePage = new ActionsQueuePage( page );
+		const section = page.locator( `[data-actions-queue-section-key="${fixture.bucket_key}"]` );
+		await expect( section ).toBeVisible();
+		const group = await actionsQueuePage.findDrillTargetBySelection(
+			section.locator( '[data-drill-target="detail"]' ),
+			'data-drill-group-selection',
+			fixture.group_key
+		);
+		expect( group ).not.toBeNull();
+		await actionsQueuePage.clickElement( group );
+		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
+
+		// The lane behind the group is still reachable from the breadcrumb.
+		await page.locator( '[data-step-tab-drill-index="1"]' ).click();
+		await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
+		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+
+		const sections = page.locator( '[data-actions-queue-sections="1"]' );
+		await page.locator( '[data-actions-queue-view="tabs"]' ).click();
+		await expect( sections ).toHaveAttribute( 'data-view', 'tabs' );
+		await expect( page.locator( '[data-actions-queue-tab]' ).first() ).toHaveAttribute( 'aria-selected', 'true' );
+		await page.locator( '[data-actions-queue-view="sections"]' ).click();
+		await expect( sections ).toHaveAttribute( 'data-view', 'sections' );
+	} );
+} );
+
 test( 'actions queue keeps clear risks together with clickable vulnerability findings', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'empty_cloaked_plugins', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );

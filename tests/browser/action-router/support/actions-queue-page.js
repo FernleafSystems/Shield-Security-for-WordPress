@@ -50,7 +50,8 @@ class ActionsQueuePage {
 	}
 
 	groupOuter( groupKey ) {
-		return this.page.locator( `[data-actions-queue-group-key="${groupKey}"]` ).first();
+		// The landing also lists group cards, so look only inside the lane layer.
+		return this.page.locator( `[data-actions-queue-groups="1"] [data-actions-queue-group-key="${groupKey}"]` ).first();
 	}
 
 	async waitForGroupOuter( groupKey, timeout = 20000 ) {

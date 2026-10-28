@@ -193,6 +193,14 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		}
 
 		this.selectedGroup = group;
+
+		// Group cards on the landing open results directly. The lane layer is filled in quietly
+		// behind them so the breadcrumb back to that lane still works.
+		const fromLanding = item.closest( '[data-actions-queue-sections="1"]' ) !== null;
+		if ( fromLanding ) {
+			drillCtrl.updateLayerHeader( shell, 1, this.selectedBucket.header, { announce: false } );
+		}
+
 		drillCtrl.updateLayerHeader(
 			shell,
 			2,
@@ -202,6 +210,9 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		drillCtrl.drillTo( shell, layerIndex, { sourceEl: item } );
 
 		this.loadDetailLayer();
+		if ( fromLanding ) {
+			this.loadGroupsLayer( { showPlaceholder: false } );
+		}
 	}
 
 	loadGroupsLayer( { showPlaceholder = true, includeSelectedGroup = false, includeLandingRefresh = false } = {} ) {

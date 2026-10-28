@@ -36,6 +36,7 @@ import { DetailRowExpandController } from "../components/mode/DetailRowExpandCon
 import { RailSidebarController } from "../components/mode/RailSidebarController";
 import { ConfigureExpandLoader } from "../components/mode/ConfigureExpandLoader";
 import { ConfigureZoneTools } from "../components/mode/ConfigureZoneTools";
+import { ActionsQueueSections } from "../components/mode/ActionsQueueSections";
 import { HealthyDisclosureController } from "../components/ui/HealthyDisclosureController";
 import { SecurityAdmin } from "../components/general/SecurityAdmin";
 import { ShieldServicesPlugin } from "../services/ShieldServicesPlugin";
@@ -106,6 +107,7 @@ export class AppMain extends AppBase {
 			'zones_manager' in comps ? comps.zones_manager : {}
 		);
 		this.components.actions_queue_landing = new ActionsQueueLandingController();
+		this.components.actions_queue_sections = new ActionsQueueSections();
 		this.components.reports_landing = new ReportsLandingController();
 		this.components.detail_row_expand = new DetailRowExpandController();
 		this.components.rail_sidebar = new RailSidebarController();
