@@ -88,12 +88,17 @@ class MergeAutoBlockRules {
 			if ( $merged ) {
 				/** @var IpRulesDB\Update $updater */
 				$updater = $dbh->getQueryUpdater();
-				$updater->addMergedEvidence( $toKeep, $offenses, $normal, $strong, $weak, $hostileUntil, $blockSeconds, $now );
-
-				if ( $toKeep->offenses + $offenses >= self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit()
-					 && $toKeep->blocked_at <= $toKeep->unblocked_at ) {
-					$updater->updateById( $toKeep->id, [ 'blocked_at' => $now ] );
-				}
+				$updater->addMergedEvidence(
+					$toKeep,
+					$offenses,
+					$normal,
+					$strong,
+					$weak,
+					$hostileUntil,
+					self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit(),
+					$blockSeconds,
+					$now
+				);
 			}
 		}
 	}

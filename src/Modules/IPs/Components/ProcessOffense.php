@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops as IpRulesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\{
 	AddRule,
+	IpRuleStatus,
 	IpRulesCache
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Standing\{
@@ -63,6 +64,8 @@ class ProcessOffense {
 		}
 
 		( new RecordEvidence() )->toRecord( $IP, $newCount - $originalCount, $evidence, Services::Request()->ts() );
+		// The write doesn't update the cached record, so later offenses in this request must reload it.
+		IpRuleStatus::ClearStatusForIP( $this->getIP() );
 
 		/**
 		 * When we block, we also want to increment offense stat, but we don't

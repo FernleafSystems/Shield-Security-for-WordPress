@@ -51,11 +51,12 @@ class Update extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Updat
 
 	/**
 	 * Adds one request's offenses and evidence to the record in a single statement, so parallel requests from
-	 * one IP lose neither. Every expression reads only the row's old values, so the result does not depend on
-	 * the order the database applies assignments in (MariaDB's SIMULTANEOUS_ASSIGNMENT included). Elapsed time
-	 * is clamped at zero and timestamps never move back, so a slower request writing after a newer one adds its
-	 * evidence unfaded. A record from before visitor standing carries its offenses over as normal evidence, and
-	 * its implied hold, on this first write (see StoredEvidence). New evidence renews a running hold.
+	 * one IP lose neither. Every expression reads only the row's old values: columns are only read before
+	 * they're assigned, so the result is the same whether the database applies assignments in order (MySQL)
+	 * or simultaneously (MariaDB's SIMULTANEOUS_ASSIGNMENT). Elapsed time is clamped at zero and timestamps
+	 * never move back, so a slower request writing after a newer one adds its evidence unfaded. A record from
+	 * before visitor standing carries its offenses over as normal evidence, and its implied hold, on this first
+	 * write (see StoredEvidence). New evidence renews a running hold.
 	 * @param array<string, float> $weakSignals faded and capped weak offenses per signal, as of $now
 	 * @param float                $hostileAt   0 when offense-based hostility is off
 	 */
@@ -79,26 +80,26 @@ class Update extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Updat
 
 		$updated = $wpdb->query( $wpdb->prepare(
 			"UPDATE `{$this->getDbH()->getTable()}`
-			SET `normal_evidence` = {$fadedNormal} + %f,
-				`strong_evidence` = {$fadedStrong} + %f,
-				`hostile_until` = IF(
+			SET `hostile_until` = IF(
 					%f > 0 AND ( {$fadedNormal} + {$fadedStrong} + %f >= %f OR {$hold} > %d ),
 					GREATEST( {$hold}, %d ),
 					{$hold}
 				),
+				`normal_evidence` = {$fadedNormal} + %f,
+				`strong_evidence` = {$fadedStrong} + %f,
 				`meta` = %s,
 				`offenses` = `offenses` + %d,
 				`last_access_at` = GREATEST( `last_access_at`, %d ),
 				`evidence_at` = GREATEST( `evidence_at`, %d ),
 				`updated_at` = %d
 			WHERE `id` = %d",
-			$normal,
-			$strong,
 			$hostileAt,
 			$normal + $strong + (float)\array_sum( $weakSignals ),
 			$hostileAt,
 			$now,
 			$now + $holdSeconds,
+			$normal,
+			$strong,
 			(string)$record->arrayDataWrap( $meta ),
 			\max( 0, $offenses ),
 			$now,
@@ -111,8 +112,9 @@ class Update extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Updat
 	}
 
 	/**
-	 * Adds evidence and offenses taken from merged duplicate records, keeping the latest hold. Merging moves
-	 * evidence that already exists, so it doesn't renew the hold.
+	 * Adds evidence and offenses taken from merged duplicate records, keeping the latest hold, and blocks the IP
+	 * if its offenses now reach the limit. Merging moves evidence that already exists, so it doesn't renew the
+	 * hold. As with addOffenseEvidence(), columns are only read before they're assigned.
 	 * @param array<string, float> $weakSignals merged and capped weak offenses per signal, as of $now
 	 */
 	public function addMergedEvidence(
@@ -122,28 +124,31 @@ class Update extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Updat
 		float $strong,
 		array $weakSignals,
 		int $hostileUntil,
+		int $offenseLimit,
 		int $holdSeconds,
 		int $now
 	) :bool {
 		global $wpdb;
-		$hold = $this->effectiveHoldSql( $holdSeconds );
-
 		$meta = $record->meta;
 		$meta[ StoredEvidence::META_WEAK ] = $weakSignals;
 
 		$updated = $wpdb->query( $wpdb->prepare(
 			"UPDATE `{$this->getDbH()->getTable()}`
-			SET `normal_evidence` = {$this->fadedEvidenceSql( EvidenceWeights::NORMAL, $now )} + %f,
+			SET `hostile_until` = GREATEST( {$this->effectiveHoldSql( $holdSeconds )}, %d ),
+				`blocked_at` = IF( `offenses` + %d >= %d AND `blocked_at` <= `unblocked_at`, %d, `blocked_at` ),
+				`normal_evidence` = {$this->fadedEvidenceSql( EvidenceWeights::NORMAL, $now )} + %f,
 				`strong_evidence` = {$this->fadedEvidenceSql( EvidenceWeights::STRONG, $now )} + %f,
-				`hostile_until` = GREATEST( {$hold}, %d ),
 				`meta` = %s,
 				`offenses` = `offenses` + %d,
 				`evidence_at` = GREATEST( `evidence_at`, %d ),
 				`updated_at` = %d
 			WHERE `id` = %d",
+			$hostileUntil,
+			\max( 0, $offenses ),
+			$offenseLimit,
+			$now,
 			$normal,
 			$strong,
-			$hostileUntil,
 			(string)$record->arrayDataWrap( $meta ),
 			\max( 0, $offenses ),
 			$now,

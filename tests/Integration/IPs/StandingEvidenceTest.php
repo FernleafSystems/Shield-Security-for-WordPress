@@ -152,6 +152,37 @@ class StandingEvidenceTest extends ShieldIntegrationTestCase {
 		$this->assertSame( self::T + \HOUR_IN_SECONDS, $this->load( $reached )->hostile_until );
 	}
 
+	public function test_hold_is_decided_on_the_new_faded_total() :void {
+		$below = $this->autoBlock( '203.0.113.85', [ 'normal_evidence' => 8.0, 'evidence_at' => self::T ] );
+		$atLimit = $this->autoBlock( '203.0.113.86', [ 'normal_evidence' => 9.0, 'evidence_at' => self::T ] );
+		$fadedAcross = $this->autoBlock( '203.0.113.87', [ 'normal_evidence' => 18.4, 'evidence_at' => self::T - \DAY_IN_SECONDS ] );
+
+		foreach ( [ $below, $atLimit, $fadedAcross ] as $id ) {
+			$this->record( $id, [ 'bottrack_loginfailed' => 'normal' ], self::T );
+		}
+
+		$this->assertSame( 0, $this->load( $below )->hostile_until, '8 + 1 is below the limit of 10' );
+		$this->assertSame( self::T + \HOUR_IN_SECONDS, $this->load( $atLimit )->hostile_until, '9 + 1 reaches the limit' );
+		$this->assertSame( self::T + \HOUR_IN_SECONDS, $this->load( $fadedAcross )->hostile_until, '18.4 faded to 9.2, + 1 is over the limit' );
+		$this->assertEqualsWithDelta( 10.2, $this->load( $fadedAcross )->normal_evidence, 1e-9 );
+	}
+
+	public function test_repeated_offenses_in_one_request_block_at_the_limit() :void {
+		$ip = '10.0.0.73';
+		TestDataFactory::insertAutoBlock( $ip, [ 'offenses' => 8, 'blocked_at' => 0 ] );
+		$this->resetIpCaches();
+
+		// As when several comments from one IP are marked as spam at once: no cache reset between offenses.
+		for ( $i = 0 ; $i < 3 ; $i++ ) {
+			( new ProcessOffense() )->setIP( $ip )->incrementOffenses( 1, $this->ledger( [ 'comment_markspam' => 'normal' ] ), false, false );
+		}
+
+		$this->resetIpCaches();
+		$status = new IpRuleStatus( $ip );
+		$this->assertSame( 11, $status->getOffenses() );
+		$this->assertTrue( $status->hasAutoBlock() );
+	}
+
 	public function test_new_evidence_renews_an_active_hold_even_below_the_limit() :void {
 		$held = $this->autoBlock( '203.0.113.78', [ 'hostile_until' => self::T + 60, 'evidence_at' => self::T - 60 ] );
 		$expired = $this->autoBlock( '203.0.113.79', [ 'hostile_until' => self::T - 1, 'evidence_at' => self::T - 60 ] );
@@ -209,13 +240,36 @@ class StandingEvidenceTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 2, $stale );
 
 		( new RecordEvidence() )->toRecord( $stale[ 0 ], 1, $this->ledger( [ 'bottrack_loginfailed' => 'normal' ] ), $now );
+
 		( new MergeAutoBlockRules() )->byRecords( $stale );
+		$this->assertMergedTotals( $ip, 11, 11.0, 'The first merge keeps the parallel write' );
+
+		( new MergeAutoBlockRules() )->byRecords( $stale );
+		$this->assertMergedTotals( $ip, 11, 11.0, 'A second merge of the same duplicates adds nothing' );
+	}
+
+	public function test_merging_blocks_on_the_stored_offense_count() :void {
+		$ip = '203.0.113.88';
+		$this->autoBlock( $ip, [ 'offenses' => 8 ] );
+		$this->autoBlock( $ip, [ 'offenses' => 1 ] );
+		$stale = \array_values( ( new LoadIpRules() )->setIP( $ip )->select() );
+
+		// Another request adds an offense to the kept record after the merge loaded it.
+		( new RecordEvidence() )->toRecord( $stale[ 0 ], 1, $this->ledger( [ 'bottrack_loginfailed' => 'normal' ] ), Services::Request()->ts() );
 		( new MergeAutoBlockRules() )->byRecords( $stale );
 
 		$this->resetIpCaches();
-		$record = ( new IpRuleStatus( $ip ) )->getRuleForAutoBlock();
-		$this->assertSame( 11, $record->offenses );
-		$this->assertEqualsWithDelta( 11.0, $record->normal_evidence + $record->strong_evidence, 0.01 );
+		$status = new IpRuleStatus( $ip );
+		$this->assertSame( 10, $status->getOffenses() );
+		$this->assertTrue( $status->hasAutoBlock() );
+	}
+
+	private function assertMergedTotals( string $ip, int $offenses, float $evidence, string $message ) :void {
+		$this->resetIpCaches();
+		$records = \array_values( ( new LoadIpRules() )->setIP( $ip )->select() );
+		$this->assertCount( 1, $records, $message );
+		$this->assertSame( $offenses, $records[ 0 ]->offenses, $message );
+		$this->assertEqualsWithDelta( $evidence, $records[ 0 ]->normal_evidence + $records[ 0 ]->strong_evidence, 0.01, $message );
 	}
 
 	/**
