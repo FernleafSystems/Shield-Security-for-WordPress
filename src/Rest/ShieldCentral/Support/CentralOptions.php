@@ -50,9 +50,10 @@ class CentralOptions {
 
 	/**
 	 * Assigns only the options sent. Each is "applied" when the value stored is the one sent, "rejected" when the
-	 * stored value is still the one from before the write, and "corrected" otherwise. The stored values of every
-	 * option are returned, since Shield's corrections can change options that weren't sent. A password option takes
-	 * only a bcrypt hash, so Central can't empty it.
+	 * stored value is still the one from before the write although Shield's sanitising made it another, and "corrected"
+	 * otherwise, as when sanitising trims a value to the one already stored. The stored values of every option are
+	 * returned, since Shield's corrections can change options that weren't sent. A password option takes only a bcrypt
+	 * hash, so Central can't empty it.
 	 *
 	 * @param array<string,mixed> $options
 	 */
@@ -93,8 +94,9 @@ class CentralOptions {
 			}
 			else {
 				try {
-					$opts->optSet( $key, ( new PreSetOptSanitize( $key, $value ) )->run() );
-					$assigned[ $key ] = $value;
+					$sanitised = ( new PreSetOptSanitize( $key, $value ) )->run();
+					$opts->optSet( $key, $sanitised );
+					$assigned[ $key ] = [ $value, $sanitised ];
 				}
 				catch ( \Exception $e ) {
 					$results[ $key ] = $this->rejected( $e->getMessage() );
@@ -105,11 +107,11 @@ class CentralOptions {
 		$opts->store();
 
 		$stored = $this->stored();
-		foreach ( $assigned as $key => $value ) {
+		foreach ( $assigned as $key => [ $value, $sanitised ] ) {
 			if ( $stored[ $key ] === $value ) {
 				$results[ $key ] = [ 'status' => 'applied' ];
 			}
-			elseif ( $stored[ $key ] === $before[ $key ] ) {
+			elseif ( $stored[ $key ] === $before[ $key ] && $sanitised !== $before[ $key ] ) {
 				$results[ $key ] = $this->rejected( 'Not saved.' );
 			}
 			else {

@@ -289,6 +289,22 @@ class OptionsRoutesIntegrationTest extends ShieldIntegrationTestCase {
 		];
 	}
 
+	public function test_a_value_shield_trims_to_the_one_already_stored_is_reported_corrected() :void {
+		$hash = ( new CentralOptionsCatalog() )->hash();
+		$this->dispatch( 'options/set', $this->auth( [
+			'catalogue_hash' => $hash,
+			'options'        => [ 'yubikey_app_id' => '12345' ],
+		] ) );
+
+		$response = $this->dispatch( 'options/set', $this->auth( [
+			'catalogue_hash' => $hash,
+			'options'        => [ 'yubikey_app_id' => ' 12345 ' ],
+		] ) );
+
+		$this->assertSame( [ 'yubikey_app_id' => [ 'status' => 'corrected' ] ], $response[ 'results' ] );
+		$this->assertSame( '12345', $response[ 'values' ][ 'yubikey_app_id' ] );
+	}
+
 	public function test_an_option_wordpress_declines_to_save_is_reported_not_saved() :void {
 		$xFrame = self::con()->opts->optGet( 'x_frame' );
 		$decline = fn( $value, $oldValue ) => $oldValue;
