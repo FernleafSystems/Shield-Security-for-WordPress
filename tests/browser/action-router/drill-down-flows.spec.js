@@ -383,6 +383,13 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( rail ).toBeHidden();
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-drill-target="editor"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] .zone-summary-header' ) ).toHaveCount( 0 );
+	// This flow uses the expanding layout; the layout is a stored per-user choice, so pick it.
+	const expandLayout = page.locator( '[data-configure-diagnosis="1"] [data-configure-zone-layout="expand"]' );
+	if ( await expandLayout.getAttribute( 'aria-pressed' ) !== 'true' ) {
+		const savedLayout = waitForShieldAjaxAction( page, 'set_ui_preference' );
+		await expandLayout.click();
+		await expectShieldAjaxSuccess( await savedLayout );
+	}
 	const expandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' ).first();
 	const expandButton = expandRow.locator( '[data-shield-expand-trigger="1"]' );
 	await expect( expandRow ).not.toHaveAttribute( 'role', 'button' );

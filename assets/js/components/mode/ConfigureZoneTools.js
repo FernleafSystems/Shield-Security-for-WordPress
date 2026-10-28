@@ -43,17 +43,15 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 			if ( root === null ) {
 				return;
 			}
-			root.dataset.configureLayoutSwitching = '1';
-			root.querySelectorAll( '.shield-detail-expansion.show' ).forEach( ( open ) => {
+			root.querySelectorAll( '.shield-detail-expansion.show, .shield-detail-expansion.collapsing' ).forEach( ( open ) => {
 				if ( open !== evt.target ) {
-					Collapse.getOrCreateInstance( open, { toggle: false } ).hide();
+					this.closePanel( open );
 				}
 			} );
-			delete root.dataset.configureLayoutSwitching;
 		} );
+		// The open component stays open: in the list a panel is replaced, never closed.
 		document.addEventListener( 'hide.bs.collapse', ( evt ) => {
-			const root = this.listRootFor( evt.target );
-			if ( root !== null && !root.dataset.configureLayoutSwitching ) {
+			if ( this.listRootFor( evt.target ) !== null ) {
 				evt.preventDefault();
 			}
 		} );
@@ -119,15 +117,32 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 		if ( panels.length === 0 ) {
 			return;
 		}
-		const keep = panels.find( ( panel ) => panel.classList.contains( 'show' ) ) || panels[ 0 ];
-		root.dataset.configureLayoutSwitching = '1';
+		// A panel still opening (a search jump's target) counts as the open one.
+		const keep = panels.find( ( panel ) => panel.classList.contains( 'show' ) || panel.classList.contains( 'collapsing' ) )
+			|| panels[ 0 ];
 		panels.forEach( ( panel ) => {
-			if ( panel !== keep && panel.classList.contains( 'show' ) ) {
-				Collapse.getOrCreateInstance( panel, { toggle: false } ).hide();
+			if ( panel !== keep && ( panel.classList.contains( 'show' ) || panel.classList.contains( 'collapsing' ) ) ) {
+				this.closePanel( panel );
 			}
 		} );
-		delete root.dataset.configureLayoutSwitching;
-		Collapse.getOrCreateInstance( keep, { toggle: false } ).show();
+		if ( !keep.classList.contains( 'collapsing' ) ) {
+			Collapse.getOrCreateInstance( keep, { toggle: false } ).show();
+		}
+	}
+
+	/**
+	 * Closes a component's panel at once. Bootstrap ignores a close while a panel is still opening,
+	 * which happens when a search jump opens one component just as the list opens the first, and
+	 * would leave two panels open on top of each other.
+	 * @param {HTMLElement} panel
+	 */
+	closePanel( panel ) {
+		Collapse.getInstance( panel )?.dispose();
+		panel.classList.remove( 'show', 'collapsing' );
+		panel.classList.add( 'collapse' );
+		panel.style.height = '';
+		// Lets the row update its own open state, as it would after an animated close.
+		panel.dispatchEvent( new Event( 'hidden.bs.collapse', { bubbles: true } ) );
 	}
 
 	/**
