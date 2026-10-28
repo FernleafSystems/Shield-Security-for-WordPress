@@ -17,9 +17,9 @@
 				 {% for key, value in expand.data_attributes %}data-{{ key }}="{{ value|e('html_attr') }}"{% endfor %}></div>
 		{% endset %}
 
+		{# No accordion parent: several components can stay open, and one save bar saves them together. #}
 		{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
 			id: expand.id,
-			parent_id: expand.parent_id,
 			type: 'options',
 			status: row.status,
 			body: expansion_body

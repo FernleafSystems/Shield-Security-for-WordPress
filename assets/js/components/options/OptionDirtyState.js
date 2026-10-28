@@ -1,22 +1,13 @@
 /**
  * Tracks unsaved edits per option row in Configure option forms, and restores defaults.
  *
- * A row's starting state is captured the first time the user focuses one of its controls,
- * because forms are injected after page load and may be re-rendered after each save.
+ * A row is unsaved when any control differs from the value it was rendered with. The rendered
+ * value comes from the control's own defaultValue / defaultChecked / defaultSelected, so it
+ * holds however the form was injected or re-rendered, and form.reset() returns rows to clean.
  */
 export class OptionDirtyState {
 
 	static FORM_SELECTOR = 'form.options_form_for--modern';
-
-	/**
-	 * @param {Element} target any element inside an option row
-	 */
-	static captureInitial( target ) {
-		const item = OptionDirtyState.itemFor( target );
-		if ( item !== null && item.dataset.optionInitialState === undefined ) {
-			item.dataset.optionInitialState = OptionDirtyState.serialize( item );
-		}
-	}
 
 	/**
 	 * @param {Element} target any element inside an option row
@@ -27,9 +18,7 @@ export class OptionDirtyState {
 			return;
 		}
 
-		const current = OptionDirtyState.serialize( item );
-		const initial = item.dataset.optionInitialState;
-		const isDirty = initial !== undefined && initial !== current;
+		const isDirty = OptionDirtyState.serialize( item, false ) !== OptionDirtyState.serialize( item, true );
 		item.classList.toggle( 'is-dirty', isDirty );
 		item.querySelector( '[data-option-unsaved="1"]' )?.toggleAttribute( 'hidden', !isDirty );
 
@@ -38,13 +27,7 @@ export class OptionDirtyState {
 			reset.hidden = OptionDirtyState.matchesDefault( item, reset.dataset.defaultValue ?? '' );
 		}
 
-		const form = item.closest( 'form' );
-		form?.dispatchEvent( new CustomEvent( 'shield:options-dirty-change', {
-			bubbles: true,
-			detail: {
-				dirtyCount: form.querySelectorAll( '.shield-option-item.is-dirty' ).length,
-			},
-		} ) );
+		item.closest( 'form' )?.dispatchEvent( new CustomEvent( 'shield:options-dirty-change', { bubbles: true } ) );
 	}
 
 	/**
@@ -57,7 +40,6 @@ export class OptionDirtyState {
 			return;
 		}
 
-		OptionDirtyState.captureInitial( button );
 		const defaultValue = button.dataset.defaultValue ?? '';
 		if ( control instanceof HTMLInputElement && control.type === 'checkbox' ) {
 			control.checked = defaultValue === 'Y';
@@ -110,14 +92,25 @@ export class OptionDirtyState {
 
 	/**
 	 * @param {HTMLElement} item
+	 * @param {boolean} rendered true for the values the controls were rendered with
 	 * @return {string}
 	 */
-	static serialize( item ) {
+	static serialize( item, rendered ) {
 		return JSON.stringify( [ ...item.querySelectorAll( '.shield-option-control-col [name]' ) ].map( ( control ) => {
 			if ( control instanceof HTMLInputElement && ( control.type === 'checkbox' || control.type === 'radio' ) ) {
-				return control.checked;
+				return rendered ? control.defaultChecked : control.checked;
 			}
-			return 'value' in control ? control.value : '';
+			if ( control instanceof HTMLSelectElement ) {
+				const values = [ ...control.options ].filter( ( opt ) => rendered ? opt.defaultSelected : opt.selected ).map( ( opt ) => opt.value );
+				// A single select rendered without a "selected" option shows its first option.
+				return rendered && values.length === 0 && !control.multiple && control.options.length > 0
+					? [ control.options[ 0 ].value ]
+					: values;
+			}
+			if ( control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement ) {
+				return rendered ? control.defaultValue : control.value;
+			}
+			return '';
 		} ) );
 	}
 }

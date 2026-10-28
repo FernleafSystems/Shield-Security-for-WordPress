@@ -43,4 +43,24 @@
 	{% if diagnosis.healthy_rows is not empty %}
 		{{ render_rows(diagnosis.healthy_rows, diagnosis_id) }}
 	{% endif %}
+
+	{% if savebar is defined %}
+		<div class="configure-savebar"
+			 data-configure-savebar="1"
+			 data-count-one="{{ savebar.count_one|e('html_attr') }}"
+			 data-count-many="{{ savebar.count_many|e('html_attr') }}"
+			 data-saving-label="{{ savebar.saving|e('html_attr') }}"
+			 data-pin-mismatch="{{ savebar.pin_mismatch|e('html_attr') }}"
+			 role="region"
+			 aria-label="{{ savebar.label }}"
+			 hidden>
+			<span class="configure-savebar__dot" aria-hidden="true"></span>
+			<span class="configure-savebar__copy">
+				<strong data-configure-savebar-count="1"></strong>
+				<span class="configure-savebar__where" data-configure-savebar-where="1"></span>
+			</span>
+			<button type="button" class="btn btn-outline-secondary btn-sm" data-configure-savebar-discard="1">{{ savebar.discard }}</button>
+			<button type="button" class="btn btn-primary btn-sm" data-configure-savebar-save="1">{{ savebar.save }}</button>
+		</div>
+	{% endif %}
 </div>

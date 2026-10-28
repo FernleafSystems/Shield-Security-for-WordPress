@@ -127,6 +127,17 @@ trait BuildsConfigureLandingData {
 			'diagnosis'      => $diagnosis,
 			'header'         => $diagnosis[ 'header' ],
 			'zone_selection' => $diagnosis[ 'zone_selection' ],
+			'savebar'        => [
+				'label'        => __( 'Unsaved changes', 'wp-simple-firewall' ),
+				/* translators: %s: number of unsaved changes */
+				'count_one'    => __( '%s unsaved change', 'wp-simple-firewall' ),
+				/* translators: %s: number of unsaved changes */
+				'count_many'   => __( '%s unsaved changes', 'wp-simple-firewall' ),
+				'discard'      => __( 'Discard', 'wp-simple-firewall' ),
+				'save'         => __( 'Save changes', 'wp-simple-firewall' ),
+				'saving'       => __( 'Saving...', 'wp-simple-firewall' ),
+				'pin_mismatch' => __( 'The two Security Admin PIN fields don\'t match. Enter the same PIN in both.', 'wp-simple-firewall' ),
+			],
 		];
 	}
 

@@ -271,3 +271,61 @@
 		padding: 0.8rem 0.85rem;
 	}
 }
+
+// One save bar per zone page, fixed to the bottom of the viewport; JS lines it up with the zone.
+.configure-diagnosis .shield-detail-expansion__footer {
+	display: none;
+}
+
+.configure-savebar {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 10px;
+	bottom: 0.75rem;
+	box-shadow: 0 -6px 22px rgba(29, 35, 39, 0.12);
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.6rem 0.9rem;
+	// The right padding keeps Save clear of the floating help-desk button in that corner.
+	padding: 0.65rem 5.5rem 0.65rem 0.9rem;
+	position: fixed;
+	z-index: 9990;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.configure-diagnosis.has-configure-savebar {
+	padding-bottom: 5rem;
+}
+
+.configure-savebar__dot {
+	background: #2271b1;
+	border-radius: 50%;
+	flex: 0 0 auto;
+	height: 10px;
+	width: 10px;
+}
+
+.configure-savebar__copy {
+	display: flex;
+	flex: 1 1 14rem;
+	flex-wrap: wrap;
+	gap: 0.2rem 0.6rem;
+	min-width: 0;
+}
+
+.configure-savebar__where {
+	color: #5f6974;
+	font-size: 0.82rem;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.configure-savebar .btn {
+	margin: 0;
+}

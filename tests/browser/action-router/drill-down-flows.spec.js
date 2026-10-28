@@ -371,10 +371,15 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show' ).first() ).toBeVisible();
 	const visibleExpandedForms = page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show form.options_form_for' );
 	await expect( visibleExpandedForms.first() ).toBeVisible();
-	await page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show .shield-detail-expansion__btn-save' )
-		.first()
-		.click();
+	const saveBar = page.locator( '[data-configure-diagnosis="1"] [data-configure-savebar="1"]' );
+	await expect( saveBar ).toBeHidden();
+	const numberField = visibleExpandedForms.first().locator( 'input.shield-option-number:not([disabled])' ).first();
+	const originalNumber = await numberField.inputValue();
+	await numberField.fill( String( Number( originalNumber ) + 1 ) );
+	await expect( saveBar ).toBeVisible();
+	await saveBar.locator( '[data-configure-savebar-save="1"]' ).click();
 	await expect( visibleExpandedForms ).toHaveCount( 0, { timeout: 20_000 } );
+	await expect( saveBar ).toBeHidden();
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
 	await expect( configureTabs ).toHaveCount( 3 );
 	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toBeVisible();
@@ -400,6 +405,10 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-healthy-disclosure-toggle="1"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-healthy-disclosure-body="1"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] .shield-detail-row' ).first() ).toBeVisible();
+
+	await visibleExpandedForms.first().locator( 'input.shield-option-number:not([disabled])' ).first().fill( originalNumber );
+	await saveBar.locator( '[data-configure-savebar-save="1"]' ).click();
+	await expect( visibleExpandedForms ).toHaveCount( 0, { timeout: 20_000 } );
 
 	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();

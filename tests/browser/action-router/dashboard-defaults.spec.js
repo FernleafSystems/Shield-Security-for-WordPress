@@ -138,7 +138,7 @@ test( 'configuration save persists representative defaults-section values throug
 		const contract = assertDashboardDefaultsContract( rawContract );
 		await fixtureApi.resetDashboardDefaultsFixture();
 
-		const { row, form } = await openFocusedConfigureForm( page, contract );
+		const { form } = await openFocusedConfigureForm( page, contract );
 		for ( const key of contract.option_keys ) {
 			await applyOptionValue( form, contract.options[ key ] );
 		}
@@ -147,7 +147,7 @@ test( 'configuration save persists representative defaults-section values throug
 			document.addEventListener( 'shield:expansion-form-saved', () => resolve( true ), { once: true } );
 		} ) );
 		const saveResponse = waitForShieldAjaxAction( page, contract.action_slugs.module_options_save );
-		await row.locator( '.shield-detail-expansion__btn-save' ).click();
+		await page.locator( '[data-configure-diagnosis="1"] [data-configure-savebar-save="1"]' ).click();
 		await expectShieldAjaxSuccess( await saveResponse );
 		await savedEvent;
 
