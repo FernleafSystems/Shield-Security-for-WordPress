@@ -24,15 +24,22 @@ jobs:
 
     steps:
     - name: Download release ZIP
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
       with:
         name: ${{ needs.build-zip.outputs.artifact_name }}
         path: ${{ github.workspace }}
+        skip-decompress: true
+
+    - name: Verify release ZIP
+      run: |
+        cd "${{ github.workspace }}"
+        echo "${{ needs.build-zip.outputs.zip_sha256 }}  ${{ needs.build-zip.outputs.zip_name }}" | sha256sum -c -
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v3
       with:
         files: ${{ github.workspace }}/${{ needs.build-zip.outputs.zip_name }}
+        fail_on_unmatched_files: true
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
