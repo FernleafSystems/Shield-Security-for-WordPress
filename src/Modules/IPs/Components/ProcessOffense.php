@@ -62,12 +62,7 @@ class ProcessOffense {
 			);
 		}
 
-		// Evidence first, so a record from before visitor standing carries over only its earlier offenses.
-		( new RecordEvidence() )->toRecord( $IP, $evidence, Services::Request()->ts() );
-
-		/** @var IpRulesDB\Update $updater */
-		$updater = $con->db_con->ip_rules->getQueryUpdater();
-		$updater->updateTransgressions( $IP, $newCount );
+		( new RecordEvidence() )->toRecord( $IP, $newCount - $originalCount, $evidence, Services::Request()->ts() );
 
 		/**
 		 * When we block, we also want to increment offense stat, but we don't

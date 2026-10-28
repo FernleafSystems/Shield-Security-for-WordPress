@@ -32,11 +32,6 @@ class EvidenceWeights {
 	 */
 	public const WEAK_SIGNAL_CAP = 2.0;
 
-	/**
-	 * Weak-only evidence from one IP is written at most this often, to bound writes during a flood.
-	 */
-	public const WEAK_WRITE_INTERVAL = 5;
-
 	public const SIGNAL_CUSTOM_RULE = 'custom_rule';
 
 	/**

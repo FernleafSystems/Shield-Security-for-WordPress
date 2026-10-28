@@ -173,11 +173,11 @@ Option labels and help text are rewritten to describe the new behaviour. There i
 - Standing lives on the existing per-IP auto-block record (`ip_rules`, type `AB`). No new table. The lookup is the IP rules lookup Shield already does on every request.
 - Columns added to `ip_rules`: `normal_evidence` and `strong_evidence` (`DOUBLE`, in offences, so fading keeps its precision and large counts cannot overflow), `evidence_at` (when evidence was last added, the base for fading), `hostile_until` (the Hostile hold) and `meta`, which holds the weak evidence per signal under `evidence_weak`.
 - Standing is worked out from those columns when it is read. That is arithmetic on a record already loaded, so it needs no extra query and fading needs no cron job.
-- Evidence is written once per request, at shutdown, in the same offence processing that already writes the record, and before the request's offences are added to it. Normal and strong evidence are faded and added in a single `UPDATE`, so parallel requests from one IP do not lose them. Fading uses floating-point arithmetic and is never rounded, so it does not depend on how often evidence is written. Elapsed time is clamped at zero and `evidence_at` never moves back, so a slower request writing after a newer one still adds its evidence. Weak evidence is read, capped and written back in the same statement; a lost weak update hardly matters, because each weak signal is capped.
-- Weak-only evidence from one IP is written at most once every 5 seconds, to bound writes during a flood.
+- A request's offences and evidence are written together in the single `UPDATE` that offence processing already makes, so evidence adds no queries. The offence count and normal and strong evidence are added as increments, so parallel requests from one IP lose none of them. Weak evidence is read, capped and written back in the same statement; a lost weak update hardly matters, because each weak signal is capped.
+- Fading uses floating-point arithmetic and is never rounded, so it does not depend on how often evidence is written. Elapsed time is clamped at zero and timestamps never move back, so a slower request writing after a newer one still adds its evidence. Every expression in the statement reads only the row's old values, so the result does not depend on the order the database applies assignments in (MariaDB's `SIMULTANEOUS_ASSIGNMENT` mode included).
 - The Hostile hold is set in the same statement when the new total reaches the Offence Limit, and any new evidence renews a hold that is still running.
-- Records from before visitor standing have offences but no evidence. When read, their offences count as normal evidence from their last access, and a blocked one is held as Hostile for the rest of its block. The first evidence written to such a record carries its offences over the same way, inside the same atomic statement, so they are counted exactly once. There is no separate upgrade step.
-- When duplicate auto-block records for one IP are merged, their evidence is faded and added together, weak signal caps are kept, and the latest hold wins.
+- Records from before visitor standing have offences but no evidence. When read, their offences count as normal evidence from their last access, and a blocked one is held as Hostile for the rest of its block. The first write to such a record carries its offences and its hold over the same way, inside the same statement, so they are counted exactly once. There is no separate upgrade step.
+- When duplicate auto-block records for one IP are merged, each duplicate is deleted on its own and only counted if this merge deleted it, so two merges at once cannot count it twice. Its offences and faded evidence are added to the kept record as increments, so writes to the kept record are not lost, and the latest hold wins without being renewed. A write that lands on a duplicate between loading and deleting it is lost, as its offences always were.
 - Until Phase 5, the auto-block record keeps today's lifetime: it is deleted once the IP has been idle for the Auto Block Expiration, so standing only reflects evidence within that time. Phase 5 makes the record outlive its evidence, when the old block path that depends on today's lifetime goes.
 
 ## 10. Performance
@@ -186,7 +186,7 @@ Budget:
 
 - Normal visitors: no extra database queries beyond today's IP rules lookup.
 - Doubtful and Hostile visitors: at most one extra indexed read (for proof of humanity, when a challenge applies).
-- Writes: only when there is evidence, one per request.
+- Writes: only when a request offends, and then the one write offence processing already makes. Evidence adds no extra queries.
 
 Known limits:
 

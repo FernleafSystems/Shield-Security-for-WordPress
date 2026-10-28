@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\IPs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\MergeAutoBlockRules;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
+	LoadIpRules,
+	MergeAutoBlockRules
+};
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops as IpRulesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\ProcessOffense;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
@@ -111,18 +114,30 @@ class StandingEvidenceTest extends ShieldIntegrationTestCase {
 		$this->assertSame( self::T + 1, $record->evidence_at, 'evidence_at never moves back' );
 	}
 
-	public function test_each_weak_signal_is_capped_and_weak_only_writes_are_spaced_out() :void {
+	public function test_offenses_and_evidence_from_parallel_requests_are_all_added() :void {
+		$id = $this->autoBlock( '203.0.113.82', [] );
+		$staleA = $this->load( $id );
+		$staleB = $this->load( $id );
+
+		( new RecordEvidence() )->toRecord( $staleA, 1, $this->ledger( [ 'bottrack_loginfailed' => 'normal' ] ), self::T );
+		( new RecordEvidence() )->toRecord( $staleB, 1, $this->ledger( [ 'bottrack_loginfailed' => 'normal' ] ), self::T );
+
+		$record = $this->load( $id );
+		$this->assertSame( 2, $record->offenses );
+		$this->assertEqualsWithDelta( 2.0, $record->normal_evidence, 1e-9 );
+	}
+
+	public function test_each_weak_signal_is_capped_however_often_it_repeats() :void {
 		$id = $this->autoBlock( '203.0.113.75', [] );
 
 		for ( $i = 0 ; $i < 6 ; $i++ ) {
-			$this->record( $id, [ 'bottrack_404' => 'weak' ], self::T + $i*EvidenceWeights::WEAK_WRITE_INTERVAL );
+			$this->record( $id, [ 'bottrack_404' => 'weak' ], self::T + $i );
 		}
-		$this->assertEqualsWithDelta( EvidenceWeights::WEAK_SIGNAL_CAP, $this->weak( $id )[ 'bottrack_404' ] ?? 0, 0.01 );
+		$this->record( $id, [ 'cooldown_fail' => 'weak' ], self::T + 6 );
 
-		$this->record( $id, [ 'cooldown_fail' => 'weak' ], self::T + 30 );
-		$this->assertArrayHasKey( 'cooldown_fail', $this->weak( $id ) );
-		$this->record( $id, [ 'reg_email_invalid' => 'weak' ], self::T + 31 );
-		$this->assertArrayNotHasKey( 'reg_email_invalid', $this->weak( $id ), 'Weak-only evidence a second after the last write is skipped' );
+		$weak = $this->weak( $id );
+		$this->assertEqualsWithDelta( EvidenceWeights::WEAK_SIGNAL_CAP, $weak[ 'bottrack_404' ] ?? 0, 0.01 );
+		$this->assertEqualsWithDelta( 0.5, $weak[ 'cooldown_fail' ] ?? 0, 0.01 );
 	}
 
 	public function test_reaching_the_offense_limit_holds_the_ip_as_hostile_for_the_auto_block_expiry() :void {
@@ -146,6 +161,18 @@ class StandingEvidenceTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( self::T + \HOUR_IN_SECONDS, $this->load( $held )->hostile_until );
 		$this->assertSame( self::T - 1, $this->load( $expired )->hostile_until );
+	}
+
+	public function test_first_write_keeps_the_hold_implied_for_a_blocked_record_from_before_visitor_standing() :void {
+		$id = TestDataFactory::insertAutoBlock( '203.0.113.83', [
+			'offenses'       => 1,
+			'blocked_at'     => self::T - 60,
+			'last_access_at' => self::T + 1,
+		] );
+
+		$this->record( $id, [ 'bottrack_loginfailed' => 'normal' ], self::T );
+
+		$this->assertSame( self::T + 1 + \HOUR_IN_SECONDS, $this->load( $id )->hostile_until, 'A delayed first write does not shorten the hold' );
 	}
 
 	public function test_an_offense_limit_of_zero_never_holds_the_ip_as_hostile() :void {
@@ -173,6 +200,24 @@ class StandingEvidenceTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $now + 500, $record->hostile_until );
 	}
 
+	public function test_merging_keeps_a_parallel_write_to_the_kept_record_and_counts_each_duplicate_once() :void {
+		$ip = '203.0.113.84';
+		$now = Services::Request()->ts();
+		$this->autoBlock( $ip, [ 'offenses' => 9, 'blocked_at' => 0 ] );
+		$this->autoBlock( $ip, [ 'offenses' => 1, 'normal_evidence' => 1.0, 'evidence_at' => $now ] );
+		$stale = \array_values( ( new LoadIpRules() )->setIP( $ip )->select() );
+		$this->assertCount( 2, $stale );
+
+		( new RecordEvidence() )->toRecord( $stale[ 0 ], 1, $this->ledger( [ 'bottrack_loginfailed' => 'normal' ] ), $now );
+		( new MergeAutoBlockRules() )->byRecords( $stale );
+		( new MergeAutoBlockRules() )->byRecords( $stale );
+
+		$this->resetIpCaches();
+		$record = ( new IpRuleStatus( $ip ) )->getRuleForAutoBlock();
+		$this->assertSame( 11, $record->offenses );
+		$this->assertEqualsWithDelta( 11.0, $record->normal_evidence + $record->strong_evidence, 0.01 );
+	}
+
 	/**
 	 * @param array<string, string> $events event => evidence strength
 	 */
@@ -185,7 +230,7 @@ class StandingEvidenceTest extends ShieldIntegrationTestCase {
 	}
 
 	private function record( int $id, array $events, int $now ) :bool {
-		return ( new RecordEvidence() )->toRecord( $this->load( $id ), $this->ledger( $events ), $now );
+		return ( new RecordEvidence() )->toRecord( $this->load( $id ), 0, $this->ledger( $events ), $now );
 	}
 
 	private function autoBlock( string $ip, array $columns ) :int {
