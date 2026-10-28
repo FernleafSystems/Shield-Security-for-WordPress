@@ -377,7 +377,13 @@ button.tool-item {
 	margin-bottom: 0.45rem;
 }
 
-.mode-item.active[data-mode="actions"] .mode-badge.status-warning,
+// The Actions Queue badge takes the intensity of the most severe queued item.
+.mode-item .mode-badge.status-warning {
+	background: #fef6e6;
+	border-color: #f0c96b;
+	color: #946200;
+}
+
 .mode-item.active[data-mode="actions"] .mode-badge.status-critical,
 .mode-item.active[data-mode="actions"] .mode-badge.status-danger {
 	background: $mode-actions;
@@ -385,12 +391,10 @@ button.tool-item {
 	color: #ffffff;
 }
 
-.mode-item.active[data-mode="actions"] .mode-badge.status-good,
-.mode-item.active[data-mode="actions"] .mode-badge.status-info,
-.mode-item.active[data-mode="actions"] .mode-badge.status-neutral {
-	background: $mode-actions;
-	border-color: $mode-actions;
-	color: #ffffff;
+.mode-item.active[data-mode="actions"] .mode-badge.status-warning {
+	background: #edb41d;
+	border-color: #edb41d;
+	color: #3b2a00;
 }
 
 .mode-item.active[data-mode="investigate"] .mode-badge,
