@@ -107,7 +107,9 @@ test( 'global dashboard defaults fixture opens Shield routes and restores cleanu
 
 		await openShieldRoute( page, contract.routes.dashboard );
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="dashboard"]' ) ).toBeVisible();
-		await expect( page.locator( contract.selectors.dashboard_live_monitor ) ).toBeVisible();
+		// The Live Monitor is closed by default and opened from the dashboard sidebar.
+		await expect( page.locator( contract.selectors.dashboard_live_monitor ) ).toHaveAttribute( 'data-is-collapsed', '1' );
+		await expect( page.locator( '[data-live-monitor-launch="1"]' ) ).toBeVisible();
 
 		await openShieldRoute( page, contract.routes.configure );
 		await expect( page.locator( contract.selectors.configure_landing ) ).toBeVisible();

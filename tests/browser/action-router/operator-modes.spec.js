@@ -493,4 +493,15 @@ test( 'dashboard live monitor persists explicit collapsed state changes', async 
 	await dismissBlockingDialogs( page );
 	await expect( liveMonitor ).toHaveAttribute( 'data-is-collapsed', '0' );
 	await expect( liveMonitorToggle ).toHaveAttribute( 'aria-expanded', 'true' );
+
+	// The dashboard sidebar button closes and reopens the monitor; closed, the dock is gone.
+	const launcher = page.locator( '[data-live-monitor-launch="1"]' );
+	await expect( launcher ).toHaveAttribute( 'aria-expanded', 'true' );
+	await launcher.click();
+	await expect( liveMonitor ).toHaveAttribute( 'data-is-collapsed', '1' );
+	await expect( liveMonitor ).toBeHidden();
+	await expect( launcher ).toHaveAttribute( 'aria-expanded', 'false' );
+	await launcher.click();
+	await expect( liveMonitor ).toHaveAttribute( 'data-is-collapsed', '0' );
+	await expect( liveMonitor ).toBeVisible();
 } );

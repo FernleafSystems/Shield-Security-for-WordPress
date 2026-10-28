@@ -200,8 +200,9 @@
 	font-size: 0.82rem;
 	font-weight: 600;
 	gap: 0.4rem;
-	left: calc(160px + 1rem);
 	padding: 0.4rem 0.9rem;
+	// Bottom right, beside the floating help-desk button, clear of both sidebars.
+	right: 5.5rem;
 	position: fixed;
 	z-index: 9980;
 
@@ -214,15 +215,6 @@
 	}
 }
 
-.folded .shield-setup-guide-reopen {
-	left: calc(36px + 1rem);
-}
-
-@media (max-width: 782px) {
-	.shield-setup-guide-reopen {
-		left: 1rem;
-	}
-}
 
 // Leave room below page content, and lift the Configure save bar above the guide.
 body.has-shield-setup-guide #PageContainer-Apto {

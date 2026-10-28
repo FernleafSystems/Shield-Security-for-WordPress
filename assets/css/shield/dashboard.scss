@@ -1253,3 +1253,8 @@
 	font-size: 0.8rem;
 	margin: 0.6rem 0 0;
 }
+
+// The Live Monitor is opened from the dashboard sidebar; closed, it takes no space at all.
+.dashboard-live-monitor.is-collapsed {
+	display: none;
+}

@@ -76,6 +76,8 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertIsArray( $sidebar[ 'home_license_item' ] );
 		$this->assertSame( PluginNavs::NAV_LICENSE, $sidebar[ 'home_license_item' ][ 'slug' ] );
 		$this->assertSame( [], $sidebar[ 'home_license_item' ][ 'badge' ] );
+		// On the free plan the licence link is the upgrade prompt and is styled to stand out.
+		$this->assertContains( 'is-free-plan', $sidebar[ 'home_license_item' ][ 'classes' ] );
 		$this->assertNotSame( '', $sidebar[ 'home_connect_title' ] );
 		$this->assertCount( 4, $sidebar[ 'home_connect_items' ] );
 		$this->assertNotNull( $this->findItemBySlug( $sidebar[ 'home_connect_items' ], 'connect-helpdesk' ) );
@@ -91,6 +93,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( PluginNavs::NAV_LICENSE, $sidebar[ 'home_license_item' ][ 'slug' ] );
 		$this->assertSame( 'PRO', $sidebar[ 'home_license_item' ][ 'badge' ][ 'text' ] );
 		$this->assertSame( 'good', $sidebar[ 'home_license_item' ][ 'badge' ][ 'status' ] );
+		$this->assertNotContains( 'is-free-plan', $sidebar[ 'home_license_item' ][ 'classes' ] );
 	}
 
 	public function test_actions_route_marks_current_mode_and_tool_and_shows_summary_badge() :void {

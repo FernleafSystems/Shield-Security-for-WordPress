@@ -41,6 +41,7 @@ class NavMenuBuilder {
 	 *   task_guide_item:array<string,mixed>,
 	 *   tool_items:list<array<string,mixed>>,
 	 *   home_license_item:SidebarLicenseItem|null,
+	 *   home_live_monitor_item:array<string,mixed>|null,
 	 *   home_connect_title:string,
 	 *   home_connect_items:list<array<string,mixed>>
 	 * }
@@ -64,6 +65,9 @@ class NavMenuBuilder {
 				'task_guide_item'   => $taskGuideItem,
 				'tool_items'         => [],
 				'home_license_item'  => $this->normalizeItems( [ $this->buildHomeLicenseItem() ] )[ 0 ],
+				'home_live_monitor_item' => $this->inav() === PluginNavs::NAV_DASHBOARD
+					? $this->normalizeItems( [ $this->buildLiveMonitorItem() ] )[ 0 ]
+					: null,
 				'home_connect_title' => $connect[ 'title' ],
 				'home_connect_items' => $this->normalizeItems( $connect[ 'items' ] ),
 			];
@@ -75,6 +79,7 @@ class NavMenuBuilder {
 			'task_guide_item'   => $taskGuideItem,
 			'tool_items'         => $this->normalizeItems( $this->toolsForMode( $mode ) ),
 			'home_license_item'  => null,
+			'home_live_monitor_item' => null,
 			'home_connect_title' => '',
 			'home_connect_items' => [],
 		];
@@ -301,19 +306,34 @@ class NavMenuBuilder {
 	 */
 	private function buildHomeLicenseItem() :array {
 		$con = self::con();
+		$isPro = $con->isPremiumActive();
 
 		return [
 			'slug'    => PluginNavs::NAV_LICENSE,
-			'title'   => __( 'Shield Pro License', 'wp-simple-firewall' ),
-			'subtitle'=> __( 'Supercharged Security', 'wp-simple-firewall' ),
+			// On the free plan this is the way to Pro, so it says so plainly and stands out.
+			'title'   => $isPro ? __( 'Shield Pro License', 'wp-simple-firewall' ) : __( 'Upgrade to Shield Pro', 'wp-simple-firewall' ),
+			'subtitle'=> $isPro ? __( 'Supercharged Security', 'wp-simple-firewall' ) : __( 'See everything Pro adds', 'wp-simple-firewall' ),
 			'img'     => $con->svgs->iconClass( 'award' ),
 			'href'    => $con->plugin_urls->licenseCheck(),
 			'active'  => $this->inav() === PluginNavs::NAV_LICENSE,
-			'classes' => [ 'sidebar-license-link' ],
-			'badge'   => $con->isPremiumActive() ? [
+			'classes' => $isPro ? [ 'sidebar-license-link' ] : [ 'sidebar-license-link', 'is-free-plan' ],
+			'badge'   => $isPro ? [
 				'text'   => 'PRO',
 				'status' => 'good',
 			] : [],
+		];
+	}
+
+	private function buildLiveMonitorItem() :array {
+		return [
+			'slug'    => 'live_monitor',
+			'title'   => __( 'Live Monitor', 'wp-simple-firewall' ),
+			'img'     => self::con()->svgs->iconClass( 'broadcast' ),
+			'is_action' => true,
+			'classes' => [ 'sidebar-live-monitor-launch' ],
+			'data'    => [
+				'live-monitor-launch' => '1',
+			],
 		];
 	}
 
