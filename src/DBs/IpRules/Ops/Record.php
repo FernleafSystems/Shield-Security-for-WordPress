@@ -31,7 +31,7 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 		if ( \in_array( $key, [ 'label', 'type' ] ) ) {
 			$value = (string)$value;
 		}
-		elseif ( \in_array( $key, [ 'ip_ref', 'cidr', 'offenses', 'evidence_normal', 'evidence_strong' ] ) ) {
+		elseif ( \in_array( $key, [ 'ip_ref', 'cidr', 'offenses', 'evidence_normal', 'evidence_strong', 'hostile_until' ] ) ) {
 			$value = (int)$value;
 		}
 		elseif ( \in_array( $key, [ 'is_range', 'can_export' ] ) ) {
