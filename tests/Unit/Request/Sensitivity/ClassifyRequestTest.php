@@ -106,6 +106,8 @@ class ClassifyRequestTest extends TestCase {
 			'routed time permalink'            => [ $routed + [ 'path' => '/2026/10/28/14/05/09/post/', 'routeVars' => [ 'year' => '2026', 'monthnum' => '10', 'day' => '28', 'hour' => '14', 'minute' => '05', 'second' => '09', 'name' => 'post' ] ], RequestSensitivity::OPEN, 'content' ],
 			'routed public taxonomy'           => [ $routed + [ 'path' => '/genre/jazz/', 'routeVars' => [ 'taxonomy' => 'genre', 'term' => 'jazz' ], 'contentTaxonomies' => [ 'genre' ] ], RequestSensitivity::OPEN, 'content' ],
 			'routed unknown taxonomy'          => [ $routed + [ 'path' => '/', 'routeVars' => [ 'taxonomy' => 'secret', 'term' => 'x' ], 'contentTaxonomies' => [ 'genre' ] ], RequestSensitivity::GUARDED, 'route_input' ],
+			'core taxonomy query, unrouted'    => [ $http + [ 'path' => '/', 'query' => [ 'taxonomy' => 'category', 'term' => 'news' ], 'contentTaxonomies' => [ 'category', 'post_tag' ] ], RequestSensitivity::OPEN, 'content' ],
+			'plugin taxonomy query, unrouted'  => [ $http + [ 'path' => '/', 'query' => [ 'genre' => 'jazz' ], 'contentVars' => [ 'category_name', 'tag' ] ], RequestSensitivity::GUARDED, 'query_input' ],
 			'parsed plugin endpoint'           => [ $parsed + [ 'path' => '/wc-api/paypal/', 'routeVars' => [ 'wc-api' => 'paypal' ] ], RequestSensitivity::GUARDED, 'route_input' ],
 			'parsed woocommerce page'          => [ $parsed + [ 'path' => '/cart/', 'routeVars' => [ 'pagename' => 'cart' ], 'wooPageIds' => [ 20 ] ], RequestSensitivity::OPEN, 'content' ],
 

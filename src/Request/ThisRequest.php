@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Request;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\BotSignalRecord;
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\DNS;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpMeta\{
 	IpMetaRecord,
@@ -109,7 +110,8 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 	/**
 	 * Matches the path as WordPress matches its rewrite rules: the raw path first, keeping any encoded route
 	 * parameters, then the URL-decoded path, so an encoded prefix (e.g. /%77p-json/...) is still recognised.
-	 * Both the REST prefix and its index.php/ form (e.g. /index.php/wp-json/...) are routed to REST.
+	 * WordPress also routes the REST prefix behind its front controller (e.g. /index.php/wp-json/...), unless
+	 * the REST root already includes it, as it does with index.php permalinks.
 	 * @see \WP_REST_Request::from_url()
 	 * @see \WP::parse_request()
 	 * @see \rest_api_register_rewrites()
@@ -121,22 +123,42 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 			if ( $restBaseUrl === '' ) {
 				$restBaseUrl = (string)\rest_url( '/' );
 			}
-			$restBasePath = \trim( (string)\wp_parse_url( $restBaseUrl, \PHP_URL_PATH ), '/' );
+			$basePaths = $this->restBasePaths( \trim( (string)\wp_parse_url( $restBaseUrl, \PHP_URL_PATH ), '/' ) );
 			$rawPath = (string)$this->request->getPath();
 
-			$route = $this->routeAfterRestBase( $rawPath, $restBasePath )
-					 ?? $this->routeAfterRestBase( \rawurldecode( $rawPath ), $restBasePath )
+			$route = $this->routeAfterRestBase( $rawPath, $basePaths )
+					 ?? $this->routeAfterRestBase( \rawurldecode( $rawPath ), $basePaths )
 						?? '';
 		}
 		return \is_string( $route ) ? \trim( $route, '/' ) : '';
 	}
 
-	private function routeAfterRestBase( string $path, string $restBasePath ) :?string {
+	/**
+	 * @return string[]
+	 */
+	private function restBasePaths( string $restBasePath ) :array {
+		$paths = [];
+		if ( $restBasePath !== '' ) {
+			$paths[] = $restBasePath;
+			if ( !\str_contains( '/'.$restBasePath.'/', '/index.php/' ) ) {
+				$homePath = \trim( (string)\wp_parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_PATH ), '/' );
+				$prefix = ( $homePath !== '' && \str_starts_with( $restBasePath, $homePath.'/' ) )
+					? \substr( $restBasePath, \strlen( $homePath ) + 1 )
+					: $restBasePath;
+				$paths[] = \ltrim( $homePath.'/index.php/'.$prefix, '/' );
+			}
+		}
+		return $paths;
+	}
+
+	/**
+	 * @param string[] $basePaths
+	 */
+	private function routeAfterRestBase( string $path, array $basePaths ) :?string {
 		$route = null;
 		$path = \trim( $path, '/' );
-		if ( $path !== '' && $restBasePath !== '' ) {
-			$indexedBasePath = \preg_replace( '#(^|/)([^/]+)$#', '$1index.php/$2', $restBasePath );
-			foreach ( [ $restBasePath, $indexedBasePath ] as $basePath ) {
+		if ( $path !== '' ) {
+			foreach ( $basePaths as $basePath ) {
 				if ( $path === $basePath || \str_starts_with( $path, $basePath.'/' ) ) {
 					$route = \substr( $path, \strlen( $basePath ) );
 					break;

@@ -11,7 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Request\{
 
 /**
  * Gathers the facts about the current request that its sensitivity is judged on. Route facts are included
- * as WordPress produces them: query vars from `parse_request`, the queried post from `wp`. Nothing here
+ * as WordPress produces them: query vars from `parse_request`, which then decide whether this is REST, and
+ * the queried post from `wp`. Post types and taxonomies are those registered so far: core's are registered
+ * before plugins load, but plugins register theirs on `init`, after Shield's rules run. Nothing here
  * queries the database: WooCommerce page IDs and Shield's options come from autoloaded options, post types
  * and taxonomies are registered in memory, and the queried post is already held by the main query.
  */
@@ -29,7 +31,7 @@ class BuildRequestFacts {
 			'method'            => $request->getMethod(),
 			'path'              => (string)$req->path,
 			'scriptName'        => (string)$req->script_name,
-			'restRoute'         => $req->getRestRoute() ?: (string)( $routeVars[ 'rest_route' ] ?? '' ),
+			'restRoute'         => $routeVars === null ? $req->getRestRoute() : \trim( (string)( $routeVars[ 'rest_route' ] ?? '' ), '/' ),
 			'action'            => \is_string( $action ) ? $action : '',
 			'query'             => \is_array( $request->query ) ? $request->query : [],
 			'postParams'        => \array_map( 'strval', \array_keys( \is_array( $request->post ) ? $request->post : [] ) ),
@@ -40,8 +42,8 @@ class BuildRequestFacts {
 			'isServerLoopback'  => (bool)$req->is_server_loopback,
 			'loginPaths'        => $this->loginPaths(),
 			'routeVars'         => $routeVars,
-			'contentVars'       => $routeVars === null ? [] : $this->contentVars(),
-			'contentTaxonomies' => $routeVars === null ? [] : \array_values( \get_taxonomies( [ 'public' => true ] ) ),
+			'contentVars'       => $this->contentVars(),
+			'contentTaxonomies' => \array_values( \get_taxonomies( [ 'public' => true ] ) ),
 			'routingComplete'   => (bool)\did_action( 'wp' ),
 			'queriedPostId'     => $this->queriedPostId(),
 			'wooPageIds'        => $this->wooPageIds(),

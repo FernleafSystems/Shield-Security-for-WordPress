@@ -191,6 +191,27 @@ class ThisRequestRestRouteTest extends BaseUnitTest {
 		$this->assertSame( 'wp/v2/users/me', $thisReq->getRestRoute() );
 	}
 
+	public function test_front_controller_is_not_added_twice_with_index_php_permalinks() :void {
+		$restRoute = fn( string $uri ) :string => ( new ThisRequest( [
+			'request'                  => $this->buildRequest( [ 'REQUEST_URI' => $uri ] ),
+			'wp_is_permalinks_enabled' => true,
+			'rest_api_root'            => 'https://example.test/index.php/wp-json/',
+		] ) )->getRestRoute();
+
+		$this->assertSame( 'wp/v2/posts', $restRoute( '/index.php/wp-json/wp/v2/posts' ) );
+		$this->assertSame( '', $restRoute( '/index.php/index.php/wp-json/oembed/1.0/embed' ) );
+	}
+
+	public function test_front_controller_form_comes_before_the_whole_custom_rest_prefix() :void {
+		$thisReq = new ThisRequest( [
+			'request'                  => $this->buildRequest( [ 'REQUEST_URI' => '/index.php/custom/api/wp/v2/posts' ] ),
+			'wp_is_permalinks_enabled' => true,
+			'rest_api_root'            => 'https://example.test/custom/api/',
+		] );
+
+		$this->assertSame( 'wp/v2/posts', $thisReq->getRestRoute() );
+	}
+
 	public function test_encoded_route_parameters_are_kept_as_wordpress_routes_them() :void {
 		$thisReq = new ThisRequest( [
 			'request'                  => $this->buildRequest( [ 'REQUEST_URI' => '/wp-json/example/v1/file/a%2Fb' ] ),

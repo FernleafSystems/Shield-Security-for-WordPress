@@ -80,17 +80,22 @@ class RequestSensitivityTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_an_archive_has_no_queried_post_and_gathering_its_facts_runs_no_queries() :void {
-		global $wpdb;
+		global $wpdb, $wp_query;
 		$termId = self::factory()->category->create();
+		self::factory()->post->create( [ 'post_category' => [ $termId ] ] );
 		$url = (string)\get_category_link( $termId );
 		$this->go_to( $url );
 
 		\parse_str( (string)\wp_parse_url( $url, \PHP_URL_QUERY ), $query );
 		$req = $this->applyCurrentRequestState( [ 'REQUEST_URI' => \str_replace( \home_url(), '', $url ) ], $query );
+		// The archive isn't empty, so WordPress hasn't resolved its queried term; make sure nothing has.
+		$wp_query->queried_object = null;
+		$wp_query->queried_object_id = null;
 		$queriesBefore = $wpdb->num_queries;
 		$facts = ( new BuildRequestFacts() )->build( $req );
 
 		$this->assertSame( $queriesBefore, $wpdb->num_queries );
+		$this->assertNull( $wp_query->queried_object, 'Gathering facts must not resolve the queried term' );
 		$this->assertSame( 0, $facts->queriedPostId, 'A term ID is never taken for a page ID' );
 		$this->assertSame( RequestSensitivity::OPEN, ( new ClassifyRequest() )->classify( $facts )->level );
 	}
