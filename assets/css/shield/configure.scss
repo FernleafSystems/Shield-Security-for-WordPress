@@ -541,7 +541,8 @@
 	.configure-diagnosis--layout-list {
 		.configure-diagnosis__components {
 			align-items: stretch;
-			background: #ffffff;
+			// The whole component column is one grey; the open component's settings sit on white.
+			background: #f3f4f5;
 			border: 1px solid #dcdcde;
 			border-radius: 8px;
 			display: grid;
@@ -561,11 +562,10 @@
 		}
 
 		.shield-detail-item--configure > .shield-detail-row {
-			background: #fafafa;
+			background: transparent;
 			border: 0;
-			border-bottom: 1px solid #eef0f1;
+			border-bottom: 1px solid #e4e6e8;
 			border-radius: 0;
-			border-right: 1px solid #dcdcde;
 			grid-column: 1;
 			margin: 0;
 			padding: 10px 14px;
@@ -585,12 +585,12 @@
 			}
 
 			&:hover {
-				background: #ffffff;
+				background: #e9ebed;
 			}
 
-			// The open component is plain to see: white, bold, with the Configure colour along its edge.
+			// The open component is plain to see: a Configure tint, bold, with the Configure colour along its edge.
 			&.is-expanded {
-				background: #ffffff;
+				background: #ebe4f8;
 				box-shadow: inset 3px 0 0 $mode-configure;
 
 				.shield-detail-row__title {
@@ -606,10 +606,12 @@
 		}
 
 		.shield-detail-expansion {
+			align-self: stretch;
+			background: #ffffff;
 			border: 0;
+			border-left: 1px solid #dcdcde;
 			grid-column: 2;
 			grid-row: 1 / span 200;
-			min-height: 100%;
 		}
 
 		// The open panel is narrower than a full zone, so give the setting's text more of the row.
