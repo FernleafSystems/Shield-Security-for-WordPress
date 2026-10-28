@@ -155,7 +155,6 @@ trait BuildsActionsQueueLandingData {
 					/* translators: %1$s: the first few check names, %2$s: how many more */
 					'passing_more'  => __( '%1$s and %2$s more', 'wp-simple-firewall' ),
 					'not_covered_label'   => __( 'Not covered', 'wp-simple-firewall' ),
-					'not_covered_summary' => __( "Protection your plan doesn't include, or that's turned off", 'wp-simple-firewall' ),
 					'pro_pill'       => __( 'Shield Pro', 'wp-simple-firewall' ),
 					'turned_off_pill' => __( 'Turned off', 'wp-simple-firewall' ),
 					'compare_plans'  => __( 'Compare plans', 'wp-simple-firewall' ),

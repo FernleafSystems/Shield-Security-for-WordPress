@@ -507,10 +507,44 @@ $aq-pro-bg: #f2ebfc;
 	}
 }
 
+// A collapsed lane names what's in it ("Inactive plugins 2 · Inactive themes 2"); open, it shows its summary.
+.actions-queue-section__breakdown {
+	color: $aq-muted;
+	display: flex;
+	flex: 1 1 auto;
+	font-size: 12px;
+	font-weight: 400;
+	gap: 0 12px;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+
+	[aria-expanded="true"] > & {
+		display: none;
+	}
+
+	&::before {
+		content: "·";
+	}
+}
+
+.actions-queue-section__part b {
+	color: #1d2327;
+	font-weight: 700;
+	margin-left: 2px;
+}
+
+.actions-queue-section__summary.has-breakdown {
+	[aria-expanded="false"] > & {
+		display: none;
+	}
+}
+
 .actions-queue-section__count {
 	margin-left: auto;
 
-	.actions-queue-section__summary + & {
+	.actions-queue-section__summary + &,
+	.actions-queue-section__breakdown + & {
 		margin-left: 0;
 	}
 }
@@ -578,7 +612,8 @@ $aq-pro-bg: #f2ebfc;
 		cursor: pointer;
 
 		&:hover {
-			background: #f9fafb;
+			background: #f6f7f8;
+			box-shadow: inset 3px 0 0 #c3c4c7;
 		}
 
 		&:focus-visible {
@@ -661,17 +696,38 @@ $aq-pro-bg: #f2ebfc;
 	white-space: nowrap;
 }
 
+// Opening results reads as a coloured link with a chevron, so every row that opens something looks the
+// same; upgrade and turn-on keep a filled button because they open a dialog rather than results.
 .actions-queue-row__action {
-	background: #ffffff;
-	border-color: #c3c4c7;
-	color: #1d2327;
+	background: transparent;
+	color: #0a58ca;
+	padding-inline: 6px 0;
 
-	&--critical { background: $aq-crit; border-color: $aq-crit; color: #ffffff; }
-	&--pro { background: $aq-pro-bg; border-color: #d6c4f2; color: $aq-pro; }
-	&--enable { background: $aq-good; border-color: $aq-good; color: #ffffff; }
+	.bi-chevron-right {
+		font-size: 11px;
+		transition: transform 0.15s ease;
+	}
 
-	.is-actionable:hover > & {
-		filter: brightness(0.95);
+	&--critical { color: $aq-crit; }
+	&--warning { color: $aq-warn-text; }
+	&--good { color: $aq-good; }
+	&--pro { background: $aq-pro-bg; border-color: #d6c4f2; color: $aq-pro; padding-inline: 12px; }
+	&--enable { background: $aq-good; border-color: $aq-good; color: #ffffff; padding-inline: 12px; }
+
+	.is-actionable:hover > &,
+	.is-actionable:focus-visible > & {
+		text-decoration: underline;
+		text-underline-offset: 3px;
+
+		.bi-chevron-right {
+			transform: translateX(2px);
+		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.actions-queue-row__action .bi-chevron-right {
+		transition: none;
 	}
 }
 
@@ -786,5 +842,44 @@ $aq-pro-bg: #f2ebfc;
 
 	.actions-queue-section__body {
 		border-top: 0;
+	}
+}
+
+// Passing checks need no detail: a compact two-column list, one line each.
+.actions-queue-section[data-actions-queue-section-key="passing"] .actions-queue-section__body:not([hidden]) {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+
+	> .actions-queue-row {
+		border-right: 1px solid $aq-soft-line;
+		padding-block: 8px;
+
+		&:nth-child(2) {
+			border-top: 0;
+		}
+
+		&:nth-child(2n) {
+			border-right: 0;
+		}
+	}
+
+	.actions-queue-row__desc {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}
+
+@media (max-width: 700px) {
+	.actions-queue-section[data-actions-queue-section-key="passing"] .actions-queue-section__body:not([hidden]) {
+		grid-template-columns: minmax(0, 1fr);
+
+		> .actions-queue-row {
+			border-right: 0;
+
+			&:nth-child(2) {
+				border-top: 1px solid $aq-soft-line;
+			}
+		}
 	}
 }

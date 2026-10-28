@@ -6,11 +6,13 @@
 #}
 {% set view = view|default('sections') %}
 {% set lanes = [] %}
-{% set passing = [] %}
-{% set not_covered = [] %}
+{% set passing_candidates = [] %}
+{% set not_covered_candidates = [] %}
+{% set active_keys = [] %}
 {% for bucket in buckets|filter( b => b.is_interactive ) %}
 	{% set layer = bucket_groups[ bucket.key ]|default( {} ) %}
 	{% set lane_sections = [] %}
+	{% set lane_breakdown = [] %}
 	{% set tagged_sections = layer.active_sections|default( [] )|map( s => s|merge( { is_healthy: false } ) )
 		|merge( layer.healthy_sections|default( [] )|map( s => s|merge( { is_healthy: true } ) ) ) %}
 	{% for group_section in tagged_sections %}
@@ -18,11 +20,16 @@
 		{% for group in group_section.groups %}
 			{% set entry = { group: group, bucket_selection: layer.bucket_selection } %}
 			{% if group.is_pro_upsell or group.enable_dialog_json is not empty %}
-				{% set not_covered = not_covered|merge( [ entry ] ) %}
+				{% set not_covered_candidates = not_covered_candidates|merge( [ entry ] ) %}
 			{% elseif group.status == 'good' or group_section.is_healthy %}
-				{% set passing = passing|merge( [ entry ] ) %}
+				{% set passing_candidates = passing_candidates|merge( [ entry ] ) %}
 			{% else %}
 				{% set lane_groups = lane_groups|merge( [ group ] ) %}
+				{% set active_keys = active_keys|merge( [ group.key ] ) %}
+				{% set group_count = group.card_type == 'category'
+					? ( group.maintenance_rows is not empty ? group.maintenance_rows|length : 1 )
+					: group.item_count %}
+				{% set lane_breakdown = lane_breakdown|merge( [ { label: group.label, count: group_count } ] ) %}
 			{% endif %}
 		{% endfor %}
 		{% if lane_groups is not empty %}
@@ -30,6 +37,7 @@
 		{% endif %}
 	{% endfor %}
 	{% if lane_sections is not empty %}
+		{# Only the lane that needs attention next starts open; the rest show a one-line breakdown. #}
 		{% set lanes = lanes|merge( [ {
 			key: bucket.key,
 			status: bucket.status,
@@ -37,11 +45,33 @@
 			icon_class: bucket.icon_class,
 			count: bucket.display_count,
 			summary: bucket.summary_text,
+			breakdown: lane_breakdown,
 			selection_json: bucket.selection.selection_json,
 			bucket_selection: layer.bucket_selection,
 			group_sections: lane_sections,
-			is_open: true
+			is_open: lanes is empty
 		} ] ) %}
+	{% endif %}
+{% endfor %}
+
+{#
+	Each lane lists every group it doesn't flag as passing, so the same passing group can arrive from
+	several lanes, and a group one lane flags can arrive as passing from another. List each group once,
+	and only as passing when no lane needs it.
+#}
+{% set passing = [] %}
+{% set seen_keys = active_keys %}
+{% for entry in passing_candidates %}
+	{% if entry.group.key not in seen_keys %}
+		{% set passing = passing|merge( [ entry ] ) %}
+		{% set seen_keys = seen_keys|merge( [ entry.group.key ] ) %}
+	{% endif %}
+{% endfor %}
+{% set not_covered = [] %}
+{% for entry in not_covered_candidates %}
+	{% if entry.group.key not in seen_keys %}
+		{% set not_covered = not_covered|merge( [ entry ] ) %}
+		{% set seen_keys = seen_keys|merge( [ entry.group.key ] ) %}
 	{% endif %}
 {% endfor %}
 
@@ -61,6 +91,7 @@
 		summary: passing_names|length > 3
 			? strings.passing_more|format( passing_names|slice( 0, 3 )|join( ', ' ), passing_names|length - 3 )
 			: passing_names|join( ', ' ),
+		breakdown: [],
 		selection_json: '',
 		is_open: false
 	} ] ) %}
@@ -72,9 +103,10 @@
 		label: strings.not_covered_label,
 		icon_class: 'bi bi-lock-fill',
 		count: not_covered|length,
-		summary: strings.not_covered_summary,
+		summary: not_covered|map( e => e.group.label )|join( ', ' ),
+		breakdown: [],
 		selection_json: '',
-		is_open: true
+		is_open: false
 	} ] ) %}
 {% endif %}
 
@@ -134,7 +166,14 @@
 				<span class="actions-queue-section__icon"><i class="{{ section.icon_class }}" aria-hidden="true"></i></span>
 				<span class="actions-queue-section__label">{{ section.label }}</span>
 				{% if section.summary is not empty %}
-					<span class="actions-queue-section__summary">{{ section.summary }}</span>
+					<span class="actions-queue-section__summary{% if section.breakdown is not empty %} has-breakdown{% endif %}">{{ section.summary }}</span>
+				{% endif %}
+				{% if section.breakdown is not empty %}
+					<span class="actions-queue-section__breakdown">
+						{% for part in section.breakdown %}
+							<span class="actions-queue-section__part">{{ part.label }} <b>{{ part.count }}</b></span>
+						{% endfor %}
+					</span>
 				{% endif %}
 				{% if section.key != 'passing' %}
 					<span class="actions-queue-section__count">{{ section.count }}</span>
