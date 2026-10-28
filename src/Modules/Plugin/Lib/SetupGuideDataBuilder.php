@@ -43,10 +43,12 @@ class SetupGuideDataBuilder {
 		}
 
 		$done = $state->doneSlugs();
+		$copy = $this->stepCopy();
 		$steps = [
 			[
 				'slug'    => self::STEP_WELCOME,
-				'name'    => __( 'Watch the intro', 'wp-simple-firewall' ),
+				'name'    => $copy[ self::STEP_WELCOME ][ 0 ],
+				'hint'    => $copy[ self::STEP_WELCOME ][ 1 ],
 				'is_done' => \in_array( self::STEP_WELCOME, $done, true ),
 				'body'    => '',
 				'video_id' => self::WELCOME_VIDEO_ID,
@@ -60,7 +62,8 @@ class SetupGuideDataBuilder {
 			$isDone = $handler->skipStep() || \in_array( $handler::SLUG, $done, true );
 			$steps[] = [
 				'slug'     => $handler::SLUG,
-				'name'     => $handler->getName(),
+				'name'     => $copy[ $handler::SLUG ][ 0 ] ?? $handler->getName(),
+				'hint'     => $copy[ $handler::SLUG ][ 1 ] ?? '',
 				'is_done'  => $isDone,
 				// Completed steps need no form, which keeps every page render light.
 				'body'     => $isDone ? '' : $handler->render(),
@@ -72,10 +75,12 @@ class SetupGuideDataBuilder {
 		if ( $doneCount === \count( $steps ) ) {
 			return [ 'show' => false ];
 		}
+		$next = \current( \array_filter( $steps, static fn( array $step ) :bool => !$step[ 'is_done' ] ) );
 
 		return [
 			'show'        => true,
 			'steps'       => $steps,
+			'next_name'   => $next[ 'name' ],
 			'done_count'  => $doneCount,
 			'total'       => \count( $steps ),
 			'merlin_action_json' => ActionData::BuildJson( MerlinAction::class ),
@@ -97,7 +102,27 @@ class SetupGuideDataBuilder {
 				'mark_watched'   => __( 'Mark as watched', 'wp-simple-firewall' ),
 				'all_done'       => __( 'Setup is complete. You can change any of this later in Configure.', 'wp-simple-firewall' ),
 				'reopen'         => __( 'Setup', 'wp-simple-firewall' ),
+				'sidebar_label'  => __( 'Setup guide', 'wp-simple-firewall' ),
+				/* translators: %s: name of the next setup step */
+				'next'           => __( 'Next: %s', 'wp-simple-firewall' ),
 			],
+		];
+	}
+
+	/**
+	 * Plain-language step names, each with a short hint, written for the guide rather than the
+	 * wizard's slide titles.
+	 * @return array<string, array{0:string, 1:string}>
+	 */
+	private function stepCopy() :array {
+		return [
+			self::STEP_WELCOME               => [ __( 'Welcome to Shield', 'wp-simple-firewall' ), __( 'Short intro video', 'wp-simple-firewall' ) ],
+			Steps\License::SLUG              => [ __( 'Activate your Pro licence', 'wp-simple-firewall' ), __( 'Unlocks Pro protection', 'wp-simple-firewall' ) ],
+			Steps\ApplySecurityProfile::SLUG => [ __( 'Choose a protection level', 'wp-simple-firewall' ), __( 'Sets many options at once', 'wp-simple-firewall' ) ],
+			Steps\SecurityAdmin::SLUG        => [ __( 'Set a Security Admin PIN', 'wp-simple-firewall' ), __( 'Stops other admins changing Shield', 'wp-simple-firewall' ) ],
+			Steps\ReportEmail::SLUG          => [ __( 'Where should reports go?', 'wp-simple-firewall' ), __( 'Weekly summary and alerts', 'wp-simple-firewall' ) ],
+			Steps\Integrations::SLUG         => [ __( 'Protect your site forms', 'wp-simple-firewall' ), __( 'Contact, login and signup forms', 'wp-simple-firewall' ) ],
+			Steps\SecurityBadge::SLUG        => [ __( 'Show the Shield badge', 'wp-simple-firewall' ), __( 'Optional', 'wp-simple-firewall' ) ],
 		];
 	}
 }

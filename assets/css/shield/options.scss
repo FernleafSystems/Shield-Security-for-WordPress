@@ -203,11 +203,13 @@ $options-rail-width-max: 260px;
   }
 }
 
+// Name and description on the left, the control in its own right-hand column (as in the concept).
 // Top-aligned so a long control (checkbox lists, textareas) never pushes the label to mid-row.
 .options_form_for--modern .shield-option-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.85rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 280px);
+  align-items: start;
+  gap: 0.85rem 1.25rem;
   padding: 0.85rem 1rem 0.8rem;
 }
 
@@ -413,8 +415,8 @@ $options-rail-width-max: 260px;
 .options_form_for--modern .shield-option-control-col {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 0.5rem;
-  flex-shrink: 0;
   min-width: 0;
 }
 
@@ -424,10 +426,10 @@ $options-rail-width-max: 260px;
 .options_form_for--modern .shield-option-control-col input[type='text'],
 .options_form_for--modern .shield-option-control-col input[type='password'] {
   border: 1px solid $options-border-strong;
-  border-radius: 8px;
-  font-size: 0.84rem;
-  padding: 0.35rem 0.5rem;
-  width: 220px;
+  border-radius: 6px;
+  font-size: 13px;
+  padding: 0.35rem 0.55rem;
+  width: 100%;
 }
 
 .options_form_for--modern .shield-option-control-col input.shield-option-number {
@@ -439,7 +441,7 @@ $options-rail-width-max: 260px;
 .options_form_for--modern .shield-option-stacked-control {
   display: grid;
   gap: 0.45rem;
-  width: 220px;
+  width: 100%;
 }
 
 .options_form_for--modern .shield-option-stacked-control .form-control {
@@ -727,10 +729,9 @@ $options-rail-width-max: 260px;
   }
 }
 
-@container (max-width: 600px) {
+@container (max-width: 460px) {
   .options_form_for--modern .shield-option-row {
-    flex-direction: column;
-    align-items: stretch;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.7rem;
   }
 

@@ -72,88 +72,134 @@
 	display: grid;
 }
 
+// Search results (concept): the best match set apart, then one plain list; no icon clutter.
 .configure-search-results__item {
-	align-items: flex-start;
+	align-items: center;
 	color: #1d2327;
-	display: flex;
-	gap: 0.8rem;
-	padding: 0.85rem 1rem;
+	display: grid;
+	gap: 1px 12px;
+	grid-template-columns: minmax(0, 1fr) auto;
+	padding: 8px 14px;
 	text-decoration: none;
-	transition: background-color 0.15s ease;
 }
 
 .configure-search-results__item:hover,
 .configure-search-results__item:focus-visible {
-	background: rgba($mode-configure-light, 0.42);
+	background: #f6f2fd;
 	color: #1d2327;
 }
 
 .configure-search-results__item:focus-visible {
-	@include shield-focus-ring();
+	@include shield-focus-ring(-3px);
 }
 
-.configure-search-results__item + .configure-search-results__item {
-	border-top: 1px solid rgba($border-color-neutral-subtle, 0.9);
+.configure-search-results__item.is-best {
+	background: #f6f2fd;
+	border-bottom: 1px solid $border-color-neutral-subtle;
+	padding-bottom: 10px;
+	padding-top: 10px;
 }
 
 .configure-search-results__icon {
-	align-items: center;
-	color: #5f6974;
-	display: inline-flex;
-	flex: 0 0 auto;
-	font-size: 1rem;
-	justify-content: center;
-	line-height: 1;
-	margin-top: 0.05rem;
-	width: 1rem;
+	display: none;
 }
 
 .configure-search-results__copy {
-	align-items: baseline;
-	column-gap: 0.5rem;
-	display: flex;
-	flex: 1 1 auto;
-	flex-wrap: wrap;
+	display: grid;
+	gap: 1px;
 	min-width: 0;
-	row-gap: 0.3rem;
 }
 
-.configure-search-results__type {
-	align-items: center;
-	background: rgba($mode-configure, 0.08);
-	border: 1px solid rgba($mode-configure, 0.18);
-	border-radius: 999px;
-	display: inline-flex;
-	flex: 0 0 auto;
-	font-size: 0.64rem;
+.configure-search-results__best,
+.configure-search-results__heading {
+	color: $mode-configure;
+	font-size: 10.5px;
 	font-weight: 700;
-	letter-spacing: 0.04em;
-	padding: 0.15rem 0.45rem;
+	letter-spacing: 0.08em;
 	text-transform: uppercase;
 }
 
-.configure-search-results__type--option {
-	color: $mode-configure;
+.configure-search-results__heading {
+	color: #646970;
+	padding: 8px 14px 2px;
 }
 
-.configure-search-results__type--zone {
-	color: $status-color-info;
+.configure-search-results__name {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.configure-search-results__type {
+	color: #646970;
+	font-size: 10.5px;
+	font-weight: 600;
+}
+
+.configure-search-results__type--option {
+	display: none; // settings are the norm; only zones are labelled
 }
 
 .configure-search-results__label {
 	color: #1d2327;
-	flex: 0 1 auto;
+	font-size: 13.5px;
 	font-weight: 600;
 }
 
 .configure-search-results__summary,
 .configure-search-results__empty {
-	color: #5f6974;
-	font-size: 0.8rem;
+	color: #646970;
+	font-size: 12px;
 }
 
 .configure-search-results__summary {
-	flex: 1 1 12rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.configure-search-results__path {
+	color: #50575e;
+}
+
+.configure-search-results__value {
+	color: #646970;
+	font-size: 12px;
+	max-width: 13rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.configure-search-results mark {
+	background: #fff1b8;
+	border-radius: 2px;
+	color: inherit;
+	padding: 0 1px;
+}
+
+.configure-search-results__foot {
+	background: #fafafa;
+	border-top: 1px solid $border-color-neutral-subtle;
+	bottom: 0;
+	color: #646970;
+	display: flex;
+	font-size: 11.5px;
+	justify-content: space-between;
+	padding: 7px 14px;
+	position: sticky;
+
+	kbd {
+		background: #ffffff;
+		border: 1px solid $border-color-neutral-subtle;
+		border-bottom-width: 2px;
+		border-radius: 4px;
+		box-shadow: none;
+		color: #1d2327;
+		font-size: 10.5px;
+		padding: 0 5px;
+	}
 }
 
 .configure-search-results__empty {
@@ -409,14 +455,101 @@
 	display: none;
 }
 
-// ─── Component list layout: components on the left, the open one's settings on the right ───
+// ─── Components (concept): readable cards with a status edge; the whole header opens them ───
+.configure-diagnosis__components {
+	display: grid;
+	gap: 10px;
+}
+
+.configure-diagnosis .shield-detail-item--configure {
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	box-shadow: none;
+}
+
+.configure-diagnosis .shield-detail-item--configure > .shield-detail-row {
+	align-items: center;
+	cursor: pointer;
+	padding: 12px 14px 12px 18px; // clear of the status edge the shared row draws
+
+	.shield-detail-row__title {
+		font-size: 14px;
+		font-weight: 600;
+	}
+
+	.shield-detail-row__desc {
+		color: #646970;
+		font-size: 12.5px;
+		margin-top: 2px;
+	}
+
+	.shield-detail-row__explanations {
+		font-size: 12.5px;
+		margin-top: 6px;
+	}
+
+	.shield-detail-row__expl-action {
+		font-weight: 600;
+	}
+
+	// The header itself opens the component, so the "Configure" pill is not needed; the chevron says open or closed.
+	.shield-detail-row__expand-cta {
+		display: none;
+	}
+
+	.shield-detail-row__chevron {
+		font-size: 0.85rem;
+		transform: rotate(90deg);
+	}
+
+	&.is-expanded .shield-detail-row__chevron {
+		transform: rotate(-90deg);
+	}
+}
+
+// Settings sit flush in the component, one row each, rather than in a panel inside a card.
+.configure-diagnosis .shield-detail-expansion > .shield-detail-expansion__form {
+	border: 0;
+	border-radius: 0;
+	border-top: 1px solid #eef0f1;
+	box-shadow: none;
+	margin-top: 0;
+}
+
+.configure-diagnosis .options_form_for--modern {
+	.shield-options-panel {
+		background: #ffffff;
+		border-radius: 0;
+		box-shadow: none;
+	}
+
+	.shield-options-panel-body {
+		padding: 0;
+	}
+
+	.shield-option-row {
+		padding: 12px 16px 12px 18px;
+	}
+}
+
+.configure-expansion-heading {
+	display: none;
+}
+
+// ─── Component list layout: one joined panel, components on the left, the open one on the right ───
 @media (min-width: 961px) {
 	.configure-diagnosis--layout-list {
-		align-items: start;
-		column-gap: 1rem;
-		display: grid;
-		grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
-		row-gap: 0;
+		.configure-diagnosis__components {
+			align-items: stretch;
+			background: #ffffff;
+			border: 1px solid #dcdcde;
+			border-radius: 8px;
+			display: grid;
+			gap: 0;
+			grid-auto-rows: min-content;
+			grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+			overflow: hidden;
+		}
 
 		.configure-diagnosis__settings,
 		.shield-detail-item--configure {
@@ -427,32 +560,83 @@
 			display: none;
 		}
 
-		.shield-detail-row {
-			cursor: pointer;
+		.shield-detail-item--configure > .shield-detail-row {
+			background: #fafafa;
+			border: 0;
+			border-bottom: 1px solid #eef0f1;
+			border-radius: 0;
+			border-right: 1px solid #dcdcde;
 			grid-column: 1;
-			margin-bottom: 0.4rem;
+			margin: 0;
+			padding: 10px 14px;
+
+			.shield-detail-row__status-icon {
+				font-size: 0.7rem;
+			}
+
+			.shield-detail-row__title {
+				font-size: 13px;
+				font-weight: 500;
+			}
+
+			// Status shows as the small icon here; the edge is kept for the open component.
+			&::before {
+				display: none;
+			}
+
+			&:hover {
+				background: #ffffff;
+			}
+
+			// The open component is plain to see: white, bold, with the Configure colour along its edge.
+			&.is-expanded {
+				background: #ffffff;
+				box-shadow: inset 3px 0 0 $mode-configure;
+
+				.shield-detail-row__title {
+					font-weight: 700;
+				}
+			}
 		}
 
-		.shield-detail-row:not(.is-expanded) .shield-detail-row__desc,
-		.shield-detail-row:not(.is-expanded) .shield-detail-row__explanations {
-			display: none;
-		}
-
-		.shield-detail-row.is-expanded {
-			box-shadow: inset 3px 0 0 $mode-configure;
-		}
-
-		.shield-detail-row__expand-cta {
+		.shield-detail-row .shield-detail-row__desc,
+		.shield-detail-row .shield-detail-row__explanations,
+		.shield-detail-row__end {
 			display: none;
 		}
 
 		.shield-detail-expansion {
+			border: 0;
 			grid-column: 2;
-			grid-row: 2 / span 200;
+			grid-row: 1 / span 200;
+			min-height: 100%;
 		}
 
-		.configure-savebar {
-			grid-column: 1 / -1;
+		// The open panel is narrower than a full zone, so give the setting's text more of the row.
+		.options_form_for--modern .shield-option-row {
+			grid-template-columns: minmax(0, 1fr) minmax(150px, 220px);
+		}
+
+		.shield-detail-expansion__form .options_form_for {
+			margin: 0;
+			padding: 0;
+		}
+
+		.configure-expansion-heading {
+			border-bottom: 1px solid #dcdcde;
+			display: grid;
+			gap: 2px;
+			padding: 12px 16px;
+		}
+
+		.configure-expansion-heading__title {
+			font-size: 14px;
+			font-weight: 700;
+		}
+
+		.configure-expansion-heading__desc {
+			color: #646970;
+			font-size: 12.5px;
 		}
 	}
 }

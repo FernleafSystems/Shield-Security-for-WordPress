@@ -1,9 +1,16 @@
+{#
+	Configure search results, following the concept: the best match first and set apart, then the
+	rest as one plain list. Each result shows where it lives and, for settings, its current value.
+#}
 <div class="configure-search-results"
 	 data-configure-search-results="1">
 	{% if flags.has_results %}
 		<div class="configure-search-results__list">
 			{% for result in vars.results %}
-				<a class="configure-search-results__item"
+				{% if loop.index == 2 %}
+					<div class="configure-search-results__heading">{{ strings.more_label }}</div>
+				{% endif %}
+				<a class="configure-search-results__item{{ loop.first ? ' is-best' : '' }}"
 				   data-configure-search-result="1"
 				   data-drill-zone-selection="{{ result.selection_json|e('html_attr') }}"
 				   data-configure-focus-request="{{ result.focus_request_json|e('html_attr') }}"
@@ -12,16 +19,34 @@
 						<i class="{{ result.icon_class }}" aria-hidden="true"></i>
 					</span>
 					<span class="configure-search-results__copy">
-						<span class="configure-search-results__type configure-search-results__type--{{ result.type }}">
-							{{ result.type == 'zone' ? strings.zone_label : strings.option_label }}
+						{% if loop.first %}
+							<span class="configure-search-results__best">{{ strings.best_label }}</span>
+						{% endif %}
+						<span class="configure-search-results__name">
+							<span class="configure-search-results__label" data-configure-search-highlight="1">{{ result.label }}</span>
+							<span class="configure-search-results__type configure-search-results__type--{{ result.type }}">
+								{{ result.type == 'zone' ? strings.zone_label : strings.option_label }}
+							</span>
 						</span>
-						<span class="configure-search-results__label">{{ result.label }}</span>
-						{% if result.summary is not empty %}
-							<span class="configure-search-results__summary">{{ result.summary }}</span>
+						{% if result.path is not empty or result.summary is not empty %}
+							<span class="configure-search-results__summary" data-configure-search-highlight="1">
+								{%- if result.path is not empty %}<span class="configure-search-results__path">{{ result.path }}</span>{% endif -%}
+								{%- if result.path is not empty and result.summary is not empty %} · {% endif -%}
+								{{- result.summary -}}
+							</span>
 						{% endif %}
 					</span>
+					{% if result.value is not empty %}
+						<span class="configure-search-results__value">{{ result.value }}</span>
+					{% endif %}
 				</a>
 			{% endfor %}
+		</div>
+		<div class="configure-search-results__foot">
+			<span>{{ strings.count_label|format( vars.results|length ) }}</span>
+			<span class="configure-search-results__keys" aria-hidden="true">
+				<kbd>Tab</kbd> {{ strings.move_label }} <kbd>Enter</kbd> {{ strings.open_label }}
+			</span>
 		</div>
 	{% else %}
 		<p class="configure-search-results__empty mb-0">{{ strings.no_results }}</p>

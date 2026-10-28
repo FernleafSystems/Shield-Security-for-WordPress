@@ -60,6 +60,8 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
 		$this->eventSelector = $this->createMock( EventSelect::class );
+		$this->eventSelector->method( 'filterByBoundary' )->willReturnSelf();
+		$this->eventSelector->method( 'sumEventsSeparately' )->willReturn( [] );
 		$eventHandler = $this->createMock( EventHandler::class );
 		$eventHandler->method( 'getQuerySelector' )->willReturn( $this->eventSelector );
 		UnitTestControllerFactory::install(

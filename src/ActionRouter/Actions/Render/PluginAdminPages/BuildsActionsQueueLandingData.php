@@ -148,10 +148,19 @@ trait BuildsActionsQueueLandingData {
 					'view_label'    => __( 'Layout', 'wp-simple-firewall' ),
 					'view_sections' => __( 'Sections', 'wp-simple-firewall' ),
 					'view_tabs'     => __( 'Tabs', 'wp-simple-firewall' ),
-					'looking_good'  => __( 'Looking good', 'wp-simple-firewall' ),
-					'nothing_here'  => __( 'Nothing to do here.', 'wp-simple-firewall' ),
+					'nothing_here'  => __( 'Nothing needs your action right now.', 'wp-simple-firewall' ),
 					/* translators: %s: number of checks */
-					'quiet_label'   => __( 'Passing and not covered (%s)', 'wp-simple-firewall' ),
+					'passing_label' => __( '%s checks passing', 'wp-simple-firewall' ),
+					'passing_tab'   => __( 'Passing', 'wp-simple-firewall' ),
+					/* translators: %1$s: the first few check names, %2$s: how many more */
+					'passing_more'  => __( '%1$s and %2$s more', 'wp-simple-firewall' ),
+					'not_covered_label'   => __( 'Not covered', 'wp-simple-firewall' ),
+					'not_covered_summary' => __( "Protection your plan doesn't include, or that's turned off", 'wp-simple-firewall' ),
+					'pro_pill'       => __( 'Shield Pro', 'wp-simple-firewall' ),
+					'turned_off_pill' => __( 'Turned off', 'wp-simple-firewall' ),
+					'compare_plans'  => __( 'Compare plans', 'wp-simple-firewall' ),
+					'turn_on'        => __( 'Turn on', 'wp-simple-firewall' ),
+					'review'         => __( 'Review', 'wp-simple-firewall' ),
 				],
 			] )
 			->render();

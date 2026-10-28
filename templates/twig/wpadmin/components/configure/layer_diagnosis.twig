@@ -83,17 +83,20 @@
 		</div>
 	{% endif %}
 
-	{% if diagnosis.problem_rows is not empty %}
-		{{ render_rows(diagnosis.problem_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
-	{% endif %}
+	{# One frame for every component: a stack of cards, or in the component list, one joined panel. #}
+	<div class="configure-diagnosis__components">
+		{% if diagnosis.problem_rows is not empty %}
+			{{ render_rows(diagnosis.problem_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
+		{% endif %}
 
-	{% if diagnosis.review_rows is not empty %}
-		{{ render_rows(diagnosis.review_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
-	{% endif %}
+		{% if diagnosis.review_rows is not empty %}
+			{{ render_rows(diagnosis.review_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
+		{% endif %}
 
-	{% if diagnosis.healthy_rows is not empty %}
-		{{ render_rows(diagnosis.healthy_rows, diagnosis_id) }}
-	{% endif %}
+		{% if diagnosis.healthy_rows is not empty %}
+			{{ render_rows(diagnosis.healthy_rows, diagnosis_id) }}
+		{% endif %}
+	</div>
 
 	{% if savebar is defined %}
 		<div class="configure-savebar"

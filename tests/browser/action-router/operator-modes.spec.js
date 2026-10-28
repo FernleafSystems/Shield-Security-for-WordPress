@@ -178,7 +178,12 @@ test( 'dashboard overview renders stable dashboard shell contracts without runti
 	await openShieldRoute( page, dashboardRoute );
 
 	await expect( page.locator( '[data-mode-shell="1"][data-mode="dashboard"]' ) ).toBeVisible();
-	await expect( page.locator( '[data-dashboard-live-monitor="1"]' ) ).toBeVisible();
+	// The Live Monitor starts closed unless the user left it open; the sidebar launcher opens it.
+	const monitor = page.locator( '[data-dashboard-live-monitor="1"]' );
+	if ( await monitor.getAttribute( 'data-is-collapsed' ) === '1' ) {
+		await page.locator( '[data-live-monitor-launch="1"]' ).click();
+	}
+	await expect( monitor ).toBeVisible();
 	await expectStatusLiveRegion( page.locator( '[data-dashboard-live-monitor="1"] [data-shield-status-region="1"]' ) );
 	await expectNoRuntimeErrors( runtimeErrors, 'dashboard overview shell render' );
 } );
@@ -334,8 +339,9 @@ test( 'dashboard overview wraps cards at narrow widths without horizontal overfl
 		return { top: box.top };
 	} ) );
 	expect( observedOverview ).not.toBeNull();
-	expect( boxes[ 1 ].top ).toBeGreaterThan( boxes[ 0 ].top );
-	expect( boxes[ 2 ].top ).toBeGreaterThan( boxes[ 1 ].top );
+	// The three destinations stay in one compact row at a normal desktop width.
+	expect( boxes[ 1 ].top ).toBe( boxes[ 0 ].top );
+	expect( boxes[ 2 ].top ).toBe( boxes[ 0 ].top );
 	expect( await overview.evaluate( ( element ) => element.scrollWidth <= element.clientWidth ) ).toBe( true );
 
 	await page.setViewportSize( { width: 375, height: 1000 } );

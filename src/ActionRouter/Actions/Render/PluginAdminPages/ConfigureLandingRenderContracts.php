@@ -118,6 +118,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   icon_class:string,
  *   label:string,
  *   summary:string,
+ *   path:string,
+ *   value:string,
  *   selection_json:string,
  *   focus_request_json:string,
  *   href:string

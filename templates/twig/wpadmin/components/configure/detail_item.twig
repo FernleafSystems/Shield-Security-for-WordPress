@@ -13,6 +13,13 @@
 
 	{% if expand.is_expandable %}
 		{% set expansion_body %}
+			{# The component list shows the open component's name above its settings. #}
+			<div class="configure-expansion-heading">
+				<span class="configure-expansion-heading__title">{{ row.title }}</span>
+				{% if row.description is not empty %}
+					<span class="configure-expansion-heading__desc">{{ row.description }}</span>
+				{% endif %}
+			</div>
 			<div data-configure-expand-ajax="1"
 				 {% for key, value in expand.data_attributes %}data-{{ key }}="{{ value|e('html_attr') }}"{% endfor %}></div>
 		{% endset %}

@@ -73,9 +73,15 @@ class PageOperatorModeLanding extends BaseRender {
 			'vars' => [
 				'dashboard_activity_chart_data_json' => \json_encode( $dashboardActivityChartData, \JSON_THROW_ON_ERROR ),
 				'dashboard_activity_charts'         => $this->buildDashboardActivityCharts( $dashboardActivityChartData ),
-				'dashboard_activity_charts_heading' => __( 'Stats (Previous 7 Days)', 'wp-simple-firewall' ),
+				'dashboard_activity_charts_heading' => __( 'Last 7 days', 'wp-simple-firewall' ),
+				'dashboard_activity_charts_link'    => __( 'Open charts', 'wp-simple-firewall' ),
+				'dashboard_activity_charts_href'    => self::con()->plugin_urls->reportsHome( PluginNavs::SUBNAV_REPORTS_CHARTS ),
 				'dashboard_recent_events'           => $dashboardRecentEvents,
-				'dashboard_recent_events_heading'   => __( 'Recent Events', 'wp-simple-firewall' ),
+				'dashboard_recent_events_heading'   => __( 'Recent events', 'wp-simple-firewall' ),
+				/* translators: %s: number of times the event happened this week */
+				'dashboard_recent_events_week_label' => __( '%s this week', 'wp-simple-firewall' ),
+				'dashboard_recent_events_link'      => __( 'Open activity log', 'wp-simple-firewall' ),
+				'dashboard_recent_events_href'      => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 				'dashboard_recent_events_unrecorded_label' => __( 'Not seen yet:', 'wp-simple-firewall' ),
 				'dashboard_launchpad_heading'       => __( 'Launchpad', 'wp-simple-firewall' ),
 				'dashboard_strip'                   => $queueCard[ 'dashboard_strip' ],
@@ -158,10 +164,13 @@ class PageOperatorModeLanding extends BaseRender {
 
 	private function changeLabel( int $change ) :string {
 		if ( $change === 0 ) {
-			return __( 'Same as the 7 days before', 'wp-simple-firewall' );
+			return __( 'No change', 'wp-simple-firewall' );
 		}
-		/* translators: %s: signed change, such as +3 or -2 */
-		return \sprintf( __( '%s on the 7 days before', 'wp-simple-firewall' ), ( $change > 0 ? '+' : '−' ).\abs( $change ) );
+		return \sprintf(
+			/* translators: %s: how much the weekly total changed */
+			$change > 0 ? __( 'Up %s', 'wp-simple-firewall' ) : __( 'Down %s', 'wp-simple-firewall' ),
+			\abs( $change )
+		);
 	}
 
 	/**

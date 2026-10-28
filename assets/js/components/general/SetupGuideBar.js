@@ -19,14 +19,29 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 
 	run() {
 		this.reopen = document.querySelector( '[data-setup-guide-reopen="1"]' );
+		this.sidebarItem = document.querySelector( '[data-setup-guide-open="1"]' );
 		this.setHidden( this.readSessionHidden() );
+		this.fillShellToViewport();
+		window.addEventListener( 'resize', () => this.fillShellToViewport() );
+
+		// The sidebar entry brings the guide back, open, whether it was hidden or only collapsed.
+		this.sidebarItem?.addEventListener( 'click', () => {
+			this.writeSessionHidden( false );
+			this.setHidden( false );
+			this.setExpanded( true );
+			this.root.querySelector( '[data-setup-guide-toggle="1"]' )?.focus();
+		} );
 
 		this.root.addEventListener( 'click', ( evt ) => {
 			const target = evt.target instanceof Element ? evt.target : null;
 			if ( target === null ) {
 				return;
 			}
-			const toggle = target.closest( '[data-setup-guide-toggle="1"]' );
+			// The collapsed bar opens the guide from anywhere on it, apart from its own links.
+			const onBar = target.closest( '[data-setup-guide-bar="1"]' ) !== null
+				&& target.closest( 'button:not([data-setup-guide-toggle]), a' ) === null;
+			const toggle = target.closest( '[data-setup-guide-toggle="1"]' )
+				|| ( onBar ? this.root.querySelector( '[data-setup-guide-toggle="1"]' ) : null );
 			const step = target.closest( '[data-setup-guide-step]' );
 			const skip = target.closest( '[data-setup-guide-skip]' );
 			const complete = target.closest( '[data-setup-guide-complete]' );
@@ -48,6 +63,8 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 				this.sendUpdate( { op: 'dismiss' } ).then( () => {
 					this.root.remove();
 					this.reopen?.remove();
+					this.sidebarItem?.closest( '.sidebar-setup-footer' )?.remove();
+					document.body.classList.remove( 'has-shield-setup-guide' );
 				} );
 			}
 			else {
@@ -80,7 +97,10 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 		const toggle = this.root.querySelector( '[data-setup-guide-toggle="1"]' );
 		if ( toggle instanceof HTMLElement ) {
 			toggle.setAttribute( 'aria-expanded', String( isExpanded ) );
-			toggle.textContent = ( isExpanded ? toggle.dataset.labelOpen : toggle.dataset.labelClosed ) || toggle.textContent;
+			const label = toggle.querySelector( '[data-setup-guide-toggle-label="1"]' );
+			if ( label ) {
+				label.textContent = ( isExpanded ? toggle.dataset.labelOpen : toggle.dataset.labelClosed ) || label.textContent;
+			}
 		}
 		const sheet = this.root.querySelector( '.shield-setup-guide__sheet' );
 		if ( sheet ) {
@@ -97,6 +117,19 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 		}
 		document.body.classList.toggle( 'has-shield-setup-guide', !isHidden );
 		this.syncScrollPadding();
+		this.fillShellToViewport();
+	}
+
+	/**
+	 * On short pages the Shield sidebar would stop part way down, leaving a gap above the fixed bar;
+	 * the admin shell is stretched to at least the bottom of the window instead.
+	 */
+	fillShellToViewport() {
+		const shell = document.getElementById( 'PageMain-Shield' );
+		if ( shell instanceof HTMLElement ) {
+			const top = shell.getBoundingClientRect().top + window.scrollY;
+			shell.style.minHeight = this.root.hidden ? '' : `${Math.max( 0, window.innerHeight - top )}px`;
+		}
 	}
 
 	/**
@@ -118,6 +151,10 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 	completeStep( slug ) {
 		const step = this.root.querySelector( `[data-setup-guide-step="${slug}"]` );
 		step?.classList.add( 'is-done' );
+		const hint = step?.querySelector( '[data-setup-guide-step-hint="1"]' );
+		if ( hint ) {
+			hint.textContent = this.root.dataset.doneLabel || hint.textContent;
+		}
 
 		const steps = [ ...this.root.querySelectorAll( '[data-setup-guide-step]' ) ];
 		const doneCount = steps.filter( ( s ) => s.classList.contains( 'is-done' ) ).length;
@@ -129,16 +166,25 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 		if ( count ) {
 			count.textContent = label;
 		}
-		const reopenCount = this.reopen?.querySelector( '[data-setup-guide-reopen-count="1"]' );
-		if ( reopenCount ) {
-			reopenCount.textContent = `${doneCount}/${total}`;
-		}
+		[ this.reopen?.querySelector( '[data-setup-guide-reopen-count="1"]' ), this.sidebarItem?.querySelector( '[data-setup-guide-open-count="1"]' ) ]
+		.forEach( ( countEl ) => {
+			if ( countEl ) {
+				countEl.textContent = `${doneCount}/${total}`;
+			}
+		} );
 		const fill = this.root.querySelector( '.shield-setup-guide__progress-fill' );
 		if ( fill instanceof HTMLElement ) {
 			fill.style.width = `${Math.round( 100*doneCount/total )}%`;
 		}
 
 		const next = steps.find( ( s ) => !s.classList.contains( 'is-done' ) );
+		const nextLabel = this.root.querySelector( '[data-setup-guide-next="1"]' );
+		if ( nextLabel ) {
+			const nextName = next?.querySelector( '.shield-setup-guide__step-name' )?.textContent || '';
+			nextLabel.textContent = nextName.length > 0
+				? String( this.root.dataset.nextTemplate || '%s' ).replace( '%s', nextName )
+				: '';
+		}
 		this.showStep( next ? next.dataset.setupGuideStep || '' : 'all_done' );
 	}
 

@@ -1,12 +1,36 @@
 {#
-	Each lane (Fix now, Review next) is a section of group cards shown in place; a group card opens
-	its results directly. "Looking good" is collapsed. The same sections can show as tabs instead.
+	The Actions Queue landing, following the approved concept: each lane that needs action is one card
+	with a tinted header and a flat list of rows, and a row opens its results directly. Checks that are
+	passing, and checks the plan doesn't cover or that are turned off, each get one section of their own
+	at the end. The same sections can show as tabs instead.
 #}
 {% set view = view|default('sections') %}
-{% set sections = [] %}
-{% for bucket in buckets %}
-	{% if bucket.is_interactive %}
-		{% set sections = sections|merge( [ {
+{% set lanes = [] %}
+{% set passing = [] %}
+{% set not_covered = [] %}
+{% for bucket in buckets|filter( b => b.is_interactive ) %}
+	{% set layer = bucket_groups[ bucket.key ]|default( {} ) %}
+	{% set lane_sections = [] %}
+	{% set tagged_sections = layer.active_sections|default( [] )|map( s => s|merge( { is_healthy: false } ) )
+		|merge( layer.healthy_sections|default( [] )|map( s => s|merge( { is_healthy: true } ) ) ) %}
+	{% for group_section in tagged_sections %}
+		{% set lane_groups = [] %}
+		{% for group in group_section.groups %}
+			{% set entry = { group: group, bucket_selection: layer.bucket_selection } %}
+			{% if group.is_pro_upsell or group.enable_dialog_json is not empty %}
+				{% set not_covered = not_covered|merge( [ entry ] ) %}
+			{% elseif group.status == 'good' or group_section.is_healthy %}
+				{% set passing = passing|merge( [ entry ] ) %}
+			{% else %}
+				{% set lane_groups = lane_groups|merge( [ group ] ) %}
+			{% endif %}
+		{% endfor %}
+		{% if lane_groups is not empty %}
+			{% set lane_sections = lane_sections|merge( [ { heading: group_section.heading_label, groups: lane_groups } ] ) %}
+		{% endif %}
+	{% endfor %}
+	{% if lane_sections is not empty %}
+		{% set lanes = lanes|merge( [ {
 			key: bucket.key,
 			status: bucket.status,
 			label: bucket.label,
@@ -14,20 +38,40 @@
 			count: bucket.display_count,
 			summary: bucket.summary_text,
 			selection_json: bucket.selection.selection_json,
+			bucket_selection: layer.bucket_selection,
+			group_sections: lane_sections,
 			is_open: true
 		} ] ) %}
 	{% endif %}
 {% endfor %}
-{% if healthy_rows is not empty %}
+
+{% set passing_count = passing|length + healthy_rows|length %}
+{% set passing_names = ( passing|map( p => p.group.label ) )|merge( healthy_rows|map( r => r.title ) )|filter( n => n is not empty ) %}
+{% set sections = lanes %}
+{% if passing_count > 0 %}
 	{% set sections = sections|merge( [ {
-		key: 'good',
+		key: 'passing',
 		status: 'good',
-		label: strings.looking_good|default('Looking good'),
+		label: strings.passing_label|format( passing_count ),
 		icon_class: 'bi bi-check-circle-fill',
-		count: healthy_rows|length,
-		summary: '',
+		count: passing_count,
+		summary: passing_names|length > 3
+			? strings.passing_more|format( passing_names|slice( 0, 3 )|join( ', ' ), passing_names|length - 3 )
+			: passing_names|join( ', ' ),
 		selection_json: '',
 		is_open: false
+	} ] ) %}
+{% endif %}
+{% if not_covered is not empty %}
+	{% set sections = sections|merge( [ {
+		key: 'not_covered',
+		status: 'pro',
+		label: strings.not_covered_label,
+		icon_class: 'bi bi-lock-fill',
+		count: not_covered|length,
+		summary: strings.not_covered_summary,
+		selection_json: '',
+		is_open: true
 	} ] ) %}
 {% endif %}
 
@@ -47,7 +91,7 @@
 							aria-controls="ActionsQueueSection-{{ section.key }}"
 							aria-selected="{{ loop.first ? 'true' : 'false' }}"
 							data-actions-queue-tab="{{ section.key }}">
-						<i class="{{ section.icon_class }}" aria-hidden="true"></i>{{ section.label }}
+						<i class="{{ section.icon_class }}" aria-hidden="true"></i>{{ section.key == 'passing' ? strings.passing_tab : section.label }}
 						<span class="actions-queue-sections__count">{{ section.count }}</span>
 					</button>
 				{% endfor %}
@@ -65,14 +109,19 @@
 		</div>
 	{% endif %}
 
+	{% if lanes is empty %}
+		<div class="actions-queue-sections__clear">
+			<i class="bi bi-check-circle-fill" aria-hidden="true"></i>{{ strings.nothing_here }}
+		</div>
+	{% endif %}
+
 	{% for section in sections %}
 		<section class="actions-queue-section status-{{ section.status }}"
 				 id="ActionsQueueSection-{{ section.key }}"
 				 data-actions-queue-section-key="{{ section.key }}"
-				 data-actions-queue-bucket-selection="{{ section.selection_json }}"
+				 {% if section.selection_json is not empty %}data-actions-queue-bucket-selection="{{ section.selection_json }}"{% endif %}
 				 data-tab-selected="{{ loop.first ? '1' : '0' }}"
 				 aria-labelledby="ActionsQueueSectionHead-{{ section.key }}">
-			<div class="actions-queue-section__header">
 			<button type="button"
 					class="actions-queue-section__head"
 					id="ActionsQueueSectionHead-{{ section.key }}"
@@ -81,82 +130,53 @@
 					aria-controls="ActionsQueueSectionBody-{{ section.key }}">
 				<span class="actions-queue-section__icon"><i class="{{ section.icon_class }}" aria-hidden="true"></i></span>
 				<span class="actions-queue-section__label">{{ section.label }}</span>
-				<span class="actions-queue-section__count">{{ section.count }}</span>
 				{% if section.summary is not empty %}
 					<span class="actions-queue-section__summary">{{ section.summary }}</span>
 				{% endif %}
+				{% if section.key != 'passing' %}
+					<span class="actions-queue-section__count">{{ section.count }}</span>
+				{% endif %}
 				<i class="bi bi-chevron-down actions-queue-section__chevron" aria-hidden="true"></i>
 			</button>
-			</div>
 
 			<div class="actions-queue-section__body"
 				 id="ActionsQueueSectionBody-{{ section.key }}"
 				 {% if not section.is_open %}hidden{% endif %}>
-				{% if section.key == 'good' %}
-					<div class="item-box item-box--good">
-						<div class="item-box__grid">
-							{% for row in healthy_rows %}
-								{% include '/wpadmin/components/actions_queue/compact_summary_row.twig' with {
-									row: row
-								} only %}
-							{% endfor %}
-						</div>
-					</div>
-				{% else %}
-					{% set layer = bucket_groups[ section.key ]|default( {} ) %}
-					{% set quiet_count = 0 %}
-					{% for group_section in layer.healthy_sections|default( [] ) %}
-						{% set quiet_count = quiet_count + group_section.groups|length %}
+				{% if section.key == 'passing' %}
+					{% for entry in passing %}
+						{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
+							group: entry.group,
+							bucket_selection: entry.bucket_selection,
+							strings: strings
+						} only %}
 					{% endfor %}
-					<div class="actions-queue-groups{% if section.key == 'review' %} actions-queue-groups--review{% endif %}">
-						{% for group_section in layer.active_sections|default( [] ) %}
-							{% set needs_action = group_section.groups|filter( g => not ( g.status == 'good' or g.is_pro_upsell or g.enable_dialog_json is not empty ) ) %}
-							{% set quiet_count = quiet_count + ( group_section.groups|length - needs_action|length ) %}
-							{% if needs_action is not empty %}
-								<div class="actions-queue-section__group">
-									{% if group_section.heading_label is not empty %}
-										<div class="finding-group__heading">{{ group_section.heading_label }}</div>
-									{% endif %}
-									<div class="configure-zones__grid">
-										{% for group in needs_action %}
-											{% include '/wpadmin/components/actions_queue/group_card.twig' with {
-												group: group,
-												bucket_selection: layer.bucket_selection,
-												is_healthy: false
-											} only %}
-										{% endfor %}
-									</div>
-								</div>
-							{% endif %}
-						{% endfor %}
-
-						{# Passing checks and checks that aren't running stay out of the way until asked for. #}
-						{% if quiet_count > 0 %}
-							<details class="actions-queue-section__quiet">
-								<summary>{{ strings.quiet_label|default('Passing and not covered')|format( quiet_count ) }}</summary>
-								<div class="configure-zones__grid">
-									{% for group_section in layer.active_sections|default( [] ) %}
-										{% for group in group_section.groups|filter( g => g.status == 'good' or g.is_pro_upsell or g.enable_dialog_json is not empty ) %}
-											{% include '/wpadmin/components/actions_queue/group_card.twig' with {
-												group: group,
-												bucket_selection: layer.bucket_selection,
-												is_healthy: group.status == 'good'
-											} only %}
-										{% endfor %}
-									{% endfor %}
-									{% for group_section in layer.healthy_sections|default( [] ) %}
-										{% for group in group_section.groups %}
-											{% include '/wpadmin/components/actions_queue/group_card.twig' with {
-												group: group,
-												bucket_selection: layer.bucket_selection,
-												is_healthy: true
-											} only %}
-										{% endfor %}
-									{% endfor %}
-								</div>
-							</details>
+					{% for row in healthy_rows %}
+						{% include '/wpadmin/components/actions_queue/landing_item_row.twig' with {
+							row: row,
+							is_passing: true
+						} only %}
+					{% endfor %}
+				{% elseif section.key == 'not_covered' %}
+					{% for entry in not_covered %}
+						{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
+							group: entry.group,
+							bucket_selection: entry.bucket_selection,
+							strings: strings
+						} only %}
+					{% endfor %}
+				{% else %}
+					{% for group_section in section.group_sections %}
+						{% if group_section.heading is not empty and section.group_sections|length > 1 %}
+							<div class="actions-queue-section__subhead">{{ group_section.heading }}</div>
 						{% endif %}
-					</div>
+						{% for group in group_section.groups %}
+							{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
+								group: group,
+								bucket_selection: section.bucket_selection,
+								strings: strings
+							} only %}
+						{% endfor %}
+					{% endfor %}
 				{% endif %}
 			</div>
 		</section>

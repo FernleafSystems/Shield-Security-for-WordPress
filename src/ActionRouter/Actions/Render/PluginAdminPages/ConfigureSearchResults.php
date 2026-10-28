@@ -17,7 +17,7 @@ class ConfigureSearchResults extends \FernleafSystems\Wordpress\Plugin\Shield\Ac
 	/**
 	 * @return array{
 	 *   flags:array{has_results:bool},
-	 *   strings:array{no_results:string,zone_label:string,option_label:string},
+	 *   strings:array<string,string>,
 	 *   vars:array{results:list<ConfigureSearchResult>}
 	 * }
 	 */
@@ -32,6 +32,12 @@ class ConfigureSearchResults extends \FernleafSystems\Wordpress\Plugin\Shield\Ac
 				'no_results'   => __( 'No Configure results matched this search.', 'wp-simple-firewall' ),
 				'zone_label'   => __( 'Zone', 'wp-simple-firewall' ),
 				'option_label' => __( 'Option', 'wp-simple-firewall' ),
+				'best_label'   => __( 'Best match', 'wp-simple-firewall' ),
+				'more_label'   => __( 'Other matches', 'wp-simple-firewall' ),
+				/* translators: %s: number of search results */
+				'count_label'  => _n( '%s result', '%s results', \count( $results ), 'wp-simple-firewall' ),
+				'move_label'   => __( 'move', 'wp-simple-firewall' ),
+				'open_label'   => __( 'open', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'results' => $results,

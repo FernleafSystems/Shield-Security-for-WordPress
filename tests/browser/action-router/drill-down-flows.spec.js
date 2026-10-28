@@ -346,9 +346,14 @@ test( 'actions queue warning lane uses warning palette', async ( { page, fixture
 		const review = actionsQueuePage.landingSection( 'review' );
 		await expect( review ).toBeVisible();
 		await expect( review ).toHaveClass( /status-warning/ );
+		// The lane's header carries the warning tint and text colour.
+		const head = review.locator( '[data-actions-queue-section-toggle="1"]' );
 		await expect.poll(
-			async () => review.evaluate( ( el ) => window.getComputedStyle( el ).borderLeftColor )
-		).toBe( 'rgb(237, 180, 29)' );
+			async () => head.evaluate( ( el ) => window.getComputedStyle( el ).backgroundColor )
+		).toBe( 'rgb(254, 246, 230)' );
+		await expect.poll(
+			async () => head.evaluate( ( el ) => window.getComputedStyle( el ).color )
+		).toBe( 'rgb(148, 98, 0)' );
 	} );
 } );
 
@@ -382,7 +387,7 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	const expandButton = expandRow.locator( '[data-shield-expand-trigger="1"]' );
 	await expect( expandRow ).not.toHaveAttribute( 'role', 'button' );
 	await expect( expandRow ).not.toHaveAttribute( 'tabindex', '0' );
-	await expect( expandButton.locator( '.shield-detail-row__expand-cta' ) ).toBeVisible();
+	await expect( expandButton ).toBeVisible();
 	await expect( expandButton ).toHaveAttribute( 'aria-expanded', 'false' );
 	await expandButton.click();
 	await expect( expandButton ).toHaveAttribute( 'aria-expanded', 'true' );
@@ -404,7 +409,7 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( rail ).toBeHidden();
 	const refreshedExpandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' ).first();
 	const refreshedExpandButton = refreshedExpandRow.locator( '[data-shield-expand-trigger="1"]' );
-	await expect( refreshedExpandButton.locator( '.shield-detail-row__expand-cta' ) ).toBeVisible();
+	await expect( refreshedExpandButton ).toBeVisible();
 	await refreshedExpandButton.click();
 	await expect( refreshedExpandButton ).toHaveAttribute( 'aria-expanded', 'true' );
 	await expect( visibleExpandedForms.first() ).toBeVisible();

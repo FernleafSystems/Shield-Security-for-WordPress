@@ -896,7 +896,8 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 	 * through the lane they belong to, so that lane becomes the selected one.
 	 */
 	adoptLandingBucket( element ) {
-		const section = element instanceof Element ? element.closest( '[data-actions-queue-section-key]' ) : null;
+		// Rows in the shared passing and not-covered sections carry their own lane; lanes carry theirs.
+		const section = element instanceof Element ? element.closest( '[data-actions-queue-bucket-selection]' ) : null;
 		if ( !( section instanceof HTMLElement ) ) {
 			return false;
 		}

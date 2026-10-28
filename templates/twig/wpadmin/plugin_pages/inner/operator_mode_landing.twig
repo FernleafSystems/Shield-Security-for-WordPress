@@ -72,10 +72,6 @@
 						<span class="operator-mode-overview__destination-copy">
 							<span class="operator-mode-overview__destination-title">{{ card.title }}</span>
 							<span class="operator-mode-overview__destination-description">{{ card.description }}</span>
-							<span class="operator-mode-overview__destination-cta">
-								{{ card.cta }}
-								<i class="bi bi-arrow-right" aria-hidden="true"></i>
-							</span>
 						</span>
 					</a>
 				{% endfor %}
@@ -107,9 +103,10 @@
 		</section>
 
 		<section class="dashboard-activity-charts-section" aria-labelledby="dashboard-activity-charts-heading">
-			<div class="investigate-landing__section-heading">
+			<div class="investigate-landing__section-heading dashboard-section-heading">
 				<span class="investigate-landing__section-icon" aria-hidden="true"><i class="bi bi-bar-chart-line"></i></span>
 				<h2 id="dashboard-activity-charts-heading" class="investigate-landing__section-label">{{ vars.dashboard_activity_charts_heading }}</h2>
+				<a class="dashboard-section-heading__link" href="{{ vars.dashboard_activity_charts_href }}">{{ vars.dashboard_activity_charts_link }}</a>
 			</div>
 
 			<div class="stats-strip dashboard-activity-charts"
@@ -122,18 +119,19 @@
 					   data-dashboard-activity-chart="{{ chart.key|e('html_attr') }}"
 					   aria-label="{{ chart.accessible_label|e('html_attr') }}">
 						<span class="stat-flipper">
-							<span class="stat-front">
+							{% set trend = chart.change > 0 ? 'up' : ( chart.change < 0 ? 'down' : 'flat' ) %}
+							<span class="stat-front{{ chart.value == 0 ? ' is-zero' : '' }}">
+								<span class="stat-title">{{ chart.label }}</span>
 								<span class="stat-value">{{ chart.value }}</span>
-								<span class="stat-title dashboard-event-label">
-									<span class="dashboard-event-icon" aria-hidden="true"><i class="{{ chart.icon_class }}"></i></span>
-									<span>{{ chart.label }}</span>
-								</span>
-								<span class="stat-change stat-change--{{ chart.change > 0 ? 'up' : ( chart.change < 0 ? 'down' : 'flat' ) }}">{{ chart.change_label }}</span>
 								{% if chart.spark_points is not empty %}
 									<svg class="stat-spark" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true" focusable="false">
 										<polyline points="{{ chart.spark_points }}" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"></polyline>
 									</svg>
 								{% endif %}
+								<span class="stat-change stat-change--{{ trend }}">
+									{% if trend != 'flat' %}<i class="bi bi-caret-{{ trend }}-fill" aria-hidden="true"></i>{% endif %}
+									{{ chart.change_label }}
+								</span>
 							</span>
 							<span class="stat-back" aria-hidden="true">
 								<span class="summary-chart"></span>
@@ -146,35 +144,32 @@
 		</section>
 
 		<section class="dashboard-recent-events-section" aria-labelledby="dashboard-recent-events-heading">
-			<div class="investigate-landing__section-heading">
+			<div class="investigate-landing__section-heading dashboard-section-heading">
 				<span class="investigate-landing__section-icon" aria-hidden="true"><i class="bi bi-clock-history"></i></span>
 				<h2 id="dashboard-recent-events-heading" class="investigate-landing__section-label">{{ vars.dashboard_recent_events_heading }}</h2>
+				<a class="dashboard-section-heading__link" href="{{ vars.dashboard_recent_events_href }}">{{ vars.dashboard_recent_events_link }}</a>
 			</div>
 
-			<ul class="stats-strip dashboard-recent-events list-unstyled m-0 p-0" aria-label="{{ vars.dashboard_recent_events_heading|e('html_attr') }}">
-				{% for event in vars.dashboard_recent_events|filter( e => e.has_record ) %}
-					<li class="stat-cell dashboard-recent-events__item{{ event.has_record ? '' : ' dashboard-recent-events__item--unrecorded' }}"
-							 tabindex="0"
-							 style="--dashboard-event-hue: {{ event.recency_hue }};"
-							 aria-label="{{ event.accessible_label|e('html_attr') }}">
-						<span class="dashboard-event-label dashboard-recent-events__front">
-							<span class="dashboard-event-icon" aria-hidden="true"><i class="{{ event.icon_class }}"></i></span>
-							<span class="dashboard-recent-events__text stat-title">
-								<span class="dashboard-recent-events__label">{{ event.label }}</span>
-								<span class="dashboard-recent-events__time" aria-hidden="true">{{ event.time_ago }}</span>
-							</span>
-						</span>
-					</li>
-				{% endfor %}
-			</ul>
-			{# Event types that have never happened are listed in one line rather than as empty tiles. #}
+			{# One list, newest first; event types that have never happened share a single line at the end. #}
 			{% set unrecorded = vars.dashboard_recent_events|filter( e => not e.has_record ) %}
-			{% if unrecorded is not empty %}
-				<p class="dashboard-recent-events__unrecorded">
-					{{ vars.dashboard_recent_events_unrecorded_label }}
-					{{ unrecorded|map( e => e.label )|join( ', ' ) }}
-				</p>
-			{% endif %}
+			<div class="dashboard-recent-events-card">
+				<ul class="dashboard-recent-events list-unstyled m-0 p-0" aria-label="{{ vars.dashboard_recent_events_heading|e('html_attr') }}">
+					{% for event in vars.dashboard_recent_events|filter( e => e.has_record ) %}
+						<li class="dashboard-recent-events__item" aria-label="{{ event.accessible_label|e('html_attr') }}">
+							<span class="dashboard-recent-events__icon" aria-hidden="true"><i class="{{ event.icon_class }}"></i></span>
+							<span class="dashboard-recent-events__label">{{ event.label }}</span>
+							<span class="dashboard-recent-events__count">{{ event.week_count > 0 ? vars.dashboard_recent_events_week_label|format( event.week_count ) : '' }}</span>
+							<span class="dashboard-recent-events__time">{{ event.time_ago }}</span>
+						</li>
+					{% endfor %}
+				</ul>
+				{% if unrecorded is not empty %}
+					<p class="dashboard-recent-events__unrecorded">
+						{{ vars.dashboard_recent_events_unrecorded_label }}
+						{{ unrecorded|map( e => e.label )|join( ', ' ) }}
+					</p>
+				{% endif %}
+			</div>
 		</section>
 	</div>
 

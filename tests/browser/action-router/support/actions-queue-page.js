@@ -58,12 +58,18 @@ class ActionsQueuePage {
 	}
 
 	/**
-	 * A landing group card; passing and not-covered cards sit in a disclosure that is opened first.
+	 * A landing group row; the passing section starts collapsed, so its section is opened first.
 	 */
 	async waitForLandingGroupOuter( groupKey, timeout = 20000 ) {
 		const group = this.page.locator( `[data-actions-queue-sections="1"] [data-actions-queue-group-key="${groupKey}"]` ).first();
 		await expect.poll( async () => await group.count(), { timeout } ).toBe( 1 );
-		await group.evaluate( ( element ) => element.closest( 'details' )?.setAttribute( 'open', '' ) );
+		await group.evaluate( ( element ) => {
+			const head = element.closest( '[data-actions-queue-section-key]' )
+				?.querySelector( '[data-actions-queue-section-toggle="1"]' );
+			if ( head instanceof HTMLElement && head.getAttribute( 'aria-expanded' ) === 'false' ) {
+				head.click();
+			}
+		} );
 		await expect( group ).toBeVisible();
 		return group;
 	}

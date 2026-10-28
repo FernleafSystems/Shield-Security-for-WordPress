@@ -18,6 +18,8 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   icon_class:string,
  *   label:string,
  *   summary:string,
+ *   path:string,
+ *   value:string,
  *   selection_json:string,
  *   focus_request_json:string,
  *   href:string,
@@ -126,6 +128,8 @@ class ConfigureSearchResultsBuilder {
 				'icon_class' => $diagnosis[ 'zone_icon_class' ],
 				'label'      => $diagnosis[ 'zone_label' ],
 				'summary'    => $zoneSummary,
+				'path'       => '',
+				'value'      => '',
 				'selection_json'     => $diagnosis[ 'zone_selection_json' ],
 				'focus_request_json' => '',
 				'href'       => self::con()->plugin_urls->configureHome( $diagnosis[ 'zone_key' ] ),
@@ -202,6 +206,8 @@ class ConfigureSearchResultsBuilder {
 				'icon_class' => self::con()->svgs->iconClass( 'sliders' ),
 				'label'      => $optionStrings[ 'name' ],
 				'summary'    => $this->buildOptionSummary( $focusTarget[ 'row_title' ], $optionStrings ),
+				'path'       => \implode( ' › ', \array_filter( [ $focusTarget[ 'zone_label' ], \trim( $focusTarget[ 'row_title' ] ) ] ) ),
+				'value'      => $this->currentValueLabel( $optionKey ),
 				'selection_json'     => $focusTarget[ 'selection_json' ],
 				'focus_request_json' => $this->buildFocusRequestJson( $optionKey, $focusTarget ),
 				'href'       => URL::Build(
@@ -273,6 +279,39 @@ class ConfigureSearchResultsBuilder {
 			: \trim( $rowTitle );
 	}
 
+	/**
+	 * A short reading of the option's current setting, shown beside the result so the user can see
+	 * where it stands before opening it. Secrets and long values are left out.
+	 */
+	private function currentValueLabel( string $optionKey ) :string {
+		$def = self::con()->opts->optDef( $optionKey );
+		$value = self::con()->opts->optGet( $optionKey );
+		switch ( (string)( $def[ 'type' ] ?? '' ) ) {
+			case 'checkbox':
+				return $value === 'Y' ? __( 'On', 'wp-simple-firewall' ) : __( 'Off', 'wp-simple-firewall' );
+			case 'select':
+				foreach ( $def[ 'value_options' ] ?? [] as $valueOption ) {
+					if ( (string)( $valueOption[ 'value_key' ] ?? '' ) === (string)$value ) {
+						return (string)( $valueOption[ 'text' ] ?? '' );
+					}
+				}
+				return '';
+			case 'multiple_select':
+			case 'array':
+				return \is_array( $value ) && !empty( $value )
+					/* translators: %s: number of selected items */
+					? \sprintf( _n( '%s selected', '%s selected', \count( $value ), 'wp-simple-firewall' ), \count( $value ) )
+					: '';
+			case 'text':
+			case 'email':
+			case 'integer':
+				$text = \is_scalar( $value ) ? \trim( (string)$value ) : '';
+				return \strlen( $text ) > 32 ? \substr( $text, 0, 31 ).'…' : $text;
+			default:
+				return '';
+		}
+	}
+
 	private function buildFocusQueryArgs( string $optionKey, array $focusTarget ) :array {
 		return [
 			'row_key'     => $focusTarget[ 'row_key' ],
@@ -290,6 +329,7 @@ class ConfigureSearchResultsBuilder {
 	 * @return array<string,array{
 	 *   zone_key:string,
 	 *   row_key:string,
+	 *   zone_label:string,
 	 *   row_title:string,
 	 *   selection_json:string,
 	 *   priority:int
@@ -377,6 +417,7 @@ class ConfigureSearchResultsBuilder {
 
 			$lookup[ $optionKey ] = [
 				'zone_key'   => $diagnosis[ 'zone_key' ],
+				'zone_label' => $diagnosis[ 'zone_label' ],
 				'row_key'    => $rowKey,
 				'row_title'  => $row[ 'title' ],
 				'selection_json' => $diagnosis[ 'zone_selection_json' ],

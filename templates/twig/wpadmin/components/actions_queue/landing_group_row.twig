@@ -1,0 +1,82 @@
+{#
+	One issue group as a flat row on the Actions Queue landing. A group with results is a button that
+	opens them; a group of maintenance items lists each item as its own row under a small heading;
+	upgrade and turn-on rows open their dialogs.
+#}
+{% set is_pro = group.is_pro_upsell %}
+{% set is_enable = group.enable_dialog_json is not empty %}
+{% set is_passing = not is_pro and not is_enable and group.status == 'good' %}
+{# A passing group can still have results to open, such as ignored items that can be restored. #}
+{% set can_drill = not is_pro and not is_enable
+	and group.is_interactive and group.card_type != 'category' and group.card_type != 'linked' %}
+{% set kind = is_pro ? 'pro' : ( is_enable ? 'enable' : ( is_passing ? 'good' : group.status ) ) %}
+
+{% if group.card_type == 'category' and not is_passing %}
+	<div class="actions-queue-row-group" data-actions-queue-group-key="{{ group.key|e('html_attr') }}">
+		<div class="actions-queue-row-group__head status-{{ group.status }}">
+			<span class="actions-queue-row-group__icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
+			<span class="actions-queue-row-group__label">{{ group.label }}</span>
+			{% if group.management_link is not empty %}
+				<a class="actions-queue-row-group__link"
+				   href="{{ group.management_link.href }}"
+				   {% if group.management_link.target is not empty %}target="{{ group.management_link.target }}"{% endif %}
+				   {% if group.management_link.rel is not empty %}rel="{{ group.management_link.rel }}"{% endif %}>
+					{{ group.management_link.label }} <i class="bi {{ group.management_link.icon_class }}" aria-hidden="true"></i>
+				</a>
+			{% endif %}
+		</div>
+		{% for row in group.maintenance_rows is not empty ? group.maintenance_rows : ( group.summary_row is not empty ? [ group.summary_row ] : [] ) %}
+			{% include '/wpadmin/components/actions_queue/landing_item_row.twig' with {
+				row: row,
+				is_passing: false
+			} only %}
+		{% endfor %}
+	</div>
+{% else %}
+	{% set tag = ( can_drill or is_pro or is_enable ) ? 'button' : 'div' %}
+	{% set summary = group.narrative is not empty ? group.narrative : ( group.summary_row.summary|default('') ) %}
+	<{{ tag }} {% if tag == 'button' %}type="button"{% endif %}
+		class="actions-queue-row actions-queue-row--{{ kind }}{% if tag == 'button' %} is-actionable{% endif %}"
+		data-actions-queue-group-key="{{ group.key|e('html_attr') }}"
+		{% if bucket_selection.selection_json is defined and bucket_selection.selection_json is not empty %}data-actions-queue-bucket-selection="{{ bucket_selection.selection_json|e('html_attr') }}"{% endif %}
+		{% if can_drill %}
+			data-drill-target="detail"
+			data-drill-bucket-selection="{{ bucket_selection.selection_json|e('html_attr') }}"
+			data-drill-group-selection="{{ group.selection.selection_json|e('html_attr') }}"
+		{% endif %}
+		{% if is_pro %}data-pro-upsell="1" aria-haspopup="dialog" aria-controls="ShieldModalContainer"{% endif %}
+		{% if is_enable %}data-enable-protection="{{ group.enable_dialog_json|e('html_attr') }}" aria-haspopup="dialog"{% endif %}>
+		<span class="actions-queue-row__icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
+		<span class="actions-queue-row__copy">
+			<span class="actions-queue-row__title">
+				{{ group.label }}
+				{% if is_pro %}
+					<span class="actions-queue-pill actions-queue-pill--pro">{{ strings.pro_pill }}</span>
+				{% elseif is_enable %}
+					<span class="actions-queue-pill actions-queue-pill--off">{{ group.status_label is not empty ? group.status_label : strings.turned_off_pill }}</span>
+				{% endif %}
+			</span>
+			{% if summary is not empty %}
+				<span class="actions-queue-row__desc">{{ summary }}</span>
+			{% endif %}
+		</span>
+		{% if is_pro %}
+			<span class="actions-queue-row__action actions-queue-row__action--pro">{{ strings.compare_plans }}</span>
+		{% elseif is_enable %}
+			<span class="actions-queue-row__action actions-queue-row__action--enable">{{ strings.turn_on }}</span>
+		{% elseif can_drill %}
+			<span class="actions-queue-row__action actions-queue-row__action--{{ group.status }}">
+				{{ group.drill_hint is not empty ? group.drill_hint : strings.review }}
+			</span>
+		{% elseif group.card_type == 'linked' and group.links is not empty %}
+			<span class="actions-queue-row__links">
+				{% for link in group.links %}
+					<a class="actions-queue-row__link"
+					   href="{{ link.href }}"
+					   {% if link.target is not empty %}target="{{ link.target }}"{% endif %}
+					   {% if link.rel is not empty %}rel="{{ link.rel }}"{% endif %}>{{ link.label }}</a>
+				{% endfor %}
+			</span>
+		{% endif %}
+	</{{ tag }}>
+{% endif %}

@@ -15,8 +15,8 @@ test( 'free Actions Queue upgrade cards open the shared Pro modal without drilli
 		} );
 		await page.setViewportSize( { width: 500, height: 900 } );
 
-		// Pro upsell cards are listed on the landing, under "Passing and not covered".
-		await expect( actionsQueuePage.landingSection( fixture.bucket_key ) ).toBeVisible();
+		// Pro upsell rows are listed on the landing, in the "Not covered" section.
+		await expect( actionsQueuePage.landingSection( 'not_covered' ) ).toBeVisible();
 
 		const modal = page.locator( '#ShieldModalContainer' );
 		const modalContent = modal.locator( '.modal-content' );

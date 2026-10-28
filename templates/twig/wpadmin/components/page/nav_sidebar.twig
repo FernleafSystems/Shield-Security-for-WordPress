@@ -92,6 +92,17 @@
 		</div>
 	{% endif %}
 
+	{# While setup is unfinished, the guide can always be brought back from here, even after "Hide until next visit". #}
+	{% if vars.setup_guide.show|default(false) %}
+		<div class="sidebar-setup-footer">
+			<button type="button" class="mode-item sidebar-setup-item" data-setup-guide-open="1" aria-controls="ShieldSetupGuide">
+				<span class="mode-icon"><i class="bi bi-shield-fill-check" aria-hidden="true"></i></span>
+				<span class="mode-label">{{ vars.setup_guide.strings.sidebar_label }}</span>
+				<span class="sidebar-setup-count" data-setup-guide-open-count="1">{{ vars.setup_guide.done_count }}/{{ vars.setup_guide.total }}</span>
+			</button>
+		</div>
+	{% endif %}
+
 	{# Bottom of the dashboard sidebar: the Live Monitor launcher and the licence / upgrade link. #}
 	{% if sidebar.home_live_monitor_item|default(null) is not empty or sidebar.home_license_item is not empty %}
 		<div class="sidebar-home-footer">
