@@ -1,0 +1,81 @@
+{#
+	Setup guide along the bottom of Shield admin pages. Collapsed it is a single bar with progress;
+	expanded it shows the steps on the left and the selected step's form on the right.
+#}
+{% set first_open = guide.steps|filter( s => not s.is_done )|first %}
+<section class="shield-setup-guide"
+		 id="ShieldSetupGuide"
+		 data-setup-guide="1"
+		 data-merlin-action="{{ guide.merlin_action_json|e('html_attr') }}"
+		 data-update-action="{{ guide.update_action_json|e('html_attr') }}"
+		 data-progress-template="{{ guide.strings.progress|e('html_attr') }}"
+		 data-total="{{ guide.total }}"
+		 aria-labelledby="ShieldSetupGuideTitle">
+
+	<div class="shield-setup-guide__bar">
+		<span class="shield-setup-guide__title" id="ShieldSetupGuideTitle">
+			<i class="bi bi-rocket-takeoff" aria-hidden="true"></i>{{ guide.strings.title }}
+		</span>
+		<span class="shield-setup-guide__progress" aria-hidden="true">
+			<span class="shield-setup-guide__progress-fill" style="width: {{ ( 100 * guide.done_count / guide.total )|round }}%"></span>
+		</span>
+		<span class="shield-setup-guide__count" data-setup-guide-count="1">{{ guide.strings.progress|format( guide.done_count, guide.total ) }}</span>
+		<span class="shield-setup-guide__spacer"></span>
+		<button type="button" class="btn btn-sm btn-primary" data-setup-guide-toggle="1"
+				data-label-closed="{{ guide.strings.continue|e('html_attr') }}"
+				data-label-open="{{ guide.strings.collapse|e('html_attr') }}"
+				aria-expanded="false" aria-controls="ShieldSetupGuideSheet">{{ guide.strings.continue }}</button>
+		<button type="button" class="shield-setup-guide__link" data-setup-guide-hide="1">{{ guide.strings.hide_for_now }}</button>
+		<button type="button" class="shield-setup-guide__link" data-setup-guide-dismiss="1">{{ guide.strings.dismiss }}</button>
+	</div>
+
+	<div class="shield-setup-guide__sheet" id="ShieldSetupGuideSheet" hidden>
+		<ol class="shield-setup-guide__steps" aria-label="{{ guide.strings.steps_label }}">
+			{% for step in guide.steps %}
+				<li>
+					<button type="button"
+							class="shield-setup-guide__step{{ step.is_done ? ' is-done' : '' }}"
+							data-setup-guide-step="{{ step.slug }}"
+							aria-current="{{ first_open is not null and step.slug == first_open.slug ? 'step' : 'false' }}">
+						<span class="shield-setup-guide__check" aria-hidden="true"><i class="bi bi-check-lg"></i></span>
+						<span class="shield-setup-guide__step-name">{{ step.name }}</span>
+						{% if step.is_done %}<span class="visually-hidden">{{ guide.strings.done }}</span>{% endif %}
+					</button>
+				</li>
+			{% endfor %}
+		</ol>
+
+		<div class="shield-setup-guide__panes">
+			{% for step in guide.steps %}
+				<div class="shield-setup-guide__pane"
+					 data-setup-guide-pane="{{ step.slug }}"
+					 {% if first_open is null or step.slug != first_open.slug %}hidden{% endif %}>
+					{% if step.is_done %}
+						<p class="shield-setup-guide__done-note"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> {{ guide.strings.done }}</p>
+					{% elseif step.video_id is not empty %}
+						<h4 class="mb-2">{{ guide.strings.welcome_title }}</h4>
+						<p>{{ guide.strings.welcome_text }}</p>
+						<button type="button" class="btn btn-outline-secondary option-video" data-vimeoid="{{ step.video_id }}">
+							<i class="bi bi-play-circle" aria-hidden="true"></i> {{ guide.strings.watch_video }}
+						</button>
+						<button type="button" class="btn btn-primary ms-2" data-setup-guide-complete="{{ step.slug }}">{{ guide.strings.mark_watched }}</button>
+					{% else %}
+						{{ step.body|raw }}
+					{% endif %}
+					{% if not step.is_done %}
+						<p class="mt-3 mb-0">
+							<button type="button" class="shield-setup-guide__link" data-setup-guide-skip="{{ step.slug }}">{{ guide.strings.skip }}</button>
+						</p>
+					{% endif %}
+				</div>
+			{% endfor %}
+			<div class="shield-setup-guide__pane" data-setup-guide-pane="all_done" hidden>
+				<p class="shield-setup-guide__done-note"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> {{ guide.strings.all_done }}</p>
+			</div>
+		</div>
+	</div>
+</section>
+<button type="button" class="shield-setup-guide-reopen" data-setup-guide-reopen="1" hidden>
+	<i class="bi bi-rocket-takeoff" aria-hidden="true"></i>{{ guide.strings.reopen }}
+	<span data-setup-guide-reopen-count="1">{{ guide.done_count }}/{{ guide.total }}</span>
+</button>

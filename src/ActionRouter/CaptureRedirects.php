@@ -60,7 +60,8 @@ class CaptureRedirects {
 				$con->opts
 					->optSet( 'last_wizard_redirect_at', $req->ts() )
 					->store();
-				$redirectTo = $urls->adminTopNav( PluginNavs::NAV_WIZARD, PluginNavs::SUBNAV_WIZARD_WELCOME );
+				// New installs land on the dashboard, where the setup guide bar walks through the first steps.
+				$redirectTo = $urls->adminHome();
 			}
 
 			if ( !empty( $redirectTo ) ) {

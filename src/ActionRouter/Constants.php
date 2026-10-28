@@ -98,6 +98,7 @@ class Constants {
 		Actions\PluginIpDetect::class,
 		Actions\PluginMarkTourFinished::class,
 		Actions\PluginSetUiPreference::class,
+		Actions\SetupGuideUpdate::class,
 		Actions\PluginReinstall::class,
 		Actions\ThemeReinstall::class,
 		Actions\Render\Components\OffCanvas\OffCanvasBase::class,

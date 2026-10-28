@@ -16,6 +16,7 @@ import { IpRules } from "../components/ips/IpRules";
 import { IpAnalyse } from "../components/ips/IpAnalyse";
 import { LicenseHandler } from "../components/general/LicenseHandler";
 import { Merlin } from "../components/general/Merlin";
+import { SetupGuideBar } from "../components/general/SetupGuideBar";
 import { MiscHooks } from "../components/general/MiscHooks";
 import { OffCanvasService } from "../components/ui/OffCanvasService";
 import { OptionsHandler } from "../components/options/OptionsHandler";
@@ -94,6 +95,7 @@ export class AppMain extends AppBase {
 		this.components.ip_rules = ( 'ip_rules' in comps ) ? new IpRules( comps.ip_rules ) : null;
 		this.components.license = ( 'license' in comps ) ? new LicenseHandler( comps.license ) : null;
 		this.components.merlin = ( 'merlin' in comps ) ? new Merlin( comps.merlin ) : null;
+		this.components.setup_guide_bar = new SetupGuideBar();
 		this.components.misc_hooks = ( 'misc_hooks' in comps ) ? new MiscHooks( comps.misc_hooks ) : null;
 		this.components.mod_options = ( 'mod_options' in comps ) ? new OptionsHandler( comps.mod_options ) : null;
 		this.components.mode_panel_state = new ModePanelStateController();

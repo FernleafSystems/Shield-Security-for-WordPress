@@ -33,6 +33,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Uuid;
  * @property array    $passkeys
  * @property array    $tours
  * @property array    $ui_prefs
+ * @property array    $setup_guide
  * @property array    $flags
  * /*** VIRTUAL ***
  * @property int      $most_recent_activity_at
@@ -63,6 +64,7 @@ class ShieldUserMeta extends UserMeta {
 			case 'login_intents':
 			case 'tours':
 			case 'ui_prefs':
+			case 'setup_guide':
 			case 'passkeys':
 				if ( !\is_array( $value ) ) {
 					$value = [];

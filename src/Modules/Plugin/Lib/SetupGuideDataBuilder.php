@@ -1,0 +1,103 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
+
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	MerlinAction,
+	SetupGuideUpdate
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Steps;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+
+/**
+ * The setup guide bar shown along the bottom of Shield admin pages until setup is finished or
+ * dismissed. It reuses the welcome wizard's steps, so each step saves exactly as the wizard does.
+ */
+class SetupGuideDataBuilder {
+
+	use PluginControllerConsumer;
+
+	public const STEP_WELCOME = 'welcome_video';
+	private const WELCOME_VIDEO_ID = '269191603';
+
+	/**
+	 * Wizard steps that make sense inline. The wizard's welcome slide (an embedded video that is
+	 * slow to render on every page), newsletter and thank-you slides are left to the wizard itself.
+	 */
+	private const STEP_HANDLERS = [
+		Steps\License::class,
+		Steps\ApplySecurityProfile::class,
+		Steps\SecurityAdmin::class,
+		Steps\ReportEmail::class,
+		Steps\Integrations::class,
+		Steps\SecurityBadge::class,
+	];
+
+	public function build() :array {
+		$con = self::con();
+		$state = new SetupGuideState();
+		if ( !$con->isPluginAdmin() || $state->isDismissed() || PluginNavs::GetNav() === PluginNavs::NAV_WIZARD ) {
+			return [ 'show' => false ];
+		}
+
+		$done = $state->doneSlugs();
+		$steps = [
+			[
+				'slug'    => self::STEP_WELCOME,
+				'name'    => __( 'Watch the intro', 'wp-simple-firewall' ),
+				'is_done' => \in_array( self::STEP_WELCOME, $done, true ),
+				'body'    => '',
+				'video_id' => self::WELCOME_VIDEO_ID,
+			],
+		];
+		foreach ( self::STEP_HANDLERS as $handlerClass ) {
+			$handler = new $handlerClass();
+			if ( $handlerClass === Steps\License::class && $handler->skipStep() ) {
+				continue;
+			}
+			$isDone = $handler->skipStep() || \in_array( $handler::SLUG, $done, true );
+			$steps[] = [
+				'slug'     => $handler::SLUG,
+				'name'     => $handler->getName(),
+				'is_done'  => $isDone,
+				// Completed steps need no form, which keeps every page render light.
+				'body'     => $isDone ? '' : $handler->render(),
+				'video_id' => '',
+			];
+		}
+
+		$doneCount = \count( \array_filter( $steps, static fn( array $step ) :bool => $step[ 'is_done' ] ) );
+		if ( $doneCount === \count( $steps ) ) {
+			return [ 'show' => false ];
+		}
+
+		return [
+			'show'        => true,
+			'steps'       => $steps,
+			'done_count'  => $doneCount,
+			'total'       => \count( $steps ),
+			'merlin_action_json' => ActionData::BuildJson( MerlinAction::class ),
+			'update_action_json' => ActionData::BuildJson( SetupGuideUpdate::class ),
+			'strings'     => [
+				'title'          => sprintf( __( 'Finish setting up %s', 'wp-simple-firewall' ), $con->labels->Name ),
+				/* translators: %1$s: steps done, %2$s: total steps */
+				'progress'       => __( '%1$s of %2$s done', 'wp-simple-firewall' ),
+				'continue'       => __( 'Continue', 'wp-simple-firewall' ),
+				'collapse'       => __( 'Minimise', 'wp-simple-firewall' ),
+				'hide_for_now'   => __( 'Hide until next visit', 'wp-simple-firewall' ),
+				'dismiss'        => __( "Don't show again", 'wp-simple-firewall' ),
+				'skip'           => __( 'Skip this step', 'wp-simple-firewall' ),
+				'done'           => __( 'Done', 'wp-simple-firewall' ),
+				'steps_label'    => __( 'Setup steps', 'wp-simple-firewall' ),
+				'welcome_title'  => __( 'Welcome to Shield', 'wp-simple-firewall' ),
+				'welcome_text'   => __( 'Shield is already protecting this site with sensible defaults. These steps take a few minutes and make it yours. Start with the short introduction video.', 'wp-simple-firewall' ),
+				'watch_video'    => __( 'Play the introduction video', 'wp-simple-firewall' ),
+				'mark_watched'   => __( 'Mark as watched', 'wp-simple-firewall' ),
+				'all_done'       => __( 'Setup is complete. You can change any of this later in Configure.', 'wp-simple-firewall' ),
+				'reopen'         => __( 'Setup', 'wp-simple-firewall' ),
+			],
+		];
+	}
+}
