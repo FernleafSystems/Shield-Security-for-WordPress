@@ -107,23 +107,27 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 	}
 
 	/**
+	 * The path is URL-decoded first, as WordPress also matches its rewrite rules against the decoded path,
+	 * so an encoded REST path (e.g. /%77p-json/...) is still recognised.
 	 * @see \WP_REST_Request::from_url()
+	 * @see \WP::parse_request()
 	 */
 	public function getRestRoute() :string {
 		$route = $this->request->request( 'rest_route', false, '' );
 		if ( empty( $route ) && $this->wp_is_permalinks_enabled ) {
-			$requestPath = \trim( (string)$this->request->getPath(), '/' );
+			$requestPath = \trim( \rawurldecode( (string)$this->request->getPath() ), '/' );
 			$restBaseUrl = isset( $this->rest_api_root ) ? (string)$this->rest_api_root : '';
 			if ( $restBaseUrl === '' ) {
 				$restBaseUrl = (string)\rest_url( '/' );
 			}
 			$restBasePath = \trim( (string)\wp_parse_url( $restBaseUrl, \PHP_URL_PATH ), '/' );
 
-			if ( $requestPath !== '' && $restBasePath !== '' && \str_starts_with( $requestPath, $restBasePath ) ) {
+			if ( $requestPath !== '' && $restBasePath !== ''
+				 && ( $requestPath === $restBasePath || \str_starts_with( $requestPath, $restBasePath.'/' ) ) ) {
 				$route = \substr( $requestPath, \strlen( $restBasePath ) );
 			}
 		}
-		return \trim( (string)$route, '/' );
+		return \is_string( $route ) ? \trim( $route, '/' ) : '';
 	}
 
 	public function getHostname() :string {

@@ -3,33 +3,44 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Request\Sensitivity;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Request\{
 	RequestTypeResolver,
 	ThisRequest
 };
 
 /**
- * Gathers the facts about the current request that its sensitivity is judged on.
+ * Gathers the facts about the current request that its sensitivity is judged on. Route facts are included
+ * once WordPress has routed the request. Nothing here queries the database: WooCommerce page IDs and
+ * Shield's options come from autoloaded options, and post types and taxonomies are registered in memory.
  */
 class BuildRequestFacts {
+
+	use PluginControllerConsumer;
 
 	public function build( ThisRequest $req ) :RequestFacts {
 		$request = $req->request;
 		$action = $request->request( ActionData::FIELD_ACTION );
+		$routeVars = $this->routeVars();
 
 		return new RequestFacts( [
-			'type'           => ( new RequestTypeResolver() )->resolve(),
-			'method'         => $request->getMethod(),
-			'path'           => (string)$req->path,
-			'restRoute'      => $req->getRestRoute(),
-			'action'         => \is_string( $action ) ? $action : '',
-			'queryParams'    => \array_map( 'strval', \array_keys( $request->query ) ),
-			'postParams'     => \array_map( 'strval', \array_keys( $request->post ) ),
-			'hasCredentials' => $this->hasCredentials( $req ),
-			'isAdmin'        => (bool)$req->wp_is_admin,
-			'isShieldAction' => $action === ActionData::FIELD_SHIELD
-								&& ActionData::isValidActionSlug( (string)$request->request( ActionData::FIELD_EXECUTE ) ),
-			'wooPagePaths'   => $this->wooPagePaths(),
+			'type'             => ( new RequestTypeResolver() )->resolve(),
+			'method'           => $request->getMethod(),
+			'path'             => (string)$req->path,
+			'restRoute'        => $req->getRestRoute() ?: (string)( $routeVars[ 'rest_route' ] ?? '' ),
+			'action'           => \is_string( $action ) ? $action : '',
+			'query'            => \is_array( $request->query ) ? $request->query : [],
+			'postParams'       => \array_map( 'strval', \array_keys( \is_array( $request->post ) ? $request->post : [] ) ),
+			'hasCredentials'   => $this->hasCredentials( $req ),
+			'isAdmin'          => (bool)$req->wp_is_admin,
+			'isShieldAction'   => $action === ActionData::FIELD_SHIELD
+								  && ActionData::isValidActionSlug( (string)$request->request( ActionData::FIELD_EXECUTE ) ),
+			'isServerLoopback' => (bool)$req->is_server_loopback,
+			'loginPaths'       => $this->loginPaths(),
+			'routeVars'        => $routeVars,
+			'contentVars'      => $routeVars === null ? [] : $this->contentVars(),
+			'queriedObjectId'  => \did_action( 'wp' ) ? (int)\get_queried_object_id() : 0,
+			'wooPageIds'       => $this->wooPageIds(),
 		] );
 	}
 
@@ -46,20 +57,48 @@ class BuildRequestFacts {
 	}
 
 	/**
+	 * @return ?array<string, mixed>
+	 */
+	private function routeVars() :?array {
+		global $wp;
+		return \did_action( 'parse_request' ) && $wp instanceof \WP && \is_array( $wp->query_vars ) ? $wp->query_vars : null;
+	}
+
+	/**
 	 * @return string[]
 	 */
-	private function wooPagePaths() :array {
-		$paths = [];
-		if ( \function_exists( 'wc_get_page_id' ) && \function_exists( 'wc_get_page_permalink' ) ) {
+	private function contentVars() :array {
+		$vars = [];
+		foreach ( \array_merge( \get_post_types( [ 'public' => true ], 'objects' ), \get_taxonomies( [ 'public' => true ], 'objects' ) ) as $type ) {
+			if ( \is_string( $type->query_var ?? null ) && $type->query_var !== '' ) {
+				$vars[] = $type->query_var;
+			}
+		}
+		return $vars;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function loginPaths() :array {
+		$renamed = \trim( (string)self::con()->opts->optGet( 'rename_wplogin_path' ), '/' );
+		$path = $renamed === '' ? null : \wp_parse_url( \home_url( '/'.$renamed ), \PHP_URL_PATH );
+		return \is_string( $path ) && $path !== '' ? [ $path ] : [];
+	}
+
+	/**
+	 * @return int[]
+	 */
+	private function wooPageIds() :array {
+		$ids = [];
+		if ( \function_exists( 'wc_get_page_id' ) ) {
 			foreach ( [ 'cart', 'checkout', 'myaccount' ] as $page ) {
-				if ( wc_get_page_id( $page ) > 0 ) {
-					$path = \wp_parse_url( (string)wc_get_page_permalink( $page ), \PHP_URL_PATH );
-					if ( \is_string( $path ) && $path !== '' ) {
-						$paths[] = $path;
-					}
+				$id = (int)wc_get_page_id( $page );
+				if ( $id > 0 ) {
+					$ids[] = $id;
 				}
 			}
 		}
-		return $paths;
+		return $ids;
 	}
 }

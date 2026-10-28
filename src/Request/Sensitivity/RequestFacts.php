@@ -3,7 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Request\Sensitivity;
 
 /**
- * What a request is and what it carries, as needed to judge how much harm it could do.
+ * What a request is and what it carries, as needed to judge how much harm it could do. Route facts are only
+ * known once WordPress has routed the request (the `wp` hook); before that, `routeVars` is null.
  */
 class RequestFacts {
 
@@ -19,6 +20,9 @@ class RequestFacts {
 	 */
 	public string $path = '/';
 
+	/**
+	 * The REST route, if this is a REST request, however it was addressed.
+	 */
 	public string $restRoute = '';
 
 	/**
@@ -27,9 +31,9 @@ class RequestFacts {
 	public string $action = '';
 
 	/**
-	 * @var string[] names of the query parameters
+	 * @var array<string, mixed> the query parameters and their values
 	 */
-	public array $queryParams = [];
+	public array $query = [];
 
 	/**
 	 * @var string[] names of the POST parameters
@@ -46,9 +50,34 @@ class RequestFacts {
 	public bool $isShieldAction = false;
 
 	/**
-	 * @var string[] paths of WooCommerce's cart, checkout and account pages, when WooCommerce is active
+	 * The request came from the web server itself, as WordPress's own cron spawn does.
 	 */
-	public array $wooPagePaths = [];
+	public bool $isServerLoopback = false;
+
+	/**
+	 * @var string[] login page paths other than wp-login.php, such as Shield's renamed login
+	 */
+	public array $loginPaths = [];
+
+	/**
+	 * @var ?array<string, mixed> the query vars WordPress routed the request to, once it has
+	 */
+	public ?array $routeVars = null;
+
+	/**
+	 * @var string[] query vars of public post types and taxonomies, which only choose content
+	 */
+	public array $contentVars = [];
+
+	/**
+	 * The ID of the post, page or term the request was routed to, once WordPress has run its main query.
+	 */
+	public int $queriedObjectId = 0;
+
+	/**
+	 * @var int[] IDs of WooCommerce's cart, checkout and account pages, when WooCommerce is active
+	 */
+	public array $wooPageIds = [];
 
 	public function __construct( array $facts = [] ) {
 		foreach ( $facts as $key => $value ) {

@@ -32,8 +32,15 @@ class RequestSensitivity {
 
 	public string $reason;
 
-	public function __construct( string $level, string $reason ) {
+	/**
+	 * Open, but judged before WordPress routed the request. Only routing shows whether a pretty URL is
+	 * content or an endpoint, so it must be judged again once the request is routed.
+	 */
+	public bool $isProvisional;
+
+	public function __construct( string $level, string $reason, bool $isProvisional = false ) {
 		$this->level = $level;
 		$this->reason = $reason;
+		$this->isProvisional = $isProvisional;
 	}
 }

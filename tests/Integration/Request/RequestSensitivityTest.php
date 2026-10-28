@@ -21,18 +21,22 @@ class RequestSensitivityTest extends ShieldIntegrationTestCase {
 
 	private array $requestSnapshot = [];
 
+	private array $optionSnapshot = [];
+
 	public function set_up() {
 		parent::set_up();
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
+		$this->optionSnapshot = $this->snapshotSelectedOptions( [ 'rename_wplogin_path' ] );
 	}
 
 	public function tear_down() {
 		remove_all_filters( 'shield/request_sensitivity' );
+		$this->restoreSelectedOptions( $this->optionSnapshot );
 		$this->restoreCurrentRequestState( $this->requestSnapshot );
 		parent::tear_down();
 	}
 
-	public function test_facts_carry_parameter_names_and_whether_credentials_are_present() :void {
+	public function test_facts_carry_query_parameters_and_whether_credentials_are_present() :void {
 		$req = $this->applyCurrentRequestState(
 			[ 'REQUEST_URI' => '/?s=widgets', 'HTTP_AUTHORIZATION' => 'Basic dXNlcjpwYXNz' ],
 			[ 's' => 'widgets' ]
@@ -41,10 +45,10 @@ class RequestSensitivityTest extends ShieldIntegrationTestCase {
 		$facts = ( new BuildRequestFacts() )->build( $req );
 
 		$this->assertSame( 'GET', $facts->method );
-		$this->assertSame( [ 's' ], $facts->queryParams );
+		$this->assertSame( [ 's' => 'widgets' ], $facts->query );
 		$this->assertTrue( $facts->hasCredentials );
 		$this->assertFalse( $facts->isShieldAction );
-		$this->assertSame( [], $facts->wooPagePaths, 'WooCommerce is not active' );
+		$this->assertSame( [], $facts->wooPageIds, 'WooCommerce is not active' );
 	}
 
 	public function test_viewing_a_page_is_open_and_searching_is_guarded() :void {
@@ -55,6 +59,30 @@ class RequestSensitivityTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( RequestSensitivity::OPEN, $open->level );
 		$this->assertSame( RequestSensitivity::GUARDED, $search->level );
+	}
+
+	public function test_once_routed_a_page_view_is_open_and_no_longer_provisional() :void {
+		$pageId = self::factory()->post->create( [ 'post_type' => 'page', 'post_status' => 'publish' ] );
+		$url = (string)\get_permalink( $pageId );
+		$this->go_to( $url );
+
+		\parse_str( (string)\wp_parse_url( $url, \PHP_URL_QUERY ), $query );
+		$req = $this->applyCurrentRequestState( [ 'REQUEST_URI' => \str_replace( \home_url(), '', $url ) ], $query );
+		$facts = ( new BuildRequestFacts() )->build( $req );
+		$sensitivity = ( new ResolveRequestSensitivity() )->resolve( $req );
+
+		$this->assertNotNull( $facts->routeVars );
+		$this->assertSame( $pageId, $facts->queriedObjectId );
+		$this->assertSame( [ RequestSensitivity::OPEN, 'content' ], [ $sensitivity->level, $sensitivity->reason ] );
+		$this->assertFalse( $sensitivity->isProvisional );
+	}
+
+	public function test_shields_renamed_login_page_is_treated_as_the_login_page() :void {
+		$this->requireController()->opts->optSet( 'rename_wplogin_path', 'my-login' );
+
+		$sensitivity = ( new ResolveRequestSensitivity() )->resolve( $this->applyCurrentRequestState( [ 'REQUEST_URI' => '/my-login' ] ) );
+
+		$this->assertSame( [ RequestSensitivity::GUARDED, 'login_page' ], [ $sensitivity->level, $sensitivity->reason ] );
 	}
 
 	public function test_shield_action_is_critical() :void {
