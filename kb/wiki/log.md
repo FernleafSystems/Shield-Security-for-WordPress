@@ -80,3 +80,9 @@ Key notes: Added a post-v1 idea to surface 404 paths with very high counts, so s
 Pages created: none
 Pages updated: `wiki/plans/visitor-standing-design.md`, `wiki/log.md`
 Key notes: The visitor standing work happens on `feature/request-policy-engine`. The old request policy engine on that branch is removed in Phase 0 and replaced by this design. This supersedes the earlier note that the branch was not being taken forward.
+
+## [2026-10-28] plan | Record evidence strength locations and drop empty user agent signal
+
+Pages created: none
+Pages updated: `wiki/plans/visitor-standing-design.md`, `wiki/log.md`
+Key notes: Evidence strengths live in `evidence_strength` on offence events and `firewall_evidence_strengths` in the defs. The "Empty User Agents" option has no implementation, so it is removed in Phase 5 rather than built. `bottrack_xmlrpc` is weighted weak until Phase 5 removes it.

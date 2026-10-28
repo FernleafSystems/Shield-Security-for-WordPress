@@ -163,6 +163,13 @@
             "#'\\s+OR\\s+'([a-z0-9]+)'\\s*=\\s*'\\1'\\s+(--|\\(\\{|\\/\\*)\\s+#"
         ]
     },
+    "firewall_evidence_strengths": {
+        "dir_traversal": "strong",
+        "field_truncation": "weak",
+        "sql_queries": "normal",
+        "php_code": "strong",
+        "aggressive": "weak"
+    },
     "all_scan_slugs": [
         "apc",
         "wpv",

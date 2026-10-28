@@ -4,7 +4,8 @@
             "user_login"
         ],
         "level": "warning",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "2fa_success": {
         "level": "info",
@@ -16,7 +17,8 @@
             "method"
         ],
         "level": "warning",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "2fa_verify_success": {
         "audit_params": [
@@ -48,15 +50,18 @@
     },
     "app_incorrect_password": {
         "level": "warning",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "app_invalid_email": {
         "level": "warning",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "app_invalid_username": {
         "level": "warning",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "app_pass_created": {
         "audit_params": [
@@ -67,15 +72,18 @@
     },
     "app_passwords_disabled": {
         "level": "warning",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "app_passwords_disabled_user": {
         "level": "warning",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "attempt_deactivation": {
         "level": "warning",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "backup_finished": {
         "audit_params": [
@@ -122,7 +130,8 @@
     },
     "block_author_fishing": {
         "level": "notice",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "weak"
     },
     "block_checkout": {
         "level": "warning"
@@ -136,46 +145,53 @@
     "block_xml": {
         "level": "notice",
         "recent": true,
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "bottrack_404": {
         "audit_params": [
             "path"
         ],
-        "offense": true
+        "offense": true,
+        "evidence_strength": "weak"
     },
     "bottrack_fakewebcrawler": {
         "audit_params": [
             "path",
             "crawler"
         ],
-        "offense": true
+        "offense": true,
+        "evidence_strength": "strong"
     },
     "bottrack_invalidscript": {
         "audit_params": [
             "script"
         ],
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "bottrack_linkcheese": {
         "audit_params": [
             "path"
         ],
-        "offense": true
+        "offense": true,
+        "evidence_strength": "strong"
     },
     "bottrack_loginfailed": {
         "audit_params": [
             "user_login"
         ],
         "level": "warning",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "bottrack_logininvalid": {
         "audit_params": [
             "user_login"
         ],
         "level": "warning",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "bottrack_multiple": {
         "audit": false,
@@ -192,7 +208,8 @@
         "audit_params": [
             "path"
         ],
-        "offense": true
+        "offense": true,
+        "evidence_strength": "weak"
     },
     "comment_created": {
         "level": "info",
@@ -212,12 +229,14 @@
     },
     "comment_markspam": {
         "level": "notice",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "comment_spam_block": {
         "level": "notice",
         "stat": false,
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "comment_status_updated": {
         "level": "info",
@@ -246,7 +265,8 @@
     },
     "cooldown_fail": {
         "level": "warning",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "weak"
     },
     "core_reinstalled": {
         "audit_params": [
@@ -340,7 +360,8 @@
         ],
         "level": "warning",
         "recent": true,
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "frontpage_load": {
         "level": "info",
@@ -446,7 +467,8 @@
     "key_fail": {
         "level": "warning",
         "recent": true,
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "key_success": {
         "level": "info",
@@ -724,7 +746,8 @@
             "reason"
         ],
         "level": "warning",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "weak"
     },
     "report_generated": {
         "audit_params": [
@@ -754,7 +777,8 @@
             "span"
         ],
         "level": "warning",
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "scan_item_delete_success": {
         "audit_params": [
@@ -987,7 +1011,8 @@
         "level": "warning",
         "stat": true,
         "audit": true,
-        "offense": true
+        "offense": true,
+        "evidence_strength": "normal"
     },
     "user_form_bot_pass": {
         "audit_params": [

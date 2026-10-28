@@ -193,6 +193,7 @@ class EventsService {
 			'recent'             => false, // whether to show in the recent events logs
 			'offense'            => false, // whether to mark offense against IP
 			'suppress_offense'   => false, // events that normally trigger offense can be forcefully suppressed
+			'evidence_strength'  => '', // offense events only: weak, normal or strong evidence against the IP
 			'audit_multiple'     => false, // allow multiple audit entries in the same request
 			'audit_countable'    => false, // allow shortcut to audit trail to allow events to be counted
 			'snapshot_discovery' => false, // event is captured through snapshot discovery

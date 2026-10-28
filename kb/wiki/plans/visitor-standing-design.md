@@ -58,19 +58,20 @@ The bot score measures recency of signals, not frequency: ten failed logins and 
 
 Hostility evidence is measured in offence units, the same unit as the Offence Limit, so that setting keeps its meaning.
 
-Every offence event gets a built-in weight, declared on the event definition in `plugin-spec/46_events.json` (a new field per event, so the list cannot drift out of step with the events). The five-level bot-tracking options (disabled / log / single / double / block) are removed. Site owners no longer decide how much each signal counts. Shield does.
+Every offence event gets a built-in weight, declared as `evidence_strength` on the event definition in `plugin-spec/46_events.json`, so the list cannot drift out of step with the events. Firewall blocks are weighted by firewall category, declared as `firewall_evidence_strengths` in `plugin-spec/37_defs.json` beside the firewall patterns. The event's own strength applies to firewall blocks with no category, such as custom firewall rules. The five-level bot-tracking options (disabled / log / single / double / block) are removed. Site owners no longer decide how much each signal counts. Shield does.
 
 | Strength | Weight | Events (starting proposal) |
 |---|---|---|
 | Strong | 3 | firewall: PHP code, directory traversal; fake web crawler; link cheese (trap link) |
 | Normal | 1 | failed login; invalid username; invalid script load; firewall: SQL queries; 2FA failures; application password failures; Security Admin PIN failure (`key_fail`); attempted Shield deactivation; `user_form_bot_fail`; comment spam blocked; comment marked as spam; request rate limit exceeded; XML-RPC blocked |
-| Weak | 0.5 | 404; empty user agent; firewall: field truncation, aggressive; author probing; form submission cooldown (`cooldown_fail`); invalid registration email |
+| Weak | 0.5 | 404; firewall: field truncation, aggressive; author probing; form submission cooldown (`cooldown_fail`); invalid registration email |
 
 Signal switches and limits:
 
 - Only link cheese keeps an on/off switch, because it changes the site's output (a hidden trap link and a `robots.txt` entry). Every other signal is always on.
 - XML-RPC needs no signal of its own. The existing "Disable XML-RPC" option (`disable_xmlrpc`) already says whether XML-RPC is legitimate on the site. When it is on, XML-RPC requests are blocked and count as "XML-RPC blocked" (normal weight). When it is off, XML-RPC access is not evidence. Failed logins over XML-RPC count as failed logins either way, because Shield's failed-login tracking hooks WordPress's `authenticate` filter, which XML-RPC logins also use. The separate XML-RPC bot-tracking signal is removed.
-- Each weak signal counts at most 2 offence units per visitor within its fading window (4 occurrences). Repeating the same weak signal is not stronger evidence: an uptime monitor with an empty user agent, or a visitor clicking around a site with broken links, can never become Doubtful from that alone (Doubtful starts at 4). Two different weak signals together can reach Doubtful. That only adds challenges on forms and similar requests, never on ordinary pages.
+- Each weak signal counts at most 2 offence units per visitor within its fading window (4 occurrences). Repeating the same weak signal is not stronger evidence: a monitor or a visitor clicking around a site with broken links, can never become Doubtful from that alone (Doubtful starts at 4). Two different weak signals together can reach Doubtful. That only adds challenges on forms and similar requests, never on ordinary pages.
+- There is no empty-user-agent signal. The "Empty User Agents" option (`track_useragent`) has no implementation behind it today (no tracker, rule or event), so it is removed rather than built.
 - No signal makes a visitor Hostile on its own. The old "block" level is gone, because it breaks the guardrail that no single signal decides. Strong signals still reach Hostile quickly: four at the default Offence Limit.
 
 Working out whether a signal is meaningful:
@@ -163,7 +164,7 @@ A challenge means "show proof of humanity", using Shield's existing silentCAPTCH
 
 On upgrade, existing auto-block records seed the standing. Blocked IPs become Hostile, holding for the remaining Auto Block Expiration. Offence counts carry over 1:1 as the starting score.
 
-Behaviour change to call out in the release notes: several signals default to "log" today (404, invalid usernames, fake web crawler, invalid script load, empty user agent), which adds no offence. After upgrade they count at their built-in weight, and owners can no longer turn them off. Because uncertain cases get a challenge rather than a block, weak signals are capped, and the per-site noise check lowers noisy signals, this should add little friction for real visitors. Anonymous XML-RPC access, tracked as "log" today, stops counting when XML-RPC is allowed. Validation (section 13) must confirm that.
+Behaviour change to call out in the release notes: several signals default to "log" today (404, invalid usernames, fake web crawler, invalid script load), which adds no offence. After upgrade they count at their built-in weight, and owners can no longer turn them off. Because uncertain cases get a challenge rather than a block, weak signals are capped, and the per-site noise check lowers noisy signals, this should add little friction for real visitors. Anonymous XML-RPC access, tracked as "log" today, stops counting when XML-RPC is allowed. Validation (section 13) must confirm that.
 
 Option labels and help text are rewritten to describe the new behaviour. There is no switch back to the old behaviour.
 
@@ -231,11 +232,11 @@ Release only when:
 Each phase is independently completable and verifiable.
 
 0. Clear the ground. On `feature/request-policy-engine`, keep the request-type resolver (with its classification tests) and the per-rule condition-meta snapshot. Remove the rest of the old request policy engine: its components, table, options, events, rule gate and `BaseAction` hook, and their tests. Shield's behaviour then matches the current release again.
-1. Evidence spec. Add weights to the event definitions and the completeness test. No behaviour change.
+1. Evidence spec. Add `evidence_strength` to every offence event and `firewall_evidence_strengths` for the firewall categories, with a completeness test. No behaviour change. The XML-RPC bot-tracking event (`bottrack_xmlrpc`) is weighted weak until Phase 5 removes it.
 2. Standing, view only. Store and work out standing on the auto-block record, seed it from existing records, and show it in IP analysis. Add the development-only shadow constant. Enforcement unchanged.
 3. Request sensitivity. Classifier, filter, core and WooCommerce classifications, scenario tests.
 4. Challenges. Interstitial page, proof-of-humanity check for non-page requests, deferred decision for REST requests carrying credentials, exemptions for Shield's own endpoints, throttle.
-5. Decision gate. One gate per request applying the table in section 7. It replaces the Shield and CrowdSec IP block rules and the offence-limit block. Remove the bot-tracking options, keeping only the link cheese switch, migrate settings, rewrite option labels and help text. Add the activity log events.
+5. Decision gate. One gate per request applying the table in section 7. It replaces the Shield and CrowdSec IP block rules and the offence-limit block. Remove the bot-tracking options, keeping only the link cheese switch. Remove the XML-RPC bot-tracking signal (`bottrack_xmlrpc` and its rule) and the unimplemented `track_useragent` option. Migrate settings, rewrite option labels and help text. Add the activity log events.
 6. Noise check. Per-visitor cancelling of weak evidence by proof of humanity, the per-site noise check for weak signals, and how both are shown to the admin.
 7. Validate and release, against section 13.
 
