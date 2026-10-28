@@ -103,7 +103,9 @@ Local site mode (`dev:site:*` / `test:site:*`):
 2. `TESTING.md` owns command behavior, reset semantics, and workflow guidance for these site families.
 3. Docker-specific identifiers remain:
    `dev:site:*` -> project `shield-local-site`, DB `shield_local_site`, port `8888`
-   `test:site:*` -> project `shield-test-site`, DB `shield_test_site`, port `8889`
+   `test:site:*` from the main checkout -> project `shield-test-site`, DB `shield_test_site`, port `8889`
+   `test:site:*` from a linked Git worktree -> project `shield-test-site-wt<N>`, DB `shield_test_site_wt<N>`, port `8870+N`, where slot `N` is recorded per worktree in `<system-temp>/shield-test-locks/test-site-slots.json`
+   Browser lane `N` -> project `shield-browser-lane-<N>`, DB `shield_browser_lane_<N>` on the shared `shield-browser-lanes-db` MySQL service, port `8900+N`
 4. Compose containers, volumes, and networks are labeled under cleanup scopes `dev-site` and `test-site`. Cleanup for persistent manual sites must use the explicit matching scope.
 
 Cross-site mode (`test:cross-site`):

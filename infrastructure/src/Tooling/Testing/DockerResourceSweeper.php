@@ -216,9 +216,12 @@ class DockerResourceSweeper {
 		DockerCleanupReport $report,
 		DockerCleanupPolicy $policy
 	) :void {
+		// Browser lanes share one long-lived MySQL service and network that outlive any single run.
+		$allowReusableServices = $policy->scope() === DockerCleanupPolicy::SCOPE_BROWSER;
 		foreach ( [ 'container', 'network' ] as $type ) {
 			foreach ( $this->listLabeledResourceDetails( $rootDir, $type, $report, $policy ) as $resource ) {
-				if ( $this->isActiveOtherRunTransient( $resource, $runId ) ) {
+				if ( $this->isActiveOtherRunTransient( $resource, $runId )
+					|| ( $allowReusableServices && $this->isValidReusable( $resource ) ) ) {
 					continue;
 				}
 				$report->addFinding( $this->describeResource( $type, $resource ).' remains after warm cleanup.' );
@@ -226,7 +229,7 @@ class DockerResourceSweeper {
 		}
 
 		foreach ( $this->listLabeledResourceDetails( $rootDir, 'volume', $report, $policy ) as $resource ) {
-			if ( $this->isValidReusableVolume( $resource ) || $this->isActiveOtherRunTransient( $resource, $runId ) ) {
+			if ( $this->isValidReusable( $resource ) || $this->isActiveOtherRunTransient( $resource, $runId ) ) {
 				continue;
 			}
 			$report->addFinding( $this->describeResource( 'volume', $resource ).' is not a valid reusable warm volume.' );
@@ -263,7 +266,7 @@ class DockerResourceSweeper {
 	/**
 	 * @param array{id:string,name:string,lifecycle:string,runId:string,expiresAt:string,expiryTs:int|false} $resource
 	 */
-	private function isValidReusableVolume( array $resource ) :bool {
+	private function isValidReusable( array $resource ) :bool {
 		return $resource[ 'lifecycle' ] === DockerHarnessLabels::LIFECYCLE_REUSABLE
 			&& $resource[ 'runId' ] !== ''
 			&& $resource[ 'expiryTs' ] !== false
@@ -378,11 +381,11 @@ class DockerResourceSweeper {
 			);
 		}
 		if ( $type === 'network' ) {
-			if ( $this->resourceHasHarnessLabel( $rootDir, 'network', LocalSiteDefinitions::BROWSER_NETWORK_NAME, $report, true ) ) {
+			if ( $this->resourceHasHarnessLabel( $rootDir, 'network', LocalSiteDefinitions::LEGACY_BROWSER_NETWORK_NAME, $report, true ) ) {
 				return [];
 			}
-			$process = $this->runOptionalInspect( [ 'docker', 'network', 'inspect', LocalSiteDefinitions::BROWSER_NETWORK_NAME ], $rootDir, $report, 'inspect legacy network '.LocalSiteDefinitions::BROWSER_NETWORK_NAME );
-			return $process !== null && ( $process->getExitCode() ?? 1 ) === 0 ? [ LocalSiteDefinitions::BROWSER_NETWORK_NAME ] : [];
+			$process = $this->runOptionalInspect( [ 'docker', 'network', 'inspect', LocalSiteDefinitions::LEGACY_BROWSER_NETWORK_NAME ], $rootDir, $report, 'inspect legacy network '.LocalSiteDefinitions::LEGACY_BROWSER_NETWORK_NAME );
+			return $process !== null && ( $process->getExitCode() ?? 1 ) === 0 ? [ LocalSiteDefinitions::LEGACY_BROWSER_NETWORK_NAME ] : [];
 		}
 
 		return [];
@@ -419,15 +422,15 @@ class DockerResourceSweeper {
 
 	private function isLegacyBrowserResourceName( string $type, string $name ) :bool {
 		if ( $type === 'container' ) {
-			return $name === LocalSiteDefinitions::BROWSER_DB_CONTAINER_NAME
+			return $name === LocalSiteDefinitions::LEGACY_BROWSER_DB_CONTAINER_NAME
 				|| \preg_match( '/^shield-test-site-lane-\d+-/', $name ) === 1;
 		}
 		if ( $type === 'volume' ) {
-			return $name === LocalSiteDefinitions::BROWSER_DB_VOLUME_NAME
+			return $name === LocalSiteDefinitions::LEGACY_BROWSER_DB_VOLUME_NAME
 				|| \preg_match( '/^shield-test-site-lane-\d+_site-(wp|plugin)$/', $name ) === 1;
 		}
 
-		return $name === LocalSiteDefinitions::BROWSER_NETWORK_NAME;
+		return $name === LocalSiteDefinitions::LEGACY_BROWSER_NETWORK_NAME;
 	}
 
 	private function resourceHasHarnessLabel( string $rootDir, string $type, string $id, DockerCleanupReport $report, bool $optionalAbsence = false ) :bool {

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
+use FernleafSystems\ShieldPlatform\Tooling\Testing\BrowserTestLanePool;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteDefinitions;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteManager;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
@@ -467,21 +468,57 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( 0, $exitCode );
 		$this->assertSame( [ 'tests/docker/docker-compose.browser-db.yml' ], $dockerComposeExecutor->calls[ 0 ][ 'compose_files' ] );
 		$this->assertSame( [ 'up', '-d', '--wait', '--wait-timeout', '60', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
-		$this->assertSame( 'shield-browser-db', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'COMPOSE_PROJECT_NAME' ] );
+		$this->assertSame( 'shield-browser-lanes-db', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'COMPOSE_PROJECT_NAME' ] );
 		$this->assertSame( 'shield-plugin-browser', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_BROWSER_LABEL_HARNESS' ] );
 		$this->assertSame( 'shared', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_BROWSER_LABEL_LANE' ] );
+		$this->assertSame( 'browser-shared-reusable', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_BROWSER_CONTAINER_RUN_ID' ] );
+		$this->assertSame( 'reusable', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_BROWSER_CONTAINER_LIFECYCLE' ] );
 		$this->assertSame( [ 'tests/docker/docker-compose.browser-lane.yml' ], $dockerComposeExecutor->calls[ 1 ][ 'compose_files' ] );
 		$this->assertSame( [ 'down', '-v', '--remove-orphans' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
-		$this->assertSame( 'shield-test-site-lane-2', $dockerComposeExecutor->calls[ 1 ][ 'env_overrides' ][ 'COMPOSE_PROJECT_NAME' ] );
+		$this->assertSame( 'shield-browser-lane-2', $dockerComposeExecutor->calls[ 1 ][ 'env_overrides' ][ 'COMPOSE_PROJECT_NAME' ] );
 		$this->assertSame( [ 'tests/docker/docker-compose.browser-lane.yml' ], $dockerComposeExecutor->calls[ 2 ][ 'compose_files' ] );
 		$this->assertSame( [ 'up', '-d', 'wordpress' ], $dockerComposeExecutor->calls[ 2 ][ 'sub_command' ] );
-		$this->assertSame( '8891', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_PORT' ] );
-		$this->assertSame( 'shield_test_site_lane_2', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_DB_NAME' ] );
-		$this->assertSame( 'shield-browser-db:3306', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_DB_HOST' ] );
+		$this->assertSame( '8902', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_PORT' ] );
+		$this->assertSame( 'shield_browser_lane_2', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_DB_NAME' ] );
+		$this->assertSame( 'shield-browser-lanes-db:3306', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_DB_HOST' ] );
 		$this->assertSame( 'shield-plugin-browser', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_BROWSER_LABEL_HARNESS' ] );
 		$this->assertSame( 'browser-lane-2', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_BROWSER_LABEL_LANE' ] );
-		$resetCommand = $this->findProcessCommandContaining( $processRunner, 'DROP DATABASE IF EXISTS `shield_test_site_lane_2`; CREATE DATABASE `shield_test_site_lane_2`;' );
+		$resetCommand = $this->findProcessCommandContaining( $processRunner, 'DROP DATABASE IF EXISTS `shield_browser_lane_2`; CREATE DATABASE `shield_browser_lane_2`;' );
 		$this->assertMysqlTcpCommand( $resetCommand, 'mysql' );
+	}
+
+	public function testBrowserLaneReusesRunningSharedDatabaseWithoutComposeUp() :void {
+		$processRunner = new RecordingProcessRunner( [
+			0,
+			[
+				'exit_code' => 0,
+				'stdout' => "true\n",
+			],
+			0,
+			0,
+			0,
+		] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0 ] );
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::browserLane( 2 ),
+			$processRunner,
+			new RecordingTestingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] ),
+			new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] ),
+			null,
+			null,
+			new BrowserTestLanePool( $this->createTrackedTempDir( 'shield-local-site-lane-locks-' ) )
+		);
+
+		$this->assertSame( 0, $manager->reset( $this->projectRoot, true ) );
+		$this->assertSame(
+			[ 'docker', 'container', 'inspect', '--format', '{{.State.Running}}', 'shield-browser-lanes-db' ],
+			$processRunner->calls[ 1 ][ 'command' ]
+		);
+		foreach ( $dockerComposeExecutor->calls as $call ) {
+			$this->assertNotSame( [ 'tests/docker/docker-compose.browser-db.yml' ], $call[ 'compose_files' ] );
+		}
 	}
 
 	public function testPrepareBrowserLaneCleanResetsRefreshesInstallsFixtureEndpointAndWritesMarker() :void {
@@ -512,7 +549,7 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( [ 'down', '-v', '--remove-orphans' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
 		$this->assertSame( [ 'up', '-d', 'wordpress' ], $dockerComposeExecutor->calls[ 2 ][ 'sub_command' ] );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
-		$resetCommand = $this->findProcessCommandContaining( $processRunner, 'DROP DATABASE IF EXISTS `shield_test_site_lane_2`; CREATE DATABASE `shield_test_site_lane_2`;' );
+		$resetCommand = $this->findProcessCommandContaining( $processRunner, 'DROP DATABASE IF EXISTS `shield_browser_lane_2`; CREATE DATABASE `shield_browser_lane_2`;' );
 		$this->assertMysqlTcpCommand( $resetCommand, 'mysql' );
 		$this->assertSame(
 			[
@@ -528,8 +565,8 @@ class LocalSiteManagerTest extends TestCase {
 		$markerCommand = $this->findProcessCommandContaining( $processRunner, 'SHIELD_BROWSER_READY_MARKER=/var/www/html/wp-content/.shield-browser-lane-ready.json' );
 		$marker = $this->browserReadyMarkerFromCommand( $markerCommand );
 		$this->assertSame( 3, $marker[ 'schema_version' ] ?? null );
-		$this->assertSame( 'http://127.0.0.1:8891', $marker[ 'site_url' ] ?? null );
-		$this->assertSame( 'shield_test_site_lane_2', $marker[ 'db_name' ] ?? null );
+		$this->assertSame( 'http://127.0.0.1:8902', $marker[ 'site_url' ] ?? null );
+		$this->assertSame( 'shield_browser_lane_2', $marker[ 'db_name' ] ?? null );
 		$this->assertSame( 'admin', $marker[ 'admin_user' ] ?? null );
 		$this->assertSame( 'browser-lane-2', $marker[ 'profile' ] ?? null );
 		$this->assertSame( 'shield-browser-fixture-v1', $marker[ 'fixture_contract' ] ?? null );
@@ -550,13 +587,14 @@ class LocalSiteManagerTest extends TestCase {
 			],
 		];
 		$marker = $this->browserReadyMarkerJson(
-			'http://127.0.0.1:8890',
-			'shield_test_site_lane_1',
+			'http://127.0.0.1:8901',
+			'shield_browser_lane_1',
 			'browser-lane-1',
 			'fixture-token',
 			$hostManifest
 		);
 		$processRunner = new RecordingProcessRunner( [
+			0,
 			0,
 			0,
 			0,
@@ -595,7 +633,7 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( [ 'up', '-d', '--wait', '--wait-timeout', '60', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
 		$this->assertMysqlTcpCommand( $this->findProcessCommandContaining(
 			$processRunner,
-			'CREATE DATABASE IF NOT EXISTS `shield_test_site_lane_1`'
+			'CREATE DATABASE IF NOT EXISTS `shield_browser_lane_1`'
 		), 'mysql' );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
 		$this->assertSame( $hostManifest, $runtimeRefresher->refreshCalls[ 0 ][ 'host_manifest' ] );
@@ -628,8 +666,8 @@ class LocalSiteManagerTest extends TestCase {
 		];
 		$staleMarker = \json_encode( [
 			'schema_version' => 1,
-			'site_url'       => 'http://127.0.0.1:8890',
-			'db_name'        => 'shield_test_site_lane_1',
+			'site_url'       => 'http://127.0.0.1:8901',
+			'db_name'        => 'shield_browser_lane_1',
 			'admin_user'     => 'admin',
 			'profile'        => 'browser-lane-1',
 		], \JSON_UNESCAPED_SLASHES ) ?: '{}';

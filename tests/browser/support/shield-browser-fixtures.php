@@ -275,6 +275,7 @@ function shield_browser_fixture_allowed_actions() :array {
 		'public-block-recovery' => [ 'seed', 'cleanup' ],
 		'security-admin' => [ 'seed', 'cleanup', 'inspect' ],
 		'security-headers' => [ 'seed', 'cleanup' ],
+		'user-ui-state' => [ 'reset' ],
 	];
 }
 
@@ -304,6 +305,7 @@ function shield_browser_fixture_require_helpers() :void {
 		'tests/Helpers/ActionRouter/PublicBlockRecoveryFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/SecurityAdminFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/SecurityHeadersFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/UserUiStateFixtureBuilder.php',
 	] as $relativePath ) {
 		require_once $pluginRoot.'/'.$relativePath;
 	}

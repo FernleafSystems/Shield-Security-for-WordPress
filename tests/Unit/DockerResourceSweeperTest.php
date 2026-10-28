@@ -68,7 +68,7 @@ class DockerResourceSweeperTest extends TestCase {
 			false
 		);
 
-		$this->assertTrue( $this->contains( $report->findings(), 'invalid inspect JSON: docker network inspect '.LocalSiteDefinitions::BROWSER_NETWORK_NAME ) );
+		$this->assertTrue( $this->contains( $report->findings(), 'invalid inspect JSON: docker network inspect '.LocalSiteDefinitions::LEGACY_BROWSER_NETWORK_NAME ) );
 	}
 
 	public function testRemoveFailureBecomesCleanupFinding() :void {
@@ -160,6 +160,38 @@ class DockerResourceSweeperTest extends TestCase {
 
 		$this->assertSame( [], $report->findings() );
 		$this->assertFalse( $this->commandWasRun( $runner, [ 'docker', 'volume', 'rm' ] ) );
+	}
+
+	public function testWarmCleanupPreservesSharedReusableBrowserService() :void {
+		$containerInspect = $this->inspectJson( 'reusable', 'browser-shared-reusable', '2037-12-31T23:59:59+00:00' );
+		$runner = new ScriptedProcessRunner( [
+			[ 'exit_code' => 0, 'stdout' => "db-1\n" ],
+			[ 'exit_code' => 0, 'stdout' => $containerInspect ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 1, 'stderr' => 'No such network' ],
+			[ 'exit_code' => 1, 'stderr' => 'No such network' ],
+			[ 'exit_code' => 0, 'stdout' => "db-1\n" ],
+			[ 'exit_code' => 0, 'stdout' => $containerInspect ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 0, 'stdout' => '' ],
+			[ 'exit_code' => 1, 'stderr' => 'No such network' ],
+			[ 'exit_code' => 1, 'stderr' => 'No such network' ],
+		] );
+
+		$report = ( new DockerResourceSweeper( $runner ) )->cleanupRunResources(
+			$this->createTrackedTempDir( 'shield-sweeper-warm-shared-' ),
+			'run-current',
+			1,
+			false
+		);
+
+		$this->assertSame( [], $report->findings() );
+		$this->assertFalse( $this->commandWasRun( $runner, [ 'docker', 'container', 'rm' ] ) );
 	}
 
 	public function testCustomPolicyUsesConfiguredHarnessLabel() :void {

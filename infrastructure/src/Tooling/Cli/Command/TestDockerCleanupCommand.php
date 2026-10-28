@@ -67,6 +67,9 @@ class TestDockerCleanupCommand extends Command {
 			$laneCount = $this->resolveLaneCount( $input->getOption( 'lanes' ), $scope );
 			$fullCleanup = (bool)$input->getOption( 'all' );
 			$dryRun = (bool)$input->getOption( 'dry-run' );
+			if ( $scope === DockerCleanupPolicy::SCOPE_BROWSER && $fullCleanup && !$dryRun && $this->lanePool->hasOtherActiveLeases( [] ) ) {
+				throw new \RuntimeException( 'Browser lanes are leased by another running browser test. Wait for it to finish before purging. Lock directory: '.$this->lanePool->lockDir() );
+			}
 			$policy = DockerCleanupPolicy::forScope( $scope, $laneCount );
 			$sweeper = new DockerResourceSweeper( $this->processRunner, $policy );
 
@@ -130,7 +133,7 @@ class TestDockerCleanupCommand extends Command {
 			return (int)$value;
 		}
 
-		return $this->lanePool->laneCount();
+		return $this->lanePool->poolSize();
 	}
 
 	/**
