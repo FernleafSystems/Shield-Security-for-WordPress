@@ -685,6 +685,17 @@
 			grid-row: 1 / span 200;
 		}
 
+		// Switching components swaps the panel with a quick fade rather than the slow height slide.
+		.shield-detail-expansion.collapsing {
+			height: auto !important;
+			transition: none;
+		}
+
+		.shield-detail-expansion.collapsing,
+		.shield-detail-expansion.show {
+			animation: configure-panel-swap 160ms ease-out;
+		}
+
 		// The open panel is narrower than a full zone, so give the setting's text more of the row.
 		.options_form_for--modern .shield-option-row {
 			grid-template-columns: minmax(0, 1fr) minmax(150px, 220px);
@@ -722,5 +733,14 @@
 @media (max-width: 960px) {
 	.configure-zone-tools__layout {
 		display: none;
+	}
+}
+
+@keyframes configure-panel-swap {
+	from {
+		opacity: 0.4;
+	}
+	to {
+		opacity: 1;
 	}
 }

@@ -225,12 +225,11 @@ test( 'actions queue drills into groups and back out, opening details when avail
 		await expect( rail ).toBeVisible();
 		await waitForScanResultsTableRows( page.locator( '[data-scan-results-table="1"]' ).first() );
 
-		await page.locator( '[data-step-tab-drill-index="1"]' ).click();
-		await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
-		await expect( page.locator( '[data-drill-layer="2"]' ) ).toHaveClass( /drill-layer--hidden/ );
-
+		// The breadcrumb leads straight back to the landing, which already lists the lane.
+		await expect( page.locator( '[data-step-tab-drill-index="1"]' ) ).toHaveCount( 0 );
 		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 		await expect( actionsQueuePage.landingSection( fixture.bucket_key ) ).toBeVisible();
+		await expect( page.locator( '[data-drill-layer="2"]' ) ).toHaveClass( /drill-layer--hidden/ );
 	} );
 } );
 
@@ -250,10 +249,8 @@ test( 'actions queue landing lists lanes in place and opens a group directly', a
 		await actionsQueuePage.clickElement( group );
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 
-		// The lane behind the group is still reachable from the breadcrumb.
-		await page.locator( '[data-step-tab-drill-index="1"]' ).click();
-		await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
 		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+		await expect( section ).toBeVisible();
 
 		const sections = page.locator( '[data-actions-queue-sections="1"]' );
 		await page.locator( '[data-actions-queue-view="tabs"]' ).click();
@@ -267,7 +264,7 @@ test( 'actions queue landing lists lanes in place and opens a group directly', a
 	} );
 } );
 
-test( 'actions queue keeps clear risks together with clickable vulnerability findings', async ( { page, fixtureApi } ) => {
+test( 'actions queue landing keeps clear risks inert beside clickable vulnerability findings', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'empty_cloaked_plugins', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		let cloakedDetailRenderRequests = 0;
@@ -280,11 +277,9 @@ test( 'actions queue keeps clear risks together with clickable vulnerability fin
 
 		try {
 			await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
-			// The lane page is reached through the breadcrumb after opening one of its groups.
-			await actionsQueuePage.openLane( fixture.bucket_key, 'vulnerabilities' );
 			const detailLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="detail"]' ).first();
 
-			const cloaked = await actionsQueuePage.waitForGroupOuter( fixture.group_key );
+			const cloaked = await actionsQueuePage.waitForLandingGroupOuter( fixture.group_key );
 			expect( await cloaked.evaluate( ( element ) => element.tagName ) ).toBe( 'DIV' );
 			await expect( cloaked ).not.toHaveAttribute( 'data-drill-target' );
 			await expect( cloaked ).not.toHaveAttribute( 'data-drill-bucket-selection' );
@@ -295,14 +290,9 @@ test( 'actions queue keeps clear risks together with clickable vulnerability fin
 			await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 			expect( cloakedDetailRenderRequests ).toBe( 0 );
 
-			const abandoned = await actionsQueuePage.waitForGroupOuter( 'abandoned' );
+			const abandoned = await actionsQueuePage.waitForLandingGroupOuter( 'abandoned' );
 			await expect.poll( async () => await abandoned.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'default' );
-			const vulnerabilities = await actionsQueuePage.waitForGroupOuter( 'vulnerabilities' );
-			const risks = vulnerabilities.locator( 'xpath=ancestor::section' );
-			await expect( risks.locator( '[data-actions-queue-group-key]' ) ).toHaveCount( 3 );
-			await expect( risks.locator( '[data-actions-queue-group-key]' ).first() ).toHaveAttribute( 'data-actions-queue-group-key', 'vulnerabilities' );
-			await expect( risks.locator( '[data-actions-queue-group-key="hidden_plugins"]' ) ).toBeVisible();
-			await expect( risks.locator( '[data-actions-queue-group-key="abandoned"]' ) ).toBeVisible();
+			const vulnerabilities = await actionsQueuePage.waitForLandingGroupOuter( 'vulnerabilities' );
 			await expect( vulnerabilities ).toHaveAttribute( 'data-drill-target', 'detail' );
 			await actionsQueuePage.clickElement( vulnerabilities );
 			await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();

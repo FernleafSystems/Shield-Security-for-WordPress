@@ -74,6 +74,11 @@ export class ActionsQueueSections extends BaseAutoExecComponent {
 		root.querySelectorAll( '[data-actions-queue-view]' ).forEach(
 			( button ) => button.setAttribute( 'aria-pressed', String( button.dataset.actionsQueueView === view ) )
 		);
+		// Tabs always show their section in full; sections keep whichever were open or collapsed.
+		root.querySelectorAll( '[data-actions-queue-section-toggle="1"]' ).forEach( ( head ) => {
+			const body = document.getElementById( head.getAttribute( 'aria-controls' ) || '' );
+			body && ( body.hidden = view === 'sections' && head.getAttribute( 'aria-expanded' ) !== 'true' );
+		} );
 		if ( view === 'tabs' ) {
 			const selected = root.querySelector( '[data-actions-queue-tab][aria-selected="true"]' );
 			this.selectTab( root, selected?.dataset.actionsQueueTab || '' );

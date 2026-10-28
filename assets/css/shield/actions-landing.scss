@@ -564,6 +564,7 @@ $aq-pro-bg: #f2ebfc;
 	font-size: 13px;
 	gap: 4px 12px;
 	grid-template-columns: 26px minmax(0, 1fr) auto;
+	cursor: default;
 	padding: 10px 14px;
 	text-align: left;
 	width: 100%;
@@ -781,10 +782,6 @@ $aq-pro-bg: #f2ebfc;
 
 	.actions-queue-section__head {
 		display: none;
-	}
-
-	.actions-queue-section__body[hidden] {
-		display: block;
 	}
 
 	.actions-queue-section__body {

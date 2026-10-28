@@ -45,6 +45,9 @@
 	{% endif %}
 {% endfor %}
 
+{# A passing check can show both as a group and as a summary row; list it once. #}
+{% set passing_labels = passing|map( p => p.group.label|lower ) %}
+{% set healthy_rows = healthy_rows|default( [] )|filter( r => r.title|lower not in passing_labels ) %}
 {% set passing_count = passing|length + healthy_rows|length %}
 {% set passing_names = ( passing|map( p => p.group.label ) )|merge( healthy_rows|map( r => r.title ) )|filter( n => n is not empty ) %}
 {% set sections = lanes %}
@@ -141,7 +144,7 @@
 
 			<div class="actions-queue-section__body"
 				 id="ActionsQueueSectionBody-{{ section.key }}"
-				 {% if not section.is_open %}hidden{% endif %}>
+				 {% if not section.is_open and view != 'tabs' %}hidden{% endif %}>
 				{% if section.key == 'passing' %}
 					{% for entry in passing %}
 						{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {

@@ -163,6 +163,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 		this.selectedBucket = bucket;
 		this.selectedGroup = null;
+		this.setLaneInTrail( shell, true );
 		this.resetGroupsLayerHeader( shell );
 		this.resetDetailLayer( shell );
 		drillCtrl.updateLayerHeader(
@@ -195,14 +196,9 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 		this.selectedGroup = group;
 
-		// Group cards on the landing open results directly. The lane layer is filled in quietly
-		// behind them so the breadcrumb back to that lane still works.
-		const fromLanding = item.closest( '[data-actions-queue-sections="1"]' ) !== null;
-		if ( fromLanding ) {
-			drillCtrl.updateLayerHeader( shell, 1, this.selectedBucket.header, { announce: false } );
-			// Stepping back from the lane returns focus to this card on the landing.
-			drillCtrl.rememberLayerActivator( shell, 1, item );
-		}
+		// Group cards on the landing open results directly, and the breadcrumb leads straight back to
+		// the landing: the landing already lists the lane, so the lane page is left out of the trail.
+		this.setLaneInTrail( shell, item.closest( '[data-actions-queue-sections="1"]' ) === null );
 
 		drillCtrl.updateLayerHeader(
 			shell,
@@ -213,25 +209,16 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		drillCtrl.drillTo( shell, layerIndex, { sourceEl: item } );
 
 		this.loadDetailLayer();
-		if ( fromLanding ) {
-			this.loadGroupsLayer( { showPlaceholder: false, quiet: true } )
-				.then( () => this.rememberLaneGroupActivator( shell, group.key ) );
-		}
 	}
 
 	/**
-	 * Once the lane is filled in, stepping back from results focuses the same group in the lane.
+	 * @param {HTMLElement} shell
+	 * @param {boolean} inTrail
 	 */
-	rememberLaneGroupActivator( shell, groupKey ) {
-		const drillCtrl = this.getDrillDownController();
-		if ( drillCtrl === null || this.selectedGroup?.key !== groupKey ) {
-			return;
-		}
-
-		const card = Array.from( shell.querySelectorAll( '[data-drill-layer-key="groups"] [data-drill-target="detail"]' ) )
-			.find( ( element ) => this.readGroupSelection( element ).key === groupKey );
-		if ( card instanceof HTMLElement ) {
-			drillCtrl.rememberLayerActivator( shell, 2, card );
+	setLaneInTrail( shell, inTrail ) {
+		const lane = shell.querySelector( '[data-drill-layer-key="groups"]' );
+		if ( lane instanceof HTMLElement ) {
+			lane.toggleAttribute( 'data-drill-crumb-skip', !inTrail );
 		}
 	}
 

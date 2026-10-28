@@ -25,15 +25,6 @@ class ActionsQueuePage {
 		await expect( this.page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 	}
 
-	/**
-	 * The lane page is reached only through the breadcrumb, after opening one of its groups.
-	 */
-	async openLane( bucketKey, viaGroupKey ) {
-		await this.drillToDetail( { bucket_key: bucketKey, group_key: viaGroupKey } );
-		await this.page.locator( '[data-step-tab-drill-index="1"]' ).click();
-		await expect( this.page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
-	}
-
 	landingSection( bucketKey ) {
 		return this.page.locator( `[data-actions-queue-sections="1"] [data-actions-queue-section-key="${bucketKey}"]` );
 	}
@@ -83,37 +74,6 @@ class ActionsQueuePage {
 		await expect( panel ).toHaveAttribute( 'aria-hidden', 'false' );
 
 		return panel;
-	}
-
-	async findGroup( groupKey ) {
-		return this.findDrillTargetBySelection(
-			this.page.locator( '[data-actions-queue-groups="1"] [data-drill-target="detail"]' ),
-			'data-drill-group-selection',
-			groupKey
-		);
-	}
-
-	groupOuter( groupKey ) {
-		// The landing also lists group cards, so look only inside the lane layer.
-		return this.page.locator( `[data-actions-queue-groups="1"] [data-actions-queue-group-key="${groupKey}"]` ).first();
-	}
-
-	async waitForGroupOuter( groupKey, timeout = 20000 ) {
-		const group = this.groupOuter( groupKey );
-		await expect.poll( async () => await group.count(), { timeout } ).toBe( 1 );
-		await expect( group ).toBeVisible();
-		return group;
-	}
-
-	async waitForGroup( groupKey, timeout = 20000 ) {
-		let group = null;
-
-		await expect.poll( async () => {
-			group = await this.findGroup( groupKey );
-			return group === null ? '' : groupKey;
-		}, { timeout } ).toBe( groupKey );
-
-		return group;
 	}
 
 	async clickElement( locator ) {

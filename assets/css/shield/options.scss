@@ -492,8 +492,8 @@ $options-rail-width-max: 260px;
   display: flex;
   font-size: 12.5px;
   font-weight: 500;
-  gap: 7px;
-  line-height: 1.25;
+  gap: 8px;
+  line-height: 1.3;
   margin: 0;
   min-height: 34px;
   padding: 6px 10px;
@@ -504,19 +504,25 @@ $options-rail-width-max: 260px;
   border-color: #8c8f94;
 }
 
-.shield-option-chip__text::before {
-  align-items: center;
+// The tick is its own flex item, centred against the label however many lines it wraps to. Checking a
+// chip only changes colours, never the text weight, so the label keeps its width and the row never moves.
+.shield-option-chip::before {
   border: 1.5px solid #a7aaad;
   border-radius: 4px;
+  box-sizing: border-box;
+  color: #ffffff;
   content: "";
-  display: inline-flex;
   flex: none;
   font-size: 10px;
+  font-weight: 700;
   height: 14px;
-  justify-content: center;
-  margin-right: 7px;
-  vertical-align: -2px;
+  line-height: 11px;
+  text-align: center;
   width: 14px;
+}
+
+.shield-option-chip__text {
+  min-width: 0;
 }
 
 .shield-option-chip__input {
@@ -529,14 +535,12 @@ $options-rail-width-max: 260px;
 .shield-option-chip:has(.shield-option-chip__input:checked) {
   background: #e6f5e6;
   border-color: #9fd09f;
-  color: #006400;
-  font-weight: 600;
+  color: #005c00;
 }
 
-.shield-option-chip:has(.shield-option-chip__input:checked) .shield-option-chip__text::before {
+.shield-option-chip:has(.shield-option-chip__input:checked)::before {
   background: #008000;
   border-color: #008000;
-  color: #ffffff;
   content: "\2713";
 }
 

@@ -328,20 +328,8 @@ test( 'actions queue drill path keeps layer state, focus, announcements, and axe
 		await expect( page.locator( '[data-actions-queue-detail="1"] [data-scan-results-table="1"]' ).first() ).toBeVisible();
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions"] [data-operator-step-tab="1"][aria-current="step"]' ) ).toHaveCount( 1 );
 
-		// The lane behind the results is filled in quietly, ready for the breadcrumb.
-		await actionsQueuePage.waitForGroup( fixture.group_key );
-		await expect( groupsLayer ).toHaveAttribute( 'aria-busy', 'false' );
-
-		await page.locator( '[data-step-tab-drill-index="1"]' ).click();
-		await expect( groupsLayer ).toHaveAttribute( 'aria-hidden', 'false' );
-		await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
-		await expect.poll(
-			() => activeElementSelectionKey( page, 'data-drill-group-selection' )
-		).toBe( groupKey );
-		await expect.poll( () => activeElementDrillTarget( page ) ).toBe( 'detail' );
-		await expect.poll( () => page.evaluate(
-			() => document.activeElement?.closest( '[data-drill-layer-key]' )?.getAttribute( 'data-drill-layer-key' ) || ''
-		) ).toBe( 'groups' );
+		// The landing already lists the lane, so the breadcrumb leads straight back to it.
+		await expect( page.locator( '[data-step-tab-drill-index="1"]' ) ).toHaveCount( 0 );
 
 		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 		await expect( bucketsLayer ).toHaveAttribute( 'aria-hidden', 'false' );
@@ -365,25 +353,23 @@ test( 'actions queue drill back focuses the active layer when a group launcher i
 			nav_sub: 'overview',
 		} );
 
-		const groupsLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="groups"]' ).first();
+		const bucketsLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="buckets"]' ).first();
 		const detailLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="detail"]' ).first();
 
 		await actionsQueuePage.drillToDetail( fixture );
 		await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 		await expect.poll( () => activeElementDrillLayerKey( page ) ).toBe( 'detail' );
 
-		const laneGroup = await actionsQueuePage.waitForGroup( fixture.group_key );
-		expect( laneGroup ).not.toBeNull();
-		await expect( groupsLayer ).toHaveAttribute( 'aria-busy', 'false' );
-		await laneGroup.evaluate( ( element ) => element.remove() );
-		await page.locator( '[data-step-tab-drill-index="1"]' ).click();
-		await expect( groupsLayer ).toHaveAttribute( 'aria-hidden', 'false' );
+		const landingGroup = await actionsQueuePage.waitForLandingGroup( fixture.bucket_key, fixture.group_key );
+		await landingGroup.evaluate( ( element ) => element.remove() );
+		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+		await expect( bucketsLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 		await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
-		await expect.poll( () => activeElementDrillLayerKey( page ) ).toBe( 'groups' );
+		await expect.poll( () => activeElementDrillLayerKey( page ) ).toBe( 'buckets' );
 	} );
 } );
 
-test( 'actions queue quiet lane load clears busy state without announcing when the landing is shown again', async ( { page, fixtureApi } ) => {
+test( 'actions queue opens results from the landing without loading the lane page', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
@@ -391,26 +377,23 @@ test( 'actions queue quiet lane load clears busy state without announcing when t
 			nav_sub: 'overview',
 		} );
 
-		const groupsLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="groups"]' ).first();
-		const landingGroup = await actionsQueuePage.waitForLandingGroup( fixture.bucket_key, fixture.group_key );
-		const delayedGroups = await deferNextRenderSlug( page, 'actions_queue_drill_down_groups' );
-		const groupsResponse = waitForRenderSlugResponse( page, 'actions_queue_drill_down_groups' );
-
-		await actionsQueuePage.clickElement( landingGroup );
-		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-		await expect.poll( delayedGroups.seen ).toBe( true );
-		await expect( groupsLayer ).toHaveAttribute( 'aria-busy', 'true' );
-		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
-		await expect( groupsLayer ).toHaveAttribute( 'aria-hidden', 'true' );
-		await expect( groupsLayer ).toHaveAttribute( 'aria-busy', 'false' );
-		await page.waitForTimeout( 80 );
-		await observeLiveRegionMutations( page, '[data-actions-landing="1"]' );
-
-		delayedGroups.resolve();
-		await groupsResponse;
-		await page.waitForTimeout( 120 );
-		await expect( groupsLayer ).toHaveAttribute( 'aria-busy', 'false' );
-		await expect.poll( () => liveRegionMutationCount( page ) ).toBe( 0 );
+		let laneRequests = 0;
+		const countLaneRequests = ( request ) => {
+			if ( String( request.postData() || '' ).includes( 'actions_queue_drill_down_groups' ) ) {
+				laneRequests++;
+			}
+		};
+		page.on( 'request', countLaneRequests );
+		try {
+			const landingGroup = await actionsQueuePage.waitForLandingGroup( fixture.bucket_key, fixture.group_key );
+			await actionsQueuePage.clickElement( landingGroup );
+			await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
+			await page.waitForTimeout( 300 );
+			expect( laneRequests ).toBe( 0 );
+		}
+		finally {
+			page.off( 'request', countLaneRequests );
+		}
 	} );
 } );
 
@@ -422,7 +405,6 @@ test( 'actions queue clears detail layer busy state without stale announcement w
 			nav_sub: 'overview',
 		} );
 
-		const groupsLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="groups"]' ).first();
 		const detailLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="detail"]' ).first();
 		const group = await actionsQueuePage.waitForLandingGroup( fixture.bucket_key, fixture.group_key );
 
@@ -436,9 +418,7 @@ test( 'actions queue clears detail layer busy state without stale announcement w
 		await expect.poll( delayedDetail.seen ).toBe( true );
 		await expect( detailLayer ).toHaveAttribute( 'aria-busy', 'true' );
 		await expectLiveRegionContract( page, '[data-actions-landing="1"]' );
-		await actionsQueuePage.waitForGroup( fixture.group_key );
-		await expect( groupsLayer ).toHaveAttribute( 'aria-busy', 'false' );
-		await page.locator( '[data-step-tab-drill-index="1"]' ).click();
+		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 		await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 		await expect( detailLayer ).toHaveAttribute( 'aria-busy', 'false' );
 		await page.waitForTimeout( 80 );
@@ -460,7 +440,7 @@ test( 'actions queue detail failure clears busy state and announces assertively'
 			nav_sub: 'overview',
 		} );
 
-		const groupsLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="groups"]' ).first();
+		const bucketsLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="buckets"]' ).first();
 		const detailLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="detail"]' ).first();
 		const liveRegion = drillLiveRegion( page, '[data-actions-landing="1"]' );
 		const group = await actionsQueuePage.waitForLandingGroup( fixture.bucket_key, fixture.group_key );
@@ -480,10 +460,8 @@ test( 'actions queue detail failure clears busy state and announces assertively'
 		await expectLiveRegionContract( page, '[data-actions-landing="1"]' );
 		await expect.poll( () => activeElementDrillLayerKey( page ) ).toBe( 'detail' );
 
-		await actionsQueuePage.waitForGroup( fixture.group_key );
-		await expect( groupsLayer ).toHaveAttribute( 'aria-busy', 'false' );
-		await page.locator( '[data-step-tab-drill-index="1"]' ).click();
-		await expect( groupsLayer ).toHaveAttribute( 'aria-hidden', 'false' );
+		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+		await expect( bucketsLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 		await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 		await expect( liveRegion ).toHaveAttribute( 'aria-live', 'polite' );
 		await expect.poll(
