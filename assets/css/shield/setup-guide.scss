@@ -194,6 +194,7 @@ $setup-guide-sheet-height: 640px;
 
 // One fixed height whichever step is showing; long steps scroll inside the panel.
 .shield-setup-guide__sheet {
+	position: relative;
 	display: grid;
 	grid-template-columns: 260px minmax(0, 1fr);
 	height: min(#{$setup-guide-sheet-height}, calc(100vh - 110px));
@@ -330,6 +331,61 @@ $setup-guide-sheet-height: 640px;
 @media (max-width: 782px) {
 	.shield-setup-guide__panes {
 		padding: 1rem;
+	}
+}
+
+// While a step saves or skips, the step area fades under a spinner and ignores clicks.
+@keyframes shield-setup-guide-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.shield-setup-guide__sheet.is-busy {
+	cursor: progress;
+
+	.shield-setup-guide__panes {
+		pointer-events: none;
+	}
+
+	&::before {
+		background: rgba(255, 255, 255, 0.7);
+		content: "";
+		inset: 0 0 0 260px;
+		position: absolute;
+		z-index: 2;
+	}
+
+	&::after {
+		animation: shield-setup-guide-spin 0.8s linear infinite;
+		border: 3px solid #cfe6d5;
+		border-radius: 50%;
+		border-top-color: $status-color-good;
+		content: "";
+		height: 32px;
+		left: calc(260px + (100% - 260px) / 2 - 16px);
+		position: absolute;
+		top: calc(50% - 16px);
+		width: 32px;
+		z-index: 3;
+	}
+}
+
+@media (max-width: 782px) {
+	.shield-setup-guide__sheet.is-busy {
+		&::before {
+			inset: 0;
+		}
+
+		&::after {
+			left: calc(50% - 16px);
+		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.shield-setup-guide__sheet.is-busy::after {
+		animation-duration: 2.4s;
 	}
 }
 

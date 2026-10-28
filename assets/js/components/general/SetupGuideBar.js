@@ -37,6 +37,11 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 			if ( target === null ) {
 				return;
 			}
+			// While a step is saving, the step area is covered and nothing in it responds.
+			if ( this.isBusy && target.closest( '.shield-setup-guide__sheet' ) ) {
+				evt.preventDefault();
+				return;
+			}
 			// The collapsed bar opens the guide from anywhere on it, apart from its own links.
 			const onBar = target.closest( '[data-setup-guide-bar="1"]' ) !== null
 				&& target.closest( 'button:not([data-setup-guide-toggle]), a' ) === null;
@@ -53,7 +58,7 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 			}
 			else if ( skip || complete ) {
 				const slug = ( skip || complete ).dataset.setupGuideSkip || ( skip || complete ).dataset.setupGuideComplete || '';
-				this.sendUpdate( { op: 'skip', step_slug: slug } ).then( () => this.completeStep( slug ) );
+				this.whileBusy( this.sendUpdate( { op: 'skip', step_slug: slug } ) ).then( () => this.completeStep( slug ) );
 			}
 			else if ( target.closest( '[data-setup-guide-hide="1"]' ) ) {
 				this.writeSessionHidden( true );
@@ -82,7 +87,9 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 			if ( form instanceof HTMLFormElement && form.matches( 'form.merlin-form' ) ) {
 				evt.preventDefault();
 				evt.stopPropagation();
-				this.submitStep( form );
+				if ( !this.isBusy ) {
+					this.submitStep( form );
+				}
 			}
 		}, true );
 
@@ -207,8 +214,7 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 			return;
 		}
 		const slug = String( form.querySelector( '[name="step_slug"]' )?.value || '' );
-		( new AjaxService() )
-		.send( ObjectOps.Merge( action, { form_params: Forms.Serialize( form ) } ) )
+		this.whileBusy( ( new AjaxService() ).send( ObjectOps.Merge( action, { form_params: Forms.Serialize( form ) } ), false ) )
 		.then( ( resp ) => {
 			if ( resp?.success ) {
 				if ( resp.data?.page_reload ) {
@@ -227,6 +233,25 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 			}
 		} )
 		.catch( () => null );
+	}
+
+	/**
+	 * Fades the step area under a spinner until the request settles, so a click visibly does
+	 * something and can't be repeated while it's under way.
+	 * @param {Promise} request
+	 * @returns {Promise}
+	 */
+	whileBusy( request ) {
+		const sheet = this.root.querySelector( '.shield-setup-guide__sheet' );
+		const panes = this.root.querySelector( '.shield-setup-guide__panes' );
+		this.isBusy = true;
+		sheet?.classList.add( 'is-busy' );
+		panes?.setAttribute( 'aria-busy', 'true' );
+		return request.finally( () => {
+			this.isBusy = false;
+			sheet?.classList.remove( 'is-busy' );
+			panes?.setAttribute( 'aria-busy', 'false' );
+		} );
 	}
 
 	sendUpdate( data ) {
