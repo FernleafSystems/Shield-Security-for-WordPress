@@ -39,7 +39,35 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 			false
 		);
 
+		shieldEventsHandler_Main.add_Click(
+			'[data-configure-show-me="1"]',
+			( button ) => this.handleShowMe( button ),
+			false
+		);
+
 		this.initializeCurrentRoot();
+	}
+
+	/**
+	 * Opens the component behind a warning and highlights the setting that fixes it. When the
+	 * warning doesn't name a setting but the component has only one, that one is highlighted.
+	 */
+	handleShowMe( button ) {
+		const rowKey = button.dataset.rowKey || '';
+		let optionKey = button.dataset.optionKey || '';
+		if ( optionKey.length < 1 ) {
+			const wrapper = this.getConfigureRoot()?.querySelector( `[data-configure-row-key="${rowKey}"]` );
+			const keysField = wrapper?.querySelector( 'input[name="all_opts_keys"]' );
+			const placeholder = wrapper?.querySelector( '[data-configure-expand-ajax="1"]' );
+			const keys = String( keysField instanceof HTMLInputElement ? keysField.value : ( placeholder?.getAttribute( 'data-option_keys' ) || '' ) )
+			.split( ',' )
+			.filter( ( key ) => key.length > 0 );
+			optionKey = keys.length === 1 ? keys[ 0 ] : '';
+		}
+		this.applyFocusRequest( {
+			row_key: rowKey,
+			config_item: optionKey,
+		} );
 	}
 
 	initializeCurrentRoot() {
@@ -434,16 +462,24 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 			return;
 		}
 
-		const field = expansion.querySelector( `[name="${focus.config_item}"]` ) || null;
+		// Multi-selects submit as "key[]", so match either form of the name.
+		const field = expansion.querySelector( `[name="${focus.config_item}"], [name="${focus.config_item}[]"]` ) || null;
 		if ( !( field instanceof HTMLElement ) ) {
 			this.clearPendingRequestedFocus();
 			return;
 		}
 
-		field.scrollIntoView( {
+		field.closest( 'details' )?.setAttribute( 'open', '' );
+
+		const item = field.closest( '.shield-option-item' );
+		( item instanceof HTMLElement ? item : field ).scrollIntoView( {
 			block: 'center',
 			behavior: 'auto',
 		} );
+		if ( item instanceof HTMLElement ) {
+			item.classList.add( 'is-highlighted' );
+			window.setTimeout( () => item.classList.remove( 'is-highlighted' ), 2500 );
+		}
 
 		if ( typeof field.focus === 'function' ) {
 			field.focus( {

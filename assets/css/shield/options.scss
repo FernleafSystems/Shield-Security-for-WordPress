@@ -186,6 +186,23 @@ $options-rail-width-max: 260px;
   background: #2271b1;
 }
 
+// Briefly marks the setting a "Show me" link jumped to.
+.options_form_for--modern .shield-option-item.is-highlighted {
+  animation: shield-option-highlight 2.5s ease-out;
+}
+
+@keyframes shield-option-highlight {
+  0%, 40% { background: #fff1b8; }
+  100% { background: transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .options_form_for--modern .shield-option-item.is-highlighted {
+    animation: none;
+    background: #fff1b8;
+  }
+}
+
 // Top-aligned so a long control (checkbox lists, textareas) never pushes the label to mid-row.
 .options_form_for--modern .shield-option-row {
   display: flex;

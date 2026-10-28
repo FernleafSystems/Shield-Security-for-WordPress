@@ -29,22 +29,22 @@ class LoginProtectionForms extends Base {
 
 		if ( empty( $state[ 'protected_forms' ][ 'login' ] ) ) {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = sprintf( __( "%s bot detection isn't protecting against brute-force attacks on your WordPress login.", 'wp-simple-firewall' ), $silentCaptcha );
+			$status[ 'exp' ][] = $this->explanationFixedBy( sprintf( __( "%s bot detection isn't protecting against brute-force attacks on your WordPress login.", 'wp-simple-firewall' ), $silentCaptcha ), 'bot_protection_locations' );
 		}
 		if ( empty( $state[ 'protected_forms' ][ 'register' ] ) ) {
-			$status[ 'exp' ][] = sprintf( __( "%s bot detection isn't protecting your WordPress registration.", 'wp-simple-firewall' ), $silentCaptcha );
+			$status[ 'exp' ][] = $this->explanationFixedBy( sprintf( __( "%s bot detection isn't protecting your WordPress registration.", 'wp-simple-firewall' ), $silentCaptcha ), 'bot_protection_locations' );
 		}
 		if ( empty( $state[ 'protected_forms' ][ 'password' ] ) ) {
-			$status[ 'exp' ][] = sprintf( __( "%s bot detection isn't protecting your WordPress lost password form.", 'wp-simple-firewall' ), $silentCaptcha );
+			$status[ 'exp' ][] = $this->explanationFixedBy( sprintf( __( "%s bot detection isn't protecting your WordPress lost password form.", 'wp-simple-firewall' ), $silentCaptcha ), 'bot_protection_locations' );
 		}
 		if ( !$state[ 'cooldown_enabled' ] ) {
-			$status[ 'exp' ][] = __( 'Login cooldown is not limiting repeated login attempts.', 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Login cooldown is not limiting repeated login attempts.', 'wp-simple-firewall' ), 'login_limit_interval' );
 		}
 		if ( !empty( $state[ 'unprotected_providers' ] ) ) {
-			$status[ 'exp' ][] = sprintf(
+			$status[ 'exp' ][] = $this->explanationFixedBy( sprintf(
 				__( "Some installed third-party login forms aren't protected: %s", 'wp-simple-firewall' ),
 				\implode( ', ', $state[ 'unprotected_providers' ] )
-			);
+			), 'user_form_providers' );
 		}
 
 		if ( $status[ 'level' ] !== EnumEnabledStatus::BAD ) {

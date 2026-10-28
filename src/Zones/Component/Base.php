@@ -7,7 +7,29 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 
 abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\Base {
 
+	/**
+	 * Explanation text => the option key that resolves it, so Configure can link straight to the setting.
+	 * Static because component instances are created afresh by each consumer.
+	 * @var array<string,string>
+	 */
+	private static array $explanationOptionKeys = [];
+
 	protected function run() {
+	}
+
+	/**
+	 * Records which option fixes an explanation, and returns the explanation so it can be added inline.
+	 */
+	protected function explanationFixedBy( string $explanation, string $optionKey ) :string {
+		self::$explanationOptionKeys[ \trim( $explanation ) ] = $optionKey;
+		return $explanation;
+	}
+
+	/**
+	 * @return array<string,string> explanation text => option key, for explanations built so far in this request
+	 */
+	public static function explanationFixLookup() :array {
+		return self::$explanationOptionKeys;
 	}
 
 	public function title() :string {

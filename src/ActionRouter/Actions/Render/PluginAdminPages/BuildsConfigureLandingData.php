@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
+
 /**
  * @phpstan-import-type ConfigureLandingTile from ConfigureLandingRenderContracts
  * @phpstan-import-type ConfigureLandingViewData from ConfigureLandingRenderContracts
@@ -127,6 +129,9 @@ trait BuildsConfigureLandingData {
 			'diagnosis'      => $diagnosis,
 			'header'         => $diagnosis[ 'header' ],
 			'zone_selection' => $diagnosis[ 'zone_selection' ],
+			// Built after the diagnosis above, so every component has recorded which option fixes each explanation.
+			'explanation_fixes' => Component\Base::explanationFixLookup(),
+			'show_me_label'  => __( 'Show me', 'wp-simple-firewall' ),
 			'savebar'        => [
 				'label'        => __( 'Unsaved changes', 'wp-simple-firewall' ),
 				/* translators: %s: number of unsaved changes */

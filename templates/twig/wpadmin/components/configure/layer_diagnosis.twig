@@ -1,6 +1,20 @@
-{% macro render_rows(rows, diagnosis_id) %}
+{% macro render_rows(rows, diagnosis_id, fixes = {}, show_me_label = '') %}
 	<div class="configure-diagnosis__settings">
 		{% for row in rows %}
+			{# Each warning gets a "Show me" that opens this component and highlights the setting that fixes it. #}
+			{% set explanation_actions = [] %}
+			{% if show_me_label is not empty and row.status in [ 'warning', 'critical' ] and row.expand_action.is_expandable %}
+				{% for explanation in row.explanations %}
+					{% set explanation_actions = explanation_actions|merge( [ {
+						label: show_me_label,
+						attributes: {
+							'data-configure-show-me': '1',
+							'data-row-key': row.key,
+							'data-option-key': fixes[ explanation ]|default( '' )
+						}
+					} ] ) %}
+				{% endfor %}
+			{% endif %}
 			{% include '/wpadmin/components/configure/detail_item.twig' with { item: {
 				row: {
 					title: row.title,
@@ -9,6 +23,7 @@
 					status_icon: row.status_icon_class,
 					status_label: row.status_label,
 					explanations: row.explanations,
+					explanation_actions: explanation_actions,
 					attributes: {}
 				},
 				expand: {
@@ -33,11 +48,11 @@
 	 data-configure-zone="{{ diagnosis.zone_key }}"
 	 id="{{ diagnosis_id }}">
 	{% if diagnosis.problem_rows is not empty %}
-		{{ render_rows(diagnosis.problem_rows, diagnosis_id) }}
+		{{ render_rows(diagnosis.problem_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
 	{% endif %}
 
 	{% if diagnosis.review_rows is not empty %}
-		{{ render_rows(diagnosis.review_rows, diagnosis_id) }}
+		{{ render_rows(diagnosis.review_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
 	{% endif %}
 
 	{% if diagnosis.healthy_rows is not empty %}

@@ -76,6 +76,7 @@
 		{% if explanations is not empty %}
 			<ul class="shield-detail-row__explanations">
 				{% for explanation in explanations %}
+					{% set explanation_action = row_data.explanation_actions[ loop.index0 ]|default( null ) %}
 					<li>
 						{% if status in [ 'warning', 'critical' ] %}
 							<span class="shield-detail-row__expl-icon" aria-hidden="true">
@@ -83,6 +84,10 @@
 							</span>
 						{% endif %}
 						<span>{{ explanation }}</span>
+						{% if explanation_action is not null %}
+							<button type="button"
+									class="shield-detail-row__expl-action"{{ icwp_macros.renderAttributes( explanation_action.attributes|default({}) ) }}>{{ explanation_action.label }}</button>
+						{% endif %}
 					</li>
 				{% endfor %}
 			</ul>

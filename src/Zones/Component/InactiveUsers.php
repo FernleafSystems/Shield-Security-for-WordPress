@@ -44,10 +44,10 @@ class InactiveUsers extends Base {
 
 		if ( $autoPasswordEnabled && !$hasAutoPasswordSuspend ) {
 			if ( !$optsLookup->isPassPoliciesEnabled() ) {
-				$status[ 'exp' ][] = __( 'Expired-password suspension is enabled but password policies are turned off.', 'wp-simple-firewall' );
+				$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Expired-password suspension is enabled but password policies are turned off.', 'wp-simple-firewall' ), 'enable_password_policies' );
 			}
 			if ( $optsLookup->getPassExpireTimeout() <= 0 ) {
-				$status[ 'exp' ][] = __( 'Expired-password suspension is enabled but password expiration is not configured.', 'wp-simple-firewall' );
+				$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Expired-password suspension is enabled but password expiration is not configured.', 'wp-simple-firewall' ), 'pass_expire' );
 			}
 		}
 

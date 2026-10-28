@@ -30,7 +30,7 @@ class PasswordPolicies extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "Password policies aren't enabled which may lead to poor password hygiene.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( "Password policies aren't enabled which may lead to poor password hygiene.", 'wp-simple-firewall' ), 'enable_password_policies' );
 		}
 		return $status;
 	}
