@@ -3,6 +3,7 @@ import { ObjectOps } from "../../util/ObjectOps";
 import { OptionsFormSubmit } from "./OptionsFormSubmit";
 import { OptionDirtyState } from "./OptionDirtyState";
 import { ConfigureSaveBar } from "./ConfigureSaveBar";
+import { ConfigurePanelControls } from "./ConfigurePanelControls";
 import { AjaxService } from "../services/AjaxService";
 import { Tooltip } from 'bootstrap';
 
@@ -11,6 +12,7 @@ export class OptionsHandler extends BaseAutoExecComponent {
 	run() {
 		new OptionsFormSubmit( this._base_data );
 		new ConfigureSaveBar( this._base_data );
+		new ConfigurePanelControls();
 		this.initializeProfileSearchInputs();
 		this.initializeDirtyTracking();
 

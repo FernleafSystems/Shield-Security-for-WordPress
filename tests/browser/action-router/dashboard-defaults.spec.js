@@ -62,7 +62,34 @@ async function openFocusedConfigureForm( page, contract ) {
 	return { row, form };
 }
 
+/**
+ * Configure panels show some selects as a row of choices (radios) rather than a dropdown.
+ */
+function choiceControl( form, option, value ) {
+	const key = option.control_id.replace( /^Opt-/, '' );
+	return form.locator( `input[type="radio"][name="${key}"][value="${value}"]` );
+}
+
+async function isChoiceSelect( form, option ) {
+	return option.type === 'select' && await form.locator( `#${option.control_id}` ).count() === 0;
+}
+
+// A setting under a panel's "More options" is hidden until that section is opened.
+async function revealControl( form, control ) {
+	if ( !await control.isVisible() ) {
+		const more = form.locator( '[data-panel-more="1"][aria-expanded="false"]' );
+		if ( await more.count() > 0 ) {
+			await more.click();
+		}
+	}
+}
+
 async function expectControlValue( form, option, expectedValue ) {
+	if ( await isChoiceSelect( form, option ) ) {
+		await expect( choiceControl( form, option, String( expectedValue ) ) ).toBeChecked();
+		return;
+	}
+
 	const control = form.locator( `#${option.control_id}` );
 	await expect( control ).toBeAttached();
 
@@ -77,11 +104,22 @@ async function expectControlValue( form, option, expectedValue ) {
 }
 
 async function applyOptionValue( form, option ) {
+	if ( await isChoiceSelect( form, option ) ) {
+		const choice = choiceControl( form, option, String( option.save ) );
+		const key = option.control_id.replace( /^Opt-/, '' );
+		const label = form.locator( `label:has(input[type="radio"][name="${key}"][value="${String( option.save )}"])` );
+		await revealControl( form, label );
+		await label.click();
+		await expect( choice ).toBeChecked();
+		return;
+	}
+
 	const control = form.locator( `#${option.control_id}` );
 	await expect( control ).toBeAttached();
+	await revealControl( form, control );
 
 	if ( option.type === 'checkbox' ) {
-		await control.setChecked( option.save === 'Y' );
+		await control.setChecked( option.save === 'Y', { force: true } );
 		return;
 	}
 

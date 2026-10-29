@@ -277,7 +277,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 
 	public function test_fallback_summary_prefers_explanation_then_title() :void {
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
-			$this->buildZoneTile( 'secadmin', 'Security Admin', 'critical', 'Critical', '1 critical group', [
+			$this->buildZoneTile( 'control', 'Security Admin', 'critical', 'Critical', '1 critical group', [
 				[
 					'status' => 'critical',
 					'rows'   => [
@@ -299,7 +299,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 
 	public function test_secadmin_header_includes_disable_action_when_enabled() :void {
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
-			$this->buildZoneTile( 'secadmin', 'Security Admin', 'critical', 'Critical', '1 critical group', [] )
+			$this->buildZoneTile( 'control', 'Security Admin', 'critical', 'Critical', '1 critical group', [] )
 		);
 
 		$this->assertCount( 1, $diagnosis[ 'header' ][ 'actions' ] );
@@ -311,7 +311,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->secAdminController->enabled = false;
 
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
-			$this->buildZoneTile( 'secadmin', 'Security Admin', 'critical', 'Critical', '1 critical group', [] )
+			$this->buildZoneTile( 'control', 'Security Admin', 'critical', 'Critical', '1 critical group', [] )
 		);
 
 		$this->assertSame( [], $diagnosis[ 'header' ][ 'actions' ] );

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureGoalPanels;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\BuildOptionsForDisplay;
 
 class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
@@ -27,6 +28,18 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 
 		$allOptions = $optionsBuilder instanceof BuildOptionsForDisplay ? $optionsBuilder->standard() : [];
 
+		$panel = [];
+		$panelRef = $this->getPanelRef();
+		if ( $panelRef !== null ) {
+			$displayOptions = [];
+			foreach ( $allOptions as $section ) {
+				foreach ( $section[ 'options' ] as $option ) {
+					$displayOptions[ $option[ 'key' ] ] = $option;
+				}
+			}
+			$panel = ( new ConfigurePanelBuilder() )->build( $panelRef[ 'goal' ], $panelRef[ 'topic' ], $displayOptions );
+		}
+
 		return [
 			'strings' => [
 				'inner_page_title'          => __( 'Edit Settings', 'wp-simple-firewall' ),
@@ -43,6 +56,8 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 				'opt_pro_link'              => __( 'Compare plans', 'wp-simple-firewall' ),
 				'opt_edit'                  => __( 'Edit', 'wp-simple-firewall' ),
 				'opt_none_selected'         => __( 'None selected', 'wp-simple-firewall' ),
+				'opt_help'                  => __( 'Help', 'wp-simple-firewall' ),
+				'more_options'              => __( 'More options', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
 				'show_section_navigation' => \count( $allOptions ) > 1,
@@ -56,6 +71,7 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 			'vars'    => [
 				'all_opts_keys'                    => $options,
 				'all_options'                      => $allOptions,
+				'panel'                            => $panel,
 				'filtered_api_namespace_exclusions' => \in_array( 'api_namespace_exclusions', $options, true )
 					? $this->getFilteredApiNamespaceExclusions()
 					: [],
@@ -70,6 +86,23 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 					: $con->comps->opts_lookup->getXferExcluded(),
 			],
 		];
+	}
+
+	/**
+	 * A Configure topic is shown as its own panel layout when it is asked for and its options are here.
+	 * @return array{goal:string,topic:string}|null
+	 */
+	private function getPanelRef() :?array {
+		$ref = ConfigurePanelBuilder::parsePanelRef( (string)( $this->action_data[ 'configure_panel' ] ?? '' ) );
+		if ( $ref === null ) {
+			return null;
+		}
+		$topicKeys = ConfigureGoalPanels::topicOptionKeys( $ref[ 'goal' ], $ref[ 'topic' ] );
+		return empty( \array_intersect( $topicKeys, $this->action_data[ 'options' ] ) ) ? null : $ref;
+	}
+
+	protected function getRenderTemplate() :string {
+		return $this->getPanelRef() === null ? parent::getRenderTemplate() : '/components/config/panel_form.twig';
 	}
 
 	private function getFilteredApiNamespaceExclusions() :array {

@@ -358,7 +358,7 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
 
 	const zone = page.locator(
-		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"secadmin\\""]'
+		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"control\\""]'
 	).first();
 	await expect( zone ).toBeVisible();
 
@@ -393,9 +393,8 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( visibleExpandedForms.first() ).toBeVisible();
 	const saveBar = page.locator( '[data-configure-diagnosis="1"] [data-configure-savebar="1"]' );
 	await expect( saveBar ).toBeHidden();
-	const numberField = visibleExpandedForms.first().locator( 'input.shield-option-number:not([disabled])' ).first();
-	const originalNumber = await numberField.inputValue();
-	await numberField.fill( String( Number( originalNumber ) + 1 ) );
+	const firstSwitch = () => visibleExpandedForms.first().locator( '.form-switch input[type="checkbox"]:not([disabled])' ).first();
+	await firstSwitch().click();
 	await expect( saveBar ).toBeVisible();
 	await saveBar.locator( '[data-configure-savebar-save="1"]' ).click();
 	await expect( visibleExpandedForms ).toHaveCount( 0, { timeout: 20_000 } );
@@ -426,7 +425,7 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-healthy-disclosure-body="1"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] .shield-detail-row' ).first() ).toBeVisible();
 
-	await visibleExpandedForms.first().locator( 'input.shield-option-number:not([disabled])' ).first().fill( originalNumber );
+	await firstSwitch().click();
 	await saveBar.locator( '[data-configure-savebar-save="1"]' ).click();
 	await expect( visibleExpandedForms ).toHaveCount( 0, { timeout: 20_000 } );
 
@@ -441,7 +440,7 @@ test( 'returning to configure keeps the focused zone card outline visible and on
 	} );
 
 	const zone = page.locator(
-		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"secadmin\\""]'
+		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"control\\""]'
 	).first();
 	await zone.click();
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
@@ -456,7 +455,7 @@ test( 'configure opens a prefetched diagnosis without a standalone diagnosis req
 	let directDiagnosisRequestCount = 0;
 
 	await page.route( '**/admin-ajax.php*', async ( route ) => {
-		if ( isConfigureDiagnosisDirectRequest( route.request(), 'secadmin' ) ) {
+		if ( isConfigureDiagnosisDirectRequest( route.request(), 'control' ) ) {
 			directDiagnosisRequestCount++;
 		}
 
@@ -470,12 +469,12 @@ test( 'configure opens a prefetched diagnosis without a standalone diagnosis req
 	await page.waitForLoadState( 'networkidle' );
 
 	const zone = page.locator(
-		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"secadmin\\""]'
+		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"control\\""]'
 	).first();
 	await expect( zone ).toBeVisible();
 
 	await zone.click();
-	await expect( page.locator( '[data-configure-diagnosis="1"][data-configure-zone="secadmin"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-configure-diagnosis="1"][data-configure-zone="control"]' ) ).toBeVisible();
 	expect( directDiagnosisRequestCount ).toBe( 0 );
 } );
 
@@ -531,12 +530,12 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	await expect( optionResult.locator( '.configure-search-results__type' ) ).toHaveClass( /configure-search-results__type--option/ );
 	const zoneTopAfter = ( await firstZoneCard.boundingBox() )?.y || 0;
 	expect( Math.abs( zoneTopAfter - zoneTopBefore ) ).toBeLessThan( 2 );
-	await expect( optionResult ).toHaveAttribute( 'href', /row_key=general_settings/ );
+	await expect( optionResult ).toHaveAttribute( 'href', /row_key=comment_spam/ );
 	await expect( optionResult ).toHaveAttribute( 'href', /config_item=comments_cooldown/ );
 	const optionHref = await optionResult.getAttribute( 'href' );
 	const targetUrl = new URL( optionHref, 'https://example.test' );
 	const targetRowKey = targetUrl.searchParams.get( 'row_key' ) || '';
-	expect( targetRowKey ).toBe( 'general_settings' );
+	expect( targetRowKey ).toBe( 'comment_spam' );
 	await page.evaluate( () => {
 		window.__configureSearchSentinel = 'in-place-search';
 	} );

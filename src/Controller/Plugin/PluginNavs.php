@@ -10,11 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Com
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	InstantAlerts,
-	PluginGeneral,
-	Reporting,
-	RequestLogging
+	Reporting
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -411,89 +408,42 @@ class PluginNavs {
 	 * @return list<TileDefinition>
 	 */
 	public static function configureLandingTileDefinitions() :array {
+		// Configure is organised by protection goal; each goal's topics are laid out in ConfigureGoalPanels.
+		$labels = PluginAdminPages\ConfigureGoalPanels::labels()[ 'goals' ];
+		$tiles = [];
+		foreach ( PluginAdminPages\ConfigureGoalPanels::goals() as $goalKey => $goal ) {
+			$tile = [
+				'key'     => $goalKey,
+				'label'   => $labels[ $goalKey ][ 'label' ],
+				'icon'    => $goal[ 'icon' ],
+				'summary' => $labels[ $goalKey ][ 'summary' ],
+				'goal'    => $goalKey,
+			];
+			if ( \in_array( $goalKey, [ 'alerts', 'shield' ], true ) ) {
+				$tile[ 'include_in_posture' ] = false;
+			}
+			$tiles[] = $tile;
+		}
+		return $tiles;
+	}
+
+	/**
+	 * The zone keys Configure used before it was organised by goal, mapped to the goal that now holds
+	 * their settings, so older links still land somewhere sensible.
+	 * @return array<string,string>
+	 */
+	public static function configureLegacyZoneGoals() :array {
 		return [
-			[
-				'key'      => 'secadmin',
-				'label'    => __( 'Security Admin', 'wp-simple-firewall' ),
-				'icon'     => 'shield-lock',
-				'summary'  => __( 'An additional WP Admin Security Layer that further protects core WordPress settings.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Secadmin::Slug(),
-			],
-			[
-				'key'      => 'firewall',
-				'label'    => __( 'Firewall', 'wp-simple-firewall' ),
-				'icon'     => 'fire',
-				'summary'  => __( 'The Firewall is the crucial perimeter defense of your WordPress site.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Firewall::Slug(),
-			],
-			[
-				'key'      => 'ips',
-				'label'    => __( 'Bots and IPs', 'wp-simple-firewall' ),
-				'icon'     => 'robot',
-				'summary'  => __( 'Beat the bots by auto-blocking IP addresses of repeat abusers.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Ips::Slug(),
-			],
-			[
-				'key'      => 'scans',
-				'label'    => __( 'Scans', 'wp-simple-firewall' ),
-				'icon'     => 'bug',
-				'summary'  => __( 'Regular scanning quickly identifies compromise and prevents exploitation of vulnerabilities.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Scans::Slug(),
-			],
-			[
-				'key'      => 'login',
-				'label'    => __( 'Login', 'wp-simple-firewall' ),
-				'icon'     => 'person-lock',
-				'summary'  => __( 'Protect user logins with 2FA and critical session hijacking prevention.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Login::Slug(),
-			],
-			[
-				'key'      => 'users',
-				'label'    => __( 'Users', 'wp-simple-firewall' ),
-				'icon'     => 'people',
-				'summary'  => __( 'Protection for user accounts.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Users::Slug(),
-			],
-			[
-				'key'      => 'spam',
-				'label'    => __( 'SPAM', 'wp-simple-firewall' ),
-				'icon'     => 'chat-dots',
-				'summary'  => __( 'Block WordPress Comment SPAM and Contact Form SPAM.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Spam::Slug(),
-			],
-			[
-				'key'      => 'headers',
-				'label'    => __( 'HTTP Headers', 'wp-simple-firewall' ),
-				'icon'     => 'file-earmark-lock',
-				'summary'  => __( 'HTTP Headers provide protection for your site visitors.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Headers::Slug(),
-			],
-			[
-				'key'                => 'general',
-				'label'              => __( 'General', 'wp-simple-firewall' ),
-				'icon'               => 'sliders',
-				'summary'            => __( 'Configure site-wide Shield Security controls.', 'wp-simple-firewall' ),
-				'component_slugs'    => [
-					PluginGeneral::Slug(),
-					RequestLogging::Slug(),
-				],
-				'include_in_posture' => false,
-				'force_neutral'      => true,
-				'stat_line'          => __( 'General settings', 'wp-simple-firewall' ),
-			],
-			[
-				'key'                => 'reports_alerts',
-				'label'              => __( 'Reports & Alerts', 'wp-simple-firewall' ),
-				'icon'               => 'bell',
-				'summary'            => __( 'Manage Reports and Alerts that surface security activity to administrators.', 'wp-simple-firewall' ),
-				'component_slugs'    => [
-					InstantAlerts::Slug(),
-					Reporting::Slug(),
-				],
-				'include_in_posture' => false,
-				'force_neutral'      => true,
-				'stat_line'          => __( 'Report and alert settings', 'wp-simple-firewall' ),
-			],
+			'secadmin'       => 'control',
+			'firewall'       => 'attacks',
+			'ips'            => 'attacks',
+			'scans'          => 'code',
+			'login'          => 'login',
+			'users'          => 'accounts',
+			'spam'           => 'spam',
+			'headers'        => 'harden',
+			'general'        => 'shield',
+			'reports_alerts' => 'alerts',
 		];
 	}
 

@@ -43,9 +43,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
  */
 class DashboardDefaultsFixtureBuilder {
 
-	private const CONFIGURE_ROW_KEY = 'plugin_general';
+	private const CONFIGURE_ROW_KEY = 'general';
 
-	private const CONFIGURE_ZONE_KEY = 'general';
+	private const CONFIGURE_ZONE_KEY = 'shield';
 
 	private const OPTION_CASES = [
 		'display_plugin_badge' => [

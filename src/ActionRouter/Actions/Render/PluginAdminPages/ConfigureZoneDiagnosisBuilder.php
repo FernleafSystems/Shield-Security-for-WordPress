@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\SecurityAdminDisableActionBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
 
@@ -20,16 +21,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
 class ConfigureZoneDiagnosisBuilder {
 
 	private const IMPACT_MAP = [
-		'secadmin' => 'Security Admin protects access to the plugin itself, so weak settings here can undermine every other control.',
-		'firewall' => 'Firewall coverage shapes how aggressively Shield blocks bad traffic before it reaches WordPress.',
-		'ips'      => 'Bots and IP controls decide how suspicious visitors are identified, allowed, or blocked across the site.',
-		'scans'    => 'Scan coverage determines how quickly file changes, malware signals, and vulnerable assets are surfaced.',
+		'control'  => 'Security Admin protects access to the plugin itself, so weak settings here can undermine every other control.',
+		'attacks'  => 'Firewall, bot and IP controls decide how suspicious visitors are identified, allowed, or blocked across the site.',
+		'code'     => 'Scan coverage determines how quickly file changes, malware signals, and vulnerable assets are surfaced.',
 		'login'    => 'Login protections reduce credential abuse, brute force attempts, and weak sign-in workflows.',
-		'users'    => 'User controls reduce account misuse and tighten how privileged users can operate.',
+		'accounts' => 'Account controls reduce account misuse and tighten how privileged users can operate.',
 		'spam'     => 'SPAM controls reduce low-value submissions before they become moderation or abuse problems.',
-		'headers'  => 'HTTP headers strengthen the browser-facing security posture around transport and content handling.',
-		'general'  => 'General controls shape site-wide defaults, logging, and supporting security behaviour that other zones depend on.',
-		'reports_alerts' => 'Reports and alerts control how site security activity is surfaced to administrators.',
+		'harden'   => 'Hardening and HTTP headers strengthen the browser-facing security posture around transport and content handling.',
+		'shield'   => 'General controls shape site-wide defaults and supporting security behaviour that other areas depend on.',
+		'alerts'   => 'Reports and alerts control how site security activity is surfaced to administrators.',
 	];
 
 	private ?SecurityAdminDisableActionBuilder $securityAdminDisableActionBuilder;
@@ -114,7 +114,8 @@ class ConfigureZoneDiagnosisBuilder {
 	 * @return list<OperatorChromeActionInput>
 	 */
 	private function buildHeaderActions( string $zoneKey ) :array {
-		return $zoneKey === Secadmin::Slug()
+		// Security Admin's settings live in the "Control who changes your site" goal.
+		return $zoneKey === PluginNavs::configureLegacyZoneGoals()[ Secadmin::Slug() ]
 			? $this->getSecurityAdminDisableActionBuilder()->buildConfigureContextActions()
 			: [];
 	}

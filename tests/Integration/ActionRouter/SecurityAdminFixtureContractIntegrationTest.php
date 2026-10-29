@@ -49,8 +49,8 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 					$this->assertSame( $scenario, $contract[ 'scenario' ] );
 					$this->assertContains( $scenario, $contract[ 'scenarios' ] );
 					$this->assertSame( 'zones', $contract[ 'routes' ][ 'configure' ][ 'nav' ] );
-					$this->assertSame( 'secadmin', $contract[ 'configure_focus' ][ 'zone_key' ] );
-					$this->assertSame( 'secadmin_enabled', $contract[ 'configure_focus' ][ 'row_key' ] );
+					$this->assertSame( 'control', $contract[ 'configure_focus' ][ 'zone_key' ] );
+					$this->assertSame( 'security_admin', $contract[ 'configure_focus' ][ 'row_key' ] );
 					$this->assertSame( 'admin_access_key', $contract[ 'configure_focus' ][ 'config_item' ] );
 					$this->assertSame( 'mod_options_save', $contract[ 'action_slugs' ][ 'module_options_save' ] );
 					$this->assertSame( 'sec_admin_login', $contract[ 'action_slugs' ][ 'sec_admin_login' ] );

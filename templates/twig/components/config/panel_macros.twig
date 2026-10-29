@@ -1,0 +1,157 @@
+{#
+	One setting in a Configure panel: its name, help link and summary from the plugin, and a control chosen
+	for it in the panel layout. Every control is a plain form field named after its option, inside
+	.shield-option-control-col, so unsaved tracking and saving treat it like any other option.
+	Settings that only apply when this one is on follow it, indented, and fade while it is off.
+#}
+{% macro item( item, strings, hrefs ) %}
+	{% import _self as panel %}
+	{% set option = item.option %}
+	<div class="shield-option-item shield-panel-item shield-panel-item--{{ item.control }} {{ item.stacked ? 'is-stacked' : 'is-inline' }}"
+		 data-option-key="{{ option.key }}">
+		<div class="shield-panel-item__text">
+			<div class="shield-panel-item__name">
+				<span class="option_label_name" id="Label-{{ option.key }}">{{ option.name }}</span>
+				{% if item.control == 'slider' %}
+					<span class="shield-panel-item__value{{ item.stops[ item.current_index ].value in [ '0', 'disabled' ] ? ' is-off' : '' }}" data-slider-value="1">{{ item.current_label }}</span>
+				{% endif %}
+				{% if option.disabled and option.unavailable %}
+					<span class="shield-option-pill shield-option-pill--pro">{{ strings.opt_pro }}</span>
+				{% endif %}
+				{{ panel.help( option, strings ) }}
+				<span class="shield-option-pill shield-option-pill--unsaved" data-option-unsaved="1" hidden>{{ strings.opt_unsaved }}</span>
+			</div>
+			{% if option.summary is not empty %}
+				<div class="options-summary">{{ option.summary }}</div>
+			{% endif %}
+		</div>
+		<div class="shield-option-control-col shield-panel-item__control">
+			{{ panel.control( item, strings ) }}
+		</div>
+	</div>
+	{% if item.children is not empty %}
+		<div class="shield-panel-children{{ item.is_on ? '' : ' is-off' }}" data-panel-children-of="{{ option.key }}">
+			{% for child in item.children %}
+				{{ panel.item( child, strings, hrefs ) }}
+			{% endfor %}
+		</div>
+	{% endif %}
+{% endmacro %}
+
+{% macro help( option, strings ) %}
+	{% if option.beacon_id|default(false) %}
+		<button type="button"
+				class="shield-panel-help beacon-article"
+				data-beacon_article_format="sidebar"
+				data-beacon_article_id="{{ option.beacon_id }}"
+				aria-label="{{ strings.opt_help }}: {{ option.name }}"
+				title="{{ strings.opt_help }}">?</button>
+	{% elseif option.link_info %}
+		<a class="shield-panel-help" href="{{ option.link_info }}" target="_blank" rel="noopener"
+		   aria-label="{{ strings.opt_help }}: {{ option.name }}" title="{{ strings.opt_help }}">?</a>
+	{% endif %}
+{% endmacro %}
+
+{% macro control( item, strings ) %}
+	{% set option = item.option %}
+	{% set is_disabled = option.disabled %}
+
+	{% if item.control == 'switch' %}
+		{# A two-choice select shown as a switch: when off, the hidden field sends "disabled". #}
+		<div class="form-check form-switch">
+			<input type="checkbox"
+				   class="form-check-input"
+				   id="Opt-{{ option.key }}"
+				   name="{{ option.key }}"
+				   role="switch"
+				   value="{{ item.on_value }}"
+				   aria-labelledby="Label-{{ option.key }}"
+				   {% if is_disabled %}disabled="disabled"{% endif %}
+				   {% if option.value != 'disabled' %}checked="checked"{% endif %} />
+			<input type="hidden" name="{{ option.key }}" value="disabled" />
+		</div>
+
+	{% elseif item.control == 'slider' %}
+		{% set last = item.stops|length - 1 %}
+		<fieldset class="shield-slider{{ is_disabled ? ' is-disabled' : '' }}"
+				  data-panel-slider="1"
+				  style="--shield-slider-pos: {{ last > 0 ? ( item.current_index / last * 100 )|round(2) : 0 }}%">
+			<legend class="visually-hidden">{{ option.name }}</legend>
+			<div class="shield-slider__track">
+				<span class="shield-slider__fill"></span>
+				{% for stop in item.stops %}
+					<label class="shield-slider__stop" style="left: {{ last > 0 ? ( loop.index0 / last * 100 )|round(2) : 0 }}%">
+						<input type="radio"
+							   class="shield-slider__input"
+							   name="{{ option.key }}"
+							   value="{{ stop.value }}"
+							   data-stop-label="{{ stop.label }}"
+							   data-stop-pos="{{ last > 0 ? ( loop.index0 / last * 100 )|round(2) : 0 }}"
+							   {% if is_disabled or not stop.is_available %}disabled="disabled"{% endif %}
+							   {% if loop.index0 == item.current_index %}checked="checked"{% endif %} />
+						<span class="visually-hidden">{{ stop.label }}</span>
+					</label>
+				{% endfor %}
+			</div>
+			<div class="shield-slider__ends" aria-hidden="true">
+				<span>{{ item.stops|first.label }}</span>
+				<span>{{ item.stops|last.label }}</span>
+			</div>
+		</fieldset>
+
+	{% elseif item.control in [ 'segmented', 'radios' ] %}
+		<div class="{{ item.control == 'segmented' ? 'shield-seg' : 'shield-radio-list' }}" role="radiogroup" aria-labelledby="Label-{{ option.key }}">
+			{% for option_value, choice in option.value_options %}
+				<label class="{{ item.control == 'segmented' ? 'shield-seg__opt' : 'shield-radio-list__opt' }}">
+					<input type="radio"
+						   name="{{ option.key }}"
+						   value="{{ option_value }}"
+						   {% if is_disabled or not choice.is_available %}disabled="disabled"{% endif %}
+						   {% if option.value matches "'^"~option_value~"$'" %}checked="checked"{% endif %} />
+					<span>{{ choice.name|raw }}</span>
+				</label>
+			{% endfor %}
+		</div>
+
+	{% elseif item.control == 'chips' %}
+		<div class="shield-option-chipset shield-panel-chips" role="group" aria-labelledby="Label-{{ option.key }}">
+			{% for option_value, choice in option.value_options %}
+				{% set chip_disabled = is_disabled or not choice.is_available %}
+				<label class="shield-option-chip{% if chip_disabled %} is-disabled{% endif %}" for="Opt-{{ option.key }}_{{ option_value }}">
+					<input type="checkbox"
+						   class="shield-option-chip__input"
+						   id="Opt-{{ option.key }}_{{ option_value }}"
+						   name="{{ option.key }}[]"
+						   value="{{ option_value }}"
+						   {% if chip_disabled %}disabled="disabled"{% endif %}
+						   {% if option_value in option.value %}checked="checked"{% endif %} />
+					<span class="shield-option-chip__text">{{ choice.name|raw }}</span>
+				</label>
+			{% endfor %}
+		</div>
+
+	{% elseif item.control == 'roles' %}
+		{# The empty entry means "no roles" is still sent when nothing is ticked; a disabled control sends nothing. #}
+		<input type="hidden" name="{{ option.key }}[]" value="" {% if is_disabled %}disabled="disabled"{% endif %} />
+		<div class="shield-option-chipset shield-panel-chips" role="group" aria-labelledby="Label-{{ option.key }}">
+			{% for role in item.roles %}
+				<label class="shield-option-chip{% if is_disabled %} is-disabled{% endif %}" for="Opt-{{ option.key }}_{{ role.value }}">
+					<input type="checkbox"
+						   class="shield-option-chip__input"
+						   id="Opt-{{ option.key }}_{{ role.value }}"
+						   name="{{ option.key }}[]"
+						   value="{{ role.value }}"
+						   {% if is_disabled %}disabled="disabled"{% endif %}
+						   {% if role.is_on %}checked="checked"{% endif %} />
+					<span class="shield-option-chip__text">{{ role.label }}</span>
+				</label>
+			{% endfor %}
+		</div>
+
+	{% else %}
+		{% include '/components/config/option_control.twig' with { option: option, strings: strings } only %}
+		{% if option.unit_label|default('') is not empty %}
+			<span class="shield-option-unit">{{ option.unit_label }}</span>
+		{% endif %}
+	{% endif %}
+{% endmacro %}

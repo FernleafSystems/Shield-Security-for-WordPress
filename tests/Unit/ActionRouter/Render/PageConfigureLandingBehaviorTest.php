@@ -213,7 +213,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 	public function test_secadmin_diagnosis_header_exposes_disable_context_action_when_enabled() :void {
 		ServicesState::installItems( [
-			'service_request'   => new UnitTestRequest( [ 'zone' => 'secadmin' ] ),
+			'service_request'   => new UnitTestRequest( [ 'zone' => 'control' ] ),
 			'service_wpgeneral' => new UnitTestGeneral(),
 			'service_wpusers'   => new UnitTestUsers( 1 ),
 		] );
@@ -311,7 +311,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			\array_column( $sections, 'key' )
 		);
 		$this->assertSame(
-			[ 'secadmin' ],
+			[ 'control' ],
 			\array_column( $sections[ 0 ][ 'cards' ] ?? [], 'key' )
 		);
 		$this->assertSame(
@@ -344,7 +344,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	private function zoneTileFixtures() :array {
 		return [
 			$this->buildZoneTileFixture(
-				'secadmin',
+				'control',
 				'Security Admin',
 				'critical',
 				'Critical',
@@ -572,7 +572,7 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 				[
 					'key'   => 'critical',
 					'cards' => [
-						$this->buildZoneCardFixture( $zoneTileFixtures[ 0 ], $diagnoses[ 'secadmin' ] ),
+						$this->buildZoneCardFixture( $zoneTileFixtures[ 0 ], $diagnoses[ 'control' ] ),
 					],
 				],
 				[

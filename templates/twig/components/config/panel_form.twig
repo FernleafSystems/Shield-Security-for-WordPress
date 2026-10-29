@@ -1,0 +1,52 @@
+{#
+	A Configure topic laid out as its own panel. It is a normal options form underneath (same fields, same
+	save action), so saving, unsaved markers, search focus and "Show me" all work as they do elsewhere.
+#}
+{% import '/components/config/panel_macros.twig' as panel %}
+
+<form method="post"
+	  class="options_form_for options_form_for--modern options_form_for--panel form py-0"
+	  novalidate="novalidate"
+	  autocomplete="off"
+	  data-context="{{ vars.form_context }}"
+	  data-options-save-action="{{ vars.options_save_action }}"
+	  data-transfer-action="{{ vars.transfer_action }}"
+	  data-configure-panel="{{ vars.panel.goal }}:{{ vars.panel.topic }}"
+>
+	<input type="hidden" name="all_opts_keys" value="{{ vars.all_opts_keys|join(',') }}" />
+
+	<div class="shield-panel">
+		{% for block in vars.panel.blocks %}
+			<div class="shield-panel-block">
+				{% if block.heading is not empty %}
+					<div class="shield-panel-heading">{{ block.heading }}</div>
+				{% endif %}
+				{% for item in block.items %}
+					{{ panel.item( item, strings, hrefs ) }}
+				{% endfor %}
+			</div>
+		{% endfor %}
+
+		{% if vars.panel.more is not empty %}
+			<div class="shield-panel-more">
+				<button type="button"
+						class="shield-panel-more__toggle"
+						data-panel-more="1"
+						aria-expanded="false"
+						aria-controls="PanelMore-{{ unique_render_id }}">
+					{{ strings.more_options }}
+					<span class="shield-panel-more__count">{{ vars.panel.more|length }}</span>
+					<i class="bi bi-chevron-down" aria-hidden="true"></i>
+					<span class="shield-panel-more__summary">{{ vars.panel.more_summary }}</span>
+				</button>
+				<div class="shield-panel-more__body" id="PanelMore-{{ unique_render_id }}" hidden>
+					{% for item in vars.panel.more %}
+						<div class="shield-panel-block">
+							{{ panel.item( item, strings, hrefs ) }}
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		{% endif %}
+	</div>
+</form>

@@ -23,9 +23,11 @@ class ZoneComponentConfig extends OffCanvasBase {
 
 	protected function buildCanvasBody() :string {
 		return self::con()->action_router->render( OptionsFormFor::class, [
-			'options'      => ( new GetOptionsForZoneComponents() )->run( $this->getZoneComponentSlugs(), $this->getOptionKeys() ),
-			'config_item'  => $this->action_data[ 'config_item' ] ?? '',
-			'form_context' => $this->getFormContext(),
+			'options'         => ( new GetOptionsForZoneComponents() )->run( $this->getZoneComponentSlugs(), $this->getOptionKeys() ),
+			'config_item'     => $this->action_data[ 'config_item' ] ?? '',
+			'form_context'    => $this->getFormContext(),
+			// A Configure topic lays out its settings in its own panel.
+			'configure_panel' => (string)( $this->action_data[ 'configure_panel' ] ?? '' ),
 		] );
 	}
 

@@ -118,9 +118,11 @@ export class ConfigureSaveBar extends BaseAutoExecComponent {
 			return;
 		}
 
-		const isCheck = control instanceof HTMLInputElement && control.type === 'checkbox';
+		// Radios (panel sliders and choices) are mirrored like checkboxes: the same choice in another form.
+		const isCheck = control instanceof HTMLInputElement && ( control.type === 'checkbox' || control.type === 'radio' );
 		root.querySelectorAll( `form.options_form_for [name="${CSS.escape( control.name )}"]` ).forEach( ( copy ) => {
-			if ( copy === control || ( isCheck && copy.value !== control.value ) ) {
+			if ( copy === control || ( isCheck && copy.value !== control.value ) || copy.form === control.form
+				 || ( copy instanceof HTMLInputElement && copy.type === 'hidden' ) ) {
 				return;
 			}
 			if ( isCheck ) {

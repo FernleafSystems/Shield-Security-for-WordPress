@@ -210,21 +210,21 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertContains( 'default_admin_user', $maintenanceKeys );
 	}
 
-	public function test_configure_tile_definitions_keep_exclusive_target_contract() :void {
-		foreach ( PluginNavs::configureLandingTileDefinitions() as $definition ) {
-			$targetCount = (int)!empty( $definition[ 'zone_slug' ] ?? '' )
-						   + (int)!empty( $definition[ 'component_slug' ] ?? '' )
-						   + (int)!empty( $definition[ 'component_slugs' ] ?? [] );
-
-			$this->assertSame( 1, $targetCount );
-			$this->assertNotSame( '', \trim( $definition[ 'key' ] ) );
+	public function test_configure_tile_definitions_are_one_per_goal() :void {
+		$definitions = PluginNavs::configureLandingTileDefinitions();
+		$this->assertSame( \array_keys( PluginAdminPages\ConfigureGoalPanels::goals() ), \array_column( $definitions, 'key' ) );
+		foreach ( $definitions as $definition ) {
+			$this->assertSame( $definition[ 'key' ], $definition[ 'goal' ] );
 			$this->assertNotSame( '', \trim( $definition[ 'label' ] ) );
 			$this->assertNotSame( '', \trim( $definition[ 'icon' ] ) );
-			$this->assertNotSame( '', \trim( $definition[ 'summary' ] ?? '' ) );
-			if ( !empty( $definition[ 'force_neutral' ] ) ) {
-				$this->assertArrayHasKey( 'stat_line', $definition );
-				$this->assertNotSame( '', \trim( $definition[ 'stat_line' ] ) );
-			}
+			$this->assertNotSame( '', \trim( $definition[ 'summary' ] ) );
+		}
+	}
+
+	public function test_configure_legacy_zone_keys_map_to_goals() :void {
+		$goalKeys = \array_keys( PluginAdminPages\ConfigureGoalPanels::goals() );
+		foreach ( PluginNavs::configureLegacyZoneGoals() as $zoneKey => $goalKey ) {
+			$this->assertContains( $goalKey, $goalKeys, 'Legacy zone '.$zoneKey );
 		}
 	}
 

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\UiPreferences;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
@@ -23,7 +24,41 @@ trait BuildsConfigureLandingData {
 
 	protected function getValidRequestedConfigureZoneKey() :string {
 		$zoneKey = $this->getRequestedConfigureZoneKey();
-		return isset( $this->getConfigureLandingTileLookup()[ $zoneKey ] ) ? $zoneKey : '';
+		$lookup = $this->getConfigureLandingTileLookup();
+		if ( isset( $lookup[ $zoneKey ] ) ) {
+			return $zoneKey;
+		}
+		if ( $zoneKey === '' ) {
+			return '';
+		}
+
+		// Links from before Configure was organised by goal name a zone; send them to the goal that now
+		// holds the requested setting, or else the one that holds most of that zone's settings.
+		$topic = ConfigureGoalPanels::topicForOption( $this->getRequestedConfigureItem() );
+		$goalKey = $topic[ 'goal' ] ?? ( PluginNavs::configureLegacyZoneGoals()[ $zoneKey ] ?? '' );
+		return isset( $lookup[ $goalKey ] ) ? $goalKey : '';
+	}
+
+	private function getRequestedConfigureItem() :string {
+		$configItem = sanitize_key( $this->getTextInputFromRequestOrActionData( 'config_item' ) );
+		return empty( self::con()->cfg->configuration->options[ $configItem ] ?? [] ) ? '' : $configItem;
+	}
+
+	/**
+	 * An older link's row is a component; its settings now live in a topic of the goal.
+	 */
+	private function resolveLegacyConfigureRowKey( string $zoneKey, string $rowKey, string $configItem ) :string {
+		$optionKey = $configItem;
+		if ( $optionKey === '' && $rowKey !== '' ) {
+			try {
+				$optionKey = (string)( self::con()->comps->zones->getZoneComponent( $rowKey )->getOptions()[ 0 ] ?? '' );
+			}
+			catch ( \Exception $e ) {
+				$optionKey = '';
+			}
+		}
+		$topic = $optionKey === '' ? null : ConfigureGoalPanels::topicForOption( $optionKey );
+		return ( $topic !== null && $topic[ 'goal' ] === $zoneKey ) ? $topic[ 'topic' ] : '';
 	}
 
 	/**
@@ -41,12 +76,12 @@ trait BuildsConfigureLandingData {
 		$zoneKey = $this->getValidRequestedConfigureZoneKey();
 		if ( $zoneKey !== '' ) {
 			$rowKey = sanitize_key( $this->getTextInputFromRequestOrActionData( 'row_key' ) );
-			$configItem = sanitize_key( $this->getTextInputFromRequestOrActionData( 'config_item' ) );
-			if ( empty( self::con()->cfg->configuration->options[ $configItem ] ?? [] ) ) {
-				$configItem = '';
-			}
+			$configItem = $this->getRequestedConfigureItem();
 
 			$rowFocusLookup = $this->getConfigureDiagnosisRowFocusLookup( $zoneKey );
+			if ( ( $rowKey !== '' || $configItem !== '' ) && !isset( $rowFocusLookup[ $rowKey ] ) ) {
+				$rowKey = $this->resolveLegacyConfigureRowKey( $zoneKey, $rowKey, $configItem );
+			}
 			if ( $rowKey !== '' && isset( $rowFocusLookup[ $rowKey ] ) ) {
 				if ( $configItem !== '' && !\in_array( $configItem, $rowFocusLookup[ $rowKey ], true ) ) {
 					$configItem = '';

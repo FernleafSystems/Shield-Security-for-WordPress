@@ -1,0 +1,449 @@
+// ─── Configure panels ───
+// A topic's settings laid out flat: no boxes inside the panel, just generous spacing, thin dividers
+// between groups, and settings that depend on the one above indented beneath it.
+
+$panel-text: #1d2327;
+$panel-muted: #646970;
+$panel-divider: #eef0f1;
+$panel-good: #008000;
+$panel-good-dark: #005c00;
+$panel-link: #2271b1;
+
+.options_form_for--panel {
+	.shield-panel {
+		display: grid;
+		padding: 0 1.25rem 0.5rem;
+	}
+
+	.shield-panel-block {
+		border-top: 1px solid $panel-divider;
+		display: grid;
+		gap: 1.1rem;
+		padding: 1.25rem 0;
+
+		&:first-child {
+			border-top: 0;
+		}
+	}
+
+	.shield-panel-heading {
+		color: $panel-muted;
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	// One setting: name, help and summary, with its control beside it or beneath it.
+	.shield-option-item.shield-panel-item {
+		border-bottom: 0;
+		display: grid;
+		gap: 0.6rem 2rem;
+
+		&.is-inline {
+			align-items: center;
+			grid-template-columns: minmax(0, 1fr) auto;
+		}
+
+		&.is-stacked {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		&.is-dirty::before {
+			left: -0.75rem;
+			top: 0;
+			bottom: 0;
+		}
+	}
+
+	.shield-panel-item__text {
+		display: grid;
+		gap: 0.2rem;
+		min-width: 0;
+	}
+
+	.shield-panel-item__name {
+		align-items: center;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.45rem;
+
+		.option_label_name {
+			font-size: 13.5px;
+			white-space: normal;
+		}
+	}
+
+	.shield-panel-item__value {
+		color: $panel-good-dark;
+		font-size: 13.5px;
+		font-weight: 700;
+
+		&.is-off {
+			color: $panel-muted;
+		}
+
+		&::before {
+			color: $panel-muted;
+			content: "·";
+			font-weight: 400;
+			margin-right: 0.45rem;
+		}
+	}
+
+	.options-summary {
+		color: $panel-muted;
+		font-size: 12.5px;
+		line-height: 1.5;
+		max-width: 68ch;
+	}
+
+	.shield-panel-help {
+		align-items: center;
+		background: transparent;
+		border: 1px solid #a7aaad;
+		border-radius: 50%;
+		color: $panel-muted;
+		cursor: pointer;
+		display: inline-flex;
+		flex: none;
+		font-size: 10.5px;
+		font-weight: 700;
+		height: 16px;
+		justify-content: center;
+		line-height: 1;
+		padding: 0;
+		text-decoration: none;
+		width: 16px;
+
+		&:hover,
+		&:focus-visible {
+			border-color: $panel-link;
+			color: $panel-link;
+		}
+	}
+
+	.shield-panel-item__control {
+		min-width: 0;
+
+		.form-switch {
+			margin: 0;
+		}
+
+		// The switch speaks for itself; the "Enabled" / "Disabled" caption only adds noise here.
+		.shield-option-switch-state {
+			display: none;
+		}
+
+		.form-control,
+		.form-select {
+			max-width: 420px;
+		}
+
+		textarea.form-control {
+			max-width: none;
+		}
+	}
+
+	.is-inline .shield-panel-item__control {
+		align-items: center;
+		display: flex;
+		gap: 0.5rem;
+		justify-content: flex-end;
+	}
+
+	// A dropdown beside its name needs room for its longest choice and its arrow.
+	.is-inline .shield-panel-item__control .form-select {
+		min-width: 260px;
+		padding-right: 2rem;
+	}
+
+	// Sliders, chips and choice lists take the whole width beneath their name.
+	.is-stacked .shield-panel-item__control {
+		display: block;
+	}
+
+	// A setting behind a flagged topic keeps its tint, with the text clear of the edge.
+	.shield-option-item.shield-panel-item.has-issue {
+		margin-inline: -1.25rem;
+		padding: 0.75rem 1.25rem;
+	}
+
+	.shield-panel-children .shield-option-item.shield-panel-item.has-issue {
+		margin-left: calc(-1.15rem - 2px);
+		padding-left: calc(1.15rem + 2px);
+	}
+
+	// Settings that only apply when the one above is on.
+	.shield-panel-children {
+		border-left: 2px solid $panel-divider;
+		display: grid;
+		gap: 1.1rem;
+		margin-left: 2px;
+		padding: 0.15rem 0 0.15rem 1.15rem;
+
+		// Not in effect while the switch above is off: quieter, but still readable (no fading below contrast).
+		&.is-off {
+			border-left-style: dashed;
+
+			.option_label_name {
+				color: $panel-muted;
+				font-weight: 500;
+			}
+
+			.shield-option-chip.is-checked,
+			.shield-option-chip:has(.shield-option-chip__input:checked) {
+				background: #f6f7f7;
+				border-color: #c3c4c7;
+				color: #3c434a;
+			}
+		}
+	}
+
+	// ─── Slider: radios placed along a track ───
+	.shield-slider {
+		border: 0;
+		margin: 0;
+		min-width: 0;
+		padding: 0.35rem 9px 0;
+	}
+
+	.shield-slider__track {
+		background: #e2e4e7;
+		border-radius: 999px;
+		height: 6px;
+		position: relative;
+	}
+
+	.shield-slider__fill {
+		background: $panel-good;
+		border-radius: 999px;
+		bottom: 0;
+		left: 0;
+		position: absolute;
+		top: 0;
+		transition: width 0.15s ease;
+		width: var(--shield-slider-pos, 0%);
+	}
+
+	.shield-slider__stop {
+		cursor: pointer;
+		height: 28px;
+		margin: -14px 0 0 -14px;
+		position: absolute;
+		top: 50%;
+		width: 28px;
+
+		// The tick for each stop.
+		&::before {
+			background: #fff;
+			border-radius: 1px;
+			content: "";
+			height: 10px;
+			left: 13px;
+			position: absolute;
+			top: 9px;
+			width: 2px;
+		}
+
+		&:first-child::before,
+		&:last-of-type::before {
+			display: none;
+		}
+
+		// The knob sits on the chosen stop.
+		&:has(input:checked)::after {
+			background: #fff;
+			border: 2px solid $panel-good;
+			border-radius: 50%;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+			box-sizing: border-box;
+			content: "";
+			height: 20px;
+			left: 4px;
+			position: absolute;
+			top: 4px;
+			width: 20px;
+		}
+
+		&:has(input:focus-visible)::after {
+			outline: 2px solid #0b57a4;
+			outline-offset: 2px;
+		}
+
+		&:has(input:disabled) {
+			cursor: not-allowed;
+		}
+	}
+
+	// WordPress gives disabled radios their own opacity, so keep these hidden in that state too.
+	.shield-slider__input,
+	.shield-slider__input:disabled,
+	.shield-seg__opt input,
+	.shield-seg__opt input:disabled {
+		height: 1px;
+		opacity: 0;
+		position: absolute;
+		width: 1px;
+	}
+
+	.shield-slider__ends {
+		color: $panel-muted;
+		display: flex;
+		font-size: 11.5px;
+		justify-content: space-between;
+		margin: 0.6rem -9px 0;
+	}
+
+	// Unavailable on this plan: the track greys out but its labels stay readable.
+	.shield-slider.is-disabled {
+		.shield-slider__fill {
+			background: #a7aaad;
+		}
+
+		.shield-slider__stop:has(input:checked)::after {
+			border-color: #a7aaad;
+		}
+	}
+
+	// ─── Segmented choice ───
+	.shield-seg {
+		border: 1px solid #c3c4c7;
+		border-radius: 7px;
+		display: inline-flex;
+		flex-wrap: wrap;
+		overflow: hidden;
+	}
+
+	.shield-seg__opt {
+		cursor: pointer;
+		margin: 0;
+		position: relative;
+
+		input {
+			height: 1px;
+			opacity: 0;
+			position: absolute;
+			width: 1px;
+		}
+
+		span {
+			border-left: 1px solid #e2e4e7;
+			display: block;
+			font-size: 12.5px;
+			padding: 0.4rem 0.8rem;
+			white-space: nowrap;
+		}
+
+		&:first-child span {
+			border-left: 0;
+		}
+
+		input:checked + span {
+			background: $panel-good;
+			color: #fff;
+			font-weight: 700;
+		}
+
+		input:focus-visible + span {
+			outline: 2px solid #0b57a4;
+			outline-offset: -2px;
+		}
+
+		input:disabled + span {
+			color: #a7aaad;
+			cursor: not-allowed;
+		}
+	}
+
+	// ─── Single choice as a plain list ───
+	.shield-radio-list {
+		display: grid;
+		gap: 0.55rem;
+	}
+
+	.shield-radio-list__opt {
+		align-items: center;
+		cursor: pointer;
+		display: flex;
+		font-size: 13px;
+		gap: 0.55rem;
+		margin: 0;
+
+		input {
+			margin: 0;
+		}
+	}
+
+	// Choices in a tidy grid that wraps evenly, whatever their names.
+	.shield-panel-chips {
+		display: grid;
+		gap: 8px;
+		grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+	}
+
+	// ─── More options ───
+	.shield-panel-more {
+		border-top: 1px solid $panel-divider;
+		padding: 0.9rem 0 0.25rem;
+	}
+
+	.shield-panel-more__toggle {
+		align-items: center;
+		background: none;
+		border: 0;
+		color: $panel-link;
+		cursor: pointer;
+		display: flex;
+		flex-wrap: wrap;
+		font-size: 12.5px;
+		font-weight: 600;
+		gap: 0.45rem;
+		padding: 0;
+		text-align: left;
+
+		.bi {
+			transition: transform 0.15s ease;
+		}
+
+		&.is-open .bi {
+			transform: rotate(180deg);
+		}
+	}
+
+	.shield-panel-more__count {
+		background: #e7f0fa;
+		border-radius: 999px;
+		font-size: 11px;
+		padding: 0 0.45rem;
+	}
+
+	.shield-panel-more__summary {
+		color: $panel-muted;
+		font-weight: 400;
+	}
+
+	.shield-panel-more__body {
+		border-left: 2px solid #e7f0fa;
+		margin-top: 0.5rem;
+		padding-left: 1rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.options_form_for--panel .shield-slider__fill,
+	.options_form_for--panel .shield-panel-children,
+	.options_form_for--panel .shield-panel-more__toggle .bi {
+		transition: none;
+	}
+}
+
+@container (max-width: 560px) {
+	.options_form_for--panel .shield-option-item.shield-panel-item.is-inline {
+		grid-template-columns: minmax(0, 1fr);
+
+		.shield-panel-item__control {
+			justify-content: flex-start;
+		}
+	}
+}
