@@ -15,21 +15,13 @@ const lookupFieldIds = ( subject, inputName ) => {
 	};
 };
 
+// A subject's own panel, with its picker, opens by link, as pivots and older links do.
 const openInvestigatePanel = async ( page, subject ) => {
 	await openShieldRoute( page, {
 		nav: 'activity',
 		nav_sub: 'overview',
+		subject,
 	} );
-
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'nav' ) === 'activity'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& url.searchParams.get( 'subject' ) === subject,
-			{ timeout: 20_000 }
-		),
-		page.locator( `[data-drill-target="panel"][data-investigate-subject="${subject}"]` ).click(),
-	] );
 
 	const panel = page.locator( `${panelSelector}[data-investigate-panel-subject="${subject}"]` ).first();
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '1' );

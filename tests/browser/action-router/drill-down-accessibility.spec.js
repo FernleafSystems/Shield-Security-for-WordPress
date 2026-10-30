@@ -510,7 +510,6 @@ test( 'investigate panel failure clears busy state and announces assertively', a
 	const panelContent = page.locator( '[data-investigate-panel-content="1"]' ).first();
 	const liveRegion = drillLiveRegion( page, '[data-investigate-landing="1"]' );
 	const liveSubject = page.locator( '[data-drill-target="panel"][data-investigate-subject="live_traffic"]' ).first();
-	const primaryAction = liveSubject.locator( '[data-investigate-primary-action="1"]' ).first();
 	const renderAction = await liveSubject.evaluate( ( element ) => JSON.parse( element.getAttribute( 'data-investigate-render-action' ) || '{}' ) );
 	const panelRenderSlug = String( renderAction?.render_slug || '' ).trim();
 	expect( panelRenderSlug.length ).toBeGreaterThan( 0 );
@@ -529,5 +528,5 @@ test( 'investigate panel failure clears busy state and announces assertively', a
 	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 	await expect( panelLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 	await expect( liveRegion ).toHaveAttribute( 'aria-live', 'polite' );
-	await expect( primaryAction ).toBeFocused();
+	await expect( liveSubject ).toBeFocused();
 } );

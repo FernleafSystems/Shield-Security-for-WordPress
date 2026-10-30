@@ -29,6 +29,7 @@ class Constants {
 		Actions\ImportExportProfileOptionsSave::class,
 		Actions\ImportExportSitesAuthoriseUrlsSubmit::class,
 		Actions\ImportExportSitesTableAction::class,
+		Actions\InvestigateLookup::class,
 		Actions\InvestigateLookupSelect::class,
 		Actions\IpAnalyseAction::class,
 		Actions\IpRuleAddSubmit::class,

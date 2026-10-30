@@ -11,7 +11,6 @@ const {
 	getInlineTabByIndex,
 	getInlineTabByTableType,
 } = require( './support/investigate-inline-tabs' );
-const { expectCardFocusRingWithinGrid } = require( './support/operator-landing-cards' );
 const {
 	collectRuntimeErrors,
 	expectInvestigationTableInitialized,
@@ -22,7 +21,6 @@ const {
 	isLiveTrafficPollRequest,
 	liveTrafficToggleRequest,
 	parseShieldAjaxJson,
-	requestActionSlug,
 } = require( './support/security-assertions' );
 
 const panelSelector = '[data-investigate-panel="1"]';
@@ -49,7 +47,15 @@ const expectPanelState = async ( page, panel, { subject, isLoaded, lookupKey = '
 	}
 };
 
-const clickSubjectTile = async ( page, subject ) => {
+/**
+ * The landing opens subjects from the lookup's results. A subject's own panel, with its picker, opens by
+ * link (as pivots and older links do), and Live traffic opens from its tab.
+ */
+const openSubject = async ( page, subject ) => {
+	if ( subject !== 'live_traffic' ) {
+		await openShieldRoute( page, { nav: 'activity', nav_sub: 'overview', subject } );
+		return;
+	}
 	await Promise.all( [
 		page.waitForURL(
 			( url ) => url.searchParams.get( 'nav' ) === 'activity'
@@ -57,7 +63,27 @@ const clickSubjectTile = async ( page, subject ) => {
 				&& url.searchParams.get( 'subject' ) === subject,
 			{ timeout: 20_000 }
 		),
-		page.locator( `[data-drill-target="panel"][data-investigate-subject="${subject}"]` ).click(),
+		page.locator( '[data-investigate-tab="live"]' ).click(),
+	] );
+};
+
+const lookupResult = async ( page, kind, search ) => {
+	await page.locator( `[data-lookup-kind="${kind}"]` ).click();
+	await page.locator( '[data-lookup-input="1"]' ).fill( search );
+	const result = page.locator( `.investigate-lookup__row[data-investigate-subject="${kind}"]` ).first();
+	await expect( result ).toBeVisible( { timeout: 20_000 } );
+	return result;
+};
+
+const backToLanding = async ( page ) => {
+	await Promise.all( [
+		page.waitForURL(
+			( url ) => url.searchParams.get( 'nav' ) === 'activity'
+				&& url.searchParams.get( 'nav_sub' ) === 'overview'
+				&& !url.searchParams.get( 'subject' ),
+			{ timeout: 20_000 }
+		),
+		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
 	] );
 };
 
@@ -68,7 +94,7 @@ test( 'investigate user reset uses the shared generic panel path and self shortc
 	} );
 
 	const panel = page.locator( panelSelector );
-	await clickSubjectTile( page, 'user' );
+	await openSubject( page, 'user' );
 
 	await expectPanelState( page, panel, {
 		subject: 'user',
@@ -118,107 +144,123 @@ test( 'investigate user reset uses the shared generic panel path and self shortc
 		selfLookupShortcut.click(),
 	] );
 
+	// Choosing another user goes back to the lookup, listing users.
 	await Promise.all( [
 		page.waitForURL(
-			( url ) => url.searchParams.get( 'subject' ) === 'user'
-				&& !url.searchParams.get( 'user_lookup' ),
+			( url ) => url.searchParams.get( 'nav' ) === 'activity'
+				&& url.searchParams.get( 'nav_sub' ) === 'overview'
+				&& !url.searchParams.get( 'subject' ),
 			{ timeout: 20_000 }
 		),
 		panel.locator( '[data-investigate-change-subject="1"]' ).click(),
 	] );
 
 	await expectPanelState( page, panel, {
+		subject: '',
+		isLoaded: false,
+	} );
+	await expect( page.locator( '[data-lookup-kind="user"]' ) ).toHaveAttribute( 'aria-pressed', 'true' );
+	await expect( page.locator( '.investigate-lookup__row[data-investigate-subject="user"]' ).first() ).toBeVisible();
+} );
+
+test( 'returning to investigate keeps the lookup and focuses the result that was opened', async ( { page } ) => {
+	await openShieldRoute( page, {
+		nav: 'activity',
+		nav_sub: 'overview',
+	} );
+
+	const panel = page.locator( panelSelector );
+	const result = await lookupResult( page, 'user', 'admin' );
+	await Promise.all( [
+		page.waitForURL(
+			( url ) => url.searchParams.get( 'subject' ) === 'user' && !!url.searchParams.get( 'user_lookup' ),
+			{ timeout: 20_000 }
+		),
+		result.click(),
+	] );
+	await expectPanelState( page, panel, {
 		subject: 'user',
 		isLoaded: true,
-		lookupKey: 'user_lookup',
 	} );
-	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 0 );
+	await expect( panel.locator( '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]' ) ).toBeVisible();
 
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'nav' ) === 'activity'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& !url.searchParams.get( 'subject' ),
-			{ timeout: 20_000 }
-		),
-		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
-	] );
-
+	await backToLanding( page );
 	await expectPanelState( page, panel, {
 		subject: '',
 		isLoaded: false,
 	} );
+	await expect( page.locator( '[data-lookup-input="1"]' ) ).toHaveValue( 'admin' );
+	await expect( result ).toBeFocused();
 } );
 
-test( 'returning to investigate keeps the focused user card outline visible and on-palette', async ( { page } ) => {
+test( 'investigate lookup opens each kind of subject into the shared panel', async ( { page } ) => {
 	await openShieldRoute( page, {
 		nav: 'activity',
 		nav_sub: 'overview',
 	} );
 
 	const panel = page.locator( panelSelector );
-	const userCard = page.locator( '[data-drill-target="panel"][data-investigate-subject="user"]' );
-	await clickSubjectTile( page, 'user' );
-
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'nav' ) === 'activity'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& !url.searchParams.get( 'subject' ),
-			{ timeout: 20_000 }
-		),
-		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
-	] );
-
-	await expectPanelState( page, panel, {
-		subject: '',
-		isLoaded: false,
-	} );
-	const userAction = userCard.locator( '.operator-tile-card__action' );
-	await expect( userAction ).toBeFocused();
-	await expectCardFocusRingWithinGrid( userCard, '.investigate-landing__subject-grid', expect );
-} );
-
-test( 'investigate landing loads each enabled subject tile into the shared panel', async ( { page } ) => {
-	await openShieldRoute( page, {
-		nav: 'activity',
-		nav_sub: 'overview',
-	} );
-
-	const panel = page.locator( panelSelector );
-	const subjectExpectations = [
-		{ subject: 'user', content: 'select[name="user_lookup"]' },
-		{ subject: 'ip', content: 'select[name="analyse_ip"]' },
-		{ subject: 'plugin', content: 'select[name="plugin_slug"]' },
-		{ subject: 'theme', content: 'select[name="theme_slug"]' },
-		{ subject: 'core', content: '#tabInvestigateCoreOverview' },
-		{ subject: 'live_traffic', content: '#SectionTrafficLiveLogs' },
+	const subjectHeader = '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]';
+	const cases = [
+		{ kind: 'user', search: 'admin', content: subjectHeader },
+		{ kind: 'plugin', search: 'shield', content: subjectHeader },
+		{ kind: 'theme', search: '', content: subjectHeader },
+		{ kind: 'core', search: '', content: '#tabInvestigateCoreOverview' },
 	];
 
-	for ( const { subject, content } of subjectExpectations ) {
-		await clickSubjectTile( page, subject );
-
+	for ( const { kind, search, content } of cases ) {
+		const result = await lookupResult( page, kind, search );
+		await Promise.all( [
+			page.waitForURL( ( url ) => url.searchParams.get( 'subject' ) === kind, { timeout: 20_000 } ),
+			result.click(),
+		] );
 		await expectPanelState( page, panel, {
-			subject,
+			subject: kind,
 			isLoaded: true,
 		} );
-		await expect( panel.locator( '[data-investigate-panel-content="1"]' ).locator( content ) ).toBeVisible();
-
-		await Promise.all( [
-			page.waitForURL(
-				( url ) => url.searchParams.get( 'nav' ) === 'activity'
-					&& url.searchParams.get( 'nav_sub' ) === 'overview'
-					&& !url.searchParams.get( 'subject' ),
-				{ timeout: 20_000 }
-			),
-			page.locator( '[data-step-tab-drill-index="0"]' ).click(),
-		] );
-
+		await expect( panel.locator( content ).first() ).toBeVisible();
+		await backToLanding( page );
 		await expectPanelState( page, panel, {
 			subject: '',
 			isLoaded: false,
 		} );
 	}
+
+	await openSubject( page, 'live_traffic' );
+	await expectPanelState( page, panel, {
+		subject: 'live_traffic',
+		isLoaded: true,
+	} );
+	await expect( panel.locator( '#SectionTrafficLiveLogs' ) ).toBeVisible();
+	await expect( page.locator( '[data-investigate-tab="live"]' ) ).toHaveAttribute( 'aria-current', 'page' );
+	await page.locator( '[data-investigate-tab="lookup"]' ).click();
+	await expectPanelState( page, panel, {
+		subject: '',
+		isLoaded: false,
+	} );
+	await expect( page.locator( '[data-investigate-tab="lookup"]' ) ).toHaveAttribute( 'aria-current', 'page' );
+} );
+
+test( 'investigate tabs lead to the logs, which carry the same tabs', async ( { page } ) => {
+	await openShieldRoute( page, {
+		nav: 'activity',
+		nav_sub: 'overview',
+	} );
+
+	const logs = [ [ 'activity', 'activity', 'logs' ], [ 'requests', 'traffic', 'logs' ], [ 'sessions', 'activity', 'sessions' ] ];
+	for ( const [ tab, nav, subnav ] of logs ) {
+		await Promise.all( [
+			page.waitForURL( ( url ) => url.searchParams.get( 'nav' ) === nav && url.searchParams.get( 'nav_sub' ) === subnav, { timeout: 20_000 } ),
+			page.locator( `[data-investigate-tab="${tab}"]` ).click(),
+		] );
+		await expect( page.locator( `[data-investigate-tab="${tab}"]` ) ).toHaveAttribute( 'aria-current', 'page' );
+	}
+
+	await Promise.all( [
+		page.waitForURL( ( url ) => url.searchParams.get( 'nav' ) === 'activity' && url.searchParams.get( 'nav_sub' ) === 'overview', { timeout: 20_000 } ),
+		page.locator( '[data-investigate-tab="lookup"]' ).click(),
+	] );
+	await expect( page.locator( '[data-lookup-input="1"]' ) ).toBeVisible();
 } );
 
 test( 'investigate landing deep link opens the IP panel, resets generically, and supports self lookup', async ( { page } ) => {
@@ -389,7 +431,7 @@ test( 'investigate landing drill-back clears stale plugin breadcrumbs after a re
 	} );
 
 	const panel = page.locator( panelSelector );
-	await clickSubjectTile( page, 'plugin' );
+	await openSubject( page, 'plugin' );
 	await expectPanelState( page, panel, {
 		subject: 'plugin',
 		isLoaded: true,
@@ -455,7 +497,7 @@ test( 'investigate landing reopens a cached generic user panel with a live selec
 		isLoaded: false,
 	} );
 
-	await clickSubjectTile( page, 'user' );
+	await openSubject( page, 'user' );
 	await expectPanelState( page, panel, {
 		subject: 'user',
 		isLoaded: true,
@@ -473,19 +515,14 @@ test( 'investigate landing reopens a cached generic user panel with a live selec
 	await expect( panel.locator( '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]' ) ).toBeVisible();
 } );
 
-test( 'investigate landing preloads generic subjects and keeps live traffic lazy', async ( { page } ) => {
-	let batchRequestCount = 0;
-	let directUserPanelRequestCount = 0;
+test( 'investigate landing loads a subject only when it is opened, and live traffic only from its tab', async ( { page } ) => {
+	let userPanelRequestCount = 0;
 	let liveTrafficRequestCount = 0;
 
 	await page.route( '**/admin-ajax.php**', async ( route ) => {
 		const request = route.request();
-		const actionSlug = requestActionSlug( request );
-		if ( isAdminAjaxRequest( request ) && actionSlug === 'ajax_batch_requests' ) {
-			batchRequestCount++;
-		}
-		if ( isAdminAjaxRequest( request ) && actionSlug === 'render_investigate_by_user_panel_body' ) {
-			directUserPanelRequestCount++;
+		if ( isAdminAjaxRequest( request ) && ( request.postData() || '' ).includes( 'render_investigate_by_user_panel_body' ) ) {
+			userPanelRequestCount++;
 		}
 		if ( isLiveTrafficPollRequest( request ) ) {
 			liveTrafficRequestCount++;
@@ -497,29 +534,22 @@ test( 'investigate landing preloads generic subjects and keeps live traffic lazy
 		nav: 'activity',
 		nav_sub: 'overview',
 	} );
-
-	await expect.poll( () => batchRequestCount ).toBeGreaterThan( 0 );
+	await page.waitForTimeout( 1_500 );
+	expect( userPanelRequestCount ).toBe( 0 );
 	expect( liveTrafficRequestCount ).toBe( 0 );
 
 	const panel = page.locator( panelSelector );
-	await clickSubjectTile( page, 'user' );
+	const result = await lookupResult( page, 'user', 'admin' );
+	await result.click();
 	await expectPanelState( page, panel, {
 		subject: 'user',
 		isLoaded: true,
 	} );
-	expect( directUserPanelRequestCount ).toBe( 0 );
+	expect( userPanelRequestCount ).toBeGreaterThan( 0 );
+	expect( liveTrafficRequestCount ).toBe( 0 );
 
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'nav' ) === 'activity'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& !url.searchParams.get( 'subject' ),
-			{ timeout: 20_000 }
-		),
-		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
-	] );
-
-	await clickSubjectTile( page, 'live_traffic' );
+	await backToLanding( page );
+	await openSubject( page, 'live_traffic' );
 	await expectPanelState( page, panel, {
 		subject: 'live_traffic',
 		isLoaded: true,
@@ -557,7 +587,7 @@ test( 'investigate landing starts and stops live traffic polling with the live p
 	} );
 
 	const panel = page.locator( panelSelector );
-	await clickSubjectTile( page, 'live_traffic' );
+	await openSubject( page, 'live_traffic' );
 
 	await expectPanelState( page, panel, {
 		subject: 'live_traffic',
@@ -655,7 +685,7 @@ test( 'investigate live traffic panel toggle updates without page reload', async
 		} );
 
 		const panel = page.locator( panelSelector );
-		await clickSubjectTile( page, 'live_traffic' );
+		await openSubject( page, 'live_traffic' );
 		await expectPanelState( page, panel, {
 			subject: 'live_traffic',
 			isLoaded: true,
@@ -731,7 +761,7 @@ test( 'investigate live traffic auth-refresh poll reloads the page from an authe
 	} );
 
 	const panel = page.locator( panelSelector );
-	await clickSubjectTile( page, 'live_traffic' );
+	await openSubject( page, 'live_traffic' );
 
 	await expectPanelState( page, panel, {
 		subject: 'live_traffic',

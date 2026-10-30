@@ -34,7 +34,8 @@ class PageTrafficLogTable extends PageTrafficLogBase {
 				'is_enabled' => $con->comps->opts_lookup->enabledTrafficLogger(),
 			],
 			'vars'    => [
-				'datatables_init' => ( new ForTraffic() )->build(),
+				'datatables_init'  => ( new ForTraffic() )->build(),
+				'investigate_tabs' => ( new InvestigateTabs() )->build( InvestigateTabs::REQUESTS ),
 			],
 		] );
 	}

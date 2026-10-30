@@ -37,6 +37,10 @@ class UnitTestPluginUrls {
 		return '/admin/reports/overview'.( $workspace === '' ? '' : '?workspace='.$workspace );
 	}
 
+	public function investigateHome() :string {
+		return '/admin/activity/overview';
+	}
+
 	public function adminIpRules() :string {
 		return '/admin/ips/rules';
 	}

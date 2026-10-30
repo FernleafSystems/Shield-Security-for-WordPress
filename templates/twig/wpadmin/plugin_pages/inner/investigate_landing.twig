@@ -5,6 +5,7 @@
 		 data-investigate-landing="1"
 		 data-investigate-panel-loading="{{ strings.panel_loading }}"
 		 data-investigate-panel-error="{{ strings.panel_load_error }}">
+		{% include '/wpadmin/components/investigate/tabs.twig' with { tabs: vars.investigate_tabs } only %}
 		<div class="investigate-landing__drilldown" data-investigate-section="drilldown">
 			{% include '/wpadmin/components/page/drill_down_shell.twig' with {
 				shell: vars.drill_shell

@@ -127,13 +127,19 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.shellEl = this.getShell( root );
 		this.panelEl = this.getPanel( root );
 		const primaryAction = subjectTile.querySelector( '[data-investigate-primary-action="1"]' );
+		const requestData = {
+			...selection.render_action,
+		};
+		// A lookup result names what to look up for its subject.
+		const lookupValue = String( subjectTile.dataset.investigateLookupValue || '' ).trim();
+		if ( selection.lookup_key.length > 0 && lookupValue.length > 0 ) {
+			requestData[ selection.lookup_key ] = lookupValue;
+		}
 
 		this.openSubjectSelection( selection, {
-			sourceEl: primaryAction instanceof HTMLElement ? primaryAction : null,
-			requestData: {
-				...selection.render_action,
-			},
-			historyUrl: this.buildLandingUrlForSelection( selection, selection.render_action ),
+			sourceEl: primaryAction instanceof HTMLElement ? primaryAction : subjectTile,
+			requestData,
+			historyUrl: this.buildLandingUrlForSelection( selection, requestData ),
 			hash: '',
 		} ).finally();
 	}
@@ -155,6 +161,19 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 	handleChangeSubjectClick( changeLink, evt ) {
 		evt.preventDefault();
+		// Choosing another user, plugin and so on happens in the lookup, browsing that kind.
+		const subject = this.getCurrentSelection()?.key || '';
+		const kind = subject.length > 0
+			? this.rootEl?.querySelector( `[data-investigate-lookup="1"] [data-lookup-kind="${subject}"]` )
+			: null;
+		const drillCtrl = this.getDrillDownController();
+		if ( kind instanceof HTMLElement && this.shellEl !== null && drillCtrl !== null ) {
+			drillCtrl.drillTo( this.shellEl, 0 );
+			const input = this.rootEl?.querySelector( '[data-lookup-input="1"]' );
+			input instanceof HTMLInputElement && ( input.value = '' );
+			kind.click();
+			return;
+		}
 		this.resetCurrentSelection( changeLink ).finally();
 	}
 
@@ -1156,8 +1175,11 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
+		// Only subjects that something on the page opens without a lookup are worth loading ahead: the
+		// lookup's kinds only open a subject once a result is chosen.
 		const preloadableSelections = [ ...this.subjectTiles.values() ].filter(
 			( selection ) => this.canPreloadSelection( selection )
+				&& root.querySelector( `[data-drill-target="panel"][data-investigate-subject="${selection.key}"]` ) !== null
 				&& !this.genericPanelCache.has( selection.key )
 				&& !this.genericPanelPending.has( selection.key )
 		);

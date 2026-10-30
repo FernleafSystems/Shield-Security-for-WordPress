@@ -1,98 +1,47 @@
-<div class="investigate-landing__subjects">
-	<section class="investigate-landing__subject-section">
-		<div class="investigate-landing__section-heading">
-			<span class="investigate-landing__section-icon" aria-hidden="true"><i class="bi bi-compass"></i></span>
-			<h2 class="investigate-landing__section-label">{{ strings.explore_heading }}</h2>
-		</div>
-		<div class="investigate-landing__subject-grid">
-			{% for subject in subjects %}
-			{% if subject.is_enabled %}
-				<article class="investigate-landing__subject-card operator-card-surface operator-tile-card status-{{ subject.status }}"
-						 data-drill-target="panel"
-						 data-investigate-subject="{{ subject.key }}"
-						 data-investigate-header="{{ subject.header_json }}"
-						 data-investigate-render-action="{{ subject.render_action_json }}"
-						 data-investigate-lookup-key="{{ subject.lookup_key }}"
-						 data-investigate-is-live="{{ subject.is_live_attr }}">
-					<div class="operator-tile-card__main">
-						<span class="operator-tile-card__icon" aria-hidden="true">
-							<i class="{{ subject.icon_class }}"></i>
-						</span>
-						<span class="operator-tile-card__copy">
-							<span class="operator-tile-card__title">
-								{{ subject.title }}
-								{% if subject.is_pro %}
-									<span class="shield-badge badge-warning">{{ strings.label_pro }}</span>
-								{% endif %}
-							</span>
-							<span class="operator-tile-card__summary">{{ subject.stat_text }}</span>
-						</span>
-					</div>
-					<div class="operator-tile-card__actions">
-						<button type="button"
-								class="operator-tile-card__action operator-tile-card__action--primary"
-								data-investigate-primary-action="1">
-							{{ subject.primary_action_label }}
-						</button>
-						{% if subject.key == 'ip' %}
-							<a href="{{ subject.ip_rules_href }}"
-							   class="operator-tile-card__action operator-tile-card__action--secondary"
-							   data-investigate-manage-ip-rules="1">
-								{{ strings.manage_ip_rules }}
-							</a>
-						{% endif %}
-					</div>
-				</article>
-			{% else %}
-				<div class="investigate-landing__subject-card operator-card-surface operator-tile-card is-disabled status-{{ subject.status }}"
-					 data-investigate-subject="{{ subject.key }}"
-					 aria-disabled="true">
-					<span class="operator-tile-card__main">
-						<span class="operator-tile-card__icon" aria-hidden="true">
-							<i class="{{ subject.icon_class }}"></i>
-						</span>
-						<span class="operator-tile-card__copy">
-							<span class="operator-tile-card__title">
-								{{ subject.title }}
-								{% if subject.is_pro %}
-									<span class="shield-badge badge-warning">{{ strings.label_pro }}</span>
-								{% endif %}
-							</span>
-							<span class="operator-tile-card__summary">{{ subject.stat_text }}</span>
-						</span>
-					</span>
-				</div>
-			{% endif %}
-			{% endfor %}
-		</div>
-	</section>
+{#
+	Investigate's lookup: one search for users, IP addresses, plugins, themes and WordPress core. Results
+	are grouped by kind and open that subject's panel in place. "Looking up" narrows the search to one kind;
+	with nothing typed, a kind is listed to browse. Each kind carries its subject, so its results open the
+	same panel its tile used to.
+#}
+<div class="investigate-lookup"
+	 data-investigate-lookup="1"
+	 data-lookup-action="{{ lookup_action_json|e('html_attr') }}"
+	 data-lookup-strings="{{ {
+		 searching: strings.lookup_searching,
+		 none: strings.lookup_none,
+		 none_kind: strings.lookup_none_kind,
+		 count: strings.lookup_count,
+		 count_one: strings.lookup_count_one,
+		 failed: strings.lookup_failed
+	 }|json_encode|e('html_attr') }}">
 
-	<section class="investigate-landing__subject-section">
-		<div class="investigate-landing__section-heading">
-			<span class="investigate-landing__section-icon" aria-hidden="true"><i class="bi bi-journal-text"></i></span>
-			<h2 class="investigate-landing__section-label">{{ strings.review_activity_heading }}</h2>
-		</div>
-		<div class="investigate-landing__subject-grid">
-			{% for review in activity_reviews %}
-				<a href="{{ review.href }}"
-				   class="investigate-landing__subject-card operator-card-surface operator-tile-card status-info"
-				   aria-label="{{ review.action_label }}">
-					<span class="operator-tile-card__main">
-						<span class="operator-tile-card__icon" aria-hidden="true">
-							<i class="{{ review.icon_class }}"></i>
-						</span>
-						<span class="operator-tile-card__copy">
-							<span class="operator-tile-card__title">{{ review.title }}</span>
-							<span class="operator-tile-card__summary">{{ review.stat_text }}</span>
-						</span>
-					</span>
-					<span class="operator-tile-card__actions">
-						<span class="operator-tile-card__action operator-tile-card__action--primary">
-							{{ review.action_label }}
-						</span>
-					</span>
-				</a>
-			{% endfor %}
-		</div>
-	</section>
+	<div class="investigate-lookup__box">
+		<i class="bi bi-search" aria-hidden="true"></i>
+		<label class="screen-reader-text" for="InvestigateLookupInput">{{ strings.lookup_label }}</label>
+		<input type="search"
+			   id="InvestigateLookupInput"
+			   class="investigate-lookup__input"
+			   placeholder="{{ strings.lookup_placeholder }}"
+			   autocomplete="off"
+			   spellcheck="false"
+			   aria-controls="InvestigateLookupResults"
+			   data-lookup-input="1" />
+	</div>
+
+	<div class="investigate-lookup__kinds" role="group" aria-labelledby="InvestigateLookupKindsLabel">
+		<span class="investigate-lookup__kinds-label" id="InvestigateLookupKindsLabel">{{ strings.lookup_kinds_label }}</span>
+		<button type="button" class="investigate-lookup__kind" data-lookup-kind="any" aria-pressed="true">{{ strings.lookup_kind_any }}</button>
+		{% for kind in kinds %}
+			<button type="button"
+					class="investigate-lookup__kind"
+					data-lookup-kind="{{ kind.key }}"
+					aria-pressed="false"
+					{% for attr, value in kind.attributes %} {{ attr }}="{{ value|e('html_attr') }}"{% endfor %}>{{ kind.label }}</button>
+		{% endfor %}
+	</div>
+
+	<p class="investigate-lookup__intro" data-lookup-intro="1">{{ strings.lookup_intro }}</p>
+	<div class="investigate-lookup__status" role="status" aria-live="polite" data-lookup-status="1"></div>
+	<div class="investigate-lookup__results" id="InvestigateLookupResults" data-lookup-results="1"></div>
 </div>

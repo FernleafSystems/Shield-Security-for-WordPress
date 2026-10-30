@@ -1,0 +1,25 @@
+{#
+	The tabs across the top of Investigate. On the landing, Lookup and Live traffic work in place (the
+	landing script takes them over); the logs are pages of their own that carry the same tabs.
+#}
+<nav class="investigate-tabs" aria-label="{{ tabs.label }}" data-investigate-tabs="1">
+	<div class="investigate-tabs__list">
+		{% for tab in tabs.tabs %}
+			<a class="investigate-tabs__tab{{ tab.is_current ? ' is-current' : '' }}"
+			   href="{{ tab.href }}"
+			   data-investigate-tab="{{ tab.key }}"
+			   {% if tab.is_current %}aria-current="page"{% endif %}
+			   {% for attr, value in tab.attributes|default({}) %} {{ attr }}="{{ value|e('html_attr') }}"{% endfor %}>
+				{% if tab.key == 'live' %}
+					<span class="investigate-tabs__live-dot" aria-hidden="true"></span>
+				{% else %}
+					<i class="{{ tab.icon_class }}" aria-hidden="true"></i>
+				{% endif %}
+				{{ tab.label }}
+			</a>
+		{% endfor %}
+	</div>
+	<a class="investigate-tabs__aside" href="{{ tabs.ip_rules.href }}">
+		<i class="bi bi-shield-lock" aria-hidden="true"></i>{{ tabs.ip_rules.label }}
+	</a>
+</nav>

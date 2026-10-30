@@ -64,7 +64,8 @@ class PageUserSessions extends PageModeLandingBase {
 				'username'            => CommonDisplayStrings::get( 'username' ),
 			],
 			'vars'    => [
-				'unique_users' => $this->getDistinctUsernames(),
+				'unique_users'     => $this->getDistinctUsernames(),
+				'investigate_tabs' => ( new InvestigateTabs() )->build( InvestigateTabs::SESSIONS ),
 			],
 		] );
 	}

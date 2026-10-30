@@ -47,7 +47,8 @@ class PageActivityLogTable extends PageModeLandingBase {
 				'logtable_action' => ActionData::BuildJson( ActivityLogTableAction::class ),
 			],
 			'vars'    => [
-				'datatables_init' => ( new ForActivityLog() )->build()
+				'datatables_init'  => ( new ForActivityLog() )->build(),
+				'investigate_tabs' => ( new InvestigateTabs() )->build( InvestigateTabs::ACTIVITY ),
 			],
 		] );
 	}
