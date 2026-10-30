@@ -1,7 +1,6 @@
 const { openShieldRoute, test, expect } = require( './support/shield-test' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 const { expectNoAxeViolations } = require( './support/accessibility' );
-const { expectCardFocusRingWithinGrid } = require( './support/operator-landing-cards' );
 const { expectShieldAjaxSuccess, waitForShieldAjaxAction } = require( './support/security-assertions' );
 const {
 	expectFocusWithin,
@@ -398,9 +397,9 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
 	await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
 	const configureTabs = page.locator( '[data-operator-step-tab="1"]' );
-	await expect( configureTabs ).toHaveCount( 3 );
+	await expect( configureTabs ).toHaveCount( 2 );
 	await expect( configureTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
-	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-configure-tab="control"]' ) ).toHaveAttribute( 'aria-current', 'page' );
 	const rail = page.locator( '[data-operator-context-rail="1"]' );
 	await expect( rail ).toBeHidden();
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-drill-target="editor"]' ) ).toHaveCount( 0 );
@@ -432,8 +431,8 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( visibleExpandedForms ).toHaveCount( 0, { timeout: 20_000 } );
 	await expect( saveBar ).toBeHidden();
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
-	await expect( configureTabs ).toHaveCount( 3 );
-	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toBeVisible();
+	await expect( configureTabs ).toHaveCount( 2 );
+	await expect( page.locator( '[data-configure-tab="control"]' ) ).toHaveAttribute( 'aria-current', 'page' );
 	await expect( rail ).toBeHidden();
 	const refreshedExpandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' ).first();
 	const refreshedExpandButton = refreshedExpandRow.locator( '[data-shield-expand-trigger="1"]' );
@@ -461,26 +460,38 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await saveBar.locator( '[data-configure-savebar-save="1"]' ).click();
 	await expect( visibleExpandedForms ).toHaveCount( 0, { timeout: 20_000 } );
 
-	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
-	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
+	await page.locator( '[data-configure-tab="search"]' ).click();
+	await expect( page.locator( '[data-configure-search-input="1"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeHidden();
 } );
 
-test( 'returning to configure keeps the focused zone card outline visible and on-palette', async ( { page } ) => {
+test( 'configure goals are tabs, and the Search tab returns to the search', async ( { page } ) => {
 	await openShieldRoute( page, {
 		nav: 'zones',
 		nav_sub: 'overview',
 	} );
 
-	const zone = page.locator(
-		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"control\\""]'
-	).first();
-	await zone.click();
+	await expect( page.locator( '[data-configure-tab="search"]' ) ).toHaveAttribute( 'aria-current', 'page' );
+	await page.locator( '[data-configure-tab="control"]' ).click();
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-configure-tab="control"]' ) ).toHaveAttribute( 'aria-current', 'page' );
+	await expect( page.locator( '[data-configure-search-input="1"]' ) ).toBeHidden();
 
-	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
-	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
-	await expect( zone ).toBeFocused();
-	await expectCardFocusRingWithinGrid( zone, '.configure-zones__grid', expect );
+	// Another goal opens in place.
+	await page.locator( '[data-configure-tab="alerts"]' ).click();
+	await expect( page.locator( '[data-configure-diagnosis="1"][data-configure-zone="alerts"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-configure-tab="alerts"]' ) ).toHaveAttribute( 'aria-current', 'page' );
+
+	// A filter carries to the next goal, and fades the goals with nothing for it.
+	await page.locator( '[data-configure-diagnosis="1"] [data-configure-zone-filter="1"]' ).fill( 'email' );
+	await expect( page.locator( '[data-configure-tab="spam"]' ) ).toHaveClass( /is-faded/ );
+	await expect( page.locator( '[data-configure-tab="accounts"]' ) ).not.toHaveClass( /is-faded/ );
+	await page.locator( '[data-configure-tab="accounts"]' ).click();
+	await expect( page.locator( '[data-configure-diagnosis="1"][data-configure-zone="accounts"] [data-configure-zone-filter="1"]' ) ).toHaveValue( 'email' );
+
+	await page.locator( '[data-configure-tab="search"]' ).click();
+	await expect( page.locator( '[data-configure-search-input="1"]' ) ).toBeFocused();
+	await expect( page.locator( '[data-configure-tab="spam"]' ) ).not.toHaveClass( /is-faded/ );
 } );
 
 test( 'configure opens a prefetched diagnosis without a standalone diagnosis request', async ( { page } ) => {

@@ -3,6 +3,7 @@ import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ConfigurePanelControls } from "../options/ConfigurePanelControls";
+import { ConfigureTabs } from "./ConfigureTabs";
 
 /**
  * Tools above a Configure zone's components: an in-place filter, a "Needs attention" view, and
@@ -64,6 +65,14 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 				this.applyFilters( root );
 			}
 		} );
+
+		// Moving to another goal keeps the filter, so the goals it fades can be visited without retyping it.
+		new MutationObserver( () => {
+			document.querySelectorAll( `${ConfigureZoneTools.ROOT_SELECTOR}:not([data-filter-restored])` ).forEach( ( root ) => {
+				root.dataset.filterRestored = '1';
+				this.restoreFilter( root );
+			} );
+		} ).observe( document.body, { childList: true, subtree: true } );
 
 		// A zone renders asynchronously; open a panel when a list-layout zone appears.
 		new MutationObserver( () => {
@@ -155,6 +164,25 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 	}
 
 	/**
+	 * @param {HTMLElement} root
+	 */
+	restoreFilter( root ) {
+		const state = this.filterState || { query: '', attentionOnly: false };
+		const attention = root.querySelector( '[data-configure-zone-show="attention"]' );
+		if ( state.query.length === 0 && !( state.attentionOnly && attention !== null ) ) {
+			return;
+		}
+		const input = root.querySelector( '[data-configure-zone-filter="1"]' );
+		input instanceof HTMLInputElement && ( input.value = state.query );
+		if ( state.attentionOnly && attention !== null ) {
+			root.querySelectorAll( '[data-configure-zone-show]' ).forEach(
+				( chip ) => chip.setAttribute( 'aria-pressed', String( chip === attention ) )
+			);
+		}
+		this.applyFilters( root );
+	}
+
+	/**
 	 * The filter matches each setting's name and summary, so it loads every topic's settings first and
 	 * is applied again as each arrives. A topic whose own name matches keeps all its settings; otherwise
 	 * only the matching settings show, and groups left empty are hidden (styled in config-panels).
@@ -170,6 +198,8 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 		// Inside panels, "Needs attention" also leaves only the settings that need it (styled in config-panels).
 		root.toggleAttribute( 'data-attention-only', attentionOnly );
 		root.toggleAttribute( 'data-filtering', query.length > 0 );
+		this.filterState = { query, attentionOnly };
+		ConfigureTabs.fade( root, query, attentionOnly );
 		if ( query.length > 0 ) {
 			shieldAppMain?.components?.configure_expand_loader?.preloadExpansionForms();
 		}

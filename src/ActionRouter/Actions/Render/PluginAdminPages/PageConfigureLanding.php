@@ -50,6 +50,8 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 				],
 				'configure_focus_request_json'    => $this->buildRequestedConfigureFocusRequestJson(),
 				'configure_component_action_json' => OperatorChromeContract::encodeJson( $this->buildRequestedComponentAction() ),
+				'configure_tabs'                  => $this->buildConfigureTabs(),
+				'configure_current_tab'           => $this->getValidRequestedConfigureZoneKey() ?: 'search',
 			]
 		);
 	}
@@ -91,8 +93,12 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 			'settings_loading'    => __( 'Loading settings.', 'wp-simple-firewall' ),
 			'layer_load_error'    => __( 'Unable to load this step right now.', 'wp-simple-firewall' ),
 			'layer_retry'         => __( 'Try again', 'wp-simple-firewall' ),
-			'search_label'        => __( 'Search Configure Options', 'wp-simple-firewall' ),
-			'search_placeholder'  => __( 'Search as you type to jump directly to a zone or option.', 'wp-simple-firewall' ),
+			'search_label'        => __( 'Search every setting', 'wp-simple-firewall' ),
+			'search_placeholder'  => __( 'Search every setting, such as "2FA", "login" or "email"', 'wp-simple-firewall' ),
+			'search_tab'          => __( 'Search', 'wp-simple-firewall' ),
+			'tabs_label'          => __( 'Configure', 'wp-simple-firewall' ),
+			'attention_heading'   => __( 'Needs attention', 'wp-simple-firewall' ),
+			'attention_none'      => __( 'Nothing needs attention right now.', 'wp-simple-firewall' ),
 			'search_loading'      => __( 'Searching Configure...', 'wp-simple-firewall' ),
 		];
 	}

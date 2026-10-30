@@ -49,7 +49,7 @@ test( 'configure home lists the protection goals', async ( { page } ) => {
 	await openShieldRoute( page, { nav: 'zones', nav_sub: 'overview' } );
 	const goals = page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' );
 	await expect( goals.first() ).toBeVisible();
-	await expect( page.locator( '[data-configure-landing="1"] [data-drill-zone-selection*="\\"key\\":\\"accounts\\""]' ) ).toBeVisible();
+	await expect( page.locator( '[data-configure-tab="accounts"]' ) ).toBeVisible();
 	await expect( page.locator( '[data-configure-landing="1"] [data-drill-zone-selection*="\\"key\\":\\"secadmin\\""]' ) ).toHaveCount( 0 );
 } );
 

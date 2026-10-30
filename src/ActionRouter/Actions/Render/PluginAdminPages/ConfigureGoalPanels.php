@@ -561,7 +561,7 @@ class ConfigureGoalPanels {
 	 * Names and one-line summaries for goals and topics, and the headings used inside panels. Options
 	 * themselves keep the plugin's own names and summaries.
 	 * @return array{
-	 *   goals:array<string,array{label:string,summary:string}>,
+	 *   goals:array<string,array{label:string,tab:string,summary:string}>,
 	 *   topics:array<string,array{label:string,summary:string}>,
 	 *   headings:array<string,string>
 	 * }
@@ -571,38 +571,47 @@ class ConfigureGoalPanels {
 			'goals'    => [
 				'accounts' => [
 					'label'   => __( 'Protect user accounts', 'wp-simple-firewall' ),
+					'tab'     => __( 'Accounts', 'wp-simple-firewall' ),
 					'summary' => __( 'Keep the people who log in safe, even when a password leaks.', 'wp-simple-firewall' ),
 				],
 				'login'    => [
 					'label'   => __( 'Stop login attacks', 'wp-simple-firewall' ),
+					'tab'     => __( 'Login', 'wp-simple-firewall' ),
 					'summary' => __( 'Stop bots guessing passwords and making fake accounts.', 'wp-simple-firewall' ),
 				],
 				'attacks'  => [
 					'label'   => __( 'Block hackers and bad bots', 'wp-simple-firewall' ),
+					'tab'     => __( 'Attacks', 'wp-simple-firewall' ),
 					'summary' => __( 'Keep malicious requests and bad bots away from your site.', 'wp-simple-firewall' ),
 				],
 				'code'     => [
 					'label'   => __( 'Find hacked and risky code', 'wp-simple-firewall' ),
+					'tab'     => __( 'Code', 'wp-simple-firewall' ),
 					'summary' => __( 'Spot changed, malicious or vulnerable code quickly.', 'wp-simple-firewall' ),
 				],
 				'spam'     => [
 					'label'   => __( 'Keep out spam', 'wp-simple-firewall' ),
+					'tab'     => __( 'Spam', 'wp-simple-firewall' ),
 					'summary' => __( 'Block spam comments and form submissions.', 'wp-simple-firewall' ),
 				],
 				'harden'   => [
 					'label'   => __( 'Harden WordPress', 'wp-simple-firewall' ),
+					'tab'     => __( 'Hardening', 'wp-simple-firewall' ),
 					'summary' => __( 'Close doors WordPress leaves open by default.', 'wp-simple-firewall' ),
 				],
 				'control'  => [
 					'label'   => __( 'Control who changes your site', 'wp-simple-firewall' ),
+					'tab'     => __( 'Admins', 'wp-simple-firewall' ),
 					'summary' => __( 'Stop a compromised admin account changing Shield or other admins.', 'wp-simple-firewall' ),
 				],
 				'alerts'   => [
 					'label'   => __( 'Alerts and reports', 'wp-simple-firewall' ),
+					'tab'     => __( 'Alerts', 'wp-simple-firewall' ),
 					'summary' => __( 'Who hears about what, and how often.', 'wp-simple-firewall' ),
 				],
 				'shield'   => [
 					'label'   => __( 'Shield settings', 'wp-simple-firewall' ),
+					'tab'     => __( 'Shield', 'wp-simple-firewall' ),
 					'summary' => __( 'How Shield itself runs and connects.', 'wp-simple-firewall' ),
 				],
 			],

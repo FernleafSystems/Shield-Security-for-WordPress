@@ -15,11 +15,6 @@ const activeElementDrillLayerKey = ( page ) => page.evaluate( () => {
 	return active instanceof HTMLElement ? active.dataset.drillLayerKey || '' : '';
 } );
 
-const activeElementDrillTarget = ( page ) => page.evaluate( () => {
-	const active = document.activeElement;
-	return active instanceof HTMLElement ? active.dataset.drillTarget || '' : '';
-} );
-
 const activeElementSelectionKey = ( page, selectionAttr ) => page.evaluate( ( attr ) => {
 	const active = document.activeElement;
 	if ( !( active instanceof HTMLElement ) ) {
@@ -240,10 +235,10 @@ test( 'drill layers expose active state and restore focus to the launcher', asyn
 	await expect.poll( () => activeElementDrillLayer( page ) ).toBe( '1' );
 	await expectNoAxeViolations( page, '[data-configure-section="drilldown"]' );
 
-	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+	await page.locator( '[data-configure-tab="search"]' ).click();
 	await expect( rootLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 	await expect( diagnosisLayer ).toHaveAttribute( 'aria-hidden', 'true' );
-	await expect.poll( () => activeElementDrillTarget( page ) ).toBe( 'diagnosis' );
+	await expect( page.locator( '[data-configure-search-input="1"]' ) ).toBeFocused();
 } );
 
 test( 'drill back focuses the active layer when the original launcher is gone', async ( { page } ) => {
@@ -261,10 +256,10 @@ test( 'drill back focuses the active layer when the original launcher is gone', 
 	await expect.poll( () => activeElementDrillLayer( page ) ).toBe( '1' );
 	await zoneLauncher.evaluate( ( element ) => element.remove() );
 
-	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+	await page.locator( '[data-configure-tab="search"]' ).click();
 	await expect( rootLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 	await expect( diagnosisLayer ).toHaveAttribute( 'aria-hidden', 'true' );
-	await expect.poll( () => activeElementDrillLayer( page ) ).toBe( '0' );
+	await expect( page.locator( '[data-configure-search-input="1"]' ) ).toBeFocused();
 } );
 
 test( 'reports workspace drill keeps named regions, focus, and breadcrumb state', async ( { page } ) => {

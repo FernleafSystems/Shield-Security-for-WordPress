@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\UiPreferences;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
@@ -142,14 +143,79 @@ trait BuildsConfigureLandingData {
 		return $this->getConfigureLandingViewData()[ 'sections' ];
 	}
 
+	/**
+	 * Configure's first layer is the Search tab's home: what needs attention, one goal to a row. The goals
+	 * themselves are tabs.
+	 */
 	protected function renderConfigureZonesLayer() :string {
 		return self::con()->comps->render
-			->setTemplate( '/wpadmin/components/configure/layer_zones.twig' )
+			->setTemplate( '/wpadmin/components/configure/layer_home.twig' )
 			->setData( [
-				'sections' => $this->getConfigureZoneSections(),
+				'goals'   => \array_values( \array_filter(
+					$this->buildConfigureTabs(),
+					static fn( array $tab ) :bool => $tab[ 'needs_attention' ]
+				) ),
+				'strings' => [
+					'attention_heading' => __( 'Needs attention', 'wp-simple-firewall' ),
+					'attention_none'    => __( 'Nothing needs attention right now.', 'wp-simple-firewall' ),
+				],
 			] )
 			->render();
 	}
+
+	/**
+	 * One tab for each goal, in the goals' own order, carrying what opens it, its status, and the words of
+	 * its settings so a filter can show which goals have anything that matches.
+	 * @return list<array{key:string,label:string,title:string,summary:string,status:string,needs_attention:bool,selection_json:string,search_text:string}>
+	 */
+	protected function buildConfigureTabs() :array {
+		$cards = [];
+		foreach ( $this->getConfigureZoneSections() as $section ) {
+			foreach ( $section[ 'cards' ] as $card ) {
+				$cards[ $card[ 'key' ] ] = $card;
+			}
+		}
+
+		$labels = ConfigureGoalPanels::labels();
+		$tabs = [];
+		foreach ( ConfigureGoalPanels::goals() as $goalKey => $goal ) {
+			$card = $cards[ $goalKey ] ?? null;
+			if ( $card === null || $card[ 'is_disabled' ] ) {
+				continue;
+			}
+			$tabs[] = [
+				'key'             => $goalKey,
+				'label'           => $labels[ 'goals' ][ $goalKey ][ 'tab' ] ?? $card[ 'label' ],
+				'title'           => $card[ 'label' ],
+				'summary'         => $card[ 'summary' ],
+				'status'          => $card[ 'status' ],
+				'needs_attention' => \in_array( $card[ 'status' ], [ 'warning', 'critical' ], true ),
+				'selection_json'  => $card[ 'selection_json' ],
+				'search_text'     => $this->goalSearchText( $goalKey ),
+			];
+		}
+		return $tabs;
+	}
+
+	private function goalSearchText( string $goalKey ) :string {
+		$labels = ConfigureGoalPanels::labels()[ 'topics' ];
+		$strings = new StringsOptions();
+		$words = [];
+		foreach ( \array_keys( ConfigureGoalPanels::goals()[ $goalKey ][ 'topics' ] ) as $topicKey ) {
+			$words[] = $labels[ $topicKey ][ 'label' ] ?? '';
+			foreach ( ConfigureGoalPanels::topicOptionKeys( $goalKey, $topicKey ) as $optionKey ) {
+				try {
+					$optionStrings = $strings->getFor( $optionKey );
+					$words[] = (string)$optionStrings[ 'name' ];
+					$words[] = (string)( $optionStrings[ 'summary' ] ?? '' );
+				}
+				catch ( \Exception $e ) {
+				}
+			}
+		}
+		return \strtolower( \implode( ' ', \array_filter( $words ) ) );
+	}
+
 
 	protected function renderConfigureDiagnosisLayer( string $zoneKey ) :string {
 		return self::con()->comps->render
@@ -163,6 +229,7 @@ trait BuildsConfigureLandingData {
 
 		return [
 			'diagnosis'      => $diagnosis,
+			'goal_summary'   => ConfigureGoalPanels::labels()[ 'goals' ][ $zoneKey ][ 'summary' ] ?? '',
 			'header'         => $diagnosis[ 'header' ],
 			'zone_selection' => $diagnosis[ 'zone_selection' ],
 			// Built after the diagnosis above, so every component has recorded which option fixes each explanation.
@@ -201,13 +268,15 @@ trait BuildsConfigureLandingData {
 	/**
 	 * @return array{
 	 *   root_step_json:string,
-	 *   zones_html:string
+	 *   zones_html:string,
+	 *   tab_statuses:array<string,string>
 	 * }
 	 */
 	protected function buildConfigureLandingRefresh() :array {
 		return [
 			'root_step_json' => $this->buildConfigureOperatorRootStepJson(),
 			'zones_html'     => $this->renderConfigureZonesLayer(),
+			'tab_statuses'   => \array_column( $this->buildConfigureTabs(), 'status', 'key' ),
 		];
 	}
 

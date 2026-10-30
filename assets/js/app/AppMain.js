@@ -31,6 +31,7 @@ import { DrillDownController } from "../components/mode/DrillDownController";
 import { StepTabsController } from "../components/mode/StepTabsController";
 import { InvestigateLandingController } from "../components/mode/InvestigateLandingController";
 import { InvestigateLookup } from "../components/mode/InvestigateLookup";
+import { ConfigureTabs } from "../components/mode/ConfigureTabs";
 import { ConfigureLandingController } from "../components/mode/ConfigureLandingController";
 import { ActionsQueueLandingController } from "../components/mode/ActionsQueueLandingController";
 import { ReportsLandingController } from "../components/mode/ReportsLandingController";
@@ -110,6 +111,7 @@ export class AppMain extends AppBase {
 		this.components.configure_landing = new ConfigureLandingController(
 			'zones_manager' in comps ? comps.zones_manager : {}
 		);
+		this.components.configure_tabs = new ConfigureTabs();
 		this.components.actions_queue_landing = new ActionsQueueLandingController();
 		this.components.actions_queue_sections = new ActionsQueueSections();
 		this.components.reports_landing = new ReportsLandingController();

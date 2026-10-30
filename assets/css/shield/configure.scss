@@ -8,53 +8,237 @@
 
 @import '../mode-palette';
 
-.configure-landing__search {
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba($mode-configure-light, 0.55));
-	border: 1px solid rgba($mode-configure, 0.12);
-	border-radius: $card-border-radius;
-	box-shadow: $card-box-shadow;
-	margin-bottom: 1rem;
-	padding: 0.9rem 1rem 1rem;
-	position: relative;
+// ─── Tabs: Search, then one tab for each goal, dotted by how it stands ───
+.configure-tabs {
+	border-bottom: 1px solid #dcdcde;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.15rem;
+	margin-bottom: 1.25rem;
 }
 
-.configure-landing__search-label {
-	display: block;
-	font-size: 0.75rem;
-	font-weight: 700;
-	letter-spacing: 0.04em;
-	margin-bottom: 0.375rem;
-	text-transform: uppercase;
+.configure-tabs__tab {
+	align-items: center;
+	background: none;
+	border: 0;
+	border-bottom: 3px solid transparent;
+	color: #50575e;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: 13.5px;
+	font-weight: 500;
+	gap: 0.45rem;
+	margin-bottom: -1px;
+	padding: 0.6rem 0.55rem 0.55rem;
+	white-space: nowrap;
+
+	&:hover,
+	&:focus-visible {
+		color: #1d2327;
+	}
+
+	&:focus-visible {
+		outline: 2px solid $mode-configure;
+		outline-offset: -2px;
+	}
+
+	&.is-current {
+		border-bottom-color: $mode-configure;
+		color: #1d2327;
+		font-weight: 600;
+	}
+
+	// Nothing in this goal for the current filter. It still opens.
+	&.is-faded {
+		opacity: 0.45;
+	}
+}
+
+.configure-tabs__dot {
+	background: $status-color-good;
+	border-radius: 50%;
+	display: inline-block;
+	flex: none;
+	height: 8px;
+	width: 8px;
+
+	.status-warning > & {
+		background: $status-color-warning;
+	}
+
+	.status-critical > & {
+		background: $status-color-critical;
+	}
+
+	.status-neutral > &,
+	.status-info > & {
+		background: #a7aaad;
+	}
+}
+
+.configure-diagnosis__heading {
+	display: grid;
+	gap: 0.15rem;
+	margin-bottom: 0.85rem;
+}
+
+.configure-diagnosis__title {
+	color: #1d2327;
+	font-size: 17px;
+	font-weight: 600;
+	margin: 0;
+}
+
+.configure-diagnosis__summary {
+	color: #50575e;
+	font-size: 13px;
+	margin: 0;
+}
+
+// ─── Search every setting ───
+.configure-landing__search {
+	display: grid;
+	gap: 0.75rem;
+	margin-bottom: 1.25rem;
+	max-width: 880px;
 }
 
 .configure-landing__search-input-wrap {
-	position: relative;
-}
-
-.configure-landing__search-input {
+	align-items: center;
 	background: #fff;
-	border-radius: $card-border-radius;
-	padding-right: 2.75rem;
+	border: 1px solid #8c8f94;
+	border-radius: 8px;
+	display: flex;
+	gap: 0.6rem;
+	padding: 0 0.9rem;
+
+	> .bi {
+		color: #50575e;
+		font-size: 17px;
+	}
+
+	&:focus-within {
+		border-color: $mode-configure;
+		box-shadow: 0 0 0 2px rgba($mode-configure, 0.18);
+	}
 }
 
-.configure-landing__search[data-configure-search-state="loading"] .configure-landing__search-input,
-.configure-landing__search[data-configure-search-state="ready"] .configure-landing__search-input,
-.configure-landing__search[data-configure-search-state="error"] .configure-landing__search-input {
-	border-color: rgba($mode-configure, 0.24);
-	box-shadow: 0 0 0 0.18rem rgba($mode-configure, 0.08);
+.configure-landing__search-input,
+.configure-landing__search-input[type="search"] {
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	color: #1d2327;
+	flex: 1 1 auto;
+	font-size: 15px;
+	min-height: 48px;
+	min-width: 0;
+	padding: 0;
+
+	&:focus {
+		box-shadow: none;
+		outline: none;
+	}
 }
 
 .configure-landing__search-results {
 	display: none;
-	left: 0;
-	position: absolute;
-	right: 0;
-	top: calc(100% + 0.4rem);
-	z-index: 20;
 }
 
 .configure-landing__search:not([data-configure-search-state="idle"]) .configure-landing__search-results {
 	display: block;
+}
+
+// ─── What needs attention, under the search ───
+.configure-home {
+	max-width: 880px;
+}
+
+.configure-home__heading {
+	color: #50575e;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	margin: 0 0 0.5rem;
+	text-transform: uppercase;
+}
+
+.configure-home__none {
+	align-items: center;
+	color: #50575e;
+	display: flex;
+	gap: 0.45rem;
+	margin: 0;
+
+	.bi {
+		color: $status-color-good;
+	}
+}
+
+.configure-home__list {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.configure-home__row {
+	align-items: center;
+	background: none;
+	border: 0;
+	color: #1d2327;
+	cursor: pointer;
+	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: 10px minmax(0, 1fr) auto;
+	padding: 0.75rem 0.9rem;
+	text-align: left;
+	width: 100%;
+
+	& + & {
+		border-top: 1px solid #f0f0f1;
+	}
+
+	&:hover,
+	&:focus-visible {
+		background: rgba($mode-configure, 0.06);
+	}
+
+	&:focus-visible {
+		outline: 2px solid $mode-configure;
+		outline-offset: -2px;
+	}
+}
+
+.configure-home__dot {
+	background: $status-color-warning;
+	border-radius: 50%;
+	height: 10px;
+	width: 10px;
+
+	.status-critical > & {
+		background: $status-color-critical;
+	}
+}
+
+.configure-home__copy {
+	display: grid;
+	gap: 0.1rem;
+	min-width: 0;
+}
+
+.configure-home__title {
+	font-size: 13.5px;
+	font-weight: 600;
+}
+
+.configure-home__summary {
+	color: #50575e;
+	font-size: 12.5px;
+}
+
+.configure-home__go {
+	color: #8c8f94;
 }
 
 .configure-search-results {
@@ -308,8 +492,11 @@
 }
 
 @media (max-width: 640px) {
-	.configure-landing__search {
-		padding: 0.8rem 0.85rem 0.9rem;
+	// On a narrow screen the tabs stay on one line and scroll sideways.
+	.configure-tabs {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		scrollbar-width: thin;
 	}
 
 	.configure-search-results__item {
