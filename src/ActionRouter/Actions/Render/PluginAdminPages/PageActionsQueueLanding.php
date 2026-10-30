@@ -63,6 +63,7 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 			'pane_load_error'        => __( 'Unable to load these scan details. Please try again.', 'wp-simple-firewall' ),
 			'layer_load_error'       => __( 'Unable to load this step. Please try again.', 'wp-simple-firewall' ),
 			'layer_retry'            => __( 'Retry', 'wp-simple-firewall' ),
+			'results_close'          => __( 'Back to the Actions Queue', 'wp-simple-firewall' ),
 		];
 	}
 

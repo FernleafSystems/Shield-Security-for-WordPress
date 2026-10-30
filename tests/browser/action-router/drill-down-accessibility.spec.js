@@ -331,7 +331,7 @@ test( 'actions queue drill path keeps layer state, focus, announcements, and axe
 		// The landing already lists the lane, so the breadcrumb leads straight back to it.
 		await expect( page.locator( '[data-step-tab-drill-index="1"]' ) ).toHaveCount( 0 );
 
-		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+		await actionsQueuePage.backToLanding();
 		await expect( bucketsLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 		await expect( groupsLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 		await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
@@ -362,7 +362,7 @@ test( 'actions queue drill back focuses the active layer when a group launcher i
 
 		const landingGroup = await actionsQueuePage.waitForLandingGroup( fixture.bucket_key, fixture.group_key );
 		await landingGroup.evaluate( ( element ) => element.remove() );
-		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+		await actionsQueuePage.backToLanding();
 		await expect( bucketsLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 		await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 		await expect.poll( () => activeElementDrillLayerKey( page ) ).toBe( 'buckets' );
@@ -418,7 +418,7 @@ test( 'actions queue clears detail layer busy state without stale announcement w
 		await expect.poll( delayedDetail.seen ).toBe( true );
 		await expect( detailLayer ).toHaveAttribute( 'aria-busy', 'true' );
 		await expectLiveRegionContract( page, '[data-actions-landing="1"]' );
-		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+		await actionsQueuePage.backToLanding();
 		await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 		await expect( detailLayer ).toHaveAttribute( 'aria-busy', 'false' );
 		await page.waitForTimeout( 80 );
@@ -460,7 +460,7 @@ test( 'actions queue detail failure clears busy state and announces assertively'
 		await expectLiveRegionContract( page, '[data-actions-landing="1"]' );
 		await expect.poll( () => activeElementDrillLayerKey( page ) ).toBe( 'detail' );
 
-		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+		await actionsQueuePage.backToLanding();
 		await expect( bucketsLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 		await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 		await expect( liveRegion ).toHaveAttribute( 'aria-live', 'polite' );

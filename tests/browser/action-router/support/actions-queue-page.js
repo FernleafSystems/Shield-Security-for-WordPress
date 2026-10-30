@@ -25,6 +25,25 @@ class ActionsQueuePage {
 		await expect( this.page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 	}
 
+	resultsPanel() {
+		return this.page.locator( '[data-actions-landing="1"] [data-drill-shell="1"][data-results-overlay="1"] [data-drill-layer-key="detail"]' );
+	}
+
+	/**
+	 * Results opened from the landing sit in a panel over it, closed by the panel's own button; results
+	 * reached any other way go back by the breadcrumb.
+	 */
+	async backToLanding() {
+		const close = this.page.locator( '[data-actions-landing="1"] [data-results-overlay-close="1"]:visible' );
+		if ( await close.count() > 0 ) {
+			await close.click();
+		}
+		else {
+			await this.page.locator( '[data-step-tab-drill-index="0"]' ).click();
+		}
+		await expect( this.page.locator( '[data-actions-landing="1"] [data-results-overlay="1"]' ) ).toHaveCount( 0 );
+	}
+
 	landingSection( bucketKey ) {
 		return this.page.locator( `[data-actions-queue-sections="1"] [data-actions-queue-section-key="${bucketKey}"]` );
 	}

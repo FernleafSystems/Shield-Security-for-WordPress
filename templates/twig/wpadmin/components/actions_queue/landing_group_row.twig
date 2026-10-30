@@ -11,7 +11,8 @@
 	and group.is_interactive and group.card_type != 'category' and group.card_type != 'linked' %}
 {% set kind = is_pro ? 'pro' : ( is_enable ? 'enable' : ( is_passing ? 'good' : group.status ) ) %}
 
-{% if group.card_type == 'category' and not is_passing %}
+{# A group that lists its items (maintenance, or each vulnerable plugin and theme) shows them in place. #}
+{% if ( group.card_type == 'category' or group.maintenance_rows is not empty ) and not is_passing %}
 	<div class="actions-queue-row-group" data-actions-queue-group-key="{{ group.key|e('html_attr') }}">
 		<div class="actions-queue-row-group__head status-{{ group.status }}">
 			<span class="actions-queue-row-group__icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>

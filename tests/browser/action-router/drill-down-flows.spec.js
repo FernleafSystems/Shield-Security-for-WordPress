@@ -227,7 +227,7 @@ test( 'actions queue drills into groups and back out, opening details when avail
 
 		// The breadcrumb leads straight back to the landing, which already lists the lane.
 		await expect( page.locator( '[data-step-tab-drill-index="1"]' ) ).toHaveCount( 0 );
-		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+		await actionsQueuePage.backToLanding();
 		await expect( actionsQueuePage.landingSection( fixture.bucket_key ) ).toBeVisible();
 		await expect( page.locator( '[data-drill-layer="2"]' ) ).toHaveClass( /drill-layer--hidden/ );
 	} );
@@ -249,7 +249,7 @@ test( 'actions queue landing lists lanes in place and opens a group directly', a
 		await actionsQueuePage.clickElement( group );
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 
-		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+		await actionsQueuePage.backToLanding();
 		await expect( section ).toBeVisible();
 
 		const sections = page.locator( '[data-actions-queue-sections="1"]' );
@@ -261,6 +261,37 @@ test( 'actions queue landing lists lanes in place and opens a group directly', a
 		await page.locator( '[data-actions-queue-view="sections"]' ).click();
 		await expect( sections ).toHaveAttribute( 'data-view', 'sections' );
 		await expectShieldAjaxSuccess( await restoreView );
+	} );
+} );
+
+test( 'actions queue opens group results in a panel over the queue', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
+		const actionsQueuePage = new ActionsQueuePage( page );
+		const section = actionsQueuePage.landingSection( fixture.bucket_key );
+		const panel = actionsQueuePage.resultsPanel();
+
+		await actionsQueuePage.drillToDetail( fixture );
+		await expect( panel ).toBeVisible();
+		await expect( panel ).toHaveAttribute( 'role', 'dialog' );
+		await expect( panel ).toHaveAttribute( 'aria-modal', 'true' );
+		// The queue stays where it was underneath, and the results' actions come into the panel.
+		await expect( section ).toBeVisible();
+		await expect( panel.locator( '[data-operator-context-rail="1"]' ) ).toBeVisible();
+
+		await page.keyboard.press( 'Escape' );
+		await expect( panel ).toHaveCount( 0 );
+		await expect( page.locator( '[data-drill-layer="2"]' ) ).toHaveClass( /drill-layer--hidden/ );
+		// The rail goes back beside the page.
+		await expect( page.locator( '[data-drill-layer-key="detail"] [data-operator-context-rail="1"]' ) ).toHaveCount( 0 );
+
+		// The backdrop closes it too.
+		await actionsQueuePage.drillToDetail( fixture );
+		await expect( panel ).toBeVisible();
+		// Between the admin menu and the panel, the backdrop covers the queue.
+		await page.mouse.click( 180, 400 );
+		await expect( page.locator( '[data-actions-landing="1"]' ) ).toBeVisible();
+		await expect( panel ).toHaveCount( 0 );
 	} );
 } );
 
@@ -292,11 +323,12 @@ test( 'actions queue landing keeps clear risks inert beside clickable vulnerabil
 
 			const abandoned = await actionsQueuePage.waitForLandingGroupOuter( 'abandoned' );
 			await expect.poll( async () => await abandoned.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'default' );
+			// Each vulnerable plugin or theme is listed in the queue itself, with its actions.
 			const vulnerabilities = await actionsQueuePage.waitForLandingGroupOuter( 'vulnerabilities' );
-			await expect( vulnerabilities ).toHaveAttribute( 'data-drill-target', 'detail' );
-			await actionsQueuePage.clickElement( vulnerabilities );
-			await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-			await expect( page.locator( '[data-actions-queue-detail="1"] a' ).first() ).toBeVisible();
+			await expect( vulnerabilities ).not.toHaveAttribute( 'data-drill-target' );
+			const vulnerable = vulnerabilities.locator( '.actions-queue-row--item' );
+			await expect( vulnerable.first() ).toBeVisible();
+			await expect( vulnerable.first().locator( 'a.actions-queue-row__button' ).first() ).toBeVisible();
 		}
 		finally {
 			page.off( 'request', countCloakedDetailRenderRequests );

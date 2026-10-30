@@ -883,3 +883,183 @@ $aq-pro-bg: #f2ebfc;
 		}
 	}
 }
+
+// ─── Results over the queue ───
+// A group opened from the queue shows its results in a large panel from the right, over a dimmed queue,
+// rather than replacing the page. The queue stays as it was underneath, ready when the panel closes.
+html.shield-results-overlay-open {
+	overflow: hidden;
+
+	// The page body is a size container, which would hold the panel inside the page instead of over it.
+	// While the panel is open the panel's own body takes that role, so layouts in it fit the panel.
+	.inner-page-body-shell[data-operator-chrome="1"] {
+		container: none;
+	}
+
+	// Likewise the page's own stacking level would keep the panel under the page's notices.
+	#PageMain-Shield {
+		z-index: auto;
+	}
+
+	// The setup bar would sit across the bottom of the panel.
+	.shield-setup-guide,
+	.shield-setup-guide-reopen {
+		display: none;
+	}
+}
+
+.actions-landing .drill-shell[data-results-overlay="1"] {
+	> [data-drill-layer="0"].drill-layer--compact {
+		display: block;
+	}
+
+	// The backdrop belongs to the shell, so a click on it reaches the shell and closes the panel.
+	&::after {
+		background: rgba(16, 24, 40, 0.45);
+		content: "";
+		inset: 0;
+		position: fixed;
+		z-index: 1035;
+	}
+
+	> [data-drill-layer-key="detail"]:not(.drill-layer--hidden) {
+		animation: shield-results-overlay-in 0.18s ease-out;
+		background: #fff;
+		bottom: 0;
+		box-shadow: -12px 0 40px rgba(16, 24, 40, 0.22);
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 264px auto;
+		grid-template-rows: auto minmax(0, 1fr);
+		position: fixed;
+		right: 0;
+		top: var(--wp-admin--admin-bar--height, 32px);
+		width: min(1320px, calc(100vw - 200px));
+		// Just under Bootstrap's modal layer, so dialogs, menus and tooltips opened from the results show
+		// over the panel. The admin menu stays above it, but the panel's width keeps clear of it.
+		z-index: 1040;
+
+		&:focus {
+			outline: none;
+		}
+
+		// The layer's title, normally for screen readers only, heads the panel.
+		> [data-drill-layer-title="1"] {
+			border-bottom: 1px solid #e2e4e7;
+			clip: auto;
+			clip-path: none;
+			color: #1d2327;
+			font-size: 17px;
+			font-weight: 600;
+			grid-column: 1 / 3;
+			grid-row: 1;
+			height: auto;
+			line-height: 1.3;
+			margin: 0;
+			overflow: visible;
+			padding: 1rem 1.5rem;
+			position: static !important;
+			width: auto;
+			word-wrap: break-word !important;
+		}
+
+		> .drill-layer__overlay-close {
+			align-items: center;
+			align-self: stretch;
+			background: none;
+			border: 0;
+			border-bottom: 1px solid #e2e4e7;
+			color: #50575e;
+			cursor: pointer;
+			display: flex;
+			font-size: 18px;
+			grid-column: 3;
+			grid-row: 1;
+			justify-content: center;
+			padding: 0 1.25rem;
+
+			&:hover,
+			&:focus-visible {
+				background: #f0f0f1;
+				color: #1d2327;
+			}
+
+			&:focus-visible {
+				outline: 2px solid #2271b1;
+				outline-offset: -2px;
+			}
+		}
+
+		> .drill-layer__body {
+			container: operator-chrome / inline-size;
+			grid-column: 1 / -1;
+			grid-row: 2;
+			overflow: auto;
+			overscroll-behavior: contain;
+			padding: 1.25rem 1.5rem 2rem;
+		}
+
+		// The actions for these results, moved in from beside the page while the panel is open.
+		> [data-operator-context-rail="1"] {
+			align-self: start;
+			grid-column: 2 / -1;
+			grid-row: 2;
+			margin: 1.25rem 1.5rem 0 0;
+			max-height: calc(100% - 2.5rem);
+			overflow: auto;
+			position: static;
+		}
+
+		&:has(> [data-operator-context-rail="1"]:not([hidden])) > .drill-layer__body {
+			grid-column: 1;
+		}
+	}
+}
+
+.drill-layer__overlay-close {
+	display: none;
+}
+
+@keyframes shield-results-overlay-in {
+	from {
+		opacity: 0;
+		transform: translateX(32px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.actions-landing .drill-shell[data-results-overlay="1"] > [data-drill-layer-key="detail"] {
+		animation: none;
+	}
+}
+
+@media (max-width: 782px) {
+	.actions-landing .drill-shell[data-results-overlay="1"] > [data-drill-layer-key="detail"]:not(.drill-layer--hidden) {
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-rows: auto auto minmax(0, 1fr);
+		overflow: auto;
+		width: 100vw;
+
+		> [data-drill-layer-title="1"] {
+			grid-column: 1;
+		}
+
+		> .drill-layer__overlay-close {
+			grid-column: 2;
+		}
+
+		// On a phone the actions come first, then the results, in one scrolling column.
+		> [data-operator-context-rail="1"] {
+			grid-column: 1 / -1;
+			margin: 1rem 1rem 0;
+			max-height: none;
+		}
+
+		> .drill-layer__body,
+		&:has(> [data-operator-context-rail="1"]:not([hidden])) > .drill-layer__body {
+			grid-column: 1 / -1;
+			grid-row: 3;
+			overflow: visible;
+			padding: 1rem;
+		}
+	}
+}

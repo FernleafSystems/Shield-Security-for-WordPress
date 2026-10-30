@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type GroupSeed from ActionsQueueGroupContractBuilder
  * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
  * @phpstan-import-type QueueAssetSummaryRecord from ActionsQueueScanAssetCardsBuilder
+ * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
  * @phpstan-import-type VulnerabilitySection from ScansVulnerabilitiesBuilder
  */
 class ActionsQueueGroupSeedCollector {
@@ -215,7 +216,40 @@ class ActionsQueueGroupSeedCollector {
 		$item[ 'severity' ] = $section[ 'status' ];
 		$seeds = [];
 		$this->mergeAttentionSeed( $seeds, $definitionKey, $item );
+		// Each affected plugin or theme is listed in the queue itself, with its actions, rather than
+		// behind a page that holds the same list.
+		$seeds[ $definitionKey ][ 'maintenance_rows' ] = $this->buildVulnerabilityRows( $section[ 'items' ] );
 		return \array_values( $seeds );
+	}
+
+	/**
+	 * @phpstan-param VulnerabilitySection['items'] $items
+	 * @return list<CompactSummaryRow>
+	 */
+	private function buildVulnerabilityRows( array $items ) :array {
+		$rowBuilder = new ActionsQueueCompactSummaryRowBuilder();
+		return \array_map(
+			static fn( array $vuln ) :array => $rowBuilder->build(
+				$vuln[ 'asset_type' ] === 'plugin' ? 'bi bi-plug' : 'bi bi-brush',
+				$vuln[ 'label' ],
+				$vuln[ 'description' ],
+				'',
+				false,
+				\array_map(
+					static fn( array $action ) :array => [
+						'href'             => $action[ 'href' ],
+						'is_action'        => false,
+						'label'            => $action[ 'label' ],
+						'icon'             => $action[ 'icon' ] ?? '',
+						'tooltip'          => '',
+						'target'           => $action[ 'attributes' ][ 'target' ] ?? '',
+						'ajax_action_json' => '',
+					],
+					$vuln[ 'actions' ]
+				)
+			),
+			$items
+		);
 	}
 
 	/**

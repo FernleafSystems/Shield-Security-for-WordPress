@@ -56,6 +56,104 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			false
 		);
 		document.addEventListener( 'shield:drill-back', ( evt ) => this.handleDrillBack( evt ) );
+
+		// Results opened from the queue sit over it: the close button, the backdrop and Escape return to the queue.
+		shieldEventsHandler_Main.add_Click(
+			'[data-actions-landing="1"] [data-results-overlay-close="1"]',
+			( item ) => this.closeResultsOverlay( item.closest( '[data-drill-shell="1"]' ) ),
+			false
+		);
+		document.addEventListener( 'click', ( evt ) => {
+			// The backdrop belongs to the shell itself, so a click on it targets the shell.
+			const shell = evt.target;
+			if ( shell instanceof HTMLElement && shell.dataset.resultsOverlay === '1' ) {
+				this.closeResultsOverlay( shell );
+			}
+		} );
+		document.addEventListener( 'keydown', ( evt ) => {
+			if ( evt.key !== 'Escape' || evt.defaultPrevented ) {
+				return;
+			}
+			const shell = document.querySelector( '[data-actions-landing="1"] [data-drill-shell="1"][data-results-overlay="1"]' );
+			const panel = shell?.querySelector( '[data-drill-layer-key="detail"]' );
+			// Escape in a dialog opened from the results (a file viewer, a confirmation) closes only that dialog.
+			const target = evt.target;
+			if ( panel instanceof HTMLElement && ( target === document.body || ( target instanceof Node && panel.contains( target ) ) ) ) {
+				evt.preventDefault();
+				this.closeResultsOverlay( shell );
+			}
+		} );
+	}
+
+	/**
+	 * Shows the results layer as a large panel over the queue rather than in its place, so the queue
+	 * stays where it was underneath.
+	 * @param {HTMLElement|null} shell
+	 * @param {boolean} isOpen
+	 */
+	setResultsOverlay( shell, isOpen ) {
+		if ( !( shell instanceof HTMLElement ) ) {
+			return;
+		}
+		if ( isOpen ) {
+			shell.dataset.resultsOverlay = '1';
+		}
+		else {
+			delete shell.dataset.resultsOverlay;
+		}
+		const detail = shell.querySelector( '[data-drill-layer-key="detail"]' );
+		if ( detail instanceof HTMLElement ) {
+			detail.setAttribute( 'role', isOpen ? 'dialog' : 'region' );
+			isOpen ? detail.setAttribute( 'aria-modal', 'true' ) : detail.removeAttribute( 'aria-modal' );
+
+			if ( isOpen && detail.querySelector( ':scope > [data-results-overlay-close="1"]' ) === null ) {
+				const close = document.createElement( 'button' );
+				close.type = 'button';
+				close.className = 'drill-layer__overlay-close';
+				close.dataset.resultsOverlayClose = '1';
+				close.setAttribute( 'aria-label', this.rootEl?.dataset.actionsResultsClose || '' );
+				close.title = close.getAttribute( 'aria-label' );
+				close.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true"></i>';
+				detail.prepend( close );
+			}
+			this.moveContextRail( shell, detail, isOpen );
+		}
+		document.documentElement.classList.toggle( 'shield-results-overlay-open', isOpen );
+	}
+
+	/**
+	 * The page's context rail holds the actions for the open results (ignore all, repair and so on), so
+	 * while the results are in the panel the rail moves into it, and returns to its place afterwards.
+	 * @param {HTMLElement} shell
+	 * @param {HTMLElement} detail
+	 * @param {boolean} intoPanel
+	 */
+	moveContextRail( shell, detail, intoPanel ) {
+		const modeShell = shell.closest( '[data-mode-shell="1"]' ) || document;
+		const rail = modeShell.querySelector( '[data-operator-context-rail="1"]' );
+		if ( !( rail instanceof HTMLElement ) ) {
+			return;
+		}
+		if ( intoPanel ) {
+			if ( !this.contextRailHome?.isConnected ) {
+				this.contextRailHome = document.createComment( 'context rail' );
+				rail.before( this.contextRailHome );
+			}
+			detail.append( rail );
+		}
+		else if ( this.contextRailHome?.isConnected ) {
+			this.contextRailHome.replaceWith( rail );
+			this.contextRailHome = null;
+		}
+	}
+
+	/**
+	 * @param {Element|null} shell
+	 */
+	closeResultsOverlay( shell ) {
+		if ( shell instanceof HTMLElement && shell.dataset.resultsOverlay === '1' ) {
+			this.getDrillDownController()?.drillTo( shell, 0 );
+		}
 	}
 
 	async refreshAfterProtectionEnabled( launcher, isFile ) {
@@ -196,9 +294,11 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 		this.selectedGroup = group;
 
-		// Group cards on the landing open results directly, and the breadcrumb leads straight back to
-		// the landing: the landing already lists the lane, so the lane page is left out of the trail.
-		this.setLaneInTrail( shell, item.closest( '[data-actions-queue-sections="1"]' ) === null );
+		// Group cards on the landing open results directly, over the queue, and the breadcrumb leads straight
+		// back to the landing: the landing already lists the lane, so the lane page is left out of the trail.
+		const fromLanding = item.closest( '[data-actions-queue-sections="1"]' ) !== null;
+		this.setLaneInTrail( shell, !fromLanding );
+		this.setResultsOverlay( shell, fromLanding );
 
 		drillCtrl.updateLayerHeader(
 			shell,
@@ -360,6 +460,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		}
 
 		const layerIndex = parseInt( String( evt.detail?.layer_index ?? -1 ), 10 );
+		this.setResultsOverlay( shell, false );
 		if ( layerIndex <= 0 ) {
 			this.selectedBucket = null;
 			this.selectedGroup = null;
