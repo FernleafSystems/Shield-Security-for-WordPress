@@ -116,16 +116,16 @@ test( 'Integrations offcanvas exposes every section through keyboard-first tab r
 	);
 } );
 
-test( 'Reports settings exposes every inline section through keyboard-first tab relationships', async ( { page } ) => {
+test( 'Reports settings show the Configure panels for reports and instant alerts, already open', async ( { page } ) => {
 	await openShieldRoute( page, {
 		nav: 'reports',
 		nav_sub: 'overview',
 		workspace: 'settings',
 	} );
 
-	await expectAllOptionsSectionsKeyboardAccessible(
-		page,
-		page.locator( '[data-reports-workspace="settings"] .options_form_for--modern' ),
-		'#PageContainer-Apto'
-	);
+	const settings = page.locator( '[data-reports-tabpanel="settings"]' );
+	for ( const topic of [ 'reports', 'instant_alerts' ] ) {
+		await expect( settings.locator( `[data-configure-row-key="${topic}"] form.options_form_for--panel` ) ).toBeVisible( { timeout: 20_000 } );
+	}
+	await expect( settings.locator( '[data-option-key="block_send_email_address"]' ) ).toBeVisible();
 } );

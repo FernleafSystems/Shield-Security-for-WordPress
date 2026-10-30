@@ -605,8 +605,8 @@ class ConfigureGoalPanels {
 					'summary' => __( 'Stop a compromised admin account changing Shield or other admins.', 'wp-simple-firewall' ),
 				],
 				'alerts'   => [
-					'label'   => __( 'Alerts and reports', 'wp-simple-firewall' ),
-					'tab'     => __( 'Alerts', 'wp-simple-firewall' ),
+					'label'   => __( 'Reports and alerts', 'wp-simple-firewall' ),
+					'tab'     => __( 'Reports', 'wp-simple-firewall' ),
 					'summary' => __( 'Who hears about what, and how often.', 'wp-simple-firewall' ),
 				],
 				'shield'   => [

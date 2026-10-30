@@ -5,6 +5,8 @@ import { ShieldTableActivityLog } from "../tables/ShieldTableActivityLog";
 import { ShieldTableTrafficLog } from "../tables/ShieldTableTrafficLog";
 import { ShieldTableIpRules } from "../tables/ShieldTableIpRules";
 import { ShieldTableSessions } from "../tables/ShieldTableSessions";
+import { LiveTrafficPoller } from "../general/LiveTrafficPoller";
+import { announceStatus } from "../ui/ShieldA11y";
 
 /**
  * Investigate's one lookup, and its tabs.
@@ -14,8 +16,9 @@ import { ShieldTableSessions } from "../tables/ShieldTableSessions";
  * subject, so a click opens that subject beneath the lookup through the landing's own handler, with the
  * result's value as the lookup. The lookup stays where it is, ready for the next search.
  *
- * Every tab opens in place. The logs and IP rules each start their table the first time their tab opens.
- * Live traffic opens the live subject where the lookup's subjects open, and stops when another tab opens.
+ * Every tab opens in place and keeps its own link, the one the menu uses. The logs and IP rules each start
+ * their table the first time their tab opens. Live traffic updates only while its tab is open, and keeps what
+ * it last showed while it waits.
  */
 export class InvestigateLookup {
 
@@ -37,6 +40,7 @@ export class InvestigateLookup {
 		this.requestId = 0;
 		this.logTables = logTables || {};
 		this.startedTables = new Set();
+		this.livePoller = null;
 
 		document.addEventListener( 'input', ( evt ) => {
 			const input = evt.target;
@@ -66,11 +70,13 @@ export class InvestigateLookup {
 			root?.querySelectorAll( '[data-lookup-kind]' ).forEach(
 				( kind ) => kind.setAttribute( 'aria-pressed', String( kind === button ) )
 			);
-			// WordPress core opens straight away (it carries its subject); the other kinds list or search.
+			// WordPress core opens straight away (it carries its subject); the other kinds put away whatever
+			// is open, and list or search.
 			if ( button.getAttribute( 'data-lookup-kind' ) === 'core' ) {
 				this.clearResults( root );
 				return;
 			}
+			this.closeSubject( root?.closest( InvestigateLookup.LANDING ) );
 			this.search( root );
 			root?.querySelector( '[data-lookup-input="1"]' )?.focus();
 		} );
@@ -78,6 +84,17 @@ export class InvestigateLookup {
 		shieldEventsHandler_Main.add_Click( `${InvestigateLookup.LANDING} [data-investigate-tab]`, ( tab ) => {
 			this.activate( tab.closest( InvestigateLookup.LANDING ), tab.getAttribute( 'data-investigate-tab' ) || 'lookup' );
 		}, true );
+
+		// The menu's links to the tabs open them in place too.
+		document.addEventListener( 'click', ( evt ) => {
+			const link = evt.target instanceof Element ? evt.target.closest( '#NavSideBar a[href]' ) : null;
+			const landing = document.querySelector( InvestigateLookup.LANDING );
+			const tab = link instanceof HTMLAnchorElement && landing instanceof HTMLElement ? this.tabForHref( landing, link.href ) : '';
+			if ( tab !== '' && !evt.defaultPrevented && evt.button === 0 && !evt.metaKey && !evt.ctrlKey && !evt.shiftKey ) {
+				evt.preventDefault();
+				this.activate( landing, tab );
+			}
+		} );
 
 		// Choosing a result hands the space to the subject, even when another subject was already open.
 		shieldEventsHandler_Main.add_Click( `${InvestigateLookup.ROOT} .investigate-lookup__row`, ( row ) => {
@@ -87,31 +104,26 @@ export class InvestigateLookup {
 			root instanceof HTMLElement && this.setStatus( root, '' );
 		} );
 
-		// A subject opening beneath the lookup takes the results' place; the tabs follow what's open.
-		[ 'shield:drill-to', 'shield:drill-back' ].forEach( ( name ) => document.addEventListener( name, ( evt ) => {
+		// A subject opening beneath the lookup takes the results' place.
+		document.addEventListener( 'shield:drill-to', ( evt ) => {
 			const landing = evt.target instanceof Element ? evt.target.closest( InvestigateLookup.LANDING ) : null;
-			if ( !( landing instanceof HTMLElement ) ) {
-				return;
-			}
-			if ( name === 'shield:drill-to' ) {
+			if ( landing instanceof HTMLElement ) {
 				const results = landing.querySelector( '[data-lookup-results="1"]' );
 				results instanceof HTMLElement && ( results.hidden = true );
 				this.setStatus( landing, '' );
 			}
-			window.setTimeout( () => this.syncTabs( landing ) );
-		} ) );
+		} );
 
 		this.startCurrentTab();
 	}
 
 	/**
-	 * A link straight to a log tab starts that tab's table.
+	 * A link straight to a tab starts what that tab runs.
 	 */
 	startCurrentTab() {
 		const landing = document.querySelector( InvestigateLookup.LANDING );
-		const tab = landing instanceof HTMLElement ? String( landing.dataset.investigateCurrentTab || '' ) : '';
-		if ( tab in InvestigateLookup.TABLES ) {
-			this.startTable( tab );
+		if ( landing instanceof HTMLElement ) {
+			this.startTab( landing, String( landing.dataset.investigateCurrentTab || 'lookup' ) );
 		}
 	}
 
@@ -123,27 +135,95 @@ export class InvestigateLookup {
 		if ( !( landing instanceof HTMLElement ) ) {
 			return;
 		}
-		const shell = landing.querySelector( '[data-drill-shell="1"]' );
-		// Live traffic only runs while its tab is open.
-		if ( tab !== 'live' && this.isLiveOpen( landing ) && shell instanceof HTMLElement ) {
-			shieldAppMain?.components?.drill_down?.drillTo( shell, 0 );
-		}
-
 		this.showTab( landing, tab );
-		if ( tab in InvestigateLookup.TABLES ) {
-			this.startTable( tab );
-		}
+		this.startTab( landing, tab );
 		if ( tab === 'lookup' ) {
 			const input = landing.querySelector( '[data-lookup-input="1"]' );
 			input instanceof HTMLElement && input.focus();
 		}
 
-		const url = new URL( window.location.href );
-		[ 'tab', 'subject' ].forEach( ( param ) => url.searchParams.delete( param ) );
-		if ( tab !== 'lookup' ) {
-			url.searchParams.set( 'tab', tab );
+		// The address is the tab's own link, so a reload or a copied link opens this tab.
+		const link = landing.querySelector( `a[data-investigate-tab="${tab}"]` );
+		if ( link instanceof HTMLAnchorElement && link.href !== window.location.href ) {
+			window.history.replaceState( window.history.state, '', link.href );
 		}
-		window.history.replaceState( window.history.state, '', url.toString() );
+	}
+
+	/**
+	 * @param {HTMLElement} landing
+	 * @param {string} tab
+	 */
+	startTab( landing, tab ) {
+		if ( tab in InvestigateLookup.TABLES ) {
+			this.startTable( tab );
+		}
+		tab === 'live' ? this.startLive( landing ) : this.stopLive();
+	}
+
+	/**
+	 * The tab that a link leads to, if it leads to one and to nothing more.
+	 * @param {HTMLElement} landing
+	 * @param {string} href
+	 * @return {string}
+	 */
+	tabForHref( landing, href ) {
+		const route = ( url ) => {
+			const params = new URL( url, window.location.href ).searchParams;
+			// A link carrying more than its route (say, an IP to analyse) leads somewhere of its own.
+			return [ ...params.keys() ].every( ( key ) => [ 'page', 'nav', 'nav_sub' ].includes( key ) )
+				? `${params.get( 'nav' ) || ''}/${params.get( 'nav_sub' ) || ''}`
+				: '';
+		};
+		const wanted = route( href );
+		const link = wanted === '' ? null : [ ...landing.querySelectorAll( 'a[data-investigate-tab]' ) ].find(
+			( candidate ) => candidate instanceof HTMLAnchorElement && route( candidate.href ) === wanted
+		);
+		return link ? String( link.getAttribute( 'data-investigate-tab' ) || '' ) : '';
+	}
+
+	/**
+	 * @param {HTMLElement} landing
+	 */
+	startLive( landing ) {
+		const panel = landing.querySelector( '[data-investigate-tabpanel="live"]' );
+		const requestData = window?.shield_vars_main?.comps?.traffic?.ajax?.render_live || null;
+		if ( !( panel instanceof HTMLElement ) || !requestData ) {
+			return;
+		}
+		if ( this.livePoller === null ) {
+			const section = panel.querySelector( '#SectionTrafficLiveLogs' ) || panel;
+			const output = () => panel.querySelector( '.live_logs .output' );
+			let lastFailure = null;
+			this.livePoller = new LiveTrafficPoller( {
+				requestData,
+				onSuccess: ( resp ) => {
+					if ( output() instanceof HTMLElement && typeof resp?.data?.html === 'string' ) {
+						output().innerHTML = resp.data.html;
+					}
+					// Say when it's ready, and again when it recovers, but not on every update.
+					if ( lastFailure !== '' ) {
+						lastFailure = '';
+						announceStatus( section, section.dataset?.liveLogsReady || '', { politeness: 'polite', allowRepeat: false } );
+					}
+				},
+				onFailure: ( resp ) => {
+					const message = String( resp?.data?.message || resp?.error || section.dataset?.liveLogsError || '' );
+					if ( message !== '' && message !== lastFailure ) {
+						lastFailure = message;
+						const note = document.createElement( 'div' );
+						note.className = 'text-muted small';
+						note.textContent = message;
+						output()?.replaceChildren( note );
+						announceStatus( section, message, { politeness: 'assertive' } );
+					}
+				},
+			} );
+		}
+		this.livePoller.start();
+	}
+
+	stopLive() {
+		this.livePoller?.stop();
 	}
 
 	/**
@@ -163,33 +243,25 @@ export class InvestigateLookup {
 			}
 		} );
 		const subjects = landing.querySelector( '[data-investigate-section="drilldown"]' );
-		subjects instanceof HTMLElement && ( subjects.hidden = ![ 'lookup', 'live' ].includes( tab ) );
+		subjects instanceof HTMLElement && ( subjects.hidden = tab !== 'lookup' );
+
+		// The menu marks the tab that's open.
+		document.querySelectorAll( '#NavSideBar .sidebar-tools a.tool-item[href]' ).forEach( ( item ) => {
+			if ( item instanceof HTMLAnchorElement ) {
+				item.classList.toggle( 'active', this.tabForHref( landing, item.href ) === tab );
+			}
+		} );
 	}
 
 	/**
-	 * @param {HTMLElement} landing
+	 * Puts away whatever subject is open beneath the lookup.
+	 * @param {Element|null} landing
 	 */
-	syncTabs( landing ) {
-		const current = String( landing.dataset.investigateCurrentTab || 'lookup' );
-		if ( this.isLiveOpen( landing ) ) {
-			current !== 'live' && this.showTab( landing, 'live' );
+	closeSubject( landing ) {
+		const shell = landing instanceof HTMLElement ? landing.querySelector( '[data-drill-shell="1"]' ) : null;
+		if ( shell instanceof HTMLElement && getActiveLayerIndex( getLayersForShell( shell ) ) > 0 ) {
+			shieldAppMain?.components?.drill_down?.drillTo( shell, 0 );
 		}
-		else if ( current === 'live' ) {
-			this.showTab( landing, 'lookup' );
-		}
-	}
-
-	/**
-	 * @param {HTMLElement} landing
-	 * @return {boolean}
-	 */
-	isLiveOpen( landing ) {
-		const shell = landing.querySelector( '[data-drill-shell="1"]' );
-		const panel = landing.querySelector( '[data-investigate-panel="1"]' );
-		return shell instanceof HTMLElement
-			&& getActiveLayerIndex( getLayersForShell( shell ) ) > 0
-			&& panel instanceof HTMLElement
-			&& panel.dataset.investigatePanelSubject === 'live_traffic';
 	}
 
 	/**
@@ -244,6 +316,18 @@ export class InvestigateLookup {
 			results?.replaceChildren();
 			this.setStatus( root, '' );
 			return;
+		}
+		// Some kinds are too many to list, so they wait for something to search for.
+		const prompt = String( root.querySelector( `[data-lookup-kind="${kind}"]` )?.getAttribute( 'data-lookup-prompt' ) || '' );
+		if ( text.length === 0 && prompt.length > 0 ) {
+			intro instanceof HTMLElement && ( intro.hidden = true );
+			results?.replaceChildren();
+			this.setStatus( root, prompt );
+			return;
+		}
+		// A new search takes the place of whatever was open.
+		if ( text.length > 0 ) {
+			this.closeSubject( root.closest( InvestigateLookup.LANDING ) );
 		}
 		intro instanceof HTMLElement && ( intro.hidden = true );
 		results instanceof HTMLElement && ( results.hidden = false );

@@ -8,15 +8,6 @@ class TrafficLogLivePanelBody extends PageTrafficLogBase {
 	public const TEMPLATE = '/wpadmin/components/investigate/live_traffic_body.twig';
 	protected const LIVE_LOG_OWNER = 'investigate_panel';
 
-	protected function getPageContextualHrefs() :array {
-		$hrefs = parent::getPageContextualHrefs();
-		\array_unshift( $hrefs, [
-			'title' => __( 'Switch To Normal Logs', 'wp-simple-firewall' ),
-			'href'  => self::con()->plugin_urls->trafficLog(),
-		] );
-		return $hrefs;
-	}
-
 	protected function getRenderData() :array {
 		$timeRemaining = self::con()->comps->opts_lookup->getTrafficLiveLogTimeRemaining();
 

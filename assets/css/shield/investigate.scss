@@ -278,66 +278,6 @@
 	}
 }
 
-/* Tabs across the top of Investigate: the lookup, the logs and live traffic */
-.investigate-tabs {
-	align-items: flex-end;
-	border-bottom: 1px solid #dcdcde;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem 1rem;
-	justify-content: space-between;
-	margin-bottom: 1.25rem;
-}
-
-.investigate-tabs__list {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.25rem;
-}
-
-.investigate-tabs__tab {
-	align-items: center;
-	border-bottom: 3px solid transparent;
-	color: #50575e;
-	display: inline-flex;
-	font-size: 13.5px;
-	font-weight: 500;
-	gap: 0.45rem;
-	margin-bottom: -1px;
-	padding: 0.6rem 0.85rem 0.55rem;
-	text-decoration: none;
-
-	&:hover,
-	&:focus-visible {
-		color: #1d2327;
-	}
-
-	&:focus-visible {
-		outline: 2px solid $mode-investigate;
-		outline-offset: -2px;
-	}
-
-	&.is-current {
-		border-bottom-color: $mode-investigate;
-		color: #1d2327;
-		font-weight: 600;
-
-		i {
-			color: $mode-investigate;
-		}
-	}
-}
-
-.investigate-tabs__live-dot {
-	background: #d63638;
-	border-radius: 50%;
-	box-shadow: 0 0 0 3px rgba(214, 54, 56, 0.18);
-	display: inline-block;
-	height: 8px;
-	width: 8px;
-}
-
-
 /* The lookup */
 .investigate-lookup {
 	display: grid;
@@ -541,23 +481,18 @@
 
 /* On a narrow screen the tabs stay on one line and scroll sideways. */
 @media (max-width: 600px) {
-	.investigate-tabs {
-		flex-wrap: nowrap;
-	}
-
-	.investigate-tabs__list {
-		flex-wrap: nowrap;
-		overflow-x: auto;
-		scrollbar-width: thin;
-	}
-
-	.investigate-tabs__tab {
-		white-space: nowrap;
-	}
-
 }
 
 /* The lookup sits above the subject it opens. */
 .investigate-landing__tabpanel[data-investigate-tabpanel="lookup"] {
 	margin-bottom: 1.25rem;
+}
+
+/* Downloads a log or IP rules tab offers, above its table. */
+.investigate-landing__log-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	justify-content: flex-end;
+	margin-bottom: 0.75rem;
 }

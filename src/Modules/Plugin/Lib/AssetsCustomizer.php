@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\InvestigateTabs;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
@@ -216,11 +217,7 @@ class AssetsCustomizer {
 			],
 			'investigate_landing' => [
 				'key'      => 'investigate_landing',
-				'required' => PluginNavs::GetNav() === PluginNavs::NAV_ACTIVITY
-							  && (
-								  PluginNavs::GetSubNav() === PluginNavs::SUBNAV_ACTIVITY_OVERVIEW
-								  || PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::GetSubNav() ) !== ''
-							  ),
+				'required' => $this->isInvestigateLanding(),
 				'handles'  => [
 					'main',
 				],
@@ -473,10 +470,7 @@ class AssetsCustomizer {
 				],
 				'data'    => function () {
 					$data = [];
-					if ( PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ) ) {
-						$data[ 'activity' ] = $this->activityLogTableData();
-					}
-					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) ) {
+					if ( $this->isInvestigateLanding() ) {
 						// Investigate holds the logs in its tabs, and starts each table when its tab first opens.
 						$data[ 'investigate_logs' ] = [
 							'activity' => $this->activityLogTableData(),
@@ -500,15 +494,6 @@ class AssetsCustomizer {
 								'datatables_init' => ( new ForImportExportSites() )->buildRaw(),
 							]
 						];
-					}
-					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ) ) {
-						$data[ 'ip_rules' ] = $this->ipRulesTableData();
-					}
-					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ) ) {
-						$data[ 'traffic' ] = $this->trafficLogTableData();
-					}
-					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS ) ) {
-						$data[ 'sessions' ] = $this->sessionsTableData();
 					}
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE ) ) {
 						$data[ 'security_rules' ] = [
@@ -715,6 +700,16 @@ class AssetsCustomizer {
 
 	private function isPluginOnboardingRequired() :bool {
 		return ( ( new TourManager() )->getTour()[ 'is_available' ] ?? false ) === true;
+	}
+
+	/**
+	 * Investigate's own route, its subjects' routes, and each of its tabs' routes all show Investigate.
+	 */
+	private function isInvestigateLanding() :bool {
+		$nav = PluginNavs::GetNav();
+		$subNav = PluginNavs::GetSubNav();
+		return InvestigateTabs::forRoute( $nav, $subNav ) !== ''
+			   || ( $nav === PluginNavs::NAV_ACTIVITY && PluginNavs::investigateSubjectKeyForSubNav( $subNav ) !== '' );
 	}
 
 	private function activityLogTableData() :array {

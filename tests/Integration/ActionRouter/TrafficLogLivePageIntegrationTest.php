@@ -79,23 +79,24 @@ class TrafficLogLivePageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertIsInt( $payload[ 'time_remaining' ] );
 	}
 
-	public function test_legacy_live_route_resolves_to_the_active_investigation_panel() :void {
+	public function test_live_route_opens_investigate_on_its_live_traffic_tab() :void {
 		$this->enablePremiumCapabilities( [ 'traffic_live_log' ] );
 		$route = ( new PageAdminPluginRouteResolver() )->resolve( [
 			Constants::NAV_ID => PluginNavs::NAV_TRAFFIC,
 			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_LIVE,
 		], true );
 		$this->assertSame( PageInvestigateLanding::class, $route[ 'delegate_action' ] );
-		$this->assertSame( PluginNavs::NAV_ACTIVITY, $route[ 'nav' ] );
-		$this->assertSame( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW, $route[ 'subnav' ] );
-		$this->assertSame( 'live_traffic', $route[ 'delegate_payload' ][ 'subject' ] ?? null );
+		$this->assertSame( PluginNavs::NAV_TRAFFIC, $route[ 'nav' ] );
+		$this->assertSame( PluginNavs::SUBNAV_LIVE, $route[ 'subnav' ] );
+
+		$this->assertRouteRenderOutputHealthy( $this->renderLiveTrafficPage(), 'live route' );
+
 		$landing = $this->processActionPayloadWithAdminBypass( $route[ 'delegate_action' ]::SLUG, $route[ 'delegate_payload' ] );
-		$this->assertRouteRenderOutputHealthy( $landing, 'live investigation landing' );
-		$this->assertSame( 1, $landing[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'active_index' ] ?? null );
-		$routePayload = $this->renderLiveTrafficPage();
-		$this->assertRouteRenderOutputHealthy( $routePayload, 'legacy live route' );
-		$routeRenderData = $this->requireRenderData( $routePayload );
-		$this->assertSame( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW, $routeRenderData[ 'vars' ][ 'active_module_settings' ] );
+		$this->assertRouteRenderOutputHealthy( $landing, 'live traffic tab' );
+		$landingData = $this->requireRenderData( $landing );
+		$this->assertSame( 'live', $landingData[ 'vars' ][ 'investigate_current_tab' ] ?? null );
+		$this->assertSame( 0, $landingData[ 'vars' ][ 'drill_shell' ][ 'active_index' ] ?? null );
+		$this->assertStringContainsString( 'SectionTrafficLiveLogs', (string)( $landingData[ 'vars' ][ 'investigate_live' ] ?? '' ) );
 	}
 
 	public function test_live_traffic_panel_contract_exposes_panel_owned_switch_state() :void {

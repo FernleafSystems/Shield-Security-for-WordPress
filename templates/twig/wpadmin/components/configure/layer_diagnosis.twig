@@ -49,13 +49,15 @@
 	 data-configure-zone="{{ diagnosis.zone_key }}"
 	 data-configure-layout="{{ zone_layout }}"
 	 id="{{ diagnosis_id }}">
-	{# The tab names the goal briefly; its full name and what it's for head the page. #}
-	<div class="configure-diagnosis__heading">
-		<h2 class="configure-diagnosis__title">{{ diagnosis.zone_label }}</h2>
-		{% if goal_summary|default('') is not empty %}
-			<p class="configure-diagnosis__summary">{{ goal_summary }}</p>
-		{% endif %}
-	</div>
+	{# The tab names the goal briefly; its full name and what it's for head the page (elsewhere, its own tab does). #}
+	{% if not is_embedded|default(false) %}
+		<div class="configure-diagnosis__heading">
+			<h2 class="configure-diagnosis__title">{{ diagnosis.zone_label }}</h2>
+			{% if goal_summary|default('') is not empty %}
+				<p class="configure-diagnosis__summary">{{ goal_summary }}</p>
+			{% endif %}
+		</div>
+	{% endif %}
 	{% if zone_tools is defined %}
 		<div class="configure-zone-tools" data-configure-zone-tools="1">
 			<div class="configure-zone-tools__filter">

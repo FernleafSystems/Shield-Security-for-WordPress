@@ -60,18 +60,18 @@ const routeAccessibilitySmokeScenarios = [
 	{
 		id: 'reports-list',
 		route: { nav: 'reports', nav_sub: 'overview', workspace: 'list' },
-		rootSelector: '[data-reports-workspace="list"]',
+		rootSelector: '[data-reports-tabpanel="list"]',
 	},
 	{
 		id: 'reports-charts',
 		route: { nav: 'reports', nav_sub: 'overview', workspace: 'charts' },
-		rootSelector: '[data-reports-workspace="charts"]',
+		rootSelector: '[data-reports-tabpanel="charts"]',
 		exercise: exerciseReportsChart,
 	},
 	{
 		id: 'activity-log',
 		route: { nav: 'activity', nav_sub: 'logs' },
-		rootSelector: '#SectionAuditTable',
+		rootSelector: '[data-investigate-tabpanel="activity"]',
 	},
 	{
 		id: 'web-request-log',
@@ -95,13 +95,13 @@ const routeAccessibilitySmokeScenarios = [
 	},
 	{
 		id: 'traffic-live',
-		route: { nav: 'activity', nav_sub: 'overview', subject: 'live_traffic' },
+		route: { nav: 'traffic', nav_sub: 'live' },
 		rootSelector: '#SectionTrafficLiveLogs',
 	},
 	{
 		id: 'ip-rules',
 		route: { nav: 'ips', nav_sub: 'rules' },
-		rootSelector: '#SectionIpRulesTable',
+		rootSelector: '[data-investigate-tabpanel="ip_rules"]',
 	},
 ];
 

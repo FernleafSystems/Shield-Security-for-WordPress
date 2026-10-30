@@ -262,28 +262,29 @@ test( 'drill back focuses the active layer when the original launcher is gone', 
 	await expect( page.locator( '[data-configure-search-input="1"]' ) ).toBeFocused();
 } );
 
-test( 'reports workspace drill keeps named regions, focus, and breadcrumb state', async ( { page } ) => {
+test( 'reports tabs open in place, keep their own links, and pass the axe contract', async ( { page } ) => {
 	await openShieldRoute( page, {
 		nav: 'reports',
 		nav_sub: 'overview',
 	} );
 
-	const rootLayer = page.locator( '[data-reports-landing="1"] [data-drill-layer-key="workspaces"]' ).first();
-	const workspaceLayer = page.locator( '[data-reports-landing="1"] [data-drill-layer-key="workspace"]' ).first();
-	const workspaceLauncher = page.locator( '[data-reports-landing="1"] [data-drill-target="workspace"]' ).first();
+	const tab = ( key ) => page.locator( `[data-reports-landing="1"] [data-reports-tab="${key}"]` );
+	const panel = ( key ) => page.locator( `[data-reports-landing="1"] [data-reports-tabpanel="${key}"]` );
 
-	await expectNamedRegion( rootLayer );
-	await expectNamedRegion( workspaceLayer, { hidden: true } );
-	await expect( rootLayer ).toHaveAttribute( 'aria-hidden', 'false' );
-	await expect( workspaceLayer ).toHaveAttribute( 'aria-hidden', 'true' );
+	await expect( tab( 'charts' ) ).toHaveAttribute( 'aria-current', 'page' );
+	await expect( panel( 'charts' ) ).toBeVisible();
+	await expect( panel( 'settings' ) ).toBeHidden();
 
-	await workspaceLauncher.click();
-	await expect( workspaceLayer ).toHaveAttribute( 'aria-hidden', 'false' );
-	await expect( rootLayer ).toHaveAttribute( 'aria-hidden', 'true' );
-	await expect.poll( () => activeElementDrillLayer( page ) ).toBe( '1' );
+	await tab( 'settings' ).click();
+	await expect( tab( 'settings' ) ).toHaveAttribute( 'aria-current', 'page' );
+	await expect( tab( 'charts' ) ).not.toHaveAttribute( 'aria-current', 'page' );
+	await expect( panel( 'settings' ) ).toBeVisible();
+	await expect( panel( 'charts' ) ).toBeHidden();
+	await expect.poll( () => new URL( page.url() ).searchParams.get( 'workspace' ) ).toBe( 'settings' );
+	// The settings are Configure's panels, open from the start.
+	await expect( panel( 'settings' ).locator( 'form.options_form_for--panel' ).first() ).toBeVisible( { timeout: 20_000 } );
 	await expect( page.locator( '[data-mode-shell="1"][data-mode="reports"] [data-operator-step-tab="1"][aria-current="step"]' ) ).toHaveCount( 1 );
-	await expectLiveRegionContract( page, '[data-reports-landing="1"]' );
-	await expectNoAxeViolations( page, '[data-reports-section="drilldown"]' );
+	await expectNoAxeViolations( page, '[data-reports-landing="1"]' );
 } );
 
 test( 'actions queue drill path keeps layer state, focus, announcements, and axe contract', async ( { page, fixtureApi } ) => {
@@ -474,16 +475,20 @@ test( 'investigate panel clears busy and loaded state when request is cancelled'
 	const panelLayer = page.locator( '[data-investigate-landing="1"] [data-drill-layer-key="panel"]' ).first();
 	const panel = page.locator( '[data-investigate-panel="1"]' ).first();
 	const panelContent = page.locator( '[data-investigate-panel-content="1"]' ).first();
-	const liveSubject = page.locator( '[data-drill-target="panel"][data-investigate-subject="live_traffic"]' ).first();
-	const renderAction = await liveSubject.evaluate( ( element ) => JSON.parse( element.getAttribute( 'data-investigate-render-action' ) || '{}' ) );
+	// A user from the lookup: unlike WordPress core, nothing loads it ahead of the click.
+	await page.locator( '[data-lookup-kind="user"]' ).click();
+	const userSubject = page.locator( '.investigate-lookup__row[data-investigate-subject="user"]' ).first();
+	await expect( userSubject ).toBeVisible( { timeout: 20_000 } );
+	const renderAction = await userSubject.evaluate( ( element ) => JSON.parse( element.getAttribute( 'data-investigate-render-action' ) || '{}' ) );
 	const panelRenderSlug = String( renderAction?.render_slug || '' ).trim();
 	expect( panelRenderSlug.length ).toBeGreaterThan( 0 );
 
 	const delayedPanel = await deferNextRenderSlug( page, panelRenderSlug );
-	await liveSubject.click();
+	await userSubject.click();
 	await expect( panelLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 	await expect( panelContent ).toHaveAttribute( 'aria-busy', 'true' );
-	await page.locator( '[data-investigate-tab="lookup"]' ).click();
+	// Choosing another kind puts the open subject away.
+	await page.locator( '[data-lookup-kind="plugin"]' ).click();
 	await expect( panelLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 	await expect( panelContent ).toHaveAttribute( 'aria-busy', 'false' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '0' );
@@ -504,13 +509,16 @@ test( 'investigate panel failure clears busy state and announces assertively', a
 	const panel = page.locator( '[data-investigate-panel="1"]' ).first();
 	const panelContent = page.locator( '[data-investigate-panel-content="1"]' ).first();
 	const liveRegion = drillLiveRegion( page, '[data-investigate-landing="1"]' );
-	const liveSubject = page.locator( '[data-drill-target="panel"][data-investigate-subject="live_traffic"]' ).first();
-	const renderAction = await liveSubject.evaluate( ( element ) => JSON.parse( element.getAttribute( 'data-investigate-render-action' ) || '{}' ) );
+	// A user from the lookup: unlike WordPress core, nothing loads it ahead of the click.
+	await page.locator( '[data-lookup-kind="user"]' ).click();
+	const userSubject = page.locator( '.investigate-lookup__row[data-investigate-subject="user"]' ).first();
+	await expect( userSubject ).toBeVisible( { timeout: 20_000 } );
+	const renderAction = await userSubject.evaluate( ( element ) => JSON.parse( element.getAttribute( 'data-investigate-render-action' ) || '{}' ) );
 	const panelRenderSlug = String( renderAction?.render_slug || '' ).trim();
 	expect( panelRenderSlug.length ).toBeGreaterThan( 0 );
 
 	const failedPanel = await failNextRenderSlug( page, panelRenderSlug );
-	await liveSubject.evaluate( ( element ) => element.click() );
+	await userSubject.evaluate( ( element ) => element.click() );
 	await expect( panelLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 	await expect( panelContent ).toHaveAttribute( 'aria-busy', 'true' );
 	await expect.poll( () => activeElementDrillLayer( page ) ).toBe( '1' );
@@ -520,7 +528,7 @@ test( 'investigate panel failure clears busy state and announces assertively', a
 	await expect( liveRegion ).toHaveAttribute( 'aria-live', 'assertive' );
 	await expectLiveRegionContract( page, '[data-investigate-landing="1"]' );
 	await expect.poll( () => activeElementDrillLayer( page ) ).toBe( '1' );
-	await page.locator( '[data-investigate-tab="lookup"]' ).click();
+	await page.locator( '[data-lookup-kind="plugin"]' ).click();
 	await expect( panelLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 	await expect( liveRegion ).toHaveAttribute( 'aria-live', 'polite' );
 	await expect( page.locator( '[data-lookup-input="1"]' ) ).toBeFocused();

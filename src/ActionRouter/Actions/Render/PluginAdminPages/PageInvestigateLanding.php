@@ -104,42 +104,76 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	protected function getLandingVars() :array {
 		$vars = parent::getLandingVars();
 		$vars[ 'investigate_current_tab' ] = $this->getCurrentTab();
-		$vars[ 'investigate_tabs' ] = $this->buildInvestigateTabs();
+		$vars[ 'investigate_tabs' ] = ( new InvestigateTabs() )->build( $this->getCurrentTab() );
 		$vars[ 'investigate_lookup' ] = $this->renderLookup();
-		$vars[ 'investigate_logs' ] = [
-			[ 'key' => InvestigateTabs::ACTIVITY, 'table_id' => 'ShieldTable-ActivityLog' ],
-			[ 'key' => InvestigateTabs::REQUESTS, 'table_id' => 'ShieldTable-TrafficViewer' ],
-			[ 'key' => InvestigateTabs::IP_RULES, 'table_id' => 'ShieldTable-IpRules' ],
-			[ 'key' => InvestigateTabs::SESSIONS, 'table_id' => 'ShieldTable-SessionsViewer' ],
-		];
+		$vars[ 'investigate_logs' ] = $this->buildLogTabs();
+		$vars[ 'investigate_live' ] = $this->renderLiveTab();
 		return $vars;
 	}
 
-	/**
-	 * The tab to open with: one asked for by link, or Live traffic when that is the subject.
-	 */
-	private function getCurrentTab() :string {
-		$tab = sanitize_key( $this->getTextInputFromRequestOrActionData( 'tab' ) );
-		if ( \in_array( $tab, InvestigateTabs::keys(), true ) ) {
-			return $tab;
-		}
-		return $this->getActiveSubject() === self::SUBJECT_LIVE_TRAFFIC ? InvestigateTabs::LIVE : InvestigateTabs::LOOKUP;
+	protected function renderLiveTab() :string {
+		return self::con()->action_router->render( TrafficLogLivePanelBody::class, [
+			Constants::NAV_ID     => PluginNavs::NAV_TRAFFIC,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_LIVE,
+		] );
 	}
 
 	/**
-	 * Every tab opens in place on this page: Live traffic carries the live subject so it opens like any
-	 * other subject.
-	 * @return array<string,mixed>
+	 * The log and IP rules tabs, each with the downloads its page used to offer.
+	 * @return list<array{key:string,table_id:string,actions:list<array<string,mixed>>}>
 	 */
-	private function buildInvestigateTabs() :array {
-		$tabs = ( new InvestigateTabs() )->build( $this->getCurrentTab() );
-		$liveTile = $this->getSubjectTileLookup()[ self::SUBJECT_LIVE_TRAFFIC ] ?? null;
-		foreach ( $tabs[ 'tabs' ] as &$tab ) {
-			if ( $tab[ 'key' ] === InvestigateTabs::LIVE && $liveTile !== null && $liveTile[ 'is_enabled' ] ) {
-				$tab[ 'attributes' ] = $this->subjectAttributes( $liveTile ) + [ 'data-drill-target' => 'panel' ];
-			}
+	protected function buildLogTabs() :array {
+		$con = self::con();
+		$noPremium = !$con->isPremiumActive();
+		return [
+			[
+				'key'      => InvestigateTabs::ACTIVITY,
+				'table_id' => 'ShieldTable-ActivityLog',
+				'actions'  => [],
+			],
+			[
+				'key'      => InvestigateTabs::REQUESTS,
+				'table_id' => 'ShieldTable-TrafficViewer',
+				'actions'  => [
+					[
+						'title'    => __( 'Download Request Logs', 'wp-simple-firewall' ),
+						'href'     => $con->plugin_urls->fileDownloadAsStream( 'traffic' ),
+						'disabled' => $noPremium,
+					],
+				],
+			],
+			[
+				'key'      => InvestigateTabs::IP_RULES,
+				'table_id' => 'ShieldTable-IpRules',
+				'actions'  => [
+					[
+						'title'    => __( 'Download IP Rules as CSV', 'wp-simple-firewall' ),
+						'href'     => $con->plugin_urls->fileDownloadAsStream( 'ip_rules' ),
+						'disabled' => $noPremium,
+					],
+				],
+			],
+			[
+				'key'      => InvestigateTabs::SESSIONS,
+				'table_id' => 'ShieldTable-SessionsViewer',
+				'actions'  => [],
+			],
+		];
+	}
+
+	/**
+	 * The tab to open with: the one whose link brought us here, or the lookup.
+	 */
+	private function getCurrentTab() :string {
+		$tab = InvestigateTabs::forRoute(
+			sanitize_key( (string)( $this->action_data[ Constants::NAV_ID ] ?? '' ) ),
+			sanitize_key( (string)( $this->action_data[ Constants::NAV_SUB_ID ] ?? '' ) )
+		);
+		if ( sanitize_key( $this->getTextInputFromRequestOrActionData( 'subject' ) ) === self::SUBJECT_LIVE_TRAFFIC ) {
+			$tab = InvestigateTabs::LIVE;
 		}
-		return $tabs;
+		// A subject asked for by link opens beneath the lookup.
+		return $tab === '' || $this->getActiveSubject() !== '' ? InvestigateTabs::LOOKUP : $tab;
 	}
 
 	/**
@@ -172,11 +206,19 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		foreach ( $labels as $key => $label ) {
 			$tile = $this->getSubjectTileLookup()[ $key ] ?? null;
 			if ( $tile !== null && $tile[ 'is_enabled' ] ) {
-				// WordPress core is one thing, so choosing it opens it straight away.
+				$attributes = $this->subjectAttributes( $tile );
+				if ( $key === 'core' ) {
+					// WordPress core is one thing, so choosing it opens it straight away.
+					$attributes[ 'data-drill-target' ] = 'panel';
+				}
+				elseif ( $key === 'ip' ) {
+					// There are too many addresses to list, so they wait for something to search for.
+					$attributes[ 'data-lookup-prompt' ] = __( 'Type to search for IP addresses.', 'wp-simple-firewall' );
+				}
 				$kinds[] = [
 					'key'        => $key,
 					'label'      => $label,
-					'attributes' => $this->subjectAttributes( $tile ) + ( $key === 'core' ? [ 'data-drill-target' => 'panel' ] : [] ),
+					'attributes' => $attributes,
 				];
 			}
 		}
@@ -538,12 +580,11 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	private function getActiveSubject() :string {
 		if ( $this->activeSubjectCache === null ) {
 			$subject = sanitize_key( $this->getTextInputFromRequestOrActionData( 'subject' ) );
-			if ( $subject === '' && sanitize_key( $this->getTextInputFromRequestOrActionData( 'tab' ) ) === InvestigateTabs::LIVE ) {
-				$subject = self::SUBJECT_LIVE_TRAFFIC;
-			}
 			$definitions = $this->getSubjectDefinitions();
 
-			if ( !isset( $definitions[ $subject ] ) || !$definitions[ $subject ][ 'is_enabled' ] ) {
+			// Live traffic has its own tab.
+			if ( $subject === self::SUBJECT_LIVE_TRAFFIC
+				 || !isset( $definitions[ $subject ] ) || !$definitions[ $subject ][ 'is_enabled' ] ) {
 				$subject = '';
 			}
 

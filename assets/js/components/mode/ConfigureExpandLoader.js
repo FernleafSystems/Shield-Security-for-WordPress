@@ -79,8 +79,11 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		}
 	}
 
+	/**
+	 * Configure itself, or a page that shows some of Configure's settings (such as Reports).
+	 */
 	getConfigureRoot() {
-		const root = document.querySelector( '[data-configure-landing="1"]' );
+		const root = document.querySelector( '[data-configure-landing="1"], [data-configure-embed="1"]' );
 		return root instanceof HTMLElement ? root : null;
 	}
 

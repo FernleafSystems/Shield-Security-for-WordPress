@@ -47,24 +47,31 @@ const expectPanelState = async ( page, panel, { subject, isLoaded, lookupKey = '
 	}
 };
 
+const livePanelSelector = '[data-investigate-tabpanel="live"]';
+
 /**
  * The landing opens subjects from the lookup's results. A subject's own panel, with its picker, opens by
- * link (as pivots and older links do), and Live traffic opens from its tab.
+ * link (as pivots and older links do).
  */
 const openSubject = async ( page, subject ) => {
-	if ( subject !== 'live_traffic' ) {
-		await openShieldRoute( page, { nav: 'activity', nav_sub: 'overview', subject } );
-		return;
-	}
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'nav' ) === 'activity'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& url.searchParams.get( 'subject' ) === subject,
-			{ timeout: 20_000 }
-		),
-		page.locator( '[data-investigate-tab="live"]' ).click(),
-	] );
+	await openShieldRoute( page, { nav: 'activity', nav_sub: 'overview', subject } );
+};
+
+const expectRoute = async ( page, nav, subNav ) => {
+	await expect.poll( () => {
+		const url = new URL( page.url() );
+		return `${url.searchParams.get( 'nav' )}/${url.searchParams.get( 'nav_sub' )}`;
+	} ).toBe( `${nav}/${subNav}` );
+};
+
+/**
+ * Live traffic has its own tab, with its own link.
+ */
+const openLive = async ( page ) => {
+	await page.locator( '[data-investigate-tab="live"]' ).click();
+	await expect( page.locator( '[data-investigate-tab="live"]' ) ).toHaveAttribute( 'aria-current', 'page' );
+	await expect( page.locator( `${livePanelSelector} #SectionTrafficLiveLogs` ) ).toBeVisible();
+	await expectRoute( page, 'traffic', 'live' );
 };
 
 const lookupResult = async ( page, kind, search ) => {
@@ -128,7 +135,7 @@ test( 'a subject opened by link offers its picker and the self shortcut, and cha
 	await expect( page.locator( '.investigate-lookup__row[data-investigate-subject="user"]' ).first() ).toBeVisible();
 } );
 
-test( 'the lookup stays above an open subject, ready for the next search', async ( { page } ) => {
+test( 'the lookup stays above an open subject, and a new search puts the subject away', async ( { page } ) => {
 	await openShieldRoute( page, {
 		nav: 'activity',
 		nav_sub: 'overview',
@@ -153,9 +160,9 @@ test( 'the lookup stays above an open subject, ready for the next search', async
 	await expect( page.locator( '[data-lookup-input="1"]' ) ).toBeVisible();
 	await expectTrailAtInvestigate( page );
 
-	// Searching again brings results back above the subject, and choosing one replaces it.
+	// Searching again puts the subject away for the results, and choosing one opens it.
 	const plugin = await lookupResult( page, 'plugin', 'shield' );
-	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', 'user' );
+	await expect( page.locator( '[data-investigate-landing="1"] [data-drill-layer-key="panel"]' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 	await plugin.click();
 	await expectPanelState( page, panel, {
 		subject: 'plugin',
@@ -201,23 +208,26 @@ test( 'investigate lookup opens each kind of subject into the shared panel', asy
 	await expect( panel.locator( '#tabInvestigateCoreOverview' ) ).toBeVisible();
 	await expectTrailAtInvestigate( page );
 
-	await openSubject( page, 'live_traffic' );
-	await expectPanelState( page, panel, {
-		subject: 'live_traffic',
-		isLoaded: true,
-	} );
-	await expect( panel.locator( '#SectionTrafficLiveLogs' ) ).toBeVisible();
-	await expect( page.locator( '[data-investigate-tab="live"]' ) ).toHaveAttribute( 'aria-current', 'page' );
-	await expect( page.locator( '[data-lookup-input="1"]' ) ).toBeHidden();
-
-	// Leaving Live traffic stops it.
-	await page.locator( '[data-investigate-tab="lookup"]' ).click();
+	// Choosing another kind puts WordPress core away.
+	await page.locator( '[data-lookup-kind="user"]' ).click();
 	await expectPanelState( page, panel, {
 		subject: '',
 		isLoaded: false,
 	} );
+	await expect( page.locator( '.investigate-lookup__row[data-investigate-subject="user"]' ).first() ).toBeVisible();
+
+	// IP addresses are too many to list, so they wait for a search.
+	await page.locator( '[data-lookup-kind="ip"]' ).click();
+	await expect( page.locator( '[data-lookup-status="1"]' ) ).toHaveText( /\S/ );
+	await expect( page.locator( '.investigate-lookup__row' ) ).toHaveCount( 0 );
+
+	await openLive( page );
+	await expect( page.locator( '[data-lookup-input="1"]' ) ).toBeHidden();
+
+	await page.locator( '[data-investigate-tab="lookup"]' ).click();
 	await expect( page.locator( '[data-investigate-tab="lookup"]' ) ).toHaveAttribute( 'aria-current', 'page' );
 	await expect( page.locator( '[data-lookup-input="1"]' ) ).toBeVisible();
+	await expectRoute( page, 'activity', 'overview' );
 } );
 
 test( 'investigate tabs open the logs and IP rules in place, each loading when first opened', async ( { page } ) => {
@@ -240,20 +250,21 @@ test( 'investigate tabs open the logs and IP rules in place, each loading when f
 	await page.waitForTimeout( 1_000 );
 	expect( [ ...tableRequests.values() ].reduce( ( a, b ) => a + b, 0 ) ).toBe( 0 );
 
+	// Each tab's link is the one the menu has always used.
 	const tabs = [
-		[ 'activity', '#ShieldTable-ActivityLog' ],
-		[ 'requests', '#ShieldTable-TrafficViewer' ],
-		[ 'ip_rules', '#ShieldTable-IpRules' ],
-		[ 'sessions', '#ShieldTable-SessionsViewer' ],
+		[ 'activity', '#ShieldTable-ActivityLog', 'activity/logs' ],
+		[ 'requests', '#ShieldTable-TrafficViewer', 'traffic/logs' ],
+		[ 'ip_rules', '#ShieldTable-IpRules', 'ips/rules' ],
+		[ 'sessions', '#ShieldTable-SessionsViewer', 'activity/sessions' ],
 	];
-	for ( const [ tab, table ] of tabs ) {
+	for ( const [ tab, table, route ] of tabs ) {
 		await page.locator( `[data-investigate-tab="${tab}"]` ).click();
 		await expect( page.locator( `[data-investigate-tab="${tab}"]` ) ).toHaveAttribute( 'aria-current', 'page' );
 		await expect( page.locator( `[data-investigate-tabpanel="${tab}"]` ) ).toBeVisible();
 		await expect.poll( () => page.locator( table ).evaluate(
 			( element ) => Boolean( globalThis.jQuery?.fn?.dataTable?.isDataTable?.( element ) )
 		), { timeout: 20_000 } ).toBe( true );
-		await expect.poll( () => new URL( page.url() ).searchParams.get( 'tab' ) ).toBe( tab );
+		await expectRoute( page, ...route.split( '/' ) );
 	}
 
 	// Tabs switch in place, and a table already loaded isn't loaded again.
@@ -265,10 +276,17 @@ test( 'investigate tabs open the logs and IP rules in place, each loading when f
 	await expect( page.locator( '#ShieldTable-ActivityLog' ) ).toBeVisible();
 	expect( tableRequests.get( 'logtable_action' ) || 0 ).toBe( activityRequests );
 
-	// A link to a tab opens it directly.
-	await openShieldRoute( page, { nav: 'activity', nav_sub: 'overview', tab: 'sessions' } );
+	// A link to a tab opens it directly, and the menu's link to a tab opens it in place.
+	await openShieldRoute( page, { nav: 'activity', nav_sub: 'sessions' } );
 	await expect( page.locator( '[data-investigate-tab="sessions"]' ) ).toHaveAttribute( 'aria-current', 'page' );
 	await expect( page.locator( '[data-investigate-tabpanel="sessions"]' ) ).toBeVisible();
+	const menuLink = page.locator( '#NavSideBar .sidebar-tools a.tool-item[href*="nav=ips"][href*="nav_sub=rules"]' ).first();
+	if ( await menuLink.count() > 0 ) {
+		await menuLink.click();
+		await expect( page.locator( '[data-investigate-tab="ip_rules"]' ) ).toHaveAttribute( 'aria-current', 'page' );
+		await expect( menuLink ).toHaveClass( /active/ );
+		await expectRoute( page, 'ips', 'rules' );
+	}
 } );
 
 test( 'investigate landing deep link opens the IP panel with its context', async ( { page } ) => {
@@ -446,15 +464,11 @@ test( 'investigate landing loads a subject only when it is opened, and live traf
 	expect( userPanelRequestCount ).toBeGreaterThan( 0 );
 	expect( liveTrafficRequestCount ).toBe( 0 );
 
-	await openSubject( page, 'live_traffic' );
-	await expectPanelState( page, panel, {
-		subject: 'live_traffic',
-		isLoaded: true,
-	} );
+	await openLive( page );
 	await expect.poll( () => liveTrafficRequestCount ).toBeGreaterThan( 0 );
 } );
 
-test( 'investigate landing starts and stops live traffic polling with the live panel', async ( { page } ) => {
+test( 'investigate live traffic polls only while its tab is open, keeping what it showed', async ( { page } ) => {
 	const livePollWindowMs = 5_500;
 	let livePollCount = 0;
 
@@ -483,36 +497,24 @@ test( 'investigate landing starts and stops live traffic polling with the live p
 		nav_sub: 'overview',
 	} );
 
-	const panel = page.locator( panelSelector );
-	await openSubject( page, 'live_traffic' );
-
-	await expectPanelState( page, panel, {
-		subject: 'live_traffic',
-		isLoaded: true,
-	} );
-	await expect( panel.locator( '.live-poll-marker' ) ).toHaveCount( 1 );
+	const live = page.locator( livePanelSelector );
+	await openLive( page );
+	await expect( live.locator( '.live-poll-marker' ) ).toHaveCount( 1 );
 	expect( livePollCount ).toBe( 1 );
 
 	const maxPollCountAfterExit = livePollCount + 1;
-
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'nav' ) === 'activity'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& !url.searchParams.get( 'subject' ),
-			{ timeout: 20_000 }
-		),
-		page.locator( '[data-investigate-tab="lookup"]' ).click(),
-	] );
-
-	await expectPanelState( page, panel, {
-		subject: '',
-		isLoaded: false,
-	} );
+	await page.locator( '[data-investigate-tab="lookup"]' ).click();
+	await expectRoute( page, 'activity', 'overview' );
 	await page.waitForTimeout( livePollWindowMs + 500 );
 	expect( livePollCount ).toBeLessThanOrEqual( maxPollCountAfterExit );
 	await page.waitForTimeout( livePollWindowMs + 500 );
 	expect( livePollCount ).toBeLessThanOrEqual( maxPollCountAfterExit );
+
+	// Back on the tab, what it last showed is still there while it picks up again.
+	const pollsBeforeReturn = livePollCount;
+	await page.locator( '[data-investigate-tab="live"]' ).click();
+	await expect( live.locator( '.live-poll-marker' ) ).toHaveCount( 1 );
+	await expect.poll( () => livePollCount ).toBeGreaterThan( pollsBeforeReturn );
 } );
 
 test( 'investigate landing direct live traffic route starts one live poller', async ( { page } ) => {
@@ -539,17 +541,13 @@ test( 'investigate landing direct live traffic route starts one live poller', as
 	} );
 
 	await openShieldRoute( page, {
-		nav: 'activity',
-		nav_sub: 'overview',
-		subject: 'live_traffic',
+		nav: 'traffic',
+		nav_sub: 'live',
 	} );
 
-	const panel = page.locator( panelSelector );
-	await expectPanelState( page, panel, {
-		subject: 'live_traffic',
-		isLoaded: true,
-	} );
-	await expect( panel.locator( '.live-poll-marker' ) ).toHaveCount( 1 );
+	const live = page.locator( livePanelSelector );
+	await expect( page.locator( '[data-investigate-tab="live"]' ) ).toHaveAttribute( 'aria-current', 'page' );
+	await expect( live.locator( '.live-poll-marker' ) ).toHaveCount( 1 );
 	expect( livePollCount ).toBe( 1 );
 	await page.waitForTimeout( 750 );
 	expect( livePollCount ).toBe( 1 );
@@ -581,14 +579,8 @@ test( 'investigate live traffic panel toggle updates without page reload', async
 			nav_sub: 'overview',
 		} );
 
-		const panel = page.locator( panelSelector );
-		await openSubject( page, 'live_traffic' );
-		await expectPanelState( page, panel, {
-			subject: 'live_traffic',
-			isLoaded: true,
-		} );
-
-		const toggle = panel.locator( contract.selectors.toggle );
+		await openLive( page );
+		const toggle = page.locator( livePanelSelector ).locator( contract.selectors.toggle );
 		await expect( toggle ).toBeEnabled();
 		await expect( toggle ).not.toBeChecked();
 		const livePanelUrl = page.url();
@@ -657,13 +649,7 @@ test( 'investigate live traffic auth-refresh poll reloads the page from an authe
 		nav_sub: 'overview',
 	} );
 
-	const panel = page.locator( panelSelector );
-	await openSubject( page, 'live_traffic' );
-
-	await expectPanelState( page, panel, {
-		subject: 'live_traffic',
-		isLoaded: true,
-	} );
+	await openLive( page );
 	await expect.poll( () => livePollCount ).toBeGreaterThan( 0 );
 
 	captureNextLivePoll = true;

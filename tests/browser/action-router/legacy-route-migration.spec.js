@@ -12,9 +12,9 @@ for ( const workspace of [ 'list', 'settings', 'charts' ] ) {
 		const url = new URL( page.url() );
 		expect( url.searchParams.get( 'nav_sub' ) ).toBe( 'overview' );
 		expect( url.searchParams.get( 'workspace' ) ).toBe( workspace );
-		await expect( page.locator( `[data-reports-workspace="${workspace}"]` ) ).toBeVisible();
+		await expect( page.locator( `[data-reports-tabpanel="${workspace}"]` ) ).toBeVisible();
 		await page.reload();
-		await expect( page.locator( `[data-reports-workspace="${workspace}"]` ) ).toBeVisible();
+		await expect( page.locator( `[data-reports-tabpanel="${workspace}"]` ) ).toBeVisible();
 		expectNoRuntimeErrors( errors );
 	} );
 }

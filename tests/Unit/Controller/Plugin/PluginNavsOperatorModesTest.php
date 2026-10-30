@@ -11,8 +11,6 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Plugin;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
@@ -65,13 +63,8 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( \key( $workspace ), PluginNavs::reportsDefaultWorkspaceSubNav() );
 		$this->assertSame( PluginAdminPages\PageReportsLanding::class, $routeHandlers[ PluginNavs::SUBNAV_REPORTS_OVERVIEW ] );
 
-		foreach ( $workspace as $subNav => $definition ) {
+		foreach ( \array_keys( $workspace ) as $subNav ) {
 			$this->assertArrayNotHasKey( $subNav, $routeHandlers );
-			$this->assertContains( $definition[ 'render_action' ], [
-				OptionsFormFor::class,
-				Reports\PageReportsView::class,
-				Reports\ChartsTrends::class,
-			] );
 		}
 	}
 
@@ -112,14 +105,19 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			PluginAdminPages\PageInvestigateLanding::class,
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ][ 'handler' ]
 		);
-		$this->assertSame(
-			PluginAdminPages\PageUserSessions::class,
-			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_SESSIONS ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageActivityLogTable::class,
-			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_LOGS ][ 'handler' ]
-		);
+		// The logs, IP rules, sessions and live traffic keep their routes, which open their Investigate tab.
+		foreach ( [
+			[ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS ],
+			[ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ],
+			[ PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ],
+			[ PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ],
+			[ PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ],
+		] as [ $nav, $subNav ] ) {
+			$this->assertSame(
+				PluginAdminPages\PageInvestigateLanding::class,
+				$hierarchy[ $nav ][ 'sub_navs' ][ $subNav ][ 'handler' ]
+			);
+		}
 		foreach ( [
 			PluginNavs::SUBNAV_ACTIVITY_BY_USER,
 			PluginNavs::SUBNAV_ACTIVITY_BY_IP,

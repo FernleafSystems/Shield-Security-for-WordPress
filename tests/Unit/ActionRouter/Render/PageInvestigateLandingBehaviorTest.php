@@ -313,6 +313,14 @@ class PageInvestigateLandingUnitTestDouble extends PageInvestigateLanding {
 		return 'LOOKUP_HTML';
 	}
 
+	protected function renderLiveTab() :string {
+		return 'LIVE_HTML';
+	}
+
+	protected function buildLogTabs() :array {
+		return [];
+	}
+
 	protected function renderPanelLayer( string $activeSubject ) :string {
 		return 'PANEL_LAYER:'.$activeSubject;
 	}

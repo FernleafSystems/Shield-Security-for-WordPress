@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\{
 	ChartsTrends,
 	ReportsTable
@@ -10,46 +9,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 /**
- * @phpstan-type ReportsWorkspaceTile array{
- *   tag:string,
- *   status:string,
- *   icon_class:string,
- *   title:string,
- *   status_label:string,
- *   oneliner:string,
- *   action_label:string,
- *   data_drill_target:string,
- *   data_drill_zone_selection:string,
- *   data_drill_bucket_selection:string,
- *   data_drill_group_selection:string,
- *   data_reports_workspace_selection:string,
- *   is_disabled:bool,
- *   class_name:string,
- *   footer_links:list<array<string,string>>
- * }
- * @phpstan-type ReportsWorkspaceCard array{key:string,tile:ReportsWorkspaceTile}
- * @phpstan-type ReportsWorkspacePanel array{
- *   key:string,
- *   description:string,
- *   body:string,
- *   data_reports_workspace_selection:string,
- *   is_default:bool
- * }
- * @phpstan-type ReportsWorkspaceContracts array{
- *   cards:list<ReportsWorkspaceCard>,
- *   panels:list<ReportsWorkspacePanel>,
- *   headers:array<string,array>
- * }
+ * Reports is one page with tabs, like Investigate: charts and trends, the security reports, and the reporting
+ * and alerts settings. The settings are Configure's "Reports and alerts" goal, so they look and save exactly
+ * as they do there.
+ *
+ * @phpstan-type ReportsTab array{key:string,label:string,icon_class:string,href:string,is_current:bool}
+ * @phpstan-type ReportsTabPanel array{key:string,body:string}
  */
-class PageReportsLanding extends PageDrillDownLandingBase {
+class PageReportsLanding extends PageModeLandingBase {
+
+	use BuildsConfigureLandingData;
 
 	public const SLUG = 'plugin_admin_page_reports_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/reports_landing.twig';
-
-	/**
-	 * @var ReportsWorkspaceContracts|null
-	 */
-	private ?array $workspaceContractsCache = null;
+	public const SETTINGS_GOAL = 'alerts';
 
 	protected function getPageContextualHrefs() :array {
 		return self::con()->caps->canReportsLocal() ? [ [
@@ -68,16 +41,77 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 	}
 
 	protected function getLandingVars() :array {
-		return \array_merge( parent::getLandingVars(), [ 'reports_workspace' => $this->getRequestedWorkspace() ] );
+		return \array_merge( parent::getLandingVars(), [
+			'reports_current_tab' => $this->getCurrentTab(),
+			'reports_tabs'        => $this->buildTabs(),
+			'reports_panels'      => $this->buildTabPanels(),
+		] );
 	}
 
-	private function getRequestedWorkspace() :string {
+	/**
+	 * The tabs in the order they're shown. Each keeps the link it has always had.
+	 * @return array{label:string,tabs:list<ReportsTab>}
+	 */
+	protected function buildTabs() :array {
+		$definitions = PluginNavs::reportsWorkspaceDefinitions();
+		$icons = [
+			PluginNavs::SUBNAV_REPORTS_CHARTS   => 'bi bi-graph-up-arrow',
+			PluginNavs::SUBNAV_REPORTS_LIST     => 'bi bi-file-text',
+			PluginNavs::SUBNAV_REPORTS_SETTINGS => 'bi bi-sliders',
+		];
+		$tabs = [];
+		foreach ( $icons as $key => $icon ) {
+			$tabs[] = [
+				'key'        => $key,
+				'label'      => $definitions[ $key ][ 'menu_title' ],
+				'icon_class' => $icon,
+				'href'       => self::con()->plugin_urls->reportsHome( $key ),
+				'is_current' => $key === $this->getCurrentTab(),
+			];
+		}
+		return [
+			'label' => __( 'Reports', 'wp-simple-firewall' ),
+			'tabs'  => $tabs,
+		];
+	}
+
+	/**
+	 * @return list<ReportsTabPanel>
+	 */
+	protected function buildTabPanels() :array {
+		$router = self::con()->action_router;
+		return [
+			[
+				'key'  => PluginNavs::SUBNAV_REPORTS_CHARTS,
+				'body' => $router->render( ChartsTrends::class ),
+			],
+			[
+				'key'  => PluginNavs::SUBNAV_REPORTS_LIST,
+				'body' => $router->render( ReportsTable::class ),
+			],
+			[
+				'key'  => PluginNavs::SUBNAV_REPORTS_SETTINGS,
+				'body' => $this->renderSettings(),
+			],
+		];
+	}
+
+	/**
+	 * Configure's own panels for reports and alerts, without its filter and layout tools.
+	 */
+	protected function renderSettings() :string {
+		$data = $this->buildConfigureDiagnosisRenderData( self::SETTINGS_GOAL );
+		unset( $data[ 'zone_tools' ] );
+		$data[ 'is_embedded' ] = true;
+		return self::con()->comps->render
+			->setTemplate( '/wpadmin/components/configure/layer_diagnosis.twig' )
+			->setData( $data )
+			->render();
+	}
+
+	protected function getCurrentTab() :string {
 		$key = sanitize_key( $this->getTextInputFromRequestOrActionData( 'workspace' ) );
-		return isset( PluginNavs::reportsWorkspaceDefinitions()[ $key ] ) ? $key : '';
-	}
-
-	private function getWorkspaceHeader() :array {
-		return $this->getWorkspaceContracts()[ 'headers' ][ $this->getRequestedWorkspace() ] ?? $this->buildDefaultWorkspaceHeader();
+		return isset( PluginNavs::reportsWorkspaceDefinitions()[ $key ] ) ? $key : PluginNavs::SUBNAV_REPORTS_CHARTS;
 	}
 
 	protected function getLandingTitle() :string {
@@ -96,233 +130,13 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 		return PluginNavs::MODE_REPORTS;
 	}
 
-	protected function getLayers() :array {
-		return [
-			[
-				'key'    => 'workspaces',
-				'body'   => $this->renderWorkspacesLayer(),
-				'header' => [
-					'compact_back_label' => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Reports', 'wp-simple-firewall' ) ),
-					'breadcrumb_label'   => __( 'Workspaces', 'wp-simple-firewall' ),
-					'title'              => __( 'Workspaces', 'wp-simple-firewall' ),
-					'summary'            => __( 'Choose the reports workspace you want to open.', 'wp-simple-firewall' ),
-					'next_step'          => __( 'Open reports, adjust reporting settings, or chart recent trends.', 'wp-simple-firewall' ),
-					'icon_class'         => 'bi bi-grid-1x2',
-					'badge'              => __( 'Choose', 'wp-simple-firewall' ),
-					'badge_status'       => 'neutral',
-					'color_key'          => 'reports',
-				],
-			],
-			[
-				'key'    => 'workspace',
-				'body'   => $this->renderWorkspaceLayer(),
-				'header' => $this->getWorkspaceHeader(),
-			],
-		];
-	}
-
-	protected function getActiveLayerIndex() :int {
-		return $this->getRequestedWorkspace() === '' ? 0 : 1;
-	}
-
 	protected function getOperatorRootStep() :array {
 		return \array_replace(
 			parent::getOperatorRootStep(),
 			[
-				'focus'     => __( 'Security reports, delivery settings, and charts stay in the same in-page workspace.', 'wp-simple-firewall' ),
-				'next_step' => __( 'Choose a reports area to review, configure, or chart.', 'wp-simple-firewall' ),
+				'focus'     => __( 'Charts, security reports, and delivery settings each have their own tab.', 'wp-simple-firewall' ),
+				'next_step' => __( 'Choose the tab you need.', 'wp-simple-firewall' ),
 			]
 		);
-	}
-
-	protected function renderWorkspacesLayer() :string {
-		$workspaces = $this->getWorkspaceCards();
-
-		return self::con()->comps->render
-			->setTemplate( '/wpadmin/components/reports/layer_workspaces.twig' )
-			->setData( [
-				'workspaces' => $workspaces,
-			] )
-			->render();
-	}
-
-	protected function renderWorkspaceLayer() :string {
-		$workspaces = $this->getWorkspacePanels();
-
-		return self::con()->comps->render
-			->setTemplate( '/wpadmin/components/reports/layer_workspace.twig' )
-			->setData( [
-				'workspaces' => $workspaces,
-			] )
-			->render();
-	}
-
-	/**
-	 * @return list<ReportsWorkspaceCard>
-	 */
-	protected function getWorkspaceCards() :array {
-		return $this->getWorkspaceContracts()[ 'cards' ];
-	}
-
-	/**
-	 * @return list<ReportsWorkspacePanel>
-	 */
-	protected function getWorkspacePanels() :array {
-		return $this->getWorkspaceContracts()[ 'panels' ];
-	}
-
-	/**
-	 * @return ReportsWorkspaceContracts
-	 */
-	private function getWorkspaceContracts() :array {
-		if ( $this->workspaceContractsCache !== null ) {
-			return $this->workspaceContractsCache;
-		}
-
-		$workspaceDefinitions = PluginNavs::reportsWorkspaceDefinitions();
-		$settingsDefinition = $workspaceDefinitions[ PluginNavs::SUBNAV_REPORTS_SETTINGS ];
-		$workspaceBodies = [
-			PluginNavs::SUBNAV_REPORTS_LIST     => self::con()->action_router->render( ReportsTable::class ),
-			PluginNavs::SUBNAV_REPORTS_SETTINGS => self::con()->action_router->render(
-				OptionsFormFor::class,
-				( new ReportsSettingsActionDataBuilder() )->build( $settingsDefinition[ 'config_zone_component_slugs' ] )
-			),
-			PluginNavs::SUBNAV_REPORTS_CHARTS   => self::con()->action_router->render( ChartsTrends::class ),
-		];
-		$workspaceCopy = [
-			PluginNavs::SUBNAV_REPORTS_LIST     => [
-				'icon_class'   => 'bi bi-file-text',
-				'status'       => 'neutral',
-				'status_label' => __( 'Review', 'wp-simple-firewall' ),
-				'oneliner'     => __( 'Inspect report history and view the report details you need.', 'wp-simple-firewall' ),
-				'description'  => '',
-				'header'       => $this->buildWorkspaceHeader(
-					$workspaceDefinitions[ PluginNavs::SUBNAV_REPORTS_LIST ][ 'menu_title' ],
-					__( 'Review security reports.', 'wp-simple-firewall' ),
-					__( 'Use the table to inspect report history and open the report details you need.', 'wp-simple-firewall' ),
-					'bi bi-file-text',
-					__( 'Reports', 'wp-simple-firewall' )
-				),
-			],
-			PluginNavs::SUBNAV_REPORTS_SETTINGS => [
-				'icon_class'   => 'bi bi-sliders',
-				'status'       => 'neutral',
-				'status_label' => __( 'Configure', 'wp-simple-firewall' ),
-				'oneliner'     => __( 'Configure critical alert digests and informational status reports.', 'wp-simple-firewall' ),
-				'description'  => $settingsDefinition[ 'page_subtitle' ],
-				'header'       => $this->buildWorkspaceHeader(
-					$settingsDefinition[ 'menu_title' ],
-					$settingsDefinition[ 'page_subtitle' ],
-					__( 'Adjust alert digest and informational reporting settings, then save your changes.', 'wp-simple-firewall' ),
-					'bi bi-sliders',
-					__( 'Settings', 'wp-simple-firewall' )
-				),
-			],
-			PluginNavs::SUBNAV_REPORTS_CHARTS   => [
-				'icon_class'   => 'bi bi-graph-up-arrow',
-				'status'       => 'neutral',
-				'status_label' => __( 'Chart', 'wp-simple-firewall' ),
-				'oneliner'     => __( 'Compare key security events over fixed reporting periods in one chart.', 'wp-simple-firewall' ),
-				'description'  => '',
-				'header'       => $this->buildWorkspaceHeader(
-					$workspaceDefinitions[ PluginNavs::SUBNAV_REPORTS_CHARTS ][ 'menu_title' ],
-					'',
-					__( 'Select the events and period you want to compare, then update the chart.', 'wp-simple-firewall' ),
-					'bi bi-graph-up-arrow',
-					__( 'Trends', 'wp-simple-firewall' )
-				),
-			],
-		];
-
-		$cards = [];
-		$panels = [];
-
-		foreach ( $workspaceDefinitions as $workspaceKey => $workspaceDefinition ) {
-			if ( !isset( $workspaceCopy[ $workspaceKey ], $workspaceBodies[ $workspaceKey ] ) ) {
-				continue;
-			}
-
-			$selection = [
-				'key'        => $workspaceKey,
-				'label'      => $workspaceDefinition[ 'menu_title' ],
-				'status'     => $workspaceCopy[ $workspaceKey ][ 'status' ],
-				'icon_class' => $workspaceCopy[ $workspaceKey ][ 'icon_class' ],
-				'header'     => $workspaceCopy[ $workspaceKey ][ 'header' ],
-			];
-			$selectionJson = OperatorChromeContract::encodeJson( $selection );
-
-			$cards[] = [
-				'key'  => $workspaceKey,
-				'tile' => [
-					'tag'               => 'button',
-					'status'            => $workspaceCopy[ $workspaceKey ][ 'status' ],
-					'icon_class'        => $workspaceCopy[ $workspaceKey ][ 'icon_class' ],
-					'title'             => $workspaceDefinition[ 'menu_title' ],
-					'status_label'      => $workspaceCopy[ $workspaceKey ][ 'status_label' ],
-					'oneliner'          => $workspaceCopy[ $workspaceKey ][ 'oneliner' ],
-					'action_label'      => __( 'Open', 'wp-simple-firewall' ),
-					'data_drill_target' => 'workspace',
-					'data_drill_zone_selection' => '',
-					'data_drill_bucket_selection' => '',
-					'data_drill_group_selection' => '',
-					'data_reports_workspace_selection' => $selectionJson,
-					'is_disabled'       => false,
-					'class_name'        => 'operator-tile-card--reports',
-					'footer_links'      => [],
-				],
-			];
-
-			$panels[] = [
-				'key'                              => $workspaceKey,
-				'description'                      => $workspaceCopy[ $workspaceKey ][ 'description' ],
-				'body'                             => $workspaceBodies[ $workspaceKey ],
-				'data_reports_workspace_selection' => $selectionJson,
-				'is_default'                       => $workspaceKey === ( $this->getRequestedWorkspace() ?: PluginNavs::SUBNAV_REPORTS_LIST ),
-			];
-		}
-
-		$this->workspaceContractsCache = [
-			'cards'  => $cards,
-			'panels' => $panels,
-			'headers' => \array_map( static fn( array $workspace ) :array => $workspace[ 'header' ], $workspaceCopy ),
-		];
-
-		return $this->workspaceContractsCache;
-	}
-
-	private function buildDefaultWorkspaceHeader() :array {
-		return OperatorChromeContract::normalizeHeader( [
-			'compact_back_label' => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Workspaces', 'wp-simple-firewall' ) ),
-			'active_back_label'  => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Workspaces', 'wp-simple-firewall' ) ),
-			'breadcrumb_label'   => __( 'Workspace', 'wp-simple-firewall' ),
-			'title'              => __( 'Workspace', 'wp-simple-firewall' ),
-			'summary'            => __( 'Choose a reports workspace to continue.', 'wp-simple-firewall' ),
-			'next_step'          => __( 'Open reports, shared settings, or charts and trends.', 'wp-simple-firewall' ),
-			'icon_class'         => 'bi bi-layout-text-window-reverse',
-			'badge'              => __( 'Select', 'wp-simple-firewall' ),
-			'badge_status'       => 'neutral',
-			'color_key'          => 'neutral',
-		] );
-	}
-
-	private function buildWorkspaceHeader(
-		string $label,
-		string $summary,
-		string $nextStep,
-		string $iconClass,
-		string $badge
-	) :array {
-		return OperatorChromeContract::normalizeHeader( [
-			'compact_back_label' => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Workspaces', 'wp-simple-firewall' ) ),
-			'active_back_label'  => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Workspaces', 'wp-simple-firewall' ) ),
-			'breadcrumb_label'   => $label,
-			'title'              => $label,
-			'summary'            => \trim( $summary ),
-			'next_step'          => \trim( $nextStep ),
-			'icon_class'         => $iconClass,
-			'badge'              => $badge,
-			'badge_status'       => 'neutral',
-			'color_key'          => 'reports',
-		] );
 	}
 }

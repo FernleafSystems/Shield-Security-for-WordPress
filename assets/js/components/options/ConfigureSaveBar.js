@@ -187,7 +187,15 @@ export class ConfigureSaveBar extends BaseAutoExecComponent {
 				window.location.reload();
 				return;
 			}
-			forms.forEach( ( form ) => form.querySelectorAll( '.shield-option-item.is-dirty' ).forEach( ( item ) => item.classList.remove( 'is-dirty' ) ) );
+			if ( root.closest( '[data-configure-landing="1"]' ) === null ) {
+				// Elsewhere (such as Reports) the forms stay: what was saved is now what each control is compared
+				// against, so nothing reads as unsaved.
+				forms.forEach( ( form ) => this.markSaved( form ) );
+				this.refreshFor( forms[ 0 ] );
+			}
+			else {
+				forms.forEach( ( form ) => form.querySelectorAll( '.shield-option-item.is-dirty' ).forEach( ( item ) => item.classList.remove( 'is-dirty' ) ) );
+			}
 			// The Configure landing reloads the whole zone after a save, refreshing issues and every form.
 			forms[ 0 ].dispatchEvent( new CustomEvent( 'shield:expansion-form-saved', { bubbles: true } ) );
 		} )
@@ -196,6 +204,27 @@ export class ConfigureSaveBar extends BaseAutoExecComponent {
 			delete bar.dataset.busy;
 			saveButton.disabled = false;
 			saveButton.textContent = saveLabel;
+		} );
+	}
+
+	/**
+	 * @param {HTMLFormElement} form
+	 */
+	markSaved( form ) {
+		form.querySelectorAll( 'input, select, textarea' ).forEach( ( control ) => {
+			if ( control instanceof HTMLInputElement && [ 'checkbox', 'radio' ].includes( control.type ) ) {
+				control.defaultChecked = control.checked;
+			}
+			else if ( control instanceof HTMLSelectElement ) {
+				[ ...control.options ].forEach( ( option ) => option.defaultSelected = option.selected );
+			}
+			else if ( control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement ) {
+				control.defaultValue = control.value;
+			}
+		} );
+		form.querySelectorAll( '.shield-option-item.is-dirty' ).forEach( ( item ) => {
+			item.classList.remove( 'is-dirty' );
+			item.querySelector( '[data-option-unsaved="1"]' )?.setAttribute( 'hidden', '' );
 		} );
 	}
 

@@ -227,7 +227,7 @@ class PluginURLs {
 	}
 
 	public function trafficLive() :string {
-		return URL::Build( $this->investigateHome(), [ 'subject' => 'live_traffic' ] );
+		return $this->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE );
 	}
 
 	public function cfgForZoneComponent( string $componentSlug ) :string {
@@ -316,9 +316,6 @@ class PluginURLs {
 			if ( isset( PluginNavs::reportsWorkspaceDefinitions()[ $subNav ] ) ) {
 				return [ 'nav' => 'reports', 'nav_sub' => 'overview', 'workspace' => $subNav ];
 			}
-		}
-		elseif ( $nav === PluginNavs::NAV_TRAFFIC && $subNav === PluginNavs::SUBNAV_LIVE ) {
-			return [ 'nav' => 'activity', 'nav_sub' => 'overview', 'subject' => 'live_traffic' ];
 		}
 		elseif ( $nav === PluginNavs::NAV_TOOLS && $subNav === PluginNavs::SUBNAV_TOOLS_SESSIONS ) {
 			return [ 'nav' => 'activity', 'nav_sub' => 'sessions' ];
