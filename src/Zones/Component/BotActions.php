@@ -35,10 +35,10 @@ class BotActions extends Base {
 		}
 
 		foreach ( \array_keys( \array_filter( $signalStates, static fn( bool $enabled ) :bool => !$enabled ) ) as $signalKey ) {
-			$status[ 'exp' ][] = sprintf(
+			$status[ 'exp' ][] = $this->explanationFixedBy( sprintf(
 				__( "Visitors that repeatedly trigger the signal '%s' aren't penalised.", 'wp-simple-firewall' ),
 				$this->botSignalName( $signalKey )
-			);
+			), $signalKey );
 		}
 
 		if ( $status[ 'level' ] !== EnumEnabledStatus::BAD ) {

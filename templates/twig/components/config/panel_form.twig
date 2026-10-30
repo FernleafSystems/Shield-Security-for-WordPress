@@ -1,6 +1,6 @@
 {#
 	A Configure topic laid out as its own panel. It is a normal options form underneath (same fields, same
-	save action), so saving, unsaved markers, search focus and "Show me" all work as they do elsewhere.
+	save action), so saving, unsaved markers and search focus all work as they do elsewhere.
 #}
 {% import '/components/config/panel_macros.twig' as panel %}
 
@@ -16,6 +16,18 @@
 	<input type="hidden" name="all_opts_keys" value="{{ vars.all_opts_keys|join(',') }}" />
 
 	<div class="shield-panel">
+		{# Reasons that don't belong to one particular setting. #}
+		{% if vars.panel.notices is not empty %}
+			<ul class="shield-panel-notices">
+				{% for notice in vars.panel.notices %}
+					<li class="shield-panel-issue {{ notice.severity == 'critical' ? 'shield-panel-issue--critical' : 'shield-panel-issue--warning' }}">
+						<i class="bi {{ notice.severity == 'critical' ? 'bi-x-circle-fill' : 'bi-exclamation-triangle-fill' }}" aria-hidden="true"></i>
+						<span>{{ notice.text }}</span>
+					</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+
 		{% for block in vars.panel.blocks %}
 			<div class="shield-panel-block">
 				{% if block.heading is not empty %}
@@ -30,16 +42,16 @@
 		{% if vars.panel.more is not empty %}
 			<div class="shield-panel-more">
 				<button type="button"
-						class="shield-panel-more__toggle"
+						class="shield-panel-more__toggle{{ vars.panel.more_open ? ' is-open' : '' }}"
 						data-panel-more="1"
-						aria-expanded="false"
+						aria-expanded="{{ vars.panel.more_open ? 'true' : 'false' }}"
 						aria-controls="PanelMore-{{ unique_render_id }}">
 					{{ strings.more_options }}
 					<span class="shield-panel-more__count">{{ vars.panel.more|length }}</span>
 					<i class="bi bi-chevron-down" aria-hidden="true"></i>
 					<span class="shield-panel-more__summary">{{ vars.panel.more_summary }}</span>
 				</button>
-				<div class="shield-panel-more__body" id="PanelMore-{{ unique_render_id }}" hidden>
+				<div class="shield-panel-more__body" id="PanelMore-{{ unique_render_id }}" {% if not vars.panel.more_open %}hidden{% endif %}>
 					{% for item in vars.panel.more %}
 						<div class="shield-panel-block">
 							{{ panel.item( item, strings, hrefs ) }}

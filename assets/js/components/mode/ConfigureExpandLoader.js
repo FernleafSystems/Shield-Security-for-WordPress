@@ -480,8 +480,10 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 			return;
 		}
 
-		// Multi-selects submit as "key[]", so match either form of the name.
-		const field = expansion.querySelector( `[name="${focus.config_item}"], [name="${focus.config_item}[]"]` ) || null;
+		// The visible control comes first (a panel slider's named field is hidden); multi-selects submit as "key[]".
+		const field = expansion.querySelector( `[id="Opt-${focus.config_item}"]` )
+					  || expansion.querySelector( `[name="${focus.config_item}"], [name="${focus.config_item}[]"]` )
+					  || null;
 		if ( !( field instanceof HTMLElement ) ) {
 			this.clearPendingRequestedFocus();
 			return;

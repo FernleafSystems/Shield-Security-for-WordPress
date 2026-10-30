@@ -96,7 +96,10 @@ export class OptionDirtyState {
 	 * @return {string}
 	 */
 	static serialize( item, rendered ) {
-		return JSON.stringify( [ ...item.querySelectorAll( '.shield-option-control-col [name]' ) ].map( ( control ) => {
+		// A panel slider's range input has no name (a hidden field carries its value), but a hidden field's
+		// value is also its default, so the range itself is what shows whether it has moved.
+		const controls = item.querySelectorAll( '.shield-option-control-col [name], .shield-option-control-col input[type="range"]' );
+		return JSON.stringify( [ ...controls ].map( ( control ) => {
 			if ( control instanceof HTMLInputElement && ( control.type === 'checkbox' || control.type === 'radio' ) ) {
 				return rendered ? control.defaultChecked : control.checked;
 			}

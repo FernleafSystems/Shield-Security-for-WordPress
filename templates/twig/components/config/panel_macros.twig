@@ -1,19 +1,22 @@
 {#
-	One setting in a Configure panel: its name, help link and summary from the plugin, and a control chosen
-	for it in the panel layout. Every control is a plain form field named after its option, inside
-	.shield-option-control-col, so unsaved tracking and saving treat it like any other option.
-	Settings that only apply when this one is on follow it, indented, and fade while it is off.
+	One setting in a Configure panel: its name, help link and summary from the plugin, any reason it needs
+	attention, and a control chosen for it in the panel layout. Every control is a plain form field named
+	after its option, inside .shield-option-control-col, so unsaved tracking and saving treat it like any
+	other option. Settings that only apply when this one is on follow it, indented.
 #}
 {% macro item( item, strings, hrefs ) %}
 	{% import _self as panel %}
 	{% set option = item.option %}
-	<div class="shield-option-item shield-panel-item shield-panel-item--{{ item.control }} {{ item.stacked ? 'is-stacked' : 'is-inline' }}"
+	{% set severity = item.issues|map( i => i.severity )|filter( s => s == 'critical' )|length > 0 ? 'critical' : 'warning' %}
+	<div class="shield-option-item shield-panel-item shield-panel-item--{{ item.control }} {{ item.stacked ? 'is-stacked' : 'is-inline' }}{{ item.issues is not empty ? ' has-panel-issue has-panel-issue--'~severity : '' }}"
 		 data-option-key="{{ option.key }}">
 		<div class="shield-panel-item__text">
 			<div class="shield-panel-item__name">
-				<span class="option_label_name" id="Label-{{ option.key }}">{{ option.name }}</span>
-				{% if item.control == 'slider' %}
-					<span class="shield-panel-item__value{{ item.stops[ item.current_index ].value in [ '0', 'disabled' ] ? ' is-off' : '' }}" data-slider-value="1">{{ item.current_label }}</span>
+				{# A single control is labelled by the setting's name, so clicking the name works it. A group of choices names itself with aria-labelledby. #}
+				{% if item.control in [ 'chips', 'roles', 'radios', 'segmented' ] %}
+					<span class="option_label_name" id="Label-{{ option.key }}">{{ option.name }}</span>
+				{% else %}
+					<label class="option_label_name" id="Label-{{ option.key }}" for="Opt-{{ option.key }}">{{ option.name }}</label>
 				{% endif %}
 				{% if option.disabled and option.unavailable %}
 					<span class="shield-option-pill shield-option-pill--pro">{{ strings.opt_pro }}</span>
@@ -24,13 +27,23 @@
 			{% if option.summary is not empty %}
 				<div class="options-summary">{{ option.summary }}</div>
 			{% endif %}
+			{% if item.issues is not empty %}
+				<ul class="shield-panel-issues" id="Issues-{{ option.key }}">
+					{% for issue in item.issues %}
+						<li class="shield-panel-issue {{ issue.severity == 'critical' ? 'shield-panel-issue--critical' : 'shield-panel-issue--warning' }}">
+							<i class="bi {{ issue.severity == 'critical' ? 'bi-x-circle-fill' : 'bi-exclamation-triangle-fill' }}" aria-hidden="true"></i>
+							<span>{{ issue.text }}</span>
+						</li>
+					{% endfor %}
+				</ul>
+			{% endif %}
 		</div>
 		<div class="shield-option-control-col shield-panel-item__control">
 			{{ panel.control( item, strings ) }}
 		</div>
 	</div>
 	{% if item.children is not empty %}
-		<div class="shield-panel-children{{ item.is_on ? '' : ' is-off' }}" data-panel-children-of="{{ option.key }}">
+		<div class="shield-panel-children" data-panel-children-of="{{ option.key }}">
 			{% for child in item.children %}
 				{{ panel.item( child, strings, hrefs ) }}
 			{% endfor %}
@@ -55,6 +68,7 @@
 {% macro control( item, strings ) %}
 	{% set option = item.option %}
 	{% set is_disabled = option.disabled %}
+	{% set described_by = item.issues is not empty ? 'Issues-'~option.key : '' %}
 
 	{% if item.control == 'switch' %}
 		{# A two-choice select shown as a switch: when off, the hidden field sends "disabled". #}
@@ -66,41 +80,50 @@
 				   role="switch"
 				   value="{{ item.on_value }}"
 				   aria-labelledby="Label-{{ option.key }}"
+				   {% if described_by %}aria-describedby="{{ described_by }}"{% endif %}
 				   {% if is_disabled %}disabled="disabled"{% endif %}
 				   {% if option.value != 'disabled' %}checked="checked"{% endif %} />
 			<input type="hidden" name="{{ option.key }}" value="disabled" />
 		</div>
 
 	{% elseif item.control == 'slider' %}
+		{#
+			A native range input, so it drags, responds to a click anywhere on the track and works with the
+			keyboard. It moves between the stops; the hidden field carries the chosen stop's value, and the
+			chosen stop's name is shown beside the track as it moves.
+		#}
 		{% set last = item.stops|length - 1 %}
-		<fieldset class="shield-slider{{ is_disabled ? ' is-disabled' : '' }}"
-				  data-panel-slider="1"
-				  style="--shield-slider-pos: {{ last > 0 ? ( item.current_index / last * 100 )|round(2) : 0 }}%">
-			<legend class="visually-hidden">{{ option.name }}</legend>
-			<div class="shield-slider__track">
-				<span class="shield-slider__fill"></span>
-				{% for stop in item.stops %}
-					<label class="shield-slider__stop" style="left: {{ last > 0 ? ( loop.index0 / last * 100 )|round(2) : 0 }}%">
-						<input type="radio"
-							   class="shield-slider__input"
-							   name="{{ option.key }}"
-							   value="{{ stop.value }}"
-							   data-stop-label="{{ stop.label }}"
-							   data-stop-pos="{{ last > 0 ? ( loop.index0 / last * 100 )|round(2) : 0 }}"
-							   {% if is_disabled or not stop.is_available %}disabled="disabled"{% endif %}
-							   {% if loop.index0 == item.current_index %}checked="checked"{% endif %} />
-						<span class="visually-hidden">{{ stop.label }}</span>
-					</label>
-				{% endfor %}
+		{% set current = item.stops[ item.current_index ] %}
+		<div class="shield-range" data-panel-range="1">
+			<div class="shield-range__track">
+				<input type="range"
+					   class="shield-range__input"
+					   id="Opt-{{ option.key }}"
+					   min="0" max="{{ last }}" step="1"
+					   value="{{ item.current_index }}"
+					   data-stops="{{ item.stops|json_encode|e('html_attr') }}"
+					   aria-labelledby="Label-{{ option.key }}"
+					   aria-valuetext="{{ current.label }}"
+					   {% if described_by %}aria-describedby="{{ described_by }}"{% endif %}
+					   {% if is_disabled %}disabled="disabled"{% endif %}
+					   style="--shield-range-pos: {{ last > 0 ? ( item.current_index / last * 100 )|round(2) : 0 }}%" />
+				{# A tick for every step, and the two ends named, so the scale is visible before it's moved. #}
+				<div class="shield-range__ticks" aria-hidden="true">
+					{% for stop in item.stops %}<span title="{{ stop.label }}"></span>{% endfor %}
+				</div>
+				<div class="shield-range__ends" aria-hidden="true">
+					<span>{{ ( item.stops|first ).label }}</span>
+					<span>{{ ( item.stops|last ).label }}</span>
+				</div>
 			</div>
-			<div class="shield-slider__ends" aria-hidden="true">
-				<span>{{ item.stops|first.label }}</span>
-				<span>{{ item.stops|last.label }}</span>
-			</div>
-		</fieldset>
+			<output class="shield-range__value{{ current.value in [ '0', 'disabled' ] ? ' is-off' : '' }}"
+					for="Opt-{{ option.key }}" data-range-value="1">{{ current.label }}</output>
+			<input type="hidden" name="{{ option.key }}" value="{{ current.value }}" />
+		</div>
 
 	{% elseif item.control in [ 'segmented', 'radios' ] %}
-		<div class="{{ item.control == 'segmented' ? 'shield-seg' : 'shield-radio-list' }}" role="radiogroup" aria-labelledby="Label-{{ option.key }}">
+		<div class="{{ item.control == 'segmented' ? 'shield-seg' : 'shield-radio-list' }}" role="radiogroup" aria-labelledby="Label-{{ option.key }}"
+			 {% if described_by %}aria-describedby="{{ described_by }}"{% endif %}>
 			{% for option_value, choice in option.value_options %}
 				<label class="{{ item.control == 'segmented' ? 'shield-seg__opt' : 'shield-radio-list__opt' }}">
 					<input type="radio"
@@ -113,37 +136,27 @@
 			{% endfor %}
 		</div>
 
-	{% elseif item.control == 'chips' %}
-		<div class="shield-option-chipset shield-panel-chips" role="group" aria-labelledby="Label-{{ option.key }}">
-			{% for option_value, choice in option.value_options %}
-				{% set chip_disabled = is_disabled or not choice.is_available %}
-				<label class="shield-option-chip{% if chip_disabled %} is-disabled{% endif %}" for="Opt-{{ option.key }}_{{ option_value }}">
+	{% elseif item.control in [ 'chips', 'roles' ] %}
+		{% if item.control == 'roles' %}
+			{# The empty entry means "no roles" is still sent when nothing is ticked; a disabled control sends nothing. #}
+			<input type="hidden" name="{{ option.key }}[]" value="" {% if is_disabled %}disabled="disabled"{% endif %} />
+		{% endif %}
+		{% set choices = item.control == 'roles'
+			? item.roles
+			: option.value_options|map( ( c, v ) => { value: v, label: c.name, is_on: v in option.value, is_available: c.is_available } ) %}
+		<div class="shield-option-chipset shield-panel-chips" role="group" aria-labelledby="Label-{{ option.key }}"
+			 {% if described_by %}aria-describedby="{{ described_by }}"{% endif %}>
+			{% for choice in choices %}
+				{% set chip_disabled = is_disabled or not ( choice.is_available ?? true ) %}
+				<label class="shield-option-chip{% if chip_disabled %} is-disabled{% endif %}" for="Opt-{{ option.key }}_{{ choice.value }}">
 					<input type="checkbox"
 						   class="shield-option-chip__input"
-						   id="Opt-{{ option.key }}_{{ option_value }}"
+						   id="Opt-{{ option.key }}_{{ choice.value }}"
 						   name="{{ option.key }}[]"
-						   value="{{ option_value }}"
+						   value="{{ choice.value }}"
 						   {% if chip_disabled %}disabled="disabled"{% endif %}
-						   {% if option_value in option.value %}checked="checked"{% endif %} />
-					<span class="shield-option-chip__text">{{ choice.name|raw }}</span>
-				</label>
-			{% endfor %}
-		</div>
-
-	{% elseif item.control == 'roles' %}
-		{# The empty entry means "no roles" is still sent when nothing is ticked; a disabled control sends nothing. #}
-		<input type="hidden" name="{{ option.key }}[]" value="" {% if is_disabled %}disabled="disabled"{% endif %} />
-		<div class="shield-option-chipset shield-panel-chips" role="group" aria-labelledby="Label-{{ option.key }}">
-			{% for role in item.roles %}
-				<label class="shield-option-chip{% if is_disabled %} is-disabled{% endif %}" for="Opt-{{ option.key }}_{{ role.value }}">
-					<input type="checkbox"
-						   class="shield-option-chip__input"
-						   id="Opt-{{ option.key }}_{{ role.value }}"
-						   name="{{ option.key }}[]"
-						   value="{{ role.value }}"
-						   {% if is_disabled %}disabled="disabled"{% endif %}
-						   {% if role.is_on %}checked="checked"{% endif %} />
-					<span class="shield-option-chip__text">{{ role.label }}</span>
+						   {% if choice.is_on %}checked="checked"{% endif %} />
+					<span class="shield-option-chip__text">{{ choice.label|raw }}</span>
 				</label>
 			{% endfor %}
 		</div>

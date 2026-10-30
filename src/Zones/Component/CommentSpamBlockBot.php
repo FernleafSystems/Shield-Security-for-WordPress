@@ -29,7 +29,10 @@ class CommentSpamBlockBot extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = sprintf( __( "%s isn't protecting your WP Comments against bot SPAM.", 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
+			$status[ 'exp' ][] = $this->explanationFixedBy(
+				sprintf( __( "%s isn't protecting your WP Comments against bot SPAM.", 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) ),
+				'enable_antibot_comments'
+			);
 		}
 
 		return $status;

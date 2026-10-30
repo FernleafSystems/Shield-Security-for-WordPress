@@ -155,6 +155,8 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 
 		const query = String( root.querySelector( '[data-configure-zone-filter="1"]' )?.value || '' ).trim().toLowerCase();
 		const attentionOnly = root.querySelector( '[data-configure-zone-show="attention"][aria-pressed="true"]' ) !== null;
+		// Inside panels, "Needs attention" also leaves only the settings that need it (styled in config-panels).
+		root.toggleAttribute( 'data-attention-only', attentionOnly );
 		let visibleCount = 0;
 
 		root.querySelectorAll( ConfigureZoneTools.ITEM_SELECTOR ).forEach( ( item ) => {
@@ -178,7 +180,8 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 			item.hidden = !visible;
 			visibleCount += visible ? 1 : 0;
 
-			if ( visible && optionMatches > 0 && !rowMatches && root.dataset.configureLayout !== 'list' ) {
+			// Opening what needs attention (or matched only by its settings) shows the settings straight away.
+			if ( visible && ( attentionOnly || ( optionMatches > 0 && !rowMatches ) ) && root.dataset.configureLayout !== 'list' ) {
 				const panel = item.querySelector( '[data-shield-expand-body="1"]' );
 				panel && Collapse.getOrCreateInstance( panel, { toggle: false } ).show();
 			}

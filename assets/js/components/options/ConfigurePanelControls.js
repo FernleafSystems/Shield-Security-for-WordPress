@@ -1,29 +1,31 @@
 /**
- * Behaviour for Configure panels. The controls are plain form fields, so this only keeps what they show
- * in step: a slider's fill and value, settings that fade while the switch above them is off, and the
- * "More options" section. Panels are injected after page load, so everything is delegated.
+ * Behaviour for Configure panels. A slider is a native range input that moves between the setting's
+ * stops: as it moves, this copies the chosen stop's value into the setting's hidden field and shows the
+ * stop's name beside the track. It also opens and closes "More options". Panels are injected after page
+ * load, so everything is delegated.
  */
 export class ConfigurePanelControls {
 
 	static PANEL_SELECTOR = 'form.options_form_for--panel';
 
 	constructor() {
-		document.addEventListener( 'change', ( evt ) => {
-			const control = evt.target;
-			if ( !( control instanceof HTMLInputElement ) || control.closest( ConfigurePanelControls.PANEL_SELECTOR ) === null ) {
-				return;
+		// Runs before unsaved-change tracking sees the event, so the hidden field is already up to date.
+		const onRange = ( evt ) => {
+			const range = evt.target;
+			if ( range instanceof HTMLInputElement && range.classList.contains( 'shield-range__input' ) ) {
+				ConfigurePanelControls.syncRange( range );
 			}
-			if ( control.classList.contains( 'shield-slider__input' ) ) {
-				ConfigurePanelControls.syncSlider( control.closest( '[data-panel-slider="1"]' ) );
-			}
-			ConfigurePanelControls.syncChildren( control );
-		} );
+		};
+		document.addEventListener( 'input', onRange );
+		document.addEventListener( 'change', onRange );
 
-		// Discarding changes resets the form, which fires no change events.
+		// Discarding changes resets the form, which fires no input events.
 		document.addEventListener( 'reset', ( evt ) => {
 			const form = evt.target;
 			if ( form instanceof HTMLFormElement && form.matches( ConfigurePanelControls.PANEL_SELECTOR ) ) {
-				window.setTimeout( () => ConfigurePanelControls.syncForm( form ) );
+				window.setTimeout( () => form.querySelectorAll( '.shield-range__input' ).forEach(
+					( range ) => range instanceof HTMLInputElement && ConfigurePanelControls.syncRange( range )
+				) );
 			}
 		} );
 
@@ -36,7 +38,7 @@ export class ConfigurePanelControls {
 	}
 
 	/**
-	 * Opens a panel's "More options" when a field inside it is the target of a search or "Show me".
+	 * Opens a panel's "More options" when a field inside it is the target of a search.
 	 * @param {Element} field
 	 */
 	static revealMoreOptions( field ) {
@@ -54,55 +56,34 @@ export class ConfigurePanelControls {
 	}
 
 	/**
-	 * @param {HTMLFormElement} form
+	 * @param {HTMLInputElement} range
 	 */
-	static syncForm( form ) {
-		form.querySelectorAll( '[data-panel-slider="1"]' ).forEach( ( slider ) => ConfigurePanelControls.syncSlider( slider ) );
-		form.querySelectorAll( '[data-panel-children-of]' ).forEach( ( children ) => {
-			const parentKey = children.getAttribute( 'data-panel-children-of' ) || '';
-			const parent = form.querySelector( `[name="${CSS.escape( parentKey )}"]` );
-			parent instanceof HTMLInputElement && ConfigurePanelControls.syncChildren( parent );
-		} );
-	}
+	static syncRange( range ) {
+		let stops = [];
+		try {
+			stops = JSON.parse( range.dataset.stops || '[]' );
+		}
+		catch {
+			return;
+		}
+		const index = Math.min( Math.max( parseInt( range.value, 10 ) || 0, 0 ), stops.length - 1 );
+		const stop = stops[ index ];
+		if ( !stop ) {
+			return;
+		}
 
-	/**
-	 * @param {Element|null} slider
-	 */
-	static syncSlider( slider ) {
-		if ( !( slider instanceof HTMLElement ) ) {
-			return;
+		const wrap = range.closest( '[data-panel-range="1"]' );
+		const hidden = wrap?.querySelector( 'input[type="hidden"]' );
+		if ( hidden instanceof HTMLInputElement ) {
+			hidden.value = String( stop.value );
 		}
-		const checked = slider.querySelector( '.shield-slider__input:checked' );
-		if ( !( checked instanceof HTMLInputElement ) ) {
-			return;
+		const output = wrap?.querySelector( '[data-range-value="1"]' );
+		if ( output instanceof HTMLElement ) {
+			output.textContent = stop.label;
+			output.classList.toggle( 'is-off', stop.value === '0' || stop.value === 'disabled' );
 		}
-		slider.style.setProperty( '--shield-slider-pos', `${checked.dataset.stopPos || 0}%` );
-		const value = slider.closest( '.shield-option-item' )?.querySelector( '[data-slider-value="1"]' );
-		if ( value instanceof HTMLElement ) {
-			value.textContent = checked.dataset.stopLabel || '';
-			value.classList.toggle( 'is-off', checked.value === '0' || checked.value === 'disabled' );
-		}
-	}
-
-	/**
-	 * Fades the settings beneath a switch (or an "Off"-able slider) while it is off.
-	 * @param {HTMLInputElement} control
-	 */
-	static syncChildren( control ) {
-		const form = control.form;
-		const children = form?.querySelector( `[data-panel-children-of="${CSS.escape( control.name )}"]` );
-		if ( !( children instanceof HTMLElement ) ) {
-			return;
-		}
-		let isOn;
-		if ( control.type === 'radio' ) {
-			const checked = form.querySelector( `[name="${CSS.escape( control.name )}"]:checked` );
-			isOn = checked instanceof HTMLInputElement && checked.value !== '0' && checked.value !== 'disabled';
-		}
-		else {
-			const toggle = form.querySelector( `input[type="checkbox"][name="${CSS.escape( control.name )}"]` );
-			isOn = toggle instanceof HTMLInputElement ? toggle.checked : true;
-		}
-		children.classList.toggle( 'is-off', !isOn );
+		range.setAttribute( 'aria-valuetext', stop.label );
+		const last = Math.max( stops.length - 1, 1 );
+		range.style.setProperty( '--shield-range-pos', `${( index / last ) * 100}%` );
 	}
 }

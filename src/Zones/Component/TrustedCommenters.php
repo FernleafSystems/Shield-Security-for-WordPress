@@ -31,7 +31,10 @@ class TrustedCommenters extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( 'New commenters can be auto-approved before they have an established history.', 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy(
+				__( 'New commenters can be auto-approved before they have an established history.', 'wp-simple-firewall' ),
+				'trusted_commenter_minimum'
+			);
 		}
 		return $status;
 	}

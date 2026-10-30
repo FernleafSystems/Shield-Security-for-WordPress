@@ -74,6 +74,21 @@ async function isChoiceSelect( form, option ) {
 	return option.type === 'select' && await form.locator( `#${option.control_id}` ).count() === 0;
 }
 
+/**
+ * Configure panels show some settings as a slider: a range input that moves between steps, with the
+ * chosen step's value in a hidden field named after the option.
+ */
+function sliderControl( form, option ) {
+	return form.locator( `input.shield-range__input#${option.control_id}` );
+}
+
+async function moveSlider( slider, value ) {
+	const stops = JSON.parse( await slider.getAttribute( 'data-stops' ) || '[]' );
+	const index = stops.findIndex( ( stop ) => stop.value === String( value ) );
+	expect( index, `slider has a step for ${value}` ).toBeGreaterThan( -1 );
+	await slider.fill( String( index ) );
+}
+
 // A setting under a panel's "More options" is hidden until that section is opened.
 async function revealControl( form, control ) {
 	if ( !await control.isVisible() ) {
@@ -87,6 +102,12 @@ async function revealControl( form, control ) {
 async function expectControlValue( form, option, expectedValue ) {
 	if ( await isChoiceSelect( form, option ) ) {
 		await expect( choiceControl( form, option, String( expectedValue ) ) ).toBeChecked();
+		return;
+	}
+
+	if ( await sliderControl( form, option ).count() > 0 ) {
+		const key = option.control_id.replace( /^Opt-/, '' );
+		await expect( form.locator( `input[type="hidden"][name="${key}"]` ) ).toHaveValue( String( expectedValue ) );
 		return;
 	}
 
@@ -117,6 +138,11 @@ async function applyOptionValue( form, option ) {
 	const control = form.locator( `#${option.control_id}` );
 	await expect( control ).toBeAttached();
 	await revealControl( form, control );
+
+	if ( await sliderControl( form, option ).count() > 0 ) {
+		await moveSlider( control, option.save );
+		return;
+	}
 
 	if ( option.type === 'checkbox' ) {
 		await control.setChecked( option.save === 'Y', { force: true } );

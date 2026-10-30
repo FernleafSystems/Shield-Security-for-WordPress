@@ -1,5 +1,7 @@
 {% set row = item.row %}
 {% set expand = item.expand %}
+{# A Configure topic shows why it needs attention on the settings themselves, inside its panel. #}
+{% set is_panel = expand.data_attributes.configure_panel|default('') is not empty %}
 
 <div class="shield-detail-item shield-detail-item--configure"{% if expand.is_expandable %} data-configure-row-key="{{ expand.row_key|e('html_attr') }}"{% endif %}>
 	{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: row|merge( {
@@ -9,7 +11,7 @@
 		expand_accessible_label: expand.accessible_label,
 		expand_title: expand.title,
 		attributes: row.attributes
-	} ) } only %}
+	}|merge( is_panel ? { explanations: [], explanation_actions: [] } : {} ) ) } only %}
 
 	{% if expand.is_expandable %}
 		{% set expansion_body %}
@@ -22,7 +24,7 @@
 			</div>
 			{# Why the component is flagged, in both layouts, with the settings that fix it marked once they load. #}
 			{% set issue_options = row.explanation_actions|default( [] )|map( a => a.attributes['data-option-key']|default('') )|filter( k => k is not empty ) %}
-			{% if row.status in [ 'warning', 'critical' ] and row.explanations is not empty %}
+			{% if not is_panel and row.status in [ 'warning', 'critical' ] and row.explanations is not empty %}
 				<ul class="configure-expansion-issues configure-expansion-issues--{{ row.status }}"
 					data-configure-issue-options="{{ issue_options|join(',') }}">
 					{% for explanation in row.explanations %}

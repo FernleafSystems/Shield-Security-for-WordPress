@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureGoalPanels;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 /**
  * Turns a topic's panel layout into render data: each item gets its option's display data (name, summary,
@@ -12,6 +14,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 class ConfigurePanelBuilder {
 
 	use PluginControllerConsumer;
+
+	/**
+	 * @var array<string,list<array{text:string,severity:string}>>
+	 */
+	private array $issuesByOption = [];
 
 	/**
 	 * @return array{goal:string,topic:string}|null
@@ -31,6 +38,8 @@ class ConfigurePanelBuilder {
 	public function build( string $goalKey, string $topicKey, array $displayOptions ) :array {
 		$topic = ConfigureGoalPanels::goals()[ $goalKey ][ 'topics' ][ $topicKey ];
 		$headings = ConfigureGoalPanels::labels()[ 'headings' ];
+		$issues = $this->topicIssues( \array_keys( $displayOptions ) );
+		$this->issuesByOption = $issues[ 'by_option' ];
 
 		$blocks = [];
 		foreach ( $topic[ 'blocks' ] as $block ) {
@@ -49,9 +58,83 @@ class ConfigurePanelBuilder {
 			'goal'         => $goalKey,
 			'topic'        => $topicKey,
 			'blocks'       => $blocks,
+			'notices'      => $issues[ 'notices' ],
 			'more'         => $more,
 			'more_summary' => \implode( ', ', \array_map( fn( array $item ) => $item[ 'option' ][ 'name' ], $more ) ),
+			// A setting that needs attention is never left hidden away.
+			'more_open'    => $this->itemsHaveIssues( $more ),
 		];
+	}
+
+	/**
+	 * Why each setting needs attention, from the statuses of the components behind the topic. An explanation
+	 * that names the setting which fixes it is shown on that setting; any others are shown at the top of
+	 * the panel. Explanations fixed by a setting in another topic are left to that topic.
+	 * @param list<string> $optionKeys
+	 * @return array{
+	 *   by_option:array<string,list<array{text:string,severity:string}>>,
+	 *   notices:list<array{text:string,severity:string}>
+	 * }
+	 */
+	private function topicIssues( array $optionKeys ) :array {
+		$options = self::con()->cfg->configuration->options;
+		$slugs = [];
+		foreach ( $optionKeys as $optionKey ) {
+			foreach ( $options[ $optionKey ][ 'zone_comp_slugs' ] ?? [] as $slug ) {
+				if ( \strpos( (string)$slug, 'module_' ) !== 0 && !\in_array( $slug, $slugs, true ) ) {
+					$slugs[] = (string)$slug;
+				}
+			}
+		}
+
+		$byOption = [];
+		$notices = [];
+		$seen = [];
+		foreach ( $slugs as $slug ) {
+			try {
+				$rows = self::con()->comps->zones->getZoneComponent( $slug )->configureRows();
+			}
+			catch ( \Exception $e ) {
+				continue;
+			}
+			foreach ( $rows as $row ) {
+				if ( empty( \array_intersect( $row[ 'config_scope' ][ 'option_keys' ], $optionKeys ) ) ) {
+					continue;
+				}
+				$severity = EnumEnabledStatus::toSeverity( $row[ 'enabled_status' ], 'good' );
+				if ( !\in_array( $severity, [ 'warning', 'critical' ], true ) ) {
+					continue;
+				}
+				// Explanations record the setting that fixes them as they're built, so read the lookup afterwards.
+				$fixLookup = Component\Base::explanationFixLookup();
+				foreach ( $row[ 'explanations' ] as $explanation ) {
+					$text = \trim( (string)$explanation );
+					if ( $text === '' || isset( $seen[ $text ] ) ) {
+						continue;
+					}
+					$seen[ $text ] = true;
+					$fixedBy = $fixLookup[ $text ] ?? '';
+					$issue = [ 'text' => $text, 'severity' => $severity ];
+					if ( $fixedBy === '' ) {
+						$notices[] = $issue;
+					}
+					elseif ( \in_array( $fixedBy, $optionKeys, true ) ) {
+						$byOption[ $fixedBy ][] = $issue;
+					}
+				}
+			}
+		}
+
+		return [ 'by_option' => $byOption, 'notices' => $notices ];
+	}
+
+	private function itemsHaveIssues( array $items ) :bool {
+		foreach ( $items as $item ) {
+			if ( !empty( $item[ 'issues' ] ) || $this->itemsHaveIssues( $item[ 'children' ] ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private function buildItems( array $layoutItems, array $displayOptions ) :array {
@@ -65,10 +148,12 @@ class ConfigurePanelBuilder {
 				'key'      => $layoutItem[ 'key' ],
 				'control'  => $layoutItem[ 'control' ],
 				'option'   => $option,
-				'stacked'  => \in_array( $layoutItem[ 'control' ], [ 'slider', 'chips', 'roles', 'radios' ], true )
-							  || ( $layoutItem[ 'control' ] === 'field' && \in_array( $option[ 'type' ], [ 'array', 'password' ], true ) ),
+				// Choices that need room sit beneath their name; everything else sits beside it.
+				'stacked'  => \in_array( $layoutItem[ 'control' ], [ 'chips', 'roles', 'radios' ], true )
+							  || ( $layoutItem[ 'control' ] === 'field' && $option[ 'type' ] === 'array' ),
 				'children' => $this->buildItems( $layoutItem[ 'children' ] ?? [], $displayOptions ),
 				'is_on'    => $this->isOn( $layoutItem[ 'control' ], $option ),
+				'issues'   => $this->issuesByOption[ $layoutItem[ 'key' ] ] ?? [],
 			];
 
 			switch ( $layoutItem[ 'control' ] ) {

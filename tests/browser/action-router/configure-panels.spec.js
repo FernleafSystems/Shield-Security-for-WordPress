@@ -38,6 +38,13 @@ async function save( page ) {
 	await expect( saveBar( page ) ).toBeHidden( { timeout: 20_000 } );
 }
 
+async function moveSlider( slider, value ) {
+	const stops = JSON.parse( await slider.getAttribute( 'data-stops' ) || '[]' );
+	const index = stops.findIndex( ( stop ) => stop.value === String( value ) );
+	expect( index, `slider has a step for ${value}` ).toBeGreaterThan( -1 );
+	await slider.fill( String( index ) );
+}
+
 test( 'configure home lists the protection goals', async ( { page } ) => {
 	await openShieldRoute( page, { nav: 'zones', nav_sub: 'overview' } );
 	const goals = page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' );
@@ -56,23 +63,29 @@ test( 'a panel slider and switch save and reload like any other setting', async 
 	let form = await openTopic( page, 'sessions' );
 
 	const lifetime = form.locator( '[data-option-key="session_timeout_interval"]' );
-	const originalLifetime = await lifetime.locator( 'input[type="radio"]:checked' ).getAttribute( 'value' );
+	const originalLifetime = await lifetime.locator( 'input[type="hidden"][name="session_timeout_interval"]' ).inputValue();
 	const nextLifetime = originalLifetime === '7' ? '14' : '7';
-	await lifetime.locator( `label:has(input[value="${nextLifetime}"])` ).click();
-	await expect( lifetime.locator( '[data-slider-value="1"]' ) ).toContainText( nextLifetime );
+	await moveSlider( lifetime.locator( 'input.shield-range__input' ), nextLifetime );
+	await expect( lifetime.locator( 'input[type="hidden"][name="session_timeout_interval"]' ) ).toHaveValue( nextLifetime );
+	await expect( lifetime.locator( '[data-range-value="1"]' ) ).toContainText( nextLifetime );
 	await expect( lifetime.locator( '[data-option-unsaved="1"]' ) ).toBeVisible();
+
+	// Clicking a setting's name works its control.
+	const notifyLabel = form.locator( 'label[for="Opt-enable_user_login_email_notification"]' );
+	await expect( notifyLabel ).toBeVisible();
 
 	const notify = form.locator( 'input[name="enable_user_login_email_notification"]' );
 	const notifyWasOn = await notify.isChecked();
-	await form.locator( '[data-option-key="enable_user_login_email_notification"] .form-switch' ).click();
+	await notifyLabel.click();
+	await expect( notify ).toBeChecked( { checked: !notifyWasOn } );
 
 	await save( page );
 	form = await openTopic( page, 'sessions' );
-	await expect( form.locator( `[data-option-key="session_timeout_interval"] input[value="${nextLifetime}"]` ) ).toBeChecked();
+	await expect( form.locator( 'input[type="hidden"][name="session_timeout_interval"]' ) ).toHaveValue( nextLifetime );
 	await expect( form.locator( 'input[name="enable_user_login_email_notification"]' ) ).toBeChecked( { checked: !notifyWasOn } );
 
 	// Put things back.
-	await form.locator( `[data-option-key="session_timeout_interval"] label:has(input[value="${originalLifetime}"])` ).click();
+	await moveSlider( form.locator( '[data-option-key="session_timeout_interval"] input.shield-range__input' ), originalLifetime );
 	await form.locator( '[data-option-key="enable_user_login_email_notification"] .form-switch' ).click();
 	await save( page );
 } );
@@ -143,13 +156,31 @@ test( 'open panels pass the accessibility checks', async ( { page } ) => {
 	await expectNoAxeViolations( page, '[data-configure-diagnosis="1"]' );
 } );
 
-test( 'more options stay tucked away until opened', async ( { page } ) => {
+test( 'needs attention leaves only the settings that need attention, each saying why', async ( { page } ) => {
+	await openGoal( page, 'accounts' );
+	await diagnosis( page ).locator( '[data-configure-zone-show="attention"]' ).click();
+	const form = diagnosis( page ).locator( '[data-configure-row-key="sessions"] form.options_form_for--panel' );
+	await expect( form ).toBeVisible( { timeout: 20_000 } );
+
+	const flagged = form.locator( '.shield-panel-item.has-panel-issue' );
+	await expect( flagged.first() ).toBeVisible();
+	await expect( flagged.first().locator( '.shield-panel-issue' ).first() ).not.toBeEmpty();
+	await expect( form.locator( '.shield-panel-item:not(.has-panel-issue)' ).first() ).toBeHidden();
+
+	await diagnosis( page ).locator( '[data-configure-zone-show="all"]' ).click();
+	await expect( form.locator( '.shield-panel-item:not(.has-panel-issue)' ).first() ).toBeVisible();
+} );
+
+test( 'more options stay tucked away unless something in them needs attention', async ( { page } ) => {
 	await openGoal( page, 'spam' );
 	const form = await openTopic( page, 'comment_spam' );
 	const more = form.locator( '[data-panel-more="1"]' );
 	const trusted = form.locator( '[data-option-key="trusted_commenter_minimum"]' );
-	await expect( trusted ).toBeHidden();
+	const needsAttention = await form.locator( '.shield-panel-more__body .has-panel-issue' ).count() > 0;
+
+	await expect( more ).toHaveAttribute( 'aria-expanded', String( needsAttention ) );
+	await expect( trusted ).toBeVisible( { visible: needsAttention } );
 	await more.click();
-	await expect( more ).toHaveAttribute( 'aria-expanded', 'true' );
-	await expect( trusted ).toBeVisible();
+	await expect( more ).toHaveAttribute( 'aria-expanded', String( !needsAttention ) );
+	await expect( trusted ).toBeVisible( { visible: !needsAttention } );
 } );

@@ -547,7 +547,7 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	await expect( targetExpansion ).toHaveClass( /show/, { timeout: 20_000 } );
 	await expect.poll( () => new URL( page.url() ).searchParams.get( 'zone' ) || '' ).toBe( 'spam' );
 	await expect(
-		page.locator( `[data-configure-row-key="${targetRowKey}"] form.options_form_for [name="comments_cooldown"]` ).first()
+		page.locator( `[data-configure-row-key="${targetRowKey}"] form.options_form_for [id="Opt-comments_cooldown"]` ).first()
 	).toBeVisible( { timeout: 20_000 } );
 	expect( await page.evaluate( () => window.__configureSearchSentinel ) ).toBe( 'in-place-search' );
 	await expect( searchInput ).toHaveValue( '' );
