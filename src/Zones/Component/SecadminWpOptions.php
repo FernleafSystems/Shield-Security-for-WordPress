@@ -30,7 +30,7 @@ class SecadminWpOptions extends Base {
 			}
 			else {
 				$status[ 'level' ] = EnumEnabledStatus::OKAY;
-				$status[ 'exp' ][] = __( "A PIN needs to be set to enable the Security Admin.", 'wp-simple-firewall' );
+				$status[ 'exp' ][] = $this->explanationFixedBy( __( "A PIN needs to be set to enable the Security Admin.", 'wp-simple-firewall' ), 'admin_access_key' );
 			}
 		}
 		else {

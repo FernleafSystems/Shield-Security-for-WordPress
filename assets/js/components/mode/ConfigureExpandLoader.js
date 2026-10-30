@@ -128,6 +128,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 
 		placeholder.replaceWith( form );
 		this.markIssueOptions( form, expansion );
+		form.dispatchEvent( new CustomEvent( 'shield:configure-panel-loaded', { bubbles: true } ) );
 		this.setSaveButtonDisabled( expansion, false );
 		if ( expansion?.classList.contains( 'show' ) ) {
 			UiContentActivator.activateCurrentSubtree( expansion );

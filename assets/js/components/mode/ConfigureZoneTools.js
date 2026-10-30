@@ -2,6 +2,7 @@ import { Collapse } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
+import { ConfigurePanelControls } from "../options/ConfigurePanelControls";
 
 /**
  * Tools above a Configure zone's components: an in-place filter, a "Needs attention" view, and
@@ -53,6 +54,14 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 		document.addEventListener( 'hide.bs.collapse', ( evt ) => {
 			if ( this.listRootFor( evt.target ) !== null ) {
 				evt.preventDefault();
+			}
+		} );
+
+		// Settings arrive as their topics load; a narrowed view applies to them as they do.
+		document.addEventListener( 'shield:configure-panel-loaded', ( evt ) => {
+			const root = evt.target instanceof Element ? evt.target.closest( ConfigureZoneTools.ROOT_SELECTOR ) : null;
+			if ( root instanceof HTMLElement && ( root.hasAttribute( 'data-filtering' ) || root.hasAttribute( 'data-attention-only' ) ) ) {
+				this.applyFilters( root );
 			}
 		} );
 
@@ -146,6 +155,9 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 	}
 
 	/**
+	 * The filter matches each setting's name and summary, so it loads every topic's settings first and
+	 * is applied again as each arrives. A topic whose own name matches keeps all its settings; otherwise
+	 * only the matching settings show, and groups left empty are hidden (styled in config-panels).
 	 * @param {HTMLElement|null} root
 	 */
 	applyFilters( root ) {
@@ -157,31 +169,42 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 		const attentionOnly = root.querySelector( '[data-configure-zone-show="attention"][aria-pressed="true"]' ) !== null;
 		// Inside panels, "Needs attention" also leaves only the settings that need it (styled in config-panels).
 		root.toggleAttribute( 'data-attention-only', attentionOnly );
+		root.toggleAttribute( 'data-filtering', query.length > 0 );
+		if ( query.length > 0 ) {
+			shieldAppMain?.components?.configure_expand_loader?.preloadExpansionForms();
+		}
 		let visibleCount = 0;
 
 		root.querySelectorAll( ConfigureZoneTools.ITEM_SELECTOR ).forEach( ( item ) => {
 			const row = item.querySelector( '.shield-detail-row' );
 			const needsAttention = row?.matches( '.shield-detail-row--warning, .shield-detail-row--critical' ) ?? false;
-			const rowMatches = query.length === 0 || String( row?.textContent || '' ).toLowerCase().includes( query );
+			const titleMatches = query.length > 0
+				&& String( row?.querySelector( '.shield-detail-row__title' )?.textContent || '' ).toLowerCase().includes( query );
 
+			const options = [ ...item.querySelectorAll( '.shield-option-item' ) ];
 			let optionMatches = 0;
-			item.querySelectorAll( '.shield-option-item' ).forEach( ( option ) => {
+			options.forEach( ( option ) => {
 				const text = [ '.option_label_name', '.options-summary' ]
 				.map( ( selector ) => option.querySelector( selector )?.textContent || '' )
 				.join( ' ' )
 				.toLowerCase();
-				const matches = query.length > 0 && text.includes( query );
-				// Inside a component that matched only by its settings, show just the matching settings.
-				option.classList.toggle( 'is-filtered-out', query.length > 0 && !rowMatches && !matches );
-				optionMatches += matches ? 1 : 0;
+				const matches = query.length === 0 || titleMatches || text.includes( query );
+				option.classList.toggle( 'is-filtered-out', !matches );
+				if ( matches && query.length > 0 && !titleMatches ) {
+					optionMatches++;
+					ConfigurePanelControls.revealMoreOptions( option );
+				}
 			} );
 
-			const visible = ( rowMatches || optionMatches > 0 ) && ( !attentionOnly || needsAttention );
+			// Until its settings arrive, a topic stays in view if its own description matches.
+			const textMatches = query.length === 0 || titleMatches || optionMatches > 0
+				|| ( options.length === 0 && String( row?.textContent || '' ).toLowerCase().includes( query ) );
+			const visible = textMatches && ( !attentionOnly || needsAttention );
 			item.hidden = !visible;
 			visibleCount += visible ? 1 : 0;
 
-			// Opening what needs attention (or matched only by its settings) shows the settings straight away.
-			if ( visible && ( attentionOnly || ( optionMatches > 0 && !rowMatches ) ) && root.dataset.configureLayout !== 'list' ) {
+			// Narrowing the view opens what's left, so the matching settings show straight away.
+			if ( visible && ( attentionOnly || query.length > 0 ) && root.dataset.configureLayout !== 'list' ) {
 				const panel = item.querySelector( '[data-shield-expand-body="1"]' );
 				panel && Collapse.getOrCreateInstance( panel, { toggle: false } ).show();
 			}

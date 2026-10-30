@@ -212,6 +212,11 @@ $panel-crit: #b32d2e;
 		justify-content: flex-start;
 	}
 
+	// A list of choices sits beside its name too, starting level with it.
+	.shield-option-item.shield-panel-item.shield-panel-item--radios {
+		align-items: start;
+	}
+
 	// Settings that only apply when the one above is on.
 	.shield-panel-children {
 		border-left: 2px solid $panel-rule;
@@ -225,20 +230,20 @@ $panel-crit: #b32d2e;
 		}
 	}
 
-	// ─── Slider: a native range input, with the chosen step named beside it ───
+	// ─── Slider: a native range input of a fixed width, with the chosen step named above it ───
+	// The name sits above the track rather than beside it, so a long step name never squeezes the track.
 	.shield-range {
-		align-items: center;
 		display: flex;
-		gap: 0.85rem;
-		width: 100%;
+		flex-direction: column;
+		gap: 0.3rem;
+		max-width: 100%;
+		width: 280px;
 	}
 
 	.shield-range__track {
 		display: grid;
-		flex: 1 1 auto;
 		gap: 2px;
-		max-width: 220px;
-		min-width: 140px;
+		width: 100%;
 	}
 
 	.shield-range__input {
@@ -281,10 +286,10 @@ $panel-crit: #b32d2e;
 
 	.shield-range__value {
 		color: $panel-good-dark;
-		flex: none;
 		font-size: 13px;
 		font-weight: 600;
-		min-width: 7.5rem;
+		line-height: 1.3;
+		order: -1;
 
 		&.is-off {
 			color: $panel-muted;
@@ -425,13 +430,34 @@ $panel-crit: #b32d2e;
 	}
 }
 
-// "Needs attention" leaves only the settings that need it, and their reasons.
-.configure-diagnosis[data-attention-only] .options_form_for--panel {
+// "Needs attention" leaves only the settings that need it, and their reasons. A topic whose reasons
+// aren't tied to one setting keeps all its settings, beneath those reasons.
+.configure-diagnosis[data-attention-only] .options_form_for--panel:has(.has-panel-issue) {
 	.shield-option-item.shield-panel-item:not(.has-panel-issue),
 	.shield-panel-block:not(:has(.has-panel-issue)),
 	.shield-panel-children:not(:has(.has-panel-issue)),
 	.shield-panel-more:not(:has(.has-panel-issue)) {
 		display: none;
+	}
+}
+
+// While filtering, groups with no matching settings go, along with their rules and headings, and the
+// reasons that head a topic step aside. Matches under "More options" show without opening it.
+.configure-diagnosis[data-filtering] .options_form_for--panel {
+	.shield-panel-block:not(:has(.shield-option-item:not(.is-filtered-out))),
+	.shield-panel-children:not(:has(.shield-option-item:not(.is-filtered-out))),
+	.shield-panel-more:not(:has(.shield-option-item:not(.is-filtered-out))),
+	.shield-panel-notices {
+		display: none;
+	}
+
+	// The rule above a setting belongs to the one before it; the first one shown needs none.
+	.shield-panel-block > .shield-option-item.shield-panel-item:not(.is-filtered-out) {
+		border-top: 0;
+	}
+
+	.shield-panel-block > .shield-option-item.shield-panel-item:not(.is-filtered-out) ~ .shield-option-item.shield-panel-item:not(.is-filtered-out) {
+		border-top: 1px solid $panel-rule;
 	}
 }
 

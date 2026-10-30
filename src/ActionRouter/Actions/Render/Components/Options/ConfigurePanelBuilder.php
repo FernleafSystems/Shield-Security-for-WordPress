@@ -144,19 +144,23 @@ class ConfigurePanelBuilder {
 			if ( !\is_array( $option ) ) {
 				continue;
 			}
+			$control = $layoutItem[ 'control' ];
+			if ( $control === 'segmented' && !$this->segmentsFitOneLine( $option ) ) {
+				$control = 'radios';
+			}
 			$item = [
 				'key'      => $layoutItem[ 'key' ],
-				'control'  => $layoutItem[ 'control' ],
+				'control'  => $control,
 				'option'   => $option,
 				// Choices that need room sit beneath their name; everything else sits beside it.
-				'stacked'  => \in_array( $layoutItem[ 'control' ], [ 'chips', 'roles', 'radios' ], true )
+				'stacked'  => \in_array( $control, [ 'chips', 'roles' ], true )
 							  || ( $layoutItem[ 'control' ] === 'field' && $option[ 'type' ] === 'array' ),
 				'children' => $this->buildItems( $layoutItem[ 'children' ] ?? [], $displayOptions ),
-				'is_on'    => $this->isOn( $layoutItem[ 'control' ], $option ),
+				'is_on'    => $this->isOn( $control, $option ),
 				'issues'   => $this->issuesByOption[ $layoutItem[ 'key' ] ] ?? [],
 			];
 
-			switch ( $layoutItem[ 'control' ] ) {
+			switch ( $control ) {
 				case 'slider':
 					$item = \array_merge( $item, $this->sliderData( $option, $layoutItem[ 'stops' ] ?? [] ) );
 					break;
@@ -173,6 +177,19 @@ class ConfigurePanelBuilder {
 			$items[] = $item;
 		}
 		return $items;
+	}
+
+	/**
+	 * A segmented control only reads well on one line within the control column (about 330px), so
+	 * choices that would wrap are shown as a list instead.
+	 */
+	private function segmentsFitOneLine( array $option ) :bool {
+		$width = 0;
+		foreach ( $option[ 'value_options' ] as $choice ) {
+			// Roughly 7px a character at the control's size, plus each segment's padding and border.
+			$width += \strlen( \strip_tags( \html_entity_decode( (string)$choice[ 'name' ] ) ) ) * 7 + 26;
+		}
+		return $width <= 330;
 	}
 
 	/**
