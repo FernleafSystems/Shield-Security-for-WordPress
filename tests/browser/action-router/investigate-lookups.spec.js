@@ -75,19 +75,12 @@ const lookupResult = async ( page, kind, search ) => {
 	return result;
 };
 
-const backToLanding = async ( page ) => {
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'nav' ) === 'activity'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& !url.searchParams.get( 'subject' ),
-			{ timeout: 20_000 }
-		),
-		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
-	] );
+const expectTrailAtInvestigate = async ( page ) => {
+	await expect( page.locator( '[data-operator-step-tab="1"]' ) ).toHaveCount( 2 );
+	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 0 );
 };
 
-test( 'investigate user reset uses the shared generic panel path and self shortcut', async ( { page } ) => {
+test( 'a subject opened by link offers its picker and the self shortcut, and changing it returns to the lookup', async ( { page } ) => {
 	await openShieldRoute( page, {
 		nav: 'activity',
 		nav_sub: 'overview',
@@ -101,10 +94,8 @@ test( 'investigate user reset uses the shared generic panel path and self shortc
 		isLoaded: true,
 	} );
 	await expect( panel.locator( 'select[name="user_lookup"]' ) ).toBeVisible();
-	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 0 );
 
 	const selfLookupShortcut = panel.locator( '[data-investigate-panel-content="1"] a[href*="user_lookup="]' ).first();
-
 	await Promise.all( [
 		page.waitForURL(
 			( url ) => url.searchParams.get( 'subject' ) === 'user'
@@ -114,35 +105,9 @@ test( 'investigate user reset uses the shared generic panel path and self shortc
 		selfLookupShortcut.click(),
 	] );
 
-	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 1 );
 	await expect( panel.locator( '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]' ) ).toBeVisible();
+	await expectTrailAtInvestigate( page );
 	await expectNoAxeViolations( page, '#PageContainer-Apto' );
-
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'subject' ) === 'user'
-				&& !url.searchParams.get( 'user_lookup' ),
-			{ timeout: 20_000 }
-		),
-		page.locator( '[data-step-tab-investigate-reset="1"]' ).click(),
-	] );
-
-	await expectPanelState( page, panel, {
-		subject: 'user',
-		isLoaded: true,
-		lookupKey: 'user_lookup',
-	} );
-	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 0 );
-	await expect( panel.locator( '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]' ) ).toHaveCount( 0 );
-
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'subject' ) === 'user'
-				&& !!url.searchParams.get( 'user_lookup' ),
-			{ timeout: 20_000 }
-		),
-		selfLookupShortcut.click(),
-	] );
 
 	// Choosing another user goes back to the lookup, listing users.
 	await Promise.all( [
@@ -163,13 +128,14 @@ test( 'investigate user reset uses the shared generic panel path and self shortc
 	await expect( page.locator( '.investigate-lookup__row[data-investigate-subject="user"]' ).first() ).toBeVisible();
 } );
 
-test( 'returning to investigate keeps the lookup and focuses the result that was opened', async ( { page } ) => {
+test( 'the lookup stays above an open subject, ready for the next search', async ( { page } ) => {
 	await openShieldRoute( page, {
 		nav: 'activity',
 		nav_sub: 'overview',
 	} );
 
 	const panel = page.locator( panelSelector );
+	const results = page.locator( '[data-lookup-results="1"]' );
 	const result = await lookupResult( page, 'user', 'admin' );
 	await Promise.all( [
 		page.waitForURL(
@@ -183,14 +149,20 @@ test( 'returning to investigate keeps the lookup and focuses the result that was
 		isLoaded: true,
 	} );
 	await expect( panel.locator( '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]' ) ).toBeVisible();
+	await expect( results ).toBeHidden();
+	await expect( page.locator( '[data-lookup-input="1"]' ) ).toBeVisible();
+	await expectTrailAtInvestigate( page );
 
-	await backToLanding( page );
+	// Searching again brings results back above the subject, and choosing one replaces it.
+	const plugin = await lookupResult( page, 'plugin', 'shield' );
+	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', 'user' );
+	await plugin.click();
 	await expectPanelState( page, panel, {
-		subject: '',
-		isLoaded: false,
+		subject: 'plugin',
+		isLoaded: true,
 	} );
-	await expect( page.locator( '[data-lookup-input="1"]' ) ).toHaveValue( 'admin' );
-	await expect( result ).toBeFocused();
+	await expect( results ).toBeHidden();
+	await expectTrailAtInvestigate( page );
 } );
 
 test( 'investigate lookup opens each kind of subject into the shared panel', async ( { page } ) => {
@@ -202,13 +174,12 @@ test( 'investigate lookup opens each kind of subject into the shared panel', asy
 	const panel = page.locator( panelSelector );
 	const subjectHeader = '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]';
 	const cases = [
-		{ kind: 'user', search: 'admin', content: subjectHeader },
-		{ kind: 'plugin', search: 'shield', content: subjectHeader },
-		{ kind: 'theme', search: '', content: subjectHeader },
-		{ kind: 'core', search: '', content: '#tabInvestigateCoreOverview' },
+		{ kind: 'user', search: 'admin' },
+		{ kind: 'plugin', search: 'shield' },
+		{ kind: 'theme', search: '' },
 	];
 
-	for ( const { kind, search, content } of cases ) {
+	for ( const { kind, search } of cases ) {
 		const result = await lookupResult( page, kind, search );
 		await Promise.all( [
 			page.waitForURL( ( url ) => url.searchParams.get( 'subject' ) === kind, { timeout: 20_000 } ),
@@ -218,13 +189,17 @@ test( 'investigate lookup opens each kind of subject into the shared panel', asy
 			subject: kind,
 			isLoaded: true,
 		} );
-		await expect( panel.locator( content ).first() ).toBeVisible();
-		await backToLanding( page );
-		await expectPanelState( page, panel, {
-			subject: '',
-			isLoaded: false,
-		} );
+		await expect( panel.locator( subjectHeader ).first() ).toBeVisible();
 	}
+
+	// WordPress core is one thing, so choosing it opens it straight away.
+	await page.locator( '[data-lookup-kind="core"]' ).click();
+	await expectPanelState( page, panel, {
+		subject: 'core',
+		isLoaded: true,
+	} );
+	await expect( panel.locator( '#tabInvestigateCoreOverview' ) ).toBeVisible();
+	await expectTrailAtInvestigate( page );
 
 	await openSubject( page, 'live_traffic' );
 	await expectPanelState( page, panel, {
@@ -233,37 +208,70 @@ test( 'investigate lookup opens each kind of subject into the shared panel', asy
 	} );
 	await expect( panel.locator( '#SectionTrafficLiveLogs' ) ).toBeVisible();
 	await expect( page.locator( '[data-investigate-tab="live"]' ) ).toHaveAttribute( 'aria-current', 'page' );
+	await expect( page.locator( '[data-lookup-input="1"]' ) ).toBeHidden();
+
+	// Leaving Live traffic stops it.
 	await page.locator( '[data-investigate-tab="lookup"]' ).click();
 	await expectPanelState( page, panel, {
 		subject: '',
 		isLoaded: false,
 	} );
 	await expect( page.locator( '[data-investigate-tab="lookup"]' ) ).toHaveAttribute( 'aria-current', 'page' );
+	await expect( page.locator( '[data-lookup-input="1"]' ) ).toBeVisible();
 } );
 
-test( 'investigate tabs lead to the logs, which carry the same tabs', async ( { page } ) => {
+test( 'investigate tabs open the logs and IP rules in place, each loading when first opened', async ( { page } ) => {
+	const tableRequests = new Map();
+	await page.route( '**/admin-ajax.php**', async ( route ) => {
+		const body = route.request().postData() || '';
+		for ( const slug of [ 'logtable_action', 'traffictable_action', 'iprulestable_action', 'sessionstable_action' ] ) {
+			if ( body.includes( slug ) ) {
+				tableRequests.set( slug, ( tableRequests.get( slug ) || 0 ) + 1 );
+			}
+		}
+		await route.continue();
+	} );
+
 	await openShieldRoute( page, {
 		nav: 'activity',
 		nav_sub: 'overview',
 	} );
+	const pageUrl = page.url();
+	await page.waitForTimeout( 1_000 );
+	expect( [ ...tableRequests.values() ].reduce( ( a, b ) => a + b, 0 ) ).toBe( 0 );
 
-	const logs = [ [ 'activity', 'activity', 'logs' ], [ 'requests', 'traffic', 'logs' ], [ 'sessions', 'activity', 'sessions' ] ];
-	for ( const [ tab, nav, subnav ] of logs ) {
-		await Promise.all( [
-			page.waitForURL( ( url ) => url.searchParams.get( 'nav' ) === nav && url.searchParams.get( 'nav_sub' ) === subnav, { timeout: 20_000 } ),
-			page.locator( `[data-investigate-tab="${tab}"]` ).click(),
-		] );
+	const tabs = [
+		[ 'activity', '#ShieldTable-ActivityLog' ],
+		[ 'requests', '#ShieldTable-TrafficViewer' ],
+		[ 'ip_rules', '#ShieldTable-IpRules' ],
+		[ 'sessions', '#ShieldTable-SessionsViewer' ],
+	];
+	for ( const [ tab, table ] of tabs ) {
+		await page.locator( `[data-investigate-tab="${tab}"]` ).click();
 		await expect( page.locator( `[data-investigate-tab="${tab}"]` ) ).toHaveAttribute( 'aria-current', 'page' );
+		await expect( page.locator( `[data-investigate-tabpanel="${tab}"]` ) ).toBeVisible();
+		await expect.poll( () => page.locator( table ).evaluate(
+			( element ) => Boolean( globalThis.jQuery?.fn?.dataTable?.isDataTable?.( element ) )
+		), { timeout: 20_000 } ).toBe( true );
+		await expect.poll( () => new URL( page.url() ).searchParams.get( 'tab' ) ).toBe( tab );
 	}
 
-	await Promise.all( [
-		page.waitForURL( ( url ) => url.searchParams.get( 'nav' ) === 'activity' && url.searchParams.get( 'nav_sub' ) === 'overview', { timeout: 20_000 } ),
-		page.locator( '[data-investigate-tab="lookup"]' ).click(),
-	] );
+	// Tabs switch in place, and a table already loaded isn't loaded again.
+	expect( page.url().split( '?' )[ 0 ] ).toBe( pageUrl.split( '?' )[ 0 ] );
+	const activityRequests = tableRequests.get( 'logtable_action' ) || 0;
+	await page.locator( '[data-investigate-tab="lookup"]' ).click();
 	await expect( page.locator( '[data-lookup-input="1"]' ) ).toBeVisible();
+	await page.locator( '[data-investigate-tab="activity"]' ).click();
+	await expect( page.locator( '#ShieldTable-ActivityLog' ) ).toBeVisible();
+	expect( tableRequests.get( 'logtable_action' ) || 0 ).toBe( activityRequests );
+
+	// A link to a tab opens it directly.
+	await openShieldRoute( page, { nav: 'activity', nav_sub: 'overview', tab: 'sessions' } );
+	await expect( page.locator( '[data-investigate-tab="sessions"]' ) ).toHaveAttribute( 'aria-current', 'page' );
+	await expect( page.locator( '[data-investigate-tabpanel="sessions"]' ) ).toBeVisible();
 } );
 
-test( 'investigate landing deep link opens the IP panel, resets generically, and supports self lookup', async ( { page } ) => {
+test( 'investigate landing deep link opens the IP panel with its context', async ( { page } ) => {
 	await openShieldRoute( page, {
 		nav: 'activity',
 		nav_sub: 'overview',
@@ -276,8 +284,9 @@ test( 'investigate landing deep link opens the IP panel, resets generically, and
 		subject: 'ip',
 		isLoaded: true,
 	} );
-	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 1 );
 	await expect( panel.locator( '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-lookup-input="1"]' ) ).toBeVisible();
+	await expectTrailAtInvestigate( page );
 
 	const rail = page.locator( '[data-operator-context-rail="1"]' );
 	await expect( rail ).toBeHidden();
@@ -295,51 +304,6 @@ test( 'investigate landing deep link opens the IP panel, resets generically, and
 	expect( contextStep.summary.trim().length ).toBeGreaterThan( 0 );
 	expect( typeof contextStep.badge_status ).toBe( 'string' );
 	expect( contextStep.badge_status.trim().length ).toBeGreaterThan( 0 );
-
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'subject' ) === 'ip'
-				&& !url.searchParams.get( 'analyse_ip' ),
-			{ timeout: 20_000 }
-		),
-		page.locator( '[data-step-tab-investigate-reset="1"]' ).click(),
-	] );
-
-	await expectPanelState( page, panel, {
-		subject: 'ip',
-		isLoaded: true,
-		lookupKey: 'analyse_ip',
-	} );
-	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 0 );
-
-	const selfLookupShortcut = panel.locator( '[data-investigate-panel-content="1"] a[href*="analyse_ip="]' ).first();
-
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'subject' ) === 'ip'
-				&& !!url.searchParams.get( 'analyse_ip' ),
-			{ timeout: 20_000 }
-		),
-		selfLookupShortcut.click(),
-	] );
-
-	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 1 );
-
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'nav' ) === 'activity'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& !url.searchParams.get( 'subject' )
-				&& !url.searchParams.get( 'analyse_ip' ),
-			{ timeout: 20_000 }
-		),
-		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
-	] );
-
-	await expectPanelState( page, panel, {
-		subject: '',
-		isLoaded: false,
-	} );
 } );
 
 test( 'investigate landing IP analysis loads investigation tables without runtime errors', async ( { page } ) => {
@@ -424,79 +388,13 @@ test( 'investigate landing IP activity meta button loads request meta popover', 
 	await expectNoRuntimeErrors( runtimeErrors, 'Expected no browser runtime errors while opening the IP investigation request-meta popover' );
 } );
 
-test( 'investigate landing drill-back clears stale plugin breadcrumbs after a resolved selection', async ( { page } ) => {
+test( 'a subject picked in its own panel keeps the trail at Investigate', async ( { page } ) => {
 	await openShieldRoute( page, {
 		nav: 'activity',
 		nav_sub: 'overview',
 	} );
 
 	const panel = page.locator( panelSelector );
-	await openSubject( page, 'plugin' );
-	await expectPanelState( page, panel, {
-		subject: 'plugin',
-		isLoaded: true,
-	} );
-
-	await selectSelect2Option(
-		page,
-		'plugin_slug',
-		'shield',
-		( url ) => url.searchParams.get( 'subject' ) === 'plugin'
-			&& !!url.searchParams.get( 'plugin_slug' )
-	);
-
-	const stepTabs = page.locator( '[data-operator-step-tab="1"]' );
-	await expect( stepTabs ).toHaveCount( 4 );
-	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 1 );
-
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'nav' ) === 'activity'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& !url.searchParams.get( 'subject' )
-				&& !url.searchParams.get( 'plugin_slug' ),
-			{ timeout: 20_000 }
-		),
-		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
-	] );
-
-	await expectPanelState( page, panel, {
-		subject: '',
-		isLoaded: false,
-	} );
-	await expect( stepTabs ).toHaveCount( 2 );
-	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 0 );
-} );
-
-test( 'investigate landing reopens a cached generic user panel with a live select2 lookup', async ( { page } ) => {
-	await openShieldRoute( page, {
-		nav: 'activity',
-		nav_sub: 'overview',
-		subject: 'user',
-	} );
-
-	const panel = page.locator( '[data-drill-layer="1"] [data-investigate-panel="1"]' );
-	await expectPanelState( page, panel, {
-		subject: 'user',
-		isLoaded: true,
-	} );
-	await expect( panel.locator( 'select[name="user_lookup"]' ) ).toBeVisible();
-
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'nav' ) === 'activity'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& !url.searchParams.get( 'subject' ),
-			{ timeout: 20_000 }
-		),
-		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
-	] );
-
-	await expectPanelState( page, panel, {
-		subject: '',
-		isLoaded: false,
-	} );
-
 	await openSubject( page, 'user' );
 	await expectPanelState( page, panel, {
 		subject: 'user',
@@ -511,8 +409,8 @@ test( 'investigate landing reopens a cached generic user panel with a live selec
 			&& !!url.searchParams.get( 'user_lookup' )
 	);
 
-	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 1 );
 	await expect( panel.locator( '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]' ) ).toBeVisible();
+	await expectTrailAtInvestigate( page );
 } );
 
 test( 'investigate landing loads a subject only when it is opened, and live traffic only from its tab', async ( { page } ) => {
@@ -548,7 +446,6 @@ test( 'investigate landing loads a subject only when it is opened, and live traf
 	expect( userPanelRequestCount ).toBeGreaterThan( 0 );
 	expect( liveTrafficRequestCount ).toBe( 0 );
 
-	await backToLanding( page );
 	await openSubject( page, 'live_traffic' );
 	await expectPanelState( page, panel, {
 		subject: 'live_traffic',
@@ -605,7 +502,7 @@ test( 'investigate landing starts and stops live traffic polling with the live p
 				&& !url.searchParams.get( 'subject' ),
 			{ timeout: 20_000 }
 		),
-		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
+		page.locator( '[data-investigate-tab="lookup"]' ).click(),
 	] );
 
 	await expectPanelState( page, panel, {

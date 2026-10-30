@@ -181,7 +181,14 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'investigate_drill_shell', $vars[ 'drill_shell' ][ 'id' ] ?? '' );
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
 		$this->assertSame( [ 'subjects', 'panel' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
-		$this->assertSame( 'SUBJECTS_LAYER_HTML', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] ?? '' );
+		// The lookup sits above the drill shell, so the first layer is empty.
+		$this->assertSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] ?? 'missing' );
+		$this->assertSame( 'LOOKUP_HTML', $vars[ 'investigate_lookup' ] ?? '' );
+		$this->assertSame( 'lookup', $vars[ 'investigate_current_tab' ] ?? '' );
+		$this->assertSame(
+			[ 'lookup', 'activity', 'requests', 'ip_rules', 'sessions', 'live' ],
+			\array_column( $vars[ 'investigate_tabs' ][ 'tabs' ] ?? [], 'key' )
+		);
 		$this->assertSame( 'PANEL_LAYER:', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
 		$this->assertArrayHasKey( 'compact_back_label', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ] ?? [] );
 		$this->assertArrayHasKey( 'title', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
@@ -302,8 +309,8 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 
 class PageInvestigateLandingUnitTestDouble extends PageInvestigateLanding {
 
-	protected function renderSubjectsLayer() :string {
-		return 'SUBJECTS_LAYER_HTML';
+	protected function renderLookup() :string {
+		return 'LOOKUP_HTML';
 	}
 
 	protected function renderPanelLayer( string $activeSubject ) :string {

@@ -103,19 +103,36 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 
 	protected function getLandingVars() :array {
 		$vars = parent::getLandingVars();
+		$vars[ 'investigate_current_tab' ] = $this->getCurrentTab();
 		$vars[ 'investigate_tabs' ] = $this->buildInvestigateTabs();
+		$vars[ 'investigate_lookup' ] = $this->renderLookup();
+		$vars[ 'investigate_logs' ] = [
+			[ 'key' => InvestigateTabs::ACTIVITY, 'table_id' => 'ShieldTable-ActivityLog' ],
+			[ 'key' => InvestigateTabs::REQUESTS, 'table_id' => 'ShieldTable-TrafficViewer' ],
+			[ 'key' => InvestigateTabs::IP_RULES, 'table_id' => 'ShieldTable-IpRules' ],
+			[ 'key' => InvestigateTabs::SESSIONS, 'table_id' => 'ShieldTable-SessionsViewer' ],
+		];
 		return $vars;
 	}
 
 	/**
-	 * Lookup and Live traffic work in place on this page: Live traffic carries the live subject so it
-	 * opens like any other subject.
+	 * The tab to open with: one asked for by link, or Live traffic when that is the subject.
+	 */
+	private function getCurrentTab() :string {
+		$tab = sanitize_key( $this->getTextInputFromRequestOrActionData( 'tab' ) );
+		if ( \in_array( $tab, InvestigateTabs::keys(), true ) ) {
+			return $tab;
+		}
+		return $this->getActiveSubject() === self::SUBJECT_LIVE_TRAFFIC ? InvestigateTabs::LIVE : InvestigateTabs::LOOKUP;
+	}
+
+	/**
+	 * Every tab opens in place on this page: Live traffic carries the live subject so it opens like any
+	 * other subject.
 	 * @return array<string,mixed>
 	 */
 	private function buildInvestigateTabs() :array {
-		$tabs = ( new InvestigateTabs() )->build(
-			$this->getActiveSubject() === self::SUBJECT_LIVE_TRAFFIC ? InvestigateTabs::LIVE : InvestigateTabs::LOOKUP
-		);
+		$tabs = ( new InvestigateTabs() )->build( $this->getCurrentTab() );
 		$liveTile = $this->getSubjectTileLookup()[ self::SUBJECT_LIVE_TRAFFIC ] ?? null;
 		foreach ( $tabs[ 'tabs' ] as &$tab ) {
 			if ( $tab[ 'key' ] === InvestigateTabs::LIVE && $liveTile !== null && $liveTile[ 'is_enabled' ] ) {
@@ -155,10 +172,11 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		foreach ( $labels as $key => $label ) {
 			$tile = $this->getSubjectTileLookup()[ $key ] ?? null;
 			if ( $tile !== null && $tile[ 'is_enabled' ] ) {
+				// WordPress core is one thing, so choosing it opens it straight away.
 				$kinds[] = [
 					'key'        => $key,
 					'label'      => $label,
-					'attributes' => $this->subjectAttributes( $tile ),
+					'attributes' => $this->subjectAttributes( $tile ) + ( $key === 'core' ? [ 'data-drill-target' => 'panel' ] : [] ),
 				];
 			}
 		}
@@ -203,7 +221,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		return [
 			[
 				'key'    => 'subjects',
-				'body'   => $this->renderSubjectsLayer(),
+				'body'   => '',
 				'header' => [
 					'compact_back_label' => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
 					'breadcrumb_label'   => __( 'Subjects', 'wp-simple-firewall' ),
@@ -238,7 +256,10 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		return ActionData::BuildAjaxRender( $renderAction, $auxData );
 	}
 
-	protected function renderSubjectsLayer() :string {
+	/**
+	 * The lookup sits above the subject it opens, so it stays in place while a subject is shown.
+	 */
+	protected function renderLookup() :string {
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/investigate/layer_subjects.twig' )
 			->setData( [
@@ -517,6 +538,9 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	private function getActiveSubject() :string {
 		if ( $this->activeSubjectCache === null ) {
 			$subject = sanitize_key( $this->getTextInputFromRequestOrActionData( 'subject' ) );
+			if ( $subject === '' && sanitize_key( $this->getTextInputFromRequestOrActionData( 'tab' ) ) === InvestigateTabs::LIVE ) {
+				$subject = self::SUBJECT_LIVE_TRAFFIC;
+			}
 			$definitions = $this->getSubjectDefinitions();
 
 			if ( !isset( $definitions[ $subject ] ) || !$definitions[ $subject ][ 'is_enabled' ] ) {

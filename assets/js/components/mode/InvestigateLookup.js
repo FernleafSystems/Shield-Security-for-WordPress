@@ -1,24 +1,42 @@
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { getActiveLayerIndex, getLayersForShell } from "./DrillDownShared";
+import { ShieldTableActivityLog } from "../tables/ShieldTableActivityLog";
+import { ShieldTableTrafficLog } from "../tables/ShieldTableTrafficLog";
+import { ShieldTableIpRules } from "../tables/ShieldTableIpRules";
+import { ShieldTableSessions } from "../tables/ShieldTableSessions";
 
 /**
- * Investigate's one lookup. Typing searches users, IP addresses, plugins, themes and WordPress core
- * together; "Looking up" narrows it to one kind, and a kind with nothing typed lists that kind to browse.
- * Each result carries its kind's subject, so a click opens that subject's panel through the landing's own
- * handler, with the result's value as the lookup.
+ * Investigate's one lookup, and its tabs.
  *
- * It also runs the Investigate tabs on the landing: Lookup returns to the lookup in place, and the tab for
- * whatever is open shows as current.
+ * Typing searches users, IP addresses, plugins, themes and WordPress core together; "Looking up" narrows
+ * it to one kind, and a kind with nothing typed lists that kind to browse. Each result carries its kind's
+ * subject, so a click opens that subject beneath the lookup through the landing's own handler, with the
+ * result's value as the lookup. The lookup stays where it is, ready for the next search.
+ *
+ * Every tab opens in place. The logs and IP rules each start their table the first time their tab opens.
+ * Live traffic opens the live subject where the lookup's subjects open, and stops when another tab opens.
  */
 export class InvestigateLookup {
 
 	static ROOT = '[data-investigate-lookup="1"]';
+	static LANDING = '[data-investigate-landing="1"]';
 	static DELAY_MS = 250;
+	static TABLES = {
+		activity: ShieldTableActivityLog,
+		requests: ShieldTableTrafficLog,
+		ip_rules: ShieldTableIpRules,
+		sessions: ShieldTableSessions,
+	};
 
-	constructor() {
+	/**
+	 * @param {Object<string,Object>} logTables each log tab's table settings
+	 */
+	constructor( logTables = {} ) {
 		this.timer = null;
 		this.requestId = 0;
+		this.logTables = logTables || {};
+		this.startedTables = new Set();
 
 		document.addEventListener( 'input', ( evt ) => {
 			const input = evt.target;
@@ -48,43 +66,153 @@ export class InvestigateLookup {
 			root?.querySelectorAll( '[data-lookup-kind]' ).forEach(
 				( kind ) => kind.setAttribute( 'aria-pressed', String( kind === button ) )
 			);
+			// WordPress core opens straight away (it carries its subject); the other kinds list or search.
+			if ( button.getAttribute( 'data-lookup-kind' ) === 'core' ) {
+				this.clearResults( root );
+				return;
+			}
 			this.search( root );
 			root?.querySelector( '[data-lookup-input="1"]' )?.focus();
 		} );
 
-		shieldEventsHandler_Main.add_Click( '[data-investigate-landing="1"] [data-investigate-tab="lookup"]', ( tab ) => {
-			const landing = tab.closest( '[data-investigate-landing="1"]' );
-			const shell = landing?.querySelector( '[data-drill-shell="1"]' );
-			if ( shell instanceof HTMLElement && getActiveLayerIndex( getLayersForShell( shell ) ) > 0 ) {
-				shieldAppMain?.components?.drill_down?.drillTo( shell, 0 );
-			}
-			landing?.querySelector( '[data-lookup-input="1"]' )?.focus();
+		shieldEventsHandler_Main.add_Click( `${InvestigateLookup.LANDING} [data-investigate-tab]`, ( tab ) => {
+			this.activate( tab.closest( InvestigateLookup.LANDING ), tab.getAttribute( 'data-investigate-tab' ) || 'lookup' );
+		}, true );
+
+		// Choosing a result hands the space to the subject, even when another subject was already open.
+		shieldEventsHandler_Main.add_Click( `${InvestigateLookup.ROOT} .investigate-lookup__row`, ( row ) => {
+			const results = row.closest( '[data-lookup-results="1"]' );
+			results instanceof HTMLElement && ( results.hidden = true );
+			const root = row.closest( InvestigateLookup.ROOT );
+			root instanceof HTMLElement && this.setStatus( root, '' );
 		} );
 
-		// The current tab follows what's open: Live traffic while it shows, otherwise Lookup.
+		// A subject opening beneath the lookup takes the results' place; the tabs follow what's open.
 		[ 'shield:drill-to', 'shield:drill-back' ].forEach( ( name ) => document.addEventListener( name, ( evt ) => {
-			const landing = evt.target instanceof Element ? evt.target.closest( '[data-investigate-landing="1"]' ) : null;
-			if ( landing !== null ) {
-				window.setTimeout( () => this.syncTabs( landing ) );
+			const landing = evt.target instanceof Element ? evt.target.closest( InvestigateLookup.LANDING ) : null;
+			if ( !( landing instanceof HTMLElement ) ) {
+				return;
 			}
+			if ( name === 'shield:drill-to' ) {
+				const results = landing.querySelector( '[data-lookup-results="1"]' );
+				results instanceof HTMLElement && ( results.hidden = true );
+				this.setStatus( landing, '' );
+			}
+			window.setTimeout( () => this.syncTabs( landing ) );
 		} ) );
+
+		this.startCurrentTab();
 	}
 
 	/**
-	 * @param {Element} landing
+	 * A link straight to a log tab starts that tab's table.
+	 */
+	startCurrentTab() {
+		const landing = document.querySelector( InvestigateLookup.LANDING );
+		const tab = landing instanceof HTMLElement ? String( landing.dataset.investigateCurrentTab || '' ) : '';
+		if ( tab in InvestigateLookup.TABLES ) {
+			this.startTable( tab );
+		}
+	}
+
+	/**
+	 * @param {Element|null} landing
+	 * @param {string} tab
+	 */
+	activate( landing, tab ) {
+		if ( !( landing instanceof HTMLElement ) ) {
+			return;
+		}
+		const shell = landing.querySelector( '[data-drill-shell="1"]' );
+		// Live traffic only runs while its tab is open.
+		if ( tab !== 'live' && this.isLiveOpen( landing ) && shell instanceof HTMLElement ) {
+			shieldAppMain?.components?.drill_down?.drillTo( shell, 0 );
+		}
+
+		this.showTab( landing, tab );
+		if ( tab in InvestigateLookup.TABLES ) {
+			this.startTable( tab );
+		}
+		if ( tab === 'lookup' ) {
+			const input = landing.querySelector( '[data-lookup-input="1"]' );
+			input instanceof HTMLElement && input.focus();
+		}
+
+		const url = new URL( window.location.href );
+		[ 'tab', 'subject' ].forEach( ( param ) => url.searchParams.delete( param ) );
+		if ( tab !== 'lookup' ) {
+			url.searchParams.set( 'tab', tab );
+		}
+		window.history.replaceState( window.history.state, '', url.toString() );
+	}
+
+	/**
+	 * @param {HTMLElement} landing
+	 * @param {string} tab
+	 */
+	showTab( landing, tab ) {
+		landing.dataset.investigateCurrentTab = tab;
+		landing.querySelectorAll( '[data-investigate-tab]' ).forEach( ( link ) => {
+			const isCurrent = link.getAttribute( 'data-investigate-tab' ) === tab;
+			link.classList.toggle( 'is-current', isCurrent );
+			isCurrent ? link.setAttribute( 'aria-current', 'page' ) : link.removeAttribute( 'aria-current' );
+		} );
+		landing.querySelectorAll( '[data-investigate-tabpanel]' ).forEach( ( panel ) => {
+			if ( panel instanceof HTMLElement ) {
+				panel.hidden = panel.getAttribute( 'data-investigate-tabpanel' ) !== tab;
+			}
+		} );
+		const subjects = landing.querySelector( '[data-investigate-section="drilldown"]' );
+		subjects instanceof HTMLElement && ( subjects.hidden = ![ 'lookup', 'live' ].includes( tab ) );
+	}
+
+	/**
+	 * @param {HTMLElement} landing
 	 */
 	syncTabs( landing ) {
+		const current = String( landing.dataset.investigateCurrentTab || 'lookup' );
+		if ( this.isLiveOpen( landing ) ) {
+			current !== 'live' && this.showTab( landing, 'live' );
+		}
+		else if ( current === 'live' ) {
+			this.showTab( landing, 'lookup' );
+		}
+	}
+
+	/**
+	 * @param {HTMLElement} landing
+	 * @return {boolean}
+	 */
+	isLiveOpen( landing ) {
 		const shell = landing.querySelector( '[data-drill-shell="1"]' );
 		const panel = landing.querySelector( '[data-investigate-panel="1"]' );
-		const isOpen = shell instanceof HTMLElement && getActiveLayerIndex( getLayersForShell( shell ) ) > 0;
-		const current = isOpen && panel instanceof HTMLElement && panel.dataset.investigatePanelSubject === 'live_traffic'
-			? 'live'
-			: 'lookup';
-		landing.querySelectorAll( '[data-investigate-tab]' ).forEach( ( tab ) => {
-			const isCurrent = tab.getAttribute( 'data-investigate-tab' ) === current;
-			tab.classList.toggle( 'is-current', isCurrent );
-			isCurrent ? tab.setAttribute( 'aria-current', 'page' ) : tab.removeAttribute( 'aria-current' );
-		} );
+		return shell instanceof HTMLElement
+			&& getActiveLayerIndex( getLayersForShell( shell ) ) > 0
+			&& panel instanceof HTMLElement
+			&& panel.dataset.investigatePanelSubject === 'live_traffic';
+	}
+
+	/**
+	 * @param {string} tab
+	 */
+	startTable( tab ) {
+		const TableClass = InvestigateLookup.TABLES[ tab ];
+		const settings = this.logTables[ tab ];
+		if ( this.startedTables.has( tab ) || !TableClass || !settings ) {
+			return;
+		}
+		this.startedTables.add( tab );
+		new TableClass( settings );
+	}
+
+	/**
+	 * @param {Element|null} root
+	 */
+	clearResults( root ) {
+		if ( root instanceof HTMLElement ) {
+			root.querySelector( '[data-lookup-results="1"]' )?.replaceChildren();
+			this.setStatus( root, '' );
+		}
 	}
 
 	/**
@@ -118,6 +246,7 @@ export class InvestigateLookup {
 			return;
 		}
 		intro instanceof HTMLElement && ( intro.hidden = true );
+		results instanceof HTMLElement && ( results.hidden = false );
 		results?.setAttribute( 'aria-busy', 'true' );
 		this.setStatus( root, strings.searching || '' );
 

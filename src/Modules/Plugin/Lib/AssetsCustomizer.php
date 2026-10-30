@@ -474,14 +474,15 @@ class AssetsCustomizer {
 				'data'    => function () {
 					$data = [];
 					if ( PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ) ) {
-						$data[ 'activity' ] = [
-							'ajax' => [
-								'table_action'     => ActionData::Build( Actions\ActivityLogTableAction::class ),
-								'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\SearchHelp::class ),
-							],
-							'vars' => [
-								'datatables_init' => ( new ForActivityLog() )->buildRaw(),
-							]
+						$data[ 'activity' ] = $this->activityLogTableData();
+					}
+					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) ) {
+						// Investigate holds the logs in its tabs, and starts each table when its tab first opens.
+						$data[ 'investigate_logs' ] = [
+							'activity' => $this->activityLogTableData(),
+							'requests' => $this->trafficLogTableData(),
+							'ip_rules' => $this->ipRulesTableData(),
+							'sessions' => $this->sessionsTableData(),
 						];
 					}
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT ) ) {
@@ -501,39 +502,13 @@ class AssetsCustomizer {
 						];
 					}
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ) ) {
-						$data[ 'ip_rules' ] = [
-							'ajax' => [
-								'rule_delete'  => ActionData::Build( Actions\IpRuleDelete::class ),
-								'table_action' => ActionData::Build( Actions\IpRulesTableAction::class ),
-							],
-							'strings' => [
-								'are_you_sure' => __( 'Are you sure you want to delete this IP Rule?', 'wp-simple-firewall' ),
-							],
-							'vars' => [
-								'datatables_init' => ( new ForIpRules() )->buildRaw(),
-							]
-						];
+						$data[ 'ip_rules' ] = $this->ipRulesTableData();
 					}
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ) ) {
-						$data[ 'traffic' ] = [
-							'ajax' => [
-								'table_action'     => ActionData::Build( Actions\TrafficLogTableAction::class ),
-								'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\SearchHelp::class ),
-							],
-							'vars' => [
-								'datatables_init' => ( new ForTraffic() )->buildRaw(),
-							]
-						];
+						$data[ 'traffic' ] = $this->trafficLogTableData();
 					}
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS ) ) {
-						$data[ 'sessions' ] = [
-							'ajax' => [
-								'table_action' => ActionData::Build( Actions\SessionsTableAction::class ),
-							],
-							'vars' => [
-								'datatables_init' => ( new ForSessions() )->buildRaw(),
-							]
-						];
+						$data[ 'sessions' ] = $this->sessionsTableData();
 					}
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE ) ) {
 						$data[ 'security_rules' ] = [
@@ -740,5 +715,55 @@ class AssetsCustomizer {
 
 	private function isPluginOnboardingRequired() :bool {
 		return ( ( new TourManager() )->getTour()[ 'is_available' ] ?? false ) === true;
+	}
+
+	private function activityLogTableData() :array {
+		return [
+			'ajax' => [
+				'table_action'     => ActionData::Build( Actions\ActivityLogTableAction::class ),
+				'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\SearchHelp::class ),
+			],
+			'vars' => [
+				'datatables_init' => ( new ForActivityLog() )->buildRaw(),
+			]
+		];
+	}
+
+	private function trafficLogTableData() :array {
+		return [
+			'ajax' => [
+				'table_action'     => ActionData::Build( Actions\TrafficLogTableAction::class ),
+				'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\SearchHelp::class ),
+			],
+			'vars' => [
+				'datatables_init' => ( new ForTraffic() )->buildRaw(),
+			]
+		];
+	}
+
+	private function ipRulesTableData() :array {
+		return [
+			'ajax'    => [
+				'rule_delete'  => ActionData::Build( Actions\IpRuleDelete::class ),
+				'table_action' => ActionData::Build( Actions\IpRulesTableAction::class ),
+			],
+			'strings' => [
+				'are_you_sure' => __( 'Are you sure you want to delete this IP Rule?', 'wp-simple-firewall' ),
+			],
+			'vars'    => [
+				'datatables_init' => ( new ForIpRules() )->buildRaw(),
+			]
+		];
+	}
+
+	private function sessionsTableData() :array {
+		return [
+			'ajax' => [
+				'table_action' => ActionData::Build( Actions\SessionsTableAction::class ),
+			],
+			'vars' => [
+				'datatables_init' => ( new ForSessions() )->buildRaw(),
+			]
+		];
 	}
 }

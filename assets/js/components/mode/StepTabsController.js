@@ -167,6 +167,13 @@ export class StepTabsController extends BaseAutoExecComponent {
 		} );
 
 		const currentStep = this.extendInvestigatePath( shell, steps );
+		// Investigate's subjects open beneath its lookup, which stays in place, so the trail stays at
+		// Investigate; the open subject still sets the context beside it.
+		if ( shell.querySelector( '[data-investigate-lookup="1"]' ) !== null ) {
+			rootVisual.isCurrent = true;
+			rootVisual.target = null;
+			return { steps: steps.slice( 0, 2 ), currentStep };
+		}
 		return { steps, currentStep };
 	}
 

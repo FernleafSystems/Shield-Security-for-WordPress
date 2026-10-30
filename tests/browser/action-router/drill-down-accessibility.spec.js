@@ -488,7 +488,7 @@ test( 'investigate panel clears busy and loaded state when request is cancelled'
 	await liveSubject.click();
 	await expect( panelLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 	await expect( panelContent ).toHaveAttribute( 'aria-busy', 'true' );
-	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+	await page.locator( '[data-investigate-tab="lookup"]' ).click();
 	await expect( panelLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 	await expect( panelContent ).toHaveAttribute( 'aria-busy', 'false' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '0' );
@@ -525,8 +525,8 @@ test( 'investigate panel failure clears busy state and announces assertively', a
 	await expect( liveRegion ).toHaveAttribute( 'aria-live', 'assertive' );
 	await expectLiveRegionContract( page, '[data-investigate-landing="1"]' );
 	await expect.poll( () => activeElementDrillLayer( page ) ).toBe( '1' );
-	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+	await page.locator( '[data-investigate-tab="lookup"]' ).click();
 	await expect( panelLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 	await expect( liveRegion ).toHaveAttribute( 'aria-live', 'polite' );
-	await expect( liveSubject ).toBeFocused();
+	await expect( page.locator( '[data-lookup-input="1"]' ) ).toBeFocused();
 } );

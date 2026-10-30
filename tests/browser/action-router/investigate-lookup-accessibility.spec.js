@@ -28,18 +28,6 @@ const openInvestigatePanel = async ( page, subject ) => {
 	return panel;
 };
 
-const returnToInvestigateLanding = async ( page ) => {
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'nav' ) === 'activity'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& !url.searchParams.get( 'subject' ),
-			{ timeout: 20_000 }
-		),
-		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
-	] );
-};
-
 const expectConnectedIdReferences = async ( page, locator, attribute ) => {
 	const ids = await getIdReferenceTokens( locator, attribute );
 	expect( ids.length ).toBeGreaterThan( 0 );
@@ -88,6 +76,5 @@ test( 'investigate lookup fields connect producer labels and descriptions to Sel
 	for ( const scenario of scenarios ) {
 		const panel = await openInvestigatePanel( page, scenario.subject );
 		await expectLookupAccessibilityContract( page, panel, scenario );
-		await returnToInvestigateLanding( page );
 	}
 } );
