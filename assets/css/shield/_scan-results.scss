@@ -41,9 +41,16 @@
 		flex-wrap: wrap;
 		gap: 0.4rem;
 
-		> .btn {
+		// DataTables wraps a collection button (Display results) in a group of its own, which squared its
+		// corners; every button here looks the same.
+		> .btn,
+		> .btn-group > .btn {
 			border-radius: 6px !important;
 			margin: 0 !important;
+		}
+
+		> .btn-group {
+			margin: 0;
 		}
 	}
 
@@ -85,8 +92,11 @@
 	flex-wrap: wrap;
 	gap: 0.4rem;
 
+	// Spacing comes from the gap alone; margins other admin styles put between adjacent buttons would
+	// otherwise push every button after the first out of line.
 	> .btn {
 		border-radius: 6px;
+		margin: 0 !important;
 	}
 
 	> .btn-link {
