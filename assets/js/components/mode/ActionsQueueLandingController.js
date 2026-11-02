@@ -597,6 +597,17 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			} );
 	}
 
+	replaceLayerBodyHtml( body, html, activate = false ) {
+		super.replaceLayerBodyHtml( body, html, activate );
+		// Lists shown as tabs open on their first entry.
+		body.querySelectorAll( '[data-mode-open-first="1"]' ).forEach( ( shell ) => {
+			const first = shell.querySelector( '[data-mode-tile="1"]' );
+			if ( first instanceof HTMLElement && shell.querySelector( '[data-mode-panel="1"].is-open' ) === null ) {
+				first.click();
+			}
+		} );
+	}
+
 	syncAssetHintVisibility( shell ) {
 		this.setAssetHintVisible(
 			shell,

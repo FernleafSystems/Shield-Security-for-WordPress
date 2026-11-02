@@ -249,7 +249,9 @@ class SelectSearchData {
 			'id'     => $definition[ 'id' ],
 			'text'   => $this->toolSearchText( $definition ),
 			'link'   => [
-				'href' => self::con()->plugin_urls->adminTopNav( $definition[ 'nav' ], $definition[ 'subnav' ] ),
+				'href' => $definition[ 'id' ] === 'tool_guidedsetup'
+					? self::con()->plugin_urls->setupGuide()
+					: self::con()->plugin_urls->adminTopNav( $definition[ 'nav' ], $definition[ 'subnav' ] ),
 			],
 			'tokens' => (string)( $definition[ 'search_tokens' ] ?? '' ),
 			'icon'   => self::con()->svgs->iconClass( $definition[ 'icon' ].'.svg' ),

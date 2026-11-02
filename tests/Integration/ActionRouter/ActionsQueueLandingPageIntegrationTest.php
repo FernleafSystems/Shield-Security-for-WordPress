@@ -1644,7 +1644,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [ 'critical' ], $this->groupStatusesForPrefix( $groups, 'themes:' ) );
 		$this->assertSame( 1, (int)( $groups[ 'malware' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $groups[ 'malware' ][ 'status' ] ?? '' ) );
-		$this->assertArrayNotHasKey( 'file_locker', $groups );
+		// No critical file is locked, which on Pro is a warning to review next.
+		$this->assertSame( 'warning', (string)( $groups[ 'file_locker' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'review', (string)( $groups[ 'file_locker' ][ 'bucket' ] ?? '' ) );
 
 		$this->assertSame( [ 'count' => 1, 'status' => 'critical', 'bucket' => 'critical' ], $groups[ 'vulnerabilities' ] );
 		$this->assertSame( [ 'count' => 1, 'status' => 'critical', 'bucket' => 'critical' ], $groups[ 'abandoned' ] );

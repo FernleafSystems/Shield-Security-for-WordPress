@@ -10,10 +10,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Steps;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * The setup guide bar shown along the bottom of Shield admin pages until setup is finished or
  * dismissed. It reuses the welcome wizard's steps, so each step saves exactly as the wizard does.
+ * Asked for by link (Configure's "Guided Setup"), it opens straight away, even when finished or
+ * dismissed, with every step's form so any of them can be changed.
  */
 class SetupGuideDataBuilder {
 
@@ -35,8 +38,15 @@ class SetupGuideDataBuilder {
 	public function build() :array {
 		$con = self::con();
 		$state = new SetupGuideState();
-		if ( !$con->isPluginAdmin() || $state->isDismissed() || PluginNavs::GetNav() === PluginNavs::NAV_WIZARD ) {
+		$isAskedFor = Services::Request()->query( 'setup_guide' ) === 'open';
+		if ( !$con->isPluginAdmin() || PluginNavs::GetNav() === PluginNavs::NAV_WIZARD ) {
 			return [ 'show' => false ];
+		}
+		if ( $state->isDismissed() ) {
+			if ( !$isAskedFor ) {
+				return [ 'show' => false ];
+			}
+			$state->undismiss();
 		}
 
 		$done = $state->doneSlugs();
@@ -53,21 +63,22 @@ class SetupGuideDataBuilder {
 				'name'     => $copy[ $handler::SLUG ][ 0 ] ?? $handler->getName(),
 				'hint'     => $copy[ $handler::SLUG ][ 1 ] ?? '',
 				'is_done'  => $isDone,
-				// Completed steps need no form, which keeps every page render light.
-				'body'     => $isDone ? '' : $handler->render(),
+				// Completed steps need no form, which keeps every page render light, unless the guide was asked for.
+				'body'     => $isDone && !$isAskedFor ? '' : $handler->render(),
 			];
 		}
 
 		$doneCount = \count( \array_filter( $steps, static fn( array $step ) :bool => $step[ 'is_done' ] ) );
-		if ( $doneCount === \count( $steps ) ) {
+		if ( $doneCount === \count( $steps ) && !$isAskedFor ) {
 			return [ 'show' => false ];
 		}
 		$next = \current( \array_filter( $steps, static fn( array $step ) :bool => !$step[ 'is_done' ] ) );
 
 		return [
 			'show'        => true,
+			'open_now'    => $isAskedFor,
 			'steps'       => $steps,
-			'next_name'   => $next[ 'name' ],
+			'next_name'   => \is_array( $next ) ? $next[ 'name' ] : '',
 			'done_count'  => $doneCount,
 			'total'       => \count( $steps ),
 			'merlin_action_json' => ActionData::BuildJson( MerlinAction::class ),

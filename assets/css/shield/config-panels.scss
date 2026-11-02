@@ -1,8 +1,10 @@
 // ─── Configure panels ───
 // Follows common admin settings practice: each setting is a row with its name and description on the left
-// and its control on the right, a thin rule between settings, and a readable maximum width so the eye
-// doesn't travel across a wide screen to find a control. Settings that only apply when the one above is on
-// are indented beneath it. Nothing is faded. A setting that needs attention says why, right under its name.
+// and its control on the right, and a readable maximum width so the eye doesn't travel across a wide screen
+// to find a control. Space, not rules or coloured edges, separates settings, and the one under the pointer
+// is lightly shaded so it's clear which name goes with which control. Settings that only apply when the one
+// above is on are indented beneath it. Nothing is faded. A setting that needs attention says why, right under
+// its name.
 
 $panel-text: #1d2327;
 $panel-muted: #50575e;
@@ -13,6 +15,8 @@ $panel-link: #2271b1;
 $panel-warn: #996800;
 $panel-warn-edge: #dba617;
 $panel-crit: #b32d2e;
+$panel-hover: #f3f5f6;
+$panel-unsaved: #f0f6fc;
 
 .options_form_for--panel {
 	.shield-panel {
@@ -23,11 +27,11 @@ $panel-crit: #b32d2e;
 
 	.shield-panel-block {
 		display: grid;
+		gap: 2px;
 		padding-top: 0.5rem;
 
 		& + .shield-panel-block {
-			border-top: 1px solid $panel-rule;
-			margin-top: 0.25rem;
+			margin-top: 0.75rem;
 		}
 	}
 
@@ -43,29 +47,33 @@ $panel-crit: #b32d2e;
 	// One setting: name, help and description on the left; its control on the right, close by.
 	.shield-option-item.shield-panel-item {
 		align-items: center;
-		border-bottom: 0;
-		border-top: 1px solid $panel-rule;
+		border: 0;
+		border-radius: 6px;
 		display: grid;
 		gap: 0.6rem 1.75rem;
 		grid-template-columns: minmax(0, 1fr) minmax(220px, 340px);
-		padding: 0.85rem 0;
+		margin: 0 -0.75rem;
+		padding: 0.8rem 0.75rem;
+		transition: background-color 0.12s ease;
+
+		&:hover,
+		&:focus-within {
+			background: $panel-hover;
+		}
 
 		&.is-stacked {
 			align-items: start;
 			grid-template-columns: minmax(0, 1fr);
 		}
 
-		&.is-dirty::before {
-			bottom: 0.6rem;
-			left: -0.75rem;
-			top: 0.6rem;
+		// An unsaved change is tinted, beside its "Unsaved" label, rather than marked with an edge.
+		&.is-dirty {
+			background: $panel-unsaved;
 		}
-	}
 
-	// The first setting of a group doesn't need a rule above it.
-	.shield-panel-block > .shield-option-item.shield-panel-item:first-child,
-	.shield-panel-heading + .shield-option-item.shield-panel-item {
-		border-top: 0;
+		&.is-dirty::before {
+			display: none;
+		}
 	}
 
 	.shield-panel-item__text {
@@ -129,9 +137,8 @@ $panel-crit: #b32d2e;
 	}
 
 	.shield-panel-notices {
-		border-bottom: 1px solid $panel-rule;
 		margin: 0;
-		padding: 0.85rem 0;
+		padding: 0.85rem 0 0.25rem;
 	}
 
 	.shield-panel-issue {
@@ -156,15 +163,6 @@ $panel-crit: #b32d2e;
 		}
 	}
 
-	.shield-option-item.shield-panel-item.has-panel-issue {
-		box-shadow: inset 3px 0 0 $panel-warn-edge;
-		margin-left: -1.25rem;
-		padding-left: calc(1.25rem - 0px);
-	}
-
-	.shield-option-item.shield-panel-item.has-panel-issue--critical {
-		box-shadow: inset 3px 0 0 $panel-crit;
-	}
 
 	// ─── Controls ───
 	.shield-panel-item__control {
@@ -217,17 +215,12 @@ $panel-crit: #b32d2e;
 		align-items: start;
 	}
 
-	// Settings that only apply when the one above is on.
+	// Settings that only apply when the one above is on, indented beneath it.
 	.shield-panel-children {
-		border-left: 2px solid $panel-rule;
 		display: grid;
-		margin: 0 0 0.5rem 0.35rem;
-		padding-left: 1.1rem;
-
-		> .shield-option-item.shield-panel-item:first-child {
-			border-top: 0;
-			padding-top: 0.25rem;
-		}
+		gap: 2px;
+		margin: 0 0 0.5rem;
+		padding-left: 1.5rem;
 	}
 
 	// ─── Slider: a native range input of a fixed width, with the chosen step named above it ───
@@ -383,9 +376,8 @@ $panel-crit: #b32d2e;
 
 	// ─── More options ───
 	.shield-panel-more {
-		border-top: 1px solid $panel-rule;
-		margin-top: 0.25rem;
-		padding: 0.9rem 0 0.25rem;
+		margin-top: 0.75rem;
+		padding: 0.25rem 0;
 	}
 
 	.shield-panel-more__toggle {
@@ -424,9 +416,9 @@ $panel-crit: #b32d2e;
 	}
 
 	.shield-panel-more__body {
-		border-left: 2px solid #e7f0fa;
+		display: grid;
+		gap: 2px;
 		margin-top: 0.5rem;
-		padding-left: 1rem;
 	}
 }
 
@@ -449,15 +441,6 @@ $panel-crit: #b32d2e;
 	.shield-panel-more:not(:has(.shield-option-item:not(.is-filtered-out))),
 	.shield-panel-notices {
 		display: none;
-	}
-
-	// The rule above a setting belongs to the one before it; the first one shown needs none.
-	.shield-panel-block > .shield-option-item.shield-panel-item:not(.is-filtered-out) {
-		border-top: 0;
-	}
-
-	.shield-panel-block > .shield-option-item.shield-panel-item:not(.is-filtered-out) ~ .shield-option-item.shield-panel-item:not(.is-filtered-out) {
-		border-top: 1px solid $panel-rule;
 	}
 }
 

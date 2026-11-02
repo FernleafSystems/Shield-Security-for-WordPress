@@ -38,6 +38,13 @@ class PluginURLs {
 		return empty( $zone ) ? $url : URL::Build( $url, [ 'zone' => $zone ] );
 	}
 
+	/**
+	 * Configure, with the setup guide opened, even when it was finished or dismissed.
+	 */
+	public function setupGuide() :string {
+		return URL::Build( $this->configureHome(), [ 'setup_guide' => 'open' ] );
+	}
+
 	public function investigateHome() :string {
 		return $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW );
 	}

@@ -113,7 +113,7 @@ class ConfigurePanelBuilder {
 						continue;
 					}
 					$seen[ $text ] = true;
-					$fixedBy = $fixLookup[ $text ] ?? '';
+					$fixedBy = $fixLookup[ $text ] ?? $this->soleSettingFor( $row, $optionKeys );
 					$issue = [ 'text' => $text, 'severity' => $severity ];
 					if ( $fixedBy === '' ) {
 						$notices[] = $issue;
@@ -126,6 +126,17 @@ class ConfigurePanelBuilder {
 		}
 
 		return [ 'by_option' => $byOption, 'notices' => $notices ];
+	}
+
+	/**
+	 * A reason that doesn't name the setting that fixes it still belongs with its component's setting, when that
+	 * component has just the one setting here.
+	 * @param array{config_scope:array{option_keys:list<string>}} $row
+	 * @param list<string> $optionKeys
+	 */
+	private function soleSettingFor( array $row, array $optionKeys ) :string {
+		$here = \array_values( \array_intersect( $row[ 'config_scope' ][ 'option_keys' ], $optionKeys ) );
+		return \count( $here ) === 1 ? $here[ 0 ] : '';
 	}
 
 	private function itemsHaveIssues( array $items ) :bool {

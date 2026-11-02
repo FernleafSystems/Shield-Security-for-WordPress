@@ -59,10 +59,14 @@
 	several lanes, and a group one lane flags can arrive as passing from another. List each group once,
 	and only as passing when no lane needs it.
 #}
+{#
+	A group gathering several maintenance items ("System", "WordPress") would only repeat items already listed
+	one by one, so passing lists the items themselves.
+#}
 {% set passing = [] %}
 {% set seen_keys = active_keys %}
 {% for entry in passing_candidates %}
-	{% if entry.group.key not in seen_keys %}
+	{% if entry.group.key not in seen_keys and ( entry.group.key|split( ':' )|first ) not in aggregate_group_keys|default( [] ) %}
 		{% set passing = passing|merge( [ entry ] ) %}
 		{% set seen_keys = seen_keys|merge( [ entry.group.key ] ) %}
 	{% endif %}
@@ -75,9 +79,22 @@
 	{% endif %}
 {% endfor %}
 
-{# A passing check can show both as a group and as a summary row; list it once. #}
+{# A passing check can show both as a group and as a summary row; list it once, and never when it needs action. #}
 {% set passing_labels = passing|map( p => p.group.label|lower ) %}
-{% set healthy_rows = healthy_rows|default( [] )|filter( r => r.title|lower not in passing_labels ) %}
+{% set healthy_rows = healthy_rows|default( [] )|filter( r => r.title|lower not in passing_labels and r.group_key|default( '' ) not in seen_keys ) %}
+{# Shield's own protections first, then WordPress and the server. #}
+{% set passing_blocks = [
+	{
+		label: strings.passing_shield,
+		groups: passing|filter( p => p.group.detail_shell|default( '' ) != 'maintenance' ),
+		rows: healthy_rows|filter( r => r.zone|default( 'scans' ) == 'scans' )
+	},
+	{
+		label: strings.passing_system,
+		groups: passing|filter( p => p.group.detail_shell|default( '' ) == 'maintenance' ),
+		rows: healthy_rows|filter( r => r.zone|default( 'scans' ) == 'maintenance' )
+	}
+]|filter( b => b.groups is not empty or b.rows is not empty ) %}
 {% set passing_count = passing|length + healthy_rows|length %}
 {% set passing_names = ( passing|map( p => p.group.label ) )|merge( healthy_rows|map( r => r.title ) )|filter( n => n is not empty ) %}
 {% set sections = lanes %}
@@ -185,18 +202,25 @@
 				 id="ActionsQueueSectionBody-{{ section.key }}"
 				 {% if not section.is_open and view != 'tabs' %}hidden{% endif %}>
 				{% if section.key == 'passing' %}
-					{% for entry in passing %}
-						{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
-							group: entry.group,
-							bucket_selection: entry.bucket_selection,
-							strings: strings
-						} only %}
-					{% endfor %}
-					{% for row in healthy_rows %}
-						{% include '/wpadmin/components/actions_queue/landing_item_row.twig' with {
-							row: row,
-							is_passing: true
-						} only %}
+					{% for block in passing_blocks %}
+						{% if passing_blocks|length > 1 %}
+							<div class="actions-queue-section__subhead">{{ block.label }}</div>
+						{% endif %}
+						<div class="actions-queue-passing-grid">
+							{% for entry in block.groups %}
+								{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
+									group: entry.group,
+									bucket_selection: entry.bucket_selection,
+									strings: strings
+								} only %}
+							{% endfor %}
+							{% for row in block.rows %}
+								{% include '/wpadmin/components/actions_queue/landing_item_row.twig' with {
+									row: row,
+									is_passing: true
+								} only %}
+							{% endfor %}
+						</div>
 					{% endfor %}
 				{% elseif section.key == 'not_covered' %}
 					{% for entry in not_covered %}

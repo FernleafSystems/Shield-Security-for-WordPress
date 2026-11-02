@@ -174,10 +174,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	 * @return list<GroupSeed>
 	 */
 	private function buildDisabledScanSeedsForBucket( string $bucketKey, array $bucketSource ) :array {
-		if ( $bucketKey !== 'critical' ) {
-			return [];
-		}
-
 		$seeds = [];
 		foreach ( $bucketSource[ 'disabled_groups' ] as $definitionKey => $availability ) {
 			$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
@@ -185,14 +181,15 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				&& $availability[ 'disabled_reason' ] === 'not_enabled';
 			$statusLabel = $availability[ 'disabled_reason' ] === 'upgrade_required'
 				? __( 'Upgrade Required', 'wp-simple-firewall' )
-				: __( 'Not Enabled', 'wp-simple-firewall' );
+				: ( $isFileLockerSetup ? __( 'Not all locked', 'wp-simple-firewall' ) : __( 'Not Enabled', 'wp-simple-firewall' ) );
 
 			$seed = [
 				'key'                     => $definitionKey,
 				'definition_key'          => $definitionKey,
 				'label'                   => $definition[ 'label' ],
 				'item_count'              => 0,
-				'status'                  => 'neutral',
+				// Critical files left unlocked are a warning to review.
+				'status'                  => $isFileLockerSetup ? 'warning' : 'neutral',
 				'narrative'               => $availability[ 'disabled_message' ],
 				'detail_shell'            => $definition[ 'detail_shell' ],
 				'links'                   => [],
@@ -207,12 +204,12 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'header_focus_override'   => $availability[ 'disabled_reason' ] === 'upgrade_required'
 					? __( 'Upgrade your plan to unlock this protection.', 'wp-simple-firewall' )
 					: ( $isFileLockerSetup
-						? __( 'Enable File Locker for the files you want to protect.', 'wp-simple-firewall' )
+						? __( 'Lock each critical file so any change to it is caught.', 'wp-simple-firewall' )
 						: __( 'Open this protection\'s settings to switch it on.', 'wp-simple-firewall' ) ),
 				'header_next_step_override' => $availability[ 'disabled_reason' ] === 'upgrade_required'
 					? __( 'Review the upgrade option for this protection.', 'wp-simple-firewall' )
 					: ( $isFileLockerSetup
-						? __( 'Open File Locker to enable protection for individual files.', 'wp-simple-firewall' )
+						? __( 'Open File Locker and lock the files that are not locked yet.', 'wp-simple-firewall' )
 						: __( 'Review this protection\'s settings and switch it on.', 'wp-simple-firewall' ) ),
 				'header_badge_override'      => $statusLabel,
 				'header_badge_status_override' => 'neutral',

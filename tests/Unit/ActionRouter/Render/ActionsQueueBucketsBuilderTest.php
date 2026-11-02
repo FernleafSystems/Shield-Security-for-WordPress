@@ -266,6 +266,8 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 					'badge_label' => '',
 					'is_ignored'  => false,
 					'actions'     => [],
+					'group_key'   => 'malware',
+					'zone'        => 'scans',
 				],
 				[
 					'icon_class'  => 'bi bi-code-slash',
@@ -275,6 +277,8 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 					'badge_label' => '',
 					'is_ignored'  => false,
 					'actions'     => [],
+					'group_key'   => 'system_php_version',
+					'zone'        => 'maintenance',
 				],
 			],
 			$healthyRows
@@ -333,13 +337,37 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertCount( 2, $classified[ 'review' ][ 'attention_items' ] );
 	}
 
-	private function newBuilder( array $availability = [] ) :ActionsQueueBucketsBuilder {
-		return new ActionsQueueBucketsBuilder(
-			new class( $availability ) extends ScansResultsRailTabAvailability {
-				private array $availability;
+	public function test_classify_puts_unlocked_file_locker_in_review_rather_than_fix_now() :void {
+		$builder = $this->newBuilder( [], [
+			'is_available'          => true,
+			'show_in_actions_queue' => true,
+			'show_in_fix_now'       => true,
+			'disabled_reason'       => 'not_enabled',
+			'disabled_message'      => '2 of 4 critical files are locked.',
+			'disabled_status'       => '',
+			'disabled_actions'      => [],
+		] );
 
-				public function __construct( array $availability ) {
+		$classified = $builder->classify( [ 'items' => [] ] );
+
+		$this->assertArrayNotHasKey( 'file_locker', $classified[ 'critical' ][ 'disabled_groups' ] );
+		$this->assertSame( '2 of 4 critical files are locked.', $classified[ 'review' ][ 'disabled_groups' ][ 'file_locker' ][ 'disabled_message' ] ?? '' );
+		$this->assertSame( 1, $classified[ 'review' ][ 'disabled_item_count' ] );
+	}
+
+	private function newBuilder( array $availability = [], ?array $fileLockerReviewState = null ) :ActionsQueueBucketsBuilder {
+		return new ActionsQueueBucketsBuilder(
+			new class( $availability, $fileLockerReviewState ) extends ScansResultsRailTabAvailability {
+				private array $availability;
+				private ?array $fileLockerReviewState;
+
+				public function __construct( array $availability, ?array $fileLockerReviewState ) {
 					$this->availability = $availability;
+					$this->fileLockerReviewState = $fileLockerReviewState;
+				}
+
+				public function fileLockerReviewState() :?array {
+					return $this->fileLockerReviewState;
 				}
 
 				public function build( string $tabKey ) :array {

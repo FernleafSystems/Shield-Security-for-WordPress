@@ -17,6 +17,12 @@ class SetupGuideState {
 		return !empty( $this->stored()[ 'dismissed_at' ] );
 	}
 
+	public function undismiss() :bool {
+		$state = $this->stored();
+		unset( $state[ 'dismissed_at' ] );
+		return $this->store( $state );
+	}
+
 	public function dismiss() :bool {
 		return $this->store( \array_merge( $this->stored(), [ 'dismissed_at' => Services::Request()->ts() ] ) );
 	}

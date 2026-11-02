@@ -195,7 +195,9 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertIsArray( $wizardTool );
 		$this->assertFalse( $wizardTool[ 'active' ] );
 		$this->assertFalse( $wizardTool[ 'is_action' ] );
-		$this->assertNotSame( '', $wizardTool[ 'href' ] );
+		// Guided Setup opens the setup guide, not the old wizard.
+		$this->assertSame( '/admin/zones/overview?setup_guide=open', $wizardTool[ 'href' ] );
+		$this->assertSame( [ 'setup-guide-open' => '1' ], $wizardTool[ 'data' ] ?? [] );
 
 		$whitelabelTool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-whitelabel' );
 		$this->assertIsArray( $whitelabelTool );

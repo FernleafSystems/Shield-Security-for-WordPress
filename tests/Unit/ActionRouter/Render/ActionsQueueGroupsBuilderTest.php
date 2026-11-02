@@ -1693,6 +1693,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						$this->states = $states;
 					}
 
+					public function fileLockerReviewState() :?array {
+						return null;
+					}
+
 					public function build( string $tabKey ) :array {
 						$state = $this->states[ $tabKey ] ?? [];
 						$isAvailable = (bool)( $state[ 'is_available' ] ?? true );

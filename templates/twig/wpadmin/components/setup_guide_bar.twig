@@ -13,6 +13,7 @@
 		 data-next-template="{{ guide.strings.next|e('html_attr') }}"
 		 data-done-label="{{ guide.strings.done|e('html_attr') }}"
 		 data-total="{{ guide.total }}"
+		 {% if guide.open_now|default(false) %}data-open-now="1"{% endif %}
 		 aria-labelledby="ShieldSetupGuideTitle">
 
 	<div class="shield-setup-guide__bar" data-setup-guide-bar="1">
@@ -23,7 +24,7 @@
 			<span class="shield-setup-guide__progress-fill" style="width: {{ ( 100 * guide.done_count / guide.total )|round }}%"></span>
 		</span>
 		<span class="shield-setup-guide__count" data-setup-guide-count="1">{{ guide.strings.progress|format( guide.done_count, guide.total ) }}</span>
-		<span class="shield-setup-guide__next" data-setup-guide-next="1">{{ guide.strings.next|format( guide.next_name ) }}</span>
+		<span class="shield-setup-guide__next" data-setup-guide-next="1">{{ guide.next_name is not empty ? guide.strings.next|format( guide.next_name ) : '' }}</span>
 		<span class="shield-setup-guide__spacer"></span>
 		<button type="button" class="shield-setup-guide__link" data-setup-guide-hide="1">{{ guide.strings.hide_for_now }}</button>
 		<button type="button" class="shield-setup-guide__link" data-setup-guide-dismiss="1">{{ guide.strings.dismiss }}</button>
@@ -62,7 +63,8 @@
 					<h3 class="shield-setup-guide__pane-title">{{ step.name }}</h3>
 					{% if step.is_done %}
 						<p class="shield-setup-guide__done-note"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> {{ guide.strings.done }}</p>
-					{% else %}
+					{% endif %}
+					{% if step.body is not empty %}
 						<div class="shield-setup-guide__step-body">{{ step.body|raw }}</div>
 					{% endif %}
 					{% if not step.is_done %}
@@ -72,7 +74,7 @@
 					{% endif %}
 				</div>
 			{% endfor %}
-			<div class="shield-setup-guide__pane" data-setup-guide-pane="all_done" hidden>
+			<div class="shield-setup-guide__pane" data-setup-guide-pane="all_done" {% if first_open is not null %}hidden{% endif %}>
 				<p class="shield-setup-guide__done-note"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> {{ guide.strings.all_done }}</p>
 			</div>
 		</div>

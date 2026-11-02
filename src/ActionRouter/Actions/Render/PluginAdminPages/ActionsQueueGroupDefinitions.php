@@ -378,6 +378,14 @@ class ActionsQueueGroupDefinitions {
 		return $itemKey;
 	}
 
+	/**
+	 * The groups that each gather several maintenance items under one heading.
+	 * @return list<string>
+	 */
+	public function reviewMaintenanceAggregateGroupKeys() :array {
+		return \array_keys( self::REVIEW_MAINTENANCE_GROUPS );
+	}
+
 	public function isReviewMaintenanceAggregateGroupKey( string $groupKey ) :bool {
 		return isset( self::REVIEW_MAINTENANCE_GROUPS[ $groupKey ] );
 	}

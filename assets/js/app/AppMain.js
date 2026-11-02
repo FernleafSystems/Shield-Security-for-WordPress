@@ -115,11 +115,10 @@ export class AppMain extends AppBase {
 		this.components.actions_queue_landing = new ActionsQueueLandingController();
 		this.components.actions_queue_sections = new ActionsQueueSections();
 		this.components.detail_row_expand = new DetailRowExpandController();
-		// After the row expander, since the settings tab opens its rows.
-		this.components.reports_tabs = new ReportsTabs();
 		this.components.rail_sidebar = new RailSidebarController();
 		this.components.configure_expand_loader = ( 'zones_manager' in comps ) ? new ConfigureExpandLoader( comps.zones_manager ) : null;
 		this.components.configure_zone_tools = ( 'zones_manager' in comps ) ? new ConfigureZoneTools( comps.zones_manager ) : null;
+		this.components.reports_tabs = new ReportsTabs();
 		this.components.notices = ( 'notices' in comps ) ? new NoticeHandler( comps.notices ) : null;
 		this.components.reports = ( 'reports' in comps ) ? new ReportingHandler( comps.reports ) : null;
 		this.components.rule_builder = ( 'rule_builder' in comps ) ? new RuleBuilder( comps.rule_builder ) : null;

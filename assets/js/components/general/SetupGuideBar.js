@@ -19,18 +19,28 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 
 	run() {
 		this.reopen = document.querySelector( '[data-setup-guide-reopen="1"]' );
-		this.sidebarItem = document.querySelector( '[data-setup-guide-open="1"]' );
+		this.sidebarItem = document.querySelector( '.sidebar-setup-item[data-setup-guide-open="1"]' );
 		this.setHidden( this.readSessionHidden() );
 		this.fillShellToViewport();
 		window.addEventListener( 'resize', () => this.fillShellToViewport() );
 
-		// The sidebar entry brings the guide back, open, whether it was hidden or only collapsed.
-		this.sidebarItem?.addEventListener( 'click', () => {
-			this.writeSessionHidden( false );
-			this.setHidden( false );
-			this.setExpanded( true );
-			this.root.querySelector( '[data-setup-guide-toggle="1"]' )?.focus();
+		// Any link to the guide (the sidebar's, Configure's "Guided Setup") brings it back, open, whether it was
+		// hidden or only collapsed, rather than leaving the page.
+		document.addEventListener( 'click', ( evt ) => {
+			const opener = evt.target instanceof Element ? evt.target.closest( '[data-setup-guide-open="1"]' ) : null;
+			if ( opener !== null && !evt.metaKey && !evt.ctrlKey && !evt.shiftKey ) {
+				evt.preventDefault();
+				this.openNow();
+			}
 		} );
+
+		// Asked for by link: open it now, and tidy the request off the address.
+		if ( this.root.dataset.openNow === '1' ) {
+			this.openNow();
+			const url = new URL( window.location.href );
+			url.searchParams.delete( 'setup_guide' );
+			window.history.replaceState( window.history.state, '', url.toString() );
+		}
 
 		this.root.addEventListener( 'click', ( evt ) => {
 			const target = evt.target instanceof Element ? evt.target : null;
@@ -98,6 +108,13 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 			this.setHidden( false );
 			this.setExpanded( true );
 		} );
+	}
+
+	openNow() {
+		this.writeSessionHidden( false );
+		this.setHidden( false );
+		this.setExpanded( true );
+		this.root.querySelector( '[data-setup-guide-toggle="1"]' )?.focus();
 	}
 
 	setExpanded( isExpanded ) {

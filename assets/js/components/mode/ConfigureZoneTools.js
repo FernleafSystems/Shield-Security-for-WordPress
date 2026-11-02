@@ -119,7 +119,7 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 		if ( persist && this._base_data.ajax.set_ui_preference ) {
 			( new AjaxService() )
 			.bg( ObjectOps.Merge( this._base_data.ajax.set_ui_preference, {
-				pref_key: 'configure_zone_layout',
+				pref_key: 'configure_layout',
 				pref_value: layout,
 			} ) )
 			.catch( () => null );

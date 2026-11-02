@@ -119,15 +119,17 @@ class ActionsQueueBucketsBuilder {
 	public function buildHealthyRows( array $assessmentRowsByZone ) :array {
 		$rows = [];
 
-		foreach ( $assessmentRowsByZone[ 'scans' ] as $row ) {
-			if ( $row[ 'status' ] === 'good' ) {
-				$rows[] = $this->buildHealthyRow( $row );
-			}
-		}
-
-		foreach ( $assessmentRowsByZone[ 'maintenance' ] as $row ) {
-			if ( $row[ 'status' ] === 'good' ) {
-				$rows[] = $this->buildHealthyRow( $row );
+		foreach ( [ 'scans', 'maintenance' ] as $zone ) {
+			foreach ( $assessmentRowsByZone[ $zone ] as $row ) {
+				if ( $row[ 'status' ] === 'good' ) {
+					// The group the row belongs to, so the landing lists it once, and which block it goes in.
+					$rows[] = $this->buildHealthyRow( $row ) + [
+						'group_key' => $zone === 'scans'
+							? $this->groupDefinitions()->groupKeyForSummaryKey( (string)$row[ 'key' ] )
+							: (string)$row[ 'key' ],
+						'zone'      => $zone,
+					];
+				}
 			}
 		}
 
@@ -197,6 +199,16 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		foreach ( $this->groupDefinitions()->criticalScanGroupKeys() as $groupKey ) {
+			// Unlocked critical files are worth reviewing next, not fixing now; changes to locked files come first.
+			if ( $groupKey === 'file_locker' && !$this->hasAttentionForGroup( $sources[ 'critical' ], $groupKey ) ) {
+				$reviewState = $this->scanAvailability()->fileLockerReviewState();
+				if ( $reviewState !== null ) {
+					$sources[ 'review' ][ 'disabled_item_count' ]++;
+					$sources[ 'review' ][ 'disabled_groups' ][ $groupKey ] = $reviewState;
+					continue;
+				}
+			}
+
 			$availability = $this->scanAvailability()->build( $groupKey );
 			if ( empty( $availability[ 'show_in_fix_now' ] ) || !empty( $availability[ 'is_available' ] ) ) {
 				continue;
@@ -210,6 +222,18 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		return $sources;
+	}
+
+	/**
+	 * @param BucketSource $bucketSource
+	 */
+	private function hasAttentionForGroup( array $bucketSource, string $groupKey ) :bool {
+		foreach ( $bucketSource[ 'attention_items' ] as $item ) {
+			if ( $this->groupDefinitions()->groupKeyForSummaryKey( $item[ 'key' ] ) === $groupKey ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private function bucketKeyForStatus( string $status ) :string {

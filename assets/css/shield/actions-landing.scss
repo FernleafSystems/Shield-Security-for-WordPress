@@ -845,8 +845,8 @@ $aq-pro-bg: #f2ebfc;
 	}
 }
 
-// Passing checks need no detail: a compact two-column list, one line each.
-.actions-queue-section[data-actions-queue-section-key="passing"] .actions-queue-section__body:not([hidden]) {
+// Passing checks need no detail: a compact two-column list, one line each, in a block per kind of check.
+.actions-queue-passing-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 
@@ -871,7 +871,7 @@ $aq-pro-bg: #f2ebfc;
 }
 
 @media (max-width: 700px) {
-	.actions-queue-section[data-actions-queue-section-key="passing"] .actions-queue-section__body:not([hidden]) {
+	.actions-queue-passing-grid {
 		grid-template-columns: minmax(0, 1fr);
 
 		> .actions-queue-row {
@@ -1012,6 +1012,15 @@ html.shield-results-overlay-open {
 		&:has(> [data-operator-context-rail="1"]:not([hidden])) > .drill-layer__body {
 			grid-column: 1;
 		}
+
+		// The panel is already the frame, so the results sit straight on it rather than in a box of their own.
+		.actions-queue-detail {
+			background: none;
+			border: 0;
+			border-radius: 0;
+			box-shadow: none;
+			padding: 0;
+		}
 	}
 }
 
@@ -1062,4 +1071,105 @@ html.shield-results-overlay-open {
 			padding: 1rem;
 		}
 	}
+}
+
+// ─── File Locker: one tab per critical file ───
+.actions-queue-file-tabs {
+	--shield-tabs-accent: #2271b1;
+	margin-bottom: 1rem;
+
+	.actions-queue-file-tab {
+		background: none;
+		border-left: 0;
+		border-right: 0;
+		border-top: 0;
+		cursor: pointer;
+
+		&.is-active {
+			border-bottom-color: var(--shield-tabs-accent);
+			color: #1d2327;
+			font-weight: 600;
+		}
+	}
+}
+
+.actions-queue-file-tab__dot {
+	background: #a7aaad;
+	border-radius: 50%;
+	display: inline-block;
+	height: 8px;
+	width: 8px;
+
+	.status-good > & {
+		background: #00a32a;
+	}
+
+	.status-warning > & {
+		background: #dba617;
+	}
+
+	.status-critical > & {
+		background: #d63638;
+	}
+}
+
+// The tab says which file this is, so its panel needs no card, title or close button.
+.actions-queue-file-panel.card[data-mode-panel="1"] {
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	margin: 0;
+
+	> .shield-card-accent {
+		display: none;
+	}
+
+	> .card-body {
+		padding: 0;
+
+		// The title stays for screen readers, keeping the headings in order; the close button goes.
+		> .d-flex:first-child {
+			clip-path: inset(50%);
+			height: 1px;
+			margin: 0 !important;
+			overflow: hidden;
+			position: absolute;
+			white-space: nowrap;
+			width: 1px;
+
+			.mode-panel-close-btn {
+				display: none;
+			}
+		}
+	}
+}
+
+.actions-queue-file-panel__head {
+	align-items: baseline;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem 1rem;
+	margin-bottom: 0.9rem;
+}
+
+.actions-queue-file-panel__state {
+	color: #1d2327;
+	font-weight: 500;
+
+	&.status-warning {
+		color: #996800;
+	}
+
+	&.status-good {
+		color: #007017;
+	}
+}
+
+.actions-queue-file-panel__path {
+	background: none;
+	color: #646970;
+	font-size: 12px;
+	overflow-wrap: anywhere;
+	padding: 0;
 }

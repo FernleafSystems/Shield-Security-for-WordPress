@@ -37,9 +37,12 @@ class InactiveUsers extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
-			$status[ 'exp' ][] = $hasManualSuspend
-				? __( 'Only manual user suspension is available; users are not suspended automatically.', 'wp-simple-firewall' )
-				: __( 'No effective automatic user suspension rule is configured.', 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy(
+				$hasManualSuspend
+					? __( 'Only manual user suspension is available; users are not suspended automatically.', 'wp-simple-firewall' )
+					: __( 'No effective automatic user suspension rule is configured.', 'wp-simple-firewall' ),
+				'auto_idle_days'
+			);
 		}
 
 		if ( $autoPasswordEnabled && !$hasAutoPasswordSuspend ) {

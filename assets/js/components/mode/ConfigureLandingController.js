@@ -486,6 +486,7 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 	}
 
 	openDiagnosisSelection( zone, { sourceEl = null, focusRequestJson = '', historyUrl = '' } = {} ) {
+		this.stashOpenDiagnosis();
 		const shell = this.shellEl;
 		const diagnosisIndex = this.getLayerIndexByKey( shell, 'diagnosis' );
 		const drillCtrl = this.getDrillDownController();
@@ -693,9 +694,30 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 			...( this.selectedZone || {} ),
 			...zoneSelection,
 		};
-		this.applyLayerHtml( diagnosisBody, cacheEntry.html );
+		if ( cacheEntry.node instanceof HTMLElement ) {
+			diagnosisBody.replaceChildren( cacheEntry.node );
+		}
+		else {
+			this.applyLayerHtml( diagnosisBody, cacheEntry.html );
+		}
 		drillCtrl.updateLayerHeader( this.shellEl, 1, cacheEntry.header );
 		this.reinitializeExpandLoader();
+	}
+
+	/**
+	 * Keeps the goal being left just as it is, its settings already loaded, so going back to its tab is instant.
+	 * Saving starts the cache afresh, so no goal shows settings from before a save.
+	 */
+	stashOpenDiagnosis() {
+		const diagnosis = this.getDiagnosisLayerBody()?.querySelector( '[data-configure-diagnosis="1"]' ) || null;
+		const zoneKey = diagnosis instanceof HTMLElement ? String( diagnosis.dataset.configureZone || '' ).trim() : '';
+		const cacheEntry = zoneKey.length > 0 ? this.readDiagnosisCacheEntry( zoneKey ) : null;
+		if ( cacheEntry === null || diagnosis.querySelector( 'form.options_form_for' ) === null ) {
+			return;
+		}
+		// The filter carries from goal to goal, so it is applied afresh when this one is shown again.
+		delete diagnosis.dataset.filterRestored;
+		cacheEntry.node = diagnosis;
 	}
 
 	getDiagnosisLayerBody() {

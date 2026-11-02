@@ -66,7 +66,7 @@ class PluginSetUiPreferenceTest extends BaseUnitTest {
 		}
 
 		$this->assertSame( [ UiPreferences::ACTIONS_QUEUE_VIEW => 'tabs' ], $meta->ui_prefs );
-		$this->assertSame( 'expand', ( new UiPreferences() )->get( UiPreferences::CONFIGURE_ZONE_LAYOUT ) );
+		$this->assertSame( 'list', ( new UiPreferences() )->get( UiPreferences::CONFIGURE_ZONE_LAYOUT ) );
 		$this->assertSame( 'tabs', ( new UiPreferences() )->get( UiPreferences::ACTIONS_QUEUE_VIEW ) );
 	}
 

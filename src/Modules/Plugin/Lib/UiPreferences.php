@@ -12,11 +12,12 @@ class UiPreferences {
 
 	use PluginControllerConsumer;
 
-	public const CONFIGURE_ZONE_LAYOUT = 'configure_zone_layout';
+	// Renamed when the component list became the default, so earlier choices start again from it.
+	public const CONFIGURE_ZONE_LAYOUT = 'configure_layout';
 	public const ACTIONS_QUEUE_VIEW = 'actions_queue_view';
 
 	private const CHOICES = [
-		self::CONFIGURE_ZONE_LAYOUT => [ 'expand', 'list' ],
+		self::CONFIGURE_ZONE_LAYOUT => [ 'list', 'expand' ],
 		self::ACTIONS_QUEUE_VIEW    => [ 'sections', 'tabs' ],
 	];
 

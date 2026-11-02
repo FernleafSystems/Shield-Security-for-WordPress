@@ -2728,14 +2728,6 @@
             {
                 "value_key": "weekly",
                 "text": "Weekly"
-            },
-            {
-                "value_key": "biweekly",
-                "text": "Bi-Weekly"
-            },
-            {
-                "value_key": "monthly",
-                "text": "Monthly"
             }
         ],
         "link_info": "https://clk.shldscrty.com/ha",

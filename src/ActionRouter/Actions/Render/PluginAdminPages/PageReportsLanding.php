@@ -97,12 +97,13 @@ class PageReportsLanding extends PageModeLandingBase {
 	}
 
 	/**
-	 * Configure's own panels for reports and alerts, without its filter and layout tools.
+	 * Configure's own panels for reports and alerts, as its component list, without its filter and layout tools.
 	 */
 	protected function renderSettings() :string {
 		$data = $this->buildConfigureDiagnosisRenderData( self::SETTINGS_GOAL );
 		unset( $data[ 'zone_tools' ] );
 		$data[ 'is_embedded' ] = true;
+		$data[ 'zone_layout' ] = 'list';
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/configure/layer_diagnosis.twig' )
 			->setData( $data )

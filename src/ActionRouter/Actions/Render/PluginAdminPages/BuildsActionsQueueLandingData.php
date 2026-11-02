@@ -142,6 +142,7 @@ trait BuildsActionsQueueLandingData {
 				'buckets'       => $this->getBucketsData(),
 				'bucket_groups' => $bucketGroups,
 				'healthy_rows'  => $this->getHealthyRowsData(),
+				'aggregate_group_keys' => ( new ActionsQueueGroupDefinitions() )->reviewMaintenanceAggregateGroupKeys(),
 				'view'          => ( new UiPreferences() )->get( UiPreferences::ACTIONS_QUEUE_VIEW ),
 				'set_view_action_json' => ActionData::BuildJson( PluginSetUiPreference::class ),
 				'strings'       => [
@@ -155,6 +156,8 @@ trait BuildsActionsQueueLandingData {
 					/* translators: %1$s: the first few check names, %2$s: how many more */
 					'passing_more'  => __( '%1$s and %2$s more', 'wp-simple-firewall' ),
 					'not_covered_label'   => __( 'Not covered', 'wp-simple-firewall' ),
+					'passing_shield' => __( 'Shield protections', 'wp-simple-firewall' ),
+					'passing_system' => __( 'System', 'wp-simple-firewall' ),
 					'pro_pill'       => __( 'Shield Pro', 'wp-simple-firewall' ),
 					'turned_off_pill' => __( 'Turned off', 'wp-simple-firewall' ),
 					'compare_plans'  => __( 'Compare plans', 'wp-simple-firewall' ),

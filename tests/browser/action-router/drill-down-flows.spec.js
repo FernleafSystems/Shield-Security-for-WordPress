@@ -413,6 +413,10 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	}
 	const expandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' ).first();
 	const expandButton = expandRow.locator( '[data-shield-expand-trigger="1"]' );
+	// The component list opens its first component, which stays open when switching layout.
+	if ( await expandButton.getAttribute( 'aria-expanded' ) === 'true' ) {
+		await expandButton.click();
+	}
 	await expect( expandRow ).not.toHaveAttribute( 'role', 'button' );
 	await expect( expandRow ).not.toHaveAttribute( 'tabindex', '0' );
 	await expect( expandButton ).toBeVisible();

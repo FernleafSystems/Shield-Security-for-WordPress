@@ -43,7 +43,7 @@
 
 {% from _self import render_rows %}
 {% set diagnosis_id = 'configure-diagnosis-' ~ diagnosis.zone_key %}
-{% set zone_layout = zone_tools.layout|default('expand') %}
+{% set zone_layout = zone_layout|default( zone_tools.layout|default( 'list' ) ) %}
 <div class="configure-diagnosis configure-diagnosis--layout-{{ zone_layout }}"
 	 data-configure-diagnosis="1"
 	 data-configure-zone="{{ diagnosis.zone_key }}"

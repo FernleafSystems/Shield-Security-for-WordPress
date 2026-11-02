@@ -222,6 +222,11 @@ class NavMenuBuilder {
 			'puzzle'
 		);
 
+		// Guided Setup opens the setup guide: in place when it's on the page, or by its link.
+		$toolItemsById[ 'tool_guidedsetup' ][ 'href' ] = self::con()->plugin_urls->setupGuide();
+		$toolItemsById[ 'tool_guidedsetup' ][ 'active' ] = false;
+		$toolItemsById[ 'tool_guidedsetup' ][ 'data' ] = [ 'setup-guide-open' => '1' ];
+
 		// Configure sidebar mixes route links and zone offcanvas actions, so final UI order lives here.
 		return \array_map(
 			function ( string $toolId ) use ( $toolItemsById ) :array {
