@@ -413,7 +413,7 @@ class PluginNavs {
 				'summary' => $labels[ $goalKey ][ 'summary' ],
 				'goal'    => $goalKey,
 			];
-			if ( \in_array( $goalKey, [ 'alerts', 'shield' ], true ) ) {
+			if ( \in_array( $goalKey, [ 'alerts', 'shield', 'integrations' ], true ) ) {
 				$tile[ 'include_in_posture' ] = false;
 			}
 			$tiles[] = $tile;

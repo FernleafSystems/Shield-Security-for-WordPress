@@ -38,7 +38,7 @@
 						data-drill-zone-selection="{{ tab.selection_json|e('html_attr') }}"
 						title="{{ tab.title }}"
 						{% if current_tab == tab.key %}aria-current="page"{% endif %}>
-					<span class="configure-tabs__dot" aria-hidden="true"></span>{{ tab.label }}
+					<i class="configure-tabs__icon {{ tab.icon_class }}" aria-hidden="true"></i>{{ tab.label }}
 				</button>
 			{% endfor %}
 		</nav>

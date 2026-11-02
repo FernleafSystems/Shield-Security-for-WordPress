@@ -568,23 +568,44 @@ $aq-pro-bg: #f2ebfc;
 	}
 }
 
+// A section's groups each sit in a box of their own, a little apart, as Investigate lists what it finds.
 .actions-queue-section__body {
 	border-top: 1px solid $aq-line;
+	display: grid;
+	gap: 10px;
+	padding: 12px;
+
+	&[hidden] {
+		display: none;
+	}
 }
 
-.actions-queue-section__subhead {
-	background: #fafafa;
-	border-top: 1px solid $aq-soft-line;
-	color: $aq-muted;
-	font-size: 11px;
-	font-weight: 700;
-	letter-spacing: 0.06em;
-	padding: 6px 14px;
-	text-transform: uppercase;
+.actions-queue-box {
+	background: #ffffff;
+	border: 1px solid $aq-line;
+	border-radius: 8px;
+	overflow: hidden;
 
-	&:first-child {
+	> .actions-queue-row:first-child,
+	> .actions-queue-box__head + .actions-queue-row,
+	> .actions-queue-row-group {
 		border-top: 0;
 	}
+}
+
+.actions-queue-box__head,
+.actions-queue-row-group__head {
+	align-items: center;
+	background: #f6f7f7;
+	border-bottom: 1px solid $aq-line;
+	color: #50575e;
+	display: flex;
+	font-size: 11px;
+	font-weight: 700;
+	gap: 8px;
+	letter-spacing: 0.06em;
+	padding: 7px 14px;
+	text-transform: uppercase;
 }
 
 // One row per issue group or item: icon, what it is, a line of detail, and the action.
@@ -603,7 +624,6 @@ $aq-pro-bg: #f2ebfc;
 	text-align: left;
 	width: 100%;
 
-	.actions-queue-section__body > &:first-child,
 	.actions-queue-row-group__head + & {
 		border-top: 0;
 	}
@@ -776,28 +796,7 @@ $aq-pro-bg: #f2ebfc;
 	}
 }
 
-// A group of maintenance items: a small heading row, then one row per item.
-.actions-queue-row-group {
-	border-top: 1px solid $aq-soft-line;
-
-	.actions-queue-section__body > &:first-child {
-		border-top: 0;
-	}
-}
-
-.actions-queue-row-group__head {
-	align-items: center;
-	background: #fafafa;
-	border-bottom: 1px solid $aq-soft-line;
-	color: $aq-muted;
-	display: flex;
-	font-size: 11px;
-	font-weight: 700;
-	gap: 8px;
-	letter-spacing: 0.06em;
-	padding: 6px 14px;
-	text-transform: uppercase;
-}
+// A group of maintenance items: a small heading row (styled with the box headings above), then one row per item.
 
 .actions-queue-row-group__link {
 	color: #0a58ca;

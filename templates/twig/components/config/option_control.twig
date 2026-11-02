@@ -118,6 +118,7 @@
 			   id="Opt-{{ option.key }}_confirm"
 			   value="{{ option.value|raw }}"
 			   placeholder="{{ strings.confirm_password }}"
+			   aria-label="{{ strings.confirm_password }}"
 			   autocomplete="new-password"
 			   {% if option.disabled %}disabled="disabled"{% endif %}
 			   class="form-control" />

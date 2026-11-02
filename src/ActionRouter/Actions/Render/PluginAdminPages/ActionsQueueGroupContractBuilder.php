@@ -52,6 +52,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-type GroupSectionEntry array{
  *   section_key:string,
  *   heading_label:string,
+ *   heading_icon:string,
  *   group:GroupData
  * }
  */
@@ -255,6 +256,7 @@ class ActionsQueueGroupContractBuilder {
 			$entry = [
 				'section_key'   => $this->groupDefinitions->sectionKeyForGroupKey( $seed[ 'definition_key' ] ),
 				'heading_label' => $this->groupDefinitions->sectionLabelForGroupKey( $seed[ 'definition_key' ] ),
+				'heading_icon'  => $this->groupDefinitions->sectionIconForGroupKey( $seed[ 'definition_key' ] ),
 				'group'         => $group,
 			];
 			if ( $this->isActiveStatus( $group[ 'status' ] ) ) {
@@ -468,6 +470,7 @@ class ActionsQueueGroupContractBuilder {
 			\usort( $section[ 'groups' ], fn( array $left, array $right ) :int => $this->compareGroups( $left, $right, false ) );
 			return [
 				'heading_label' => $section[ 'heading_label' ],
+				'heading_icon'  => $section[ 'heading_icon' ],
 				'groups'        => $section[ 'groups' ],
 			];
 		}, $sections ) );
@@ -484,6 +487,7 @@ class ActionsQueueGroupContractBuilder {
 		return \array_values( \array_map( function ( array $section ) :array {
 			return [
 				'heading_label' => $section[ 'heading_label' ],
+				'heading_icon'  => $section[ 'heading_icon' ],
 				'groups'        => $section[ 'groups' ],
 			];
 		}, $sections ) );
@@ -494,6 +498,7 @@ class ActionsQueueGroupContractBuilder {
 	 * @return list<array{
 	 *   section_key:string,
 	 *   heading_label:string,
+	 *   heading_icon:string,
 	 *   groups:list<GroupData>
 	 * }>
 	 */
@@ -505,6 +510,7 @@ class ActionsQueueGroupContractBuilder {
 				$sections[ $sectionKey ] = [
 					'section_key'    => $sectionKey,
 					'heading_label'  => $entry[ 'heading_label' ],
+					'heading_icon'   => $entry[ 'heading_icon' ],
 					'groups'        => [],
 				];
 			}
@@ -515,8 +521,8 @@ class ActionsQueueGroupContractBuilder {
 	}
 
 	/**
-	 * @param array{section_key:string,heading_label:string,groups:list<GroupData>} $left
-	 * @param array{section_key:string,heading_label:string,groups:list<GroupData>} $right
+	 * @param array{section_key:string,heading_label:string,heading_icon:string,groups:list<GroupData>} $left
+	 * @param array{section_key:string,heading_label:string,heading_icon:string,groups:list<GroupData>} $right
 	 */
 	private function compareActiveSections( array $left, array $right ) :int {
 		$statusCmp = StatusPriority::rank( StatusPriority::highest( \array_column( $right[ 'groups' ], 'status' ) ) )

@@ -59,6 +59,38 @@ class ConfigureGoalPanels {
 	 */
 	public static function goals() :array {
 		return [
+			'control'  => [
+				'icon'   => 'shield-lock',
+				'topics' => [
+					'security_admin' => [
+						'icon'   => 'key',
+						'blocks' => [
+							[ 'items' => [ [ 'key' => 'admin_access_key', 'control' => 'field' ] ] ],
+							[ 'items' => [ [ 'key' => 'admin_access_timeout', 'control' => 'slider', 'stops' => [ 5, 15, 30, 60, 120 ] ] ] ],
+							[ 'items' => [ [ 'key' => 'allow_email_override', 'control' => 'toggle' ] ] ],
+							[ 'items' => [ [ 'key' => 'sec_admin_users', 'control' => 'field' ] ] ],
+						],
+					],
+					'admin_actions'  => [
+						'icon'   => 'shield-check',
+						'blocks' => [
+							[
+								'items' => [
+									[ 'key' => 'admin_access_restrict_options', 'control' => 'toggle' ],
+									[ 'key' => 'admin_access_restrict_admin_users', 'control' => 'toggle' ],
+								],
+							],
+							[
+								'items' => [
+									[ 'key' => 'admin_access_restrict_plugins', 'control' => 'chips' ],
+									[ 'key' => 'admin_access_restrict_themes', 'control' => 'chips' ],
+									[ 'key' => 'admin_access_restrict_posts', 'control' => 'chips' ],
+								],
+							],
+						],
+					],
+				],
+			],
 			'accounts' => [
 				'icon'   => 'people',
 				'topics' => [
@@ -449,32 +481,44 @@ class ConfigureGoalPanels {
 					],
 				],
 			],
-			'control'  => [
-				'icon'   => 'shield-lock',
+			'shield'   => [
+				'icon'   => 'sliders',
 				'topics' => [
-					'security_admin' => [
-						'icon'   => 'key',
+					'general'      => [
+						'icon'   => 'sliders',
 						'blocks' => [
-							[ 'items' => [ [ 'key' => 'admin_access_key', 'control' => 'field' ] ] ],
-							[ 'items' => [ [ 'key' => 'admin_access_timeout', 'control' => 'slider', 'stops' => [ 5, 15, 30, 60, 120 ] ] ] ],
-							[ 'items' => [ [ 'key' => 'allow_email_override', 'control' => 'toggle' ] ] ],
-							[ 'items' => [ [ 'key' => 'sec_admin_users', 'control' => 'field' ] ] ],
-						],
-					],
-					'admin_actions'  => [
-						'icon'   => 'shield-check',
-						'blocks' => [
+							[ 'items' => [ [ 'key' => 'global_enable_plugin_features', 'control' => 'toggle' ] ] ],
+							[ 'heading' => 'visitor_ip', 'items' => [ [ 'key' => 'visitor_address_source', 'control' => 'field' ] ] ],
+							[ 'heading' => 'updates', 'items' => [ [ 'key' => 'autoupdate_plugin_self', 'control' => 'segmented' ] ] ],
+							[ 'heading' => 'on_your_site', 'items' => [ [ 'key' => 'display_plugin_badge', 'control' => 'segmented' ] ] ],
 							[
-								'items' => [
-									[ 'key' => 'admin_access_restrict_options', 'control' => 'toggle' ],
-									[ 'key' => 'admin_access_restrict_admin_users', 'control' => 'toggle' ],
+								'heading' => 'in_your_dashboard',
+								'items'   => [
+									[ 'key' => 'enable_upgrade_admin_notice', 'control' => 'toggle' ],
+									[ 'key' => 'enable_tracking', 'control' => 'toggle' ],
 								],
 							],
+						],
+						'more'   => [
+							[ 'key' => 'enable_mu', 'control' => 'toggle' ],
+							[ 'key' => 'delete_on_deactivate', 'control' => 'toggle' ],
+							[ 'key' => 'preferred_temp_dir', 'control' => 'field' ],
+							[ 'key' => 'language_override', 'control' => 'field' ],
+							[ 'key' => 'enable_beta', 'control' => 'toggle' ],
+						],
+					],
+				],
+			],
+			'integrations' => [
+				'icon'   => 'puzzle',
+				'topics' => [
+					'integrations' => [
+						'icon'   => 'puzzle',
+						'blocks' => [
 							[
 								'items' => [
-									[ 'key' => 'admin_access_restrict_plugins', 'control' => 'chips' ],
-									[ 'key' => 'admin_access_restrict_themes', 'control' => 'chips' ],
-									[ 'key' => 'admin_access_restrict_posts', 'control' => 'chips' ],
+									[ 'key' => 'enable_mainwp', 'control' => 'toggle' ],
+									[ 'key' => 'enable_auto_integrations', 'control' => 'toggle' ],
 								],
 							],
 						],
@@ -515,45 +559,6 @@ class ConfigureGoalPanels {
 					],
 				],
 			],
-			'shield'   => [
-				'icon'   => 'sliders',
-				'topics' => [
-					'general'      => [
-						'icon'   => 'sliders',
-						'blocks' => [
-							[ 'items' => [ [ 'key' => 'global_enable_plugin_features', 'control' => 'toggle' ] ] ],
-							[ 'heading' => 'visitor_ip', 'items' => [ [ 'key' => 'visitor_address_source', 'control' => 'field' ] ] ],
-							[ 'heading' => 'updates', 'items' => [ [ 'key' => 'autoupdate_plugin_self', 'control' => 'segmented' ] ] ],
-							[ 'heading' => 'on_your_site', 'items' => [ [ 'key' => 'display_plugin_badge', 'control' => 'segmented' ] ] ],
-							[
-								'heading' => 'in_your_dashboard',
-								'items'   => [
-									[ 'key' => 'enable_upgrade_admin_notice', 'control' => 'toggle' ],
-									[ 'key' => 'enable_tracking', 'control' => 'toggle' ],
-								],
-							],
-						],
-						'more'   => [
-							[ 'key' => 'enable_mu', 'control' => 'toggle' ],
-							[ 'key' => 'delete_on_deactivate', 'control' => 'toggle' ],
-							[ 'key' => 'preferred_temp_dir', 'control' => 'field' ],
-							[ 'key' => 'language_override', 'control' => 'field' ],
-							[ 'key' => 'enable_beta', 'control' => 'toggle' ],
-						],
-					],
-					'integrations' => [
-						'icon'   => 'puzzle',
-						'blocks' => [
-							[
-								'items' => [
-									[ 'key' => 'enable_mainwp', 'control' => 'toggle' ],
-									[ 'key' => 'enable_auto_integrations', 'control' => 'toggle' ],
-								],
-							],
-						],
-					],
-				],
-			],
 		];
 	}
 
@@ -569,9 +574,14 @@ class ConfigureGoalPanels {
 	public static function labels() :array {
 		return [
 			'goals'    => [
+				'control'  => [
+					'label'   => __( 'Control who changes your site', 'wp-simple-firewall' ),
+					'tab'     => __( 'Security Admins', 'wp-simple-firewall' ),
+					'summary' => __( 'Stop a compromised admin account changing Shield or other admins.', 'wp-simple-firewall' ),
+				],
 				'accounts' => [
 					'label'   => __( 'Protect user accounts', 'wp-simple-firewall' ),
-					'tab'     => __( 'Accounts', 'wp-simple-firewall' ),
+					'tab'     => __( 'Users', 'wp-simple-firewall' ),
 					'summary' => __( 'Keep the people who log in safe, even when a password leaks.', 'wp-simple-firewall' ),
 				],
 				'login'    => [
@@ -586,7 +596,7 @@ class ConfigureGoalPanels {
 				],
 				'code'     => [
 					'label'   => __( 'Find hacked and risky code', 'wp-simple-firewall' ),
-					'tab'     => __( 'Code', 'wp-simple-firewall' ),
+					'tab'     => __( 'Scans', 'wp-simple-firewall' ),
 					'summary' => __( 'Spot changed, malicious or vulnerable code quickly.', 'wp-simple-firewall' ),
 				],
 				'spam'     => [
@@ -599,20 +609,20 @@ class ConfigureGoalPanels {
 					'tab'     => __( 'Hardening', 'wp-simple-firewall' ),
 					'summary' => __( 'Close doors WordPress leaves open by default.', 'wp-simple-firewall' ),
 				],
-				'control'  => [
-					'label'   => __( 'Control who changes your site', 'wp-simple-firewall' ),
-					'tab'     => __( 'Admins', 'wp-simple-firewall' ),
-					'summary' => __( 'Stop a compromised admin account changing Shield or other admins.', 'wp-simple-firewall' ),
+				'shield'   => [
+					'label'   => __( 'Shield settings', 'wp-simple-firewall' ),
+					'tab'     => __( 'Shield', 'wp-simple-firewall' ),
+					'summary' => __( 'How Shield itself runs on this site.', 'wp-simple-firewall' ),
+				],
+				'integrations' => [
+					'label'   => __( 'Integrations', 'wp-simple-firewall' ),
+					'tab'     => __( 'Integrations', 'wp-simple-firewall' ),
+					'summary' => __( 'Connect Shield with MainWP and the plugins on your site.', 'wp-simple-firewall' ),
 				],
 				'alerts'   => [
 					'label'   => __( 'Reports and alerts', 'wp-simple-firewall' ),
 					'tab'     => __( 'Reports', 'wp-simple-firewall' ),
 					'summary' => __( 'Who hears about what, and how often.', 'wp-simple-firewall' ),
-				],
-				'shield'   => [
-					'label'   => __( 'Shield settings', 'wp-simple-firewall' ),
-					'tab'     => __( 'Shield', 'wp-simple-firewall' ),
-					'summary' => __( 'How Shield itself runs and connects.', 'wp-simple-firewall' ),
 				],
 			],
 			'topics'   => [

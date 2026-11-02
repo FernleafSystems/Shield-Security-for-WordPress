@@ -54,25 +54,24 @@
 	}
 }
 
-.configure-tabs__dot {
-	background: $status-color-good;
-	border-radius: 50%;
-	display: inline-block;
+// Each goal's icon, coloured by how the goal stands.
+.configure-tabs__icon {
+	color: $status-color-good;
 	flex: none;
-	height: 8px;
-	width: 8px;
+	font-size: 14px;
+	line-height: 1;
 
 	.status-warning > & {
-		background: $status-color-warning;
+		color: $status-color-warning;
 	}
 
 	.status-critical > & {
-		background: $status-color-critical;
+		color: $status-color-critical;
 	}
 
 	.status-neutral > &,
 	.status-info > & {
-		background: #a7aaad;
+		color: #8c8f94;
 	}
 }
 

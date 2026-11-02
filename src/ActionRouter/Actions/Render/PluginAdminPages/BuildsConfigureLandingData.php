@@ -164,9 +164,9 @@ trait BuildsConfigureLandingData {
 	}
 
 	/**
-	 * One tab for each goal, in the goals' own order, carrying what opens it, its status, and the words of
-	 * its settings so a filter can show which goals have anything that matches.
-	 * @return list<array{key:string,label:string,title:string,summary:string,status:string,needs_attention:bool,selection_json:string,search_text:string}>
+	 * One tab for each goal, in the goals' own order, carrying its icon, what opens it, its status, and the
+	 * words of its settings so a filter can show which goals have anything that matches.
+	 * @return list<array{key:string,label:string,icon_class:string,title:string,summary:string,status:string,needs_attention:bool,selection_json:string,search_text:string}>
 	 */
 	protected function buildConfigureTabs() :array {
 		$cards = [];
@@ -186,6 +186,7 @@ trait BuildsConfigureLandingData {
 			$tabs[] = [
 				'key'             => $goalKey,
 				'label'           => $labels[ 'goals' ][ $goalKey ][ 'tab' ] ?? $card[ 'label' ],
+				'icon_class'      => self::con()->svgs->iconClass( $goal[ 'icon' ] ),
 				'title'           => $card[ 'label' ],
 				'summary'         => $card[ 'summary' ],
 				'status'          => $card[ 'status' ],

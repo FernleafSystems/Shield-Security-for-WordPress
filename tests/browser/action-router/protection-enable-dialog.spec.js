@@ -21,6 +21,19 @@ async function openProtection( page, tile ) {
 		save: dialog.getByRole( 'button', { name: config.save_label, exact: true } ),
 		cancel: dialog.getByRole( 'button', { name: config.cancel_label, exact: true } ) };
 }
+// Each critical file has its own tab; open the first one whose file isn't locked yet.
+async function firstUnlockedFile( files ) {
+	const tabs = files.locator( '[role="tab"]' );
+	await expect( tabs.first() ).toBeVisible();
+	for ( let index = 0; index < await tabs.count(); index++ ) {
+		await tabs.nth( index ).click();
+		const lock = files.locator( '[data-enable-protection]:visible' ).first();
+		if ( await lock.waitFor( { state: 'visible', timeout: 2000 } ).then( () => true, () => false ) ) {
+			return lock;
+		}
+	}
+	throw new Error( 'No critical file is left to lock.' );
+}
 function isEnableRequest( request ) {
 	const p = new URLSearchParams( request.postData() || '' );
 	return request.method() === 'POST' && p.get( 'action' ) === 'shield_action' && p.get( 'ex' ) === 'scans_enable';
@@ -49,7 +62,7 @@ test( 'premium protection tiles enable individual scans and files with accessibl
 		await ( await queue.waitForLandingGroupOuter( 'file_locker' ) ).click();
 		const files = page.locator( '[data-actions-queue-asset-cards="1"]' );
 		for ( let index = 0; index < 2; index++ ) {
-			const c = await openProtection( page, files.locator( '[data-enable-protection]' ).first() );
+			const c = await openProtection( page, await firstUnlockedFile( files ) );
 			await c.toggle.check(); await c.save.click(); await expect( c.dialog ).not.toBeVisible();
 			await expect.poll( () => files.locator( '[data-enable-protection]' ).evaluateAll(
 				( tiles, key ) => tiles.some( el => JSON.parse( el.dataset.enableProtection ).action.file_key === key ), c.config.action.file_key

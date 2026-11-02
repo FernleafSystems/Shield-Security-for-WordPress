@@ -29,6 +29,7 @@ class ConfigureZoneDiagnosisBuilder {
 		'spam'     => 'SPAM controls reduce low-value submissions before they become moderation or abuse problems.',
 		'harden'   => 'Hardening and HTTP headers strengthen the browser-facing security posture around transport and content handling.',
 		'shield'   => 'General controls shape site-wide defaults and supporting security behaviour that other areas depend on.',
+		'integrations' => 'Integrations connect Shield with MainWP and the plugins on the site, so their forms and logins are protected too.',
 		'alerts'   => 'Reports and alerts control how site security activity is surfaced to administrators.',
 	];
 

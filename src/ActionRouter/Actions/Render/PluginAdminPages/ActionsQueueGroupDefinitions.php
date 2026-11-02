@@ -343,6 +343,22 @@ class ActionsQueueGroupDefinitions {
 	}
 
 	/**
+	 * The icon beside a section's heading, so it reads like the group headings around it.
+	 */
+	public function sectionIconForGroupKey( string $groupKey ) :string {
+		switch ( $this->sectionKeyForGroupKey( $groupKey ) ) {
+			case 'wordpress':
+				return 'bi bi-file-earmark-check';
+
+			case 'vulnerabilities':
+				return 'bi bi-shield-exclamation';
+
+			default:
+				return '';
+		}
+	}
+
+	/**
 	 * @return SummaryBehaviour
 	 */
 	public function summaryBehaviourForKey( string $summaryKey ) :array {

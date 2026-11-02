@@ -56,6 +56,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
  * }
  * @phpstan-type GroupSectionData array{
  *   heading_label:string,
+ *   heading_icon:string,
  *   groups:list<GroupData>
  * }
  * @phpstan-type GroupsLayerData array{
