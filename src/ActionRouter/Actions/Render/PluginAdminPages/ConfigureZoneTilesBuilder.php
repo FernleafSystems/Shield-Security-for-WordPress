@@ -171,7 +171,9 @@ class ConfigureZoneTilesBuilder {
 				continue;
 			}
 
-			[ $status, $explanations ] = $this->topicStatus( $scope );
+			// Advanced options gathers odd settings from across the goal, so it only speaks for problems
+			// its own settings fix, rather than taking on the state of every component they come from.
+			[ $status, $explanations ] = $this->topicStatus( $scope, $topicKey === 'advanced' );
 			$configAction = $this->buildConfigActionForScope( $scope );
 			$configAction[ 'data' ][ 'configure_panel' ] = $goalKey.':'.$topicKey;
 
@@ -195,7 +197,7 @@ class ConfigureZoneTilesBuilder {
 	 * @param ConfigureScope $scope
 	 * @return array{0:ConfigureStatus,1:list<string>}
 	 */
-	private function topicStatus( array $scope ) :array {
+	private function topicStatus( array $scope, bool $ownFixesOnly = false ) :array {
 		$statuses = [];
 		$explanations = [];
 		foreach ( $scope[ 'zone_component_slugs' ] as $slug ) {
@@ -206,15 +208,19 @@ class ConfigureZoneTilesBuilder {
 				if ( empty( \array_intersect( $rowInput[ 'config_scope' ][ 'option_keys' ], $scope[ 'option_keys' ] ) ) ) {
 					continue;
 				}
-				$statuses[] = $this->componentStatusToConfigureStatus( $rowInput[ 'enabled_status' ] );
 				// Explanations record the option that fixes them as they're built, so read the lookup afterwards.
 				$fixLookup = Component\Base::explanationFixLookup();
+				$kept = [];
 				foreach ( $rowInput[ 'explanations' ] as $explanation ) {
 					$fixedBy = $fixLookup[ \trim( $explanation ) ] ?? '';
-					if ( $fixedBy === '' || \in_array( $fixedBy, $scope[ 'option_keys' ], true ) ) {
-						$explanations[] = $explanation;
+					if ( \in_array( $fixedBy, $scope[ 'option_keys' ], true ) || ( $fixedBy === '' && !$ownFixesOnly ) ) {
+						$kept[] = $explanation;
 					}
 				}
+				if ( !$ownFixesOnly || !empty( $kept ) ) {
+					$statuses[] = $this->componentStatusToConfigureStatus( $rowInput[ 'enabled_status' ] );
+				}
+				$explanations = \array_merge( $explanations, $kept );
 			}
 		}
 

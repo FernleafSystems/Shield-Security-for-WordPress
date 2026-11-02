@@ -2,7 +2,6 @@ import { Collapse } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
-import { ConfigurePanelControls } from "../options/ConfigurePanelControls";
 import { ConfigureTabs } from "./ConfigureTabs";
 
 /**
@@ -222,7 +221,6 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 				option.classList.toggle( 'is-filtered-out', !matches );
 				if ( matches && query.length > 0 && !titleMatches ) {
 					optionMatches++;
-					ConfigurePanelControls.revealMoreOptions( option );
 				}
 			} );
 

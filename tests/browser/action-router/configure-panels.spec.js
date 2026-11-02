@@ -140,19 +140,17 @@ test( 'a two-choice select shows as a switch and saves either way', async ( { pa
 	await expect( form.locator( 'input[type="checkbox"][name="instant_alert_admin_login"]' ) ).toBeChecked( { checked: wasOn } );
 } );
 
-test( 'a link to a setting under More options opens that section', async ( { page } ) => {
+test( 'a link to an advanced setting opens Advanced options, even when it names the topic it came from', async ( { page } ) => {
 	await openShieldRoute( page, { nav: 'zones', nav_sub: 'overview', zone: 'spam', row_key: 'comment_spam', config_item: 'trusted_commenter_minimum' } );
-	const form = diagnosis( page ).locator( '[data-configure-row-key="comment_spam"] form.options_form_for--panel' );
+	const form = diagnosis( page ).locator( '[data-configure-row-key="advanced"] form.options_form_for--panel' );
 	await expect( form.locator( '[data-option-key="trusted_commenter_minimum"]' ) ).toBeVisible( { timeout: 20_000 } );
-	await expect( form.locator( '[data-panel-more="1"]' ) ).toHaveAttribute( 'aria-expanded', 'true' );
 } );
 
 test( 'open panels pass the accessibility checks', async ( { page } ) => {
 	await openGoal( page, 'accounts' );
-	for ( const topic of [ 'two_factor', 'passwords', 'sessions', 'suspensions' ] ) {
+	for ( const topic of [ 'two_factor', 'passwords', 'sessions', 'suspensions', 'advanced' ] ) {
 		await openTopic( page, topic );
 	}
-	await diagnosis( page ).locator( '[data-configure-row-key="two_factor"] [data-panel-more="1"]' ).click();
 	await expectNoAxeViolations( page, '[data-configure-diagnosis="1"]' );
 } );
 
@@ -171,16 +169,13 @@ test( 'needs attention leaves only the settings that need attention, each saying
 	await expect( form.locator( '.shield-panel-item:not(.has-panel-issue)' ).first() ).toBeVisible();
 } );
 
-test( 'more options stay tucked away unless something in them needs attention', async ( { page } ) => {
+test( 'settings few sites change are gathered under Advanced options, headed by their topic', async ( { page } ) => {
 	await openGoal( page, 'spam' );
-	const form = await openTopic( page, 'comment_spam' );
-	const more = form.locator( '[data-panel-more="1"]' );
-	const trusted = form.locator( '[data-option-key="trusted_commenter_minimum"]' );
-	const needsAttention = await form.locator( '.shield-panel-more__body .has-panel-issue' ).count() > 0;
+	const topic = await openTopic( page, 'comment_spam' );
+	await expect( topic.locator( '[data-option-key="trusted_commenter_minimum"]' ) ).toHaveCount( 0 );
 
-	await expect( more ).toHaveAttribute( 'aria-expanded', String( needsAttention ) );
-	await expect( trusted ).toBeVisible( { visible: needsAttention } );
-	await more.click();
-	await expect( more ).toHaveAttribute( 'aria-expanded', String( !needsAttention ) );
-	await expect( trusted ).toBeVisible( { visible: !needsAttention } );
+	const advanced = await openTopic( page, 'advanced' );
+	const trusted = advanced.locator( '[data-option-key="trusted_commenter_minimum"]' );
+	await expect( trusted ).toBeVisible();
+	await expect( advanced.locator( '.shield-panel-block', { has: page.locator( '[data-option-key="trusted_commenter_minimum"]' ) } ) ).toContainText( 'Comment spam' );
 } );

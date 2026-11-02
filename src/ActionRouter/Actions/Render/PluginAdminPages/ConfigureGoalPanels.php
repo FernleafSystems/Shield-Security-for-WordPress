@@ -32,6 +32,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 class ConfigureGoalPanels {
 
 	/**
+	 * @var array<string,PanelGoal>|null
+	 */
+	private static ?array $goals = null;
+
+	/**
 	 * Option keys managed on their own pages rather than in a Configure panel.
 	 * @return array<string,list<string>>
 	 */
@@ -55,9 +60,37 @@ class ConfigureGoalPanels {
 
 	/**
 	 * The layout of every goal, topic and panel: option keys and how each is shown, with no display text.
+	 * Settings few sites need to change are listed under "more" in the layout; each goal gathers them into
+	 * one Advanced options topic at its end, under the name of the topic each belongs to, where they're
+	 * easy to find rather than tucked away inside every topic.
 	 * @return array<string,PanelGoal>
 	 */
 	public static function goals() :array {
+		if ( self::$goals === null ) {
+			$goals = self::layout();
+			foreach ( $goals as &$goal ) {
+				$advanced = [];
+				foreach ( $goal[ 'topics' ] as $topicKey => &$topic ) {
+					if ( !empty( $topic[ 'more' ] ) ) {
+						$advanced[] = [ 'heading' => $topicKey, 'items' => $topic[ 'more' ] ];
+					}
+					unset( $topic[ 'more' ] );
+				}
+				unset( $topic );
+				if ( !empty( $advanced ) ) {
+					$goal[ 'topics' ][ 'advanced' ] = [ 'icon' => 'gear', 'blocks' => $advanced ];
+				}
+			}
+			unset( $goal );
+			self::$goals = $goals;
+		}
+		return self::$goals;
+	}
+
+	/**
+	 * @return array<string,PanelGoal>
+	 */
+	private static function layout() :array {
 		return [
 			'control'  => [
 				'icon'   => 'shield-lock',
@@ -655,6 +688,7 @@ class ConfigureGoalPanels {
 				'instant_alerts'  => [ 'label' => __( 'Instant alerts', 'wp-simple-firewall' ), 'summary' => __( 'Alerts sent as soon as something happens.', 'wp-simple-firewall' ) ],
 				'general'         => [ 'label' => __( 'General', 'wp-simple-firewall' ), 'summary' => __( 'How Shield runs on this site.', 'wp-simple-firewall' ) ],
 				'integrations'    => [ 'label' => __( 'Integrations', 'wp-simple-firewall' ), 'summary' => __( 'MainWP and automatic integrations.', 'wp-simple-firewall' ) ],
+				'advanced'        => [ 'label' => __( 'Advanced options', 'wp-simple-firewall' ), 'summary' => __( 'Settings few sites need to change.', 'wp-simple-firewall' ) ],
 			],
 			'headings' => [
 				'verify_methods'    => __( 'Ways people can verify', 'wp-simple-firewall' ),
@@ -680,7 +714,7 @@ class ConfigureGoalPanels {
 		foreach ( $topic[ 'blocks' ] as $block ) {
 			$items = \array_merge( $items, $block[ 'items' ] );
 		}
-		return self::flattenItemKeys( \array_merge( $items, $topic[ 'more' ] ?? [] ) );
+		return self::flattenItemKeys( $items );
 	}
 
 	/**

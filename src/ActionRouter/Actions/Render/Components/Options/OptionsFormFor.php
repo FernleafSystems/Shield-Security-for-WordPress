@@ -57,7 +57,6 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 				'opt_edit'                  => __( 'Edit', 'wp-simple-firewall' ),
 				'opt_none_selected'         => __( 'None selected', 'wp-simple-firewall' ),
 				'opt_help'                  => __( 'Help', 'wp-simple-firewall' ),
-				'more_options'              => __( 'More options', 'wp-simple-firewall' ),
 				'supply_password'           => __( 'Enter a new value', 'wp-simple-firewall' ),
 				'confirm_password'          => __( 'Confirm the new value', 'wp-simple-firewall' ),
 			],

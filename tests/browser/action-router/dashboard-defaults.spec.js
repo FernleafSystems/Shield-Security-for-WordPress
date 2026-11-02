@@ -89,14 +89,21 @@ async function moveSlider( slider, value ) {
 	await slider.fill( String( index ) );
 }
 
-// A setting under a panel's "More options" is hidden until that section is opened.
-async function revealControl( form, control ) {
-	if ( !await control.isVisible() ) {
-		const more = form.locator( '[data-panel-more="1"][aria-expanded="false"]' );
-		if ( await more.count() > 0 ) {
-			await more.click();
-		}
+// Settings few sites change sit in the goal's Advanced options rather than the focused topic.
+async function formHolding( page, form, option ) {
+	const key = option.control_id.replace( /^Opt-/, '' );
+	if ( await form.locator( `#${option.control_id}, [name="${key}"]` ).count() > 0 ) {
+		return form;
 	}
+	const advanced = page.locator( '[data-configure-row-key="advanced"]' );
+	const trigger = advanced.locator( '[data-shield-expand-trigger="1"]' ).first();
+	if ( await trigger.getAttribute( 'aria-expanded' ) !== 'true' ) {
+		// In the component list the whole row opens it; expanded in place, its toggle does.
+		await ( await trigger.isVisible() ? trigger : advanced.locator( '.shield-detail-row' ).first() ).click();
+	}
+	const advancedForm = advanced.locator( 'form.options_form_for' ).first();
+	await expect( advancedForm ).toBeVisible( { timeout: 30_000 } );
+	return advancedForm;
 }
 
 async function expectControlValue( form, option, expectedValue ) {
@@ -129,7 +136,6 @@ async function applyOptionValue( form, option ) {
 		const choice = choiceControl( form, option, String( option.save ) );
 		const key = option.control_id.replace( /^Opt-/, '' );
 		const label = form.locator( `label:has(input[type="radio"][name="${key}"][value="${String( option.save )}"])` );
-		await revealControl( form, label );
 		await label.click();
 		await expect( choice ).toBeChecked();
 		return;
@@ -137,7 +143,6 @@ async function applyOptionValue( form, option ) {
 
 	const control = form.locator( `#${option.control_id}` );
 	await expect( control ).toBeAttached();
-	await revealControl( form, control );
 
 	if ( await sliderControl( form, option ).count() > 0 ) {
 		await moveSlider( control, option.save );
@@ -194,7 +199,7 @@ test( 'reset defaults restores representative option defaults and reflected cont
 
 		const { form } = await openFocusedConfigureForm( page, contract );
 		for ( const key of contract.option_keys ) {
-			await expectControlValue( form, contract.options[ key ], contract.options[ key ].default );
+			await expectControlValue( await formHolding( page, form, contract.options[ key ] ), contract.options[ key ], contract.options[ key ].default );
 		}
 	} );
 } );
@@ -206,7 +211,7 @@ test( 'configuration save persists representative defaults-section values throug
 
 		const { form } = await openFocusedConfigureForm( page, contract );
 		for ( const key of contract.option_keys ) {
-			await applyOptionValue( form, contract.options[ key ] );
+			await applyOptionValue( await formHolding( page, form, contract.options[ key ] ), contract.options[ key ] );
 		}
 
 		const savedEvent = page.evaluate( () => new Promise( ( resolve ) => {
@@ -224,7 +229,7 @@ test( 'configuration save persists representative defaults-section values throug
 		await dismissBlockingDialogs( page );
 		const reloaded = await openFocusedConfigureForm( page, contract );
 		for ( const key of contract.option_keys ) {
-			await expectControlValue( reloaded.form, contract.options[ key ], contract.options[ key ].expected );
+			await expectControlValue( await formHolding( page, reloaded.form, contract.options[ key ] ), contract.options[ key ], contract.options[ key ].expected );
 		}
 	} );
 } );

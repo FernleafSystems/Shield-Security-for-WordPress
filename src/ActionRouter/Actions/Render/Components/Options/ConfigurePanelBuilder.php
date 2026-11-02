@@ -37,8 +37,13 @@ class ConfigurePanelBuilder {
 	 */
 	public function build( string $goalKey, string $topicKey, array $displayOptions ) :array {
 		$topic = ConfigureGoalPanels::goals()[ $goalKey ][ 'topics' ][ $topicKey ];
-		$headings = ConfigureGoalPanels::labels()[ 'headings' ];
+		$labels = ConfigureGoalPanels::labels();
 		$issues = $this->topicIssues( \array_keys( $displayOptions ) );
+		// Advanced options gathers odd settings from across the goal; problems none of them fix belong
+		// with the topics they came from.
+		if ( $topicKey === 'advanced' ) {
+			$issues[ 'notices' ] = [];
+		}
 		$this->issuesByOption = $issues[ 'by_option' ];
 
 		$blocks = [];
@@ -46,23 +51,19 @@ class ConfigurePanelBuilder {
 			$items = $this->buildItems( $block[ 'items' ], $displayOptions );
 			if ( !empty( $items ) ) {
 				$blocks[] = [
-					'heading' => $headings[ $block[ 'heading' ] ?? '' ] ?? '',
+					// Advanced options head each group of settings with the topic it belongs to.
+					'heading' => $labels[ 'headings' ][ $block[ 'heading' ] ?? '' ]
+								 ?? $labels[ 'topics' ][ $block[ 'heading' ] ?? '' ][ 'label' ] ?? '',
 					'items'   => $items,
 				];
 			}
 		}
 
-		$more = $this->buildItems( $topic[ 'more' ] ?? [], $displayOptions );
-
 		return [
-			'goal'         => $goalKey,
-			'topic'        => $topicKey,
-			'blocks'       => $blocks,
-			'notices'      => $issues[ 'notices' ],
-			'more'         => $more,
-			'more_summary' => \implode( ', ', \array_map( fn( array $item ) => $item[ 'option' ][ 'name' ], $more ) ),
-			// A setting that needs attention is never left hidden away.
-			'more_open'    => $this->itemsHaveIssues( $more ),
+			'goal'    => $goalKey,
+			'topic'   => $topicKey,
+			'blocks'  => $blocks,
+			'notices' => $issues[ 'notices' ],
 		];
 	}
 
@@ -137,15 +138,6 @@ class ConfigurePanelBuilder {
 	private function soleSettingFor( array $row, array $optionKeys ) :string {
 		$here = \array_values( \array_intersect( $row[ 'config_scope' ][ 'option_keys' ], $optionKeys ) );
 		return \count( $here ) === 1 ? $here[ 0 ] : '';
-	}
-
-	private function itemsHaveIssues( array $items ) :bool {
-		foreach ( $items as $item ) {
-			if ( !empty( $item[ 'issues' ] ) || $this->itemsHaveIssues( $item[ 'children' ] ) ) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private function buildItems( array $layoutItems, array $displayOptions ) :array {

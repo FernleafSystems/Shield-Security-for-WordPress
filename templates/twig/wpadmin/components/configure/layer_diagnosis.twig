@@ -93,17 +93,26 @@
 	{% endif %}
 
 	{# One frame for every component: a stack of cards, or in the component list, one joined panel. #}
+	{# Advanced options always comes last, whatever its state, so it's in the same place in every goal. #}
+	{% set advanced_rows = diagnosis.problem_rows|merge( diagnosis.review_rows )|merge( diagnosis.healthy_rows )|filter( r => r.key == 'advanced' ) %}
+	{% set problem_rows = diagnosis.problem_rows|filter( r => r.key != 'advanced' ) %}
+	{% set review_rows = diagnosis.review_rows|filter( r => r.key != 'advanced' ) %}
+	{% set healthy_rows = diagnosis.healthy_rows|filter( r => r.key != 'advanced' ) %}
 	<div class="configure-diagnosis__components">
-		{% if diagnosis.problem_rows is not empty %}
-			{{ render_rows(diagnosis.problem_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
+		{% if problem_rows is not empty %}
+			{{ render_rows(problem_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
 		{% endif %}
 
-		{% if diagnosis.review_rows is not empty %}
-			{{ render_rows(diagnosis.review_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
+		{% if review_rows is not empty %}
+			{{ render_rows(review_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
 		{% endif %}
 
-		{% if diagnosis.healthy_rows is not empty %}
-			{{ render_rows(diagnosis.healthy_rows, diagnosis_id) }}
+		{% if healthy_rows is not empty %}
+			{{ render_rows(healthy_rows, diagnosis_id) }}
+		{% endif %}
+
+		{% if advanced_rows is not empty %}
+			{{ render_rows(advanced_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
 		{% endif %}
 	</div>
 

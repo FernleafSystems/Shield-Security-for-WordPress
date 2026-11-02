@@ -263,10 +263,11 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$diagnoses = ( new ConfigureLandingViewBuilder() )->build()[ 'diagnoses' ];
 
 		$this->assertDiagnosisRowScope( $diagnoses[ 'code' ] ?? [], 'scan_schedule', 'scan_scheduling', [ 'scan_frequency' ] );
-		$this->assertDiagnosisRowScope( $diagnoses[ 'spam' ] ?? [], 'comment_spam', 'trusted_commenters', [ 'comments_cooldown', 'trusted_commenter_minimum', 'trusted_user_roles' ] );
-		$this->assertDiagnosisRowScope( $diagnoses[ 'accounts' ] ?? [], 'two_factor', 'two_factor_auth', [ 'mfa_verify_page', 'enable_email_authentication', 'enable_passkeys' ] );
+		// Settings few sites change are gathered into the goal's Advanced options.
+		$this->assertDiagnosisRowScope( $diagnoses[ 'spam' ] ?? [], 'advanced', 'trusted_commenters', [ 'trusted_commenter_minimum', 'trusted_user_roles' ] );
+		$this->assertDiagnosisRowScope( $diagnoses[ 'accounts' ] ?? [], 'two_factor', 'two_factor_auth', [ 'enable_email_authentication', 'enable_passkeys' ] );
 		$this->assertDiagnosisRowScope( $diagnoses[ 'accounts' ] ?? [], 'sessions', 'session_theft_protection', [ 'enable_user_login_email_notification', 'session_lock' ] );
-		$this->assertDiagnosisRowScope( $diagnoses[ 'attacks' ] ?? [], 'crowdsec', 'crowdsec_blocking', [ 'cs_block', 'cs_enroll_id' ] );
+		$this->assertDiagnosisRowScope( $diagnoses[ 'attacks' ] ?? [], 'crowdsec', 'crowdsec_blocking', [ 'cs_block' ] );
 		$this->assertDiagnosisRowScope( $diagnoses[ 'attacks' ] ?? [], 'bot_signals', 'bot_actions', [ 'track_xmlrpc' ] );
 		$this->assertDiagnosisRowScope( $diagnoses[ 'login' ] ?? [], 'login_guards', 'bot_actions', [ 'track_loginfailed', 'block_author_discovery' ] );
 		$this->assertDiagnosisRowScope( $diagnoses[ 'shield' ] ?? [], 'general', 'plugin_general', [ 'visitor_address_source' ] );

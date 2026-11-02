@@ -373,53 +373,6 @@ $panel-unsaved: #f0f6fc;
 		grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
 		max-width: 760px;
 	}
-
-	// ─── More options ───
-	.shield-panel-more {
-		margin-top: 0.75rem;
-		padding: 0.25rem 0;
-	}
-
-	.shield-panel-more__toggle {
-		align-items: center;
-		background: none;
-		border: 0;
-		color: $panel-link;
-		cursor: pointer;
-		display: flex;
-		flex-wrap: wrap;
-		font-size: 12.5px;
-		font-weight: 600;
-		gap: 0.45rem;
-		padding: 0;
-		text-align: left;
-
-		.bi {
-			transition: transform 0.15s ease;
-		}
-
-		&.is-open .bi {
-			transform: rotate(180deg);
-		}
-	}
-
-	.shield-panel-more__count {
-		background: #e7f0fa;
-		border-radius: 999px;
-		font-size: 11px;
-		padding: 0 0.45rem;
-	}
-
-	.shield-panel-more__summary {
-		color: $panel-muted;
-		font-weight: 400;
-	}
-
-	.shield-panel-more__body {
-		display: grid;
-		gap: 2px;
-		margin-top: 0.5rem;
-	}
 }
 
 // "Needs attention" leaves only the settings that need it, and their reasons. A topic whose reasons
@@ -427,26 +380,18 @@ $panel-unsaved: #f0f6fc;
 .configure-diagnosis[data-attention-only] .options_form_for--panel:has(.has-panel-issue) {
 	.shield-option-item.shield-panel-item:not(.has-panel-issue),
 	.shield-panel-block:not(:has(.has-panel-issue)),
-	.shield-panel-children:not(:has(.has-panel-issue)),
-	.shield-panel-more:not(:has(.has-panel-issue)) {
+	.shield-panel-children:not(:has(.has-panel-issue)) {
 		display: none;
 	}
 }
 
 // While filtering, groups with no matching settings go, along with their rules and headings, and the
-// reasons that head a topic step aside. Matches under "More options" show without opening it.
+// reasons that head a topic step aside.
 .configure-diagnosis[data-filtering] .options_form_for--panel {
 	.shield-panel-block:not(:has(.shield-option-item:not(.is-filtered-out))),
 	.shield-panel-children:not(:has(.shield-option-item:not(.is-filtered-out))),
-	.shield-panel-more:not(:has(.shield-option-item:not(.is-filtered-out))),
 	.shield-panel-notices {
 		display: none;
-	}
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.options_form_for--panel .shield-panel-more__toggle .bi {
-		transition: none;
 	}
 }
 

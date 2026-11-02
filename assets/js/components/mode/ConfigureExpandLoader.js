@@ -5,7 +5,6 @@ import { AjaxBatchService } from "../services/AjaxBatchService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { announceStatus } from "../ui/ShieldA11y";
-import { ConfigurePanelControls } from "../options/ConfigurePanelControls";
 
 /**
  * @typedef {{row_key: string, config_item: string}} ConfigureFocusRequest
@@ -494,7 +493,6 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		}
 
 		field.closest( 'details' )?.setAttribute( 'open', '' );
-		ConfigurePanelControls.revealMoreOptions( field );
 
 		const item = field.closest( '.shield-option-item' );
 		( item instanceof HTMLElement ? item : field ).scrollIntoView( {

@@ -39,26 +39,5 @@
 			</div>
 		{% endfor %}
 
-		{% if vars.panel.more is not empty %}
-			<div class="shield-panel-more">
-				<button type="button"
-						class="shield-panel-more__toggle{{ vars.panel.more_open ? ' is-open' : '' }}"
-						data-panel-more="1"
-						aria-expanded="{{ vars.panel.more_open ? 'true' : 'false' }}"
-						aria-controls="PanelMore-{{ unique_render_id }}">
-					{{ strings.more_options }}
-					<span class="shield-panel-more__count">{{ vars.panel.more|length }}</span>
-					<i class="bi bi-chevron-down" aria-hidden="true"></i>
-					<span class="shield-panel-more__summary">{{ vars.panel.more_summary }}</span>
-				</button>
-				<div class="shield-panel-more__body" id="PanelMore-{{ unique_render_id }}" {% if not vars.panel.more_open %}hidden{% endif %}>
-					{% for item in vars.panel.more %}
-						<div class="shield-panel-block">
-							{{ panel.item( item, strings, hrefs ) }}
-						</div>
-					{% endfor %}
-				</div>
-			</div>
-		{% endif %}
 	</div>
 </form>

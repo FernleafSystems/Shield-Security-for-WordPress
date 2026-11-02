@@ -83,6 +83,11 @@ trait BuildsConfigureLandingData {
 			if ( ( $rowKey !== '' || $configItem !== '' ) && !isset( $rowFocusLookup[ $rowKey ] ) ) {
 				$rowKey = $this->resolveLegacyConfigureRowKey( $zoneKey, $rowKey, $configItem );
 			}
+			elseif ( $configItem !== '' && !\in_array( $configItem, $rowFocusLookup[ $rowKey ] ?? [], true ) ) {
+				// A link that names a setting goes to the topic that now holds it, even if it names another.
+				$holdingRow = $this->resolveLegacyConfigureRowKey( $zoneKey, '', $configItem );
+				$rowKey = $holdingRow !== '' ? $holdingRow : $rowKey;
+			}
 			if ( $rowKey !== '' && isset( $rowFocusLookup[ $rowKey ] ) ) {
 				if ( $configItem !== '' && !\in_array( $configItem, $rowFocusLookup[ $rowKey ], true ) ) {
 					$configItem = '';
