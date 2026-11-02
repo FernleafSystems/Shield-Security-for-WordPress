@@ -119,8 +119,37 @@ export class ShieldTableScanResults extends ShieldTableBase {
 		this.selectionStatusEl.setAttribute( 'role', 'status' );
 		this.selectionStatusEl.setAttribute( 'aria-live', 'polite' );
 
-		column.append( this.selectionStatusEl, this.$table.buttons( 'results-actions', null ).container().get( 0 ) );
+		const container = this.$table.buttons( 'results-actions', null ).container().get( 0 );
+		column.append( this.selectionStatusEl, container );
 		grid.append( column );
+		this.addActionHeadings( container );
+	}
+
+	/**
+	 * A small heading over each group in the column: what acts on the selection, on all results, and the
+	 * scan's own tools.
+	 * @param {HTMLElement} container
+	 */
+	addActionHeadings( container ) {
+		const headings = {
+			selected: 'Selected',
+			all: 'All results',
+			tools: this._base_data.vars.malware_refresh === null ? 'Tools' : 'Malware scan',
+		};
+		const starts = [
+			[ 'selected', container.querySelector( '.btn' ) ],
+			...[ ...container.querySelectorAll( '[data-scan-results-group-start]' ) ].map(
+				( button ) => [ button.getAttribute( 'data-scan-results-group-start' ), button ]
+			),
+		];
+		starts.forEach( ( [ key, button ] ) => {
+			if ( button instanceof HTMLElement && headings[ key ] ) {
+				const heading = document.createElement( 'p' );
+				heading.className = 'scan-results-actions__heading';
+				heading.textContent = headings[ key ];
+				button.before( heading );
+			}
+		} );
 	}
 
 	ignoreAllResults( launcher ) {

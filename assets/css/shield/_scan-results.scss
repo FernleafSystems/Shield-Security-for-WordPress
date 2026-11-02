@@ -102,6 +102,11 @@
 	}
 }
 
+// Group headings only belong in the column; in a row above the table the groups simply sit side by side.
+.scan-results-actions__heading {
+	display: none;
+}
+
 // With room, they're a column beside the table that stays in view as the table scrolls: what acts on the
 // selection, then all results, then the scan's own tools, each a little apart.
 @container (min-width: 820px) {
@@ -132,8 +137,19 @@
 			width: auto;
 		}
 
-		> [data-scan-results-group-start] {
-			margin-top: 0.85rem;
+	}
+
+	.scan-results-actions__heading {
+		color: #646970;
+		display: block;
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		margin: 0.85rem 0 0;
+		text-transform: uppercase;
+
+		&:first-child {
+			margin-top: 0.25rem;
 		}
 	}
 }
