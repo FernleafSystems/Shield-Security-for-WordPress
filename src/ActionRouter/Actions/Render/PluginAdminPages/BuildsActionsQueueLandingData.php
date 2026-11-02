@@ -163,6 +163,8 @@ trait BuildsActionsQueueLandingData {
 					'compare_plans'  => __( 'Compare plans', 'wp-simple-firewall' ),
 					'turn_on'        => __( 'Turn on', 'wp-simple-firewall' ),
 					'review'         => __( 'Review', 'wp-simple-firewall' ),
+					/* translators: %s: how many items */
+					'ignore_all'     => __( 'Ignore all %s', 'wp-simple-firewall' ),
 				],
 			] )
 			->render();

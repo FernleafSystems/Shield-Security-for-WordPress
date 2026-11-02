@@ -774,6 +774,53 @@ $aq-pro-bg: #f2ebfc;
 	}
 }
 
+// Ignore is a small quiet button with its icon, so it's plain to see without competing with the main action.
+.actions-queue-row__ignore {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid #dcdcde;
+	border-radius: 5px;
+	color: #50575e;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: 12px;
+	font-weight: 600;
+	gap: 5px;
+	padding: 4px 9px;
+	white-space: nowrap;
+
+	&:hover,
+	&:focus {
+		border-color: #8c8f94;
+		color: #1d2327;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+
+	&:disabled,
+	&[aria-busy="true"] {
+		cursor: progress;
+		opacity: 0.55;
+	}
+}
+
+// While an ignore is being saved, its row (or its whole group, for Ignore all) dims.
+.actions-queue-row.is-busy,
+.actions-queue-row-group.is-busy {
+	opacity: 0.55;
+	pointer-events: none;
+	transition: opacity 0.15s ease;
+}
+
+.actions-queue-row-group__foot {
+	border-top: 1px solid $aq-soft-line;
+	display: flex;
+	justify-content: flex-end;
+	padding: 8px 14px;
+}
+
 .actions-queue-row__link,
 .actions-queue-row__text-action {
 	background: none;

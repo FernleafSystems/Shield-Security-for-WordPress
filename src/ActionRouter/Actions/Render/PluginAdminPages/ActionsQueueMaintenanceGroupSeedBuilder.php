@@ -394,6 +394,9 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			'tooltip'          => \trim( $toggleAction[ 'tooltip' ] ),
 			'target'           => $isAction ? '' : \trim( $toggleAction[ 'target' ] ),
 			'ajax_action_json' => \trim( $toggleAction[ 'ajax_action_json' ] ),
+			// Which kind of toggle, and for which item, so like items can be ignored together.
+			'kind'             => $toggleAction[ 'kind' ],
+			'maintenance_key'  => (string)( $toggleAction[ 'ajax_action' ][ 'maintenance_key' ] ?? '' ),
 		];
 	}
 

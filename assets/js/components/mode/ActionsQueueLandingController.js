@@ -425,11 +425,75 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			const bucketsLayer = this.getLayerByKey( this.shellEl, 'buckets' );
 			const bucketsBody = bucketsLayer?.querySelector( '.drill-layer__body' ) || null;
 			if ( bucketsBody !== null ) {
+				// The landing is re-rendered after actions; keep the sections or tab that were open.
+				const sectionsState = this.captureSectionsState( bucketsBody );
 				this.applyLayerHtml( bucketsBody, landingRefresh.buckets_html );
+				this.restoreSectionsState( bucketsBody, sectionsState );
 			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * Which landing sections were open, and which tab was chosen.
+	 * @param {Element} container
+	 * @return {{open:string[],tab:string}}
+	 */
+	captureSectionsState( container ) {
+		const sectionKey = ( el ) => {
+			const section = el.closest( '[data-actions-queue-section-key]' );
+			return section instanceof HTMLElement ? section.dataset.actionsQueueSectionKey || '' : '';
+		};
+		const tab = container.querySelector( '[data-actions-queue-tab][aria-selected="true"]' );
+		return {
+			open: [ ...container.querySelectorAll( '[data-actions-queue-section-toggle="1"][aria-expanded="true"]' ) ].map( sectionKey ),
+			tab: tab instanceof HTMLElement ? tab.dataset.actionsQueueTab || '' : '',
+		};
+	}
+
+	/**
+	 * Opens again the sections that were open, where they still exist, and selects the same tab. If none of
+	 * them is left, such as when a section's last item was ignored, the landing stays as rendered.
+	 * @param {Element} container
+	 * @param {{open:string[],tab:string}} state
+	 */
+	restoreSectionsState( container, state ) {
+		const root = container.querySelector( '[data-actions-queue-sections="1"]' );
+		if ( !( root instanceof HTMLElement ) ) {
+			return;
+		}
+		const sections = [ ...root.querySelectorAll( '[data-actions-queue-section-key]' ) ]
+		.filter( ( section ) => section instanceof HTMLElement );
+		const keys = sections.map( ( section ) => section.dataset.actionsQueueSectionKey || '' );
+
+		if ( state.open.some( ( key ) => keys.includes( key ) ) ) {
+			sections.forEach( ( section ) => {
+				const head = section.querySelector( '[data-actions-queue-section-toggle="1"]' );
+				if ( !( head instanceof HTMLElement ) ) {
+					return;
+				}
+				const isOpen = state.open.includes( section.dataset.actionsQueueSectionKey || '' );
+				head.setAttribute( 'aria-expanded', String( isOpen ) );
+				const body = document.getElementById( head.getAttribute( 'aria-controls' ) || '' );
+				if ( body !== null && root.dataset.view !== 'tabs' ) {
+					body.hidden = !isOpen;
+				}
+			} );
+		}
+
+		if ( keys.includes( state.tab ) ) {
+			root.querySelectorAll( '[data-actions-queue-tab]' ).forEach( ( tab ) => {
+				if ( tab instanceof HTMLElement ) {
+					const isSelected = tab.dataset.actionsQueueTab === state.tab;
+					tab.setAttribute( 'aria-selected', String( isSelected ) );
+					tab.tabIndex = isSelected ? 0 : -1;
+				}
+			} );
+			sections.forEach( ( section ) => {
+				section.dataset.tabSelected = section.dataset.actionsQueueSectionKey === state.tab ? '1' : '0';
+			} );
+		}
 	}
 
 	handleRetryClick( item ) {
@@ -656,14 +720,14 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 	handleMaintenanceActionClick( evt ) {
 		const target = evt.target instanceof Element
-			? evt.target.closest( '[data-actions-queue-maintenance-action]' )
+			? evt.target.closest( '[data-actions-queue-maintenance-action], [data-actions-queue-maintenance-ignore-all="1"]' )
 			: null;
 		if ( target === null ) {
 			return;
 		}
 
 		const root = this.rootEl || this.getRoot();
-		if ( root === null || !root.contains( target ) ) {
+		if ( root === null || !root.contains( target ) || target.getAttribute( 'aria-busy' ) === 'true' ) {
 			return;
 		}
 
@@ -673,21 +737,38 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.adoptLandingBucket( target );
 		BootstrapTooltips.HideAndDisposeTooltip( target );
 
-		const actionData = this.parseJsonDataset( target.dataset.actionsQueueMaintenanceAction );
-		if ( ObjectOps.IsEmpty( actionData ) ) {
+		// Ignore all sends each of its group's ignores, quietly, then refreshes once.
+		const isIgnoreAll = target.dataset.actionsQueueMaintenanceIgnoreAll === '1';
+		const scope = isIgnoreAll ? target.closest( '.actions-queue-row-group' ) : target.closest( '.actions-queue-row' );
+		const actions = ( isIgnoreAll
+			? [ ...( scope?.querySelectorAll( '[data-actions-queue-maintenance-kind="ignore"][data-actions-queue-maintenance-action]' ) || [] ) ]
+			: [ target ]
+		).map( ( el ) => this.parseJsonDataset( el.dataset.actionsQueueMaintenanceAction ) )
+		.filter( ( data ) => !ObjectOps.IsEmpty( data ) );
+		if ( actions.length === 0 ) {
 			return;
 		}
 
-		( new AjaxService() )
-			.send( actionData )
-			.then( ( resp ) => {
-				if ( !resp?.success ) {
-					return;
-				}
+		// Something is plainly happening: the button says it's busy and its row or group dims until the
+		// queue has refreshed in place.
+		target.setAttribute( 'aria-busy', 'true' );
+		scope?.classList.add( 'is-busy' );
+		const done = () => {
+			target.removeAttribute( 'aria-busy' );
+			scope?.classList.remove( 'is-busy' );
+		};
 
-				return this.refreshAfterNestedAction( true );
-			} )
-			.catch( () => null );
+		const service = new AjaxService();
+		const send = isIgnoreAll
+			? actions.reduce(
+				( chain, data ) => chain.then( ( ok ) => service.bg( data ).then( ( resp ) => ok && resp?.success === true ) ),
+				Promise.resolve( true )
+			)
+			: service.send( actions[ 0 ] ).then( ( resp ) => resp?.success === true );
+
+		send.then( ( ok ) => ok ? this.refreshAfterNestedAction( true ) : null )
+			.catch( () => null )
+			.finally( done );
 	}
 
 	async handleOperatorContextActionClick( evt ) {

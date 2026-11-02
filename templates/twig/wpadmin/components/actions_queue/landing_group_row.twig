@@ -26,12 +26,28 @@
 				</a>
 			{% endif %}
 		</div>
-		{% for row in group.maintenance_rows is not empty ? group.maintenance_rows : ( group.summary_row is not empty ? [ group.summary_row ] : [] ) %}
+		{% set group_rows = group.maintenance_rows is not empty ? group.maintenance_rows : ( group.summary_row is not empty ? [ group.summary_row ] : [] ) %}
+		{% for row in group_rows %}
 			{% include '/wpadmin/components/actions_queue/landing_item_row.twig' with {
 				row: row,
 				is_passing: false
 			} only %}
 		{% endfor %}
+		{# Several items of one kind, such as inactive plugins, can be ignored together. #}
+		{% set ignores = [] %}
+		{% for row in group_rows %}
+			{% for action in row.actions|default([])|filter( a => a.kind|default('') == 'ignore' ) %}
+				{% set ignores = ignores|merge( [ action.maintenance_key|default('') ] ) %}
+			{% endfor %}
+		{% endfor %}
+		{% if ignores|length > 1 and ignores|reduce( ( carry, k ) => carry and k == ignores|first, true ) %}
+			<div class="actions-queue-row-group__foot">
+				<button type="button" class="actions-queue-row__ignore" data-actions-queue-maintenance-ignore-all="1">
+					<i class="bi bi-eye-slash-fill" aria-hidden="true"></i>
+					{{ strings.ignore_all|default('Ignore all')|format( ignores|length ) }}
+				</button>
+			</div>
+		{% endif %}
 	</div>
 {% else %}
 	{% set tag = ( can_drill or is_pro or is_enable ) ? 'button' : 'div' %}

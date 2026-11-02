@@ -10,7 +10,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   icon:string,
  *   tooltip:string,
  *   target:string,
- *   ajax_action_json:string
+ *   ajax_action_json:string,
+ *   kind?:string,
+ *   maintenance_key?:string
  * }
  * @phpstan-type CompactSummaryRow array{
  *   icon_class:string,

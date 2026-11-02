@@ -59,6 +59,7 @@ class ActionsQueueFixtureBuilder {
 		'license_data',
 		'license_activated_at',
 		'license_deactivated_at',
+		'ignored_maintenance_items',
 	];
 
 	private const REQUIRED_DB_KEYS = [
