@@ -852,6 +852,21 @@ $sidebar-transition-speed: 0.25s;
     width: $sidebar-width-expanded;
   }
 
+  // The column runs the page's full height, but its contents stay in view: they stick below the admin bar,
+  // no taller than the room left in the window (less the setup bar while it shows), so the items pinned
+  // to the bottom of the nav sit at the bottom of the window rather than the bottom of the page. With too
+  // little room the nav scrolls within itself instead of overlapping.
+  @include media-breakpoint-up(lg) {
+    .sidebar-inner {
+      // Set from the window by the navigation script; this is the fallback until it runs.
+      max-height: var(--shield-sidebar-max-height, calc(100vh - var(--wp-admin--admin-bar--height, 32px) - var(--shield-bottom-bar-height, 0px)));
+      overflow-y: auto;
+      position: sticky;
+      scrollbar-width: thin;
+      top: var(--wp-admin--admin-bar--height, 32px);
+    }
+  }
+
   @include media-breakpoint-down(lg) {
     min-width: $sidebar-width-collapsed;
     width: $sidebar-width-collapsed;
@@ -879,6 +894,10 @@ $sidebar-transition-speed: 0.25s;
       overflow: visible;
     }
   }
+}
+
+body:has(.shield-setup-guide:not([hidden])) {
+  --shield-bottom-bar-height: 64px;
 }
 
 #PageMainSide-Apto > .sidebar-inner > .logo-container,

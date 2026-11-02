@@ -165,7 +165,7 @@ class ConfigurePanelBuilder {
 
 			switch ( $control ) {
 				case 'slider':
-					$item = \array_merge( $item, $this->sliderData( $option, $layoutItem[ 'stops' ] ?? [] ) );
+					$item = \array_merge( $item, $this->sliderData( $option, $layoutItem[ 'stops' ] ?? [], (bool)( $layoutItem[ 'zero_disables' ] ?? false ) ) );
 					break;
 				case 'switch':
 					$item[ 'on_value' ] = (string)\current( \array_diff( \array_keys( $option[ 'value_options' ] ), [ 'disabled' ] ) );
@@ -213,10 +213,11 @@ class ConfigurePanelBuilder {
 
 	/**
 	 * A select's choices in spec order, or an integer's chosen stops with the current value added if it
-	 * isn't one of them, so saving never changes a value the user didn't touch.
+	 * isn't one of them, so saving never changes a value the user didn't touch. Where 0 turns the setting
+	 * off rather than meaning nothing at all, its stop says so.
 	 * @return array{stops:list<array{value:string,label:string,is_available:bool}>,current_index:int,current_label:string}
 	 */
-	private function sliderData( array $option, array $integerStops ) :array {
+	private function sliderData( array $option, array $integerStops, bool $zeroDisables = false ) :array {
 		$stops = [];
 		if ( $option[ 'type' ] === 'select' ) {
 			foreach ( $option[ 'value_options' ] as $value => $choice ) {
@@ -238,7 +239,9 @@ class ConfigurePanelBuilder {
 			foreach ( $values as $value ) {
 				$stops[] = [
 					'value'        => (string)$value,
-					'label'        => $this->integerLabel( $value, $unit ),
+					'label'        => $value === 0 && $zeroDisables
+						? __( '0 (disabled)', 'wp-simple-firewall' )
+						: $this->integerLabel( $value, $unit ),
 					'is_available' => true,
 				];
 			}

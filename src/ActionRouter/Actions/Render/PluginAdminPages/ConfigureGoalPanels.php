@@ -23,6 +23,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   key:string,
  *   control:'toggle'|'switch'|'slider'|'segmented'|'radios'|'chips'|'roles'|'field',
  *   stops?:list<int>,
+ *   zero_disables?:bool,
  *   children?:list<array<string,mixed>>
  * }
  * @phpstan-type PanelBlock array{heading?:string, items:list<PanelItem>}
@@ -323,8 +324,13 @@ class ConfigureGoalPanels {
 						'blocks' => [
 							[
 								'items' => [
+									[
+										'key'           => 'antibot_minimum',
+										'control'       => 'slider',
+										'stops'         => \range( 0, 95, 5 ),
+										'zero_disables' => true,
+									],
 									[ 'key' => 'silentcaptcha_complexity', 'control' => 'slider' ],
-									[ 'key' => 'antibot_minimum', 'control' => 'slider', 'stops' => [ 25, 35, 45, 55, 65, 75 ] ],
 								],
 							],
 							[ 'items' => [ [ 'key' => 'silentcaptcha_cookie_free', 'control' => 'toggle' ] ] ],

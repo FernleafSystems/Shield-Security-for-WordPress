@@ -34,6 +34,37 @@ export class Navigation extends BaseComponent {
 		);
 
 		this.setActiveNavTab( window.location.hash );
+		this.fitSidebarToWindow();
+	}
+
+	/**
+	 * The sidebar's contents stick in view as the page scrolls, and are never taller than the room left in
+	 * the window below where they start and above any bar fixed to its bottom. So the items pinned to the
+	 * bottom of the nav sit at the bottom of the window, without scrolling the page to reach them.
+	 */
+	fitSidebarToWindow() {
+		const inner = this.navSideBar.closest( '.sidebar-inner' );
+		if ( !( inner instanceof HTMLElement ) ) {
+			return;
+		}
+		let queued = false;
+		const fit = () => {
+			queued = false;
+			const bar = document.querySelector( '.shield-setup-guide:not([hidden])' );
+			const barHeight = bar instanceof HTMLElement ? bar.getBoundingClientRect().height : 0;
+			const top = Math.max( inner.getBoundingClientRect().top, 0 );
+			inner.style.setProperty( '--shield-sidebar-max-height', `${Math.max( 240, window.innerHeight - top - barHeight )}px` );
+		};
+		const queue = () => {
+			if ( !queued ) {
+				queued = true;
+				window.requestAnimationFrame( fit );
+			}
+		};
+		window.addEventListener( 'scroll', queue, { passive: true } );
+		window.addEventListener( 'resize', queue );
+		new ResizeObserver( queue ).observe( document.body );
+		fit();
 	}
 
 	handleModeNavigationClick( evt ) {

@@ -20,7 +20,16 @@
 			>
 				<span class="mode-icon"><i class="{{ nav_item.img }}" aria-hidden="true"></i></span>
 				<span class="mode-label">{{ nav_item.title }}</span>
-				{% if nav_item.badge is not empty %}
+				{% if nav_item.badges|default([]) is not empty %}
+					<span class="mode-badges">
+						{% for badge in nav_item.badges %}
+							<span class="mode-badge status-{{ badge.status }}" title="{{ badge.label|e('html_attr') }}">
+								<span aria-hidden="true">{{ badge.text }}</span>
+								<span class="visually-hidden">{{ badge.label }}</span>
+							</span>
+						{% endfor %}
+					</span>
+				{% elseif nav_item.badge is not empty %}
 					<span class="mode-badge status-{{ nav_item.badge.status }}">
 						{{ nav_item.badge.text }}
 					</span>

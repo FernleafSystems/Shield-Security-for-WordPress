@@ -572,6 +572,11 @@ $aq-pro-bg: #f2ebfc;
 	&[hidden] {
 		display: none;
 	}
+
+	// Under its section's bar, a section's groups sit indented, so they read as belonging to it.
+	.actions-queue-sections--sections & {
+		padding-left: 22px;
+	}
 }
 
 .actions-queue-box {

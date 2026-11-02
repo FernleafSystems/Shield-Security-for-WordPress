@@ -139,6 +139,29 @@
 	color: $mode-actions;
 }
 
+// The open Actions Queue is red, amber or green, after its most severe item.
+.mode-item.active[data-mode="actions"][data-queue-status="warning"] {
+	background: #fef6e6;
+	border-color: #f0c96b;
+	box-shadow: inset 3px 0 0 #dba617;
+	color: #946200;
+
+	.mode-icon > i {
+		color: #dba617;
+	}
+}
+
+.mode-item.active[data-mode="actions"][data-queue-status="good"] {
+	background: #e6f5e6;
+	border-color: #b8dfb8;
+	box-shadow: inset 3px 0 0 #008000;
+	color: #006400;
+
+	.mode-icon > i {
+		color: #008000;
+	}
+}
+
 .mode-item.active[data-mode="investigate"] {
 	background: $mode-investigate-light;
 	border-color: $mode-investigate-border;
@@ -377,7 +400,17 @@ button.tool-item {
 	margin-bottom: 0.45rem;
 }
 
-// The Actions Queue badge takes the intensity of the most severe queued item.
+// The Actions Queue shows a count per severity: critical in red, warnings in amber, side by side.
+.mode-badges {
+	display: inline-flex;
+	gap: 3px;
+	margin-left: auto;
+
+	> .mode-badge {
+		margin-left: 0;
+	}
+}
+
 .mode-item .mode-badge.status-warning {
 	background: #fef6e6;
 	border-color: #f0c96b;

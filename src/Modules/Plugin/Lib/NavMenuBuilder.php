@@ -78,7 +78,8 @@ class NavMenuBuilder {
 			'task_guide'        => $taskGuideData,
 			'task_guide_item'   => $taskGuideItem,
 			'tool_items'         => $this->normalizeItems( $this->toolsForMode( $mode ) ),
-			'home_license_item'  => null,
+			// On the free plan the way to Pro is on every main page, not only the dashboard.
+			'home_license_item'  => self::con()->isPremiumActive() ? null : $this->normalizeItems( [ $this->buildHomeLicenseItem() ] )[ 0 ],
 			'home_live_monitor_item' => null,
 			'home_connect_title' => '',
 			'home_connect_items' => [],
@@ -86,7 +87,7 @@ class NavMenuBuilder {
 	}
 
 	/**
-	 * @param array{has_items:bool,total_items:int,severity:string} $actionsSummary
+	 * @param array{has_items:bool,total_items:int,severity:string,critical_items:int,warning_items:int} $actionsSummary
 	 * @return list<array<string,mixed>>
 	 */
 	private function buildNavigationLinks( string $currentMode, array $actionsSummary ) :array {
@@ -124,11 +125,30 @@ class NavMenuBuilder {
 				'classes'      => [ 'mode-item-link' ],
 				'divider_after'=> $mode === PluginNavs::MODE_ACTIONS,
 			];
+			if ( $mode === PluginNavs::MODE_ACTIONS ) {
+				// While it's open, the Actions Queue item takes the colour of its most severe item.
+				$item[ 'data' ] = [
+					'queue-status' => $actionsSummary[ 'total_items' ] > 0 ? $actionsSummary[ 'severity' ] : 'good',
+				];
+			}
 			if ( $mode === PluginNavs::MODE_ACTIONS && $actionsSummary[ 'total_items' ] > 0 ) {
 				$item[ 'badge' ] = [
 					'text'   => (string)$actionsSummary[ 'total_items' ],
 					'status' => $actionsSummary[ 'severity' ],
 				];
+				// One count per severity, so critical items aren't overstated by the warnings beside them.
+				$item[ 'badges' ] = \array_values( \array_filter( [
+					[
+						'text'   => (string)$actionsSummary[ 'critical_items' ],
+						'status' => 'critical',
+						'label'  => \sprintf( _n( '%s critical item', '%s critical items', $actionsSummary[ 'critical_items' ], 'wp-simple-firewall' ), $actionsSummary[ 'critical_items' ] ),
+					],
+					[
+						'text'   => (string)$actionsSummary[ 'warning_items' ],
+						'status' => 'warning',
+						'label'  => \sprintf( _n( '%s warning', '%s warnings', $actionsSummary[ 'warning_items' ], 'wp-simple-firewall' ), $actionsSummary[ 'warning_items' ] ),
+					],
+				], fn( array $badge ) :bool => $badge[ 'text' ] !== '0' ) );
 			}
 			$items[] = $item;
 		}
@@ -408,7 +428,7 @@ class NavMenuBuilder {
 	}
 
 	/**
-	 * @return array{has_items:bool,total_items:int,severity:string}
+	 * @return array{has_items:bool,total_items:int,severity:string,critical_items:int,warning_items:int}
 	 */
 	private function getActionsQueueSummary() :array {
 		try {
@@ -422,21 +442,32 @@ class NavMenuBuilder {
 			];
 		}
 		return [
-			'has_items'   => (bool)$summary[ 'has_items' ],
-			'total_items' => (int)$summary[ 'total_items' ],
-			'severity'    => (string)$summary[ 'severity' ],
+			'has_items'      => (bool)$summary[ 'has_items' ],
+			'total_items'    => (int)$summary[ 'total_items' ],
+			'severity'       => (string)$summary[ 'severity' ],
+			'critical_items' => (int)( $summary[ 'critical_items' ] ?? 0 ),
+			'warning_items'  => (int)( $summary[ 'warning_items' ] ?? 0 ),
 		];
 	}
 
 	/**
-	 * @return array{has_items:bool,total_items:int,severity:string}
+	 * @return array{has_items:bool,total_items:int,severity:string,critical_items?:int,warning_items?:int}
 	 */
 	protected function buildActionsQueueSummaryContract() :array {
-		$summary = self::con()->comps->site_query->attention()[ 'summary' ];
+		$attention = self::con()->comps->site_query->attention();
+		$summary = $attention[ 'summary' ];
+		$critical = 0;
+		foreach ( $attention[ 'items' ] as $item ) {
+			if ( $item[ 'severity' ] === 'critical' ) {
+				$critical += (int)$item[ 'count' ];
+			}
+		}
 		return [
-			'has_items'   => !$summary[ 'is_all_clear' ],
-			'total_items' => $summary[ 'total' ],
-			'severity'    => $summary[ 'severity' ],
+			'has_items'      => !$summary[ 'is_all_clear' ],
+			'total_items'    => $summary[ 'total' ],
+			'severity'       => $summary[ 'severity' ],
+			'critical_items' => $critical,
+			'warning_items'  => \max( 0, $summary[ 'total' ] - $critical ),
 		];
 	}
 

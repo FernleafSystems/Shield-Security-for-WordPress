@@ -34,6 +34,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( '_n' )->alias( static fn( string $one, string $many, int $count ) :string => $count === 1 ? $one : $many );
 		Functions\when( 'apply_filters' )->alias( static fn( string $tag, $value ) => $value );
 		$this->servicesSnapshot = ServicesState::snapshot();
 	}
@@ -104,22 +105,29 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		] );
 
 		$sidebar = $this->createBuilder( [
-			'has_items'   => true,
-			'total_items' => 7,
-			'severity'    => 'critical',
+			'has_items'      => true,
+			'total_items'    => 7,
+			'severity'       => 'critical',
+			'critical_items' => 3,
+			'warning_items'  => 4,
 		] )->build();
 
 		$this->assertSame( '/admin/home', $sidebar[ 'navigation_links' ][ 0 ][ 'href' ] );
 		$this->assertTrue( $sidebar[ 'navigation_links' ][ 1 ][ 'divider_after' ] );
 		$this->assertSame( [ false, true, false, false, false ], \array_column( $sidebar[ 'navigation_links' ], 'divider_after' ) );
 		$this->assertSame( '', $sidebar[ 'home_connect_title' ] );
-		$this->assertNull( $sidebar[ 'home_license_item' ] );
+		// On the free plan the way to Pro shows on every main page.
+		$this->assertContains( 'is-free-plan', $sidebar[ 'home_license_item' ][ 'classes' ] );
 
 		$actionsMode = $this->findItemBySlug( $sidebar[ 'navigation_links' ], 'mode-actions' );
 		$this->assertIsArray( $actionsMode );
 		$this->assertTrue( $actionsMode[ 'active' ] );
 		$this->assertSame( '7', $actionsMode[ 'badge' ][ 'text' ] );
 		$this->assertSame( 'critical', $actionsMode[ 'badge' ][ 'status' ] );
+		// Critical items and warnings are counted apart, each in its own colour.
+		$this->assertSame( [ '3', '4' ], \array_column( $actionsMode[ 'badges' ], 'text' ) );
+		$this->assertSame( [ 'critical', 'warning' ], \array_column( $actionsMode[ 'badges' ], 'status' ) );
+		$this->assertSame( '3 critical items', $actionsMode[ 'badges' ][ 0 ][ 'label' ] );
 
 		$scanTool = $this->findItemBySlug( $sidebar[ 'tool_items' ], PluginNavs::NAV_SCANS.'-'.PluginNavs::SUBNAV_SCANS_RUN );
 		$this->assertIsArray( $scanTool );
