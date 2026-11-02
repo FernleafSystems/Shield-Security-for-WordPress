@@ -195,9 +195,6 @@ async function operatorContextAjaxAction( rail, matcher ) {
 	return null;
 }
 
-async function hasOperatorContextAjaxAction( rail, matcher ) {
-	return ( await operatorContextAjaxAction( rail, matcher ) ) !== null;
-}
 
 test( 'actions queue drills into groups and back out, opening details when available', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
@@ -635,7 +632,7 @@ test( 'actions queue refreshes the same direct table after a scan-results cleanu
 	} );
 } );
 
-test( 'actions queue ignores all results from the context rail and refreshes the direct table in place', async ( { page, fixtureApi } ) => {
+test( 'actions queue ignores all results from the table actions column and refreshes the direct table in place', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
@@ -644,19 +641,15 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 		} );
 
 		await actionsQueuePage.drillToDetail( fixture );
-		const rail = page.locator( '[data-operator-context-rail="1"]' );
-		const ignoreAllAction = await operatorContextAjaxAction(
-			rail,
-			( action ) => action?.sub_action === 'ignore_all'
-		);
 		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
+		const actionsColumn = page.locator( '[data-actions-queue-detail="1"] .scan-results-actions' ).first();
+		const ignoreAllAction = actionsColumn.locator( '.all-ignore' );
 		const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
 		const ignoredFilter = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
-		await expect( rail ).toBeVisible();
-		await expect( rail ).toHaveAccessibleName( /\S/ );
+		await expect( actionsColumn ).toHaveAccessibleName( /\S/ );
 
 		await waitForScanResultsTableRows( scanResultsTable );
-		expect( ignoreAllAction ).not.toBeNull();
+		await expect( ignoreAllAction ).toBeEnabled();
 		await expect( displayCollection ).toBeVisible();
 		await displayCollection.click();
 		await ignoredFilter.click();
@@ -689,13 +682,6 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 		await expect( ignoreAllAction ).toBeFocused();
 		await expect.poll( () => nativeDialogCount ).toBe( 0 );
 		await expect.poll( () => ignoreAllRequestCount, { timeout: 1000 } ).toBe( 0 );
-		await expect.poll(
-			async () => await hasOperatorContextAjaxAction(
-				rail,
-				( action ) => action?.sub_action === 'ignore_all'
-			),
-			{ timeout: 1000 }
-		).toBe( true );
 
 		const requestsBeforeConfirm = ignoreAllRequestCount;
 		await ignoreAllAction.evaluate( ( action ) => {
@@ -711,14 +697,6 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 		await expect.poll( () => nativeDialogCount ).toBe( 0 );
 		await expect.poll( () => ignoreAllRequestCount ).toBe( requestsBeforeConfirm + 1 );
-		await expect.poll(
-			async () => await hasOperatorContextAjaxAction(
-				rail,
-				( action ) => action?.sub_action === 'ignore_all'
-			),
-			{ timeout: 20_000 }
-		).toBe( false );
-		await expect( rail ).toBeHidden( { timeout: 20_000 } );
 		await expect( displayCollection ).toBeVisible();
 		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_ignored":true/, { timeout: 20_000 } );
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
@@ -811,7 +789,7 @@ test( 'actions queue plugin reinstall shows a blocking processing dialog', async
 	} );
 } );
 
-test( 'actions queue ignores all malware results from the context rail without replacing the direct table', async ( { page, fixtureApi } ) => {
+test( 'actions queue ignores all malware results from the table actions column without replacing the direct table', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'malware_direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
@@ -820,15 +798,13 @@ test( 'actions queue ignores all malware results from the context rail without r
 		} );
 
 		await actionsQueuePage.drillToDetail( fixture );
-		const rail = page.locator( '[data-operator-context-rail="1"]' );
-		const ignoreAllAction = await operatorContextAjaxAction(
-			rail,
-			( action ) => action?.sub_action === 'ignore_all'
-		);
+		const ignoreAllAction = page.locator( '[data-actions-queue-detail="1"] .scan-results-actions .all-ignore' ).first();
 		const scanResultsTable = page.locator( '[data-actions-queue-detail="1"] [data-scan-results-table="1"]' ).first();
 
 		await waitForScanResultsTableRows( scanResultsTable );
-		expect( ignoreAllAction ).not.toBeNull();
+		await expect( ignoreAllAction ).toBeEnabled();
+		// Nothing is selected yet, so the actions on a selection wait.
+		await expect( page.locator( '[data-actions-queue-detail="1"] .scan-results-actions .repair' ).first() ).toBeDisabled();
 
 		await ignoreAllAction.click();
 		const confirmModal = page.locator( '[data-shield-accessible-dialog="1"][aria-modal="true"]:not([aria-hidden="true"])' );
@@ -842,13 +818,7 @@ test( 'actions queue ignores all malware results from the context rail without r
 		await expect( scanResultsTable ).toBeVisible();
 		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"ignored_only":false/, { timeout: 20_000 } );
 		await waitForScanResultsTableEmpty( scanResultsTable );
-		await expect.poll(
-			async () => await hasOperatorContextAjaxAction(
-				rail,
-				( action ) => action?.sub_action === 'ignore_all'
-			),
-			{ timeout: 20_000 }
-		).toBe( false );
+		await expect( page.locator( '[data-actions-queue-detail="1"] .scan-results-actions .all-ignore' ).first() ).toBeDisabled();
 	} );
 } );
 
@@ -872,7 +842,10 @@ test( 'actions queue ignores all malware results from the context rail without r
 			const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
 			const ignoredToggle = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
 
-			await expect( rail ).toBeVisible();
+			// Only a plugin or theme keeps context actions (reinstalling it); ignoring all is in the table's column.
+			if ( [ 'plugin', 'theme' ].includes( scenario.name ) ) {
+				await expect( rail ).toBeVisible();
+			}
 			if ( scenario.name === 'plugin' ) {
 				await expect( rail ).toContainText( /ignored/i );
 			}

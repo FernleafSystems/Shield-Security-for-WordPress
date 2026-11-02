@@ -87,7 +87,7 @@ const expectTrailAtInvestigate = async ( page ) => {
 	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 0 );
 };
 
-test( 'a subject opened by link offers its picker and the self shortcut, and changing it returns to the lookup', async ( { page } ) => {
+test( 'a subject opened by link offers its picker and the self shortcut, and another is found with a new search', async ( { page } ) => {
 	await openShieldRoute( page, {
 		nav: 'activity',
 		nav_sub: 'overview',
@@ -116,22 +116,13 @@ test( 'a subject opened by link offers its picker and the self shortcut, and cha
 	await expectTrailAtInvestigate( page );
 	await expectNoAxeViolations( page, '#PageContainer-Apto' );
 
-	// Choosing another user goes back to the lookup, listing users.
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'nav' ) === 'activity'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& !url.searchParams.get( 'subject' ),
-			{ timeout: 20_000 }
-		),
-		panel.locator( '[data-investigate-change-subject="1"]' ).click(),
-	] );
-
+	// There's no "Change user": another user is found with a new search, which puts this one away.
+	await expect( panel.locator( '[data-investigate-change-subject="1"]' ) ).toHaveCount( 0 );
+	await page.locator( '[data-lookup-kind="user"]' ).click();
 	await expectPanelState( page, panel, {
 		subject: '',
 		isLoaded: false,
 	} );
-	await expect( page.locator( '[data-lookup-kind="user"]' ) ).toHaveAttribute( 'aria-pressed', 'true' );
 	await expect( page.locator( '.investigate-lookup__row[data-investigate-subject="user"]' ).first() ).toBeVisible();
 } );
 

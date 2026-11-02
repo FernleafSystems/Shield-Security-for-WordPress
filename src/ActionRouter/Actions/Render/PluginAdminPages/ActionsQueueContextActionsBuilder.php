@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	Actions\ScanResultsTableAction
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\ScanResultsScopeResolver;
 
 /**
@@ -55,27 +51,9 @@ class ActionsQueueContextActionsBuilder {
 			return [];
 		}
 
-		$actions = [
-			[
-				'kind'             => 'ajax',
-				'label'            => __( 'Ignore All Results', 'wp-simple-firewall' ),
-				'type'             => 'deactivate',
-				'icon_class'       => 'bi bi-eye-slash-fill',
-				'ajax_action_json' => OperatorChromeContract::encodeJson(
-					ActionData::Build( ScanResultsTableAction::class, true, \array_merge(
-						$scope,
-						$this->queueScanResultsOptions->buildExplicitActionData(
-							$this->queueScanResultsOptions->activeOnly()
-						),
-						[
-							'sub_action' => 'ignore_all',
-						]
-					) )
-				),
-				'confirm_text'     => $this->buildConfirmText( $definitionKey, $label ),
-			],
-		];
-
+		// Ignoring all results is in the results table's own actions column, beside its other actions; what's
+		// left here acts on the whole plugin or theme.
+		$actions = [];
 		if ( $definitionKey === 'plugins' && $scope[ 'type' ] === ScanResultsScopeResolver::SCOPE_TYPE_PLUGIN ) {
 			$actions = \array_merge(
 				$actions,
@@ -90,26 +68,5 @@ class ActionsQueueContextActionsBuilder {
 		}
 
 		return $actions;
-	}
-
-	private function buildConfirmText( string $definitionKey, string $label ) :string {
-		switch ( $definitionKey ) {
-			case 'wordpress':
-				return __( 'Ignore all active WordPress core file results?', 'wp-simple-firewall' );
-			case 'malware':
-				return __( 'Ignore all active malware results?', 'wp-simple-firewall' );
-			case 'plugins':
-				return \sprintf(
-					__( 'Ignore all active results for %s?', 'wp-simple-firewall' ),
-					$label
-				);
-			case 'themes':
-				return \sprintf(
-					__( 'Ignore all active results for %s?', 'wp-simple-firewall' ),
-					$label
-				);
-			default:
-				return __( 'Ignore all active results for this view?', 'wp-simple-firewall' );
-		}
 	}
 }

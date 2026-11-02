@@ -188,7 +188,7 @@
 				{% if section.breakdown is not empty %}
 					<span class="actions-queue-section__breakdown">
 						{% for part in section.breakdown %}
-							<span class="actions-queue-section__part">{{ part.label }} <b>{{ part.count }}</b></span>
+							<span class="actions-queue-section__part">{{ part.label }}{% if part.count > 0 %} <b>{{ part.count }}</b>{% endif %}</span>
 						{% endfor %}
 					</span>
 				{% endif %}

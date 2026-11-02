@@ -61,11 +61,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			( input ) => this.handleAutoSubmitChange( input ),
 			false
 		);
-		shieldEventsHandler_Main.add_Click(
-			'[data-investigate-landing="1"] [data-investigate-change-subject="1"]',
-			( changeLink, evt ) => this.handleChangeSubjectClick( changeLink, evt ),
-			false
-		);
 
 		document.addEventListener( 'shield:drill-back', ( evt ) => this.handleDrillBack( evt ) );
 		document.addEventListener( 'click', ( evt ) => this.handlePivotClick( evt ) );
@@ -157,24 +152,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return;
 		}
 		form.requestSubmit();
-	}
-
-	handleChangeSubjectClick( changeLink, evt ) {
-		evt.preventDefault();
-		// Choosing another user, plugin and so on happens in the lookup, browsing that kind.
-		const subject = this.getCurrentSelection()?.key || '';
-		const kind = subject.length > 0
-			? this.rootEl?.querySelector( `[data-investigate-lookup="1"] [data-lookup-kind="${subject}"]` )
-			: null;
-		const drillCtrl = this.getDrillDownController();
-		if ( kind instanceof HTMLElement && this.shellEl !== null && drillCtrl !== null ) {
-			drillCtrl.drillTo( this.shellEl, 0 );
-			const input = this.rootEl?.querySelector( '[data-lookup-input="1"]' );
-			input instanceof HTMLInputElement && ( input.value = '' );
-			kind.click();
-			return;
-		}
-		this.resetCurrentSelection( changeLink ).finally();
 	}
 
 	handlePanelFormSubmit( form, evt ) {

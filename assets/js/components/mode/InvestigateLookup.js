@@ -98,6 +98,9 @@ export class InvestigateLookup {
 
 		// Choosing a result hands the space to the subject, even when another subject was already open.
 		shieldEventsHandler_Main.add_Click( `${InvestigateLookup.ROOT} .investigate-lookup__row`, ( row ) => {
+			// A search still waiting to run, or still on its way, would put the chosen subject away again.
+			window.clearTimeout( this.timer );
+			this.requestId++;
 			const results = row.closest( '[data-lookup-results="1"]' );
 			results instanceof HTMLElement && ( results.hidden = true );
 			const root = row.closest( InvestigateLookup.ROOT );

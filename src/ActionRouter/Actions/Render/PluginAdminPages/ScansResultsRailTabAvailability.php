@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetFileLockCandidateDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
@@ -56,9 +57,11 @@ class ScansResultsRailTabAvailability {
 			return null;
 		}
 
+		// Only the critical files this site has, and that apply to how it runs, count.
 		$state = $this->build( 'file_locker' );
-		$lockable = \count( $con->comps->file_locker->getLockableFiles() );
-		$locked = \count( $con->comps->file_locker->getFilesToLock() );
+		$lockable = \array_column( ( new GetFileLockCandidateDisplays() )->run(), 'file_key' );
+		$locked = \count( \array_intersect( $con->comps->file_locker->getFilesToLock(), $lockable ) );
+		$lockable = \count( $lockable );
 		if ( $state[ 'is_available' ] && $locked >= $lockable ) {
 			return null;
 		}

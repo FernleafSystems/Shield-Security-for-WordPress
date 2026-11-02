@@ -371,25 +371,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
+	 * Ignoring all results is in the results table's own actions column, not among the page's context actions.
 	 * @param array<string,mixed> $header
-	 * @param array{type:string,file:string} $expectedScope
 	 */
-	private function assertIgnoreAllHeaderAction( array $header, array $expectedScope ) :void {
-		$this->assertCount( 1, $header[ 'actions' ] ?? [] );
-		$actionData = \json_decode( (string)( $header[ 'actions' ][ 0 ][ 'ajax_action_json' ] ?? '' ), true );
-		$this->assertIsArray( $actionData );
-		$this->assertSame( 'ignore_all', (string)( $actionData[ 'sub_action' ] ?? '' ) );
-		$this->assertSame( $expectedScope[ 'type' ], (string)( $actionData[ 'type' ] ?? '' ) );
-		$this->assertSame( $expectedScope[ 'file' ], (string)( $actionData[ 'file' ] ?? '' ) );
-		$this->assertSame(
-			[
-				'include_ignored'  => false,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-				'ignored_only'     => false,
-			],
-			(array)( $actionData[ 'results_display_options' ] ?? [] )
-		);
+	private function assertNoIgnoreAllHeaderAction( array $header ) :void {
+		foreach ( $header[ 'actions' ] ?? [] as $action ) {
+			$actionData = \json_decode( (string)( $action[ 'ajax_action_json' ] ?? '' ), true );
+			$this->assertNotSame( 'ignore_all', (string)( $actionData[ 'sub_action' ] ?? '' ) );
+		}
 	}
 
 	private function assertHeaderHasNoDisplayOptions( array $header ) :void {
@@ -414,8 +403,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$groupsPayload = $this->loadSelectedGroupPayload( $bucket, $groupKey );
 		$this->assertSame( $groupKey, (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'direct_table', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
-		$this->assertIgnoreAllHeaderAction( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ), $expectedScope );
+		$this->assertNoIgnoreAllHeaderAction( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ) );
 		$this->assertHeaderHasNoDisplayOptions( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ) );
+		// "Ignore all results" is the table's own action, run with the table's own scope.
+		$detail = $this->renderSelectedGroupDetail( $groupsPayload );
+		$tableAction = \json_decode( (string)( $detail[ 'render_data' ][ 'table' ][ 'table_action_attr' ] ?? '' ), true );
+		$this->assertIsArray( $tableAction );
+		$this->assertSame( $expectedScope[ 'type' ], (string)( $tableAction[ 'type' ] ?? '' ) );
+		$this->assertSame( $expectedScope[ 'file' ], (string)( $tableAction[ 'file' ] ?? '' ) );
 		$this->assertGroupResultsDisplayOptions(
 			(array)( $groupsPayload[ 'selected_group' ] ?? [] ),
 			( new ScanResultsDisplayOptions() )->activeOnly()
@@ -817,7 +812,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertScopedScanResultsDisplayMatrix( 'wordpress', 'wordpress', [], $ignoredIds );
 	}
 
-	public function test_wordpress_direct_table_group_and_detail_expose_ignore_all_action() :void {
+	public function test_wordpress_direct_table_detail_can_ignore_all_from_its_table() :void {
 		$this->enableAssetScanFixture( [ 'wp' ] );
 
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
@@ -837,7 +832,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_theme_direct_table_group_and_detail_expose_ignore_all_action() :void {
+	public function test_theme_direct_table_detail_can_ignore_all_from_its_table() :void {
 		$this->enableAssetScanFixture( [ 'themes' ] );
 
 		$themeSlug = $this->requireAtLeastInstalledThemes( 1 )[ 0 ];
@@ -899,7 +894,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertScopedScanResultsDisplayMatrix( 'theme', $themeSlug, [], $ignoredIds );
 	}
 
-	public function test_malware_direct_table_group_and_detail_expose_ignore_all_action() :void {
+	public function test_malware_direct_table_detail_can_ignore_all_from_its_table() :void {
 		$this->enablePremiumCapabilities( [
 			'scan_malware_local',
 		] );
@@ -946,10 +941,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$activePayload = $this->loadSelectedGroupPayload( 'critical', 'malware' );
 		$this->assertSame( 1, (int)( $activePayload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
-		$this->assertIgnoreAllHeaderAction( (array)( $activePayload[ 'selected_group' ][ 'header' ] ?? [] ), [
-			'type' => 'malware',
-			'file' => 'malware',
-		] );
+		$this->assertNoIgnoreAllHeaderAction( (array)( $activePayload[ 'selected_group' ][ 'header' ] ?? [] ) );
 
 		$ignorePayload = $this->ignoreAllMalwareResults();
 		$this->assertTrue( $ignorePayload[ 'success' ] ?? false );
@@ -1055,10 +1047,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'plugins:'.$pluginSlug, (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'direct_table', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertSame( 1, (int)( $groupsPayload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
-		$this->assertIgnoreAllHeaderAction( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ), [
-			'type' => 'plugin',
-			'file' => $pluginSlug,
-		] );
+		$this->assertNoIgnoreAllHeaderAction( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ) );
 		$this->assertHeaderHasNoDisplayOptions( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ) );
 		$this->assertSame(
 			( new ScanResultsDisplayOptions() )->activeOnly(),

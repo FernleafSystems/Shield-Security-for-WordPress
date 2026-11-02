@@ -86,7 +86,7 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_build_for_active_plugin_direct_table_emits_ignore_and_reinstall_actions() :void {
+	public function test_build_for_active_plugin_direct_table_emits_reinstall_action_only() :void {
 		$actions = ( new ActionsQueueContextActionsBuilder(
 			null,
 			null,
@@ -103,13 +103,13 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertCount( 2, $actions );
-		$this->assertIgnoreAllAction( $actions, 'plugin', 'example-plugin/example-plugin.php' );
-		$this->assertSame( 'ajax', $actions[ 1 ][ 'kind' ] ?? '' );
-		$this->assertSame( 'update', $actions[ 1 ][ 'type' ] ?? '' );
-		$this->assertSame( 'reinstall-json', $actions[ 1 ][ 'ajax_action_json' ] ?? '' );
-		$this->assertSame( 'Processing reinstall', $actions[ 1 ][ 'processing_text' ] ?? '' );
-		$this->assertNotEmpty( $actions[ 1 ][ 'label' ] ?? '' );
+		// Ignoring all results is in the results table's own actions column.
+		$this->assertCount( 1, $actions );
+		$this->assertSame( 'ajax', $actions[ 0 ][ 'kind' ] ?? '' );
+		$this->assertSame( 'update', $actions[ 0 ][ 'type' ] ?? '' );
+		$this->assertSame( 'reinstall-json', $actions[ 0 ][ 'ajax_action_json' ] ?? '' );
+		$this->assertSame( 'Processing reinstall', $actions[ 0 ][ 'processing_text' ] ?? '' );
+		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] ?? '' );
 	}
 
 	public function test_build_for_active_plugin_direct_table_preserves_update_link_action() :void {
@@ -129,43 +129,23 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertCount( 2, $actions );
-		$this->assertIgnoreAllAction( $actions, 'plugin', 'example-plugin/example-plugin.php' );
-		$this->assertSame( 'href', $actions[ 1 ][ 'kind' ] );
-		$this->assertSame( 'update', $actions[ 1 ][ 'type' ] );
-		$this->assertSame( '/wp-admin/update-core.php', $actions[ 1 ][ 'href' ] );
-		$this->assertNotEmpty( $actions[ 1 ][ 'label' ] );
+		$this->assertCount( 1, $actions );
+		$this->assertSame( 'href', $actions[ 0 ][ 'kind' ] );
+		$this->assertSame( 'update', $actions[ 0 ][ 'type' ] );
+		$this->assertSame( '/wp-admin/update-core.php', $actions[ 0 ][ 'href' ] );
+		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] );
 	}
 
-	public function test_build_for_active_wordpress_direct_table_emits_ignore_all_action() :void {
-		$actions = ( new ActionsQueueContextActionsBuilder() )->buildForGroup(
-			'wordpress',
-			'WordPress Files',
-			'direct_table',
-			2,
-			[
+	public function test_build_for_wordpress_and_malware_direct_tables_leaves_ignore_all_to_the_table() :void {
+		$builder = new ActionsQueueContextActionsBuilder();
+		foreach ( [ 'wordpress' => 'WordPress Files', 'malware' => 'Malware Detections' ] as $key => $label ) {
+			$this->assertSame( [], $builder->buildForGroup( $key, $label, 'direct_table', 2, [
 				'display_context' => 'actions_queue',
-			]
-		);
-
-		$this->assertIgnoreAllAction( $actions, 'wordpress', 'wordpress' );
+			] ) );
+		}
 	}
 
-	public function test_build_for_active_malware_direct_table_emits_ignore_all_action() :void {
-		$actions = ( new ActionsQueueContextActionsBuilder() )->buildForGroup(
-			'malware',
-			'Malware Detections',
-			'direct_table',
-			2,
-			[
-				'display_context' => 'actions_queue',
-			]
-		);
-
-		$this->assertIgnoreAllAction( $actions, 'malware', 'malware' );
-	}
-
-	public function test_build_for_active_theme_direct_table_emits_ignore_and_reinstall_actions() :void {
+	public function test_build_for_active_theme_direct_table_emits_reinstall_action_only() :void {
 		$actions = ( new ActionsQueueContextActionsBuilder(
 			null,
 			null,
@@ -183,13 +163,12 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertCount( 2, $actions );
-		$this->assertIgnoreAllAction( $actions, 'theme', 'example-theme' );
-		$this->assertSame( 'ajax', $actions[ 1 ][ 'kind' ] ?? '' );
-		$this->assertSame( 'update', $actions[ 1 ][ 'type' ] ?? '' );
-		$this->assertSame( 'theme-reinstall-json', $actions[ 1 ][ 'ajax_action_json' ] ?? '' );
-		$this->assertSame( 'Processing theme reinstall', $actions[ 1 ][ 'processing_text' ] ?? '' );
-		$this->assertNotEmpty( $actions[ 1 ][ 'label' ] ?? '' );
+		$this->assertCount( 1, $actions );
+		$this->assertSame( 'ajax', $actions[ 0 ][ 'kind' ] ?? '' );
+		$this->assertSame( 'update', $actions[ 0 ][ 'type' ] ?? '' );
+		$this->assertSame( 'theme-reinstall-json', $actions[ 0 ][ 'ajax_action_json' ] ?? '' );
+		$this->assertSame( 'Processing theme reinstall', $actions[ 0 ][ 'processing_text' ] ?? '' );
+		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] ?? '' );
 	}
 
 	public function test_build_for_active_theme_direct_table_preserves_update_link_action() :void {
@@ -210,12 +189,11 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertCount( 2, $actions );
-		$this->assertIgnoreAllAction( $actions, 'theme', 'example-theme' );
-		$this->assertSame( 'href', $actions[ 1 ][ 'kind' ] ?? '' );
-		$this->assertSame( 'update', $actions[ 1 ][ 'type' ] ?? '' );
-		$this->assertSame( '/wp-admin/update-core.php', $actions[ 1 ][ 'href' ] ?? '' );
-		$this->assertNotEmpty( $actions[ 1 ][ 'label' ] ?? '' );
+		$this->assertCount( 1, $actions );
+		$this->assertSame( 'href', $actions[ 0 ][ 'kind' ] ?? '' );
+		$this->assertSame( 'update', $actions[ 0 ][ 'type' ] ?? '' );
+		$this->assertSame( '/wp-admin/update-core.php', $actions[ 0 ][ 'href' ] ?? '' );
+		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] ?? '' );
 	}
 
 	public function test_plugin_and_theme_scopes_are_derived_from_group_key_not_render_subject_type() :void {
@@ -249,8 +227,9 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertIgnoreAllAction( $pluginActions, 'plugin', 'example-plugin/example-plugin.php' );
-		$this->assertIgnoreAllAction( $themeActions, 'theme', 'example-theme' );
+		// The scope comes from the group key, so each still gets its own reinstall action.
+		$this->assertSame( 'reinstall-json', $pluginActions[ 0 ][ 'ajax_action_json' ] ?? '' );
+		$this->assertSame( 'theme-reinstall-json', $themeActions[ 0 ][ 'ajax_action_json' ] ?? '' );
 	}
 
 	public function test_build_for_ignored_only_or_non_direct_groups_returns_no_actions() :void {
@@ -278,27 +257,6 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 				'display_context' => 'actions_queue',
 			]
 		) );
-	}
-
-	private function assertIgnoreAllAction( array $actions, string $expectedType, string $expectedFile ) :void {
-		$this->assertSame( 'ajax', $actions[ 0 ][ 'kind' ] ?? '' );
-		$this->assertSame( 'deactivate', $actions[ 0 ][ 'type' ] ?? '' );
-		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] ?? '' );
-
-		$actionData = \json_decode( (string)( $actions[ 0 ][ 'ajax_action_json' ] ?? '' ), true );
-		$this->assertIsArray( $actionData );
-		$this->assertSame( 'ignore_all', $actionData[ 'sub_action' ] ?? '' );
-		$this->assertSame( $expectedType, $actionData[ 'type' ] ?? '' );
-		$this->assertSame( $expectedFile, $actionData[ 'file' ] ?? '' );
-		$this->assertSame(
-			[
-				'include_ignored'  => false,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-				'ignored_only'     => false,
-			],
-			$actionData[ 'results_display_options' ] ?? []
-		);
 	}
 
 	private function buildPluginReinstallActionBuilder() :PluginReinstallContextActionBuilder {

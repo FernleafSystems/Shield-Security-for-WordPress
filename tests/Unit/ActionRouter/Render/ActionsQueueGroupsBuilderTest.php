@@ -387,10 +387,11 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'plugins:example-plugin', $group[ 'selection' ][ 'key' ] );
 		$this->assertSame( 'direct_table', $group[ 'selection' ][ 'detail_shell' ] );
 		$this->assertSame( 'actions_queue_asset_file_status_detail', $group[ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
-		$this->assertCount( 1, $group[ 'selection' ][ 'header' ][ 'actions' ] ?? [] );
-		$this->assertSame( 'ignore_all', $this->decodeAjaxAction(
-			$group[ 'selection' ][ 'header' ][ 'actions' ][ 0 ][ 'ajax_action_json' ] ?? ''
-		)[ 'sub_action' ] ?? '' );
+		// Ignoring all results is in the results table's own actions column, not the page's context actions.
+		$this->assertSame( [], \array_filter(
+			$group[ 'selection' ][ 'header' ][ 'actions' ] ?? [],
+			fn( array $action ) :bool => ( $this->decodeAjaxAction( $action[ 'ajax_action_json' ] ?? '' )[ 'sub_action' ] ?? '' ) === 'ignore_all'
+		) );
 	}
 
 	public function test_build_surfaces_disabled_fix_now_scan_groups_as_neutral_clickable_cards() :void {

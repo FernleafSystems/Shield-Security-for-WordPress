@@ -74,21 +74,13 @@ class FileLockerController {
 	}
 
 	/**
-	 * Every critical file that File Locker can lock.
-	 * @return list<string>
-	 */
-	public function getLockableFiles(): array {
-		return \array_values( \array_column(
-			self::con()->opts->optDef( 'file_locker' )[ 'value_options' ] ?? [],
-			'value_key'
-		) );
-	}
-
-	/**
 	 * @return list<string>
 	 */
 	public function getFilesToLock(): array {
-		$allowed = $this->getLockableFiles();
+		$allowed = \array_column(
+			self::con()->opts->optDef( 'file_locker' )[ 'value_options' ] ?? [],
+			'value_key'
+		);
 		$selected = [];
 		$stored = self::con()->opts->optGet( 'file_locker' );
 		foreach ( \is_array( $stored ) ? $stored : [] as $fileKey ) {
