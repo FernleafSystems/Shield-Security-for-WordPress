@@ -241,6 +241,8 @@ class NavMenuBuilder {
 			__( 'Integrations', 'wp-simple-firewall' ),
 			'puzzle'
 		);
+		// Integrations has a Configure topic of its own, so its panel lays its settings out the same way.
+		$toolItemsById[ 'tool_integrations' ][ 'data' ][ 'configure_panel' ] = 'integrations:integrations';
 
 		// Guided Setup opens the setup guide: in place when it's on the page, or by its link.
 		$toolItemsById[ 'tool_guidedsetup' ][ 'href' ] = self::con()->plugin_urls->setupGuide();

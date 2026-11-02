@@ -22,7 +22,7 @@
 				   href="{{ group.management_link.href }}"
 				   {% if group.management_link.target is not empty %}target="{{ group.management_link.target }}"{% endif %}
 				   {% if group.management_link.rel is not empty %}rel="{{ group.management_link.rel }}"{% endif %}>
-					{{ group.management_link.label }} <i class="bi {{ group.management_link.icon_class }}" aria-hidden="true"></i>
+					<i class="bi {{ group.management_link.icon_class }}" aria-hidden="true"></i>{{ group.management_link.label }}
 				</a>
 			{% endif %}
 		</div>
@@ -78,12 +78,12 @@
 			{% endif %}
 		</span>
 		{% if is_pro %}
-			<span class="actions-queue-row__action actions-queue-row__action--pro">{{ strings.compare_plans }}</span>
+			<span class="actions-queue-row__action actions-queue-row__action--pro"><i class="bi bi-stars" aria-hidden="true"></i>{{ strings.compare_plans }}</span>
 		{% elseif is_enable %}
-			<span class="actions-queue-row__action actions-queue-row__action--enable">{{ strings.turn_on }}</span>
+			<span class="actions-queue-row__action actions-queue-row__action--enable"><i class="bi bi-toggle-on" aria-hidden="true"></i>{{ strings.turn_on }}</span>
 		{% elseif can_drill %}
 			<span class="actions-queue-row__action actions-queue-row__action--{{ group.status }}">
-				{{ group.drill_hint is not empty ? group.drill_hint : strings.review }}<i class="bi bi-chevron-right" aria-hidden="true"></i>
+				<i class="bi bi-search" aria-hidden="true"></i>{{ group.drill_hint is not empty ? group.drill_hint : strings.review }}
 			</span>
 		{% elseif group.card_type == 'linked' and group.links is not empty %}
 			<span class="actions-queue-row__links">
@@ -91,7 +91,9 @@
 					<a class="actions-queue-row__link"
 					   href="{{ link.href }}"
 					   {% if link.target is not empty %}target="{{ link.target }}"{% endif %}
-					   {% if link.rel is not empty %}rel="{{ link.rel }}"{% endif %}>{{ link.label }}</a>
+					   {% if link.rel is not empty %}rel="{{ link.rel }}"{% endif %}>
+						<i class="bi {{ link.target == '_blank' ? 'bi-box-arrow-up-right' : 'bi-arrow-right' }}" aria-hidden="true"></i>{{ link.label }}
+					</a>
 				{% endfor %}
 			</span>
 		{% endif %}

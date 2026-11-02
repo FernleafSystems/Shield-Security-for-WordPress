@@ -40,4 +40,9 @@
 		{% endfor %}
 
 	</div>
+
+	{# Within Configure one save bar serves the page and this is hidden; elsewhere, such as a side panel, the panel saves itself. #}
+	<div class="shield-options-rail-save shield-detail-expansion__footer">
+		<button type="submit" class="btn btn-primary icwp-form-button w-auto" name="submit">{{ strings.save_all_settings }}</button>
+	</div>
 </form>

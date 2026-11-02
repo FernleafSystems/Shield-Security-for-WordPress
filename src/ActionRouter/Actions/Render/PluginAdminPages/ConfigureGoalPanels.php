@@ -526,9 +526,7 @@ class ConfigureGoalPanels {
 					'general'      => [
 						'icon'   => 'sliders',
 						'blocks' => [
-							[ 'items' => [ [ 'key' => 'global_enable_plugin_features', 'control' => 'toggle' ] ] ],
 							[ 'heading' => 'visitor_ip', 'items' => [ [ 'key' => 'visitor_address_source', 'control' => 'field' ] ] ],
-							[ 'heading' => 'updates', 'items' => [ [ 'key' => 'autoupdate_plugin_self', 'control' => 'segmented' ] ] ],
 							[ 'heading' => 'on_your_site', 'items' => [ [ 'key' => 'display_plugin_badge', 'control' => 'segmented' ] ] ],
 							[
 								'heading' => 'in_your_dashboard',
@@ -539,6 +537,8 @@ class ConfigureGoalPanels {
 							],
 						],
 						'more'   => [
+							[ 'key' => 'global_enable_plugin_features', 'control' => 'toggle' ],
+							[ 'key' => 'autoupdate_plugin_self', 'control' => 'segmented' ],
 							[ 'key' => 'enable_mu', 'control' => 'toggle' ],
 							[ 'key' => 'delete_on_deactivate', 'control' => 'toggle' ],
 							[ 'key' => 'preferred_temp_dir', 'control' => 'field' ],
@@ -700,7 +700,6 @@ class ConfigureGoalPanels {
 				'verify_methods'    => __( 'Ways people can verify', 'wp-simple-firewall' ),
 				'alert_me_when'     => __( 'Alert me straight away when', 'wp-simple-firewall' ),
 				'visitor_ip'        => __( 'Visitor IP addresses', 'wp-simple-firewall' ),
-				'updates'           => __( 'Updates', 'wp-simple-firewall' ),
 				'on_your_site'      => __( 'On your site', 'wp-simple-firewall' ),
 				'in_your_dashboard' => __( 'In your dashboard', 'wp-simple-firewall' ),
 			],

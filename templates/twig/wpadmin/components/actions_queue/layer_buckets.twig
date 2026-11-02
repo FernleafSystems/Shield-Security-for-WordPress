@@ -246,29 +246,57 @@
 						{% endfor %}
 					</div>
 				{% else %}
+					{#
+						Each kind of problem gets a box of its own, most serious first: WordPress's own files, PHP
+						malware, the Critical File Locker and vulnerabilities; then plugins, and themes, with modified
+						files, each kind gathered together. Anything else follows in the order it came.
+					#}
+					{% set kind_order = [ 'wordpress', 'malware', 'file_locker', 'vulnerabilities', 'plugins', 'themes' ] %}
+					{% set entries = [] %}
 					{% for group_section in section.group_sections %}
-						{% set listed = group_section.groups|filter( g => g.card_type == 'category' or g.maintenance_rows is not empty ) %}
-						{% set single = group_section.groups|filter( g => not ( g.card_type == 'category' or g.maintenance_rows is not empty ) ) %}
+						{% for group in group_section.groups %}
+							{% set entries = entries|merge( [ {
+								group: group,
+								kind: group.key|split( ':' )|first,
+								heading: group_section.heading,
+								icon_class: group_section.icon_class
+							} ] ) %}
+						{% endfor %}
+					{% endfor %}
+					{% set kinds = kind_order|filter( k => k in entries|map( e => e.kind ) ) %}
+					{% for entry in entries %}
+						{% if entry.kind not in kinds %}
+							{% set kinds = kinds|merge( [ entry.kind ] ) %}
+						{% endif %}
+					{% endfor %}
+
+					{% for kind in kinds %}
+						{% set kind_entries = entries|filter( e => e.kind == kind ) %}
+						{# A group that lists its items brings its own heading; single rows share one. #}
+						{% set listed = kind_entries|filter( e => e.group.card_type == 'category' or e.group.maintenance_rows is not empty ) %}
+						{% set single = kind_entries|filter( e => not ( e.group.card_type == 'category' or e.group.maintenance_rows is not empty ) ) %}
 						{% if single is not empty %}
-							<div class="actions-queue-box">
-								{% if group_section.heading is not empty %}
+							{% set first_single = single|first %}
+							{% set heading = strings.kind_headings[ kind ]|default( first_single.heading ) %}
+							<div class="actions-queue-box" data-actions-queue-kind="{{ kind|e('html_attr') }}">
+								{% if heading is not empty %}
 									<div class="actions-queue-box__head">
-										{% if group_section.icon_class is not empty %}<i class="{{ group_section.icon_class }}" aria-hidden="true"></i>{% endif %}{{ group_section.heading }}
+										<i class="{{ first_single.group.icon_class is not empty ? first_single.group.icon_class : first_single.icon_class }}" aria-hidden="true"></i>{{ heading }}
 									</div>
 								{% endif %}
-								{% for group in single %}
+								{% for entry in single %}
 									{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
-										group: group,
+										group: entry.group,
 										bucket_selection: section.bucket_selection,
 										strings: strings
 									} only %}
 								{% endfor %}
 							</div>
 						{% endif %}
-						{% for group in listed %}
-							<div class="actions-queue-box">
+						{% for entry in listed %}
+							<div class="actions-queue-box" data-actions-queue-kind="{{ kind|e('html_attr') }}">
 								{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
-									group: group,
+									group: entry.group,
 									bucket_selection: section.bucket_selection,
 									strings: strings
 								} only %}

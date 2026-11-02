@@ -89,21 +89,23 @@ async function moveSlider( slider, value ) {
 	await slider.fill( String( index ) );
 }
 
-// Settings few sites change sit in the goal's Advanced options rather than the focused topic.
+// Settings few sites change sit in the goal's Advanced options rather than the focused topic. Opens
+// whichever of the two holds the setting; in the component list only one is open at a time.
 async function formHolding( page, form, option ) {
 	const key = option.control_id.replace( /^Opt-/, '' );
-	if ( await form.locator( `#${option.control_id}, [name="${key}"]` ).count() > 0 ) {
-		return form;
-	}
-	const advanced = page.locator( '[data-configure-row-key="advanced"]' );
-	const trigger = advanced.locator( '[data-shield-expand-trigger="1"]' ).first();
-	if ( await trigger.getAttribute( 'aria-expanded' ) !== 'true' ) {
+	const inFocused = await form.locator( `#${option.control_id}, [name="${key}"]` ).count() > 0;
+	const rowKey = inFocused
+		? await form.locator( 'xpath=ancestor::*[@data-configure-row-key][1]' ).getAttribute( 'data-configure-row-key' )
+		: 'advanced';
+	const row = page.locator( `[data-configure-row-key="${rowKey}"]` );
+	const rowForm = row.locator( 'form.options_form_for' ).first();
+	if ( !await rowForm.isVisible() ) {
 		// In the component list the whole row opens it; expanded in place, its toggle does.
-		await ( await trigger.isVisible() ? trigger : advanced.locator( '.shield-detail-row' ).first() ).click();
+		const trigger = row.locator( '[data-shield-expand-trigger="1"]' ).first();
+		await ( await trigger.isVisible() ? trigger : row.locator( '.shield-detail-row' ).first() ).click();
 	}
-	const advancedForm = advanced.locator( 'form.options_form_for' ).first();
-	await expect( advancedForm ).toBeVisible( { timeout: 30_000 } );
-	return advancedForm;
+	await expect( rowForm ).toBeVisible( { timeout: 30_000 } );
+	return rowForm;
 }
 
 async function expectControlValue( form, option, expectedValue ) {

@@ -38,8 +38,27 @@ export class ActionsQueueSections extends BaseAutoExecComponent {
 		}, false );
 
 		shieldEventsHandler_Main.add_Click( '[data-actions-queue-view]', ( button ) => {
-			this.setView( button.closest( ActionsQueueSections.ROOT_SELECTOR ), button.dataset.actionsQueueView || 'sections' );
+			// The choice sits on the breadcrumb line, outside the sections it switches.
+			const root = button.closest( ActionsQueueSections.ROOT_SELECTOR ) || document.querySelector( ActionsQueueSections.ROOT_SELECTOR );
+			this.setView( root, button.dataset.actionsQueueView || 'sections' );
 		} );
+
+		// The landing is re-rendered after actions, bringing its own choice each time; it always moves up.
+		this.placeViewChoice();
+		new MutationObserver( () => this.placeViewChoice() ).observe( document.body, { childList: true, subtree: true } );
+	}
+
+	/**
+	 * Moves the Sections / Tabs choice up to the end of the breadcrumb line, replacing any moved there before.
+	 */
+	placeViewChoice() {
+		const view = document.querySelector( `${ActionsQueueSections.ROOT_SELECTOR} .actions-queue-sections__view` );
+		const nav = document.querySelector( '[data-operator-step-tabs="1"]' );
+		if ( view === null || nav === null ) {
+			return;
+		}
+		nav.querySelectorAll( ':scope > .actions-queue-sections__view' ).forEach( ( old ) => old.remove() );
+		nav.insertBefore( view, nav.querySelector( ':scope > .operator-step-tabs__actions' ) );
 	}
 
 	/**
@@ -71,7 +90,7 @@ export class ActionsQueueSections extends BaseAutoExecComponent {
 		root.dataset.view = view;
 		root.classList.toggle( 'actions-queue-sections--tabs', view === 'tabs' );
 		root.classList.toggle( 'actions-queue-sections--sections', view === 'sections' );
-		root.querySelectorAll( '[data-actions-queue-view]' ).forEach(
+		document.querySelectorAll( '[data-actions-queue-view]' ).forEach(
 			( button ) => button.setAttribute( 'aria-pressed', String( button.dataset.actionsQueueView === view ) )
 		);
 		// Tabs always show their section in full; sections keep whichever were open or collapsed.

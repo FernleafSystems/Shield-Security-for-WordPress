@@ -59,6 +59,8 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 				'opt_help'                  => __( 'Help', 'wp-simple-firewall' ),
 				'supply_password'           => __( 'Enter a new value', 'wp-simple-firewall' ),
 				'confirm_password'          => __( 'Confirm the new value', 'wp-simple-firewall' ),
+				'supply_pin'                => __( 'Enter a new PIN', 'wp-simple-firewall' ),
+				'confirm_pin'               => __( 'Confirm your new PIN', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
 				'show_section_navigation' => \count( $allOptions ) > 1,

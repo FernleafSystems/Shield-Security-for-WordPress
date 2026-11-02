@@ -413,6 +413,16 @@ $aq-pro-bg: #f2ebfc;
 	margin-left: auto;
 }
 
+// The Sections / Tabs choice is moved up to the end of the breadcrumb line. Without tabs to show, the bar
+// it came from then holds nothing.
+.operator-step-tabs > .actions-queue-sections__view {
+	flex: none;
+}
+
+.actions-queue-sections--sections .actions-queue-sections__bar {
+	display: contents;
+}
+
 .actions-queue-sections__view-btn {
 	align-items: center;
 	background: #ffffff;
@@ -700,78 +710,65 @@ $aq-pro-bg: #f2ebfc;
 	&--pro { background: $aq-pro-bg; color: $aq-pro; }
 }
 
-// The row's action, styled as a button though the whole row is the control.
+// Every action in a row is a button of one style, with an icon leading its label. A row that opens its
+// results is itself the control, so its button brightens with the row. The icon carries the colour: the
+// row's status, Pro's purple, or green to turn something on. Ignore, below, is the quieter kind.
 .actions-queue-row__action,
-.actions-queue-row__button {
+.actions-queue-row__button,
+.actions-queue-row__link {
 	align-items: center;
-	border: 1px solid transparent;
+	background: #ffffff;
+	border: 1px solid #8c8f94;
 	border-radius: 5px;
+	color: #1d2327;
+	cursor: pointer;
 	display: inline-flex;
 	font-size: 12.5px;
 	font-weight: 600;
 	gap: 6px;
-	padding: 6px 12px;
+	line-height: 1.3;
+	padding: 5px 11px;
 	text-decoration: none;
 	white-space: nowrap;
-}
 
-// Opening results reads as a coloured link with a chevron, so every row that opens something looks the
-// same; upgrade and turn-on keep a filled button because they open a dialog rather than results.
-.actions-queue-row__action {
-	background: transparent;
-	color: #0a58ca;
-	padding-inline: 6px 0;
-
-	.bi-chevron-right {
-		font-size: 11px;
-		transition: transform 0.15s ease;
+	> .bi {
+		font-size: 13px;
+		line-height: 1;
 	}
 
-	&--critical { color: $aq-crit; }
-	&--warning { color: $aq-warn-text; }
-	&--good { color: $aq-good; }
-	&--pro { background: $aq-pro-bg; border-color: #d6c4f2; color: $aq-pro; padding-inline: 12px; }
-	&--enable { background: $aq-good; border-color: $aq-good; color: #ffffff; padding-inline: 12px; }
+	&:hover,
+	&:focus {
+		background: #f6f7f7;
+		border-color: #50575e;
+		color: #1d2327;
+		text-decoration: none;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
 
 	.is-actionable:hover > &,
 	.is-actionable:focus-visible > & {
-		text-decoration: underline;
-		text-underline-offset: 3px;
-
-		.bi-chevron-right {
-			transform: translateX(2px);
-		}
+		background: #f6f7f7;
+		border-color: #50575e;
 	}
 }
 
-@media (prefers-reduced-motion: reduce) {
-	.actions-queue-row__action .bi-chevron-right {
-		transition: none;
-	}
+.actions-queue-row__action {
+	&--critical > .bi { color: $aq-crit; }
+	&--warning > .bi { color: $aq-warn-text; }
+	&--good > .bi { color: $aq-good; }
+	&--pro > .bi { color: $aq-pro; }
+	&--enable > .bi { color: $aq-good; }
 }
 
 .actions-queue-row__links {
 	align-items: center;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 10px;
+	gap: 8px;
 	justify-content: flex-end;
-}
-
-.actions-queue-row__button {
-	background: #ffffff;
-	border-color: #c3c4c7;
-	color: #1d2327;
-
-	&:hover,
-	&:focus {
-		border-color: #8c8f94;
-		color: #1d2327;
-	}
-
-	&:focus-visible {
-		@include shield-focus-ring();
-	}
 }
 
 // Ignore is a small quiet button with its icon, so it's plain to see without competing with the main action.
@@ -821,41 +818,34 @@ $aq-pro-bg: #f2ebfc;
 	padding: 8px 14px;
 }
 
-.actions-queue-row__link,
-.actions-queue-row__text-action {
-	background: none;
-	border: 0;
-	color: $aq-muted;
-	cursor: pointer;
-	font-size: 12px;
-	padding: 0;
-	text-decoration: underline;
-	text-underline-offset: 2px;
-
-	&:hover,
-	&:focus {
-		color: #1d2327;
-	}
-
-	&:focus-visible {
-		@include shield-focus-ring();
-	}
-}
-
 // A group of maintenance items: a small heading row (styled with the box headings above), then one row per item.
 
+// A group's own link (Manage Plugins) is a quiet button like Ignore, at the end of its heading.
 .actions-queue-row-group__link {
-	color: #0a58ca;
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid #dcdcde;
+	border-radius: 5px;
+	color: #50575e;
+	display: inline-flex;
 	font-size: 12px;
 	font-weight: 600;
+	gap: 5px;
 	letter-spacing: 0;
 	margin-left: auto;
+	padding: 3px 9px;
 	text-decoration: none;
 	text-transform: none;
 
 	&:hover,
 	&:focus {
-		text-decoration: underline;
+		border-color: #8c8f94;
+		color: #1d2327;
+		text-decoration: none;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
 	}
 }
 

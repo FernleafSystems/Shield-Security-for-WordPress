@@ -165,6 +165,14 @@ trait BuildsActionsQueueLandingData {
 					'review'         => __( 'Review', 'wp-simple-firewall' ),
 					/* translators: %s: how many items */
 					'ignore_all'     => __( 'Ignore all %s', 'wp-simple-firewall' ),
+					// One box for each kind of problem in a lane.
+					'kind_headings'  => [
+						'wordpress'   => __( 'WordPress core files', 'wp-simple-firewall' ),
+						'malware'     => __( 'PHP malware', 'wp-simple-firewall' ),
+						'file_locker' => __( 'Critical File Locker', 'wp-simple-firewall' ),
+						'plugins'     => __( 'Plugins with modified files', 'wp-simple-firewall' ),
+						'themes'      => __( 'Themes with modified files', 'wp-simple-firewall' ),
+					],
 				],
 			] )
 			->render();
