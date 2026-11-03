@@ -1,6 +1,7 @@
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
 import { ScanProgressModal } from "./ScanProgressModal";
+import { ScanRunPage } from "./ScanRunPage";
 
 export class ScansCheck extends BaseComponent {
 
@@ -32,6 +33,7 @@ export class ScansCheck extends BaseComponent {
 		( new AjaxService() )
 		.send( {
 			...this._base_data.ajax.check,
+			...ScanRunPage.AjaxParams(),
 			scan_ids: this.trackedScanIds
 		}, false, true )
 		.then( ( resp ) => {
@@ -86,6 +88,7 @@ export class ScansCheck extends BaseComponent {
 		( new AjaxService() )
 		.send( {
 			...recoverAjax,
+			...ScanRunPage.AjaxParams(),
 			scan_id: scanId
 		}, true, true )
 		.then( ( resp ) => {
@@ -184,7 +187,8 @@ export class ScansCheck extends BaseComponent {
 		}
 
 		this.clearScheduledNextStep();
-		if ( this.scanState === 'completed' ) {
+		// Run Manual Scan shows the result in the page, so only the dialog moves on to the Actions Queue.
+		if ( this.scanState === 'completed' && !ScanRunPage.IsActive() ) {
 			this.nextStepTimer = setTimeout( () => {
 				this.nextStepTimer = null;
 				window.location.href = this._base_data.hrefs.actions_queue_scans;

@@ -475,3 +475,20 @@ fieldset.shield-tool-box {
 		}
 	}
 }
+
+// White Label's own switch heads its settings, as everything under it applies only while it's on.
+[data-shield-whitelabel="1"] .shield-panel-block:first-of-type {
+	border-bottom: 1px solid $tool-soft-line;
+	margin-bottom: 4px;
+	padding-bottom: 6px;
+
+	.option_label_name {
+		font-size: 14.5px;
+		font-weight: 600;
+	}
+
+	// The switch sits beside its name, however narrow the form.
+	.shield-option-item.shield-panel-item {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
+}

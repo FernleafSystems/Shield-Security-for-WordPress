@@ -21,6 +21,12 @@ abstract class ScansBase extends BaseAction {
 	public const SCAN_MODAL_STATE_FAILED = 'failed';
 
 	/**
+	 * The Run Manual Scan page shows progress and results in the page itself, so it asks for that markup instead.
+	 */
+	public const DISPLAY_PAGE = 'page';
+	public const DISPLAY_MODAL = 'modal';
+
+	/**
 	 * @param list<int> $startedScanIDs
 	 * @return array{
 	 *   running:array<string,bool>,
@@ -66,6 +72,7 @@ abstract class ScansBase extends BaseAction {
 				? 100
 				: $this->currentScanProgressFromRows( $scanRows ),
 			'scan_rows'       => $scanRows,
+			'scan_slugs'      => $this->isPageDisplay() ? $this->scanSlugsForIDs( $startedScanIDs ) : [],
 		] ) );
 	}
 
@@ -97,7 +104,8 @@ abstract class ScansBase extends BaseAction {
 	 *   current_scan:string,
 	 *   remaining_scans:string,
 	 *   progress:int|float,
-	 *   scan_rows:list<ActiveScanProgressRow>
+	 *   scan_rows:list<ActiveScanProgressRow>,
+	 *   scan_slugs?:list<string>
 	 * } $renderData
 	 * @return array{modal_state:ScanModalState,modal_html:string}
 	 */
@@ -106,11 +114,31 @@ abstract class ScansBase extends BaseAction {
 
 		$renderData[ 'modal_state' ] = $modalState;
 		$renderData[ 'progress' ] = $progress;
+		$renderData[ 'display' ] = $this->isPageDisplay() ? self::DISPLAY_PAGE : self::DISPLAY_MODAL;
 
 		return [
 			'modal_state' => $modalState,
 			'modal_html'  => self::con()->action_router->render( ScansProgress::class, $renderData ),
 		];
+	}
+
+	private function isPageDisplay() :bool {
+		return ( $this->action_data[ 'display' ] ?? '' ) === self::DISPLAY_PAGE;
+	}
+
+	/**
+	 * @param list<int> $scanIDs
+	 * @return list<string>
+	 */
+	private function scanSlugsForIDs( array $scanIDs ) :array {
+		if ( empty( $scanIDs ) ) {
+			return [];
+		}
+
+		$scans = self::con()->db_con->scans->getQuerySelector()
+					  ->filterByIDs( $scanIDs )
+					  ->queryWithResult();
+		return \array_values( \array_unique( \array_map( fn( $scan ) :string => (string)$scan->scan, \is_array( $scans ) ? $scans : [] ) ) );
 	}
 
 	/**

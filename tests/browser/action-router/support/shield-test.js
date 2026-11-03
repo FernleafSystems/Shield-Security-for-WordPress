@@ -240,7 +240,7 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 		cleanupAll: () => runFixture( '__all__', 'cleanup' ),
 		dispose: () => request.dispose(),
 		fixtureApi: {
-			renderScanProgressFixture: ( state ) => runFixture( 'scan-progress', 'render', [ state ] ),
+			renderScanProgressFixture: ( state, display = '' ) => runFixture( 'scan-progress', 'render', display ? [ state, display ] : [ state ] ),
 			async withActionsQueueFixture( scenario, runScenario ) {
 				let seeded = false;
 				try {

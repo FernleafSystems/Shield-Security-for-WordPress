@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
+use FernleafSystems\Wordpress\Services\Services;
 
 class PageScansRun extends PageScansBase {
 
@@ -43,6 +44,11 @@ class PageScansRun extends PageScansBase {
 				'run_scans_now'         => __( 'Run Scans Now', 'wp-simple-firewall' ),
 				'reason_not_call_self'  => __( "This site currently can't make HTTP requests to itself.", 'wp-simple-firewall' ),
 				'scans_disabled_prefix' => __( 'Scans are currently disabled because:', 'wp-simple-firewall' ),
+				'step_choose'           => __( 'Choose scans', 'wp-simple-firewall' ),
+				'step_scanning'         => __( 'Scanning', 'wp-simple-firewall' ),
+				'step_results'          => __( 'Results', 'wp-simple-firewall' ),
+				'steps_label'           => __( 'Scan steps', 'wp-simple-firewall' ),
+				'schedule_note'         => __( 'Scans also run on their own, on the schedule set in Configure.', 'wp-simple-firewall' ),
 			],
 			'scans'   => $this->buildScansVars(),
 			'vars'    => [
@@ -65,6 +71,12 @@ class PageScansRun extends PageScansBase {
 
 	private function buildScansVars() :array {
 		$con = self::con();
+		$lastRan = $con->comps->site_query->latestCompletedScanTimestamps();
+		$lastRanBySlug = [
+			'afs' => $lastRan[ 'malware' ],
+			'wpv' => $lastRan[ 'vulnerabilities' ],
+			'apc' => $lastRan[ 'abandoned' ],
+		];
 
 		$scans = [];
 		foreach ( $con->comps->scans->getAllScanCons() as $scanCon ) {
@@ -90,7 +102,11 @@ class PageScansRun extends PageScansBase {
 				],
 				'strings' => $strings,
 				'vars'    => [
-					'slug' => $scanCon->getSlug(),
+					'slug'     => $scanCon->getSlug(),
+					'last_ran' => ( $lastRanBySlug[ $slug ] ?? 0 ) > 0
+						? sprintf( __( 'Last ran %s', 'wp-simple-firewall' ),
+							Services::Request()->carbon( true )->setTimestamp( $lastRanBySlug[ $slug ] )->diffForHumans() )
+						: __( 'Not run yet', 'wp-simple-firewall' ),
 				],
 			];
 			$scans[ $slug ] = $data;

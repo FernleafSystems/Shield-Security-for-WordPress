@@ -1,103 +1,53 @@
-<form id="StartScans">
+<form id="StartScans" autocomplete="off">
+	<fieldset class="shield-tool-box shield-scan-choose">
+		<legend class="visually-hidden">{{ strings.scanselect }}</legend>
 
-	<div class="row mb-3">
-		<div class="col-12">
-			<h2 class="h6 mt-0 mb-2">{{ strings.scanselect }}</h2>
-		</div>
-
-		<div class="col-xl-4 col-lg-6 col-md-12 mb-3">
-			<div class="scan-select pl-2">
-				<label for="_afs" class="col-form-label">
-					<input type="checkbox" class="form-control text-end"
-						   name="afs" id="_afs" value="Y"
-						   {% if not scans.afs.flags.is_available %}disabled="disabled"{% endif %}
-							{% if scans.afs.flags.is_selected %}checked="checked"{% endif %}
-					/>
-					{{ scans.afs.strings.name }}
-					<br />
-					<small class="form-text">{{ scans.afs.strings.subtitle }}</small>
-					{% if scans.afs.strings.sub_items|default([]) is not empty %}
-						<ul class="list-group list-group-flush mt-2">
-							{% for sub_item_text, sub_item_enabled in scans.afs.strings.sub_items %}
-								<li class="list-group-item {{ sub_item_enabled ? 'list-group-item-primary' : 'list-group-item-warning' }}">
-									<span class="svg-container">
-										<i class="{{ sub_item_enabled ? imgs.icon_shield_check : imgs.icon_shield_x }}" aria-hidden="true"></i>
-									</span>
-									{{ sub_item_text }}
-								</li>
+		{% for slug in [ 'afs', 'wpv', 'apc' ]|filter( s => scans[s] is defined ) %}
+			{% set scan = scans[slug] %}
+			<label class="shield-scan-choose__row{% if not scan.flags.is_available %} is-unavailable{% endif %}" for="_{{ slug }}">
+				<input type="checkbox" name="{{ slug }}" id="_{{ slug }}" value="Y"
+					   {% if not scan.flags.is_available %}disabled="disabled"{% endif %}
+					   {% if scan.flags.is_selected %}checked="checked"{% endif %} />
+				<span class="shield-scan-choose__copy">
+					<span class="shield-scan-choose__name">{{ scan.strings.name }}</span>
+					<span class="shield-scan-choose__desc">{{ scan.strings.subtitle }}</span>
+					{% if scan.strings.sub_items|default([]) is not empty %}
+						<span class="shield-scan-choose__areas">
+							{% for sub_item_text, sub_item_enabled in scan.strings.sub_items %}
+								<span class="shield-scan-choose__area{% if sub_item_enabled %} is-on{% endif %}">{{ sub_item_text }}</span>
 							{% endfor %}
-						</ul>
+						</span>
 					{% endif %}
-				</label>
-			</div>
-		</div>
+				</span>
+				<span class="shield-scan-choose__when">{{ scan.vars.last_ran }}</span>
+			</label>
+		{% endfor %}
 
+		<label class="shield-scan-choose__row shield-scan-choose__row--option" for="_opt_clear_ignore">
+			<input type="checkbox" name="opt_clear_ignore" id="_opt_clear_ignore" value="Y" />
+			<span class="shield-scan-choose__copy">
+				<span class="shield-scan-choose__name">{{ strings.clear_ignore }}</span>
+				<span class="shield-scan-choose__desc">{{ strings.clear_ignore_sub }}</span>
+			</span>
+			<span></span>
+		</label>
 
-		<div class="col-xl-4 col-lg-6 col-md-12 mb-3">
-			<div class="scan-select pl-2">
-				<label for="_wpv" class="col-form-label">
-					<input type="checkbox" class="form-control text-end"
-						   name="wpv" id="_wpv" value="Y"
-						   {% if not scans.wpv.flags.is_available %}disabled="disabled"{% endif %}
-							{% if scans.wpv.flags.is_selected %}checked="checked"{% endif %}
-					/>
-					{{ scans.wpv.strings.name }}
-					<br />
-					<small class="form-text">{{ scans.wpv.strings.subtitle }}</small>
-				</label>
-			</div>
-		</div>
-
-		<div class="col-xl-4 col-lg-6 col-md-12 mb-3">
-			<div class="scan-select pl-2">
-				<label for="_apc" class="col-form-label">
-					<input type="checkbox" class="form-control text-end"
-						   name="apc" id="_apc" value="Y"
-						   {% if not scans.apc.flags.is_available %}disabled="disabled"{% endif %}
-							{% if scans.apc.flags.is_selected %}checked="checked"{% endif %}
-					/>
-					{{ scans.apc.strings.name }}
-					<br />
-					<small class="form-text">{{ scans.apc.strings.subtitle }}</small>
-				</label>
-			</div>
-		</div>
-
-	</div>
-
-	<div class="row">
-		<div class="col-12">
-			<h2 class="h6 mb-2">{{ strings.scan_options }}</h2>
-		</div>
-
-		<div class="col-xl-6 col-lg-6 col-md-6">
-			<div class="scan-select pl-2">
-				<label for="_opt_clear_ignore" class="col-form-label">
-					<input type="checkbox" class="form-control text-end"
-						   name="opt_clear_ignore" id="_opt_clear_ignore" value="Y" />
-					{{ strings.clear_ignore }}
-					<br />
-					<small class="form-text">{{ strings.clear_ignore_sub }}</small>
-				</label>
-			</div>
-		</div>
-
-	</div>
-
-	<div class="row mt-4">
-		<div class="col">
+		<div class="shield-scan-run__foot">
 			{% if flags.can_scan %}
-				<button class="btn btn-primary float-start"
-						{% if not flags.can_scan %}disabled="disabled"{% endif %}
-						type="submit" id="StartScansButton">{{ strings.run_scans_now }} &rarr;</button>
+				<span class="shield-scan-run__foot-note">{{ strings.schedule_note }}</span>
+				<button class="shield-tool-btn shield-tool-btn--primary" type="submit" id="StartScansButton">
+					<i class="bi bi-play-fill" aria-hidden="true"></i>{{ strings.run_scans_now }}
+				</button>
 			{% else %}
-				<p>{{ strings.scans_disabled_prefix }}
-					{% for cannot_scan_reason in vars.cannot_scan_reasons %}
-						<br />{{ strings.translated_dash_space }}<span class="text-danger">{{ strings[cannot_scan_reason] }}</span>
-					{% endfor %}
-				</p>
+				<div class="shield-scan-run__foot-note">
+					{{ strings.scans_disabled_prefix }}
+					<ul class="shield-scan-run__reasons">
+						{% for cannot_scan_reason in vars.cannot_scan_reasons %}
+							<li>{{ strings[cannot_scan_reason] }}</li>
+						{% endfor %}
+					</ul>
+				</div>
 			{% endif %}
 		</div>
-	</div>
-
+	</fieldset>
 </form>

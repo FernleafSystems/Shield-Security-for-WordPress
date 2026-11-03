@@ -1,11 +1,16 @@
 import { BootstrapModals } from "../ui/BootstrapModals";
 import { announceWithin } from "../ui/ShieldA11y";
+import { ScanRunPage } from "./ScanRunPage";
 
 export class ScanProgressModal {
 
 	static modalStates = [ 'initiating', 'running', 'completed', 'failed' ];
 
 	static ShowHtml( html ) {
+		if ( ScanRunPage.IsActive() ) {
+			return ScanRunPage.Show( html );
+		}
+
 		const modal = ScanProgressModal.getModal();
 		const modalContent = ScanProgressModal.getModalContent( modal );
 		if ( !( modal instanceof HTMLElement ) || !( modalContent instanceof HTMLElement ) ) {
@@ -24,14 +29,17 @@ export class ScanProgressModal {
 	}
 
 	static ShowInitiating( strings = {} ) {
-		return ScanProgressModal.ShowHtml( ScanProgressModal.buildLocalModalContent( {
+		const content = {
 			state: 'initiating',
 			title: strings.modal_title,
 			heading: strings.modal_initiating,
 			message: strings.modal_wait,
 			announcement: strings.modal_initiating,
 			busy: true
-		} ) );
+		};
+		return ScanRunPage.IsActive()
+			? ScanRunPage.ShowLocal( content )
+			: ScanProgressModal.ShowHtml( ScanProgressModal.buildLocalModalContent( content ) );
 	}
 
 	static ShowError( strings = {}, message = '' ) {
@@ -39,14 +47,17 @@ export class ScanProgressModal {
 			? message
 			: strings.modal_error_message;
 
-		return ScanProgressModal.ShowHtml( ScanProgressModal.buildLocalModalContent( {
+		const content = {
 			state: 'failed',
 			title: strings.modal_title,
 			heading: strings.modal_error_title,
 			message: safeMessage,
 			announcement: safeMessage,
 			busy: false
-		} ) );
+		};
+		return ScanRunPage.IsActive()
+			? ScanRunPage.ShowLocal( content )
+			: ScanProgressModal.ShowHtml( ScanProgressModal.buildLocalModalContent( content ) );
 	}
 
 	static HasModalResponse( resp ) {

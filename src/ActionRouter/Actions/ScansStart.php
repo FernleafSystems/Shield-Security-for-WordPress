@@ -14,6 +14,7 @@ class ScansStart extends ScansBase {
 		$success = false;
 		$reloadPage = false;
 		$startedScanIDs = [];
+		$selectedScans = [];
 		$errorCode = '';
 		$failures = [];
 		$msg = $con->comps->scans->getStartBlockedMessage();
@@ -23,7 +24,7 @@ class ScansStart extends ScansBase {
 
 		$params = FormParams::Retrieve();
 		if ( $con->comps->scans->canStartScans() ) {
-			$selectedScans = \array_intersect( \array_keys( $params ), $con->comps->scans->getScanSlugs() );
+			$selectedScans = \array_values( \array_intersect( \array_keys( $params ), $con->comps->scans->getScanSlugs() ) );
 			$resetIgnore = (bool)( $params[ 'opt_clear_ignore' ] ?? false );
 			$result = $con->comps->scans->startNewScans( $selectedScans, $resetIgnore );
 			$startedScanIDs = $result->getStartedScanIDs();
@@ -71,6 +72,7 @@ class ScansStart extends ScansBase {
 			'remaining_scans' => $msg,
 			'progress'        => $isScanRunning ? 5 : 100,
 			'scan_rows'       => [],
+			'scan_slugs'      => $selectedScans,
 		] ) );
 
 		$this->response()->setPayload( $payload )->setPayloadSuccess( $success );

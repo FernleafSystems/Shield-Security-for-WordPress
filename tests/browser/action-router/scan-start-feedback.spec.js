@@ -1,10 +1,7 @@
 const { test, expect } = require( './support/shield-test' );
 const { expectNoAxeViolations } = require( './support/accessibility' );
 const { openShieldRoute } = require( './support/shield-browser' );
-const {
-	expectModalHiddenWithoutAriaModal,
-	expectNamedDialog,
-} = require( './support/modal-accessibility' );
+const { expectNamedDialog } = require( './support/modal-accessibility' );
 
 function isScanRequest( request, action ) {
 	const params = new URLSearchParams( request.postData() || '' );
@@ -395,44 +392,88 @@ function waitForScanOverviewRedirect( page, timeout = 8000 ) {
 	.catch( () => null );
 }
 
-test( 'manual scan start uses the shared modal while start and completion progress', async ( { page, fixtureApi } ) => {
+test( 'manual scan start shows progress and then the result in the page, with no dialog or redirect', async ( { page, fixtureApi } ) => {
 	await openScanRunPage( page );
 
-	const { modal_html: runningModalHtml } = await fixtureApi.renderScanProgressFixture( 'running' );
-	const { modal_html: completedModalHtml } = await fixtureApi.renderScanProgressFixture( 'completed' );
-	const delayedRequest = await delayScanStartRequest( page, runningModalHtml );
-	const scanCheckRequest = await holdNextScanCheckRequest( page, completedModalHtml );
+	const { modal_html: runningHtml } = await fixtureApi.renderScanProgressFixture( 'running', 'page' );
+	const { modal_html: completedHtml } = await fixtureApi.renderScanProgressFixture( 'completed', 'page' );
+	const delayedRequest = await delayScanStartRequest( page, runningHtml );
+	const scanCheckRequest = await holdNextScanCheckRequest( page, completedHtml );
 
 	await submitStartScansForm( page );
 	await withTimeout( delayedRequest.started, 'Timed out waiting for scans_start request.' );
 
-	const sharedModal = scanModal( page );
-	await expect( sharedModal ).toBeVisible();
-	await expectNamedDialog( page, sharedModal );
-	await assertScanModalState( sharedModal, 'initiating', 'true' );
-	const initiatingAnnouncement = await assertLiveRegionMatchesCurrentAnnouncement( sharedModal );
+	const progress = scanModal( page );
+	await expect( progress.locator( '[data-scan-step-panel="progress"]' ) ).toBeVisible();
+	await expect( progress.locator( '[data-scan-step-panel="choose"]' ) ).toBeHidden();
+	await assertScanModalState( progress, 'initiating', 'true' );
+	const initiatingAnnouncement = await assertLiveRegionMatchesCurrentAnnouncement( progress );
 	await expect( page.locator( '#ShieldOverlay' ) ).toBeHidden();
-	await observeModalLiveRegionMutations( sharedModal );
-	await expectNoAxeViolations( page, '#ShieldModalContainer' );
+	await expect( page.locator( '#ShieldModalContainer' ) ).toBeHidden();
+	await observeModalLiveRegionMutations( progress );
+	await expectNoAxeViolations( page, '[data-shield-scan-run="1"]' );
 
 	await withTimeout( delayedRequest.completed, 'Timed out waiting for delayed scans_start response.' );
-	await expect( sharedModal ).toBeVisible();
-	await assertScanModalState( sharedModal, 'running', 'true' );
-	await expectNamedDialog( page, sharedModal );
-	const runningAnnouncement = await assertLiveRegionChangesToCurrentAnnouncement( sharedModal, initiatingAnnouncement );
-	await expect.poll( () => modalLiveRegionMutationCount( sharedModal ) ).toBeGreaterThan( 0 );
-	await assertProgressbarContract( sharedModal );
-	await expectNoAxeViolations( page, '#ShieldModalContainer' );
-	await sharedModal.locator( '[data-bs-dismiss="modal"]' ).click( { trial: true } );
-	await observeModalLiveRegionMutations( sharedModal );
+	await assertScanModalState( progress, 'running', 'true' );
+	await expect( progress.locator( '[data-scan-step-tab="scanning"]' ) ).toHaveAttribute( 'aria-current', 'step' );
+	const runningAnnouncement = await assertLiveRegionChangesToCurrentAnnouncement( progress, initiatingAnnouncement );
+	await expect.poll( () => modalLiveRegionMutationCount( progress ) ).toBeGreaterThan( 0 );
+	await assertProgressbarContract( progress );
+	await expectNoAxeViolations( page, '[data-shield-scan-run="1"]' );
+	await observeModalLiveRegionMutations( progress );
 	await withTimeout( scanCheckRequest.received, 'Timed out waiting for scans_check request.' );
-	const completionRedirect = waitForScanOverviewRedirect( page );
+	const redirect = waitForScanOverviewRedirect( page, 2500 );
 	await scanCheckRequest.fulfill();
-	await assertScanModalState( sharedModal, 'completed', 'false' );
-	await expectNamedDialog( page, sharedModal );
-	await assertLiveRegionChangesToCurrentAnnouncement( sharedModal, runningAnnouncement );
-	await expect.poll( () => modalLiveRegionMutationCount( sharedModal ) ).toBeGreaterThan( 0 );
-	await expect( completionRedirect ).resolves.toBe( 'redirect' );
+	await assertScanModalState( progress, 'completed', 'false' );
+	await expect( progress.locator( '[data-scan-step-tab="results"]' ) ).toHaveAttribute( 'aria-current', 'step' );
+	await expect( progress.locator( '[data-scan-step-tab="choose"]' ) ).toHaveClass( /is-done/ );
+	await assertLiveRegionChangesToCurrentAnnouncement( progress, runningAnnouncement );
+	await expect.poll( () => modalLiveRegionMutationCount( progress ) ).toBeGreaterThan( 0 );
+	await expect( progress.locator( 'a[href*="nav_sub=overview"]' ).first() ).toBeVisible();
+	await expect( progress.locator( 'a[href*="nav_sub=run"]' ) ).toBeVisible();
+	await expectNoAxeViolations( page, '[data-shield-scan-run="1"]' );
+	await expect( redirect ).resolves.toBeNull();
+	await expect( page.locator( '#ShieldModalContainer' ) ).toBeHidden();
+} );
+
+test( 'scan progress away from Run Manual Scan still opens the shared dialog', async ( { page } ) => {
+	await page.addInitScript( () => {
+		window.addEventListener( 'load', () => {
+			const flags = window.shield_vars_main?.comps?.scans?.flags;
+			if ( flags ) {
+				flags.initial_check = true;
+			}
+		}, { once: true } );
+	} );
+	const runningModalHtml = scanProgressModalHtml( 'running', 37 );
+	const handler = async ( route ) => {
+		if ( !isScanRequest( route.request(), 'scans_check' ) ) {
+			await route.fallback();
+			return;
+		}
+		await route.fulfill( actionRouterResponse( {
+			success: true,
+			running: { afs: true, wpv: false, apc: false },
+			failed: false,
+			failure_message: '',
+			modal_state: 'running',
+			modal_html: runningModalHtml,
+		} ) );
+	};
+	await page.route( '**/admin-ajax.php', handler );
+
+	try {
+		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
+
+		const sharedModal = page.locator( '#ShieldModalContainer' );
+		await expect( sharedModal ).toBeVisible();
+		await expectNamedDialog( page, sharedModal );
+		await assertScanModalState( sharedModal, 'running', 'true' );
+		await expect( page.locator( '[data-shield-scan-run="1"]' ) ).toHaveCount( 0 );
+	}
+	finally {
+		await page.unroute( '**/admin-ajax.php', handler );
+	}
 } );
 
 test( 'manual start normalizes tracked scan IDs and preserves them for empty or invalid replacements', async ( { page } ) => {
@@ -631,47 +672,57 @@ test( 'manual start supersedes recovery while preserving its lock cleanup and po
 	expect( scanIdsFromPostData( resumedCheckPostData ) ).toEqual( [ 31, 32 ] );
 } );
 
-test( 'manual scan failure modal returns focus to the previous scan control when closed', async ( { page, fixtureApi } ) => {
-	const previousControl = await openScanRunPage( page );
-	await previousControl.focus();
+test( 'manual scan failure shows in the page with a way to try again', async ( { page, fixtureApi } ) => {
+	await openScanRunPage( page );
 
-	const { modal_html: failedModalHtml } = await fixtureApi.renderScanProgressFixture( 'failed' );
-	await failNextScanStartRequest( page, failedModalHtml );
+	const { modal_html: failedHtml } = await fixtureApi.renderScanProgressFixture( 'failed', 'page' );
+	await failNextScanStartRequest( page, failedHtml );
 
 	await submitStartScansForm( page );
 
-	const sharedModal = scanModal( page );
-	await expect( sharedModal ).toBeVisible();
-	await expectNamedDialog( page, sharedModal );
-	const failedAnnouncement = await assertScanModalState( sharedModal, 'failed', 'false' );
+	const progress = scanModal( page );
+	const failedAnnouncement = await assertScanModalState( progress, 'failed', 'false' );
 	expect( failedAnnouncement ).not.toHaveLength( 0 );
-	await assertLiveRegionMatchesCurrentAnnouncement( sharedModal );
-	await expectNoAxeViolations( page, '#ShieldModalContainer' );
-
-	await sharedModal.locator( '[data-bs-dismiss="modal"]' ).click();
-	await expectModalHiddenWithoutAriaModal( page, '#ShieldModalContainer' );
-	await expect( previousControl ).toBeFocused();
+	await assertLiveRegionMatchesCurrentAnnouncement( progress );
+	await expect( progress.locator( 'a[href*="nav_sub=run"]' ) ).toBeVisible();
+	await expect( page.locator( '#ShieldModalContainer' ) ).toBeHidden();
+	await expectNoAxeViolations( page, '[data-shield-scan-run="1"]' );
 } );
 
-test( 'manual scan start shows local error modal when response lacks modal contract', async ( { page } ) => {
-	const previousControl = await openScanRunPage( page );
-	await previousControl.focus();
+test( 'manual scan start shows a local error in the page when the response lacks the progress contract', async ( { page } ) => {
+	await openScanRunPage( page );
 	await respondToNextScanStartWithoutModal( page );
 
 	await submitStartScansForm( page );
 
-	const sharedModal = scanModal( page );
-	await expect( sharedModal ).toBeVisible();
-	await expectNamedDialog( page, sharedModal );
-	await assertScanModalState( sharedModal, 'failed', 'false' );
-	await assertLiveRegionMatchesCurrentAnnouncement( sharedModal );
-	await expectNoAxeViolations( page, '#ShieldModalContainer' );
-
-	await sharedModal.locator( '[data-bs-dismiss="modal"]' ).click();
-	await expect( previousControl ).toBeFocused();
+	const progress = scanModal( page );
+	await assertScanModalState( progress, 'failed', 'false' );
+	await assertLiveRegionMatchesCurrentAnnouncement( progress );
+	await expect( page.locator( '#ShieldModalContainer' ) ).toBeHidden();
+	await expectNoAxeViolations( page, '[data-shield-scan-run="1"]' );
 } );
 
 function scanProgressHtml( modalState, progress, options = {} ) {
+	const isInitiating = modalState === 'initiating';
+	const isRunning = isInitiating || modalState === 'running';
+	const recoveryScanId = Number( options.recoveryScanId || 0 );
+	const announcement = `scan-contract-${modalState}-${progress}`;
+	const recoveryControl = recoveryScanId > 0
+		? `<button type="button" data-shield-scan-attempt-recovery="1" data-scan-id="${recoveryScanId}">Recover</button>`
+		: '';
+
+	return `<div class="shield-scan-progress shield-scan-progress--page"
+		 data-shield-scan-modal-state="${escapeHtml( modalState )}"
+		 aria-busy="${isRunning ? 'true' : 'false'}"
+		 data-shield-scan-modal-announcement="${escapeHtml( announcement )}">
+		<h2>${escapeHtml( `scan-contract-heading-${modalState}` )}</h2>
+		<div role="progressbar" aria-label="Scan progress"
+			 aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
+		${recoveryControl}
+	</div>`;
+}
+
+function scanProgressModalHtml( modalState, progress, options = {} ) {
 	const isInitiating = modalState === 'initiating';
 	const isFailed = modalState === 'failed';
 	const isRunning = isInitiating || modalState === 'running';
@@ -730,8 +781,9 @@ async function openScanRunPage( page ) {
 	return firstEnabledScanControl;
 }
 
+// Run Manual Scan shows progress in the page: the page area holds both the progress and its live region.
 function scanModal( page ) {
-	return page.locator( '#ShieldModalContainer' );
+	return page.locator( '[data-shield-scan-run="1"]' );
 }
 
 function scanRecoveryButton( modal ) {
@@ -769,10 +821,14 @@ async function currentScanAnnouncement( modal ) {
 	.evaluate( ( node ) => ( node.dataset.shieldScanModalAnnouncement || '' ).trim() );
 }
 
+function liveRegionFor( region ) {
+	return region.locator( '[data-shield-modal-live-region="1"], [data-shield-status-region="1"]' ).first();
+}
+
 async function assertLiveRegionMatchesCurrentAnnouncement( modal ) {
 	const announcement = await currentScanAnnouncement( modal );
 	expect( announcement ).not.toHaveLength( 0 );
-	const liveRegion = modal.locator( '[data-shield-modal-live-region="1"]' );
+	const liveRegion = liveRegionFor( modal );
 	await expect( liveRegion ).toBeVisible();
 	await expect( liveRegion ).toHaveAttribute( 'aria-live', /^(polite|assertive)$/ );
 	await expect( liveRegion ).toHaveText( announcement );
@@ -786,7 +842,7 @@ async function assertLiveRegionChangesToCurrentAnnouncement( modal, previousAnno
 }
 
 async function assertProgressbarContract( modal ) {
-	const progressbar = modal.locator( '[role="progressbar"]' );
+	const progressbar = modal.locator( '[role="progressbar"]' ).first();
 	await expect( progressbar ).toHaveAttribute( 'aria-valuemin', '0' );
 	await expect( progressbar ).toHaveAttribute( 'aria-valuemax', '100' );
 	expect( await progressbar.getAttribute( 'aria-valuenow' ) ).not.toHaveLength( 0 );
@@ -794,7 +850,7 @@ async function assertProgressbarContract( modal ) {
 }
 
 async function observeModalLiveRegionMutations( modal ) {
-	await modal.locator( '[data-shield-modal-live-region="1"]' ).evaluate( ( node ) => {
+	await liveRegionFor( modal ).evaluate( ( node ) => {
 		node.__shieldModalLiveRegionMutationCount = 0;
 		node.__shieldModalLiveRegionObserver?.disconnect?.();
 		node.__shieldModalLiveRegionObserver = new MutationObserver( () => {
@@ -808,5 +864,5 @@ async function observeModalLiveRegionMutations( modal ) {
 	} );
 }
 
-const modalLiveRegionMutationCount = ( modal ) => modal.locator( '[data-shield-modal-live-region="1"]' )
+const modalLiveRegionMutationCount = ( modal ) => liveRegionFor( modal )
 .evaluate( ( node ) => Number( node.__shieldModalLiveRegionMutationCount || 0 ) );

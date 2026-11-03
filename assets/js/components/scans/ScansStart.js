@@ -3,6 +3,7 @@ import { BaseComponent } from "../BaseComponent";
 import { Forms } from "../../util/Forms";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ScanProgressModal } from "./ScanProgressModal";
+import { ScanRunPage } from "./ScanRunPage";
 
 export class ScansStart extends BaseComponent {
 
@@ -15,7 +16,7 @@ export class ScansStart extends BaseComponent {
 
 		( new AjaxService() )
 		.send(
-			ObjectOps.Merge( this._base_data.ajax.start, { form_params: Forms.Serialize( form ) } ),
+			ObjectOps.Merge( this._base_data.ajax.start, { form_params: Forms.Serialize( form ), ...ScanRunPage.AjaxParams() } ),
 			false,
 			true
 		)

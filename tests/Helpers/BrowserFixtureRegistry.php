@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansProgress;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ActionsQueueFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\DashboardDefaultsFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportFileFixtureBuilder;
@@ -128,6 +129,7 @@ class BrowserFixtureRegistry {
 			throw new \RuntimeException( 'Unknown scan progress render scenario.' );
 		}
 		RuntimeTestState::loginAsSecurityAdmin();
+		$isPage = ( $args[ 1 ] ?? '' ) === ScansBase::DISPLAY_PAGE;
 		return [
 			'modal_state' => $state,
 			'modal_html' => RuntimeTestState::controller()->action_router->render( ScansProgress::SLUG, [
@@ -135,8 +137,37 @@ class BrowserFixtureRegistry {
 				'current_scan' => 'Browser fixture scan',
 				'remaining_scans' => 'Browser fixture progress',
 				'progress' => $progress[ $state ],
-				'scan_rows' => [],
+				'scan_rows' => $isPage && $state === 'running' ? self::scanProgressFixtureRows() : [],
+				'scan_slugs' => [ 'afs', 'wpv', 'apc' ],
+				'display' => $isPage ? ScansBase::DISPLAY_PAGE : ScansBase::DISPLAY_MODAL,
 			] ),
+		];
+	}
+
+	/**
+	 * One scan running part way through a plugin, the others waiting their turn.
+	 * @return list<array<string,mixed>>
+	 */
+	private static function scanProgressFixtureRows() :array {
+		$row = fn( int $id, string $scan, string $name, string $status, int $progress, string $scopeType = 'full', string $scopeKey = '' ) :array => [
+			'id' => $id,
+			'scan' => $scan,
+			'name' => $name,
+			'scope_type' => $scopeType,
+			'scope_key' => $scopeKey,
+			'raw_status' => $status === 'running' ? 'running' : 'built',
+			'display_status' => $status,
+			'is_current' => $status === 'running',
+			'is_stale' => false,
+			'can_attempt_recovery' => false,
+			'progress' => $progress,
+			'total_items' => 100,
+			'unfinished' => 100 - $progress,
+		];
+		return [
+			$row( 31, 'afs', 'WordPress Filesystem Scan', 'running', 42, 'plugin', 'akismet' ),
+			$row( 32, 'wpv', 'Vulnerabilities', 'waiting', 0 ),
+			$row( 33, 'apc', 'Abandoned Plugins', 'waiting', 0 ),
 		];
 	}
 

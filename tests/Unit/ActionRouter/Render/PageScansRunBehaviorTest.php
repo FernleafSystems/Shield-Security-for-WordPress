@@ -110,6 +110,18 @@ class PageScansRunBehaviorTest extends BaseUnitTest {
 					return $this->afs;
 				}
 			},
+			'site_query' => new class {
+				public function latestCompletedScanTimestamps() :array {
+					return [
+						'malware'         => 0,
+						'vulnerabilities' => 0,
+						'abandoned'       => 0,
+						'core_files'      => 0,
+						'plugin_files'    => 0,
+						'theme_files'     => 0,
+					];
+				}
+			},
 		];
 		$controller->opts = new class {
 			public function optDef( string $key ) :array {

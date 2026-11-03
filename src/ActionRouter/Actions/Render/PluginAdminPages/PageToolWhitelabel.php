@@ -23,12 +23,6 @@ class PageToolWhitelabel extends PageModeLandingBase {
 		return \array_replace_recursive( parent::getRenderData(), [
 			'strings' => [
 				'lede'          => __( "Show your own name, links and logos in place of Shield's, across WordPress and the two-factor login page. The preview follows as you type.", 'wp-simple-firewall' ),
-				'off_title'     => __( 'White Label is off', 'wp-simple-firewall' ),
-				'off_desc'      => __( "Shield's own name and logos show. Turn it on below to use yours.", 'wp-simple-firewall' ),
-				'off_pill'      => __( 'Off', 'wp-simple-firewall' ),
-				'on_title'      => __( 'White Label is on', 'wp-simple-firewall' ),
-				'on_desc'       => __( 'Your names and logos show in place of Shield\'s.', 'wp-simple-firewall' ),
-				'on_pill'       => __( 'On', 'wp-simple-firewall' ),
 				'preview_label' => __( 'Preview', 'wp-simple-firewall' ),
 				'wp_menu'       => __( 'WordPress menu', 'wp-simple-firewall' ),
 				'plugins_list'  => __( 'Plugins list', 'wp-simple-firewall' ),
@@ -36,9 +30,6 @@ class PageToolWhitelabel extends PageModeLandingBase {
 				'by'            => __( 'By', 'wp-simple-firewall' ),
 				'menu_plugins'  => __( 'Plugins', 'wp-simple-firewall' ),
 				'menu_users'    => __( 'Users', 'wp-simple-firewall' ),
-			],
-			'flags'   => [
-				'is_on' => $opts->optIs( 'whitelabel_enable', 'Y' ),
 			],
 			'vars'    => [
 				'preview'   => [

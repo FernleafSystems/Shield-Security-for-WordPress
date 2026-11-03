@@ -1,0 +1,102 @@
+import { announceStatus } from "../ui/ShieldA11y";
+
+/**
+ * Run Manual Scan shows scan progress and the result in the page, in place of the progress dialog. The scan
+ * polling hands its markup here whenever the page's progress area exists.
+ */
+export class ScanRunPage {
+
+	static Host() {
+		const host = document.querySelector( '[data-shield-scan-inline="1"]' );
+		return host instanceof HTMLElement ? host : null;
+	}
+
+	static IsActive() {
+		return ScanRunPage.Host() !== null;
+	}
+
+	static AjaxParams() {
+		return ScanRunPage.IsActive() ? { display: 'page' } : {};
+	}
+
+	static Show( html ) {
+		const host = ScanRunPage.Host();
+		if ( host === null ) {
+			return false;
+		}
+
+		host.innerHTML = html;
+		host.hidden = false;
+
+		const root = host.closest( '[data-shield-scan-run="1"]' );
+		const choose = root?.querySelector( '[data-scan-step-panel="choose"]' );
+		if ( choose instanceof HTMLElement ) {
+			choose.hidden = true;
+		}
+
+		const stateEl = host.querySelector( '[data-shield-scan-modal-state]' );
+		const state = stateEl instanceof HTMLElement ? stateEl.dataset.shieldScanModalState : 'running';
+		ScanRunPage.setStep( root, state === 'completed' ? 'results' : 'scanning' );
+
+		if ( stateEl instanceof HTMLElement ) {
+			announceStatus( host, stateEl.dataset.shieldScanModalAnnouncement, { allowRepeat: false } );
+		}
+		if ( state === 'completed' ) {
+			host.querySelector( '#ScanFinishedTitle' )?.focus( { preventScroll: true } );
+		}
+		return true;
+	}
+
+	static ShowLocal( { state, heading, message, announcement, busy } ) {
+		const esc = ScanRunPage.escapeHtml;
+		const body = state === 'failed'
+			? `<section class="shield-tool-status is-critical">
+				<span class="shield-tool-status__badge"><i class="bi bi-x-lg" aria-hidden="true"></i></span>
+				<div class="shield-tool-status__copy">
+					<h2 class="shield-tool-status__title">${esc( heading )}</h2>
+					<p class="shield-tool-status__desc">${esc( message )}</p>
+				</div>
+			</section>`
+			: `<section class="shield-tool-box">
+				<div class="shield-scan-progress__overall">
+					<h2 class="shield-scan-progress__title">${esc( heading )}</h2>
+					<div class="shield-scan-progress__bar" role="progressbar" aria-label="${esc( heading )}"
+						 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><span style="width: 2%"></span></div>
+					<p class="shield-scan-progress__current">${esc( message )}</p>
+				</div>
+			</section>`;
+
+		return ScanRunPage.Show( `<div class="shield-scan-progress shield-scan-progress--page"
+			data-shield-scan-modal-state="${esc( state )}" aria-busy="${busy ? 'true' : 'false'}"
+			data-shield-scan-modal-announcement="${esc( announcement )}">${body}</div>` );
+	}
+
+	static setStep( root, step ) {
+		if ( !( root instanceof HTMLElement ) ) {
+			return;
+		}
+
+		root.dataset.scanStep = step;
+		const order = [ 'choose', 'scanning', 'results' ];
+		const current = order.indexOf( step );
+		root.querySelectorAll( '[data-scan-step-tab]' ).forEach( ( tab ) => {
+			const index = order.indexOf( tab.dataset.scanStepTab );
+			tab.classList.toggle( 'is-done', index < current );
+			if ( index === current ) {
+				tab.setAttribute( 'aria-current', 'step' );
+			}
+			else {
+				tab.removeAttribute( 'aria-current' );
+			}
+		} );
+	}
+
+	static escapeHtml( text = '' ) {
+		return String( text )
+		.replace( /&/g, '&amp;' )
+		.replace( /</g, '&lt;' )
+		.replace( />/g, '&gt;' )
+		.replace( /"/g, '&quot;' )
+		.replace( /'/g, '&#39;' );
+	}
+}

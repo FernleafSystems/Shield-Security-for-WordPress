@@ -1,7 +1,34 @@
 {% extends '/wpadmin/plugin_pages/inner/scan_base.twig' %}
 
+{#
+	Run Manual Scan in three steps: choose the scans, watch them run, then see what each found. Steps 2 and 3
+	are drawn into the progress area by the scan polling, so leaving the page and coming back picks them up again.
+#}
 {% block inner_page_body %}
+	<div class="shield-tool-page shield-scan-run" data-shield-scan-run="1" data-scan-step="choose">
 
-	{% include '/wpadmin_pages/insights/scans/run/scan_areas.twig' %}
+		<ol class="shield-scan-steps" aria-label="{{ strings.steps_label }}">
+			{% for step in [
+				{ key: 'choose', label: strings.step_choose },
+				{ key: 'scanning', label: strings.step_scanning },
+				{ key: 'results', label: strings.step_results },
+			] %}
+				<li class="shield-scan-steps__step" data-scan-step-tab="{{ step.key }}"
+					{% if loop.first %}aria-current="step"{% endif %}>
+					<span class="shield-scan-steps__num" aria-hidden="true">
+						<span class="shield-scan-steps__n">{{ loop.index }}</span>
+						<i class="bi bi-check-lg shield-scan-steps__done"></i>
+					</span>
+					{{ step.label }}
+				</li>
+			{% endfor %}
+		</ol>
 
+		<div data-scan-step-panel="choose">
+			{% include '/wpadmin_pages/insights/scans/run/scan_areas.twig' %}
+		</div>
+
+		<div class="shield-scan-run__progress" data-scan-step-panel="progress" data-shield-scan-inline="1" hidden></div>
+		<div class="visually-hidden" data-shield-status-region="1" aria-live="polite" aria-atomic="true"></div>
+	</div>
 {% endblock %}

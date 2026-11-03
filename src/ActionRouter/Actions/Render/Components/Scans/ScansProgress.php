@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansBase as ScanActionBase;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 
 /**
  * @phpstan-import-type ActiveScanProgressRow from \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Controller
@@ -12,8 +14,22 @@ class ScansProgress extends BaseScans {
 
 	public const SLUG = 'render_scans_progress';
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/progress.twig';
+	private const TEMPLATE_PAGE = '/wpadmin_pages/insights/scans/run/progress_page.twig';
+
+	protected function getRenderTemplate() :string {
+		return $this->isPageDisplay() ? self::TEMPLATE_PAGE : parent::getRenderTemplate();
+	}
+
+	private function isPageDisplay() :bool {
+		return ( $this->action_data[ 'display' ] ?? '' ) === ScanActionBase::DISPLAY_PAGE;
+	}
 
 	protected function getRenderData() :array {
+		$data = $this->buildModalRenderData();
+		return $this->isPageDisplay() ? \array_replace_recursive( $data, $this->buildPageRenderData( $data ) ) : $data;
+	}
+
+	private function buildModalRenderData() :array {
 		/** @var array{modal_state:ScanModalState,current_scan:string,remaining_scans:string,progress:int,scan_rows:list<ActiveScanProgressRow>} $data */
 		$data = $this->action_data;
 		$modalState = $data[ 'modal_state' ];
@@ -60,6 +76,155 @@ class ScansProgress extends BaseScans {
 				'modal_title_id'  => 'ShieldModalContainerLabel',
 			],
 		];
+	}
+
+	/**
+	 * The page shows every scan that was asked for: while they run, the ones already done show as finished;
+	 * once they're all done, what each one found and the way on to the Actions Queue.
+	 * @param array<string,mixed> $modalData
+	 */
+	private function buildPageRenderData( array $modalData ) :array {
+		$con = self::con();
+		$state = $modalData[ 'vars' ][ 'modal_state' ];
+
+		// In the order the page lists them to choose from.
+		$slugs = \array_values( \array_intersect(
+			\array_unique( \array_merge( [ 'afs', 'wpv', 'apc' ], \array_keys( $con->comps->scans->getAllScanCons() ) ) ),
+			$this->pageScanSlugs()
+		) );
+
+		$results = [];
+		$total = 0;
+		if ( $state === ScanActionBase::SCAN_MODAL_STATE_COMPLETED ) {
+			foreach ( $slugs as $slug ) {
+				$scanCon = $con->comps->scans->getScanCon( $slug );
+				$count = $this->countIssues( $scanCon );
+				$total += $count;
+				$results[] = [
+					'name'    => $scanCon->getStrings()[ 'name' ],
+					'count'   => $count,
+					'summary' => $this->resultSummary( $slug, $count ),
+				];
+			}
+		}
+
+		$headingFinished = $total > 0
+			? \sprintf( _n( 'Scan finished: %s issue found', 'Scan finished: %s issues found', $total, 'wp-simple-firewall' ), $total )
+			: __( 'Scan finished: nothing found', 'wp-simple-firewall' );
+
+		$page = [
+			'strings' => [
+				'scanning_title'   => __( 'Scanning your site', 'wp-simple-firewall' ),
+				'leave_note'       => __( 'You can leave this page: the results land in the Actions Queue.', 'wp-simple-firewall' ),
+				'finished_title'   => $headingFinished,
+				'finished_desc'    => $total > 0
+					? __( 'Each one is waiting in the Actions Queue, with what to do about it.', 'wp-simple-firewall' )
+					: __( 'The scans you ran found nothing that needs you.', 'wp-simple-firewall' ),
+				'review_queue'     => __( 'Review in the Actions Queue', 'wp-simple-firewall' ),
+				'open_queue'       => __( 'Open the Actions Queue', 'wp-simple-firewall' ),
+				'scan_again'       => __( 'Scan again', 'wp-simple-firewall' ),
+				'try_again'        => __( 'Try again', 'wp-simple-firewall' ),
+				'schedule_note'    => __( 'Scans also run on their own, on the schedule set in Configure.', 'wp-simple-firewall' ),
+			],
+			'hrefs'   => [
+				'actions_queue' => $con->plugin_urls->actionsQueueScans(),
+				'scan_run'      => $con->plugin_urls->scansRun(),
+			],
+			'vars'    => [
+				'page_rows'    => $this->buildPageRows( $slugs, $modalData[ 'vars' ][ 'scan_rows' ] ),
+				'results'      => $results,
+				'total_issues' => $total,
+			],
+		];
+		if ( $state === ScanActionBase::SCAN_MODAL_STATE_COMPLETED ) {
+			$page[ 'vars' ][ 'heading' ] = $headingFinished;
+			$page[ 'vars' ][ 'announcement' ] = $headingFinished;
+		}
+		return $page;
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function pageScanSlugs() :array {
+		$slugs = $this->action_data[ 'scan_slugs' ] ?? [];
+		if ( empty( $slugs ) ) {
+			$slugs = \array_keys( \array_filter(
+				self::con()->comps->scans->getAllScanCons(),
+				fn( $scanCon ) :bool => $scanCon->isReady()
+			) );
+		}
+		return \array_map( '\strval', $slugs );
+	}
+
+	/**
+	 * Scans not in the active rows have finished, unless nothing is active yet because the scans are still being set up.
+	 * @param list<string> $slugs
+	 * @param list<array<string,mixed>> $renderRows
+	 */
+	private function buildPageRows( array $slugs, array $renderRows ) :array {
+		$con = self::con();
+		$activeBySlug = [];
+		foreach ( $this->action_data[ 'scan_rows' ] as $idx => $row ) {
+			$activeBySlug[ $row[ 'scan' ] ] ??= $renderRows[ $idx ] + [ 'status' => $row[ 'display_status' ] ];
+		}
+		$nothingActiveYet = empty( $activeBySlug );
+
+		$rows = [];
+		foreach ( $slugs as $slug ) {
+			if ( isset( $activeBySlug[ $slug ] ) ) {
+				$rows[] = $activeBySlug[ $slug ];
+				continue;
+			}
+			$name = $con->comps->scans->getScanCon( $slug )->getStrings()[ 'name' ];
+			$rows[] = [
+				'id'                   => 0,
+				'name'                 => $name,
+				'scope_label'          => '',
+				'status'               => $nothingActiveYet ? 'waiting' : 'finished',
+				'status_label'         => $nothingActiveYet ? __( 'waiting', 'wp-simple-firewall' ) : __( 'finished', 'wp-simple-firewall' ),
+				'can_attempt_recovery' => false,
+				'progress'             => $nothingActiveYet ? 0 : 100,
+				'aria_label'           => sprintf( __( '%s progress', 'wp-simple-firewall' ), $name ),
+			];
+		}
+		return $rows;
+	}
+
+	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base $scanCon
+	 */
+	private function countIssues( $scanCon ) :int {
+		$counts = new Counts();
+		switch ( $scanCon->getSlug() ) {
+			case 'wpv':
+				return $counts->countVulnerableAssets();
+			case 'apc':
+				return $counts->countAbandoned();
+			default:
+				return ( new RetrieveCount() )->setScanController( $scanCon )->count();
+		}
+	}
+
+	private function resultSummary( string $slug, int $count ) :string {
+		if ( $count === 0 ) {
+			return __( 'Nothing found', 'wp-simple-firewall' );
+		}
+		switch ( $slug ) {
+			case 'afs':
+				$text = _n( '%s file to review', '%s files to review', $count, 'wp-simple-firewall' );
+				break;
+			case 'wpv':
+				$text = _n( '%s vulnerable plugin or theme', '%s vulnerable plugins or themes', $count, 'wp-simple-firewall' );
+				break;
+			case 'apc':
+				$text = _n( '%s abandoned plugin', '%s abandoned plugins', $count, 'wp-simple-firewall' );
+				break;
+			default:
+				$text = _n( '%s issue', '%s issues', $count, 'wp-simple-firewall' );
+				break;
+		}
+		return \sprintf( $text, $count );
 	}
 
 	/**
