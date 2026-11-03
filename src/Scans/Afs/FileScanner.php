@@ -202,6 +202,10 @@ class FileScanner {
 			$item->is_in_wpcontent = true;
 			$item->is_unidentified = true;
 		}
+		catch ( \InvalidArgumentException $e ) {
+			$this->rethrowUnlessFileVanished( $e, $fullPath );
+			return null;
+		}
 		$canRunMalwareScan = !$fileExcluded
 							  && $scanCon->isEnabledMalwareScanPHP()
 							  && ( empty( $item ) || !$item->is_missing );
@@ -266,10 +270,16 @@ class FileScanner {
 				$item->malware_record_id = $malRecord->id;
 				$item->auto_filter = $autoFilterMalware;
 			}
+			catch ( \InvalidArgumentException $e ) {
+				$this->rethrowUnlessFileVanished( $e, $fullPath );
+			}
 		}
 
-		if ( !empty( $item ) && Services::WpFs()->isAccessibleFile( $fullPath ) ) {
-			$item->checksum_sha256 = \hash_file( 'sha256', $fullPath );
+		if ( !empty( $item ) ) {
+			\clearstatcache( true, $fullPath );
+			if ( Services::WpFs()->isAccessibleFile( $fullPath ) ) {
+				$item->checksum_sha256 = \hash_file( 'sha256', $fullPath );
+			}
 		}
 
 		if ( empty( $item ) && $trustedFileContext instanceof TrustedFileContext ) {
@@ -280,6 +290,19 @@ class FileScanner {
 		}
 
 		return $item;
+	}
+
+	/**
+	 * A file that's deleted after the scan's file list was built, such as a temp or cache file, has nothing left to
+	 * classify. An invalid argument for a file that's still present is a real failure, so the scan still fails closed.
+	 *
+	 * @throws \InvalidArgumentException
+	 */
+	private function rethrowUnlessFileVanished( \InvalidArgumentException $e, string $fullPath ) :void {
+		\clearstatcache( true, $fullPath );
+		if ( Services::WpFs()->isAccessibleFile( $fullPath ) ) {
+			throw $e;
+		}
 	}
 
 	private function buildCoreTrustedFileContext( string $fullPath ) :TrustedFileContext {

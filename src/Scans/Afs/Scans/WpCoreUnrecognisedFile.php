@@ -17,7 +17,8 @@ class WpCoreUnrecognisedFile extends BaseScan {
 	 * @throws Exceptions\WpCoreFileUnrecognisedException
 	 */
 	protected function runScan() :bool {
-		if ( !Services::CoreFileHashes()->isCoreFile( $this->pathFull ) ) {
+		if ( Services::WpFs()->isAccessibleFile( $this->pathFull )
+			 && !Services::CoreFileHashes()->isCoreFile( $this->pathFull ) ) {
 			throw new Exceptions\WpCoreFileUnrecognisedException( $this->pathFull );
 		}
 		return false;

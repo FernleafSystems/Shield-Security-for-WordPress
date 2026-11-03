@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Must come after the WP, Plugin and Theme scans.
@@ -13,8 +14,7 @@ class WpContentUnidentified extends BaseScan {
 	 * @throws Exceptions\WpContentFileUnidentifiedException
 	 */
 	protected function runScan() :bool {
-		// Is it in the WP root dir?
-		if ( $this->inWpContentDir() ) {
+		if ( Services::WpFs()->isAccessibleFile( $this->pathFull ) && $this->inWpContentDir() ) {
 			throw new Exceptions\WpContentFileUnidentifiedException( $this->pathFull );
 		}
 		return false;
@@ -34,13 +34,14 @@ class WpContentUnidentified extends BaseScan {
 	}
 
 	private function inWpContentDir() :bool {
+		$FS = Services::WpFs();
 		$possibles = \array_unique( [
-			trailingslashit( wp_normalize_path( path_join( ABSPATH, 'wp-content' ) ) ),
-			trailingslashit( wp_normalize_path( WP_CONTENT_DIR ) ),
+			path_join( ABSPATH, 'wp-content' ),
+			WP_CONTENT_DIR,
 		] );
 		$in = false;
 		foreach ( $possibles as $possibleRoot ) {
-			if ( \strpos( $this->pathFull, $possibleRoot ) === 0 ) {
+			if ( $FS->getPathRelativeToDir( $this->pathFull, $possibleRoot ) !== null ) {
 				$in = true;
 				break;
 			}
@@ -49,12 +50,12 @@ class WpContentUnidentified extends BaseScan {
 		if ( $in ) {
 			$possibleExclusionPaths = [];
 			foreach ( $possibles as $wpContentPossible ) {
-				$possibleExclusionPaths[] = trailingslashit( path_join( $wpContentPossible, 'plugins' ) );
-				$possibleExclusionPaths[] = trailingslashit( path_join( $wpContentPossible, 'themes' ) );
-				$possibleExclusionPaths[] = trailingslashit( path_join( $wpContentPossible, 'mu-plugins' ) );
+				$possibleExclusionPaths[] = path_join( $wpContentPossible, 'plugins' );
+				$possibleExclusionPaths[] = path_join( $wpContentPossible, 'themes' );
+				$possibleExclusionPaths[] = path_join( $wpContentPossible, 'mu-plugins' );
 			}
 			foreach ( $possibleExclusionPaths as $possibleExclusionPath ) {
-				if ( \strpos( $this->pathFull, $possibleExclusionPath ) === 0 ) {
+				if ( $FS->getPathRelativeToDir( $this->pathFull, $possibleExclusionPath ) !== null ) {
 					$in = false;
 					break;
 				}
