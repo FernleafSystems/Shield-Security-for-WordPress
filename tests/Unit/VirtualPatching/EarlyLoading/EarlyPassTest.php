@@ -135,6 +135,37 @@ class EarlyPassTest extends TestCase {
 		$this->assertTrue( $withoutFile->isComplete() );
 	}
 
+	public function testJsonBodyRulesAreDecidedFromTheRequestBody() :void {
+		$rule = [
+			'id'         => 'json-body',
+			'advisories' => [],
+			'conditions' => [
+				[ 'kind' => 'path', 'negate' => false, 'operator' => 'equals', 'value' => '/wp-admin/admin-ajax.php' ],
+				[ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'either', 'name' => 'action', 'operator' => 'equals', 'value' => 'demo_save' ],
+				[ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'json', 'name' => 'data', 'operator' => 'contains', 'value' => '.php' ],
+			],
+		];
+		$server = $this->server( 'POST', '/wp-admin/admin-ajax.php?action=demo_save' );
+		$body = \dirname( $this->events ).'/body.json';
+		$pass = fn() => new EarlyPass( $this->ruleset( [ $rule ] ), $server, [ 'action' => 'demo_save' ], [], [], $body );
+
+		\file_put_contents( $body, '{"data":{"videos":[{"src":"https://example.test/x.php"}]}}' );
+		$this->assertSame( 'json-body', $pass()->run()[ 'id' ] ?? null );
+
+		\file_put_contents( $body, '{"data":{"videos":[{"src":"https://example.test/x.mp4"}]}}' );
+		$ordinary = $pass();
+		$this->assertNull( $ordinary->run() );
+		$this->assertTrue( $ordinary->isComplete() );
+
+		// A body past the bound a JSON body condition reads blocks, and the log says why.
+		\file_put_contents( $body, '{"data":{}}'.\str_repeat( ' ', 1048576 ) );
+		$this->assertSame( 'json-body', $pass()->run()[ 'id' ] ?? null );
+		$this->assertSame( [ [ 'match', null ], [ 'pattern_failure', 'body_limit' ] ], \array_map(
+			fn( array $entry ) :array => [ $entry[ 'verdict' ], $entry[ 'reason' ] ?? null ],
+			BlockLog::read( $this->events )
+		) );
+	}
+
 	public function testBypassedIpIsNeverBlocked() :void {
 		$ruleset = $this->ruleset( [ $this->installerRule() ] );
 		$ruleset[ 'bypass' ] = [ 'ip_source' => 'REMOTE_ADDR', 'ips' => [ '203.0.113.0/24' ] ];

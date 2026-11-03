@@ -190,7 +190,7 @@ final class RequestGuard {
 		if ( !\is_string( $path ) || $path === '' ) {
 			return;
 		}
-		BlockLog::append( $path, BlockLog::entry( $this->ruleset, $rule, $facts, WordPressFacts::server(), $point, $verdict ) );
+		BlockLog::append( $path, BlockLog::entry( $this->ruleset, $rule, $facts, WordPressFacts::server(), $point, $verdict, $this->evaluator->lastPatternFailure() ) );
 	}
 
 	/**

@@ -51,11 +51,13 @@ final class BlockLog {
 
 	/**
 	 * The log entry for a blocked request. The IP is read the way the bypass list reads it, falling back to
-	 * REMOTE_ADDR when the ruleset names no usable source.
+	 * REMOTE_ADDR when the ruleset names no usable source. A pattern failure, which blocks, also says why, from
+	 * RuleEvaluator::lastPatternFailure() (see failureReason()).
 	 */
-	public static function entry( array $ruleset, array $rule, array $facts, array $server, string $pass, string $verdict ) :array {
+	public static function entry( array $ruleset, array $rule, array $facts, array $server, string $pass, string $verdict, ?array $failure = null ) :array {
 		$remote = $server[ 'REMOTE_ADDR' ] ?? '';
-		return [
+		$reason = $verdict === 'pattern_failure' ? [ 'reason' => self::failureReason( $failure ) ] : [];
+		return \array_merge( [
 			'ts'         => \time(),
 			'rule'       => (string)( $rule[ 'id' ] ?? '' ),
 			'mode'       => self::isLogRule( $rule ) ? 'log' : 'block',
@@ -65,7 +67,25 @@ final class BlockLog {
 			'path'       => $facts[ 'path' ],
 			'pass'       => $pass,
 			'verdict'    => $verdict,
-		];
+		], $reason );
+	}
+
+	/**
+	 * Why a rule could not be decided: the request body was past the bound a JSON body condition reads, a value
+	 * had more levels or values than a condition compares, an uploaded file's extension could not be read, or a
+	 * regular expression failed; 'unknown' without the evaluator's record.
+	 */
+	public static function failureReason( ?array $failure ) :string {
+		if ( $failure === null ) {
+			return 'unknown';
+		}
+		if ( !empty( $failure[ 'bodyLimit' ] ) ) {
+			return 'body_limit';
+		}
+		if ( !empty( $failure[ 'valueLimit' ] ) ) {
+			return 'value_limit';
+		}
+		return empty( $failure[ 'uploadExtension' ] ) ? 'pattern' : 'upload_extension';
 	}
 
 	public static function append( string $path, array $entry ) :bool {

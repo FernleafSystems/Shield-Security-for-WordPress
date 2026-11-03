@@ -27,19 +27,23 @@ final class EarlyPass {
 
 	private array $files;
 
+	private string $bodyStream;
+
 	private RuleEvaluator $evaluator;
 
 	private bool $complete = false;
 
 	/**
-	 * @param array $files the uploaded files as PHP built $_FILES
+	 * @param array  $files      the uploaded files as PHP built $_FILES
+	 * @param string $bodyStream where the request body is read, only when a JSON body condition is reached
 	 */
-	public function __construct( array $ruleset, array $server, array $query, array $form, array $files ) {
+	public function __construct( array $ruleset, array $server, array $query, array $form, array $files, string $bodyStream = 'php://input' ) {
 		$this->ruleset = $ruleset;
 		$this->server = $server;
 		$this->query = $query;
 		$this->form = $form;
 		$this->files = $files;
+		$this->bodyStream = $bodyStream;
 		$this->evaluator = new RuleEvaluator();
 	}
 
@@ -111,6 +115,7 @@ final class EarlyPass {
 		$facts = \array_merge(
 			RuleEvaluator::requestFacts( $this->server, $this->query, $this->form ),
 			RuleEvaluator::uploadFacts( $this->files ),
+			RuleEvaluator::bodyFacts( $this->bodyStream ),
 			RuleEvaluator::rulesetFacts( $this->ruleset )
 		);
 
@@ -156,7 +161,7 @@ final class EarlyPass {
 	private function log( array $rule, string $verdict, array $facts ) :void {
 		$path = $this->ruleset[ 'events' ] ?? null;
 		if ( \is_string( $path ) && $path !== '' ) {
-			BlockLog::append( $path, BlockLog::entry( $this->ruleset, $rule, $facts, $this->server, 'early', $verdict ) );
+			BlockLog::append( $path, BlockLog::entry( $this->ruleset, $rule, $facts, $this->server, 'early', $verdict, $this->evaluator->lastPatternFailure() ) );
 		}
 	}
 }
