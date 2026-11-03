@@ -161,6 +161,12 @@
 			{% endfor %}
 		</div>
 
+	{% elseif item.prefix|default('') is not empty %}
+		<span class="shield-option-prefixed">
+			<span class="shield-option-prefixed__prefix" aria-hidden="true">{{ item.prefix }}</span>
+			{% include '/components/config/option_control.twig' with { option: option, strings: strings } only %}
+		</span>
+
 	{% else %}
 		{% include '/components/config/option_control.twig' with { option: option, strings: strings } only %}
 		{% if option.unit_label|default('') is not empty %}

@@ -113,6 +113,22 @@ class StaticToolDefinitions {
 				'show_in_search' => true,
 			],
 			[
+				'id'           => 'tool_whitelabel',
+				'title'        => __( 'White Label', 'wp-simple-firewall' ),
+				'icon'         => 'palette',
+				'nav'          => PluginNavs::NAV_TOOLS,
+				'subnav'       => PluginNavs::SUBNAV_TOOLS_WHITELABEL,
+				'modes'        => [ PluginNavs::MODE_CONFIGURE ],
+			],
+			[
+				'id'           => 'tool_loginhide',
+				'title'        => __( 'Hide Login', 'wp-simple-firewall' ),
+				'icon'         => 'person-lock',
+				'nav'          => PluginNavs::NAV_TOOLS,
+				'subnav'       => PluginNavs::SUBNAV_TOOLS_LOGINHIDE,
+				'modes'        => [ PluginNavs::MODE_CONFIGURE ],
+			],
+			[
 				'id'           => 'tool_guidedsetup',
 				'title'        => __( 'Guided Setup', 'wp-simple-firewall' ),
 				'icon'         => 'compass',

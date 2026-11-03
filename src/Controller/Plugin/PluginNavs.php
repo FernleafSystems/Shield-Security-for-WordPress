@@ -62,6 +62,8 @@ class PluginNavs {
 	public const SUBNAV_TOOLS_DEBUG = 'debug';
 	public const SUBNAV_TOOLS_IMPORT = 'importexport';
 	public const SUBNAV_TOOLS_BLOCKDOWN = 'blockdown';
+	public const SUBNAV_TOOLS_WHITELABEL = 'whitelabel';
+	public const SUBNAV_TOOLS_LOGINHIDE = 'loginhide';
 	public const SUBNAV_TOOLS_SESSIONS = 'sessions';
 	public const NAV_WIZARD = 'merlin';
 	public const NAV_ZONES = 'zones';
@@ -875,7 +877,9 @@ class PluginNavs {
 		return [
 			'name'     => __( 'Tools', 'wp-simple-firewall' ),
 			'sub_navs' => [
-				self::SUBNAV_TOOLS_BLOCKDOWN => self::routeDefinition( PluginAdminPages\PageToolLockdown::class ),
+				self::SUBNAV_TOOLS_BLOCKDOWN  => self::routeDefinition( PluginAdminPages\PageToolLockdown::class ),
+				self::SUBNAV_TOOLS_WHITELABEL => self::routeDefinition( PluginAdminPages\PageToolWhitelabel::class ),
+				self::SUBNAV_TOOLS_LOGINHIDE  => self::routeDefinition( PluginAdminPages\PageToolLoginHide::class ),
 				self::SUBNAV_TOOLS_DEBUG     => self::routeDefinition( PluginAdminPages\PageDebug::class, __( 'Debug Info', 'wp-simple-firewall' ) ),
 				self::SUBNAV_TOOLS_IMPORT    => self::routeDefinition( PluginAdminPages\PageImportExport::class ),
 			],

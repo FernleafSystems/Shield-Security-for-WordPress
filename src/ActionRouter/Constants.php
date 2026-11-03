@@ -276,6 +276,8 @@ class Constants {
 		Actions\Render\PluginAdminPages\PageScansRun::class,
 		Actions\Render\PluginAdminPages\PageSecurityAdminRestricted::class,
 		Actions\Render\PluginAdminPages\PageToolLockdown::class,
+		Actions\Render\PluginAdminPages\PageToolLoginHide::class,
+		Actions\Render\PluginAdminPages\PageToolWhitelabel::class,
 		Actions\Render\Utility\DbDescribeTable::class,
 	];
 }

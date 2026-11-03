@@ -24,6 +24,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   control:'toggle'|'switch'|'slider'|'segmented'|'radios'|'chips'|'roles'|'field',
  *   stops?:list<int>,
  *   zero_disables?:bool,
+ *   prefix?:'home',
  *   children?:list<array<string,mixed>>
  * }
  * @phpstan-type PanelBlock array{heading?:string, items:list<PanelItem>}
@@ -56,6 +57,56 @@ class ConfigureGoalPanels {
 				'wl_login2fa_logourl',
 			],
 			'import_export' => [ 'importexport_enable', 'importexport_masterurl', 'importexport_secretkey' ],
+		];
+	}
+
+	/**
+	 * A panel layout by goal and topic. The settings on pages of their own (White Label, Hide Login) are
+	 * laid out the same way, under the goal "own".
+	 * @return PanelTopic|null
+	 */
+	public static function panel( string $goalKey, string $topicKey ) :?array {
+		return $goalKey === 'own'
+			? ( self::ownPagePanels()[ $topicKey ] ?? null )
+			: ( self::goals()[ $goalKey ][ 'topics' ][ $topicKey ] ?? null );
+	}
+
+	/**
+	 * @return array<string,PanelTopic>
+	 */
+	private static function ownPagePanels() :array {
+		return [
+			'whitelabel' => [
+				'icon'   => 'palette',
+				'blocks' => [
+					[ 'items' => [ [ 'key' => 'whitelabel_enable', 'control' => 'toggle' ] ] ],
+					[
+						'heading' => 'names',
+						'items'   => [
+							[ 'key' => 'wl_pluginnamemain', 'control' => 'field' ],
+							[ 'key' => 'wl_namemenu', 'control' => 'field' ],
+							[ 'key' => 'wl_companyname', 'control' => 'field' ],
+							[ 'key' => 'wl_description', 'control' => 'field' ],
+						],
+					],
+					[ 'heading' => 'link', 'items' => [ [ 'key' => 'wl_homeurl', 'control' => 'field' ] ] ],
+					[
+						'heading' => 'logos',
+						'items'   => [
+							[ 'key' => 'wl_menuiconurl', 'control' => 'field' ],
+							[ 'key' => 'wl_dashboardlogourl', 'control' => 'field' ],
+							[ 'key' => 'wl_login2fa_logourl', 'control' => 'field' ],
+						],
+					],
+				],
+			],
+			'login_hide' => [
+				'icon'   => 'person-lock',
+				'blocks' => [
+					[ 'heading' => 'new_address', 'items' => [ [ 'key' => 'rename_wplogin_path', 'control' => 'field', 'prefix' => 'home' ] ] ],
+					[ 'heading' => 'old_address', 'items' => [ [ 'key' => 'rename_wplogin_redirect', 'control' => 'field' ] ] ],
+				],
+			],
 		];
 	}
 
@@ -702,6 +753,11 @@ class ConfigureGoalPanels {
 				'visitor_ip'        => __( 'Visitor IP addresses', 'wp-simple-firewall' ),
 				'on_your_site'      => __( 'On your site', 'wp-simple-firewall' ),
 				'in_your_dashboard' => __( 'In your dashboard', 'wp-simple-firewall' ),
+				'names'             => __( 'Names', 'wp-simple-firewall' ),
+				'link'              => __( 'Link', 'wp-simple-firewall' ),
+				'logos'             => __( 'Logos', 'wp-simple-firewall' ),
+				'new_address'       => __( 'New login address', 'wp-simple-firewall' ),
+				'old_address'       => __( 'Anyone who tries the old address', 'wp-simple-firewall' ),
 			],
 		];
 	}
@@ -711,7 +767,7 @@ class ConfigureGoalPanels {
 	 * @return list<string>
 	 */
 	public static function topicOptionKeys( string $goalKey, string $topicKey ) :array {
-		$topic = self::goals()[ $goalKey ][ 'topics' ][ $topicKey ] ?? null;
+		$topic = self::panel( $goalKey, $topicKey );
 		if ( !\is_array( $topic ) ) {
 			return [];
 		}

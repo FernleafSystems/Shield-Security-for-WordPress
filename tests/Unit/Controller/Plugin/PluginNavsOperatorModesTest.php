@@ -145,6 +145,8 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				PluginNavs::SUBNAV_TOOLS_BLOCKDOWN,
+				PluginNavs::SUBNAV_TOOLS_WHITELABEL,
+				PluginNavs::SUBNAV_TOOLS_LOGINHIDE,
 				PluginNavs::SUBNAV_TOOLS_DEBUG,
 				PluginNavs::SUBNAV_TOOLS_IMPORT,
 			],

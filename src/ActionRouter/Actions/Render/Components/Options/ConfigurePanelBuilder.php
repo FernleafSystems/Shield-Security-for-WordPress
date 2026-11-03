@@ -29,14 +29,14 @@ class ConfigurePanelBuilder {
 			return null;
 		}
 		[ $goal, $topic ] = $parts;
-		return isset( ConfigureGoalPanels::goals()[ $goal ][ 'topics' ][ $topic ] ) ? [ 'goal' => $goal, 'topic' => $topic ] : null;
+		return ConfigureGoalPanels::panel( $goal, $topic ) !== null ? [ 'goal' => $goal, 'topic' => $topic ] : null;
 	}
 
 	/**
 	 * @param array<string,array<string,mixed>> $displayOptions option key => display data from BuildOptionsForDisplay
 	 */
 	public function build( string $goalKey, string $topicKey, array $displayOptions ) :array {
-		$topic = ConfigureGoalPanels::goals()[ $goalKey ][ 'topics' ][ $topicKey ];
+		$topic = ConfigureGoalPanels::panel( $goalKey, $topicKey ) ?? [ 'blocks' => [] ];
 		$labels = ConfigureGoalPanels::labels();
 		$issues = $this->topicIssues( \array_keys( $displayOptions ) );
 		// Advanced options gathers odd settings from across the goal; problems none of them fix belong
@@ -157,8 +157,11 @@ class ConfigurePanelBuilder {
 				'option'   => $option,
 				// Choices that need room sit beneath their name; everything else sits beside it.
 				'stacked'  => \in_array( $control, [ 'chips', 'roles' ], true )
-							  || ( $layoutItem[ 'control' ] === 'field' && $option[ 'type' ] === 'array' ),
+							  || ( $layoutItem[ 'control' ] === 'field' && $option[ 'type' ] === 'array' )
+							  || !empty( $layoutItem[ 'prefix' ] ),
 				'children' => $this->buildItems( $layoutItem[ 'children' ] ?? [], $displayOptions ),
+				// A field can show the start of the address it completes, such as the site's own.
+				'prefix'   => ( $layoutItem[ 'prefix' ] ?? '' ) === 'home' ? \trailingslashit( \home_url() ) : '',
 				'is_on'    => $this->isOn( $control, $option ),
 				'issues'   => $this->issuesByOption[ $layoutItem[ 'key' ] ] ?? [],
 			];

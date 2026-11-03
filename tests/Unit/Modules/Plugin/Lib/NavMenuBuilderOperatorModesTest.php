@@ -14,7 +14,6 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Whitelabel;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState,
@@ -207,17 +206,17 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( '/admin/zones/overview?setup_guide=open', $wizardTool[ 'href' ] );
 		$this->assertSame( [ 'setup-guide-open' => '1' ], $wizardTool[ 'data' ] ?? [] );
 
-		$whitelabelTool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-whitelabel' );
-		$this->assertIsArray( $whitelabelTool );
-		$this->assertTrue( $whitelabelTool[ 'is_action' ] );
-		$this->assertSame( '', $whitelabelTool[ 'href' ] );
-		$this->assertSame( '', $whitelabelTool[ 'target' ] );
-		$this->assertContains( 'zone_component_action', $whitelabelTool[ 'classes' ] );
-		$this->assertSame(
-			'offcanvas_zone_component_config',
-			$whitelabelTool[ 'data' ][ 'zone_component_action' ]
-		);
-		$this->assertSame( Whitelabel::Slug(), $whitelabelTool[ 'data' ][ 'zone_component_slug' ] );
+		// White Label and Hide Login are pages of their own; Integrations still opens its side panel.
+		foreach ( [ 'whitelabel', 'loginhide' ] as $page ) {
+			$tool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-'.$page );
+			$this->assertIsArray( $tool );
+			$this->assertFalse( $tool[ 'is_action' ] );
+			$this->assertNotSame( '', $tool[ 'href' ] );
+		}
+		$integrationsTool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-integrations' );
+		$this->assertIsArray( $integrationsTool );
+		$this->assertTrue( $integrationsTool[ 'is_action' ] );
+		$this->assertSame( 'integrations:integrations', $integrationsTool[ 'data' ][ 'configure_panel' ] ?? '' );
 	}
 
 	public function test_whitelabel_hides_home_connect_items() :void {

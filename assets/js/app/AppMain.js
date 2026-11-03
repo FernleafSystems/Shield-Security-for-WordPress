@@ -1,5 +1,6 @@
 import { AppBase } from "./AppBase";
 import { Blockdown } from "../components/general/Blockdown";
+import { WhitelabelPreview } from "../components/general/WhitelabelPreview";
 import { BootstrapTooltips } from "../components/ui/BootstrapTooltips";
 import { ReportsTrendsController } from "../components/charts/ReportsTrendsController";
 import { DashboardActivityCharts } from "../components/charts/DashboardActivityCharts";
@@ -87,6 +88,7 @@ export class AppMain extends AppBase {
 		this.components.dashboard_live_monitor = ( 'dashboard_live_monitor' in comps ) ? new DashboardLiveMonitor( comps.dashboard_live_monitor ) : null;
 		this.components.dashboard_activity_charts = new DashboardActivityCharts();
 		this.components.dashboard_task_guide = new DashboardTaskGuide();
+		this.components.whitelabel_preview = new WhitelabelPreview();
 		this.components.pro_upsell = new ProUpsell();
 		this.components.div_printer = new DivPrinter();
 		this.components.dynamic_buttons = new DynamicActionButtons();

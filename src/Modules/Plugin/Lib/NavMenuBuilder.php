@@ -5,11 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
-	LoginHide,
-	Modules\ModuleIntegrations,
-	Whitelabel
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModuleIntegrations;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -223,18 +219,6 @@ class NavMenuBuilder {
 			$toolItemsById[ $definition[ 'id' ] ] = $this->buildToolItemFromDefinition( $definition );
 		}
 
-		$toolItemsById[ 'tool_whitelabel' ] = $this->buildConfigureZoneToolItem(
-			Whitelabel::Slug(),
-			PluginNavs::NAV_TOOLS.'-whitelabel',
-			__( 'White Label', 'wp-simple-firewall' ),
-			'palette'
-		);
-		$toolItemsById[ 'tool_loginhide' ] = $this->buildConfigureZoneToolItem(
-			LoginHide::Slug(),
-			PluginNavs::NAV_TOOLS.'-loginhide',
-			__( 'Hide Login', 'wp-simple-firewall' ),
-			'person-lock'
-		);
 		$toolItemsById[ 'tool_integrations' ] = $this->buildConfigureZoneToolItem(
 			ModuleIntegrations::Slug(),
 			PluginNavs::NAV_TOOLS.'-integrations',

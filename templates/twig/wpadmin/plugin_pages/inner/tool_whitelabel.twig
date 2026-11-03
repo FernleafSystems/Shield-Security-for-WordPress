@@ -1,0 +1,56 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{#
+	White Label: whether it's on, then its settings beside a preview of where they show. The preview reads
+	the form's own fields as you type, so it always shows what saving would give.
+#}
+{% block inner_page_body %}
+	<div class="shield-tool-page" data-shield-whitelabel="1">
+		<p class="shield-tool-page__lede">{{ strings.lede }}</p>
+
+		<section class="shield-tool-status{{ flags.is_on ? ' is-good' : '' }}" aria-labelledby="WhitelabelStatusTitle">
+			<span class="shield-tool-status__badge"><i class="bi bi-palette" aria-hidden="true"></i></span>
+			<div class="shield-tool-status__copy">
+				<h2 class="shield-tool-status__title" id="WhitelabelStatusTitle">{{ flags.is_on ? strings.on_title : strings.off_title }}</h2>
+				<p class="shield-tool-status__desc">{{ flags.is_on ? strings.on_desc : strings.off_desc }}</p>
+			</div>
+			<span class="shield-tool-status__pill">{{ flags.is_on ? strings.on_pill : strings.off_pill }}</span>
+		</section>
+
+		<div class="shield-tool-split">
+			<div class="shield-tool-box shield-tool-box--form">
+				{{ vars.form_html|raw }}
+			</div>
+
+			<aside class="shield-tool-preview" aria-label="{{ strings.preview_label|e('html_attr') }}" data-whitelabel-preview="1">
+				<section class="shield-tool-box">
+					<h3 class="shield-tool-box__head">{{ strings.wp_menu }}</h3>
+					<div class="shield-tool-preview__menu">
+						<div>{{ strings.menu_plugins }}</div>
+						<div class="is-current">
+							<img src="{{ vars.preview.icon }}" alt="" data-wl-preview="wl_menuiconurl">
+							<span data-wl-preview="wl_namemenu" data-wl-fallback="wl_pluginnamemain">{{ vars.preview.menu is not empty ? vars.preview.menu : vars.preview.name }}</span>
+						</div>
+						<div>{{ strings.menu_users }}</div>
+					</div>
+				</section>
+				<section class="shield-tool-box">
+					<h3 class="shield-tool-box__head">{{ strings.plugins_list }}</h3>
+					<div class="shield-tool-preview__body">
+						<div class="shield-tool-row__title" data-wl-preview="wl_pluginnamemain">{{ vars.preview.name }}</div>
+						<div class="shield-tool-row__desc" data-wl-preview="wl_description">{{ vars.preview.description }}</div>
+						<div class="shield-tool-row__desc">{{ strings.by }} <a href="{{ vars.preview.home }}" target="_blank" rel="noopener" data-wl-preview="wl_companyname" data-wl-href="wl_homeurl">{{ vars.preview.company }}</a></div>
+					</div>
+				</section>
+				<section class="shield-tool-box">
+					<h3 class="shield-tool-box__head">{{ strings.login_page }}</h3>
+					<div class="shield-tool-preview__login">
+						<img src="{{ vars.preview.banner }}" alt="" data-wl-preview="wl_login2fa_logourl">
+						<span></span>
+						<span></span>
+					</div>
+				</section>
+			</aside>
+		</div>
+	</div>
+{% endblock %}

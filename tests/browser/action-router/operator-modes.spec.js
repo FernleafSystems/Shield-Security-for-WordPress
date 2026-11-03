@@ -150,8 +150,9 @@ test( 'configure sidebar zone actions are buttons that open accessible offcanvas
 	await dismissBlockingDialogs( page );
 
 	const originalUrl = page.url();
+	// Integrations opens in a side panel; White Label and Hide Login are pages of their own.
 	const whitelabelAction = page.locator(
-		'#NavSideBar button[data-zone_component_action="offcanvas_zone_component_config"][data-zone_component_slug="whitelabel"]'
+		'#NavSideBar button[data-zone_component_action="offcanvas_zone_component_config"][data-configure_panel="integrations:integrations"]'
 	).first();
 
 	await expect( whitelabelAction ).toBeVisible();
