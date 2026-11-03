@@ -820,6 +820,62 @@ $aq-pro-bg: #f2ebfc;
 
 // A group of maintenance items: a small heading row (styled with the box headings above), then one row per item.
 
+// A folded box's heading is the button that opens it, with how many it holds and a chevron.
+.actions-queue-box-toggle {
+	align-items: center;
+	background: none;
+	border: 0;
+	color: inherit;
+	cursor: pointer;
+	display: inline-flex;
+	flex: 1 1 auto;
+	font: inherit;
+	gap: 8px;
+	letter-spacing: inherit;
+	margin: -7px -14px;
+	padding: 7px 14px;
+	text-align: left;
+	text-transform: inherit;
+
+	&:hover {
+		color: #1d2327;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring(-3px);
+	}
+
+	&__count {
+		background: #dcdcde;
+		border-radius: 999px;
+		color: #1d2327;
+		font-size: 10.5px;
+		letter-spacing: 0;
+		padding: 0 7px;
+	}
+
+	&__chevron {
+		margin-left: auto;
+		transition: transform 0.15s ease;
+	}
+
+	&[aria-expanded="true"] &__chevron {
+		transform: rotate(180deg);
+	}
+
+	// Folded, the heading is all there is, so it doesn't need its bottom rule.
+	.actions-queue-box__head:has(&[aria-expanded="false"]),
+	.actions-queue-row-group__head:has(&[aria-expanded="false"]) {
+		border-bottom-color: transparent;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.actions-queue-box-toggle__chevron {
+		transition: none;
+	}
+}
+
 // A group's own link (Manage Plugins) is a quiet button like Ignore, at the end of its heading.
 .actions-queue-row-group__link {
 	align-items: center;

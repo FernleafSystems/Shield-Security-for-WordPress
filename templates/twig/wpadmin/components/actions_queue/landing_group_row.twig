@@ -11,12 +11,29 @@
 	and group.is_interactive and group.card_type != 'category' and group.card_type != 'linked' %}
 {% set kind = is_pro ? 'pro' : ( is_enable ? 'enable' : ( is_passing ? 'good' : group.status ) ) %}
 
-{# A group that lists its items (maintenance, or each vulnerable plugin and theme) shows them in place. #}
+{#
+	A group that lists its items (maintenance, or each vulnerable plugin and theme) shows them in place. Where
+	asked (Review next, the longest lane), it starts folded to its heading and a count, and its heading opens it.
+#}
 {% if ( group.card_type == 'category' or group.maintenance_rows is not empty ) and not is_passing %}
+	{% set group_rows = group.maintenance_rows is not empty ? group.maintenance_rows : ( group.summary_row is not empty ? [ group.summary_row ] : [] ) %}
+	{% set is_collapsible = collapsible|default(false) %}
+	{% set body_id = 'AqGroupBody-' ~ random() %}
 	<div class="actions-queue-row-group" data-actions-queue-group-key="{{ group.key|e('html_attr') }}">
 		<div class="actions-queue-row-group__head status-{{ group.status }}">
-			<span class="actions-queue-row-group__icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
-			<span class="actions-queue-row-group__label">{{ group.label }}</span>
+			{% if is_collapsible %}
+				<button type="button" class="actions-queue-box-toggle"
+						data-actions-queue-box-toggle="{{ group.key|e('html_attr') }}"
+						aria-expanded="false" aria-controls="{{ body_id }}">
+					<span class="actions-queue-row-group__icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
+					<span class="actions-queue-row-group__label">{{ group.label }}</span>
+					<span class="actions-queue-box-toggle__count">{{ group_rows|length }}</span>
+					<i class="bi bi-chevron-down actions-queue-box-toggle__chevron" aria-hidden="true"></i>
+				</button>
+			{% else %}
+				<span class="actions-queue-row-group__icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
+				<span class="actions-queue-row-group__label">{{ group.label }}</span>
+			{% endif %}
 			{% if group.management_link is not empty %}
 				<a class="actions-queue-row-group__link"
 				   href="{{ group.management_link.href }}"
@@ -26,7 +43,7 @@
 				</a>
 			{% endif %}
 		</div>
-		{% set group_rows = group.maintenance_rows is not empty ? group.maintenance_rows : ( group.summary_row is not empty ? [ group.summary_row ] : [] ) %}
+		<div class="actions-queue-row-group__body" id="{{ body_id }}" {% if is_collapsible %}hidden{% endif %}>
 		{% for row in group_rows %}
 			{% include '/wpadmin/components/actions_queue/landing_item_row.twig' with {
 				row: row,
@@ -48,6 +65,7 @@
 				</button>
 			</div>
 		{% endif %}
+		</div>
 	</div>
 {% else %}
 	{% set tag = ( can_drill or is_pro or is_enable ) ? 'button' : 'div' %}

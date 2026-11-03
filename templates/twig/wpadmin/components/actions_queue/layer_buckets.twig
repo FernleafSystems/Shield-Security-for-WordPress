@@ -270,6 +270,8 @@
 						{% endif %}
 					{% endfor %}
 
+					{# Review next is the longest lane, so its boxes start folded to a heading and a count. #}
+					{% set collapsible = section.key == 'review' %}
 					{% for kind in kinds %}
 						{% set kind_entries = entries|filter( e => e.kind == kind ) %}
 						{# A group that lists its items brings its own heading; single rows share one. #}
@@ -278,12 +280,25 @@
 						{% if single is not empty %}
 							{% set first_single = single|first %}
 							{% set heading = strings.kind_headings[ kind ]|default( first_single.heading ) %}
+							{% set body_id = 'AqBoxBody-' ~ random() %}
+							{% set box_icon = first_single.group.icon_class is not empty ? first_single.group.icon_class : first_single.icon_class %}
 							<div class="actions-queue-box" data-actions-queue-kind="{{ kind|e('html_attr') }}">
-								{% if heading is not empty %}
+								{% if heading is not empty and collapsible %}
 									<div class="actions-queue-box__head">
-										<i class="{{ first_single.group.icon_class is not empty ? first_single.group.icon_class : first_single.icon_class }}" aria-hidden="true"></i>{{ heading }}
+										<button type="button" class="actions-queue-box-toggle"
+												data-actions-queue-box-toggle="kind:{{ kind|e('html_attr') }}"
+												aria-expanded="false" aria-controls="{{ body_id }}">
+											<i class="{{ box_icon }}" aria-hidden="true"></i>{{ heading }}
+											<span class="actions-queue-box-toggle__count">{{ single|length }}</span>
+											<i class="bi bi-chevron-down actions-queue-box-toggle__chevron" aria-hidden="true"></i>
+										</button>
+									</div>
+								{% elseif heading is not empty %}
+									<div class="actions-queue-box__head">
+										<i class="{{ box_icon }}" aria-hidden="true"></i>{{ heading }}
 									</div>
 								{% endif %}
+								<div id="{{ body_id }}" {% if collapsible and heading is not empty %}hidden{% endif %}>
 								{% for entry in single %}
 									{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
 										group: entry.group,
@@ -291,6 +306,7 @@
 										strings: strings
 									} only %}
 								{% endfor %}
+								</div>
 							</div>
 						{% endif %}
 						{% for entry in listed %}
@@ -298,7 +314,8 @@
 								{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
 									group: entry.group,
 									bucket_selection: section.bucket_selection,
-									strings: strings
+									strings: strings,
+									collapsible: collapsible
 								} only %}
 							</div>
 						{% endfor %}

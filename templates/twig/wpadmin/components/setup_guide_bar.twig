@@ -3,7 +3,8 @@
 	the whole bar opens it; expanded it shows the steps on the left and the selected step on the right,
 	in a panel of fixed height so switching steps never moves it.
 #}
-{% set first_open = guide.steps|filter( s => not s.is_done )|first %}
+{# With every step done, there's no step to open: |first gives false, so make it null for the checks below. #}
+{% set first_open = guide.steps|filter( s => not s.is_done )|first|default( null ) %}
 <section class="shield-setup-guide"
 		 id="ShieldSetupGuide"
 		 data-setup-guide="1"

@@ -23,6 +23,14 @@ export class ActionsQueueSections extends BaseAutoExecComponent {
 			body && ( body.hidden = isOpen );
 		} );
 
+		// A folded box opens and closes from its heading.
+		shieldEventsHandler_Main.add_Click( '[data-actions-queue-box-toggle]', ( toggle ) => {
+			const body = document.getElementById( toggle.getAttribute( 'aria-controls' ) || '' );
+			const isOpen = toggle.getAttribute( 'aria-expanded' ) === 'true';
+			toggle.setAttribute( 'aria-expanded', String( !isOpen ) );
+			body && ( body.hidden = isOpen );
+		} );
+
 		shieldEventsHandler_Main.add_Click( '[data-actions-queue-tab]', ( tab ) => {
 			this.selectTab( tab.closest( ActionsQueueSections.ROOT_SELECTOR ), tab.dataset.actionsQueueTab || '' );
 		} );

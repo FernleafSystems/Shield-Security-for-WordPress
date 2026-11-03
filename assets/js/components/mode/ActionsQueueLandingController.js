@@ -436,9 +436,9 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 	}
 
 	/**
-	 * Which landing sections were open, and which tab was chosen.
+	 * Which landing sections and folded boxes were open, and which tab was chosen.
 	 * @param {Element} container
-	 * @return {{open:string[],tab:string}}
+	 * @return {{open:string[],tab:string,boxes:string[]}}
 	 */
 	captureSectionsState( container ) {
 		const sectionKey = ( el ) => {
@@ -449,6 +449,8 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		return {
 			open: [ ...container.querySelectorAll( '[data-actions-queue-section-toggle="1"][aria-expanded="true"]' ) ].map( sectionKey ),
 			tab: tab instanceof HTMLElement ? tab.dataset.actionsQueueTab || '' : '',
+			boxes: [ ...container.querySelectorAll( '[data-actions-queue-box-toggle][aria-expanded="true"]' ) ]
+			.map( ( toggle ) => toggle instanceof HTMLElement ? toggle.dataset.actionsQueueBoxToggle || '' : '' ),
 		};
 	}
 
@@ -456,7 +458,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 	 * Opens again the sections that were open, where they still exist, and selects the same tab. If none of
 	 * them is left, such as when a section's last item was ignored, the landing stays as rendered.
 	 * @param {Element} container
-	 * @param {{open:string[],tab:string}} state
+	 * @param {{open:string[],tab:string,boxes:string[]}} state
 	 */
 	restoreSectionsState( container, state ) {
 		const root = container.querySelector( '[data-actions-queue-sections="1"]' );
@@ -481,6 +483,14 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 				}
 			} );
 		}
+
+		root.querySelectorAll( '[data-actions-queue-box-toggle]' ).forEach( ( toggle ) => {
+			if ( toggle instanceof HTMLElement && state.boxes.includes( toggle.dataset.actionsQueueBoxToggle || '' ) ) {
+				toggle.setAttribute( 'aria-expanded', 'true' );
+				const body = document.getElementById( toggle.getAttribute( 'aria-controls' ) || '' );
+				body !== null && ( body.hidden = false );
+			}
+		} );
 
 		if ( keys.includes( state.tab ) ) {
 			root.querySelectorAll( '[data-actions-queue-tab]' ).forEach( ( tab ) => {

@@ -114,7 +114,21 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 		this.writeSessionHidden( false );
 		this.setHidden( false );
 		this.setExpanded( true );
+		this.ensureStepShown();
 		this.root.querySelector( '[data-setup-guide-toggle="1"]' )?.focus();
+	}
+
+	/**
+	 * Opened from a link, the guide may have no step showing; it shows the next one to do (or the first).
+	 */
+	ensureStepShown() {
+		const panes = [ ...this.root.querySelectorAll( '[data-setup-guide-pane]' ) ];
+		if ( panes.length === 0 || panes.some( ( pane ) => pane instanceof HTMLElement && !pane.hidden ) ) {
+			return;
+		}
+		const steps = [ ...this.root.querySelectorAll( '[data-setup-guide-step]' ) ];
+		const next = steps.find( ( step ) => !step.classList.contains( 'is-done' ) ) || steps[ 0 ];
+		this.showStep( next instanceof HTMLElement ? next.dataset.setupGuideStep || '' : 'all_done' );
 	}
 
 	setExpanded( isExpanded ) {

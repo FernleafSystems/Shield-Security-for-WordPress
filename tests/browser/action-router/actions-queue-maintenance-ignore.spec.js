@@ -18,6 +18,11 @@ async function openReviewSection( page ) {
 		await head.click();
 	}
 	await expect( head ).toHaveAttribute( 'aria-expanded', 'true' );
+	// Review next's boxes start folded; open each to reach its items.
+	const toggles = section( page, 'review' ).locator( '[data-actions-queue-box-toggle][aria-expanded="false"]' );
+	while ( await toggles.count() > 0 ) {
+		await toggles.first().click();
+	}
 	return head;
 }
 
@@ -36,6 +41,8 @@ test( 'ignoring an item refreshes the queue in place and keeps Review next open'
 		await ignore.click();
 		await expect.poll( async () => ignores.count(), { timeout: 20_000 } ).toBe( before - 1 );
 		await expect( head ).toHaveAttribute( 'aria-expanded', 'true' );
+		// The boxes that were open stay open after the queue refreshes.
+		await expect( section( page, 'review' ).locator( '[data-actions-queue-box-toggle][aria-expanded="false"]' ) ).toHaveCount( 0 );
 		expect( navigations ).toEqual( [] );
 	} );
 } );
