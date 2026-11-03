@@ -273,6 +273,45 @@ class RequestGuardTest extends BaseUnitTest {
 		$this->assertSame( [ [ 'other-user', EvaluationPoint::User->value ] ], $this->blocks );
 	}
 
+	public function testStoredSettingRulesReadTheUsersRolesAndOptionsAtInit() :void {
+		// Kirki keeps each role's access level as the option kirki_<role>.
+		$rule = $this->rule( 'kirki-full-access', [
+			[ 'kind' => 'path', 'negate' => false, 'operator' => 'equals', 'value' => '/wp-admin/admin-ajax.php' ],
+			[ 'kind' => 'parameter_value', 'negate' => false, 'source' => 'form', 'name' => 'endpoint', 'operator' => 'equals', 'value' => 'update-access-level' ],
+			[ 'kind' => 'wordpress_option', 'negate' => false, 'name' => 'kirki_{role}', 'path' => '', 'operator' => 'equals', 'value' => 'full' ],
+		] );
+		$roles = [];
+		$reads = [];
+		Functions\when( 'wp_get_current_user' )->alias( function () use ( &$roles ) {
+			return (object)[ 'roles' => $roles ];
+		} );
+		Functions\when( 'get_option' )->alias( function ( string $name ) use ( &$reads ) {
+			$reads[] = $name;
+			return [ 'kirki_editor' => 'full', 'kirki_author' => 'no' ][ $name ] ?? false;
+		} );
+		$guard = $this->guard( $this->ruleset( [ $rule ] ) );
+		$guard->start();
+
+		$this->assertSame( [ [ $guard, 'runUserRules' ], \PHP_INT_MIN ], $this->actions[ 'init' ] );
+
+		// Another request never reads an option.
+		$_POST = [ 'endpoint' => 'save-common-data' ];
+		$this->userId = 4;
+		$roles = [ 'editor' ];
+		$guard->runUserRules();
+		$this->assertSame( [], $reads );
+
+		$_POST = [ 'endpoint' => 'update-access-level' ];
+		$roles = [ 'author' ];
+		$guard->runUserRules();
+		$this->assertSame( [ 'kirki_author' ], $reads );
+		$this->assertSame( [], $this->blocks );
+
+		$roles = [ 'editor' ];
+		$guard->runUserRules();
+		$this->assertSame( [ [ 'kirki-full-access', EvaluationPoint::User->value ] ], $this->blocks );
+	}
+
 	public function testRestRulesReadTheUserAtDispatch() :void {
 		$rule = $this->rule( 'signed-out', [
 			[ 'kind' => 'rest_route', 'negate' => false, 'namespace' => 'example/v1', 'operator' => 'equals_i', 'value' => '/profile' ],
