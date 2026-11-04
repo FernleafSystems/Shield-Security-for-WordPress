@@ -17,10 +17,10 @@ class IsExpectedShieldCacheIndexFile {
 
 	private function isWithinWpContentDir( string $path ) :bool {
 		foreach ( \array_unique( [
-			trailingslashit( wp_normalize_path( WP_CONTENT_DIR ) ),
-			trailingslashit( wp_normalize_path( path_join( ABSPATH, 'wp-content' ) ) ),
+			WP_CONTENT_DIR,
+			path_join( ABSPATH, 'wp-content' ),
 		] ) as $contentDir ) {
-			if ( \strpos( $path, $contentDir ) === 0 ) {
+			if ( Services::WpFs()->getPathRelativeToDir( $path, $contentDir ) !== null ) {
 				return true;
 			}
 		}

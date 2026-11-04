@@ -3,12 +3,14 @@
 namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
+use Symfony\Component\Process\Process;
 
 class BrowserTestLane {
 
 	private const MODE_CLEAN = 'clean';
 	private const MODE_WARM = 'warm';
-	private const DEFAULT_LOCAL_LANES = 2;
+	private const DEFAULT_LOCAL_LANES = 4;
+	private const LANE_PREPARATION_TIMEOUT_SECONDS = 600;
 	private const DEFAULT_CI_LANES = 1;
 	private const RUNTIME_REFRESH_FULL = LocalSiteRuntimeHostManifestProvider::MODE_FULL;
 	private const RUNTIME_REFRESH_AUTO = LocalSiteRuntimeHostManifestProvider::MODE_AUTO;
@@ -71,7 +73,20 @@ class BrowserTestLane {
 		}
 
 		$laneCount = $this->resolveLaneCount( $options[ 'lanes' ] ?? null );
-		$workerCount = $this->resolveWorkerCount( $playwrightArgs, $laneCount );
+		$explicitWorkerCount = $this->resolveExplicitWorkerCount( $playwrightArgs );
+		$workerCount = $explicitWorkerCount ?? ( \getenv( 'CI' ) ? 1 : $laneCount );
+		$poolSize = $this->lanePool->poolSize();
+		if ( $workerCount > $poolSize ) {
+			\fwrite(
+				\STDERR,
+				\sprintf(
+					'Browser workers (%d) cannot exceed the machine lane pool (%d). Reduce --workers or raise SHIELD_BROWSER_LANE_POOL_SIZE.',
+					$workerCount,
+					$poolSize
+				).\PHP_EOL
+			);
+			return 1;
+		}
 		if ( $workerCount > $laneCount ) {
 			\fwrite(
 				\STDERR,
@@ -133,12 +148,13 @@ class BrowserTestLane {
 		$leases = [];
 		try {
 			while ( \count( $leases ) < $workerCount ) {
-				$lease = $this->lanePool->acquire(
-					$rootDir,
-					null,
-					\array_keys( $leases ),
-					$laneCount
-				);
+				// An explicit worker count waits for every lane; otherwise take the free lanes beyond the first.
+				$lease = $leases === [] || $explicitWorkerCount !== null
+					? $this->lanePool->acquire( null, \array_keys( $leases ) )
+					: $this->lanePool->tryAcquire( \array_keys( $leases ) );
+				if ( $lease === null ) {
+					break;
+				}
 				$leases[ $lease->laneIndex() ] = $lease;
 			}
 		}
@@ -147,13 +163,17 @@ class BrowserTestLane {
 			$this->writeFailureDiagnostic( 'acquire browser lanes', $throwable, null );
 			return 1;
 		}
+		if ( \count( $leases ) < $workerCount ) {
+			echo \sprintf( 'Browser lane: %d of %d requested lanes are free; running with %d workers', \count( $leases ), $workerCount, \count( $leases ) ).\PHP_EOL;
+			$workerCount = \count( $leases );
+		}
 
 		$laneMap = [];
 		$parallelIndex = 0;
 		$exitCode = 0;
+		$preparations = [];
 		foreach ( $leases as $lease ) {
 			try {
-				$siteManager = $this->providedSiteManager ?? new LocalSiteManager( $lease->definition() );
 				$labelEnv = $this->browserLabelEnv(
 					$runId,
 					'lane-'.$lease->laneIndex(),
@@ -168,15 +188,28 @@ class BrowserTestLane {
 					$runMode
 				).\PHP_EOL;
 				$fixtureToken = \bin2hex( \random_bytes( 24 ) );
-				$siteManager->prepareBrowserLane(
-					$rootDir,
-					$runMode,
-					true,
-					$fixtureToken,
-					$showSetupOutput ? null : static function () :void {},
-					$hostManifest,
-					$labelEnv
-				);
+				if ( $this->providedSiteManager === null && \count( $leases ) > 1 ) {
+					$preparations[ $lease->laneIndex() ] = $this->startLanePreparation(
+						$rootDir,
+						$lease,
+						$runMode,
+						$fixtureToken,
+						$hostManifest,
+						$labelEnv,
+						$showSetupOutput
+					);
+				}
+				else {
+					( $this->providedSiteManager ?? new LocalSiteManager( $lease->definition() ) )->prepareBrowserLane(
+						$rootDir,
+						$runMode,
+						true,
+						$fixtureToken,
+						$showSetupOutput ? null : static function () :void {},
+						$hostManifest,
+						$labelEnv
+					);
+				}
 				$laneMap[ (string)$parallelIndex ] = [
 					'laneIndex'     => $lease->laneIndex(),
 					'baseUrl'       => $lease->definition()->siteUrl(),
@@ -192,6 +225,9 @@ class BrowserTestLane {
 				break;
 			}
 		}
+		if ( !$this->awaitLanePreparations( $preparations, $leases ) ) {
+			$exitCode = 1;
+		}
 
 		try {
 			if ( $exitCode === 0 ) {
@@ -205,8 +241,9 @@ class BrowserTestLane {
 			$cleanupFindings = $this->cleanupRunResourcesSafely(
 				$rootDir,
 				$runId,
-				$laneCount,
-				$this->requiresFullCleanup( $runMode )
+				$poolSize,
+				$this->requiresFullCleanup( $runMode ),
+				\array_keys( $leases )
 			);
 			if ( $cleanupFindings !== [] ) {
 				$this->writeCleanupFindings( $cleanupFindings );
@@ -338,7 +375,7 @@ class BrowserTestLane {
 	/**
 	 * @param string[] $playwrightArgs
 	 */
-	private function resolveWorkerCount( array $playwrightArgs, int $laneCount ) :int {
+	private function resolveExplicitWorkerCount( array $playwrightArgs ) :?int {
 		$playwrightWorkerCount = $this->extractPlaywrightWorkerCount( $playwrightArgs );
 		if ( $playwrightWorkerCount !== null ) {
 			return $playwrightWorkerCount;
@@ -347,7 +384,60 @@ class BrowserTestLane {
 		if ( \is_string( $envWorkerCount ) && $envWorkerCount !== '' ) {
 			return $this->positiveInteger( $envWorkerCount, 'SHIELD_BROWSER_WORKERS' );
 		}
-		return \getenv( 'CI' ) ? 1 : $laneCount;
+		return null;
+	}
+
+	/**
+	 * Prepares a lane in a child process so several lanes start, refresh and provision at once.
+	 * @param array<string,mixed>|null $hostManifest
+	 * @param array<string,string> $labelEnv
+	 */
+	private function startLanePreparation(
+		string $rootDir,
+		BrowserTestLaneLease $lease,
+		string $runMode,
+		string $fixtureToken,
+		?array $hostManifest,
+		array $labelEnv,
+		bool $showSetupOutput
+	) :Process {
+		$process = new Process( [ \PHP_BINARY, __DIR__.'/prepare-browser-lane.php' ], $rootDir );
+		$process->setInput( \json_encode( [
+			'laneIndex'    => $lease->laneIndex(),
+			'mode'         => $runMode,
+			'fixtureToken' => $fixtureToken,
+			'hostManifest' => $hostManifest,
+			'labelEnv'     => $labelEnv,
+		], \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR ) );
+		$process->setTimeout( self::LANE_PREPARATION_TIMEOUT_SECONDS );
+		$process->start( $showSetupOutput ? static function ( string $type, string $buffer ) :void {
+			echo $buffer;
+		} : null );
+
+		return $process;
+	}
+
+	/**
+	 * @param array<int,Process> $preparations Keyed by lane index.
+	 * @param array<int,BrowserTestLaneLease> $leases Keyed by lane index.
+	 */
+	private function awaitLanePreparations( array $preparations, array $leases ) :bool {
+		$succeeded = true;
+		foreach ( $preparations as $laneIndex => $process ) {
+			try {
+				// wait() keeps reading both pipes, so a chatty lane cannot block on a full buffer.
+				$process->wait();
+				if ( !$process->isSuccessful() ) {
+					throw new \RuntimeException( \trim( $process->getErrorOutput()."\n".$process->getOutput() ) );
+				}
+			}
+			catch ( \Throwable $throwable ) {
+				$this->writeFailureDiagnostic( 'prepare browser lane', $throwable, $leases[ $laneIndex ] );
+				$succeeded = false;
+			}
+		}
+
+		return $succeeded;
 	}
 
 	/**
@@ -408,16 +498,27 @@ class BrowserTestLane {
 	}
 
 	/**
+	 * A full purge would remove lanes and shared services that other runs are using, so it only runs while
+	 * no other process holds a lane; otherwise this run removes just its own resources.
+	 * @param int[] $heldLaneIndexes
 	 * @return string[]
 	 */
 	private function cleanupRunResourcesSafely(
 		string $rootDir,
 		string $runId,
 		int $laneCount,
-		bool $fullCleanup
+		bool $fullCleanup,
+		array $heldLaneIndexes
 	) :array {
 		try {
-			return $this->resourceSweeper->cleanupRunResources( $rootDir, $runId, $laneCount, $fullCleanup )->findings();
+			return $this->lanePool->withSharedServicesLock(
+				fn() :array => $this->resourceSweeper->cleanupRunResources(
+					$rootDir,
+					$runId,
+					$laneCount,
+					$fullCleanup && !$this->lanePool->hasOtherActiveLeases( $heldLaneIndexes )
+				)->findings()
+			);
 		}
 		catch ( \Throwable $throwable ) {
 			return [

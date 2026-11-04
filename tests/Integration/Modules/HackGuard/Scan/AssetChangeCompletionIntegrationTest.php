@@ -209,6 +209,30 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
+	 * Installs at the filesystem root used to store core files with a leading slash and flag them as unrecognised.
+	 * Corrected scans report under the relative path, so only completion can clear those records.
+	 */
+	public function test_full_completion_resolves_core_finding_stored_with_a_leading_slash() :void {
+		$core = $this->afsAssetScenario( 'core' );
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$legacy = $this->seedAfsFinding( $initialScanID, $core, '/wp-admin/shield-legacy-root-spelling.php', [
+			'is_in_core'      => 1,
+			'is_unrecognised' => 1,
+		] );
+		$this->assertSame(
+			'/wp-admin/shield-legacy-root-spelling.php',
+			(string)self::con()->db_con->scan_result_items->getQuerySelector()->byId( (int)$legacy[ 'result_item_id' ] )->item_id
+		);
+
+		$scanID = $this->insertAfsScan( 'full', '', [
+			ScanActionVO::COVERAGE_FAMILY_CORE_INTEGRITY,
+		], 'manual' );
+		$this->assertTrue( ( new SetScanCompleted() )->run( $scanID ) );
+
+		$this->assertFindingResolved( $legacy, true, 'clean_rescan' );
+	}
+
+	/**
 	 * @dataProvider provideCoveredIssueFamilies
 	 * @param array<string,int|string> $meta
 	 */

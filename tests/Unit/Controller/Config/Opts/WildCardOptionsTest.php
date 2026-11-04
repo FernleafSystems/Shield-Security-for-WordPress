@@ -5,11 +5,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Config\O
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
+use FernleafSystems\Wordpress\Services\Core\Fs;
 
 class WildCardOptionsTest extends BaseUnitTest {
 
+	private array $servicesSnapshot = [];
+
 	protected function setUp() :void {
 		parent::setUp();
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::installItems( [ 'service_wpfs' => new Fs() ] );
 		Functions\when( 'wp_normalize_path' )->alias(
 			static fn( string $path ) :string => \str_replace( '\\', '/', $path )
 		);
@@ -22,6 +28,11 @@ class WildCardOptionsTest extends BaseUnitTest {
 		Functions\when( 'untrailingslashit' )->alias(
 			static fn( string $path ) :string => \rtrim( $path, '/\\' )
 		);
+	}
+
+	protected function tearDown() :void {
+		ServicesState::restore( $this->servicesSnapshot );
+		parent::tearDown();
 	}
 
 	public function test_file_path_cleaning_filters_malformed_members_without_losing_valid_siblings() :void {
@@ -99,6 +110,19 @@ class WildCardOptionsTest extends BaseUnitTest {
 		$cleaned = ( new WildCardOptions() )->clean(
 			[ 'wp-admin/*', 'wp-content/cache/*' ],
 			[ $this->absolutePath( 'wp-admin/' ) ],
+			WildCardOptions::FILE_PATH_REL
+		);
+
+		$this->assertSame( [ 'wp-content/cache/*' ], $cleaned );
+	}
+
+	/**
+	 * Windows gives these checks backslashes, as ABSPATH has them there.
+	 */
+	public function test_file_path_cleaning_rejects_protected_path_given_with_backslashes() :void {
+		$cleaned = ( new WildCardOptions() )->clean(
+			[ 'wp-admin/*', 'wp-content/cache/*' ],
+			[ \str_replace( '/', '\\', $this->absolutePath( 'wp-admin/' ) ) ],
 			WildCardOptions::FILE_PATH_REL
 		);
 

@@ -219,7 +219,8 @@ class StoreTest extends BaseUnitTest {
 		$this->installController(
 			[
 				$this->existingResultRow( 77, 'akismet/akismet.php', [
-					'asset_key' => 'akismet/akismet.php',
+					'asset_key'        => 'akismet/akismet.php',
+					'auto_filtered_at' => 1700000001,
 				] ),
 			],
 			[],
@@ -267,7 +268,7 @@ class StoreTest extends BaseUnitTest {
 			'scan'              => 'afs',
 			'asset_type'        => 'plugin',
 			'asset_key'         => 'akismet/akismet.php',
-			'auto_filtered_at'  => 1700000042,
+			'auto_filtered_at'  => 1700000001,
 			'last_seen_at'      => 1700000000,
 			'resolved_at'       => 0,
 			'resolution_reason' => '',

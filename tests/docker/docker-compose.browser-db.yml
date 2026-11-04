@@ -1,7 +1,10 @@
+# Fixed project name: one shared MySQL service for every browser lane, whichever checkout starts it.
+name: shield-browser-lanes-db
+
 services:
   db:
     image: mysql:8.0
-    container_name: shield-browser-db
+    container_name: shield-browser-lanes-db
     environment:
       MYSQL_ROOT_PASSWORD: testpass
     command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
@@ -33,7 +36,7 @@ volumes:
 
 networks:
   browser-shared:
-    name: shield-browser-tests
+    name: shield-browser-lanes
     labels:
       com.fernleaf.harness: "${SHIELD_BROWSER_LABEL_HARNESS:-shield-plugin-browser}"
       com.fernleaf.run-id: "${SHIELD_BROWSER_CONTAINER_RUN_ID:-manual}"

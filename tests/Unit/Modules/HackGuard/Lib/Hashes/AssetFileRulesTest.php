@@ -21,6 +21,19 @@ class AssetFileRulesTest extends BaseUnitTest {
 		$this->assertNull( $rules->apply( 'lib/vendor/build.json', $site ) );
 	}
 
+	public function test_buddyboss_platform_editions_empty_to_the_same_loader() :void {
+		// bp-loader.php line 22 in the BuddyBoss Platform 3.6.2 release assets, which differ in nothing else.
+		$loader = "<?php\ndefine('BP_PLATFORM_VERSION', '3.6.2');\ndefine('PLATFORM_EDITION', '%s');\n";
+		$rules = new AssetFileRules();
+
+		foreach ( [ 'bb-platform', 'bb-platform-free', 'bb-platform-pro-1-site', 'bb-lifetime-deal-10-sites' ] as $edition ) {
+			$this->assertSame( \sprintf( $loader, '' ), $rules->apply( 'bp-loader.php', \sprintf( $loader, $edition ) ) );
+		}
+		$this->assertNull( $rules->apply( 'bp-loader.php', \sprintf( $loader, '' ) ) );
+		$this->assertNull( $rules->apply( 'bp-loader.php', \sprintf( $loader, 'bb-platform' ).\sprintf( $loader, 'bb-web' ) ) );
+		$this->assertNull( $rules->apply( 'includes/bp-loader.php', \sprintf( $loader, 'bb-platform' ) ) );
+	}
+
 	/**
 	 * @dataProvider provideUnrecognisedContent
 	 */

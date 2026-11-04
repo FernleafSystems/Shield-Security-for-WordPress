@@ -107,10 +107,13 @@ class BuildScanItems {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 		$files = \array_filter(
-			\array_unique( \array_merge(
-				$this->buildExplicitValidFiles(),
-				$this->buildFilesFromDisk(),
-				\in_array( $action->scope_type, [ 'core', 'full' ], true ) ? $this->buildFilesFromWpHashes() : []
+			\array_unique( \array_map(
+				static fn( string $path ) :string => Services::WpFs()->getCanonicalPath( $path ),
+				\array_merge(
+					$this->buildExplicitValidFiles(),
+					$this->buildFilesFromDisk(),
+					\in_array( $action->scope_type, [ 'core', 'full' ], true ) ? $this->buildFilesFromWpHashes() : []
+				)
 			) ),
 			fn( $path ) => !$this->isWhitelistedPath( $path ),
 		);

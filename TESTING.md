@@ -359,14 +359,14 @@ composer test:browser -- --warm -- -g "Select2 lookup flow"
 composer test:browser -- --warm --runtime-refresh=full -- tests/browser/action-router/security-headers-readiness.spec.js --workers=1
 composer test:browser -- --warm -- tests/browser/action-router/drill-down-flows.spec.js --workers=1
 composer test:browser -- --clean -- tests/browser/action-router/drill-down-flows.spec.js -g "configure opens a prefetched diagnosis without a standalone diagnosis request"
-composer test:browser:cleanup -- --all --lanes=2
+composer test:browser:cleanup -- --all
 ```
 
 Operational notes:
 
 1. `php bin/shield dev:site:up` starts or reuses the persistent local Docker WordPress dev site at `http://127.0.0.1:8888` for normal manual development.
-2. `php bin/shield test:site:up` remains available for the legacy/manual isolated test site at `http://127.0.0.1:8889`, but browser tests do not use that port.
-3. Local `composer test:browser` defaults to warm mode, auto runtime refresh, two lanes, two Playwright workers, and Playwright `fullyParallel`. The first default lane is `http://127.0.0.1:8890`.
+2. `php bin/shield test:site:up` remains available for the manual isolated test site, but browser tests do not use it. The main checkout uses `http://127.0.0.1:8889`. Each linked Git worktree gets its own site (project `shield-test-site-wt<N>`, port `8870+N`), so one worktree cannot rebuild another's site; `test:site:status` prints the URL. The slot is recorded per worktree in `<system-temp>/shield-test-locks/test-site-slots.json` and is reused once the worktree directory is gone.
+3. Local `composer test:browser` defaults to warm mode, auto runtime refresh, up to four lanes and Playwright workers, and Playwright `fullyParallel`. Lane `N` is served at `http://127.0.0.1:<8900+N>`.
 4. The browser CI workflow runs the full Chromium suite in clean mode with two browser lanes and two Playwright workers. Separate Firefox/WebKit matrix jobs run the two silentCAPTCHA specs with one lane/worker each. `composer test:browser` rebuilds assets before runtime hashing, so the workflow only needs dependency install and Playwright browser install before the browser lane command.
 5. `php bin/shield dev:site:reset` and `php bin/shield test:site:reset` destroy and reprovision their respective manual sites; `dev:site:down` and `test:site:down` stop them while preserving state.
 6. `php bin/shield dev:site:wp plugin list` and `php bin/shield test:site:wp plugin list` run WP-CLI against the appropriate local `wp-cli` container after ensuring the site is ready. The command appends `--allow-root` automatically when it is not already present.
@@ -398,20 +398,22 @@ The focused engine CI jobs have a 40-minute ceiling for dependency installation,
 
 ### Browser lane parallelism
 
-`composer test:browser` automatically leases isolated browser lanes, prepares those lanes before Playwright starts, and lets Playwright schedule tests. No lane configuration is required for normal local use.
+`composer test:browser` automatically leases isolated browser lanes, prepares those lanes in parallel before Playwright starts, and lets Playwright schedule tests. No lane configuration is required for normal local use, and several terminals, agents and worktrees can run browser tests at the same time.
 
-- Default pool: 2 browser lanes.
-- Default local run: `mode=warm`, `runtime-refresh=auto`, `lanes=2`, `workers=2`, `fullyParallel=true`.
+- Lanes are machine-wide: their ports, Compose projects, databases and the shared MySQL service are the same whichever checkout runs them. Leases are therefore held in one machine-scoped lock directory, `<system-temp>/shield-test-locks/browser-lanes`, shared by every checkout. A lane leased by one run is never touched by another.
+- Machine pool: 8 lanes (`SHIELD_BROWSER_LANE_POOL_SIZE`, at most 20).
+- Default local run: `mode=warm`, `runtime-refresh=auto`, `lanes=4`, `workers=4`, `fullyParallel=true`. When other runs hold part of the pool, the run waits for one lane and then takes whatever other lanes are free, running with that many workers. An explicit worker count (`--workers`, `-j` or `SHIELD_BROWSER_WORKERS`) waits until that many lanes are free.
 - Default CLI CI run: `mode=clean`, `lanes=1`, `workers=1`; the GitHub browser workflow overrides this to `lanes=2`, `workers=2`.
-- Each lane has its own WordPress container, port, database, and Playwright output directory. Browser lanes start at port `8890`, leaving the legacy/manual `test:site` port `8889` alone.
-- All lanes share one MySQL container, so parallel browser commands avoid starting multiple database servers.
+- Each lane has its own WordPress container, port (`8900+N`), database, and Playwright output directory, clear of the manual sites and the cross-site, upgrade and popular-plugin lane ports.
+- All lanes share one MySQL service, `shield-browser-lanes-db`, so parallel browser commands avoid starting multiple database servers. It carries stable labels and is reused while running, so a run never recreates it under another run. Run cleanup leaves it in place; a clean-mode or CI full purge only happens when no other process holds a lane, and otherwise the run removes just its own resources.
+- Every test starts with the lane admin's per-user display choices (for example the Live Monitor collapsed state) reset to their defaults through the `user-ui-state` fixture, because all tests in a lane share that admin user.
 - Browser worker isolation is keyed by Playwright `parallelIndex`. PHP passes `SHIELD_BROWSER_LANE_MAP` as a JSON object keyed by `parallelIndex`, and every worker uses its mapped lane URL, fixture token, auth state file, and output directory.
 - Warm mode starts or reuses lane containers, refreshes the copied runtime, installs the runtime-only fixture endpoint, and skips baseline provisioning only when the readiness marker still matches the lane and the site is healthy.
 - The browser readiness marker includes the lane profile, site/database contract, fixture contract, fixture token hash, runtime manifest hash, and expiry. Warm reuse is skipped when any of those values are stale.
 - Clean mode preserves reset semantics: reset lane containers and volumes, recreate the lane database, refresh runtime, install the fixture endpoint, provision baseline state, and write the readiness marker. Clean mode also forces full runtime-refresh hashing.
 - Runtime refresh defaults to `--runtime-refresh=auto` for warm local runs, based on a per-file metadata cache under `tmp/`; the cache enumerates files and does not use directory mtimes. Auto mode still rebuilds bundles before cache evaluation, validates both the cache wrapper and cached manifest payload, and silently rebuilds the manifest on stale or corrupt cache. Clean mode and CI force `--runtime-refresh=full`, which rebuilds one content-hash host manifest per browser command before applying each lane's differential copy/delete.
 - Playwright `--list` is discovery-only and is the recommended Docker-free way to inspect available browser tests. Browser lane acquisition and Docker preparation are skipped for list-only runs because no test opens WordPress or calls the fixture API.
-- Requested workers greater than the available lane count is a hard error.
+- Requested workers greater than the requested lane count or the machine pool is a hard error.
 
 Browser harness options are parsed before Playwright arguments:
 
@@ -434,12 +436,12 @@ Cleanup:
 
 ```bash
 composer test:browser:cleanup
-composer test:browser:cleanup -- --all --lanes=2
-composer test:browser:cleanup -- --dry-run --all --lanes=2
-php bin/shield test:docker:cleanup --scope=browser --dry-run --all --lanes=2
+composer test:browser:cleanup -- --all
+composer test:browser:cleanup -- --dry-run --all
+php bin/shield test:docker:cleanup --scope=browser --dry-run --all
 ```
 
-Automatic browser-run cleanup removes current-run transient resources, expired or malformed labeled resources, and old unlabeled browser resources. Manual cleanup removes expired, malformed, and old unlabeled browser resources; `--all` also purges reusable warm volumes. `--dry-run` audits the Docker resources and stale runtime workspaces that would be removed without deleting them. Runtime refresh staging workspaces under `tmp/.browser-runtime-refresh` are removed after each refresh and stale workspaces are garbage-collected by the cleanup command.
+Automatic browser-run cleanup removes current-run transient resources, expired or malformed labeled resources, and old unlabeled browser resources. Manual cleanup removes expired, malformed, and old unlabeled browser resources; `--all` also purges reusable warm volumes and the shared MySQL service, covers the whole machine pool by default, and refuses to run while another process holds a browser lane. `--dry-run` audits the Docker resources and stale runtime workspaces that would be removed without deleting them. Runtime refresh staging workspaces under `tmp/.browser-runtime-refresh` are removed after each refresh and stale workspaces are garbage-collected by the cleanup command.
 
 Docker list, inspect, compose, and remove failures are reported as cleanup findings; they are not treated as an empty cleanup result.
 
@@ -450,6 +452,7 @@ Pool-size override examples:
 ```bash
 SHIELD_BROWSER_LANE_COUNT=3 composer test:browser
 SHIELD_BROWSER_WORKERS=1 composer test:browser
+SHIELD_BROWSER_LANE_POOL_SIZE=10 composer test:browser
 ```
 
 ```powershell
@@ -482,7 +485,7 @@ If a browser run fails before Playwright starts:
 1. Read the diagnostic block first. It names the failed stage, lane metadata, and error message.
 2. Run the suggested `php bin/shield test:site:status` command with the displayed `SHIELD_BROWSER_LANE_INDEX`.
 3. If Docker is unavailable or unhealthy, start Docker and rerun `composer test:browser`.
-4. If the failure is a port conflict, stop the process or container using the reported lane port, then rerun. Browser lane ports start at `8890`; the legacy `8889` site is not part of browser test execution.
+4. If the failure is a port conflict, stop the process or container using the reported lane port, then rerun. Browser lane `N` uses port `8900+N`; the manual `test:site` sites are not part of browser test execution.
 5. If the failure names missing `vendor/autoload.php`, invalid `plugin.json`, missing npm/webpack dependencies, or missing Playwright browsers, refresh the named prerequisite and rerun the same browser command. Do not run a separate browser-lane asset build; `composer test:browser` rebuilds those bundles before runtime hashing.
 
 ```bash

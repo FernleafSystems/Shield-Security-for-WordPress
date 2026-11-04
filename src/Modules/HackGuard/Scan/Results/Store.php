@@ -86,7 +86,7 @@ class Store {
 					'scan'              => $scanResult->scan,
 					'asset_type'        => $preserveExistingFacet ? $resultRecord->asset_type : $scanResult->asset_type,
 					'asset_key'         => $preserveExistingFacet ? $resultRecord->asset_key : $scanResult->asset_key,
-					'auto_filtered_at'  => $scanResult->auto_filtered_at,
+					'auto_filtered_at'  => $preserveExistingFacet ? $resultRecord->auto_filtered_at : $scanResult->auto_filtered_at,
 					'last_seen_at'      => $scanResult->last_seen_at,
 					'resolved_at'       => $preserveExistingFacet ? $resultRecord->resolved_at : $scanResult->resolved_at,
 					'resolution_reason' => $preserveExistingFacet ? $resultRecord->resolution_reason : $scanResult->resolution_reason,
