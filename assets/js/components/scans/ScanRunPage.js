@@ -61,7 +61,7 @@ export class ScanRunPage {
 				<div class="shield-scan-progress__overall">
 					<h2 class="shield-scan-progress__title">${esc( heading )}</h2>
 					<div class="shield-scan-progress__bar" role="progressbar" aria-label="${esc( heading )}"
-						 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><span style="width: 2%"></span></div>
+						 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><span class="shield-scan-progress__part is-running"></span></div>
 					<p class="shield-scan-progress__current">${esc( message )}</p>
 				</div>
 			</section>`;
@@ -69,6 +69,27 @@ export class ScanRunPage {
 		return ScanRunPage.Show( `<div class="shield-scan-progress shield-scan-progress--page"
 			data-shield-scan-modal-state="${esc( state )}" aria-busy="${busy ? 'true' : 'false'}"
 			data-shield-scan-modal-announcement="${esc( announcement )}">${body}</div>` );
+	}
+
+	/**
+	 * Run Scans Now only works with at least one scan ticked; until then it says so beside it.
+	 */
+	static SyncRunButton() {
+		const form = document.getElementById( 'StartScans' );
+		const button = document.getElementById( 'StartScansButton' );
+		if ( !( form instanceof HTMLFormElement ) || !( button instanceof HTMLButtonElement ) ) {
+			return;
+		}
+		const none = !ScanRunPage.HasChoice( form );
+		button.disabled = none;
+		const note = form.querySelector( '[data-scan-none-note="1"]' );
+		if ( note instanceof HTMLElement ) {
+			note.hidden = !none;
+		}
+	}
+
+	static HasChoice( form ) {
+		return form.querySelector( 'input[data-scan-choice]:checked' ) !== null;
 	}
 
 	static setStep( root, step ) {

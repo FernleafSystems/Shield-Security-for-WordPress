@@ -33,7 +33,6 @@
 			</div>
 		{% endfor %}
 		<div class="shield-scan-run__foot">
-			<span class="shield-scan-run__foot-note">{{ strings.schedule_note }}</span>
 			<a class="shield-tool-btn" href="{{ hrefs.scan_run }}">
 				<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>{{ strings.scan_again }}
 			</a>
@@ -56,10 +55,14 @@
 	<section class="shield-tool-box">
 		<div class="shield-scan-progress__overall">
 			<h2 class="shield-scan-progress__title">{{ strings.scanning_title }}</h2>
+			{# One part for each scan: done, under way, or still to come. How far the running one has got is on its own row below. #}
 			<div class="shield-scan-progress__bar" role="progressbar"
 				 aria-label="{{ strings.progress_label }}"
-				 aria-valuenow="{{ vars.progress }}" aria-valuemin="0" aria-valuemax="100">
-				<span style="width: {{ vars.progress }}%"></span>
+				 aria-valuenow="{{ vars.overall_progress }}" aria-valuemin="0" aria-valuemax="100"
+				 aria-valuetext="{{ strings.overall_progress }}">
+				{% for row in vars.page_rows %}
+					<span class="shield-scan-progress__part is-{{ row.status }}"></span>
+				{% endfor %}
 			</div>
 			<p class="shield-scan-progress__current">{{ vars.heading }}</p>
 		</div>

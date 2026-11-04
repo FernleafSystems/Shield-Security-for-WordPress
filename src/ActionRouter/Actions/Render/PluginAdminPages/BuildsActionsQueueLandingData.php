@@ -145,7 +145,11 @@ trait BuildsActionsQueueLandingData {
 				'aggregate_group_keys' => ( new ActionsQueueGroupDefinitions() )->reviewMaintenanceAggregateGroupKeys(),
 				'view'          => ( new UiPreferences() )->get( UiPreferences::ACTIONS_QUEUE_VIEW ),
 				'set_view_action_json' => ActionData::BuildJson( PluginSetUiPreference::class ),
+				'hrefs'         => [
+					'scan_run' => self::con()->plugin_urls->scansRun(),
+				],
 				'strings'       => [
+					'run_scans_tab' => __( 'Run scans', 'wp-simple-firewall' ),
 					'view_label'    => __( 'Layout', 'wp-simple-firewall' ),
 					'view_sections' => __( 'Sections', 'wp-simple-firewall' ),
 					'view_tabs'     => __( 'Tabs', 'wp-simple-firewall' ),

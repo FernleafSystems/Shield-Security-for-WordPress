@@ -4,37 +4,46 @@
 
 		{% for slug in [ 'afs', 'wpv', 'apc' ]|filter( s => scans[s] is defined ) %}
 			{% set scan = scans[slug] %}
-			<label class="shield-scan-choose__row{% if not scan.flags.is_available %} is-unavailable{% endif %}" for="_{{ slug }}">
-				<input type="checkbox" name="{{ slug }}" id="_{{ slug }}" value="Y"
+			<div class="shield-scan-choose__row{% if not scan.flags.is_available %} is-unavailable{% endif %}">
+				<input type="checkbox" name="{{ slug }}" id="_{{ slug }}" value="Y" data-scan-choice="1"
 					   {% if not scan.flags.is_available %}disabled="disabled"{% endif %}
 					   {% if scan.flags.is_selected %}checked="checked"{% endif %} />
 				<span class="shield-scan-choose__copy">
-					<span class="shield-scan-choose__name">{{ scan.strings.name }}</span>
-					<span class="shield-scan-choose__desc">{{ scan.strings.subtitle }}</span>
+					<label class="shield-scan-choose__label" for="_{{ slug }}">
+						<span class="shield-scan-choose__name">{{ scan.strings.name }}</span>
+						<span class="shield-scan-choose__desc">{{ scan.strings.subtitle }}</span>
+					</label>
 					{% if scan.strings.sub_items|default([]) is not empty %}
 						<span class="shield-scan-choose__areas">
 							{% for sub_item_text, sub_item_enabled in scan.strings.sub_items %}
 								<span class="shield-scan-choose__area{% if sub_item_enabled %} is-on{% endif %}">{{ sub_item_text }}</span>
 							{% endfor %}
 						</span>
+						{# The areas are the plugin's settings, so they're changed there: in the settings panel, then the page reloads. #}
+						<button type="button" class="shield-tool-btn shield-tool-btn--quiet zone_component_action shield-scan-choose__configure"
+								{% for attr, value in vars.scan_areas_action %}data-{{ attr }}="{{ value|e('html_attr') }}" {% endfor %}>
+							<i class="bi bi-gear" aria-hidden="true"></i>{{ strings.configure_areas }}
+						</button>
 					{% endif %}
 				</span>
 				<span class="shield-scan-choose__when">{{ scan.vars.last_ran }}</span>
-			</label>
+			</div>
 		{% endfor %}
 
-		<label class="shield-scan-choose__row shield-scan-choose__row--option" for="_opt_clear_ignore">
+		<div class="shield-scan-choose__row shield-scan-choose__row--option">
 			<input type="checkbox" name="opt_clear_ignore" id="_opt_clear_ignore" value="Y" />
 			<span class="shield-scan-choose__copy">
-				<span class="shield-scan-choose__name">{{ strings.clear_ignore }}</span>
-				<span class="shield-scan-choose__desc">{{ strings.clear_ignore_sub }}</span>
+				<label class="shield-scan-choose__label" for="_opt_clear_ignore">
+					<span class="shield-scan-choose__name">{{ strings.clear_ignore }}</span>
+					<span class="shield-scan-choose__desc">{{ strings.clear_ignore_sub }}</span>
+				</label>
 			</span>
 			<span></span>
-		</label>
+		</div>
 
 		<div class="shield-scan-run__foot">
 			{% if flags.can_scan %}
-				<span class="shield-scan-run__foot-note">{{ strings.schedule_note }}</span>
+				<span class="shield-scan-run__foot-note" data-scan-none-note="1" hidden>{{ strings.select_a_scan }}</span>
 				<button class="shield-tool-btn shield-tool-btn--primary" type="submit" id="StartScansButton">
 					<i class="bi bi-play-fill" aria-hidden="true"></i>{{ strings.run_scans_now }}
 				</button>

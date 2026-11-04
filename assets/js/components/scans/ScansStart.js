@@ -9,9 +9,18 @@ export class ScansStart extends BaseComponent {
 
 	init() {
 		shieldEventsHandler_Main.add_Submit( 'form#StartScans', ( targetEl ) => this.startScans( targetEl ) );
+		document.addEventListener( 'change', ( evt ) => {
+			if ( evt.target instanceof Element && evt.target.matches( '#StartScans input[data-scan-choice]' ) ) {
+				ScanRunPage.SyncRunButton();
+			}
+		} );
+		ScanRunPage.SyncRunButton();
 	}
 
 	startScans( form ) {
+		if ( form.querySelector( 'input[data-scan-choice]' ) !== null && !ScanRunPage.HasChoice( form ) ) {
+			return;
+		}
 		ScanProgressModal.ShowInitiating( this._base_data.strings );
 
 		( new AjaxService() )

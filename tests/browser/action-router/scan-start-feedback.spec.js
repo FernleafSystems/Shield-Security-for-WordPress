@@ -866,3 +866,32 @@ async function observeModalLiveRegionMutations( modal ) {
 
 const modalLiveRegionMutationCount = ( modal ) => liveRegionFor( modal )
 .evaluate( ( node ) => Number( node.__shieldModalLiveRegionMutationCount || 0 ) );
+
+test( 'run manual scan needs at least one scan ticked before it starts', async ( { page } ) => {
+	await openShieldRoute( page, { nav: 'scans', nav_sub: 'run', step: 'choose' } );
+	// The test site can't start scans, so the page leaves the button out: put one back to check how it follows the choices.
+	await page.locator( '#StartScans .shield-scan-run__foot' ).evaluate( ( foot ) => {
+		if ( !foot.querySelector( '#StartScansButton' ) ) {
+			foot.innerHTML = '<span data-scan-none-note="1" hidden>none</span><button type="submit" id="StartScansButton">Run</button>';
+		}
+	} );
+	const button = page.locator( '#StartScansButton' );
+
+	const choices = page.locator( '#StartScans input[data-scan-choice]:enabled' );
+	for ( const choice of await choices.all() ) {
+		await choice.uncheck();
+	}
+	await expect( button ).toBeDisabled();
+	await expect( page.locator( '[data-scan-none-note="1"]' ) ).toBeVisible();
+
+	await choices.first().check();
+	await expect( button ).toBeEnabled();
+	await expect( page.locator( '[data-scan-none-note="1"]' ) ).toBeHidden();
+} );
+
+test( 'the actions queue tabs end with a way to run scans', async ( { page } ) => {
+	await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
+	const link = page.locator( '.actions-queue-sections__tab--run' );
+	await expect( link ).toHaveCount( 1 );
+	expect( await link.getAttribute( 'href' ) ).toContain( 'nav_sub=run' );
+} );

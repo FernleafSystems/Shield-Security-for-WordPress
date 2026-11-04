@@ -17,7 +17,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\UnitTestPluginUrls;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
-	ServicesState
+	ServicesState,
+	UnitTestRequest
 };
 use FernleafSystems\Wordpress\Services\Core\Db;
 
@@ -44,6 +45,7 @@ class PageScansRunBehaviorTest extends BaseUnitTest {
 			'reads'  => 0,
 		];
 		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest(),
 			'service_wpdb' => new class( $dbState ) extends Db {
 				private object $state;
 
@@ -80,6 +82,7 @@ class PageScansRunBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 0, $dbState->reads );
 		$this->assertTrue( $renderData[ 'flags' ][ 'can_scan' ] ?? false );
 		$this->assertSame( [ 'afs', 'wpv' ], \array_keys( $renderData[ 'scans' ] ?? [] ) );
+		$this->assertSame( 'choose', $renderData[ 'vars' ][ 'opening_step' ] ?? '' );
 	}
 
 	private function installController() :void {
@@ -108,6 +111,11 @@ class PageScansRunBehaviorTest extends BaseUnitTest {
 
 				public function AFS() :PageScansRunTestScanController {
 					return $this->afs;
+				}
+			},
+			'scans_queue' => new class {
+				public function hasRunningScans() :bool {
+					return false;
 				}
 			},
 			'site_query' => new class {

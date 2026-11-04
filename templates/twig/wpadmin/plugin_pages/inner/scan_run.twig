@@ -1,11 +1,15 @@
 {% extends '/wpadmin/plugin_pages/inner/scan_base.twig' %}
 
 {#
-	Run Manual Scan in three steps: choose the scans, watch them run, then see what each found. Steps 2 and 3
-	are drawn into the progress area by the scan polling, so leaving the page and coming back picks them up again.
+	Run Manual Scan in three steps: choose the scans, watch them run, then see what each found. The page
+	opens on the step that fits: the scans while they run (filled in by the scan polling), the result of a
+	scan that has just finished, otherwise choosing.
 #}
 {% block inner_page_body %}
-	<div class="shield-tool-page shield-scan-run" data-shield-scan-run="1" data-scan-step="choose">
+	{% set step_keys = [ 'choose', 'scanning', 'results' ] %}
+	{% set current_step = vars.opening_step %}
+	{% set current_index = step_keys|filter( k => k == current_step )|keys|first %}
+	<div class="shield-tool-page shield-scan-run" data-shield-scan-run="1" data-scan-step="{{ current_step }}">
 
 		<ol class="shield-scan-steps" aria-label="{{ strings.steps_label }}">
 			{% for step in [
@@ -13,8 +17,8 @@
 				{ key: 'scanning', label: strings.step_scanning },
 				{ key: 'results', label: strings.step_results },
 			] %}
-				<li class="shield-scan-steps__step" data-scan-step-tab="{{ step.key }}"
-					{% if loop.first %}aria-current="step"{% endif %}>
+				<li class="shield-scan-steps__step{% if loop.index0 < current_index %} is-done{% endif %}" data-scan-step-tab="{{ step.key }}"
+					{% if step.key == current_step %}aria-current="step"{% endif %}>
 					<span class="shield-scan-steps__num" aria-hidden="true">
 						<span class="shield-scan-steps__n">{{ loop.index }}</span>
 						<i class="bi bi-check-lg shield-scan-steps__done"></i>
@@ -24,11 +28,21 @@
 			{% endfor %}
 		</ol>
 
-		<div data-scan-step-panel="choose">
+		<div data-scan-step-panel="choose" {% if current_step != 'choose' %}hidden{% endif %}>
 			{% include '/wpadmin_pages/insights/scans/run/scan_areas.twig' %}
 		</div>
 
-		<div class="shield-scan-run__progress" data-scan-step-panel="progress" data-shield-scan-inline="1" hidden></div>
+		<div class="shield-scan-run__progress" data-scan-step-panel="progress" data-shield-scan-inline="1"
+			 {% if current_step == 'choose' %}hidden{% endif %}>
+			{% if current_step == 'results' %}
+				{{ vars.results_html|raw }}
+			{% elseif current_step == 'scanning' %}
+				<section class="shield-tool-box shield-scan-run__loading" aria-busy="true">
+					<span class="shield-scan-progress__spin" aria-hidden="true"></span>
+					{{ strings.checking_progress }}
+				</section>
+			{% endif %}
+		</div>
 		<div class="visually-hidden" data-shield-status-region="1" aria-live="polite" aria-atomic="true"></div>
 	</div>
 {% endblock %}

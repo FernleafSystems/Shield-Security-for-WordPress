@@ -78,7 +78,6 @@ $scan-red: #c62f3e;
 	&__row {
 		align-items: start;
 		border-top: 1px solid $scan-soft-line;
-		cursor: pointer;
 		display: grid;
 		gap: 4px 12px;
 		grid-template-columns: 18px minmax(0, 1fr) auto;
@@ -94,12 +93,24 @@ $scan-red: #c62f3e;
 		}
 
 		input[type="checkbox"] {
+			accent-color: $scan-good;
+			cursor: pointer;
 			margin: 2px 0 0;
 		}
 
+		// A ticked scan stands out, in the plugin's green.
+		&:has(input[data-scan-choice]:checked) {
+			background: #f3faf3;
+			box-shadow: inset 3px 0 0 $scan-good;
+		}
+
+		// A scan that can't run here reads as quieter, without fading below readable contrast.
 		&.is-unavailable {
-			cursor: default;
-			opacity: 0.6;
+			background: #fbfbfc;
+
+			.shield-scan-choose__name {
+				color: $scan-muted;
+			}
 		}
 
 		&--option {
@@ -112,6 +123,22 @@ $scan-red: #c62f3e;
 		display: grid;
 		gap: 2px;
 		min-width: 0;
+	}
+
+	&__label {
+		cursor: pointer;
+		display: grid;
+		gap: 2px;
+		margin: 0;
+	}
+
+	&__row.is-unavailable &__label {
+		cursor: default;
+	}
+
+	&__configure {
+		justify-self: start;
+		margin-top: 8px;
 	}
 
 	&__name {
@@ -163,12 +190,31 @@ $scan-red: #c62f3e;
 	display: flex;
 	flex-wrap: wrap;
 	gap: 10px 12px;
+	justify-content: flex-end;
 	padding: 12px 18px;
 }
 
 .shield-scan-run__foot-note {
 	color: $scan-muted;
 	flex: 1 1 260px;
+}
+
+.shield-scan-run__loading {
+	align-items: center;
+	color: $scan-muted;
+	display: flex;
+	gap: 10px;
+	padding: 18px;
+}
+
+.shield-scan-progress__spin {
+	animation: shield-scan-progress-spin 1s linear infinite;
+	border: 2px solid #b8dfb8;
+	border-radius: 50%;
+	border-top-color: $scan-good;
+	display: inline-block;
+	height: 14px;
+	width: 14px;
 }
 
 .shield-scan-run__reasons {
@@ -205,18 +251,34 @@ $scan-red: #c62f3e;
 		margin: 0;
 	}
 
+	// One part per scan: done ones solid, the running one moving, the rest waiting.
 	.shield-scan-progress__bar {
+		display: flex;
+		gap: 4px;
+		height: 12px;
+	}
+
+	.shield-scan-progress__part {
 		background: $scan-soft-line;
 		border-radius: 999px;
-		height: 12px;
+		flex: 1 1 0;
 		overflow: hidden;
 
-		> span {
+		&.is-finished {
 			background: $scan-good;
-			border-radius: 999px;
-			display: block;
-			height: 100%;
-			transition: width 0.4s ease;
+		}
+
+		&.is-running,
+		&.is-stalled {
+			animation: shield-scan-part-move 1s linear infinite;
+			background-color: #4caf50;
+			background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.3) 25%, transparent 25%, transparent 50%,
+				rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0.3) 75%, transparent 75%, transparent);
+			background-size: 24px 24px;
+		}
+
+		&.is-stalled {
+			background-color: $scan-warning;
 		}
 	}
 
@@ -302,7 +364,6 @@ $scan-red: #c62f3e;
 		&.is-warning { color: $scan-warning-text; font-weight: 600; }
 	}
 
-	.shield-scan-progress__spin,
 	.shield-scan-progress__dot {
 		border: 2px solid #c3c4c7;
 		border-radius: 50%;
@@ -311,20 +372,22 @@ $scan-red: #c62f3e;
 		width: 14px;
 	}
 
-	.shield-scan-progress__spin {
-		animation: shield-scan-progress-spin 1s linear infinite;
-		border-color: #b8dfb8;
-		border-top-color: $scan-good;
-	}
-
 	@media (prefers-reduced-motion: reduce) {
-		.shield-scan-progress__spin {
-			animation: none;
-		}
-
-		.shield-scan-progress__bar > span,
+		.shield-scan-progress__part,
 		.shield-scan-progress__fill {
+			animation: none;
 			transition: none;
 		}
+	}
+}
+
+@keyframes shield-scan-part-move {
+	from { background-position: 0 0; }
+	to { background-position: 24px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.shield-scan-progress__spin {
+		animation: none;
 	}
 }

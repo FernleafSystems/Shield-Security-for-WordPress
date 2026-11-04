@@ -5,6 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansBase as ScanActionBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
+use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
  * @phpstan-import-type ActiveScanProgressRow from \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Controller
@@ -15,6 +17,7 @@ class ScansProgress extends BaseScans {
 	public const SLUG = 'render_scans_progress';
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/progress.twig';
 	private const TEMPLATE_PAGE = '/wpadmin_pages/insights/scans/run/progress_page.twig';
+	public const RECENT_RESULT_WINDOW = 600;
 
 	protected function getRenderTemplate() :string {
 		return $this->isPageDisplay() ? self::TEMPLATE_PAGE : parent::getRenderTemplate();
@@ -112,6 +115,9 @@ class ScansProgress extends BaseScans {
 			? \sprintf( _n( 'Scan finished: %s issue found', 'Scan finished: %s issues found', $total, 'wp-simple-firewall' ), $total )
 			: __( 'Scan finished: nothing found', 'wp-simple-firewall' );
 
+		$pageRows = $this->buildPageRows( $slugs, $modalData[ 'vars' ][ 'scan_rows' ] );
+		$finishedRows = \count( \array_filter( $pageRows, fn( array $row ) :bool => $row[ 'status' ] === 'finished' ) );
+
 		$page = [
 			'strings' => [
 				'scanning_title'   => __( 'Scanning your site', 'wp-simple-firewall' ),
@@ -124,16 +130,20 @@ class ScansProgress extends BaseScans {
 				'open_queue'       => __( 'Open the Actions Queue', 'wp-simple-firewall' ),
 				'scan_again'       => __( 'Scan again', 'wp-simple-firewall' ),
 				'try_again'        => __( 'Try again', 'wp-simple-firewall' ),
-				'schedule_note'    => __( 'Scans also run on their own, on the schedule set in Configure.', 'wp-simple-firewall' ),
+				/* translators: %1$s: scans finished so far, %2$s: scans in all */
+				'overall_progress' => \sprintf( _n( '%1$s of %2$s scan finished', '%1$s of %2$s scans finished', \count( $pageRows ), 'wp-simple-firewall' ),
+					$finishedRows, \count( $pageRows ) ),
 			],
 			'hrefs'   => [
 				'actions_queue' => $con->plugin_urls->actionsQueueScans(),
-				'scan_run'      => $con->plugin_urls->scansRun(),
+				// Back to choosing, even straight after a scan, when the page would otherwise open on its result.
+				'scan_run'      => URL::Build( $con->plugin_urls->scansRun(), [ 'step' => 'choose' ] ),
 			],
 			'vars'    => [
-				'page_rows'    => $this->buildPageRows( $slugs, $modalData[ 'vars' ][ 'scan_rows' ] ),
-				'results'      => $results,
-				'total_issues' => $total,
+				'page_rows'        => $pageRows,
+				'overall_progress' => empty( $pageRows ) ? 0 : (int)\round( 100*$finishedRows/\count( $pageRows ) ),
+				'results'          => $results,
+				'total_issues'     => $total,
 			],
 		];
 		if ( $state === ScanActionBase::SCAN_MODAL_STATE_COMPLETED ) {
@@ -149,12 +159,44 @@ class ScansProgress extends BaseScans {
 	private function pageScanSlugs() :array {
 		$slugs = $this->action_data[ 'scan_slugs' ] ?? [];
 		if ( empty( $slugs ) ) {
+			// Picked up after a reload, without the started scans to go on: the ones running and the ones just finished.
+			$slugs = \array_unique( \array_merge(
+				\array_column( $this->action_data[ 'scan_rows' ], 'scan' ),
+				self::RecentlyFinishedScanSlugs()
+			) );
+		}
+		if ( empty( $slugs ) ) {
 			$slugs = \array_keys( \array_filter(
 				self::con()->comps->scans->getAllScanCons(),
 				fn( $scanCon ) :bool => $scanCon->isReady()
 			) );
 		}
 		return \array_map( '\strval', $slugs );
+	}
+
+	/**
+	 * Scans that finished a full run in the last few minutes, so Run Manual Scan can open on their result.
+	 * @return list<string>
+	 */
+	public static function RecentlyFinishedScanSlugs( int $withinSeconds = self::RECENT_RESULT_WINDOW ) :array {
+		$cutoff = Services::Request()->ts() - $withinSeconds;
+		return \array_keys( \array_filter(
+			self::LastFinishedBySlug(),
+			fn( int $finishedAt ) :bool => $finishedAt > $cutoff
+		) );
+	}
+
+	/**
+	 * When each scan last finished a full run, or 0 if it never has.
+	 * @return array<string,int>
+	 */
+	public static function LastFinishedBySlug() :array {
+		$latest = self::con()->comps->site_query->latestCompletedScanTimestamps();
+		return [
+			'afs' => (int)$latest[ 'malware' ],
+			'wpv' => (int)$latest[ 'vulnerabilities' ],
+			'apc' => (int)$latest[ 'abandoned' ],
+		];
 	}
 
 	/**

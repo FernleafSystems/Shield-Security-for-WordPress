@@ -140,6 +140,7 @@
 
 	{% if sections|length > 0 %}
 		<div class="actions-queue-sections__bar">
+			<div class="actions-queue-sections__tabline">
 			<div class="actions-queue-sections__tabs" role="tablist">
 				{% for section in sections %}
 					<button type="button"
@@ -153,6 +154,11 @@
 						<span class="actions-queue-sections__count">{{ section.count }}</span>
 					</button>
 				{% endfor %}
+			</div>
+			{# Not a tab of the queue but the way to fill it: it opens Run Manual Scan. #}
+			<a class="actions-queue-sections__tab actions-queue-sections__tab--run" href="{{ hrefs.scan_run }}">
+				<i class="bi bi-play-circle" aria-hidden="true"></i>{{ strings.run_scans_tab }}
+			</a>
 			</div>
 			<div class="actions-queue-sections__view" role="group" aria-label="{{ strings.view_label|default('Layout') }}">
 				<button type="button" class="actions-queue-sections__view-btn" data-actions-queue-view="sections"

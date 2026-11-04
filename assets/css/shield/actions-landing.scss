@@ -358,10 +358,21 @@ $aq-pro-bg: #f2ebfc;
 	gap: 2px;
 }
 
-.actions-queue-sections--tabs .actions-queue-sections__tabs {
+.actions-queue-sections__tabline {
+	display: none;
+}
+
+.actions-queue-sections--tabs .actions-queue-sections__tabline {
+	align-items: flex-end;
 	border-bottom: 1px solid $aq-line;
 	display: flex;
 	flex: 1 1 auto;
+	flex-wrap: wrap;
+}
+
+.actions-queue-sections--tabs .actions-queue-sections__tabs {
+	display: flex;
+	flex: 0 1 auto;
 }
 
 .actions-queue-sections__tab {
@@ -390,6 +401,19 @@ $aq-pro-bg: #f2ebfc;
 
 	&:focus-visible {
 		@include shield-focus-ring();
+	}
+
+	// Run scans sits at the end of the tabs, set apart as the way to fill the queue rather than a part of it.
+	&--run {
+		color: $aq-good;
+		margin-left: auto;
+		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			border-bottom-color: currentColor;
+			color: $aq-good;
+		}
 	}
 }
 
