@@ -189,6 +189,24 @@ async function openShieldRoute( page, params = {} ) {
 	return url;
 }
 
+async function postFixtureRequest( requestContext, fixture, action, args = [] ) {
+	const response = await requestContext.post( '/wp-json/shield-browser-test/v1/fixture', {
+		data: {
+			fixture,
+			action,
+			args,
+		},
+	} );
+	const payload = await response.json();
+	if ( !response.ok() || payload?.ok !== true ) {
+		const code = payload?.error?.code || `http_${response.status()}`;
+		const message = payload?.error?.message || 'Browser fixture request failed.';
+		throw new Error( `${code}: ${message}` );
+	}
+
+	return payload.data;
+}
+
 async function createFixtureApi( playwright, lane, authStatePath ) {
 	const request = await playwright.request.newContext( {
 		baseURL: lane.baseUrl,
@@ -197,24 +215,6 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 			'X-Shield-Browser-Fixture-Token': lane.fixtureToken,
 		},
 	} );
-
-	async function postFixtureRequest( requestContext, fixture, action, args = [] ) {
-		const response = await requestContext.post( '/wp-json/shield-browser-test/v1/fixture', {
-			data: {
-				fixture,
-				action,
-				args,
-			},
-		} );
-		const payload = await response.json();
-		if ( !response.ok() || payload?.ok !== true ) {
-			const code = payload?.error?.code || `http_${response.status()}`;
-			const message = payload?.error?.message || 'Browser fixture request failed.';
-			throw new Error( `${code}: ${message}` );
-		}
-
-		return payload.data;
-	}
 
 	async function runFixture( fixture, action, args = [] ) {
 		if ( fixture !== 'security-admin' ) {
@@ -552,6 +552,31 @@ const test = base.test.extend( {
 			}
 		},
 		{ scope: 'worker' },
+	],
+	fixtureRequest: [
+		async ( { playwright, lane }, use ) => {
+			const request = await playwright.request.newContext( {
+				baseURL: lane.baseUrl,
+				extraHTTPHeaders: {
+					'X-Shield-Browser-Fixture-Token': lane.fixtureToken,
+				},
+			} );
+			try {
+				await use( request );
+			}
+			finally {
+				await request.dispose();
+			}
+		},
+		{ scope: 'worker' },
+	],
+	// Tests in a lane share one admin user, so reset per-user display choices before each test.
+	resetUserUiState: [
+		async ( { fixtureRequest }, use ) => {
+			await postFixtureRequest( fixtureRequest, 'user-ui-state', 'reset' );
+			await use();
+		},
+		{ auto: true },
 	],
 	context: async ( { browser, lane, authStatePath }, use ) => {
 		if ( !fs.existsSync( authStatePath ) ) {

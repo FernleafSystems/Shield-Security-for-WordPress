@@ -341,11 +341,10 @@ class AssetTrustResolver {
 	private function isPathInRoot( string $path, string $root ) :bool {
 		$path = wp_normalize_path( $path );
 		if ( \preg_match( '#^(?:[A-Z]:)?/#i', $path ) !== 1 ) {
-			$path = wp_normalize_path( path_join( ABSPATH, $path ) );
+			$path = path_join( ABSPATH, $path );
 		}
 
-		$root = \rtrim( wp_normalize_path( $root ), '/' ).'/';
-		return \str_starts_with( $path, $root );
+		return Services::WpFs()->getPathRelativeToDir( $path, $root ) !== null;
 	}
 
 	/**

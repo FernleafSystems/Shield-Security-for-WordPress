@@ -39,7 +39,7 @@ class LocateNeedles {
 			throw new \InvalidArgumentException( "File doesn't exist" );
 		}
 		if ( !\is_readable( $path ) ) {
-			throw new \Exception( "File isn't readable" );
+			throw new \Exception( "File isn't readable: ".$path );
 		}
 		$this->reset();
 		$this->path = $path;

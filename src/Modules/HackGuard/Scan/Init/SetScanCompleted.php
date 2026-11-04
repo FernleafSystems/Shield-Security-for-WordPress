@@ -564,12 +564,15 @@ class SetScanCompleted {
 		return \array_values( \array_unique( \array_filter( \array_map(
 			static fn( $record ): int => (int)( \is_array( $record ) ? ( $record[ 'resultitem_ref' ] ?? 0 ) : ( $record->resultitem_ref ?? 0 ) ),
 			Services::WpDb()->selectCustom(
-				sprintf( "SELECT DISTINCT `resultitem_ref`
-							FROM `%s`
-							WHERE `scan_ref`=%d
-							ORDER BY `resultitem_ref` ASC
+				sprintf( "SELECT DISTINCT `sr`.`resultitem_ref`
+							FROM `%s` AS `sr`
+							INNER JOIN `%s` AS `ri` ON `ri`.`id`=`sr`.`resultitem_ref`
+							WHERE `sr`.`scan_ref`=%d
+							  AND `ri`.`auto_filtered_at`=0
+							ORDER BY `sr`.`resultitem_ref` ASC
 							LIMIT 31;",
 					self::con()->db_con->scan_results->getTable(),
+					self::con()->db_con->scan_result_items->getTable(),
 					$scanID
 				)
 			) ?: []

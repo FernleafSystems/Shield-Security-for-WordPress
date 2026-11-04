@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class WildCardOptions {
 
 	public const FILE_PATH_REL = 0;
@@ -34,7 +36,11 @@ class WildCardOptions {
 		switch ( $type ) {
 
 			case self::FILE_PATH_REL:
-				$checks = \array_merge( $checks, \array_map( 'untrailingslashit', $checks ) );
+				$FS = Services::WpFs();
+				$checks = \array_map(
+					static fn( string $check ) :string => $FS->getCanonicalPath( $check ),
+					\array_merge( $checks, \array_map( 'untrailingslashit', $checks ) )
+				);
 				break;
 
 			case self::URL_PATH:

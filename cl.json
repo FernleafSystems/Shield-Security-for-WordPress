@@ -104,6 +104,33 @@
             ]
           }
         ]
+      },
+      {
+        "version":     "5",
+        "released_at": 1793800000,
+        "items":       [
+          {
+            "type":        "fixed",
+            "title":       "File Scans on Custom Hosting Layouts",
+            "description": [
+              "On hosts that run WordPress from the top level of the server's filesystem, file scans no longer flag genuine WordPress files, and missing WordPress files are reported correctly."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "File Scans Finish Reliably",
+            "description": [
+              "A file that's deleted while a scan is running, such as a temporary or cache file, no longer stops the scan from finishing."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "Scan Exclusions on Windows",
+            "description": [
+              "On Windows servers, scan exclusions can no longer remove core WordPress folders from file scans."
+            ]
+          }
+        ]
       }
     ]
   },

@@ -67,7 +67,7 @@ class ShieldCliApplication {
 	private function buildCommandFactories( string $projectRoot ) :array {
 		$environmentResolver = new TestingEnvironmentResolver();
 		$packagePathResolver = new PackagePathResolver();
-		$siteProfiles = $this->buildSiteProfiles( $environmentResolver );
+		$siteProfiles = $this->buildSiteProfiles( $projectRoot, $environmentResolver );
 		$siteFactories = [];
 
 		foreach ( $siteProfiles as $profile ) {
@@ -186,7 +186,7 @@ class ShieldCliApplication {
 	 *   reset_scope:string
 	 * }>
 	 */
-	private function buildSiteProfiles( TestingEnvironmentResolver $environmentResolver ) :array {
+	private function buildSiteProfiles( string $projectRoot, TestingEnvironmentResolver $environmentResolver ) :array {
 		return [
 			'dev:site' => [
 				'prefix' => 'dev:site',
@@ -198,7 +198,7 @@ class ShieldCliApplication {
 			],
 			'test:site' => [
 				'prefix' => 'test:site',
-				'manager' => new LocalSiteManager( LocalSiteDefinitions::testFromEnvironment(), null, $environmentResolver ),
+				'manager' => new LocalSiteManager( LocalSiteDefinitions::testFromEnvironment( $projectRoot ), null, $environmentResolver ),
 				'site_label' => 'isolated local Docker WordPress test site',
 				'shield_label' => 'isolated Shield test site',
 				'usage' => 'Shield browser testing',

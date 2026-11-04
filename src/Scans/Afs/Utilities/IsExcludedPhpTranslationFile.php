@@ -71,9 +71,8 @@ class IsExcludedPhpTranslationFile {
 	 * We also include common standard roots for compatibility.
 	 */
 	protected function isWithinWordpressLangDir( string $path ) :bool {
-		$pathDir = trailingslashit( \dirname( $path ) );
 		foreach ( $this->possibleLanguageRoots() as $langDir ) {
-			if ( \str_starts_with( $pathDir, $langDir ) ) {
+			if ( Services::WpFs()->getPathRelativeToDir( $path, $langDir ) !== null ) {
 				return true;
 			}
 		}
@@ -334,8 +333,7 @@ class IsExcludedPhpTranslationFile {
 		if ( \defined( 'WP_CONTENT_DIR' ) ) {
 			$roots[] = path_join( WP_CONTENT_DIR, 'languages' );
 		}
-		// @phpstan-ignore function.alreadyNarrowedType
-		if ( \defined( 'ABSPATH' ) && \is_string( ABSPATH ) ) {
+		if ( \defined( 'ABSPATH' ) ) {
 			$roots[] = path_join( ABSPATH, 'wp-content/languages' );
 			$roots[] = path_join( ABSPATH, 'wp-includes/languages' );
 		}

@@ -43,6 +43,35 @@ class TestBrowserCleanupCommandTest extends TestCase {
 		$this->assertStringContainsString( 'Browser cleanup dry-run plan:', $tester->getDisplay() );
 	}
 
+	public function testPurgeIsRefusedWhileAnotherRunHoldsALane() :void {
+		$resourceSweeper = new RecordingCleanupCommandSweeper();
+		$tester = new CommandTester( new TestBrowserCleanupCommand(
+			$this->createTrackedTempDir( 'shield-cleanup-command-busy-' ),
+			$resourceSweeper,
+			new RecordingCleanupCommandRuntimeRefresher(),
+			new FixedCleanupCommandLanePool( 2, true )
+		) );
+
+		$exitCode = $tester->execute( [ '--all' => true ] );
+
+		$this->assertSame( 1, $exitCode );
+		$this->assertNull( $resourceSweeper->lastCall );
+		$this->assertStringContainsString( 'leased by another running browser test', $tester->getDisplay() );
+	}
+
+	public function testDefaultLaneCountCoversTheWholePool() :void {
+		$resourceSweeper = new RecordingCleanupCommandSweeper();
+		$tester = new CommandTester( new TestBrowserCleanupCommand(
+			$this->createTrackedTempDir( 'shield-cleanup-command-pool-' ),
+			$resourceSweeper,
+			new RecordingCleanupCommandRuntimeRefresher(),
+			new FixedCleanupCommandLanePool( 8 )
+		) );
+
+		$this->assertSame( 0, $tester->execute( [] ), $tester->getDisplay() );
+		$this->assertSame( 8, $resourceSweeper->lastCall[ 'lane_count' ] ?? null );
+	}
+
 	public function testCleanupCommandExposesDryRunOption() :void {
 		$command = new TestBrowserCleanupCommand( $this->createTrackedTempDir( 'shield-cleanup-command-definition-' ) );
 
@@ -89,11 +118,19 @@ class FixedCleanupCommandLanePool extends BrowserTestLanePool {
 
 	private int $count;
 
-	public function __construct( int $count ) {
+	private bool $otherLeasesActive;
+
+	public function __construct( int $count, bool $otherLeasesActive = false ) {
+		parent::__construct( 'unused-lock-dir' );
 		$this->count = $count;
+		$this->otherLeasesActive = $otherLeasesActive;
 	}
 
-	public function laneCount( ?int $laneCountOverride = null ) :int {
-		return $laneCountOverride ?? $this->count;
+	public function poolSize() :int {
+		return $this->count;
+	}
+
+	public function hasOtherActiveLeases( array $heldLaneIndexes ) :bool {
+		return $this->otherLeasesActive;
 	}
 }

@@ -73,6 +73,9 @@ class TestBrowserCleanupCommand extends Command {
 			$workspaceMaxAgeSeconds = $fullCleanup
 				? 0
 				: $this->resolveWorkspaceMaxAgeSeconds( $input->getOption( 'runtime-workspace-max-age-hours' ) );
+			if ( $fullCleanup && !$dryRun && $this->lanePool->hasOtherActiveLeases( [] ) ) {
+				throw new \RuntimeException( 'Browser lanes are leased by another running browser test. Wait for it to finish before purging. Lock directory: '.$this->lanePool->lockDir() );
+			}
 
 			$report = $this->resourceSweeper->cleanupRunResources(
 				$this->projectRoot,
@@ -112,7 +115,7 @@ class TestBrowserCleanupCommand extends Command {
 			return $this->positiveInteger( $value, '--lanes' );
 		}
 
-		return $this->lanePool->laneCount();
+		return $this->lanePool->poolSize();
 	}
 
 	/**

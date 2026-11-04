@@ -22,6 +22,7 @@ class BrowserTestLaneTest extends TestCase {
 		foreach ( [
 			'CI',
 			'SHIELD_BROWSER_LANE_COUNT',
+			'SHIELD_BROWSER_LANE_POOL_SIZE',
 			'SHIELD_BROWSER_LANE_WAIT_SECONDS',
 			'SHIELD_BROWSER_MODE',
 			'SHIELD_BROWSER_WORKERS',
@@ -32,11 +33,11 @@ class BrowserTestLaneTest extends TestCase {
 		parent::tearDown();
 	}
 
-	public function testRunUsesWarmTwoWorkerLocalDefaultAndPassesLaneMap() :void {
+	public function testRunUsesWarmFourWorkerLocalDefaultAndPassesLaneMap() :void {
 		$this->clearBrowserEnvironment();
 		$projectRoot = $this->createTrackedTempDir( 'shield-browser-lane-default-' );
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
-		$siteManager = $this->buildSiteManagerMock( 2, 'warm' );
+		$siteManager = $this->buildSiteManagerMock( 4, 'warm' );
 		$events = [];
 		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider( null, $events );
 		$generatedConfigReadiness = new RecordingSourceGeneratedConfigReadiness( $events );
@@ -44,16 +45,16 @@ class BrowserTestLaneTest extends TestCase {
 		$resourceSweeper = new RecordingDockerResourceSweeper();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, $resourceSweeper ) )->run( $projectRoot )
+			fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, $this->tempLanePool(), $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, $resourceSweeper ) )->run( $projectRoot )
 		);
 
 		$this->assertSame( 0, $exitCode );
 		$this->assertSame( [ $projectRoot ], $resourceSweeper->startupSweepCalls );
 		$this->assertCount( 1, $resourceSweeper->cleanupRunResourcesCalls );
 		$this->assertFalse( $resourceSweeper->cleanupRunResourcesCalls[ 0 ][ 'full_cleanup' ] );
-		$this->assertCount( 2, $resourceSweeper->labelEnvironmentCalls );
+		$this->assertCount( 4, $resourceSweeper->labelEnvironmentCalls );
 		$this->assertSame( 'lane-1', $resourceSweeper->labelEnvironmentCalls[ 0 ][ 'lane' ] );
-		$this->assertSame( 'lane-2', $resourceSweeper->labelEnvironmentCalls[ 1 ][ 'lane' ] );
+		$this->assertSame( 'lane-4', $resourceSweeper->labelEnvironmentCalls[ 3 ][ 'lane' ] );
 		$this->assertSame( [ 'generated-config', 'asset-build', 'host-manifest' ], $events );
 		$this->assertCount( 1, $generatedConfigReadiness->calls );
 		$this->assertCount( 1, $assetBuildReadiness->calls );
@@ -66,7 +67,7 @@ class BrowserTestLaneTest extends TestCase {
 				'./bin/run-node-tool.php',
 				'playwright',
 				'test',
-				'--workers=2',
+				'--workers=4',
 			],
 			$playwrightRunner->calls[ 0 ][ 'command' ]
 		);
@@ -75,15 +76,67 @@ class BrowserTestLaneTest extends TestCase {
 		$this->assertLaneMapIsJsonObject( $playwrightRunner );
 
 		$laneMap = $this->decodeLaneMap( $playwrightRunner );
-		$this->assertSame( [ 0, 1 ], \array_keys( $laneMap ) );
+		$this->assertSame( [ 0, 1, 2, 3 ], \array_keys( $laneMap ) );
 		$this->assertSame( 1, $laneMap[ 0 ][ 'laneIndex' ] );
-		$this->assertSame( 'http://127.0.0.1:8890', $laneMap[ 0 ][ 'baseUrl' ] );
+		$this->assertSame( 'http://127.0.0.1:8901', $laneMap[ 0 ][ 'baseUrl' ] );
 		$this->assertSame( './test-results/playwright/lane-1/.auth/admin.json', $laneMap[ 0 ][ 'authStatePath' ] );
 		$this->assertSame( './test-results/playwright/lane-1', $laneMap[ 0 ][ 'outputDir' ] );
 		$this->assertSame( 48, \strlen( (string)$laneMap[ 0 ][ 'fixtureToken' ] ) );
 		$this->assertSame( 2, $laneMap[ 1 ][ 'laneIndex' ] );
-		$this->assertSame( 'http://127.0.0.1:8891', $laneMap[ 1 ][ 'baseUrl' ] );
+		$this->assertSame( 'http://127.0.0.1:8902', $laneMap[ 1 ][ 'baseUrl' ] );
 		$this->assertSame( './test-results/playwright/lane-2/.auth/admin.json', $laneMap[ 1 ][ 'authStatePath' ] );
+	}
+
+	public function testRunTakesOnlyFreeLanesWhenOtherRunsHoldSomeOfThePool() :void {
+		$this->clearBrowserEnvironment();
+		\putenv( 'SHIELD_BROWSER_LANE_POOL_SIZE=4' );
+		$projectRoot = $this->createTrackedTempDir( 'shield-browser-lane-partial-' );
+		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
+		$lanePool = $this->tempLanePool();
+		$otherRunLeases = [
+			$lanePool->acquire( static function () :void {} ),
+			$lanePool->acquire( static function () :void {} ),
+			$lanePool->acquire( static function () :void {} ),
+		];
+
+		try {
+			$exitCode = $this->runQuietly(
+				fn() :int => ( new BrowserTestLane( $playwrightRunner, $this->buildSiteManagerMock( 1, 'warm' ), $lanePool, new RecordingLocalSiteRuntimeHostManifestProvider(), new RecordingSourceGeneratedConfigReadiness(), new RecordingSourceAssetBuildReadiness(), new RecordingDockerResourceSweeper() ) )->run( $projectRoot )
+			);
+		}
+		finally {
+			foreach ( $otherRunLeases as $lease ) {
+				$lease->release();
+			}
+		}
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertSame( '--workers=1', $playwrightRunner->calls[ 0 ][ 'command' ][ 4 ] );
+		$laneMap = $this->decodeLaneMap( $playwrightRunner );
+		$this->assertCount( 1, $laneMap );
+		$this->assertSame( 4, $laneMap[ 0 ][ 'laneIndex' ] );
+	}
+
+	public function testFullCleanupIsSkippedWhileAnotherRunHoldsALane() :void {
+		$this->clearBrowserEnvironment();
+		\putenv( 'CI=true' );
+		$projectRoot = $this->createTrackedTempDir( 'shield-browser-lane-shared-cleanup-' );
+		$lanePool = $this->tempLanePool();
+		$resourceSweeper = new RecordingDockerResourceSweeper();
+		$otherRunLease = $lanePool->acquire( static function () :void {} );
+
+		try {
+			$exitCode = $this->runQuietly(
+				fn() :int => ( new BrowserTestLane( new RecordingProcessRunner( [ 0 ] ), $this->buildSiteManagerMock( 1, 'clean' ), $lanePool, new RecordingLocalSiteRuntimeHostManifestProvider(), new RecordingSourceGeneratedConfigReadiness(), new RecordingSourceAssetBuildReadiness(), $resourceSweeper ) )->run( $projectRoot )
+			);
+		}
+		finally {
+			$otherRunLease->release();
+		}
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 1, $resourceSweeper->cleanupRunResourcesCalls );
+		$this->assertFalse( $resourceSweeper->cleanupRunResourcesCalls[ 0 ][ 'full_cleanup' ] );
 	}
 
 	public function testRunUsesCleanSingleWorkerCiDefault() :void {
@@ -98,7 +151,7 @@ class BrowserTestLaneTest extends TestCase {
 		$resourceSweeper = new RecordingDockerResourceSweeper();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, $resourceSweeper ) )->run( $projectRoot )
+			fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, $this->tempLanePool(), $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, $resourceSweeper ) )->run( $projectRoot )
 		);
 
 		$this->assertSame( 0, $exitCode );
@@ -127,7 +180,7 @@ class BrowserTestLaneTest extends TestCase {
 		$assetBuildReadiness = new RecordingSourceAssetBuildReadiness();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, new RecordingDockerResourceSweeper() ) )->run(
+			fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, $this->tempLanePool(), $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, new RecordingDockerResourceSweeper() ) )->run(
 				$projectRoot,
 				[ '--workers=2', '-g', 'flow' ],
 				[
@@ -170,7 +223,7 @@ class BrowserTestLaneTest extends TestCase {
 		$assetBuildReadiness = new RecordingSourceAssetBuildReadiness();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, new RecordingDockerResourceSweeper() ) )->run(
+			fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, $this->tempLanePool(), $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, new RecordingDockerResourceSweeper() ) )->run(
 				$projectRoot,
 				[ '--workers=3' ],
 				[ 'lanes' => '2' ]
@@ -194,7 +247,7 @@ class BrowserTestLaneTest extends TestCase {
 		$assetBuildReadiness = new RecordingSourceAssetBuildReadiness();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, new RecordingDockerResourceSweeper() ) )->run(
+			fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, $this->tempLanePool(), $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, new RecordingDockerResourceSweeper() ) )->run(
 				$projectRoot,
 				[ '--workers=3', '--list' ],
 				[ 'lanes' => '1' ]
@@ -232,7 +285,7 @@ class BrowserTestLaneTest extends TestCase {
 		$assetBuildReadiness = new RecordingSourceAssetBuildReadiness();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, new RecordingDockerResourceSweeper() ) )->run(
+			fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, $this->tempLanePool(), $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, new RecordingDockerResourceSweeper() ) )->run(
 				$projectRoot,
 				[],
 				[
@@ -260,7 +313,7 @@ class BrowserTestLaneTest extends TestCase {
 		$assetBuildReadiness = new RecordingSourceAssetBuildReadiness();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, new RecordingDockerResourceSweeper() ) )->run(
+			fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, $this->tempLanePool(), $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, new RecordingDockerResourceSweeper() ) )->run(
 				$projectRoot,
 				[],
 				[ 'runtime_refresh' => 'metadata' ]
@@ -279,7 +332,7 @@ class BrowserTestLaneTest extends TestCase {
 		\putenv( 'SHIELD_BROWSER_LANE_WAIT_SECONDS=1' );
 		$projectRoot = $this->createTrackedTempDir( 'shield-browser-lane-release-' );
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
-		$lanePool = new BrowserTestLanePool();
+		$lanePool = $this->tempLanePool();
 		$siteManager = $this->getMockBuilder( LocalSiteManager::class )
 			->disableOriginalConstructor()
 			->onlyMethods( [ 'prepareBrowserLane' ] )
@@ -302,7 +355,7 @@ class BrowserTestLaneTest extends TestCase {
 		$this->assertCount( 1, $generatedConfigReadiness->calls );
 		$this->assertCount( 1, $assetBuildReadiness->calls );
 		$this->assertCount( 0, $playwrightRunner->calls );
-		$lease = $lanePool->acquire( $projectRoot, static function () :void {}, [], 2 );
+		$lease = $lanePool->acquire( static function () :void {} );
 		$this->assertSame( 1, $lease->laneIndex() );
 		$lease->release();
 	}
@@ -322,7 +375,7 @@ class BrowserTestLaneTest extends TestCase {
 		$assetBuildReadiness = new RecordingSourceAssetBuildReadiness();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, new RecordingLocalSiteRuntimeHostManifestProvider(), $generatedConfigReadiness, $assetBuildReadiness, new RecordingDockerResourceSweeper() ) )->run(
+			fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, $this->tempLanePool(), new RecordingLocalSiteRuntimeHostManifestProvider(), $generatedConfigReadiness, $assetBuildReadiness, new RecordingDockerResourceSweeper() ) )->run(
 				$projectRoot,
 				[],
 				[ 'lanes' => '1' ]
@@ -346,7 +399,7 @@ class BrowserTestLaneTest extends TestCase {
 		$assetBuildReadiness = new RecordingSourceAssetBuildReadiness( $events, new \RuntimeException( 'webpack failed' ) );
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, new RecordingDockerResourceSweeper() ) )->run( $projectRoot )
+			fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, $this->tempLanePool(), $hostManifestProvider, $generatedConfigReadiness, $assetBuildReadiness, new RecordingDockerResourceSweeper() ) )->run( $projectRoot )
 		);
 
 		$this->assertSame( 1, $exitCode );
@@ -380,6 +433,10 @@ class BrowserTestLaneTest extends TestCase {
 		return $siteManager;
 	}
 
+	private function tempLanePool() :BrowserTestLanePool {
+		return new BrowserTestLanePool( $this->createTrackedTempDir( 'shield-browser-lane-locks-' ) );
+	}
+
 	/**
 	 * @return array<int,array<string,mixed>>
 	 */
@@ -403,6 +460,7 @@ class BrowserTestLaneTest extends TestCase {
 		foreach ( [
 			'CI',
 			'SHIELD_BROWSER_LANE_COUNT',
+			'SHIELD_BROWSER_LANE_POOL_SIZE',
 			'SHIELD_BROWSER_MODE',
 			'SHIELD_BROWSER_WORKERS',
 		] as $name ) {
