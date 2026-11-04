@@ -260,16 +260,12 @@ class FileScanner {
 				if ( !isset( $mfe->getScanFileData()[ 'mal_sig' ] ) ) {
 					throw new \Exception( 'Cannot proceed without a malware signature' );
 				}
-				$autoFilterMalware = $assetVerification instanceof HashVerificationResult
-								 && $assetVerification->verified
-								 && $assetVerification->trustedSource;
 				$malRecord = ( new Processing\CreateLocalMalwareRecords() )->run(
 					$item->path_fragment,
-					$mfe->getScanFileData()[ 'mal_sig' ],
-					$autoFilterMalware
+					$mfe->getScanFileData()[ 'mal_sig' ]
 				);
 				$item->malware_record_id = $malRecord->id;
-				$item->auto_filter = $autoFilterMalware;
+				$item->auto_filter = false;
 				$this->applyCleanMalwareVerdict( $item, $malRecord );
 			}
 			catch ( \InvalidArgumentException $e ) {
