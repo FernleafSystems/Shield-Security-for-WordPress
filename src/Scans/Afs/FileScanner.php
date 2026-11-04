@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops\Record as MalwareRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
 	IsExcludedPhpTranslationFile,
@@ -269,6 +270,7 @@ class FileScanner {
 				);
 				$item->malware_record_id = $malRecord->id;
 				$item->auto_filter = $autoFilterMalware;
+				$this->applyCleanMalwareVerdict( $item, $malRecord );
 			}
 			catch ( \InvalidArgumentException $e ) {
 				$this->rethrowUnlessFileVanished( $e, $fullPath );
@@ -290,6 +292,21 @@ class FileScanner {
 		}
 
 		return $item;
+	}
+
+	/**
+	 * A file MALai has cleared still matches its signature on every scan, and must not reappear as malware because of
+	 * that. The malware flag stays set wherever a recheck is due, because the recheck only selects flagged results.
+	 */
+	private function applyCleanMalwareVerdict( ResultItem $item, MalwareRecord $record ) :void {
+		if ( ( new Processing\MalwareStatus() )->isDefinitivelyClean( $record->malai_status ) ) {
+			if ( !$item->hasNonMalwareFinding() ) {
+				$item->auto_filter = true;
+			}
+			elseif ( !( new Processing\RetrieveMalwareMalaiStatus() )->isRecheckRequired( $record ) ) {
+				$item->is_mal = false;
+			}
+		}
 	}
 
 	/**
