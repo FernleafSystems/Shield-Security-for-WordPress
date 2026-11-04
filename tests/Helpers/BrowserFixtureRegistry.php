@@ -20,6 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\NotBotAlt
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PublicBlockRecoveryFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityAdminFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityHeadersFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\UserUiStateFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\CustomRulesTerminalFinalizationFixtureBuilder;
 
 class BrowserFixtureRegistry {
@@ -72,6 +73,8 @@ class BrowserFixtureRegistry {
 				return self::runSecurityHeadersFixture( $action );
 			case 'custom-rules-terminal-finalization':
 				return self::runCustomRulesTerminalFinalizationFixture( $action, $args );
+			case 'user-ui-state':
+				return self::runUserUiStateFixture( $action );
 			default:
 				throw new \RuntimeException( 'Unknown browser fixture: '.$fixture );
 		}
@@ -104,6 +107,17 @@ class BrowserFixtureRegistry {
 		self::runSecurityHeadersFixture( 'cleanup' );
 		self::runCustomRulesTerminalFinalizationFixture( 'cleanup', [] );
 		return [ 'cleaned' => true ];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private static function runUserUiStateFixture( string $action ) :array {
+		if ( $action !== 'reset' ) {
+			throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+
+		return ( new UserUiStateFixtureBuilder() )->reset();
 	}
 
 	/** @param list<string> $args */

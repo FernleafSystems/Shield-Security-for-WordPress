@@ -97,6 +97,7 @@ class BuildScanFindings {
 		$rawItems = [];
 		$resultsSet = ( new RetrieveItems() )
 			->setScanController( $scanCon )
+			->addWheres( [ "`ri`.`auto_filtered_at`=0" ] )
 			->retrieveLatestForFindings( $statesToInclude );
 
 		foreach ( $resultsSet->getAllItems() as $item ) {

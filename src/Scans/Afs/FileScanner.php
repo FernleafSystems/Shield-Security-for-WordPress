@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops\Record as MalwareRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
 	IsExcludedPhpTranslationFile,
@@ -202,6 +203,10 @@ class FileScanner {
 			$item->is_in_wpcontent = true;
 			$item->is_unidentified = true;
 		}
+		catch ( \InvalidArgumentException $e ) {
+			$this->rethrowUnlessFileVanished( $e, $fullPath );
+			return null;
+		}
 		$canRunMalwareScan = !$fileExcluded
 							  && $scanCon->isEnabledMalwareScanPHP()
 							  && ( empty( $item ) || !$item->is_missing );
@@ -255,21 +260,24 @@ class FileScanner {
 				if ( !isset( $mfe->getScanFileData()[ 'mal_sig' ] ) ) {
 					throw new \Exception( 'Cannot proceed without a malware signature' );
 				}
-				$autoFilterMalware = $assetVerification instanceof HashVerificationResult
-								 && $assetVerification->verified
-								 && $assetVerification->trustedSource;
 				$malRecord = ( new Processing\CreateLocalMalwareRecords() )->run(
 					$item->path_fragment,
-					$mfe->getScanFileData()[ 'mal_sig' ],
-					$autoFilterMalware
+					$mfe->getScanFileData()[ 'mal_sig' ]
 				);
 				$item->malware_record_id = $malRecord->id;
-				$item->auto_filter = $autoFilterMalware;
+				$item->auto_filter = false;
+				$this->applyCleanMalwareVerdict( $item, $malRecord );
+			}
+			catch ( \InvalidArgumentException $e ) {
+				$this->rethrowUnlessFileVanished( $e, $fullPath );
 			}
 		}
 
-		if ( !empty( $item ) && Services::WpFs()->isAccessibleFile( $fullPath ) ) {
-			$item->checksum_sha256 = \hash_file( 'sha256', $fullPath );
+		if ( !empty( $item ) ) {
+			\clearstatcache( true, $fullPath );
+			if ( Services::WpFs()->isAccessibleFile( $fullPath ) ) {
+				$item->checksum_sha256 = \hash_file( 'sha256', $fullPath );
+			}
 		}
 
 		if ( empty( $item ) && $trustedFileContext instanceof TrustedFileContext ) {
@@ -280,6 +288,34 @@ class FileScanner {
 		}
 
 		return $item;
+	}
+
+	/**
+	 * A file MALai has cleared still matches its signature on every scan, and must not reappear as malware because of
+	 * that. The malware flag stays set wherever a recheck is due, because the recheck only selects flagged results.
+	 */
+	private function applyCleanMalwareVerdict( ResultItem $item, MalwareRecord $record ) :void {
+		if ( ( new Processing\MalwareStatus() )->isDefinitivelyClean( $record->malai_status ) ) {
+			if ( !$item->hasNonMalwareFinding() ) {
+				$item->auto_filter = true;
+			}
+			elseif ( !( new Processing\RetrieveMalwareMalaiStatus() )->isRecheckRequired( $record ) ) {
+				$item->is_mal = false;
+			}
+		}
+	}
+
+	/**
+	 * A file that's deleted after the scan's file list was built, such as a temp or cache file, has nothing left to
+	 * classify. An invalid argument for a file that's still present is a real failure, so the scan still fails closed.
+	 *
+	 * @throws \InvalidArgumentException
+	 */
+	private function rethrowUnlessFileVanished( \InvalidArgumentException $e, string $fullPath ) :void {
+		\clearstatcache( true, $fullPath );
+		if ( Services::WpFs()->isAccessibleFile( $fullPath ) ) {
+			throw $e;
+		}
 	}
 
 	private function buildCoreTrustedFileContext( string $fullPath ) :TrustedFileContext {

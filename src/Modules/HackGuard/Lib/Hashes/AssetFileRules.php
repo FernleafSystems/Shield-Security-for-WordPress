@@ -14,11 +14,17 @@ class AssetFileRules {
 	 * Keyed by path relative to the asset root: [ pattern, replacement ].
 	 * edd-build-manifest-v1: Easy Digital Downloads writes an apparently encrypted manifestChecksum into
 	 * vendor/build.json on every download, even for the same licence and build.
+	 * buddyboss-platform-edition-v1: BuddyBoss Platform's edition downloads name their edition in bp-loader.php's
+	 * PLATFORM_EDITION and are otherwise identical.
 	 */
 	private const RULES = [
 		'vendor/build.json' => [
 			'#"manifestChecksum":"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{2}(?:[A-Za-z0-9+]|\\\\/)+={0,2}"#',
 			'"manifestChecksum":""',
+		],
+		'bp-loader.php'     => [
+			"#define\\('PLATFORM_EDITION', '[a-z0-9-]+'\\);#",
+			"define('PLATFORM_EDITION', '');",
 		],
 	];
 

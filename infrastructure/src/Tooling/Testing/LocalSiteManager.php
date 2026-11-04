@@ -19,6 +19,8 @@ class LocalSiteManager {
 	private const BROWSER_LANE_READY_SCHEMA_VERSION = 3;
 	private const BROWSER_LANE_READY_TTL_SECONDS = 24*60*60;
 	private const BROWSER_FIXTURE_CONTRACT = 'shield-browser-fixture-v1';
+	private const SHARED_DATABASE_RUN_ID = 'browser-shared-reusable';
+	private const SHARED_DATABASE_EXPIRES_AT = '2037-12-31T23:59:59+00:00';
 
 	private ProcessRunner $processRunner;
 
@@ -36,6 +38,8 @@ class LocalSiteManager {
 
 	private LocalSiteDefinition $definition;
 
+	private BrowserTestLanePool $lanePool;
+
 	private string $runId = '';
 
 	/** @var array<string,string>|null */
@@ -49,9 +53,11 @@ class LocalSiteManager {
 		?LocalSiteProbe $probe = null,
 		?LocalSiteRuntimeRefresher $runtimeRefresher = null,
 		?SourceSetupCacheCoordinator $setupCacheCoordinator = null,
-		?SourceGeneratedConfigReadiness $generatedConfigReadiness = null
+		?SourceGeneratedConfigReadiness $generatedConfigReadiness = null,
+		?BrowserTestLanePool $lanePool = null
 	) {
 		$this->definition = $definition;
+		$this->lanePool = $lanePool ?? new BrowserTestLanePool();
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$this->environmentResolver = $environmentResolver ?? new TestingEnvironmentResolver( $this->processRunner );
 		$this->dockerComposeExecutor = $dockerComposeExecutor ?? new DockerComposeExecutor( $this->processRunner );
@@ -180,7 +186,7 @@ class LocalSiteManager {
 	) :int {
 		$this->runPreflightChecks( $rootDir, $requirePlaywright );
 		if ( $this->definition->usesSharedDatabase() ) {
-			$this->ensureSharedDatabaseReady( $rootDir, $onOutput, $browserLabelEnv );
+			$this->ensureSharedDatabaseReady( $rootDir, $onOutput );
 		}
 
 		if ( $mode === 'clean' ) {
@@ -199,7 +205,7 @@ class LocalSiteManager {
 				) );
 			}
 			if ( $this->definition->usesSharedDatabase() ) {
-				$this->resetSharedDatabase( $rootDir, $browserLabelEnv );
+				$this->resetSharedDatabase( $rootDir );
 			}
 			$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, true, $hostManifest, $browserLabelEnv );
 			return 0;
@@ -210,7 +216,7 @@ class LocalSiteManager {
 		}
 
 		if ( $this->definition->usesSharedDatabase() ) {
-			$this->ensureSharedDatabaseSchema( $rootDir, $browserLabelEnv );
+			$this->ensureSharedDatabaseSchema( $rootDir );
 		}
 		$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, false, $hostManifest, $browserLabelEnv );
 		return 0;
@@ -251,7 +257,7 @@ class LocalSiteManager {
 		array $browserLabelEnv = []
 	) :void {
 		if ( $this->definition->usesSharedDatabase() && !$sharedDatabaseAlreadyReady ) {
-			$this->ensureSharedDatabaseReady( $rootDir, $onOutput, $browserLabelEnv );
+			$this->ensureSharedDatabaseReady( $rootDir, $onOutput );
 		}
 
 		$envOverrides = $this->buildRuntimeEnvOverrides( $rootDir, $browserLabelEnv );
@@ -402,71 +408,53 @@ class LocalSiteManager {
 	/**
 	 * @param callable|null $onOutput Receives (string $type, string $buffer)
 	 */
-	private function ensureSharedDatabaseReady( string $rootDir, ?callable $onOutput = null, array $browserLabelEnv = [] ) :void {
-		$this->withSharedDatabaseLock( $rootDir, function () use ( $rootDir, $onOutput, $browserLabelEnv ) :void {
+	private function ensureSharedDatabaseReady( string $rootDir, ?callable $onOutput = null ) :void {
+		$this->lanePool->withSharedServicesLock( function () use ( $rootDir, $onOutput ) :void {
 			$composeFiles = [ $this->definition->sharedDatabaseComposeFile() ];
-			$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir, $browserLabelEnv );
+			$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir );
 
-			$exitCode = $this->dockerComposeExecutor->run(
-				$rootDir,
-				$composeFiles,
-				$this->buildDatabaseUpCommand(),
-				$envOverrides,
-				$onOutput
-			);
-			if ( $exitCode !== 0 ) {
-				throw new \RuntimeException( $this->diagnoseCommandFailure(
-					'Failed to start the shared browser MySQL service.',
-					$this->buildComposeCommandForExecution( $composeFiles, $this->buildDatabaseUpCommand() ),
-					$exitCode
-				) );
+			// Other lanes may be using a running service, and another checkout's Compose file must not recreate it.
+			if ( !$this->isSharedDatabaseRunning( $rootDir ) ) {
+				$exitCode = $this->dockerComposeExecutor->run(
+					$rootDir,
+					$composeFiles,
+					$this->buildDatabaseUpCommand(),
+					$envOverrides,
+					$onOutput
+				);
+				if ( $exitCode !== 0 ) {
+					throw new \RuntimeException( $this->diagnoseCommandFailure(
+						'Failed to start the shared browser MySQL service.',
+						$this->buildComposeCommandForExecution( $composeFiles, $this->buildDatabaseUpCommand() ),
+						$exitCode
+					) );
+				}
 			}
 
 			$this->waitForSharedDatabaseHealthy( $rootDir, $envOverrides, $composeFiles );
 		} );
 	}
 
-	private function withSharedDatabaseLock( string $rootDir, callable $callback ) :void {
-		$lockDir = Path::join( $rootDir, 'tmp/browser-test-lanes' );
-		if ( !\is_dir( $lockDir ) && !\mkdir( $lockDir, 0777, true ) && !\is_dir( $lockDir ) ) {
-			throw new \RuntimeException( 'Failed to create browser lane lock directory: '.$lockDir );
-		}
-		$lockPath = Path::join( $lockDir, 'shared-db.lock' );
-		$handle = \fopen( $lockPath, 'c+' );
-		if ( $handle === false ) {
-			throw new \RuntimeException( 'Failed to open shared browser DB lock file: '.$lockPath );
-		}
-
-		$startedAt = \time();
-		try {
-			do {
-				if ( \flock( $handle, \LOCK_EX | \LOCK_NB ) ) {
-					$callback();
-					return;
-				}
-				\usleep( 500000 );
-			} while ( \time() - $startedAt < 120 );
-
-			throw new \RuntimeException( 'Timed out waiting for shared browser DB startup lock: '.$lockPath );
-		}
-		finally {
-			if ( \is_resource( $handle ) ) {
-				@\flock( $handle, \LOCK_UN );
-				@\fclose( $handle );
+	private function isSharedDatabaseRunning( string $rootDir ) :bool {
+		$process = $this->processRunner->run(
+			[ 'docker', 'container', 'inspect', '--format', '{{.State.Running}}', LocalSiteDefinitions::BROWSER_DB_CONTAINER_NAME ],
+			$rootDir,
+			static function () :void {
 			}
-		}
+		);
+		return ( $process->getExitCode() ?? 1 ) === 0 && \trim( $process->getOutput() ) === 'true';
 	}
 
 	/**
 	 * @return array<string,string|false>
 	 */
-	private function buildSharedDatabaseEnvOverrides( string $rootDir, array $browserLabelEnv = [] ) :array {
+	private function buildSharedDatabaseEnvOverrides( string $rootDir ) :array {
 		$envOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
 			$this->definition->sharedDatabaseComposeProjectName(),
 			true
 		);
 		$envOverrides['PHP_VERSION'] = $this->environmentResolver->resolvePhpVersion( $rootDir );
-		return \array_merge( $envOverrides, $this->sharedDatabaseLabelEnvironment( $browserLabelEnv ) );
+		return \array_merge( $envOverrides, $this->sharedDatabaseLabelEnvironment() );
 	}
 
 	/**
@@ -528,14 +516,14 @@ class LocalSiteManager {
 		) );
 	}
 
-	private function resetSharedDatabase( string $rootDir, array $browserLabelEnv = [] ) :void {
+	private function resetSharedDatabase( string $rootDir ) :void {
 		$dbName = $this->definition->dbName();
 		if ( \preg_match( '/^[a-z0-9_]+$/', $dbName ) !== 1 ) {
 			throw new \RuntimeException( 'Unsafe browser lane database name: '.$dbName );
 		}
 
 		$composeFiles = [ $this->definition->sharedDatabaseComposeFile() ];
-		$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir, $browserLabelEnv );
+		$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir );
 		$sql = \sprintf(
 			'DROP DATABASE IF EXISTS `%1$s`; CREATE DATABASE `%1$s`;',
 			$dbName
@@ -562,14 +550,14 @@ class LocalSiteManager {
 		}
 	}
 
-	private function ensureSharedDatabaseSchema( string $rootDir, array $browserLabelEnv = [] ) :void {
+	private function ensureSharedDatabaseSchema( string $rootDir ) :void {
 		$dbName = $this->definition->dbName();
 		if ( \preg_match( '/^[a-z0-9_]+$/', $dbName ) !== 1 ) {
 			throw new \RuntimeException( 'Unsafe browser lane database name: '.$dbName );
 		}
 
 		$composeFiles = [ $this->definition->sharedDatabaseComposeFile() ];
-		$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir, $browserLabelEnv );
+		$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir );
 		$sql = \sprintf( 'CREATE DATABASE IF NOT EXISTS `%s`;', $dbName );
 		$command = \array_merge(
 			$this->buildComposeCommandForExecution( $composeFiles, [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
@@ -1082,29 +1070,19 @@ PHP;
 	}
 
 	/**
-	 * @param array<string,string|false> $browserLabelEnv
-	 * @return array<string,string|false>
+	 * Stable labels: per-run values would make Compose recreate the service under other running lanes.
+	 * @return array<string,string>
 	 */
-	private function sharedDatabaseLabelEnvironment( array $browserLabelEnv ) :array {
-		if ( $browserLabelEnv !== [] ) {
-			$env = $browserLabelEnv;
-		}
-		else {
-			$policy = DockerCleanupPolicy::browser( 1 );
-			$runId = $this->runtimeRunId( $policy );
-			$env = $policy->labelEnvironment(
-				$runId,
-				DockerHarnessLabels::LIFECYCLE_REUSABLE,
-				'shared',
-				\gmdate( \DATE_ATOM, \time() + 7*24*60*60 ),
-				$runId,
-				DockerHarnessLabels::LIFECYCLE_REUSABLE,
-				\gmdate( \DATE_ATOM, \time() + 30*24*60*60 )
-			);
-		}
-		$env['SHIELD_BROWSER_LABEL_LANE'] = 'shared';
-
-		return $env;
+	private function sharedDatabaseLabelEnvironment() :array {
+		return DockerCleanupPolicy::browser( 1 )->labelEnvironment(
+			self::SHARED_DATABASE_RUN_ID,
+			DockerHarnessLabels::LIFECYCLE_REUSABLE,
+			'shared',
+			self::SHARED_DATABASE_EXPIRES_AT,
+			self::SHARED_DATABASE_RUN_ID,
+			DockerHarnessLabels::LIFECYCLE_REUSABLE,
+			self::SHARED_DATABASE_EXPIRES_AT
+		);
 	}
 
 	private function siteCleanupPolicy() :DockerCleanupPolicy {
