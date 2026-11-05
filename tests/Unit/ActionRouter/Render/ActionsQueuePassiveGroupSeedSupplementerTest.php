@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueCompactSummaryRowBuilder,
 	ActionsQueueGroupDefinitions,
 	ActionsQueueGroupMaintenanceSource,
+	ActionsQueueGroupScanSource,
 	ActionsQueueMaintenanceGroupSeedBuilder,
 	ActionsQueuePassiveGroupSeedSupplementer,
 	ActionsQueueScanResultScopeStateBuilder,
@@ -42,6 +43,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 			$definitions,
 			$maintenanceSeedBuilder,
 			$maintenanceSource,
+			$this->makeScanSource(),
 			$this->makePendingFileLockDisplays( [
 				[
 					'file_key' => 'root_htaccess',
@@ -145,6 +147,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 			$definitions,
 			$maintenanceSeedBuilder,
 			$maintenanceSource,
+			$this->makeScanSource(),
 			$this->makeFailingPendingFileLockDisplays(),
 			$this->makeScanResultScopeStateBuilder(),
 			null,
@@ -200,6 +203,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 			$definitions,
 			$maintenanceSeedBuilder,
 			$maintenanceSource,
+			$this->makeScanSource(),
 			$this->makeFailingPendingFileLockDisplays(),
 			$this->makeScanResultScopeStateBuilder(),
 			null,
@@ -314,6 +318,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 			$definitions,
 			$maintenanceSeedBuilder,
 			$maintenanceSource,
+			$this->makeScanSource(),
 			$this->makeFailingPendingFileLockDisplays(),
 			$this->makeScanResultScopeStateBuilder( [
 				'malware:malware'     => [
@@ -437,6 +442,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 			$definitions,
 			$maintenanceSeedBuilder,
 			$maintenanceSource,
+			$this->makeScanSource(),
 			$pendingFileLockDisplays === null
 				? $this->makeFailingPendingFileLockDisplays()
 				: $this->makePendingFileLockDisplays( $pendingFileLockDisplays ),
@@ -444,6 +450,21 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 			null,
 			$this->makeRailTabAvailability()
 		);
+	}
+
+	private function makeScanSource() :ActionsQueueGroupScanSource {
+		$scanSource = $this->getMockBuilder( ActionsQueueGroupScanSource::class )
+						   ->disableOriginalConstructor()
+						   ->onlyMethods( [ 'vulnerabilitySection' ] )
+						   ->getMock();
+		$scanSource->method( 'vulnerabilitySection' )->willReturn( [
+			'label'         => 'Abandoned Assets',
+			'count'         => 0,
+			'status'        => 'good',
+			'items'         => [],
+			'ignored_items' => [],
+		] );
+		return $scanSource;
 	}
 
 	private function makeFailingPendingFileLockDisplays() :GetPendingFileLockDisplays {

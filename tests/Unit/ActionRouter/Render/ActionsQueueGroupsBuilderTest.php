@@ -151,6 +151,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				'status'   => 'critical',
 				'sections' => [
 					'vulnerable' => [
+						'ignored_items' => [],
 						'label' => 'Known Vulnerabilities',
 						'count' => 1,
 						'status' => 'critical',
@@ -182,6 +183,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						],
 					],
 					'abandoned'  => [
+						'ignored_items' => [],
 						'label' => 'Abandoned Assets',
 						'count' => 1,
 						'status' => 'critical',
@@ -918,6 +920,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			'status' => 'critical',
 			'sections' => [
 				'vulnerable' => [
+					'ignored_items' => [],
 					'label' => 'Known Vulnerabilities',
 					'count' => 2,
 					'status' => 'critical',
@@ -953,6 +956,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				'status'   => 'critical',
 				'sections' => [
 					'vulnerable' => [
+						'ignored_items' => [],
 						'label' => 'Known Vulnerabilities',
 						'count' => 1,
 						'status' => 'critical',
@@ -970,6 +974,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						],
 					],
 					'abandoned'  => [
+						'ignored_items' => [],
 						'label' => 'Abandoned Assets',
 						'count' => 1,
 						'status' => 'critical',
@@ -1125,6 +1130,114 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			'maintenance_item_unignore',
 			$this->decodeAjaxAction( $selectedRows[ 1 ][ 'actions' ][ 1 ][ 'ajax_action_json' ] )[ 'ex' ] ?? ''
 		);
+	}
+
+	public function test_abandoned_rows_offer_ignore_and_list_ignored_rows_while_vulnerable_rows_do_not() :void {
+		$vulnerable = $this->assetItem( 'vulnerability', 'Vulnerable Plugin' );
+		$active = $this->assetItem( 'abandoned', 'Active Plugin', 'ignore' );
+		$ignored = $this->assetItem( 'abandoned', 'Ignored Plugin', 'unignore' );
+		$builder = $this->createBuilder( [], [], [
+			'count'    => 2,
+			'status'   => 'critical',
+			'sections' => [
+				'vulnerable' => [ 'label' => 'Known Vulnerabilities', 'count' => 1, 'status' => 'critical', 'items' => [ $vulnerable ], 'ignored_items' => [] ],
+				'abandoned'  => [ 'label' => 'Abandoned Assets', 'count' => 1, 'status' => 'critical', 'items' => [ $active ], 'ignored_items' => [ $ignored ] ],
+			],
+		] );
+
+		$data = $builder->build(
+			'critical',
+			[
+				'items' => [
+					[ 'key' => 'vulnerable_assets', 'count' => 1, 'severity' => 'critical', 'zone' => 'scans' ],
+					[ 'key' => 'abandoned', 'count' => 1, 'severity' => 'critical', 'zone' => 'scans' ],
+				],
+			],
+			[ 'scans' => [], 'maintenance' => [] ]
+		);
+		$groups = \array_column( $this->flattenLayerGroups( $data ), null, 'key' );
+
+		$this->assertSame( [ false ], \array_column( $groups[ 'vulnerabilities' ][ 'maintenance_rows' ][ 0 ][ 'actions' ], 'is_action' ) );
+		$this->assertSame( [], $groups[ 'vulnerabilities' ][ 'ignored_rows' ] );
+
+		$this->assertSame( 1, $groups[ 'abandoned' ][ 'item_count' ] );
+		$activeRow = $groups[ 'abandoned' ][ 'maintenance_rows' ][ 0 ];
+		$this->assertFalse( $activeRow[ 'is_ignored' ] );
+		$this->assertSame( 'ignore', $activeRow[ 'actions' ][ 0 ][ 'kind' ] );
+		$this->assertSame( [ 'sub_action' => 'ignore' ], \json_decode( $activeRow[ 'actions' ][ 0 ][ 'ajax_action_json' ], true ) );
+
+		$ignoredRow = $groups[ 'abandoned' ][ 'ignored_rows' ][ 0 ];
+		$this->assertTrue( $ignoredRow[ 'is_ignored' ] );
+		$this->assertSame( 'Ignored Plugin', $ignoredRow[ 'title' ] );
+		$this->assertSame( 'unignore', $ignoredRow[ 'actions' ][ 0 ][ 'kind' ] );
+	}
+
+	public function test_every_abandoned_plugin_ignored_is_a_passing_group_that_still_lists_them() :void {
+		$builder = $this->createBuilder( [], [], [
+			'count'    => 0,
+			'status'   => 'good',
+			'sections' => [
+				'vulnerable' => [ 'label' => 'Known Vulnerabilities', 'count' => 0, 'status' => 'good', 'items' => [], 'ignored_items' => [] ],
+				'abandoned'  => [
+					'label'         => 'Abandoned Assets',
+					'count'         => 0,
+					'status'        => 'good',
+					'items'         => [],
+					'ignored_items' => [ $this->assetItem( 'abandoned', 'Ignored Plugin', 'unignore' ) ],
+				],
+			],
+		] );
+
+		$data = $builder->build(
+			'critical',
+			[ 'items' => [] ],
+			[
+				'scans'       => [
+					[
+						'key'               => 'abandoned',
+						'label'             => 'Abandoned Assets',
+						'description'       => 'Previous scans did not detect any abandoned assets.',
+						'drill_bucket'      => 'critical',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+				],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( [], $data[ 'active_sections' ] );
+		$group = \array_column( $this->flattenSections( $data[ 'healthy_sections' ] ), null, 'key' )[ 'abandoned' ];
+		$this->assertSame( 0, $group[ 'item_count' ] );
+		$this->assertSame( 'good', $group[ 'status' ] );
+		$this->assertSame( [], $group[ 'maintenance_rows' ] );
+		$this->assertSame( 'Ignored Plugin', $group[ 'ignored_rows' ][ 0 ][ 'title' ] );
+	}
+
+	private function assetItem( string $prefix, string $label, string $ignoreKind = '' ) :array {
+		$item = [
+			'key'         => $prefix.'-plugin-'.$label,
+			'asset_key'   => $label,
+			'asset_type'  => 'plugin',
+			'label'       => $label,
+			'description' => 'Needs review.',
+			'count'       => 1,
+			'severity'    => 'critical',
+			'actions'     => $ignoreKind === '' ? [
+				[ 'href' => '/wp-admin/plugins.php', 'label' => 'Go to plugins', 'type' => 'navigate' ],
+			] : [],
+		];
+		if ( $ignoreKind !== '' ) {
+			$item[ 'ignore_action' ] = [
+				'kind'        => $ignoreKind,
+				'label'       => 'Toggle',
+				'icon'        => 'bi bi-eye',
+				'tooltip'     => 'Toggle',
+				'ajax_action' => [ 'sub_action' => $ignoreKind ],
+			];
+		}
+		return $item;
 	}
 
 	public function test_build_critical_bucket_keeps_healthy_vulnerability_and_abandoned_groups_together() :void {
@@ -1334,6 +1447,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				'status'   => 'critical',
 				'sections' => [
 					'vulnerable' => [
+						'ignored_items' => [],
 						'label' => 'Known Vulnerabilities',
 						'count' => 1,
 						'status' => 'critical',
@@ -1351,6 +1465,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						],
 					],
 					'abandoned'  => [
+						'ignored_items' => [],
 						'label' => 'Abandoned Assets',
 						'count' => 0,
 						'status' => 'good',
@@ -1845,12 +1960,14 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 										'status'   => 'good',
 										'sections' => [
 											'vulnerable' => [
+												'ignored_items' => [],
 												'label' => 'Known Vulnerabilities',
 												'count' => 0,
 												'status' => 'good',
 												'items' => [],
 											],
 											'abandoned'  => [
+												'ignored_items' => [],
 												'label' => 'Abandoned Assets',
 												'count' => 0,
 												'status' => 'good',

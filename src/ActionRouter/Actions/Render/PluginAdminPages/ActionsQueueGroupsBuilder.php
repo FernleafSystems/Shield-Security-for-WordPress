@@ -51,6 +51,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
  *   render_action_class:class-string<BaseRender>,
  *   render_action_data:array<string,mixed>,
  *   maintenance_rows:list<CompactSummaryRow>,
+ *   ignored_rows:list<CompactSummaryRow>,
  *   summary_row:array{}|CompactSummaryRow,
  *   selection:GroupSelection
  * }
@@ -302,6 +303,7 @@ class ActionsQueueGroupsBuilder {
 				$this->groupDefinitions(),
 				$this->maintenanceSeedBuilder(),
 				$this->groupMaintenanceSource(),
+				$this->groupScanSource(),
 				$this->buildPendingFileLockDisplays(),
 				$this->scanResultScopeStateBuilder(),
 				$this->scanResultScopeResolver(),

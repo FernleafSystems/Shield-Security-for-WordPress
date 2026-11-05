@@ -42,6 +42,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   render_action_data_override?:array<string,mixed>,
  *   attention_items:list<AttentionItem>,
  *   maintenance_rows:list<CompactSummaryRow>,
+ *   ignored_rows?:list<CompactSummaryRow>,
  *   summary_row:array{}|CompactSummaryRow
  * }
  * @phpstan-type ResolvedGroups array{
@@ -166,6 +167,7 @@ class ActionsQueueGroupContractBuilder {
 			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $renderActionData,
 			'maintenance_rows'    => [],
+			'ignored_rows'        => [],
 			'summary_row'         => [],
 			'selection'           => $selection,
 		];
@@ -232,6 +234,7 @@ class ActionsQueueGroupContractBuilder {
 			'render_action_class' => ActionsQueueAssetFileStatusDetail::class,
 			'render_action_data'  => $renderActionData,
 			'maintenance_rows'    => [],
+			'ignored_rows'        => [],
 			'summary_row'         => [],
 			'selection'           => $selection,
 		];
@@ -373,6 +376,7 @@ class ActionsQueueGroupContractBuilder {
 				?? $definition[ 'render_action_class' ],
 			'render_action_data'  => $renderActionData,
 			'maintenance_rows'    => $seed[ 'maintenance_rows' ],
+			'ignored_rows'        => $seed[ 'ignored_rows' ] ?? [],
 			'summary_row'         => $seed[ 'summary_row' ],
 			'selection'           => $selection,
 		];

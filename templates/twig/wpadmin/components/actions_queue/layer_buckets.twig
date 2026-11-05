@@ -281,8 +281,8 @@
 					{% for kind in kinds %}
 						{% set kind_entries = entries|filter( e => e.kind == kind ) %}
 						{# A group that lists its items brings its own heading; single rows share one. #}
-						{% set listed = kind_entries|filter( e => e.group.card_type == 'category' or e.group.maintenance_rows is not empty ) %}
-						{% set single = kind_entries|filter( e => not ( e.group.card_type == 'category' or e.group.maintenance_rows is not empty ) ) %}
+						{% set listed = kind_entries|filter( e => e.group.card_type == 'category' or e.group.maintenance_rows is not empty or e.group.ignored_rows is not empty ) %}
+						{% set single = kind_entries|filter( e => not ( e.group.card_type == 'category' or e.group.maintenance_rows is not empty or e.group.ignored_rows is not empty ) ) %}
 						{% if single is not empty %}
 							{% set first_single = single|first %}
 							{% set heading = strings.kind_headings[ kind ]|default( first_single.heading ) %}

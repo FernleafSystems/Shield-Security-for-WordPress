@@ -214,6 +214,8 @@ class ActionsQueueFixtureBuilder {
 				return $this->seedEmptyCloakedPlugins( $state );
 			case 'ignored_cloaked_plugins':
 				return $this->seedIgnoredCloakedPlugins( $state );
+			case 'abandoned_plugins':
+				return $this->seedAbandonedPlugins( $state );
 			case 'scan_enablement':
 				$definition = $this->seedProUpsell( $state );
 				RuntimeTestState::applyPremiumCapabilities( [ 'scan_file_areas', 'scan_malware_local', 'scan_pluginsthemes_local', 'scan_vulnerabilities', 'scan_file_locker' ] );
@@ -828,6 +830,37 @@ class ActionsQueueFixtureBuilder {
 			\FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState::FINDINGS_OPT_KEY => $findings,
 		] );
 		$this->resetCloakedPluginFindingsCache();
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 * @return ScenarioDefinition
+	 */
+	private function seedAbandonedPlugins( array &$state ) :array {
+		RuntimeTestState::controller()->opts
+			->optSet( 'enabled_scan_apc', 'Y' )
+			->store();
+		RuntimeTestState::forcePersistOptions( [ 'enabled_scan_apc' => 'Y' ] );
+
+		$scanId = TestDataFactory::insertCompletedScan( 'apc' );
+		$this->trackId( $state, 'scan_ids', $scanId );
+		foreach ( [ $this->createCloakedPluginFixture( $state ), RuntimeTestState::controller()->base_file ] as $pluginFile ) {
+			$this->trackScanResult( $state, TestDataFactory::insertScanResultItemTracked( $scanId, [
+				'item_id'         => $pluginFile,
+				'is_abandoned'    => 1,
+				'last_updated_at' => 1500000000,
+			] ) );
+		}
+
+		return [
+			'scenario'                    => 'abandoned_plugins',
+			'target_group_key'            => 'abandoned',
+			'expected_detail_shell'       => 'direct_table',
+			'expected_lazy_panel'         => false,
+			'expected_interactivity'      => true,
+			'require_scan_results_table'  => false,
+			'require_populated_scan_results_table' => false,
+		];
 	}
 
 	/**

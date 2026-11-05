@@ -41,6 +41,20 @@ class ResultsSet {
 		return $res;
 	}
 
+	/**
+	 * @return static
+	 */
+	public function getIgnored() {
+		$res = clone $this;
+		$res->setItems( [] );
+		foreach ( $this->items as $item ) {
+			if ( $item->VO->ignored_at > 0 ) {
+				$res->addItem( $item );
+			}
+		}
+		return $res;
+	}
+
 	public function countItems(): int {
 		return \count( $this->items );
 	}

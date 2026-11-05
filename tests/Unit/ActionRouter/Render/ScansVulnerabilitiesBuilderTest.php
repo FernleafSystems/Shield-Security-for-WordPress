@@ -28,13 +28,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	UnitTestControllerFactory,
 	UnitTestGeneral,
-	UnitTestPluginUrls
+	UnitTestPluginUrls,
+	UnitTestRequest
 };
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
 	WpThemeVo
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Services\Core\Users;
 
 class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 
@@ -48,6 +50,59 @@ class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
+		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'wp_hash' )->alias( static fn( string $data, string $scheme = 'auth' ) :string => 'hash-'.$data );
+		Functions\when( 'get_rest_url' )->alias(
+			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
+		);
+		Functions\when( 'rawurlencode_deep' )->alias( static fn( $value ) => $value );
+		Functions\when( 'add_query_arg' )->alias( static fn( array $params, string $url ) :string => $url );
+	}
+
+	public function test_ignored_abandoned_results_count_for_nothing_but_can_still_be_stopped() :void {
+		$this->installTestControllerAndServices(
+			[],
+			[ $this->buildApcResultItem( 'plugin-one/plugin-one.php', 'p', 11, 1700000000 ) ],
+			[ 'plugin-one/plugin-one.php' => $this->buildPluginVo( 'plugin-one/plugin-one.php', 'plugin-one', 'Plugin One' ) ],
+			[]
+		);
+
+		$payload = ( new ScansVulnerabilitiesBuilder() )->build();
+
+		$this->assertSame( 0, $payload[ 'count' ] );
+		$this->assertSame( 'good', $payload[ 'status' ] );
+		$this->assertSame( 0, $payload[ 'sections' ][ 'abandoned' ][ 'count' ] );
+		$this->assertSame( 'good', $payload[ 'sections' ][ 'abandoned' ][ 'status' ] );
+		$this->assertSame( [], $payload[ 'sections' ][ 'abandoned' ][ 'items' ] );
+
+		$ignored = $payload[ 'sections' ][ 'abandoned' ][ 'ignored_items' ];
+		$this->assertCount( 1, $ignored );
+		$this->assertSame( 'unignore', $ignored[ 0 ][ 'ignore_action' ][ 'kind' ] );
+		$this->assertSame( 'unignore', $ignored[ 0 ][ 'ignore_action' ][ 'ajax_action' ][ 'sub_action' ] );
+		$this->assertSame( [ 11 ], $ignored[ 0 ][ 'ignore_action' ][ 'ajax_action' ][ 'rids' ] );
+	}
+
+	public function test_only_abandoned_results_can_be_ignored() :void {
+		$this->installTestControllerAndServices(
+			[ $this->buildWpvResultItem( 'plugin-one/plugin-one.php', 'p' ) ],
+			[ $this->buildApcResultItem( 'plugin-two/plugin-two.php', 'p', 12 ) ],
+			[
+				'plugin-one/plugin-one.php' => $this->buildPluginVo( 'plugin-one/plugin-one.php', 'plugin-one', 'Plugin One' ),
+				'plugin-two/plugin-two.php' => $this->buildPluginVo( 'plugin-two/plugin-two.php', 'plugin-two', 'Plugin Two' ),
+			],
+			[]
+		);
+
+		$sections = ( new ScansVulnerabilitiesBuilder() )->build()[ 'sections' ];
+
+		$this->assertArrayNotHasKey( 'ignore_action', $sections[ 'vulnerable' ][ 'items' ][ 0 ] );
+		$this->assertSame( [], $sections[ 'vulnerable' ][ 'ignored_items' ] );
+
+		$action = $sections[ 'abandoned' ][ 'items' ][ 0 ][ 'ignore_action' ];
+		$this->assertSame( 'ignore', $action[ 'kind' ] );
+		$this->assertSame( 'ignore', $action[ 'ajax_action' ][ 'sub_action' ] );
+		$this->assertSame( [ 12 ], $action[ 'ajax_action' ][ 'rids' ] );
+		$this->assertSame( [], $sections[ 'abandoned' ][ 'ignored_items' ] );
 	}
 
 	protected function tearDown() :void {
@@ -392,14 +447,16 @@ class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 		return $this->buildResultItem( (new WpvResultItem()), $slug, $itemType );
 	}
 
-	private function buildApcResultItem( string $slug, string $itemType ) :ApcResultItem {
-		return $this->buildResultItem( (new ApcResultItem()), $slug, $itemType );
+	private function buildApcResultItem( string $slug, string $itemType, int $resultItemID = 0, int $ignoredAt = 0 ) :ApcResultItem {
+		return $this->buildResultItem( ( new ApcResultItem() ), $slug, $itemType, $resultItemID, $ignoredAt );
 	}
 
-	private function buildResultItem( object $item, string $slug, string $itemType ) {
+	private function buildResultItem( object $item, string $slug, string $itemType, int $resultItemID = 0, int $ignoredAt = 0 ) {
 		$item->VO = ( new ScanResultVO() )->applyFromArray( [
-			'item_id'   => $slug,
-			'item_type' => $itemType,
+			'item_id'       => $slug,
+			'item_type'     => $itemType,
+			'resultitem_id' => $resultItemID,
+			'ignored_at'    => $ignoredAt,
 		] );
 		return $item;
 	}
@@ -440,6 +497,10 @@ class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 					}
 
 					public function getResultsForDisplay() :ApcResultsSet {
+						return $this->results->getNotIgnored();
+					}
+
+					public function getAllResults() :ApcResultsSet {
 						return $this->results;
 					}
 				};
@@ -455,6 +516,12 @@ class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 	) :void {
 		ServicesState::installItems( [
 			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_request'   => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
+			'service_wpusers'   => new class extends Users {
+				public function getCurrentWpUserId() {
+					return 0;
+				}
+			},
 			'service_wpplugins' => new MaintenancePluginsService( [
 				'updates'    => [],
 				'plugins'    => [],

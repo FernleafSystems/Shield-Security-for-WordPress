@@ -169,6 +169,8 @@ trait BuildsActionsQueueLandingData {
 					'review'         => __( 'Review', 'wp-simple-firewall' ),
 					/* translators: %s: how many items */
 					'ignore_all'     => __( 'Ignore all %s', 'wp-simple-firewall' ),
+					/* translators: %s: how many items are ignored */
+					'ignored_toggle' => __( '%s ignored', 'wp-simple-firewall' ),
 					// One box for each kind of problem in a lane.
 					'kind_headings'  => [
 						'wordpress'   => __( 'WordPress core files', 'wp-simple-firewall' ),

@@ -929,6 +929,32 @@ $aq-pro-bg: #f2ebfc;
 	}
 }
 
+// "2 ignored" is the same quiet button, and opens the group's ignored rows beneath its active ones.
+button.actions-queue-row-group__link {
+	cursor: pointer;
+	font-family: inherit;
+}
+
+.actions-queue-row-group__link-chevron {
+	font-size: 10px;
+	transition: transform 0.15s ease;
+
+	[aria-expanded="true"] > & {
+		transform: rotate(180deg);
+	}
+}
+
+// With no active rows above them, nothing shows under the heading until the ignored rows are opened.
+.actions-queue-row-group__head:has(+ .actions-queue-row-group__body > .actions-queue-row-group__ignored[hidden]:only-child) {
+	border-bottom-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.actions-queue-row-group__link-chevron {
+		transition: none;
+	}
+}
+
 @media (max-width: 600px) {
 	.actions-queue-row {
 		grid-template-columns: 26px minmax(0, 1fr);
@@ -964,6 +990,13 @@ $aq-pro-bg: #f2ebfc;
 .actions-queue-passing-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
+
+	// A passing group with ignored items has rows to open, so it takes the whole width, after the plain rows.
+	> .actions-queue-row-group {
+		border-top: 1px solid $aq-soft-line;
+		grid-column: 1 / -1;
+		order: 1;
+	}
 
 	> .actions-queue-row {
 		border-right: 1px solid $aq-soft-line;

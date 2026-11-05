@@ -14,12 +14,16 @@
 {#
 	A group that lists its items (maintenance, or each vulnerable plugin and theme) shows them in place. Where
 	asked (Review next, the longest lane), it starts folded to its heading and a count, and its heading opens it.
+	Items that are ignored count for nothing, so a passing group can still list them, behind "2 ignored" in its heading.
 #}
-{% if ( group.card_type == 'category' or group.maintenance_rows is not empty ) and not is_passing %}
+{% set ignored_rows = group.ignored_rows %}
+{% if ( ( group.card_type == 'category' or group.maintenance_rows is not empty ) and not is_passing ) or ignored_rows is not empty %}
 	{% set group_rows = group.maintenance_rows is not empty ? group.maintenance_rows : ( group.summary_row is not empty ? [ group.summary_row ] : [] ) %}
 	{% set is_collapsible = collapsible|default(false) %}
 	{% set body_id = 'AqGroupBody-' ~ random() %}
-	<div class="actions-queue-row-group" data-actions-queue-group-key="{{ group.key|e('html_attr') }}">
+	{% set ignored_id = 'AqGroupIgnored-' ~ random() %}
+	<div class="actions-queue-row-group" data-actions-queue-group-key="{{ group.key|e('html_attr') }}"
+		 {% if bucket_selection.selection_json is defined and bucket_selection.selection_json is not empty %}data-actions-queue-bucket-selection="{{ bucket_selection.selection_json|e('html_attr') }}"{% endif %}>
 		<div class="actions-queue-row-group__head status-{{ group.status }}">
 			{% if is_collapsible %}
 				<button type="button" class="actions-queue-box-toggle"
@@ -33,6 +37,14 @@
 			{% else %}
 				<span class="actions-queue-row-group__icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
 				<span class="actions-queue-row-group__label">{{ group.label }}</span>
+			{% endif %}
+			{% if ignored_rows is not empty %}
+				<button type="button" class="actions-queue-row-group__link"
+						data-actions-queue-box-toggle="ignored:{{ group.key|e('html_attr') }}"
+						aria-expanded="false" aria-controls="{{ ignored_id }}">
+					<i class="bi bi-eye-slash-fill" aria-hidden="true"></i>{{ strings.ignored_toggle|format( ignored_rows|length ) }}
+					<i class="bi bi-chevron-down actions-queue-row-group__link-chevron" aria-hidden="true"></i>
+				</button>
 			{% endif %}
 			{% if group.management_link is not empty %}
 				<a class="actions-queue-row-group__link"
@@ -63,6 +75,16 @@
 					<i class="bi bi-eye-slash-fill" aria-hidden="true"></i>
 					{{ strings.ignore_all|default('Ignore all')|format( ignores|length ) }}
 				</button>
+			</div>
+		{% endif %}
+		{% if ignored_rows is not empty %}
+			<div class="actions-queue-row-group__ignored" id="{{ ignored_id }}" hidden>
+				{% for row in ignored_rows %}
+					{% include '/wpadmin/components/actions_queue/landing_item_row.twig' with {
+						row: row,
+						is_passing: false
+					} only %}
+				{% endfor %}
 			</div>
 		{% endif %}
 		</div>

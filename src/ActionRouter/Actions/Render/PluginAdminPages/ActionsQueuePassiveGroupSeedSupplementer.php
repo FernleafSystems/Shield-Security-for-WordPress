@@ -24,6 +24,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	private ActionsQueueGroupDefinitions $groupDefinitions;
 	private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder;
 	private ActionsQueueGroupMaintenanceSource $maintenanceSource;
+	private ActionsQueueGroupScanSource $scanSource;
 	private ?GetPendingFileLockDisplays $pendingFileLockDisplays;
 	private ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder;
 	private ActionsQueueScanResultScopeResolver $scanResultScopeResolver;
@@ -33,6 +34,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		ActionsQueueGroupDefinitions $groupDefinitions,
 		ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
 		ActionsQueueGroupMaintenanceSource $maintenanceSource,
+		ActionsQueueGroupScanSource $scanSource,
 		?GetPendingFileLockDisplays $pendingFileLockDisplays = null,
 		?ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder = null,
 		?ActionsQueueScanResultScopeResolver $scanResultScopeResolver = null,
@@ -41,6 +43,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		$this->groupDefinitions = $groupDefinitions;
 		$this->maintenanceSeedBuilder = $maintenanceSeedBuilder;
 		$this->maintenanceSource = $maintenanceSource;
+		$this->scanSource = $scanSource;
 		$this->pendingFileLockDisplays = $pendingFileLockDisplays;
 		$this->scanResultScopeStateBuilder = $scanResultScopeStateBuilder ?? new ActionsQueueScanResultScopeStateBuilder();
 		$this->scanResultScopeResolver = $scanResultScopeResolver ?? new ActionsQueueScanResultScopeResolver();
@@ -276,6 +279,12 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'maintenance_rows'            => [],
 				'summary_row'                 => [],
 			];
+			if ( $definitionKey === 'abandoned' ) {
+				// Everything here may be ignored, and each still needs its way back.
+				$seed[ 'ignored_rows' ] = ( new ActionsQueueCompactSummaryRowBuilder() )->buildForAssets(
+					$this->scanSource->vulnerabilitySection( 'abandoned' )[ 'ignored_items' ]
+				);
+			}
 			if ( $definitionKey === 'file_locker' ) {
 				$pendingFileLockerCount = $this->getPendingFileLockerCount();
 				if ( $pendingFileLockerCount > 0 ) {
