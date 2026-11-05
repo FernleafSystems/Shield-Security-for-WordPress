@@ -13,7 +13,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetFileStatusDetail,
 	ActionsQueueBucketsBuilder,
-	ActionsQueueContextActionsBuilder,
 	ActionsQueueDrillDownPresentationBuilder,
 	ActionsQueueGroupContractBuilder,
 	ActionsQueueGroupDefinitions,
@@ -21,10 +20,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueGroupScanSource,
 	ActionsQueueGroupsBuilder,
 	ActionsQueueScanResultScopeStateBuilder,
-	PluginReinstallContextActionBuilder,
 	ScanResultsDisplayOptions,
-	ScansResultsRailTabAvailability,
-	ThemeReinstallContextActionBuilder
+	ScansResultsRailTabAvailability
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -857,7 +854,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'System', $systemHealthyGroup[ 'label' ] );
 		$this->assertSame( 'good', $systemHealthyGroup[ 'status' ] );
 		$this->assertSame( 1, $systemHealthyGroup[ 'item_count' ] );
-		$systemHealthyRows = \array_values( $systemHealthyGroup[ 'maintenance_rows' ] );
+		// Passing only because it's ignored, it's listed apart so it can be restored.
+		$this->assertSame( [], $systemHealthyGroup[ 'maintenance_rows' ] );
+		$systemHealthyRows = \array_values( $systemHealthyGroup[ 'ignored_rows' ] );
 		$this->assertCount( 1, $systemHealthyRows );
 		$this->assertSame( 'PHP Version', $systemHealthyRows[ 0 ][ 'title' ] );
 		$this->assertTrue( $systemHealthyRows[ 0 ][ 'is_ignored' ] );
@@ -1123,12 +1122,15 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 2, $payload[ 'selected_group' ][ 'item_count' ] );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'management_link' ] );
 		$selectedRows = \array_values( $payload[ 'selected_group' ][ 'maintenance_rows' ] );
-		$this->assertCount( 2, $selectedRows );
+		$this->assertCount( 1, $selectedRows );
 		$this->assertSame( '/wp-admin/update-core.php', $selectedRows[ 0 ][ 'actions' ][ 0 ][ 'href' ] ?? '' );
-		$this->assertSame( '/wp-admin/users.php', $selectedRows[ 1 ][ 'actions' ][ 0 ][ 'href' ] ?? '' );
+		// The ignored item is listed apart, so it can be restored.
+		$ignoredRows = \array_values( $payload[ 'selected_group' ][ 'ignored_rows' ] );
+		$this->assertCount( 1, $ignoredRows );
+		$this->assertSame( '/wp-admin/users.php', $ignoredRows[ 0 ][ 'actions' ][ 0 ][ 'href' ] ?? '' );
 		$this->assertSame(
 			'maintenance_item_unignore',
-			$this->decodeAjaxAction( $selectedRows[ 1 ][ 'actions' ][ 1 ][ 'ajax_action_json' ] )[ 'ex' ] ?? ''
+			$this->decodeAjaxAction( $ignoredRows[ 0 ][ 'actions' ][ 1 ][ 'ajax_action_json' ] )[ 'ex' ] ?? ''
 		);
 	}
 
@@ -1836,26 +1838,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					new ActionsQueueDrillDownPresentationBuilder(),
 					null,
 					null,
-					new ActionsQueueContextActionsBuilder(
-						new ScanResultsDisplayOptions(),
-						null,
-						new class extends PluginReinstallContextActionBuilder {
-							public function __construct() {
-							}
-
-							public function buildForPluginFile( string $file, string $displayName = '' ) :array {
-								return [];
-							}
-						},
-						new class extends ThemeReinstallContextActionBuilder {
-							public function __construct() {
-							}
-
-							public function buildForThemeStylesheet( string $stylesheet, string $displayName = '' ) :array {
-								return [];
-							}
-						}
-					),
 					$this->buildScanResultScopeStateBuilder()
 				);
 			}

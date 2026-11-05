@@ -949,6 +949,16 @@ button.actions-queue-row-group__link {
 	border-bottom-color: transparent;
 }
 
+// A group whose items are all ignored stays in its lane, quieter, so the items can be restored from it.
+.actions-queue-row-group.is-all-ignored > .actions-queue-row-group__head {
+	background: #fbfbfc;
+	color: #646970;
+
+	.actions-queue-row-group__icon {
+		opacity: 0.7;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.actions-queue-row-group__link-chevron {
 		transition: none;

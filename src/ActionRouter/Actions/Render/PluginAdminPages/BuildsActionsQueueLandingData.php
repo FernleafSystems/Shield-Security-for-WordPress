@@ -176,8 +176,8 @@ trait BuildsActionsQueueLandingData {
 						'wordpress'   => __( 'WordPress core files', 'wp-simple-firewall' ),
 						'malware'     => __( 'PHP malware', 'wp-simple-firewall' ),
 						'file_locker' => __( 'Critical File Locker', 'wp-simple-firewall' ),
-						'plugins'     => __( 'Plugins with modified files', 'wp-simple-firewall' ),
-						'themes'      => __( 'Themes with modified files', 'wp-simple-firewall' ),
+						'plugins'     => __( 'Plugins with scan results', 'wp-simple-firewall' ),
+						'themes'      => __( 'Themes with scan results', 'wp-simple-firewall' ),
 					],
 				],
 			] )

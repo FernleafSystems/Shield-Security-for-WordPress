@@ -747,7 +747,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.adoptLandingBucket( target );
 		BootstrapTooltips.HideAndDisposeTooltip( target );
 
-		// Ignore all sends each of its group's ignores, quietly, then refreshes once.
+		// Ignore all sends its group's ignores as one request, then refreshes once.
 		const isIgnoreAll = target.dataset.actionsQueueMaintenanceIgnoreAll === '1';
 		const scope = isIgnoreAll ? target.closest( '.actions-queue-row-group' ) : target.closest( '.actions-queue-row' );
 		const actions = ( isIgnoreAll
@@ -769,16 +769,31 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		};
 
 		const service = new AjaxService();
-		const send = isIgnoreAll
-			? actions.reduce(
-				( chain, data ) => chain.then( ( ok ) => service.bg( data ).then( ( resp ) => ok && resp?.success === true ) ),
-				Promise.resolve( true )
-			)
-			: service.send( actions[ 0 ] ).then( ( resp ) => resp?.success === true );
+		const send = service.send( isIgnoreAll ? this.combineIgnoreActions( actions ) : actions[ 0 ] )
+			.then( ( resp ) => resp?.success === true );
 
 		send.then( ( ok ) => ok ? this.refreshAfterNestedAction( true ) : null )
 			.catch( () => null )
 			.finally( done );
+	}
+
+	/**
+	 * One request for a group's ignores: scan results go as one list of result IDs, maintenance items as one
+	 * list of identifiers for their shared key.
+	 * @param {Array<Object>} actions
+	 * @return {Object}
+	 */
+	combineIgnoreActions( actions ) {
+		const first = actions[ 0 ];
+		if ( actions.length === 1 ) {
+			return first;
+		}
+		if ( Array.isArray( first.rids ) ) {
+			return { ...first, rids: actions.flatMap( ( data ) => Array.isArray( data.rids ) ? data.rids : [] ) };
+		}
+		const combined = { ...first, identifiers: actions.map( ( data ) => String( data.identifier || '' ) ) };
+		delete combined.identifier;
+		return combined;
 	}
 
 	async handleOperatorContextActionClick( evt ) {

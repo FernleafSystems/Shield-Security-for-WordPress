@@ -260,7 +260,6 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 		$this->assertSame( 'hidden_plugins', $seeds[ 0 ][ 'key' ] );
 		$this->assertFalse( $seeds[ 0 ][ 'is_interactive_override' ] );
 		$this->assertSame( [], $seeds[ 0 ][ 'render_action_data_override' ] );
-		$this->assertSame( [], $seeds[ 0 ][ 'context_actions_override' ] );
 		$this->assertTrue( $seeds[ 0 ][ 'suppress_detail_render_action_if_noninteractive' ] );
 	}
 
@@ -361,7 +360,6 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 		$this->assertSame( 'good', $seeds[ 0 ][ 'status' ] );
 		$this->assertTrue( $seeds[ 0 ][ 'is_interactive_override' ] );
 		$this->assertNotSame( [], $seeds[ 0 ][ 'render_action_data_override' ] );
-		$this->assertSame( [], $seeds[ 0 ][ 'context_actions_override' ] );
 	}
 
 	public function test_supplement_marks_only_upgrade_required_protection_groups_for_pro_upsell() :void {

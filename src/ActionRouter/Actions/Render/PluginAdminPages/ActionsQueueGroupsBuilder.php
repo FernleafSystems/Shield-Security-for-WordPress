@@ -223,7 +223,6 @@ class ActionsQueueGroupsBuilder {
 			$this->presentation(),
 			$this->assetMetadataResolver(),
 			$this->queueScanResultsOptions(),
-			null,
 			$this->scanResultScopeStateBuilder(),
 			$this->scanResultScopeResolver()
 		);

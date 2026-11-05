@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetMetadataResolver,
 	ActionsQueueAssetFileStatusDetail,
-	ActionsQueueContextActionsBuilder,
 	ActionsQueueDrillDownPresentationBuilder,
 	ActionsQueueGroupContractBuilder,
 	ActionsQueueGroupDefinitions,
@@ -329,17 +328,6 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 			new ActionsQueueDrillDownPresentationBuilder(),
 			$resolver,
 			null,
-			new class extends ActionsQueueContextActionsBuilder {
-				public function buildForGroup(
-					string $definitionKey,
-					string $label,
-					string $detailShell,
-					int $itemCount,
-					array $renderActionData
-				) :array {
-					return [];
-				}
-			},
 			$scopeStateBuilder ?? $this->newScopeStateBuilder( 0, 0 )
 		);
 	}

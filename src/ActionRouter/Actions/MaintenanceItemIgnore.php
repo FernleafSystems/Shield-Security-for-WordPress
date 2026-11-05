@@ -16,7 +16,13 @@ class MaintenanceItemIgnore extends BaseAction {
 	protected function exec() {
 		$provider = $this->buildMaintenanceIssueStateProvider();
 		$key = \sanitize_key( $this->action_data[ 'maintenance_key' ] );
-		$identifier = \trim( (string)( $this->action_data[ 'identifier' ] ?? '' ) );
+		// "Ignore all" sends every item of one kind together, as a list of identifiers.
+		$identifiers = \is_array( $this->action_data[ 'identifiers' ] ?? null )
+			? \array_values( \array_unique( \array_filter( \array_map(
+				fn( $identifier ) :string => \is_scalar( $identifier ) ? \trim( (string)$identifier ) : '',
+				$this->action_data[ 'identifiers' ]
+			) ) ) )
+			: [ \trim( (string)( $this->action_data[ 'identifier' ] ?? '' ) ) ];
 
 		if ( !$provider->isKnownMaintenanceKey( $key ) ) {
 			$this->fail( __( 'Invalid maintenance item.', 'wp-simple-firewall' ), self::ERROR_INVALID_KEY );
@@ -27,25 +33,25 @@ class MaintenanceItemIgnore extends BaseAction {
 		$currentIssueIdentifiers = $currentIssueIdentifiersByKey[ $key ];
 
 		if ( $provider->supportsSubItems( $key ) ) {
-			if ( $identifier === '' ) {
+			if ( empty( $identifiers ) || \in_array( '', $identifiers, true ) ) {
 				$this->fail( __( 'A specific maintenance item identifier is required.', 'wp-simple-firewall' ), self::ERROR_MISSING_IDENTIFIER );
 				return;
 			}
-			if ( !\in_array( $identifier, $currentIssueIdentifiers, true ) ) {
+			if ( !empty( \array_diff( $identifiers, $currentIssueIdentifiers ) ) ) {
 				$this->fail( __( 'The specified maintenance item cannot be ignored right now.', 'wp-simple-firewall' ), self::ERROR_IDENTIFIER_UNAVAILABLE );
 				return;
 			}
 		}
 		else {
-			$identifier = MaintenanceIssueStateProvider::SINGLETON_TOKEN;
-			if ( !\in_array( $identifier, $currentIssueIdentifiers, true ) ) {
+			$identifiers = [ MaintenanceIssueStateProvider::SINGLETON_TOKEN ];
+			if ( !\in_array( MaintenanceIssueStateProvider::SINGLETON_TOKEN, $currentIssueIdentifiers, true ) ) {
 				$this->fail( __( 'This maintenance item cannot be ignored right now.', 'wp-simple-firewall' ), self::ERROR_IDENTIFIER_UNAVAILABLE );
 				return;
 			}
 		}
 
 		$ignoredItems = $provider->getNormalizedStoredIgnoredItems( $currentIssueIdentifiersByKey );
-		$ignoredItems[ $key ][] = $identifier;
+		$ignoredItems[ $key ] = \array_merge( $ignoredItems[ $key ] ?? [], $identifiers );
 
 		self::con()->opts->optSet(
 			MaintenanceIssueStateProvider::OPT_KEY,

@@ -166,7 +166,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'attention_items'             => [],
 				'maintenance_rows'            => [],
 				'summary_row'                 => [],
-				'context_actions_override'    => [],
 			];
 		}
 
@@ -217,7 +216,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'header_badge_override'      => $statusLabel,
 				'header_badge_status_override' => 'neutral',
 				'header_color_key_override'    => 'neutral',
-				'context_actions_override'     => [],
 			];
 			if ( $availability[ 'disabled_reason' ] === 'upgrade_required'
 				&& \in_array( $definitionKey, self::PRO_UPSELL_GROUP_KEYS, true ) ) {
@@ -314,9 +312,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 					);
 				}
 			}
-			if ( $interaction[ 'suppress_context_actions' ] ) {
-				$seed[ 'context_actions_override' ] = [];
-			}
 			if ( $interaction[ 'suppress_detail_render_action_if_noninteractive' ] ) {
 				$seed[ 'suppress_detail_render_action_if_noninteractive' ] = true;
 			}
@@ -351,7 +346,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	 *   is_interactive:bool,
 	 *   item_count_override:int,
 	 *   render_action_data:array<string,mixed>,
-	 *   suppress_context_actions:bool,
 	 *   suppress_detail_render_action_if_noninteractive:bool
 	 * }
 	 */
@@ -361,7 +355,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'is_interactive'                               => false,
 				'item_count_override'                          => 0,
 				'render_action_data'                           => [],
-				'suppress_context_actions'                     => true,
 				'suppress_detail_render_action_if_noninteractive' => true,
 			];
 		}
@@ -372,7 +365,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'is_interactive'                               => true,
 				'item_count_override'                          => 0,
 				'render_action_data'                           => $this->groupDefinitions->definitionForGroupKey( $definitionKey )[ 'render_action_data' ],
-				'suppress_context_actions'                     => false,
 				'suppress_detail_render_action_if_noninteractive' => false,
 			];
 		}
@@ -381,7 +373,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 			'is_interactive'                               => false,
 			'item_count_override'                          => 0,
 			'render_action_data'                           => [],
-			'suppress_context_actions'                     => true,
 			'suppress_detail_render_action_if_noninteractive' => false,
 		];
 	}

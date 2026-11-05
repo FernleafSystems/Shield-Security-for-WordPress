@@ -184,11 +184,16 @@ export class ShieldTableScanResults extends ShieldTableBase {
 		catch ( e ) {
 			return null;
 		}
+		// Reinstalling takes a while and mustn't be interrupted, so it holds the page with what it's doing.
+		const processingText = String( assetAction.processing_text || '' ).trim();
+		const processing = processingText.length > 0
+			? shieldServices.dialog().processing( { message: processingText, launcher } )
+			: null;
 		return this.sendTableActionRequest( this.$table, actionData, 'Communications error with site.', {
 			reloadTableOnSuccess: true,
 			resetPaging: false,
 			launcher,
-		} );
+		} ).finally( () => processing?.close() );
 	}
 
 	ignoreAllResults( launcher ) {

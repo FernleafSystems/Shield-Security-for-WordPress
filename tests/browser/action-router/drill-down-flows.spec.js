@@ -218,7 +218,8 @@ test( 'actions queue drills into groups and back out, opening details when avail
 		await expect( page.locator( '[data-drill-layer="1"]' ) ).toHaveClass( /drill-layer--compact/ );
 		const actionTabs = page.locator( '[data-operator-step-tab="1"]' );
 		await expect( actionTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
-		await expect( rail ).toBeVisible();
+		// What acts on the results sits in the table's own actions, so the queue has no side rail.
+		await expect( rail ).toBeHidden();
 		await waitForScanResultsTableRows( page.locator( '[data-scan-results-table="1"]' ).first() );
 
 		// The breadcrumb leads straight back to the landing, which already lists the lane.
@@ -271,14 +272,13 @@ test( 'actions queue opens group results in a panel over the queue', async ( { p
 		await expect( panel ).toBeVisible();
 		await expect( panel ).toHaveAttribute( 'role', 'dialog' );
 		await expect( panel ).toHaveAttribute( 'aria-modal', 'true' );
-		// The queue stays where it was underneath, and the results' actions come into the panel.
+		// The queue stays where it was underneath, and the results' actions come with them in the panel.
 		await expect( section ).toBeVisible();
-		await expect( panel.locator( '[data-operator-context-rail="1"]' ) ).toBeVisible();
+		await expect( panel.locator( '.scan-results-actions' ).first() ).toBeVisible();
 
 		await page.keyboard.press( 'Escape' );
 		await expect( panel ).toHaveCount( 0 );
 		await expect( page.locator( '[data-drill-layer="2"]' ) ).toHaveClass( /drill-layer--hidden/ );
-		// The rail goes back beside the page.
 		await expect( page.locator( '[data-drill-layer-key="detail"] [data-operator-context-rail="1"]' ) ).toHaveCount( 0 );
 
 		// The backdrop closes it too.
@@ -613,10 +613,7 @@ test( 'actions queue refreshes the same direct table after a scan-results cleanu
 		} );
 
 		await actionsQueuePage.drillToDetail( fixture );
-		const rail = page.locator( '[data-operator-context-rail="1"]' );
 		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
-		await expect( rail ).toBeVisible();
-		await expect( rail ).toHaveAccessibleName( /\S/ );
 		await expect( scanResultsTable ).toBeVisible();
 		await waitForScanResultsTableRows( scanResultsTable );
 		await scanResultsTable.evaluate( ( table ) => {
@@ -626,7 +623,6 @@ test( 'actions queue refreshes the same direct table after a scan-results cleanu
 		} );
 
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-		await expect( rail ).toBeVisible( { timeout: 20_000 } );
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
 		await expect( scanResultsTable ).toBeVisible();
 	} );
@@ -747,14 +743,15 @@ test( 'actions queue plugin reinstall shows a blocking processing dialog', async
 			} );
 
 			await actionsQueuePage.drillToDetail( fixture );
-			const rail = page.locator( '[data-operator-context-rail="1"]' );
-			const reinstallAction = await operatorContextAjaxAction(
-				rail,
-				( action ) => action?.ex === 'plugin_reinstall'
-			);
-			expect( reinstallAction ).not.toBeNull();
-			const processingText = await reinstallAction.getAttribute( 'data-operator-context-action-processing' );
+			// Reinstalling the plugin is among the results table's own actions.
+			const scanResultsTable = page.locator( '[data-actions-queue-detail="1"] [data-scan-results-table="1"]' ).first();
+			const assetActions = JSON.parse( await scanResultsTable.getAttribute( 'data-asset-actions' ) || '{}' );
+			const reinstall = ( assetActions.actions || [] ).find( ( action ) => JSON.parse( action.ajax_action_json || '{}' ).ex === 'plugin_reinstall' );
+			expect( reinstall ).toBeTruthy();
+			const processingText = reinstall.processing_text;
 			expect( processingText || '' ).not.toHaveLength( 0 );
+			const reinstallAction = page.locator( '[data-actions-queue-detail="1"] .scan-results-actions button', { hasText: reinstall.label } ).first();
+			await expect( reinstallAction ).toBeVisible();
 
 			await reinstallAction.click();
 			const dialog = page.locator( '[data-shield-accessible-dialog="1"][aria-modal="true"]:not([aria-hidden="true"])' );
@@ -842,13 +839,8 @@ test( 'actions queue ignores all malware results from the table actions column w
 			const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
 			const ignoredToggle = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
 
-			// Only a plugin or theme keeps context actions (reinstalling it); ignoring all is in the table's column.
-			if ( [ 'plugin', 'theme' ].includes( scenario.name ) ) {
-				await expect( rail ).toBeVisible();
-			}
-			if ( scenario.name === 'plugin' ) {
-				await expect( rail ).toContainText( /ignored/i );
-			}
+			// Every action, including reinstalling a plugin or theme, is in the table's own column.
+			await expect( rail ).toBeHidden();
 			await waitForScanResultsTableRows( scanResultsTable );
 			await expect( displayCollection ).toBeVisible();
 			await expectScanResultsDisplayOptions( scanResultsTable, {

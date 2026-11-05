@@ -162,6 +162,50 @@ class MaintenanceItemActionsTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_ignore_all_stores_every_listed_identifier_in_one_request() :void {
+		$action = new MaintenanceItemIgnoreTestDouble(
+			[
+				'wp_plugins_updates' => [ 'plugin-one/plugin.php', 'plugin-two/plugin.php', 'plugin-three/plugin.php' ],
+			],
+			[
+				'wp_plugins_updates' => true,
+			],
+			[
+				'maintenance_key' => 'wp_plugins_updates',
+				'identifiers'     => [ 'plugin-one/plugin.php', 'plugin-three/plugin.php' ],
+			]
+		);
+
+		$action->process();
+
+		$this->assertTrue( (bool)( $action->response()->payload()[ 'success' ] ?? false ) );
+		$stored = $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )[ 'wp_plugins_updates' ];
+		\sort( $stored );
+		$this->assertSame( [ 'plugin-one/plugin.php', 'plugin-three/plugin.php' ], $stored );
+	}
+
+	public function test_ignore_all_rejects_the_whole_list_when_one_identifier_is_unavailable() :void {
+		$before = $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY );
+		$action = new MaintenanceItemIgnoreTestDouble(
+			[
+				'wp_plugins_updates' => [ 'plugin-one/plugin.php' ],
+			],
+			[
+				'wp_plugins_updates' => true,
+			],
+			[
+				'maintenance_key' => 'wp_plugins_updates',
+				'identifiers'     => [ 'plugin-one/plugin.php', 'plugin-two/plugin.php' ],
+			]
+		);
+
+		$action->process();
+
+		$this->assertFalse( (bool)( $action->response()->payload()[ 'success' ] ?? true ) );
+		$this->assertSame( MaintenanceItemIgnore::ERROR_IDENTIFIER_UNAVAILABLE, $action->response()->payload()[ 'error_code' ] ?? '' );
+		$this->assertSame( $before, $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ) );
+	}
+
 	public function test_ignore_singleton_uses_self_token() :void {
 		$action = new MaintenanceItemIgnoreTestDouble(
 			[

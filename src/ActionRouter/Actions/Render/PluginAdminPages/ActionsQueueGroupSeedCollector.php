@@ -151,7 +151,6 @@ class ActionsQueueGroupSeedCollector {
 		], 'good' );
 		$seeds[ $seedKey ][ 'attention_items' ][] = $item;
 		unset( $seeds[ $seedKey ][ 'render_action_data_override' ] );
-		unset( $seeds[ $seedKey ][ 'context_actions_override' ] );
 	}
 
 	/**

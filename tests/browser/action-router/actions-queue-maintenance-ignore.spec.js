@@ -2,7 +2,8 @@ const { openShieldRoute, test, expect } = require( './support/shield-test' );
 
 /**
  * Ignoring maintenance items from the Actions Queue landing refreshes the queue in place: the section that
- * was open stays open, and a group of like items can be ignored all at once.
+ * was open stays open, and a group of like items can be ignored all at once, in one request. A group whose
+ * items are all ignored stays in its lane, faded, with its items behind "N ignored" so they can be restored.
  */
 
 const section = ( page, key ) => page.locator( `[data-actions-queue-section-key="${key}"]` );
@@ -41,8 +42,10 @@ test( 'ignoring an item refreshes the queue in place and keeps Review next open'
 		await ignore.click();
 		await expect.poll( async () => ignores.count(), { timeout: 20_000 } ).toBe( before - 1 );
 		await expect( head ).toHaveAttribute( 'aria-expanded', 'true' );
-		// The boxes that were open stay open after the queue refreshes.
-		await expect( section( page, 'review' ).locator( '[data-actions-queue-box-toggle][aria-expanded="false"]' ) ).toHaveCount( 0 );
+		// The boxes that were open stay open after the queue refreshes; ignored items stay behind their own button.
+		await expect( section( page, 'review' ).locator(
+			'[data-actions-queue-box-toggle]:not([data-actions-queue-box-toggle^="ignored:"])[aria-expanded="false"]'
+		) ).toHaveCount( 0 );
 		expect( navigations ).toEqual( [] );
 	} );
 } );
@@ -55,8 +58,24 @@ test( 'a group of like items can be ignored all at once', async ( { page, fixtur
 
 		const group = ignoreAll.locator( 'xpath=ancestor::*[@data-actions-queue-group-key][1]' );
 		const groupKey = await group.getAttribute( 'data-actions-queue-group-key' );
+		const itemCount = await group.locator( '[data-actions-queue-maintenance-kind="ignore"]' ).count();
+		const ignoreRequests = [];
+		page.on( 'request', ( request ) => {
+			if ( request.method() === 'POST' && request.url().includes( '/admin-ajax.php' )
+				&& new URLSearchParams( request.postData() || '' ).get( 'ex' ) === 'maintenance_item_ignore' ) {
+				ignoreRequests.push( request );
+			}
+		} );
+
 		await ignoreAll.click();
-		await expect( page.locator( `[data-actions-queue-section-key="review"] [data-actions-queue-group-key="${groupKey}"]` ) )
-			.toHaveCount( 0, { timeout: 30_000 } );
+		const ignoredGroup = page.locator( `[data-actions-queue-section-key="review"] .is-all-ignored[data-actions-queue-group-key="${groupKey}"]` );
+		await expect( ignoredGroup ).toHaveCount( 1, { timeout: 30_000 } );
+		expect( ignoreRequests ).toHaveLength( 1 );
+
+		// Its items wait behind "N ignored", each with its way back.
+		const showIgnored = ignoredGroup.locator( '[data-actions-queue-box-toggle^="ignored:"]' );
+		await expect( showIgnored ).toContainText( String( itemCount ) );
+		await showIgnored.click();
+		await expect( ignoredGroup.locator( '[data-actions-queue-maintenance-kind="unignore"]' ) ).toHaveCount( itemCount );
 	} );
 } );

@@ -39,9 +39,34 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 		bool $isHealthy = false,
 		bool $useHealthyCompanionKey = false
 	) :array {
-		return $this->groupDefinitions->isReviewMaintenanceAggregateGroupKey( $groupKey )
+		$seed = $this->groupDefinitions->isReviewMaintenanceAggregateGroupKey( $groupKey )
 			? $this->buildAggregateSeed( $groupKey, $maintenanceItems, $isHealthy, $useHealthyCompanionKey )
 			: $this->buildSingleItemSeed( $maintenanceItems[ 0 ], $isHealthy );
+		return $isHealthy ? $this->withIgnoredRowsApart( $seed ) : $seed;
+	}
+
+	/**
+	 * Items that are only passing because they're ignored keep their way back: they're listed apart, behind the
+	 * group's "N ignored", rather than as rows that would read as needing action.
+	 * @phpstan-param GroupSeed $seed
+	 * @phpstan-return GroupSeed
+	 */
+	private function withIgnoredRowsApart( array $seed ) :array {
+		$rows = empty( $seed[ 'maintenance_rows' ] )
+			? ( empty( $seed[ 'summary_row' ] ) ? [] : [ $seed[ 'summary_row' ] ] )
+			: $seed[ 'maintenance_rows' ];
+		$ignored = \array_values( \array_filter( $rows, static fn( array $row ) :bool => $row[ 'is_ignored' ] ) );
+		if ( !empty( $ignored ) ) {
+			$seed[ 'ignored_rows' ] = $ignored;
+			$seed[ 'maintenance_rows' ] = \array_values( \array_filter(
+				$seed[ 'maintenance_rows' ],
+				static fn( array $row ) :bool => !$row[ 'is_ignored' ]
+			) );
+			if ( !empty( $seed[ 'summary_row' ] ) && $seed[ 'summary_row' ][ 'is_ignored' ] ) {
+				$seed[ 'summary_row' ] = [];
+			}
+		}
+		return $seed;
 	}
 
 	/**

@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type GroupLink from ActionsQueueGroupsBuilder
  * @phpstan-import-type GroupManagementLink from ActionsQueueGroupsBuilder
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
- * @phpstan-import-type OperatorChromeActionInput from OperatorChromeContract
  * @phpstan-type GroupSeed array{
  *   key:string,
  *   definition_key:string,
@@ -35,7 +34,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   header_badge_override?:string,
  *   header_badge_status_override?:string,
  *   header_color_key_override?:string,
- *   context_actions_override?:list<OperatorChromeActionInput>,
  *   suppress_detail_render_action_if_noninteractive?:bool,
  *   detail_table:array<string,mixed>,
  *   render_action_class_override?:class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender>,
@@ -65,7 +63,6 @@ class ActionsQueueGroupContractBuilder {
 	private ActionsQueueDrillDownPresentationBuilder $presentation;
 	private ActionsQueueAssetMetadataResolver $assetMetadataResolver;
 	private ScanResultsDisplayOptions $queueScanResultsOptions;
-	private ActionsQueueContextActionsBuilder $contextActionsBuilder;
 	private ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder;
 	private ActionsQueueScanResultScopeResolver $scanResultScopeResolver;
 
@@ -74,7 +71,6 @@ class ActionsQueueGroupContractBuilder {
 		ActionsQueueDrillDownPresentationBuilder $presentation,
 		?ActionsQueueAssetMetadataResolver $assetMetadataResolver = null,
 		?ScanResultsDisplayOptions $queueScanResultsOptions = null,
-		?ActionsQueueContextActionsBuilder $contextActionsBuilder = null,
 		?ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder = null,
 		?ActionsQueueScanResultScopeResolver $scanResultScopeResolver = null
 	) {
@@ -83,10 +79,6 @@ class ActionsQueueGroupContractBuilder {
 		$this->assetMetadataResolver = $assetMetadataResolver ?? new ActionsQueueAssetMetadataResolver();
 		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ScanResultsDisplayOptions();
 		$this->scanResultScopeResolver = $scanResultScopeResolver ?? new ActionsQueueScanResultScopeResolver();
-		$this->contextActionsBuilder = $contextActionsBuilder ?? new ActionsQueueContextActionsBuilder(
-			$this->queueScanResultsOptions,
-			$this->scanResultScopeResolver
-		);
 		$this->scanResultScopeStateBuilder = $scanResultScopeStateBuilder ?? new ActionsQueueScanResultScopeStateBuilder(
 			null,
 			$this->queueScanResultsOptions
@@ -309,15 +301,6 @@ class ActionsQueueGroupContractBuilder {
 		if ( $suppressDetailRenderAction ) {
 			$renderActionData = [];
 		}
-		$contextActions = \array_key_exists( 'context_actions_override', $seed )
-			? $seed[ 'context_actions_override' ]
-			: $this->contextActionsBuilder->buildForGroup(
-				$seed[ 'definition_key' ],
-				$seed[ 'label' ],
-				$seed[ 'detail_shell' ],
-				$seed[ 'item_count' ],
-				$renderActionData
-			);
 		$seedHeaderOverrides = \array_filter( [
 			'summary'      => $seed[ 'header_summary_override' ] ?? '',
 			'focus'        => $seed[ 'header_focus_override' ] ?? '',
@@ -346,7 +329,8 @@ class ActionsQueueGroupContractBuilder {
 					$renderActionData
 				),
 			$narrative,
-			$contextActions,
+			// What acts on a whole plugin or theme sits in its results table's actions, so the side rail has none.
+			[],
 			$headerOverrides
 		);
 
