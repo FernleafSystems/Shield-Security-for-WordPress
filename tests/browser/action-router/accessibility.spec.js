@@ -21,8 +21,13 @@ async function exerciseReportsChart( page ) {
 	const event = form.locator( 'input[name="event_keys[]"]' ).first();
 	const submit = form.locator( '[data-reports-chart-submit="1"]' );
 
+	// The chart opens drawn, with every event selected; unticking and reticking one works by keyboard.
 	await expect( event ).toBeVisible();
+	await expect( event ).toBeChecked();
+	await expect( page.locator( '[data-reports-chart-results="1"]' ) ).toBeVisible( { timeout: 20_000 } );
 	await event.focus();
+	await event.press( 'Space' );
+	await expect( event ).not.toBeChecked();
 	await event.press( 'Space' );
 	await expect( event ).toBeChecked();
 	await expect( submit ).toBeEnabled();

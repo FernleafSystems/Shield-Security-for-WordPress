@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\
 	BuildChartData,
 	ChartRequestVO
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\UiPreferences;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class ReportingChartTrends extends BaseAction {
@@ -14,8 +15,10 @@ class ReportingChartTrends extends BaseAction {
 
 	protected function exec() {
 		try {
-			$chart = ( new BuildChartData() )
-				->build( ( new ChartRequestVO() )->applyFromArray( FormParams::Retrieve() ) );
+			$request = ( new ChartRequestVO() )->applyFromArray( FormParams::Retrieve() );
+			$chart = ( new BuildChartData() )->build( $request );
+			// The page opens on the chart last drawn.
+			( new UiPreferences() )->setReportsTrends( $request->period_key, $request->event_keys );
 
 			$this->response()
 				 ->setPayload( [

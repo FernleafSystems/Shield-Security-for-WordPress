@@ -18,22 +18,24 @@ class Info extends BaseComponent {
 	protected function getRenderData() :array {
 		$item = $this->getScanItem();
 		try {
+			$assessment = ( new MalwareAssessmentPresenter() )->present(
+				$item->is_mal ? $item->getMalwareRecord() : null,
+				$item->is_mal && self::con()->caps->canScanMalwareMalai()
+			);
+			$verdict = $this->getVerdict( $assessment[ 'assessment_key' ] );
 			$data = [
 				'flags'   => [
 					'show_malai_status' => $item->is_mal
 				],
 				'vars'    => [
 					'file_full_path'        => $item->path_full,
-					'verdict_tone'          => $item->is_mal ? 'danger' : 'warning',
-					'verdict_title'         => $this->getVerdictTitle(),
-					'file_statuses'         => $this->getFileStatuses(),
+					'verdict_tone'          => $verdict[ 'tone' ],
+					'verdict_title'         => $verdict[ 'title' ],
+					'file_statuses'         => $this->getFileStatuses( $assessment[ 'assessment_key' ] ),
 					'belongs_to'            => $this->resolveSource()->label(),
 					'file_description'      => $this->getFileDescriptionLines(),
 					'recommendations_lines' => $this->getFileRecommendations(),
-					'malware_assessment'    => ( new MalwareAssessmentPresenter() )->present(
-						$item->is_mal ? $item->getMalwareRecord() : null,
-						$item->is_mal && self::con()->caps->canScanMalwareMalai()
-					),
+					'malware_assessment'    => $assessment,
 				],
 				'strings' => [
 					'heading_malai_status' => __( 'Malware assessment', 'wp-simple-firewall' ),
@@ -169,10 +171,48 @@ class Info extends BaseComponent {
 		return OriginalFileSource::forItem( $this->getScanItem() );
 	}
 
-	private function getVerdictTitle() :string {
-		if ( $this->getScanItem()->is_mal ) {
-			return __( 'Shield found a malware pattern in this file', 'wp-simple-firewall' );
+	/**
+	 * The headline says what the malware assessment found, not only that a pattern matched: a pattern match
+	 * that the assessment calls clean shouldn't read as malware. When the file has another finding, such as
+	 * a modification, that leads once the pattern is known to be harmless.
+	 * @return array{title:string,tone:string}
+	 */
+	private function getVerdict( string $assessmentKey ) :array {
+		$item = $this->getScanItem();
+		if ( $item->is_mal ) {
+			$hasOtherFinding = $this->getFileFinding() !== '';
+			switch ( $assessmentKey ) {
+				case 'malware':
+					return [ 'title' => __( 'Shield found malware in this file', 'wp-simple-firewall' ), 'tone' => 'danger' ];
+				case 'likely_malware':
+					return [ 'title' => __( 'This file probably contains malware', 'wp-simple-firewall' ), 'tone' => 'danger' ];
+				case 'clean':
+					if ( !$hasOtherFinding ) {
+						return [
+							'title' => __( 'This file matched a malware pattern, but it is clean', 'wp-simple-firewall' ),
+							'tone'  => 'success',
+						];
+					}
+					break;
+				case 'likely_clean':
+					if ( !$hasOtherFinding ) {
+						return [
+							'title' => __( 'This file matched a malware pattern, but is most likely clean', 'wp-simple-firewall' ),
+							'tone'  => 'warning',
+						];
+					}
+					break;
+				default:
+					return [
+						'title' => __( 'This file matched a malware pattern and needs review', 'wp-simple-firewall' ),
+						'tone'  => 'danger',
+					];
+			}
 		}
+		return [ 'title' => $this->getFileFindingTitle(), 'tone' => 'warning' ];
+	}
+
+	private function getFileFindingTitle() :string {
 		switch ( $this->getFileFinding() ) {
 			case 'unrecognised':
 				return __( "This file isn't recognised", 'wp-simple-firewall' );
@@ -190,7 +230,7 @@ class Info extends BaseComponent {
 	/**
 	 * @return list<FileStatus>
 	 */
-	private function getFileStatuses() :array {
+	private function getFileStatuses( string $assessmentKey ) :array {
 		$labels = [
 			'unrecognised' => __( 'Unrecognised', 'wp-simple-firewall' ),
 			'missing'      => __( 'Missing', 'wp-simple-firewall' ),
@@ -200,7 +240,21 @@ class Info extends BaseComponent {
 
 		$statuses = [];
 		if ( $this->getScanItem()->is_mal ) {
-			$statuses[] = [ 'label' => __( 'Malware pattern detected', 'wp-simple-firewall' ), 'tone' => 'danger' ];
+			switch ( $assessmentKey ) {
+				case 'malware':
+				case 'likely_malware':
+					$statuses[] = [ 'label' => __( 'Malware', 'wp-simple-firewall' ), 'tone' => 'danger' ];
+					break;
+				case 'clean':
+					$statuses[] = [ 'label' => __( 'Pattern match: clean', 'wp-simple-firewall' ), 'tone' => 'success' ];
+					break;
+				case 'likely_clean':
+					$statuses[] = [ 'label' => __( 'Pattern match: likely clean', 'wp-simple-firewall' ), 'tone' => 'secondary' ];
+					break;
+				default:
+					$statuses[] = [ 'label' => __( 'Malware pattern match', 'wp-simple-firewall' ), 'tone' => 'danger' ];
+					break;
+			}
 		}
 		$finding = $this->getFileFinding();
 		if ( $finding !== '' ) {

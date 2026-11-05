@@ -10,6 +10,11 @@
 		border-color: var(--bs-danger-border-subtle);
 		background: var(--bs-danger-bg-subtle);
 	}
+
+	&--success {
+		border-color: var(--bs-success-border-subtle);
+		background: var(--bs-success-bg-subtle);
+	}
 }
 
 .scan-item-overview__facts {

@@ -1,4 +1,5 @@
 import { ObjectOps } from "../../util/ObjectOps";
+import { highlightSearchTerms } from "../../util/SearchHighlight";
 import { AjaxService } from "../services/AjaxService";
 import { AjaxBatchService } from "../services/AjaxBatchService";
 import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
@@ -291,7 +292,7 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 				}
 
 				this.replaceLayerBodyHtml( searchBody, resp.data.render_output, true );
-				this.highlightSearchTerms( searchBody, query );
+				highlightSearchTerms( searchBody, query );
 				this.setSearchState( 'ready', this.rootEl );
 			} )
 			.catch( () => {
@@ -376,43 +377,6 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 			this.buildSearchStatusMarkup( this.getSearchLoadingText(), true )
 		);
 		this.setSearchState( 'loading', root );
-	}
-
-	/**
-	 * Marks the searched words in each result's name and detail, so it's clear why it matched.
-	 */
-	highlightSearchTerms( searchBody, query ) {
-		const terms = String( query || '' ).toLowerCase().split( /\s+/ ).filter( ( term ) => term.length > 1 );
-		if ( terms.length < 1 ) {
-			return;
-		}
-		const pattern = new RegExp( `(${terms.map( ( term ) => term.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ) ).join( '|' )})`, 'gi' );
-		searchBody.querySelectorAll( '[data-configure-search-highlight="1"]' ).forEach( ( element ) => {
-			const walker = document.createTreeWalker( element, NodeFilter.SHOW_TEXT );
-			const textNodes = [];
-			while ( walker.nextNode() ) {
-				textNodes.push( walker.currentNode );
-			}
-			textNodes.forEach( ( node ) => {
-				const text = node.nodeValue || '';
-				if ( !pattern.test( text ) ) {
-					return;
-				}
-				pattern.lastIndex = 0;
-				const fragment = document.createDocumentFragment();
-				text.split( pattern ).forEach( ( part, index ) => {
-					if ( index % 2 === 1 ) {
-						const mark = document.createElement( 'mark' );
-						mark.textContent = part;
-						fragment.appendChild( mark );
-					}
-					else if ( part.length > 0 ) {
-						fragment.appendChild( document.createTextNode( part ) );
-					}
-				} );
-				node.parentNode?.replaceChild( fragment, node );
-			} );
-		} );
 	}
 
 	renderSearchFailure( root, searchBody ) {

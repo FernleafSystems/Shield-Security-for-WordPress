@@ -307,6 +307,12 @@
 	padding: 8px 14px 2px;
 }
 
+// The search dialog heads each kind of result with a real heading, set like Configure's.
+h3.configure-search-results__heading {
+	line-height: inherit;
+	margin: 0;
+}
+
 .configure-search-results__name {
 	align-items: center;
 	display: flex;

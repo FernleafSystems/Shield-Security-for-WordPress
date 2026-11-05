@@ -80,6 +80,10 @@ export class ShieldTableScanResults extends ShieldTableBase {
 				...this._base_data.vars.malware_refresh,
 				onRefresh: ( launcher ) => this.refreshMalwareAssessments( launcher ),
 			},
+			assetActions: this._base_data.vars.asset_actions ? {
+				...this._base_data.vars.asset_actions,
+				onAction: ( assetAction, launcher ) => this.runAssetAction( assetAction, launcher ),
+			} : null,
 		} );
 		const wrapper = this.$table.table().container();
 		if ( buttons.length === 0 || !( wrapper instanceof HTMLElement ) || wrapper.parentElement === null ) {
@@ -135,6 +139,7 @@ export class ShieldTableScanResults extends ShieldTableBase {
 			selected: 'Selected',
 			all: 'All results',
 			tools: this._base_data.vars.malware_refresh === null ? 'Tools' : 'Malware scan',
+			asset: this._base_data.vars.asset_actions?.heading || '',
 		};
 		const starts = [
 			[ 'selected', container.querySelector( '.btn' ) ],
@@ -149,6 +154,40 @@ export class ShieldTableScanResults extends ShieldTableBase {
 				heading.textContent = headings[ key ];
 				button.before( heading );
 			}
+		} );
+	}
+
+	/**
+	 * A link goes straight there; anything else is confirmed first, then sent, and the results reload after.
+	 */
+	async runAssetAction( assetAction, launcher ) {
+		if ( assetAction.kind === 'href' ) {
+			window.location.href = assetAction.href;
+			return null;
+		}
+
+		const confirmText = String( assetAction.confirm_text || '' ).trim();
+		if ( confirmText.length > 0 && !( await shieldServices.dialog().confirm( {
+			title: shieldStrings.string( 'dialog_confirm_title' ),
+			message: confirmText,
+			cancelLabel: shieldStrings.string( 'cancel' ),
+			danger: true,
+			launcher,
+		} ) ) ) {
+			return null;
+		}
+
+		let actionData;
+		try {
+			actionData = JSON.parse( assetAction.ajax_action_json || '{}' );
+		}
+		catch ( e ) {
+			return null;
+		}
+		return this.sendTableActionRequest( this.$table, actionData, 'Communications error with site.', {
+			reloadTableOnSuccess: true,
+			resetPaging: false,
+			launcher,
 		} );
 	}
 

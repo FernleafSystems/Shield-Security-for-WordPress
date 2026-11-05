@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Count
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
  * @phpstan-import-type AdminBarExactScanCounts from Counts
@@ -181,6 +182,8 @@ class AdminBarMenu {
 			$items[] = [
 				'id'    => $con->prefix( 'problems-scan-'.$definition[ 'suffix' ] ),
 				'title' => $definition[ 'label' ].$this->counterMarkup( (string)$count ),
+				// Straight to that problem in the Actions Queue, which opens and highlights it.
+				'href'  => URL::Build( $con->plugin_urls->actionsQueueScans(), [ 'aq_focus' => $definition[ 'queue_group' ] ] ),
 			];
 		}
 
@@ -188,33 +191,39 @@ class AdminBarMenu {
 	}
 
 	/**
-	 * @return array<string,array{suffix:string,label:string}>
+	 * @return array<string,array{suffix:string,label:string,queue_group:string}>
 	 */
 	private function hackGuardItemDefinitions() :array {
 		return [
 			'malware'           => [
-				'suffix' => 'malware',
-				'label'  => __( 'Potential Malware', 'wp-simple-firewall' ),
+				'suffix'      => 'malware',
+				'label'       => __( 'Potential Malware', 'wp-simple-firewall' ),
+				'queue_group' => 'malware',
 			],
 			'wp_files'          => [
-				'suffix' => 'wp',
-				'label'  => __( 'WordPress Core Files', 'wp-simple-firewall' ),
+				'suffix'      => 'wp',
+				'label'       => __( 'WordPress Core Files', 'wp-simple-firewall' ),
+				'queue_group' => 'wordpress',
 			],
 			'plugin_files'      => [
-				'suffix' => 'plugin',
-				'label'  => __( 'Plugin Files', 'wp-simple-firewall' ),
+				'suffix'      => 'plugin',
+				'label'       => __( 'Plugin Files', 'wp-simple-firewall' ),
+				'queue_group' => 'plugins',
 			],
 			'theme_files'       => [
-				'suffix' => 'theme',
-				'label'  => __( 'Theme Files', 'wp-simple-firewall' ),
+				'suffix'      => 'theme',
+				'label'       => __( 'Theme Files', 'wp-simple-firewall' ),
+				'queue_group' => 'themes',
 			],
 			'abandoned'         => [
-				'suffix' => 'apc',
-				'label'  => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
+				'suffix'      => 'apc',
+				'label'       => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
+				'queue_group' => 'abandoned',
 			],
 			'vulnerable_assets' => [
-				'suffix' => 'wpv',
-				'label'  => __( 'Vulnerable Plugins', 'wp-simple-firewall' ),
+				'suffix'      => 'wpv',
+				'label'       => __( 'Vulnerable Plugins', 'wp-simple-firewall' ),
+				'queue_group' => 'vulnerabilities',
 			],
 		];
 	}

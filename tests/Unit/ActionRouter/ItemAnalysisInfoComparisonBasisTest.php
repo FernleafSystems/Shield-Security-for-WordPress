@@ -170,9 +170,31 @@ class ItemAnalysisInfoComparisonBasisTest extends BaseUnitTest {
 		$this->assertSame( 'danger', $data[ 'vars' ][ 'verdict_tone' ] );
 		$this->assertStringContainsString( 'malware', $data[ 'vars' ][ 'verdict_title' ] );
 		$this->assertSame( [
-			[ 'label' => 'Malware pattern detected', 'tone' => 'danger' ],
+			[ 'label' => 'Malware pattern match', 'tone' => 'danger' ],
 			[ 'label' => 'Modified', 'tone' => 'warning' ],
 		], $data[ 'vars' ][ 'file_statuses' ] );
+	}
+
+	public function test_overview_does_not_call_a_likely_clean_pattern_match_malware() :void {
+		$record = new Record();
+		$record->malai_status = 'predicted_clean';
+		$record->malai_status_context = '';
+
+		$malwareOnly = ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $this->pluginItem( [
+			'is_mal' => true,
+		] )->setMalwareRecord( $record ) ] ) )->renderDataForTest();
+		$this->assertSame( 'warning', $malwareOnly[ 'vars' ][ 'verdict_tone' ] );
+		$this->assertStringContainsString( 'likely clean', $malwareOnly[ 'vars' ][ 'verdict_title' ] );
+		$this->assertSame( [
+			[ 'label' => 'Pattern match: likely clean', 'tone' => 'secondary' ],
+		], $malwareOnly[ 'vars' ][ 'file_statuses' ] );
+
+		$alsoModified = ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $this->pluginItem( [
+			'is_mal'          => true,
+			'is_checksumfail' => true,
+		] )->setMalwareRecord( $record ) ] ) )->renderDataForTest();
+		$this->assertSame( 'warning', $alsoModified[ 'vars' ][ 'verdict_tone' ] );
+		$this->assertStringContainsString( 'modified', $alsoModified[ 'vars' ][ 'verdict_title' ] );
 	}
 
 	public function test_overview_without_malware_uses_the_finding_as_its_verdict() :void {

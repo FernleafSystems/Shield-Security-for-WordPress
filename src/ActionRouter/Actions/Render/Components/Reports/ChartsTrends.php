@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\ChartOptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\UiPreferences;
 
 class ChartsTrends extends Base {
 
@@ -30,12 +31,33 @@ class ChartsTrends extends Base {
 		];
 	}
 
+	/**
+	 * The chart opens drawn: on the period and events last charted, or every event over the default period.
+	 */
 	protected function getRenderData() :array {
+		$last = ( new UiPreferences() )->getReportsTrends();
+		$lastEvents = $last === null ? [] : ChartOptions::normalizeEventKeys( $last[ 'events' ] );
+		$lastPeriod = $last === null ? '' : ChartOptions::normalizePeriodKey( $last[ 'period' ] );
+
+		$events = ChartOptions::buildSelectableEvents();
+		foreach ( $events as &$event ) {
+			$event[ 'is_selected' ] = empty( $lastEvents ) || \in_array( $event[ 'key' ], $lastEvents, true );
+		}
+		unset( $event );
+
+		$periods = ChartOptions::buildSelectablePeriods();
+		if ( $lastPeriod !== '' ) {
+			foreach ( $periods as &$period ) {
+				$period[ 'is_default' ] = $period[ 'key' ] === $lastPeriod;
+			}
+			unset( $period );
+		}
+
 		return [
 			'strings' => self::renderStrings(),
 			'vars'    => [
-				'events'  => ChartOptions::buildSelectableEvents(),
-				'periods' => ChartOptions::buildSelectablePeriods(),
+				'events'  => $events,
+				'periods' => $periods,
 			],
 		];
 	}

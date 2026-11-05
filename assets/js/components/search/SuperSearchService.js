@@ -19,13 +19,15 @@ export class SuperSearchService extends BaseComponent {
 		 * So we only intercept Ctrl+k if the modal isn't currently displayed. Otherwise, we let the browser
 		 * have its say on what happens. This allows for accessing the browser address field with a double-press.
 		 */
-		document.addEventListener( 'keydown', ( evt ) => {
+		// Caught first, and kept from WordPress's own command palette, which listens for the same keys.
+		window.addEventListener( 'keydown', ( evt ) => {
 			if ( evt.ctrlKey && evt.key === 'k' && !this.theModalDisplayed ) {
 				evt.preventDefault();
+				evt.stopImmediatePropagation();
 				this.launchModal();
 				return false;
 			}
-		}, false );
+		}, true );
 
 		$( '#SuperSearchBox select' ).select2( {
 			minimumInputLength: 3,

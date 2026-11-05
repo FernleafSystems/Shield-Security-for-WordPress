@@ -51,9 +51,49 @@ export class ActionsQueueSections extends BaseAutoExecComponent {
 			this.setView( root, button.dataset.actionsQueueView || 'sections' );
 		} );
 
+		// A link to one problem, such as from the admin bar, names its group: it's opened and shown once it's there.
+		this.focusGroupKey = new URLSearchParams( window.location.search ).get( 'aq_focus' ) || '';
+
 		// The landing is re-rendered after actions, bringing its own choice each time; it always moves up.
 		this.placeViewChoice();
-		new MutationObserver( () => this.placeViewChoice() ).observe( document.body, { childList: true, subtree: true } );
+		this.focusLinkedGroup();
+		new MutationObserver( () => {
+			this.placeViewChoice();
+			this.focusLinkedGroup();
+		} ).observe( document.body, { childList: true, subtree: true } );
+	}
+
+	/**
+	 * Opens the section (or tab) and folded box holding the linked group, scrolls to it and highlights it briefly.
+	 */
+	focusLinkedGroup() {
+		if ( this.focusGroupKey === '' ) {
+			return;
+		}
+		const group = document.querySelector(
+			`${ActionsQueueSections.ROOT_SELECTOR} [data-actions-queue-group-key="${CSS.escape( this.focusGroupKey )}"]`
+		);
+		if ( !( group instanceof HTMLElement ) ) {
+			return;
+		}
+		this.focusGroupKey = '';
+
+		const root = group.closest( ActionsQueueSections.ROOT_SELECTOR );
+		const section = group.closest( '[data-actions-queue-section-key]' );
+		if ( root?.dataset.view === 'tabs' ) {
+			this.selectTab( root, section?.dataset.actionsQueueSectionKey || '' );
+		}
+		else {
+			const head = section?.querySelector( '[data-actions-queue-section-toggle="1"]' );
+			head?.getAttribute( 'aria-expanded' ) === 'false' && head.click();
+		}
+		const boxToggle = group.querySelector( ':scope [data-actions-queue-box-toggle][aria-expanded="false"]' )
+			|| group.closest( '.actions-queue-row-group' )?.querySelector( '[data-actions-queue-box-toggle][aria-expanded="false"]' );
+		boxToggle instanceof HTMLElement && boxToggle.click();
+
+		group.scrollIntoView( { block: 'center', behavior: window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ? 'auto' : 'smooth' } );
+		group.classList.add( 'is-linked' );
+		setTimeout( () => group.classList.remove( 'is-linked' ), 4000 );
 	}
 
 	/**

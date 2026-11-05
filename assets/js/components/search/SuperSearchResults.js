@@ -2,6 +2,7 @@ import $ from 'jquery';
 import { BaseComponent } from "../BaseComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { AjaxService } from "../services/AjaxService";
+import { highlightSearchTerms } from "../../util/SearchHighlight";
 
 export class SuperSearchResults extends BaseComponent {
 
@@ -45,7 +46,9 @@ export class SuperSearchResults extends BaseComponent {
 				.send( data, false )
 				.then( ( resp ) => {
 					if ( resp.success ) {
-						$( '#ModalSuperSearchBox .modal-body' ).html( resp.data.render_output );
+						const body = document.querySelector( '#ModalSuperSearchBox .modal-body' );
+						$( body ).html( resp.data.render_output );
+						body && highlightSearchTerms( body, search_text );
 					}
 					else {
 						shieldServices.dialog().message( {

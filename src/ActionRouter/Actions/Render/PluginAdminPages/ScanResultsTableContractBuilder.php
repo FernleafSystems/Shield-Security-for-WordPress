@@ -25,6 +25,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\{
  *   table_action_attr?:string,
  *   results_display_options_attr:string,
  *   malware_refresh_attr:?string,
+ *   asset_actions_attr?:string,
  *   render_item_analysis_attr?:string,
  *   full_log_href:string,
  *   full_log_text:string,
@@ -191,6 +192,22 @@ class ScanResultsTableContractBuilder {
 			'empty_status'              => 'info',
 			'empty_text'                => '',
 		];
+	}
+
+	/**
+	 * What acts on the whole plugin or theme, such as reinstalling it, joins the table's actions column.
+	 * @phpstan-param ScanResultsTableContract $table
+	 * @param list<array<string,mixed>> $actions
+	 * @phpstan-return ScanResultsTableContract
+	 */
+	public function withAssetActions( array $table, string $heading, array $actions ) :array {
+		if ( !empty( $actions ) ) {
+			$table[ 'asset_actions_attr' ] = $this->encodeJsonAttr( [
+				'heading' => $heading,
+				'actions' => $actions,
+			] );
+		}
+		return $table;
 	}
 
 	/**

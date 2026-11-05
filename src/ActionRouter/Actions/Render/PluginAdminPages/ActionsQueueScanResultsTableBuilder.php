@@ -48,11 +48,15 @@ class ActionsQueueScanResultsTableBuilder {
 	 * @phpstan-return ScanResultsTableContract
 	 */
 	public function buildPluginTable( string $pluginFile, ?array $options = null ) :array {
-		return $this->tableContractBuilder->buildFileStatus(
-			InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
-			$pluginFile,
-			$this->buildFullLogHref(),
-			$this->buildTableActionData( $options )
+		return $this->tableContractBuilder->withAssetActions(
+			$this->tableContractBuilder->buildFileStatus(
+				InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
+				$pluginFile,
+				$this->buildFullLogHref(),
+				$this->buildTableActionData( $options )
+			),
+			__( 'Plugin', 'wp-simple-firewall' ),
+			( new PluginReinstallContextActionBuilder() )->buildForPluginFile( $pluginFile )
 		);
 	}
 
@@ -61,11 +65,15 @@ class ActionsQueueScanResultsTableBuilder {
 	 * @phpstan-return ScanResultsTableContract
 	 */
 	public function buildThemeTable( string $stylesheet, ?array $options = null ) :array {
-		return $this->tableContractBuilder->buildFileStatus(
-			InvestigationTableContract::SUBJECT_TYPE_THEME,
-			$stylesheet,
-			$this->buildFullLogHref(),
-			$this->buildTableActionData( $options )
+		return $this->tableContractBuilder->withAssetActions(
+			$this->tableContractBuilder->buildFileStatus(
+				InvestigationTableContract::SUBJECT_TYPE_THEME,
+				$stylesheet,
+				$this->buildFullLogHref(),
+				$this->buildTableActionData( $options )
+			),
+			__( 'Theme', 'wp-simple-firewall' ),
+			( new ThemeReinstallContextActionBuilder() )->buildForThemeStylesheet( $stylesheet )
 		);
 	}
 

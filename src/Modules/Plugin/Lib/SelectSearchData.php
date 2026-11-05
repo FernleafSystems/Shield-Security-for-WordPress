@@ -22,9 +22,12 @@ class SelectSearchData {
 		$this->searchTextTokenBuilder = $searchTextTokenBuilder ?? new SearchTextTokenBuilder();
 	}
 
-	public function build( string $terms ) :array {
+	/**
+	 * @param bool $includeConfig false when the settings are searched another way, as the search dialog does
+	 */
+	public function build( string $terms, bool $includeConfig = true ) :array {
 		$terms = \strtolower( \trim( sanitize_text_field( $terms ) ) );
-		return $this->postProcessResults( \array_merge( $this->textSearch( $terms ), $this->ipSearch( $terms ) ) );
+		return $this->postProcessResults( \array_merge( $this->textSearch( $terms, $includeConfig ), $this->ipSearch( $terms ) ) );
 	}
 
 	private function postProcessResults( array $results ) :array {
@@ -87,14 +90,14 @@ class SelectSearchData {
 	 * Note use of \array_values() throughout. This is required by Select2 when it receives the data.
 	 * All arrays must have simple numeric keys starting from 0.
 	 */
-	protected function textSearch( string $search ) :array {
+	protected function textSearch( string $search, bool $includeConfig = true ) :array {
 		$terms = $this->searchTextTokenBuilder->extractTerms( $search );
 
 		$optionGroups = \array_merge(
 			$this->getToolsSearch(),
 			$this->getIntegrationsSearch(),
 			$this->getExternalSearch(),
-			$this->getConfigSearch()
+			$includeConfig ? $this->getConfigSearch() : []
 		);
 
 		foreach ( $optionGroups as $optGroupKey => $optionGroup ) {
