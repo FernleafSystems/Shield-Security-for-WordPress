@@ -7,6 +7,7 @@ import { ShieldTableIpRules } from "../tables/ShieldTableIpRules";
 import { ShieldTableSessions } from "../tables/ShieldTableSessions";
 import { LiveTrafficPoller } from "../general/LiveTrafficPoller";
 import { announceStatus } from "../ui/ShieldA11y";
+import { markCurrentTab, showTabPanel } from "../../util/Tabs";
 
 /**
  * Investigate's one lookup, and its tabs.
@@ -235,16 +236,8 @@ export class InvestigateLookup {
 	 */
 	showTab( landing, tab ) {
 		landing.dataset.investigateCurrentTab = tab;
-		landing.querySelectorAll( '[data-investigate-tab]' ).forEach( ( link ) => {
-			const isCurrent = link.getAttribute( 'data-investigate-tab' ) === tab;
-			link.classList.toggle( 'is-current', isCurrent );
-			isCurrent ? link.setAttribute( 'aria-current', 'page' ) : link.removeAttribute( 'aria-current' );
-		} );
-		landing.querySelectorAll( '[data-investigate-tabpanel]' ).forEach( ( panel ) => {
-			if ( panel instanceof HTMLElement ) {
-				panel.hidden = panel.getAttribute( 'data-investigate-tabpanel' ) !== tab;
-			}
-		} );
+		markCurrentTab( landing, 'data-investigate-tab', tab );
+		showTabPanel( landing, 'data-investigate-tabpanel', tab );
 		const subjects = landing.querySelector( '[data-investigate-section="drilldown"]' );
 		subjects instanceof HTMLElement && ( subjects.hidden = tab !== 'lookup' );
 

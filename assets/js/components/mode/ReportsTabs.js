@@ -1,3 +1,5 @@
+import { markCurrentTab, showTabPanel } from "../../util/Tabs";
+
 /**
  * Reports' tabs: charts and trends, the security reports, and the reporting and alerts settings. Every tab
  * is on the page from the start, so each opens in place; the address follows, so a reload or a copied link
@@ -28,19 +30,11 @@ export class ReportsTabs {
 			return;
 		}
 		landing.dataset.reportsCurrentTab = key;
-		landing.querySelectorAll( '[data-reports-tab]' ).forEach( ( link ) => {
-			const isCurrent = link.getAttribute( 'data-reports-tab' ) === key;
-			link.classList.toggle( 'is-current', isCurrent );
-			isCurrent ? link.setAttribute( 'aria-current', 'page' ) : link.removeAttribute( 'aria-current' );
-			if ( isCurrent && link instanceof HTMLAnchorElement && link.href !== window.location.href ) {
-				window.history.replaceState( window.history.state, '', link.href );
-			}
-		} );
-		landing.querySelectorAll( '[data-reports-tabpanel]' ).forEach( ( panel ) => {
-			if ( panel instanceof HTMLElement ) {
-				panel.hidden = panel.getAttribute( 'data-reports-tabpanel' ) !== key;
-			}
-		} );
+		const link = markCurrentTab( landing, 'data-reports-tab', key );
+		if ( link instanceof HTMLAnchorElement && link.href !== window.location.href ) {
+			window.history.replaceState( window.history.state, '', link.href );
+		}
+		showTabPanel( landing, 'data-reports-tabpanel', key );
 		this.openSettings( landing, key );
 	}
 

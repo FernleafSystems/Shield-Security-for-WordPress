@@ -1,4 +1,5 @@
 import { getActiveLayerIndex, getLayersForShell } from "./DrillDownShared";
+import { markCurrentTab, showTabPanel } from "../../util/Tabs";
 
 /**
  * Configure's tabs: Search, then one tab for each goal. A goal tab carries what opens its goal, so the
@@ -54,13 +55,9 @@ export class ConfigureTabs {
 	 */
 	showTab( landing, key ) {
 		landing.dataset.configureCurrentTab = key;
-		landing.querySelectorAll( '[data-configure-tab]' ).forEach( ( tab ) => {
-			const isCurrent = tab.getAttribute( 'data-configure-tab' ) === key;
-			tab.classList.toggle( 'is-current', isCurrent );
-			isCurrent ? tab.setAttribute( 'aria-current', 'page' ) : tab.removeAttribute( 'aria-current' );
-		} );
-		const search = landing.querySelector( '[data-configure-tabpanel="search"]' );
-		search instanceof HTMLElement && ( search.hidden = key !== 'search' );
+		markCurrentTab( landing, 'data-configure-tab', key );
+		// Only the Search tab has a panel; a goal opens over it.
+		showTabPanel( landing, 'data-configure-tabpanel', key );
 		// The search tab has its own search, so a goal's filter doesn't fade anything there.
 		if ( key === 'search' ) {
 			ConfigureTabs.fade( landing, '', false );
