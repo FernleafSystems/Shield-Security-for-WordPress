@@ -298,31 +298,20 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		], $focus );
 	}
 
-	public function test_zone_sections_split_critical_warning_general_and_healthy() :void {
+	public function test_goal_tabs_take_each_goal_state_and_how_to_open_it() :void {
 		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
 
-		$sections = $this->invokeNonPublicMethod( $page, 'getConfigureZoneSections' );
-
-		$this->assertSame(
-			[ 'critical', 'warning', 'general', 'healthy' ],
-			\array_column( $sections, 'key' )
-		);
-		$this->assertSame(
-			[ 'control' ],
-			\array_column( $sections[ 0 ][ 'cards' ] ?? [], 'key' )
-		);
-		$this->assertSame(
-			[ 'login' ],
-			\array_column( $sections[ 1 ][ 'cards' ] ?? [], 'key' )
-		);
-		$this->assertSame(
-			[ 'general' ],
-			\array_column( $sections[ 2 ][ 'cards' ] ?? [], 'key' )
-		);
-		$this->assertSame(
-			[ 'firewall' ],
-			\array_column( $sections[ 3 ][ 'cards' ] ?? [], 'key' )
-		);
+		$tabs = $this->invokeNonPublicMethod( $page, 'buildConfigureTabs' );
+		$this->assertNotEmpty( $tabs );
+		$tilesByKey = \array_column( $this->zoneTileFixtures(), null, 'key' );
+		foreach ( $tabs as $tab ) {
+			$tile = $tilesByKey[ $tab[ 'key' ] ];
+			$this->assertSame( $tile[ 'status' ], $tab[ 'status' ] );
+			$this->assertSame( \in_array( $tile[ 'status' ], [ 'warning', 'critical' ], true ), $tab[ 'needs_attention' ] );
+			$this->assertNotSame( '', $tab[ 'selection_json' ] );
+		}
+		// Built once per request: the home layer and the tabs share it.
+		$this->assertSame( $tabs, $this->invokeNonPublicMethod( $page, 'buildConfigureTabs' ) );
 	}
 
 	public function test_landing_refresh_reuses_the_configure_root_step_contract() :void {
@@ -565,60 +554,8 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 			'tiles'           => $zoneTileFixtures,
 			'tile_lookup'     => $tileLookup,
 			'diagnoses'       => $diagnoses,
-			'sections'        => [
-				[
-					'key'   => 'critical',
-					'cards' => [
-						$this->buildZoneCardFixture( $zoneTileFixtures[ 0 ], $diagnoses[ 'control' ] ),
-					],
-				],
-				[
-					'key'   => 'warning',
-					'cards' => [
-						$this->buildZoneCardFixture( $zoneTileFixtures[ 2 ], $diagnoses[ 'login' ] ),
-					],
-				],
-				[
-					'key'   => 'general',
-					'cards' => [
-						$this->buildZoneCardFixture( $zoneTileFixtures[ 3 ], $diagnoses[ 'general' ] ),
-					],
-				],
-				[
-					'key'   => 'healthy',
-					'cards' => [
-						$this->buildZoneCardFixture( $zoneTileFixtures[ 1 ], $diagnoses[ 'firewall' ] ),
-					],
-				],
-			],
-			'posture_summary' => [
-				'status'     => 'warning',
-				'chip_label' => 'Warning',
-				'icon_class' => 'bi bi-exclamation-circle-fill',
-				'eyebrow'    => 'Configuration Coverage',
-				'summary'    => $postureSummary,
-				'meter'      => [
-					'percentage'      => $percentage,
-					'status'          => 'warning',
-					'aria_label'      => 'Configuration Coverage',
-					'aria_value_text' => sprintf( '%d%%', $percentage ),
-				],
-			],
 			'root_step'       => $rootStep,
 			'root_step_json'  => OperatorChromeContract::encodeJson( $rootStep ),
-		];
-	}
-
-	private function buildZoneCardFixture( array $zoneTile, array $diagnosis ) :array {
-		return [
-			'key'            => $zoneTile[ 'key' ],
-			'label'          => $zoneTile[ 'label' ],
-			'icon_class'     => $zoneTile[ 'icon_class' ],
-			'status'         => $zoneTile[ 'status' ],
-			'status_label'   => $zoneTile[ 'status_label' ],
-			'summary'        => $zoneTile[ 'summary' ],
-			'selection_json' => $diagnosis[ 'zone_selection_json' ],
-			'is_disabled'    => $zoneTile[ 'is_disabled' ],
 		];
 	}
 }

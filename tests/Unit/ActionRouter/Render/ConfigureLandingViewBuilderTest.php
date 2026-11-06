@@ -76,38 +76,10 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'control', 'firewall', 'login', 'general' ], \array_keys( $view[ 'tile_lookup' ] ) );
 		$this->assertSame( [ 'control', 'firewall', 'login', 'general' ], \array_keys( $view[ 'diagnoses' ] ) );
 		$this->assertNotEmpty( $view[ 'tiles' ][ 0 ][ 'panel' ][ 'detail_groups' ] );
-		$this->assertSame(
-			[ 'critical', 'warning', 'general', 'healthy' ],
-			\array_column( $view[ 'sections' ], 'key' )
-		);
-		$this->assertSame(
-			[ 'control' ],
-			\array_column( $view[ 'sections' ][ 0 ][ 'cards' ], 'key' )
-		);
-		$this->assertSame(
-			[ 'login' ],
-			\array_column( $view[ 'sections' ][ 1 ][ 'cards' ], 'key' )
-		);
-		$this->assertSame(
-			[ 'general' ],
-			\array_column( $view[ 'sections' ][ 2 ][ 'cards' ], 'key' )
-		);
-		$this->assertSame(
-			[ 'firewall' ],
-			\array_column( $view[ 'sections' ][ 3 ][ 'cards' ], 'key' )
-		);
-		$this->assertSame(
-			$view[ 'tiles' ][ 0 ][ 'summary' ],
-			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'summary' ]
-		);
-		$this->assertNotSame(
-			$view[ 'diagnoses' ][ 'control' ][ 'preview_text' ],
-			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'summary' ]
-		);
+		$this->assertNotSame( $view[ 'diagnoses' ][ 'control' ][ 'preview_text' ], $view[ 'tiles' ][ 0 ][ 'summary' ] );
 		$this->assertCount( 1, $view[ 'diagnoses' ][ 'control' ][ 'goal_links' ] );
 		$this->assertNotEmpty( $view[ 'diagnoses' ][ 'control' ][ 'goal_links' ][ 0 ][ 'label' ] );
-		$this->assertSame( 'warning', $view[ 'posture_summary' ][ 'status' ] );
-		$this->assertSame( 78, $view[ 'posture_summary' ][ 'meter' ][ 'percentage' ] );
+		// The breadcrumb's step carries the configuration coverage.
 		$this->assertSame( '78%', $view[ 'root_step' ][ 'badge' ] );
 		$this->assertSame( 'warning', $view[ 'root_step' ][ 'badge_status' ] );
 		$this->assertSame( 'configure', $view[ 'root_step' ][ 'color_key' ] );

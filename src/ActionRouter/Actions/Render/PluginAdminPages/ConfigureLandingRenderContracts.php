@@ -29,33 +29,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *     detail_groups:list<DetailGroup>
  *   }
  * }
- * @phpstan-type ZoneCard array{
- *   key:string,
- *   label:string,
- *   icon_class:string,
- *   status:ConfigureStatus,
- *   status_label:string,
- *   summary:string,
- *   selection_json:string,
- *   is_disabled:bool
- * }
- * @phpstan-type ZoneSection array{
- *   key:'critical'|'warning'|'general'|'healthy',
- *   cards:list<ZoneCard>
- * }
- * @phpstan-type ConfigurePostureSummary array{
- *   status:'good'|'warning'|'critical',
- *   chip_label:string,
- *   icon_class:string,
- *   eyebrow:string,
- *   summary:string,
- *   meter:array{
- *     percentage:int,
- *     status:'good'|'warning'|'critical',
- *     aria_label:string,
- *     aria_value_text:string
- *   }
- * }
  * @phpstan-type DrillSelection array{
  *   key:string,
  *   label:string,
@@ -129,8 +102,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   tiles:list<ConfigureLandingTile>,
  *   tile_lookup:array<string,ConfigureLandingTile>,
  *   diagnoses:array<string,DiagnosisContract>,
- *   sections:list<ZoneSection>,
- *   posture_summary:ConfigurePostureSummary,
  *   root_step:OperatorChromeStep,
  *   root_step_json:string
  * }

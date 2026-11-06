@@ -10,13 +10,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
  * @phpstan-import-type ConfigureLandingTile from ConfigureLandingRenderContracts
  * @phpstan-import-type ConfigureLandingViewData from ConfigureLandingRenderContracts
  * @phpstan-import-type DiagnosisContract from ConfigureLandingRenderContracts
- * @phpstan-import-type ZoneSection from ConfigureLandingRenderContracts
  * @phpstan-import-type OperatorChromeStep from OperatorChromeContract
  */
 trait BuildsConfigureLandingData {
 
 	private ?array $configureLandingViewDataCache = null;
 	private ?array $configureFocusRequestCache = null;
+	private ?array $configureTabsCache = null;
 
 	protected function getRequestedConfigureZoneKey() :string {
 		return sanitize_key( $this->getTextInputFromRequestOrActionData( 'zone' ) );
@@ -141,13 +141,6 @@ trait BuildsConfigureLandingData {
 	}
 
 	/**
-	 * @return list<ZoneSection>
-	 */
-	protected function getConfigureZoneSections() :array {
-		return $this->getConfigureLandingViewData()[ 'sections' ];
-	}
-
-	/**
 	 * Configure's first layer is the Search tab's home: what needs attention, one goal to a row. The goals
 	 * themselves are tabs.
 	 */
@@ -173,33 +166,31 @@ trait BuildsConfigureLandingData {
 	 * @return list<array{key:string,label:string,icon_class:string,title:string,summary:string,status:string,needs_attention:bool,selection_json:string,search_text:string}>
 	 */
 	protected function buildConfigureTabs() :array {
-		$cards = [];
-		foreach ( $this->getConfigureZoneSections() as $section ) {
-			foreach ( $section[ 'cards' ] as $card ) {
-				$cards[ $card[ 'key' ] ] = $card;
-			}
+		if ( $this->configureTabsCache !== null ) {
+			return $this->configureTabsCache;
 		}
 
+		$view = $this->getConfigureLandingViewData();
 		$labels = ConfigureGoalPanels::labels();
 		$tabs = [];
 		foreach ( ConfigureGoalPanels::goals() as $goalKey => $goal ) {
-			$card = $cards[ $goalKey ] ?? null;
-			if ( $card === null || $card[ 'is_disabled' ] ) {
+			$tile = $view[ 'tile_lookup' ][ $goalKey ] ?? null;
+			if ( $tile === null || $tile[ 'is_disabled' ] ) {
 				continue;
 			}
 			$tabs[] = [
 				'key'             => $goalKey,
-				'label'           => $labels[ 'goals' ][ $goalKey ][ 'tab' ] ?? $card[ 'label' ],
+				'label'           => $labels[ 'goals' ][ $goalKey ][ 'tab' ] ?? $tile[ 'label' ],
 				'icon_class'      => self::con()->svgs->iconClass( $goal[ 'icon' ] ),
-				'title'           => $card[ 'label' ],
-				'summary'         => $card[ 'summary' ],
-				'status'          => $card[ 'status' ],
-				'needs_attention' => \in_array( $card[ 'status' ], [ 'warning', 'critical' ], true ),
-				'selection_json'  => $card[ 'selection_json' ],
+				'title'           => $tile[ 'label' ],
+				'summary'         => $tile[ 'summary' ],
+				'status'          => $tile[ 'status' ],
+				'needs_attention' => \in_array( $tile[ 'status' ], [ 'warning', 'critical' ], true ),
+				'selection_json'  => $view[ 'diagnoses' ][ $goalKey ][ 'zone_selection_json' ],
 				'search_text'     => $this->goalSearchText( $goalKey ),
 			];
 		}
-		return $tabs;
+		return $this->configureTabsCache = $tabs;
 	}
 
 	private function goalSearchText( string $goalKey ) :string {
