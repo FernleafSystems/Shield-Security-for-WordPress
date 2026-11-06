@@ -185,15 +185,26 @@ class ScansProgress extends BaseScans {
 	}
 
 	/**
-	 * Scans that finished a full run in the last few minutes, so Run Manual Scan can open on their result.
+	 * Scans someone ran by hand that finished a full run in the last few minutes, so Run Manual Scan can open on
+	 * their result. Scheduled scans don't count: otherwise one that finished in the background would open the page
+	 * on a result nobody asked for, in place of choosing scans.
 	 * @return list<string>
 	 */
 	public static function RecentlyFinishedScanSlugs( int $withinSeconds = self::RECENT_RESULT_WINDOW ) :array {
-		$cutoff = Services::Request()->ts() - $withinSeconds;
-		return \array_keys( \array_filter(
-			self::LastFinishedBySlug(),
-			fn( int $finishedAt ) :bool => $finishedAt > $cutoff
-		) );
+		try {
+			$records = self::con()->db_con->scans->getQuerySelector()
+				->filterByScans( self::SCAN_ORDER )
+				->filterByStatus( 'completed' )
+				->addWhereEquals( 'scope_type', 'full' )
+				->addWhereEquals( 'run_trigger', 'manual' )
+				->addWhereNewerThan( Services::Request()->ts() - $withinSeconds, 'finished_at' )
+				->queryWithResult();
+		}
+		catch ( \Exception $e ) {
+			$records = [];
+		}
+		$finished = \array_map( fn( $record ) :string => (string)$record->scan, \is_array( $records ) ? $records : [] );
+		return \array_values( \array_intersect( self::SCAN_ORDER, $finished ) );
 	}
 
 	/**

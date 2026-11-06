@@ -1,7 +1,6 @@
 const { test, expect } = require( './support/shield-test' );
 const { expectNoAxeViolations } = require( './support/accessibility' );
 const { openShieldRoute } = require( './support/shield-browser' );
-const { expectNamedDialog } = require( './support/modal-accessibility' );
 
 function isScanRequest( request, action ) {
 	const params = new URLSearchParams( request.postData() || '' );
@@ -425,7 +424,7 @@ test( 'manual scan start shows progress and then the result in the page, with no
 	await expect( page.locator( '#ShieldModalContainer' ) ).toBeHidden();
 } );
 
-test( 'scan progress away from Run Manual Scan still opens the shared dialog', async ( { page } ) => {
+test( 'scan progress on the Actions Queue shows in its top bar, not in a dialog', async ( { page } ) => {
 	await page.addInitScript( () => {
 		window.addEventListener( 'load', () => {
 			const flags = window.shield_vars_main?.comps?.scans?.flags;
@@ -447,6 +446,7 @@ test( 'scan progress away from Run Manual Scan still opens the shared dialog', a
 			failure_message: '',
 			modal_state: 'running',
 			modal_html: runningModalHtml,
+			scan_rows: [ { name: 'WordPress Filesystem Scan', is_current: true, progress: 37 } ],
 		} ) );
 	};
 	await page.route( '**/admin-ajax.php', handler );
@@ -454,10 +454,13 @@ test( 'scan progress away from Run Manual Scan still opens the shared dialog', a
 	try {
 		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
 
-		const sharedModal = page.locator( '#ShieldModalContainer' );
-		await expect( sharedModal ).toBeVisible();
-		await expectNamedDialog( page, sharedModal );
-		await assertScanModalState( sharedModal, 'running', 'true' );
+		// The queue stays usable: a link to the scans' progress says they're running.
+		const indicator = page.locator( '[data-shield-scan-indicator="1"]' );
+		await expect( indicator ).toBeVisible();
+		await expect( indicator ).toHaveAttribute( 'data-state', 'running' );
+		await expect( indicator ).toContainText( 'WordPress Filesystem Scan 37%' );
+		await expect( indicator ).toHaveAttribute( 'href', /nav_sub=run/ );
+		await expect( page.locator( '#ShieldModalContainer' ) ).toBeHidden();
 		await expect( page.locator( '[data-shield-scan-run="1"]' ) ).toHaveCount( 0 );
 	}
 	finally {
