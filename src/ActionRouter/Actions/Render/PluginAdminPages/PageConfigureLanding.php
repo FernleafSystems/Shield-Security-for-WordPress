@@ -88,7 +88,6 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 
 	protected function getLandingStrings() :array {
 		return [
-			'posture_title'       => __( 'Configuration Coverage', 'wp-simple-firewall' ),
 			'diagnosis_loading'   => __( 'Loading diagnosis...', 'wp-simple-firewall' ),
 			'settings_loading'    => __( 'Loading settings.', 'wp-simple-firewall' ),
 			'layer_load_error'    => __( 'Unable to load this step right now.', 'wp-simple-firewall' ),
@@ -97,8 +96,6 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 			'search_placeholder'  => __( 'Search every setting, such as "2FA", "login" or "email"', 'wp-simple-firewall' ),
 			'search_tab'          => __( 'Search', 'wp-simple-firewall' ),
 			'tabs_label'          => __( 'Configure', 'wp-simple-firewall' ),
-			'attention_heading'   => __( 'Needs attention', 'wp-simple-firewall' ),
-			'attention_none'      => __( 'Nothing needs attention right now.', 'wp-simple-firewall' ),
 			'search_loading'      => __( 'Searching Configure...', 'wp-simple-firewall' ),
 		];
 	}

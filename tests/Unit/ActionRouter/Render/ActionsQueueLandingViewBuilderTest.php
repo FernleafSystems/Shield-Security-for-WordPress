@@ -106,7 +106,6 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 			'scans'       => [],
 			'maintenance' => [],
 		], 'last_scan_marker' );
-		$zonesIndexed = $view[ 'zones_indexed' ] ?? [];
 		$zoneTiles = $view[ 'zone_tiles' ] ?? [];
 		$statusOverview = $view[ 'status_overview' ] ?? [];
 
@@ -117,10 +116,9 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( 1, $statusOverview[ 'warning_count' ] ?? 0 );
 		$this->assertSame( 'last_scan_marker', $statusOverview[ 'subtext' ] ?? '' );
 
-		$this->assertSame( [ 'scans', 'maintenance' ], \array_keys( $zonesIndexed ) );
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $zoneTiles, 'key' ) );
-		$this->assertArrayHasKey( 'label', $zonesIndexed[ 'scans' ] );
-		$this->assertArrayHasKey( 'label', $zonesIndexed[ 'maintenance' ] );
+		$this->assertArrayHasKey( 'label', $zoneTiles[ 0 ] );
+		$this->assertArrayHasKey( 'label', $zoneTiles[ 1 ] );
 	}
 
 	public function test_assessment_rows_keep_clear_zones_interactive_without_creating_issue_counts() :void {

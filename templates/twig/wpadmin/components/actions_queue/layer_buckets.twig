@@ -4,7 +4,6 @@
 	passing, and checks the plan doesn't cover or that are turned off, each get one section of their own
 	at the end. The same sections can show as tabs instead.
 #}
-{% set view = view|default('sections') %}
 {% set lanes = [] %}
 {% set passing_candidates = [] %}
 {% set not_covered_candidates = [] %}
@@ -39,7 +38,7 @@
 		{% if lane_groups is not empty %}
 			{% set lane_sections = lane_sections|merge( [ {
 				heading: group_section.heading_label,
-				icon_class: group_section.heading_icon|default( '' ),
+				icon_class: group_section.heading_icon,
 				groups: lane_groups
 			} ] ) %}
 		{% endif %}
@@ -74,7 +73,7 @@
 {% set passing = [] %}
 {% set seen_keys = active_keys %}
 {% for entry in passing_candidates %}
-	{% if entry.group.key not in seen_keys and ( entry.group.key|split( ':' )|first ) not in aggregate_group_keys|default( [] ) %}
+	{% if entry.group.key not in seen_keys and ( entry.group.key|split( ':' )|first ) not in aggregate_group_keys %}
 		{% set passing = passing|merge( [ entry ] ) %}
 		{% set seen_keys = seen_keys|merge( [ entry.group.key ] ) %}
 	{% endif %}
@@ -89,20 +88,20 @@
 
 {# A passing check can show both as a group and as a summary row; list it once, and never when it needs action. #}
 {% set passing_labels = passing|map( p => p.group.label|lower ) %}
-{% set healthy_rows = healthy_rows|default( [] )|filter( r => r.title|lower not in passing_labels and r.group_key|default( '' ) not in seen_keys ) %}
+{% set healthy_rows = healthy_rows|filter( r => r.title|lower not in passing_labels and r.group_key not in seen_keys ) %}
 {# Shield's own protections first, then WordPress and the server. #}
 {% set passing_blocks = [
 	{
 		label: strings.passing_shield,
 		icon_class: 'bi bi-shield-check',
-		groups: passing|filter( p => p.group.detail_shell|default( '' ) != 'maintenance' ),
-		rows: healthy_rows|filter( r => r.zone|default( 'scans' ) == 'scans' )
+		groups: passing|filter( p => p.group.detail_shell != 'maintenance' ),
+		rows: healthy_rows|filter( r => r.zone == 'scans' )
 	},
 	{
 		label: strings.passing_system,
 		icon_class: 'bi bi-hdd-stack',
-		groups: passing|filter( p => p.group.detail_shell|default( '' ) == 'maintenance' ),
-		rows: healthy_rows|filter( r => r.zone|default( 'scans' ) == 'maintenance' )
+		groups: passing|filter( p => p.group.detail_shell == 'maintenance' ),
+		rows: healthy_rows|filter( r => r.zone == 'maintenance' )
 	}
 ]|filter( b => b.groups is not empty or b.rows is not empty ) %}
 {% set passing_count = passing|length + healthy_rows|length %}
@@ -140,7 +139,7 @@
 <div class="actions-queue-sections actions-queue-sections--{{ view }}"
 	 data-actions-queue-sections="1"
 	 data-view="{{ view }}"
-	 data-set-view-action="{{ set_view_action_json|default('')|e('html_attr') }}">
+	 data-set-view-action="{{ set_view_action_json|e('html_attr') }}">
 
 	{% if sections|length > 0 %}
 		<div class="actions-queue-sections__bar">
@@ -164,14 +163,14 @@
 				<i class="bi bi-play-circle" aria-hidden="true"></i>{{ strings.run_scans_tab }}
 			</a>
 			</div>
-			<div class="actions-queue-sections__view" role="group" aria-label="{{ strings.view_label|default('Layout') }}">
+			<div class="actions-queue-sections__view" role="group" aria-label="{{ strings.view_label }}">
 				<button type="button" class="actions-queue-sections__view-btn" data-actions-queue-view="sections"
 						aria-pressed="{{ view == 'sections' ? 'true' : 'false' }}">
-					<i class="bi bi-view-stacked" aria-hidden="true"></i>{{ strings.view_sections|default('Sections') }}
+					<i class="bi bi-view-stacked" aria-hidden="true"></i>{{ strings.view_sections }}
 				</button>
 				<button type="button" class="actions-queue-sections__view-btn" data-actions-queue-view="tabs"
 						aria-pressed="{{ view == 'tabs' ? 'true' : 'false' }}">
-					<i class="bi bi-segmented-nav" aria-hidden="true"></i>{{ strings.view_tabs|default('Tabs') }}
+					<i class="bi bi-segmented-nav" aria-hidden="true"></i>{{ strings.view_tabs }}
 				</button>
 			</div>
 		</div>

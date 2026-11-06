@@ -48,7 +48,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  * }
  * @phpstan-type LandingViewData array{
  *   summary:QueueSummary,
- *   zones_indexed:array<string,ZoneGroup>,
  *   zone_tiles:list<ZoneTile>,
  *   status_overview:array{
  *     severity:string,
@@ -82,7 +81,6 @@ class ActionsQueueLandingViewBuilder {
 
 		return [
 			'summary'        => $summary,
-			'zones_indexed'  => $zonesIndexed,
 			'zone_tiles'     => $zoneTiles,
 			'status_overview' => $this->buildStatusOverviewContract( $summary, $zoneTiles ),
 		];

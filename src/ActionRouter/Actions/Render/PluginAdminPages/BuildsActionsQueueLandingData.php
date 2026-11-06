@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type BucketData from ActionsQueueBucketsBuilder
- * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
+ * @phpstan-import-type HealthyRow from ActionsQueueBucketsBuilder
  * @phpstan-import-type LandingViewData from ActionsQueueLandingViewBuilder
  */
 trait BuildsActionsQueueLandingData {
@@ -101,7 +101,7 @@ trait BuildsActionsQueueLandingData {
 	}
 
 	/**
-	 * @return list<CompactSummaryRow>
+	 * @return list<HealthyRow>
 	 */
 	protected function getHealthyRowsData() :array {
 		if ( $this->actionsQueueHealthyRowsCache === null ) {

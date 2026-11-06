@@ -10,8 +10,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
+ * @phpstan-import-type CompactSummaryAction from ActionsQueueCompactSummaryRowBuilder
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
  * @phpstan-import-type GroupDefinition from ActionsQueueGroupDefinitions
+ * @phpstan-type HealthyRow array{
+ *   icon_class:string,
+ *   title:string,
+ *   inline_meta:string,
+ *   summary:string,
+ *   badge_label:string,
+ *   is_ignored:bool,
+ *   actions:list<CompactSummaryAction>,
+ *   group_key:string,
+ *   zone:'scans'|'maintenance'
+ * }
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
  *   item_count:int,
@@ -112,8 +124,9 @@ class ActionsQueueBucketsBuilder {
 	}
 
 	/**
+	 * A passing check as a row, with the group it belongs to, so the landing lists it once, and its zone.
 	 * @param AssessmentRowsByZone $assessmentRowsByZone
-	 * @return list<CompactSummaryRow>
+	 * @return list<HealthyRow>
 	 */
 	public function buildHealthyRows( array $assessmentRowsByZone ) :array {
 		$rows = [];

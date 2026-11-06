@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * @phpstan-import-type RawDrillLayer from PageDrillDownLandingBase
  * @phpstan-import-type QueueSummary from ActionsQueueLandingViewBuilder
- * @phpstan-import-type ZoneGroup from ActionsQueueLandingViewBuilder
  */
 class PageActionsQueueLanding extends PageDrillDownLandingBase {
 
@@ -52,11 +51,7 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 	}
 
 	protected function getLandingStrings() :array {
-		$zones = $this->getZonesIndexed();
-
 		return [
-			'zone_scans'             => $zones[ 'scans' ][ 'label' ],
-			'zone_maintenance'       => $zones[ 'maintenance' ][ 'label' ],
 			'pane_loading'           => __( 'Loading scan details...', 'wp-simple-firewall' ),
 			'groups_loading'         => __( 'Loading issue groups...', 'wp-simple-firewall' ),
 			'detail_loading'         => __( 'Loading results...', 'wp-simple-firewall' ),
@@ -152,13 +147,6 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 	 */
 	private function getQueueSummary() :array {
 		return $this->getLandingViewData()[ 'summary' ];
-	}
-
-	/**
-	 * @return array<string,ZoneGroup>
-	 */
-	private function getZonesIndexed() :array {
-		return $this->getLandingViewData()[ 'zones_indexed' ];
 	}
 
 	private function drillDownPresentation() :ActionsQueueDrillDownPresentationBuilder {

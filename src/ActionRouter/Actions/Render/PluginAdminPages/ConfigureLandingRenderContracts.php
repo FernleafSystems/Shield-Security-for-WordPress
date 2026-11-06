@@ -36,7 +36,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   status:ConfigureStatus,
  *   status_label:string,
  *   summary:string,
- *   action_label:string,
  *   selection_json:string,
  *   is_disabled:bool
  * }
