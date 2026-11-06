@@ -835,10 +835,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertNotContains( 'maintenance', \array_keys( $activeGroups ) );
 		$healthyGroupKeys = \array_keys( $healthyGroups );
 		\sort( $healthyGroupKeys );
-		$this->assertSame(
-			[ 'maintenance_system:healthy', 'maintenance_wordpress:healthy' ],
-			$healthyGroupKeys
-		);
+		// System's only passing item is ignored, so it has no passing companion: the ignored item sits in the
+		// System group that needs review, not in a second System group.
+		$this->assertSame( [ 'maintenance_wordpress:healthy' ], $healthyGroupKeys );
 
 		$systemGroup = $activeGroups[ 'maintenance_system' ];
 		$this->assertArrayHasKey( 'icon_class', $systemGroup );
@@ -846,27 +845,21 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'warning', $systemGroup[ 'status' ] );
 		$this->assertSame( 1, $systemGroup[ 'item_count' ] );
 		$systemRows = \array_values( $systemGroup[ 'maintenance_rows' ] );
-		$this->assertCount( 1, $systemRows );
+		$this->assertCount( 2, $systemRows );
 		$this->assertSame( 'SSL Certificate', $systemRows[ 0 ][ 'title' ] );
 		$this->assertSame( '', $systemRows[ 0 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] );
 		$this->assertFalse( $systemRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] );
 		$this->assertFalse( $systemRows[ 0 ][ 'is_ignored' ] );
+		$this->assertSame( [], $systemGroup[ 'ignored_rows' ] );
 
-		$systemHealthyGroup = $healthyGroups[ 'maintenance_system:healthy' ];
-		$this->assertSame( 'System', $systemHealthyGroup[ 'label' ] );
-		$this->assertSame( 'good', $systemHealthyGroup[ 'status' ] );
-		$this->assertSame( 1, $systemHealthyGroup[ 'item_count' ] );
-		// Passing only because it's ignored, it's listed apart so it can be restored.
-		$this->assertSame( [], $systemHealthyGroup[ 'maintenance_rows' ] );
-		$systemHealthyRows = \array_values( $systemHealthyGroup[ 'ignored_rows' ] );
-		$this->assertCount( 1, $systemHealthyRows );
-		$this->assertSame( 'PHP Version', $systemHealthyRows[ 0 ][ 'title' ] );
-		$this->assertTrue( $systemHealthyRows[ 0 ][ 'is_ignored' ] );
-		$this->assertSame( '', $systemHealthyRows[ 0 ][ 'actions' ][ 0 ][ 'href' ] );
-		$this->assertTrue( $systemHealthyRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] );
+		// The ignored item comes last, faded, and can be restored.
+		$this->assertSame( 'PHP Version', $systemRows[ 1 ][ 'title' ] );
+		$this->assertTrue( $systemRows[ 1 ][ 'is_ignored' ] );
+		$this->assertSame( '', $systemRows[ 1 ][ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertTrue( $systemRows[ 1 ][ 'actions' ][ 0 ][ 'is_action' ] );
 		$this->assertSame(
 			'maintenance_item_unignore',
-			$this->decodeAjaxAction( $systemHealthyRows[ 0 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] )[ 'ex' ]
+			$this->decodeAjaxAction( $systemRows[ 1 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] )[ 'ex' ]
 		);
 
 		$wordpressGroup = $activeGroups[ 'maintenance_wordpress' ];

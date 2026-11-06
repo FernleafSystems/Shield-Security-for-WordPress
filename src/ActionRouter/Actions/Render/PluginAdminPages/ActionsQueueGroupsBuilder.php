@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
  * @phpstan-import-type BucketData from ActionsQueueBucketsBuilder
  * @phpstan-import-type BucketSource from ActionsQueueBucketsBuilder
  * @phpstan-import-type ResolvedGroups from ActionsQueueGroupContractBuilder
+ * @phpstan-import-type GroupSeed from ActionsQueueGroupContractBuilder
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
@@ -180,7 +181,7 @@ class ActionsQueueGroupsBuilder {
 		array $assessmentRowsByZone
 	) :array {
 		$activeSeeds = $this->seedCollector()->collect( $bucketKey, $bucketSource );
-		$resolvedSeeds = \array_merge(
+		$resolvedSeeds = $this->withIgnoredRowsInTheirGroup(
 			$activeSeeds,
 			$this->passiveSeedSupplementer()->supplement(
 				$bucketKey,
@@ -191,6 +192,49 @@ class ActionsQueueGroupsBuilder {
 		);
 
 		return $this->contractBuilder()->buildResolvedGroups( $bucketLabel, $resolvedSeeds );
+	}
+
+	/**
+	 * A group such as WordPress or System can have items that need review and items that are passing, which come
+	 * as two seeds of the same group: the passing one is its companion, keyed apart, whose definition is the other's
+	 * key. Its ignored items belong with the items that need review, faded at the end of the same box as an
+	 * inactive plugin's are, not in a second box of the same name. A companion left with nothing else is dropped.
+	 * @phpstan-param list<GroupSeed> $activeSeeds
+	 * @phpstan-param list<GroupSeed> $passiveSeeds
+	 * @phpstan-return list<GroupSeed>
+	 */
+	private function withIgnoredRowsInTheirGroup( array $activeSeeds, array $passiveSeeds ) :array {
+		$activeIndexByKey = [];
+		foreach ( $activeSeeds as $index => $seed ) {
+			if ( $seed[ 'detail_shell' ] === 'maintenance' ) {
+				$activeIndexByKey[ $seed[ 'key' ] ] = $index;
+			}
+		}
+
+		$remainingPassive = [];
+		foreach ( $passiveSeeds as $seed ) {
+			$isCompanion = $seed[ 'detail_shell' ] === 'maintenance' && $seed[ 'key' ] !== $seed[ 'definition_key' ];
+			$activeIndex = $isCompanion ? ( $activeIndexByKey[ $seed[ 'definition_key' ] ] ?? null ) : null;
+			if ( $activeIndex === null || empty( $seed[ 'ignored_rows' ] ) ) {
+				$remainingPassive[] = $seed;
+				continue;
+			}
+
+			$activeSeeds[ $activeIndex ][ 'maintenance_rows' ] = \array_merge(
+				$activeSeeds[ $activeIndex ][ 'maintenance_rows' ],
+				$seed[ 'ignored_rows' ]
+			);
+			$seed[ 'ignored_rows' ] = [];
+			if ( !empty( $seed[ 'maintenance_rows' ] ) ) {
+				$seed[ 'item_count' ] = \count( $seed[ 'maintenance_rows' ] );
+				$remainingPassive[] = $seed;
+			}
+			elseif ( !empty( $seed[ 'summary_row' ] ) ) {
+				$remainingPassive[] = $seed;
+			}
+		}
+
+		return \array_merge( $activeSeeds, $remainingPassive );
 	}
 
 	protected function buildGroupScanSource() :ActionsQueueGroupScanSource {

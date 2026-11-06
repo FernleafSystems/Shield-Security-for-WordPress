@@ -49,7 +49,7 @@ test( 'an abandoned plugin can be ignored in place, seen faded, and restored', a
 		await expect( ignoredToggle( page ) ).toHaveAttribute( 'aria-expanded', 'true' );
 		const ignoredRow = abandonedGroup( page ).locator( '.actions-queue-row.is-ignored' );
 		await expect( ignoredRow ).toBeVisible();
-		await expect( ignoredRow ).toHaveCSS( 'opacity', '0.6' );
+		await expect( ignoredRow ).toHaveCSS( 'opacity', '0.45' );
 
 		await restoreButtons( page ).click();
 		await expect( ignoreButtons( page ) ).toHaveCount( 2, { timeout: 20_000 } );

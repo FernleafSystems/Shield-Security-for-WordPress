@@ -31,7 +31,7 @@
 				{% set lane_groups = lane_groups|merge( [ group ] ) %}
 				{% set active_keys = active_keys|merge( [ group.key ] ) %}
 				{% set group_count = group.card_type == 'category'
-					? ( group.maintenance_rows is not empty ? group.maintenance_rows|length : 1 )
+					? ( group.maintenance_rows is not empty ? group.maintenance_rows|filter( r => not r.is_ignored )|length : 1 )
 					: group.item_count %}
 				{% set lane_breakdown = lane_breakdown|merge( [ { label: group.label, count: group_count } ] ) %}
 			{% endif %}
