@@ -183,7 +183,7 @@ class AdminBarMenu {
 				'id'    => $con->prefix( 'problems-scan-'.$definition[ 'suffix' ] ),
 				'title' => $definition[ 'label' ].$this->counterMarkup( (string)$count ),
 				// Straight to that problem in the Actions Queue, which opens and highlights it.
-				'href'  => URL::Build( $con->plugin_urls->actionsQueueScans(), [ 'aq_focus' => $definition[ 'queue_group' ] ] ),
+				'href'  => URL::Build( $con->plugin_urls->actionsQueueScans(), [ 'aq_focus' => $definition[ 'queue_kind' ] ] ),
 			];
 		}
 
@@ -191,39 +191,39 @@ class AdminBarMenu {
 	}
 
 	/**
-	 * @return array<string,array{suffix:string,label:string,queue_group:string}>
+	 * @return array<string,array{suffix:string,label:string,queue_kind:string}>
 	 */
 	private function hackGuardItemDefinitions() :array {
 		return [
 			'malware'           => [
-				'suffix'      => 'malware',
-				'label'       => __( 'Potential Malware', 'wp-simple-firewall' ),
-				'queue_group' => 'malware',
+				'suffix'     => 'malware',
+				'label'      => __( 'Potential Malware', 'wp-simple-firewall' ),
+				'queue_kind' => 'malware',
 			],
 			'wp_files'          => [
-				'suffix'      => 'wp',
-				'label'       => __( 'WordPress Core Files', 'wp-simple-firewall' ),
-				'queue_group' => 'wordpress',
+				'suffix'     => 'wp',
+				'label'      => __( 'WordPress Core Files', 'wp-simple-firewall' ),
+				'queue_kind' => 'wordpress',
 			],
 			'plugin_files'      => [
-				'suffix'      => 'plugin',
-				'label'       => __( 'Plugin Files', 'wp-simple-firewall' ),
-				'queue_group' => 'plugins',
+				'suffix'     => 'plugin',
+				'label'      => __( 'Plugin Files', 'wp-simple-firewall' ),
+				'queue_kind' => 'plugins',
 			],
 			'theme_files'       => [
-				'suffix'      => 'theme',
-				'label'       => __( 'Theme Files', 'wp-simple-firewall' ),
-				'queue_group' => 'themes',
+				'suffix'     => 'theme',
+				'label'      => __( 'Theme Files', 'wp-simple-firewall' ),
+				'queue_kind' => 'themes',
 			],
 			'abandoned'         => [
-				'suffix'      => 'apc',
-				'label'       => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
-				'queue_group' => 'abandoned',
+				'suffix'     => 'apc',
+				'label'      => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
+				'queue_kind' => 'abandoned',
 			],
 			'vulnerable_assets' => [
-				'suffix'      => 'wpv',
-				'label'       => __( 'Vulnerable Plugins', 'wp-simple-firewall' ),
-				'queue_group' => 'vulnerabilities',
+				'suffix'     => 'wpv',
+				'label'      => __( 'Vulnerable Plugins', 'wp-simple-firewall' ),
+				'queue_kind' => 'vulnerabilities',
 			],
 		];
 	}

@@ -24,7 +24,7 @@
 						{% for event in vars.events %}
 							{% set event_input_id = 'ShieldReportsTrendsEvent-' ~ loop.index %}
 							<div class="shield-reports-trends__event-chip">
-								<input id="{{ event_input_id }}" class="shield-reports-trends__event-input" type="checkbox" name="event_keys[]" value="{{ event.key }}"{% if event.is_selected|default(false) %} checked{% endif %}>
+								<input id="{{ event_input_id }}" class="shield-reports-trends__event-input" type="checkbox" name="event_keys[]" value="{{ event.key }}"{% if event.is_selected %} checked{% endif %}>
 								<label
 									class="shield-reports-trends__event-label"
 									for="{{ event_input_id }}"

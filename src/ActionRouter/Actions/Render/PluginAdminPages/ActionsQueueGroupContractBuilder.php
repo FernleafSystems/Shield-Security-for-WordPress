@@ -135,7 +135,6 @@ class ActionsQueueGroupContractBuilder {
 				$renderActionData
 			),
 			$narrative,
-			[],
 			$headerOverrides
 		);
 
@@ -202,7 +201,6 @@ class ActionsQueueGroupContractBuilder {
 				$renderActionData
 			),
 			$narrative,
-			[],
 			$headerOverrides
 		);
 
@@ -329,8 +327,6 @@ class ActionsQueueGroupContractBuilder {
 					$renderActionData
 				),
 			$narrative,
-			// What acts on a whole plugin or theme sits in its results table's actions, so the side rail has none.
-			[],
 			$headerOverrides
 		);
 

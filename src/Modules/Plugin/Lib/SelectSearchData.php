@@ -36,7 +36,7 @@ class SelectSearchData {
 				$result[ 'children' ] = \array_map(
 					function ( array $child ) {
 						$child[ 'link' ] = \array_merge( [
-							'target'  => ( $child[ 'is_external' ] ?? false ) ? '_blank' : false,
+							'target'  => ( $child[ 'is_external' ] ?? false ) ? '_blank' : '',
 							'classes' => [],
 							'data'    => [],
 						], $child[ 'link' ] ?? [] );

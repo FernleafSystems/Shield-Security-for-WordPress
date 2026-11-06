@@ -51,7 +51,7 @@ class MaintenanceItemIgnore extends BaseAction {
 		}
 
 		$ignoredItems = $provider->getNormalizedStoredIgnoredItems( $currentIssueIdentifiersByKey );
-		$ignoredItems[ $key ] = \array_merge( $ignoredItems[ $key ] ?? [], $identifiers );
+		$ignoredItems[ $key ] = \array_merge( $ignoredItems[ $key ], $identifiers );
 
 		self::con()->opts->optSet(
 			MaintenanceIssueStateProvider::OPT_KEY,

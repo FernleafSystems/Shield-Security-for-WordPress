@@ -80,10 +80,10 @@ export class ShieldTableScanResults extends ShieldTableBase {
 				...this._base_data.vars.malware_refresh,
 				onRefresh: ( launcher ) => this.refreshMalwareAssessments( launcher ),
 			},
-			assetActions: this._base_data.vars.asset_actions ? {
+			assetActions: this._base_data.vars.asset_actions === null ? null : {
 				...this._base_data.vars.asset_actions,
 				onAction: ( assetAction, launcher ) => this.runAssetAction( assetAction, launcher ),
-			} : null,
+			},
 		} );
 		const wrapper = this.$table.table().container();
 		if ( buttons.length === 0 || !( wrapper instanceof HTMLElement ) || wrapper.parentElement === null ) {
@@ -139,7 +139,7 @@ export class ShieldTableScanResults extends ShieldTableBase {
 			selected: 'Selected',
 			all: 'All results',
 			tools: this._base_data.vars.malware_refresh === null ? 'Tools' : 'Malware scan',
-			asset: this._base_data.vars.asset_actions?.heading || '',
+			asset: this._base_data.vars.asset_actions === null ? '' : this._base_data.vars.asset_actions.heading,
 		};
 		const starts = [
 			[ 'selected', container.querySelector( '.btn' ) ],
@@ -166,10 +166,9 @@ export class ShieldTableScanResults extends ShieldTableBase {
 			return null;
 		}
 
-		const confirmText = String( assetAction.confirm_text || '' ).trim();
-		if ( confirmText.length > 0 && !( await shieldServices.dialog().confirm( {
+		if ( assetAction.confirm_text !== '' && !( await shieldServices.dialog().confirm( {
 			title: shieldStrings.string( 'dialog_confirm_title' ),
-			message: confirmText,
+			message: assetAction.confirm_text,
 			cancelLabel: shieldStrings.string( 'cancel' ),
 			danger: true,
 			launcher,
@@ -177,19 +176,11 @@ export class ShieldTableScanResults extends ShieldTableBase {
 			return null;
 		}
 
-		let actionData;
-		try {
-			actionData = JSON.parse( assetAction.ajax_action_json || '{}' );
-		}
-		catch ( e ) {
-			return null;
-		}
 		// Reinstalling takes a while and mustn't be interrupted, so it holds the page with what it's doing.
-		const processingText = String( assetAction.processing_text || '' ).trim();
-		const processing = processingText.length > 0
-			? shieldServices.dialog().processing( { message: processingText, launcher } )
+		const processing = assetAction.processing_text !== ''
+			? shieldServices.dialog().processing( { message: assetAction.processing_text, launcher } )
 			: null;
-		return this.sendTableActionRequest( this.$table, actionData, 'Communications error with site.', {
+		return this.sendTableActionRequest( this.$table, JSON.parse( assetAction.ajax_action_json ), 'Communications error with site.', {
 			reloadTableOnSuccess: true,
 			resetPaging: false,
 			launcher,

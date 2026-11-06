@@ -48,7 +48,7 @@ export class SuperSearchResults extends BaseComponent {
 					if ( resp.success ) {
 						const body = document.querySelector( '#ModalSuperSearchBox .modal-body' );
 						$( body ).html( resp.data.render_output );
-						body && highlightSearchTerms( body, search_text );
+						highlightSearchTerms( body, search_text );
 					}
 					else {
 						shieldServices.dialog().message( {

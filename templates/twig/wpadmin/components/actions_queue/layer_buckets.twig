@@ -21,7 +21,7 @@
 			{% set entry = { group: group, bucket_selection: layer.bucket_selection } %}
 			{% if group.is_pro_upsell or group.enable_dialog_json is not empty %}
 				{% set not_covered_candidates = not_covered_candidates|merge( [ entry ] ) %}
-			{% elseif group.detail_shell|default( '' ) == 'maintenance' and group.ignored_rows|default( [] ) is not empty %}
+			{% elseif group.detail_shell == 'maintenance' and group.ignored_rows is not empty %}
 				{# Ignored items stay in their lane, in a faded group of their own, so each can be restored. They count for nothing. #}
 				{% set lane_groups = lane_groups|merge( [ group ] ) %}
 				{% set active_keys = active_keys|merge( [ group.key ] ) %}

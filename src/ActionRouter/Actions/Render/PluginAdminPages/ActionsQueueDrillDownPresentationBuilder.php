@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 /**
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
- * @phpstan-import-type OperatorChromeActionInput from OperatorChromeContract
  * @phpstan-type HeaderOverrides array{
  *   summary?:string,
  *   focus?:string,
@@ -81,7 +80,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $iconClass,
 		int $itemCount,
 		string $summary,
-		array $actions = [],
 		array $headerOverrides = []
 	) :array {
 		$header = $this->buildBucketHeader(
@@ -91,7 +89,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 			$iconClass,
 			$itemCount,
 			$summary,
-			$actions,
 			$headerOverrides
 		);
 		$selection = [
@@ -121,7 +118,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $detailShell,
 		array $detailRenderAction,
 		string $summary,
-		array $actions = [],
 		array $headerOverrides = []
 	) :array {
 		$header = $this->buildGroupHeader(
@@ -131,7 +127,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 			$iconClass,
 			$itemCount,
 			$summary,
-			$actions,
 			$headerOverrides
 		);
 		$selection = [
@@ -160,7 +155,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $iconClass,
 		int $itemCount,
 		string $summary,
-		array $actions = [],
 		array $overrides = []
 	) :array {
 		return OperatorChromeContract::normalizeHeader( [
@@ -176,7 +170,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'badge'              => $overrides[ 'badge' ] ?? $this->buildItemBadge( $itemCount ),
 			'badge_status'       => $overrides[ 'badge_status' ] ?? $status,
 			'color_key'          => $overrides[ 'color_key' ] ?? $status,
-			'actions'            => $actions,
+			// The queue's actions sit with what they act on, such as a results table, never in a side rail.
+			'actions'            => [],
 		] );
 	}
 
@@ -190,7 +185,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $iconClass,
 		int $itemCount,
 		string $summary,
-		array $actions = [],
 		array $overrides = []
 	) :array {
 		return OperatorChromeContract::normalizeHeader( [
@@ -205,7 +199,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'badge'              => $overrides[ 'badge' ] ?? $this->buildItemBadge( $itemCount ),
 			'badge_status'       => $overrides[ 'badge_status' ] ?? $status,
 			'color_key'          => $overrides[ 'color_key' ] ?? $status,
-			'actions'            => $actions,
+			'actions'            => [],
 		] );
 	}
 }

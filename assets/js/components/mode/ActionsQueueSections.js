@@ -51,49 +51,51 @@ export class ActionsQueueSections extends BaseAutoExecComponent {
 			this.setView( root, button.dataset.actionsQueueView || 'sections' );
 		} );
 
-		// A link to one problem, such as from the admin bar, names its group: it's opened and shown once it's there.
-		this.focusGroupKey = new URLSearchParams( window.location.search ).get( 'aq_focus' ) || '';
+		// A link to one kind of problem, such as from the admin bar, names it: it's opened and shown once it's there.
+		this.focusKind = new URLSearchParams( window.location.search ).get( 'aq_focus' ) || '';
 
 		// The landing is re-rendered after actions, bringing its own choice each time; it always moves up.
 		this.placeViewChoice();
-		this.focusLinkedGroup();
+		this.focusLinkedKind();
 		new MutationObserver( () => {
 			this.placeViewChoice();
-			this.focusLinkedGroup();
+			this.focusLinkedKind();
 		} ).observe( document.body, { childList: true, subtree: true } );
 	}
 
 	/**
-	 * Opens the section (or tab) and folded box holding the linked group, scrolls to it and highlights it briefly.
+	 * Opens the section (or tab) and folded box holding the linked kind of problem, scrolls to it and highlights it
+	 * briefly. A kind listed in a lane has a box of its own; one that's passing is a single tile, by its group key.
 	 */
-	focusLinkedGroup() {
-		if ( this.focusGroupKey === '' ) {
+	focusLinkedKind() {
+		if ( this.focusKind === '' ) {
 			return;
 		}
-		const group = document.querySelector(
-			`${ActionsQueueSections.ROOT_SELECTOR} [data-actions-queue-group-key="${CSS.escape( this.focusGroupKey )}"]`
-		);
-		if ( !( group instanceof HTMLElement ) ) {
+		const key = CSS.escape( this.focusKind );
+		const target = document.querySelector( `${ActionsQueueSections.ROOT_SELECTOR} [data-actions-queue-kind="${key}"]` )
+			|| document.querySelector( `${ActionsQueueSections.ROOT_SELECTOR} [data-actions-queue-group-key="${key}"]` );
+		if ( !( target instanceof HTMLElement ) ) {
 			return;
 		}
-		this.focusGroupKey = '';
+		this.focusKind = '';
 
-		const root = group.closest( ActionsQueueSections.ROOT_SELECTOR );
-		const section = group.closest( '[data-actions-queue-section-key]' );
-		if ( root?.dataset.view === 'tabs' ) {
-			this.selectTab( root, section?.dataset.actionsQueueSectionKey || '' );
+		const root = target.closest( ActionsQueueSections.ROOT_SELECTOR );
+		const section = target.closest( '[data-actions-queue-section-key]' );
+		if ( root.dataset.view === 'tabs' ) {
+			this.selectTab( root, section.dataset.actionsQueueSectionKey );
 		}
 		else {
-			const head = section?.querySelector( '[data-actions-queue-section-toggle="1"]' );
-			head?.getAttribute( 'aria-expanded' ) === 'false' && head.click();
+			const head = section.querySelector( '[data-actions-queue-section-toggle="1"]' );
+			head.getAttribute( 'aria-expanded' ) === 'false' && head.click();
 		}
-		const boxToggle = group.querySelector( ':scope [data-actions-queue-box-toggle][aria-expanded="false"]' )
-			|| group.closest( '.actions-queue-row-group' )?.querySelector( '[data-actions-queue-box-toggle][aria-expanded="false"]' );
+		const boxToggle = target.querySelector(
+			'[data-actions-queue-box-toggle]:not([data-actions-queue-box-toggle^="ignored:"])[aria-expanded="false"]'
+		);
 		boxToggle instanceof HTMLElement && boxToggle.click();
 
-		group.scrollIntoView( { block: 'center', behavior: window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ? 'auto' : 'smooth' } );
-		group.classList.add( 'is-linked' );
-		setTimeout( () => group.classList.remove( 'is-linked' ), 4000 );
+		target.scrollIntoView( { block: 'center', behavior: window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ? 'auto' : 'smooth' } );
+		target.classList.add( 'is-linked' );
+		setTimeout( () => target.classList.remove( 'is-linked' ), 4000 );
 	}
 
 	/**

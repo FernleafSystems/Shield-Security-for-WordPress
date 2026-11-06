@@ -87,7 +87,6 @@ class ActionsQueueBucketsBuilder {
 				$definition[ 'icon_class' ],
 				$bucketSource[ 'item_count' ],
 				$summary,
-				[],
 				$headerOverrides
 			);
 			$buckets[] = [

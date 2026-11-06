@@ -3,9 +3,8 @@ import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
-import { ShieldTableBase } from "../tables/ShieldTableBase";
 import { announceStatus, focusElement } from "../ui/ShieldA11y";
-import { getActiveLayerIndex, getLayerForShell, getLayersForShell, openOperatorContextProcessingDialog } from "./DrillDownShared";
+import { getActiveLayerIndex, getLayerForShell, getLayersForShell } from "./DrillDownShared";
 
 import { openProtectionEnableDialog } from '../scans/ProtectionEnableDialog';
 
@@ -200,7 +199,6 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		}
 		this.hasBoundOperatorContextActionHandlers = true;
 
-		document.addEventListener( 'click', ( evt ) => this.handleOperatorContextActionClick( evt ) );
 	}
 
 	bindTableActionHandlers() {
@@ -785,93 +783,12 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 	 */
 	combineIgnoreActions( actions ) {
 		const first = actions[ 0 ];
-		if ( actions.length === 1 ) {
-			return first;
-		}
 		if ( Array.isArray( first.rids ) ) {
-			return { ...first, rids: actions.flatMap( ( data ) => Array.isArray( data.rids ) ? data.rids : [] ) };
+			return { ...first, rids: actions.flatMap( ( data ) => data.rids ) };
 		}
-		const combined = { ...first, identifiers: actions.map( ( data ) => String( data.identifier || '' ) ) };
+		const combined = { ...first, identifiers: actions.map( ( data ) => data.identifier ) };
 		delete combined.identifier;
 		return combined;
-	}
-
-	async handleOperatorContextActionClick( evt ) {
-		const target = evt.target instanceof Element
-			? evt.target.closest( '[data-operator-context-action-ajax="1"]' )
-			: null;
-		if ( target === null ) {
-			return;
-		}
-
-		const root = this.resolveOperatorContextRoot( target );
-		if ( root === null ) {
-			return;
-		}
-
-		evt.preventDefault();
-		this.rootEl = root;
-		this.shellEl = this.getShell( root );
-		BootstrapTooltips.HideAndDisposeTooltip( target );
-
-		const actionData = this.parseJsonDataset( target.dataset.operatorContextActionJson );
-		if ( ObjectOps.IsEmpty( actionData ) ) {
-			return;
-		}
-
-		const confirmText = String( target.dataset.operatorContextActionConfirm || '' ).trim();
-		if ( confirmText.length > 0 ) {
-			const dialog = shieldServices.dialog();
-			const confirmed = await dialog.confirm( {
-				title: shieldStrings.string( 'dialog_confirm_title' ),
-				message: confirmText,
-				confirmLabel: dialog.resolveConfirmLabel( target ),
-				cancelLabel: shieldStrings.string( 'cancel' ),
-				danger: true,
-				launcher: target,
-			} );
-			if ( !confirmed ) {
-				return;
-			}
-		}
-
-		const busyTable = this.getCurrentDirectTable();
-		const processingDialog = openOperatorContextProcessingDialog( target );
-		this.setDirectTableBusy( busyTable, true );
-
-		( new AjaxService() )
-			.send( actionData )
-			.then( ( resp ) => {
-				if ( !resp?.success ) {
-					this.setDirectTableBusy( busyTable, false );
-					processingDialog?.close();
-					return null;
-				}
-				if ( resp?.data?.page_reload ) {
-					return resp;
-				}
-
-				const reloadDetail = this.selectedGroup?.detail_shell === 'asset_cards';
-				return this.refreshAfterNestedAction( reloadDetail ).then( ( refreshResult ) => {
-					if ( refreshResult === null ) {
-						this.setDirectTableBusy( busyTable, false );
-						processingDialog?.close();
-						return refreshResult;
-					}
-
-					if ( !reloadDetail && !this.reloadDirectTable( busyTable ) ) {
-						this.setDirectTableBusy( busyTable, false );
-					}
-
-					processingDialog?.close();
-					return refreshResult;
-				} );
-			} )
-			.catch( () => {
-				this.setDirectTableBusy( busyTable, false );
-				processingDialog?.close();
-				return null;
-			} );
 	}
 
 	refreshAfterNestedAction( reloadDetail ) {
@@ -942,43 +859,6 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		if ( trigger instanceof HTMLElement ) {
 			trigger.click();
 		}
-	}
-
-	resolveOperatorContextRoot( target ) {
-		const root = this.rootEl || this.getRoot();
-		const operatorShell = this.getOperatorShellForRoot( root );
-		return root !== null && operatorShell !== null && operatorShell.contains( target )
-			? root
-			: null;
-	}
-
-	getOperatorShellForRoot( root = this.rootEl || this.getRoot() ) {
-		const operatorShell = root?.closest( '[data-mode-shell="1"][data-operator-chrome="1"]' ) || null;
-		return operatorShell instanceof HTMLElement
-			? operatorShell
-			: null;
-	}
-
-	getCurrentDirectTable() {
-		const table = this.rootEl
-			?.querySelector( '[data-actions-queue-detail="1"] [data-scan-results-table="1"]' ) || null;
-		return table instanceof HTMLTableElement
-			? table
-			: null;
-	}
-
-	setDirectTableBusy( tableEl, isBusy ) {
-		return ShieldTableBase.setBusyForTableElement( tableEl, isBusy );
-	}
-
-	reloadDirectTable( tableEl ) {
-		const datatable = ShieldTableBase.resolveDatatableForTableElement( tableEl );
-		if ( datatable === null || typeof datatable.ajax?.reload !== 'function' ) {
-			return false;
-		}
-
-		datatable.ajax.reload( () => this.setDirectTableBusy( tableEl, false ) );
-		return true;
 	}
 
 	captureResultsDisplayOptionsFromTarget( target ) {

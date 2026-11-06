@@ -47,7 +47,7 @@ class SuperSearchResults extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 			$sections[] = [
 				'heading' => $group[ 'text' ],
 				'results' => \array_map( fn( array $child ) :array => [
-					'icon_class' => $child[ 'icon' ] ?? '',
+					'icon_class' => $child[ 'icon' ],
 					'label'      => $child[ 'text' ],
 					'type'       => '',
 					'type_key'   => '',
@@ -55,7 +55,7 @@ class SuperSearchResults extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 					'summary'    => '',
 					'value'      => '',
 					'href'       => $child[ 'link' ][ 'href' ],
-					'target'     => (string)( $child[ 'link' ][ 'target' ] ?: '' ),
+					'target'     => $child[ 'link' ][ 'target' ],
 					'classes'    => $child[ 'link' ][ 'classes' ],
 					'data'       => $child[ 'link' ][ 'data' ],
 				], $group[ 'children' ] ),

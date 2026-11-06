@@ -211,15 +211,17 @@ export function buildScanResultsActionButtons( {
 	}
 
 	// What acts on the whole plugin or theme, such as reinstalling it, under its own heading.
-	( assetActions?.actions || [] ).forEach( ( assetAction, index ) => {
-		buttons.push( {
-			text: `<i class="${assetAction.icon_class || ''}" aria-hidden="true"></i> ${assetAction.label}`,
-			name: `asset-action-${index}`,
-			className: 'action btn-outline-secondary',
-			attr: index === 0 ? { 'data-scan-results-group-start': 'asset' } : {},
-			action: ( e, dt, node ) => assetActions.onAction( assetAction, shieldServices.dialog().resolveLauncher( e, node ) ),
+	if ( assetActions !== null ) {
+		assetActions.actions.forEach( ( assetAction, index ) => {
+			buttons.push( {
+				text: `<i class="${assetAction.icon_class}" aria-hidden="true"></i> ${assetAction.label}`,
+				name: `asset-action-${index}`,
+				className: 'action btn-outline-secondary',
+				attr: index === 0 ? { 'data-scan-results-group-start': 'asset' } : {},
+				action: ( e, dt, node ) => assetActions.onAction( assetAction, shieldServices.dialog().resolveLauncher( e, node ) ),
+			} );
 		} );
-	} );
+	}
 
 	return buttons;
 }
