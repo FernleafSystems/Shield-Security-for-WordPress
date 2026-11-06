@@ -667,7 +667,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 	handleMaintenanceActionClick( evt ) {
 		const target = evt.target instanceof Element
-			? evt.target.closest( '[data-actions-queue-maintenance-action], [data-actions-queue-maintenance-ignore-all="1"]' )
+			? evt.target.closest( '[data-actions-queue-maintenance-action], [data-actions-queue-maintenance-all]' )
 			: null;
 		if ( target === null ) {
 			return;
@@ -684,11 +684,13 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.adoptLandingBucket( target );
 		BootstrapTooltips.HideAndDisposeTooltip( target );
 
-		// Ignore all sends its group's ignores as one request, then refreshes once.
-		const isIgnoreAll = target.dataset.actionsQueueMaintenanceIgnoreAll === '1';
-		const scope = isIgnoreAll ? target.closest( '.actions-queue-row-group' ) : target.closest( '.actions-queue-row' );
-		const actions = ( isIgnoreAll
-			? [ ...( scope?.querySelectorAll( '[data-actions-queue-maintenance-kind="ignore"][data-actions-queue-maintenance-action]' ) || [] ) ]
+		// "Ignore all" and "Stop ignoring all" send their group's ignores, or its restores, as one request, then
+		// refresh once.
+		const allKind = target.dataset.actionsQueueMaintenanceAll || '';
+		const isAll = allKind !== '';
+		const scope = isAll ? target.closest( '.actions-queue-row-group' ) : target.closest( '.actions-queue-row' );
+		const actions = ( isAll
+			? [ ...( scope?.querySelectorAll( `[data-actions-queue-maintenance-kind="${allKind}"][data-actions-queue-maintenance-action]` ) || [] ) ]
 			: [ target ]
 		).map( ( el ) => this.parseJsonDataset( el.dataset.actionsQueueMaintenanceAction ) )
 		.filter( ( data ) => !ObjectOps.IsEmpty( data ) );
@@ -706,7 +708,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		};
 
 		const service = new AjaxService();
-		const send = service.send( isIgnoreAll ? this.combineIgnoreActions( actions ) : actions[ 0 ] )
+		const send = service.send( isAll ? this.combineActions( actions ) : actions[ 0 ] )
 			.then( ( resp ) => resp?.success === true );
 
 		send.then( ( ok ) => ok ? this.refreshAfterNestedAction( true ) : null )
@@ -715,12 +717,12 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 	}
 
 	/**
-	 * One request for a group's ignores: scan results go as one list of result IDs, maintenance items as one
-	 * list of identifiers for their shared key.
+	 * One request for a group's ignores, or its restores: scan results go as one list of result IDs,
+	 * maintenance items as one list of identifiers for their shared key.
 	 * @param {Array<Object>} actions
 	 * @return {Object}
 	 */
-	combineIgnoreActions( actions ) {
+	combineActions( actions ) {
 		const first = actions[ 0 ];
 		if ( Array.isArray( first.rids ) ) {
 			return { ...first, rids: actions.flatMap( ( data ) => data.rids ) };

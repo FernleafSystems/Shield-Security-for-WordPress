@@ -260,6 +260,42 @@ class MaintenanceItemActionsTest extends BaseUnitTest {
 		$this->assertSame( [], $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates'] );
 	}
 
+	public function test_stop_ignoring_all_restores_every_listed_identifier_in_one_request() :void {
+		$this->opts->optSet( MaintenanceIssueStateProvider::OPT_KEY, [
+			'default_admin_user'     => [],
+			'wp_updates'             => [],
+			'wp_plugins_updates'     => [ 'plugin-one/plugin.php', 'plugin-two/plugin.php', 'plugin-three/plugin.php' ],
+			'wp_themes_updates'      => [],
+			'wp_plugins_inactive'    => [],
+			'wp_themes_inactive'     => [],
+			'system_ssl_certificate' => [],
+			'system_php_version'     => [],
+			'wp_db_password'         => [],
+			'system_lib_openssl'     => [],
+		] );
+
+		$action = new MaintenanceItemUnignoreTestDouble(
+			[
+				'wp_plugins_updates' => [ 'plugin-one/plugin.php', 'plugin-two/plugin.php', 'plugin-three/plugin.php' ],
+			],
+			[
+				'wp_plugins_updates' => true,
+			],
+			[
+				'maintenance_key' => 'wp_plugins_updates',
+				'identifiers'     => [ 'plugin-one/plugin.php', 'plugin-three/plugin.php' ],
+			]
+		);
+
+		$action->process();
+
+		$this->assertTrue( (bool)( $action->response()->payload()[ 'success' ] ?? false ) );
+		$this->assertSame(
+			[ 'plugin-two/plugin.php' ],
+			$this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates']
+		);
+	}
+
 	public function test_unignore_rejects_invalid_key_without_mutating_state() :void {
 		$before = $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY );
 		$action = new MaintenanceItemUnignoreTestDouble(

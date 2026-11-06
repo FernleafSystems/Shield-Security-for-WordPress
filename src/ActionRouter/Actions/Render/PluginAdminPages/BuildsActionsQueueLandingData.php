@@ -168,6 +168,7 @@ trait BuildsActionsQueueLandingData {
 					'turn_on'        => __( 'Turn on', 'wp-simple-firewall' ),
 					'review'         => __( 'Review', 'wp-simple-firewall' ),
 					'ignore_all'     => __( 'Ignore all', 'wp-simple-firewall' ),
+					'stop_ignoring_all' => __( 'Stop ignoring all', 'wp-simple-firewall' ),
 					/* translators: %s: how many of a group's items are ignored */
 					'ignored_count'  => __( '(%s ignored)', 'wp-simple-firewall' ),
 					/* translators: %s: how many items are ignored */

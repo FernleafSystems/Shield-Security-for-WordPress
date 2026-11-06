@@ -33,7 +33,7 @@ test( 'an abandoned plugin can be ignored in place, seen faded, and restored', a
 		await openSection( page, 'critical' );
 
 		await expect( ignoreButtons( page ) ).toHaveCount( 2 );
-		await expect( abandonedGroup( page ).locator( '[data-actions-queue-maintenance-ignore-all="1"]' ) ).toBeVisible();
+		await expect( abandonedGroup( page ).locator( '[data-actions-queue-maintenance-all="ignore"]' ) ).toBeVisible();
 		await expect( ignoredToggle( page ) ).toHaveCount( 0 );
 
 		const navigations = [];
@@ -63,7 +63,7 @@ test( 'with every abandoned plugin ignored, the group is passing and they can st
 		await openQueue( page );
 		await openSection( page, 'critical' );
 
-		await abandonedGroup( page ).locator( '[data-actions-queue-maintenance-ignore-all="1"]' ).click();
+		await abandonedGroup( page ).locator( '[data-actions-queue-maintenance-all="ignore"]' ).click();
 		await expect( section( page, 'passing' ).locator( '[data-actions-queue-group-key="abandoned"]' ) ).toHaveCount( 1, { timeout: 30_000 } );
 
 		// Ignored results count for nothing, in the sidebar or the admin bar. A fresh page also has to refresh in

@@ -53,7 +53,7 @@ test( 'ignoring an item refreshes the queue in place and keeps Review next open'
 test( 'a group of like items can be ignored all at once', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'direct_table', async () => {
 		await openReviewSection( page );
-		const ignoreAll = section( page, 'review' ).locator( '[data-actions-queue-maintenance-ignore-all="1"]' ).first();
+		const ignoreAll = section( page, 'review' ).locator( '[data-actions-queue-maintenance-all="ignore"]' ).first();
 		test.skip( await ignoreAll.count() === 0, 'This site has no group of like maintenance items.' );
 
 		const group = ignoreAll.locator( 'xpath=ancestor::*[@data-actions-queue-group-key][1]' );
@@ -77,5 +77,19 @@ test( 'a group of like items can be ignored all at once', async ( { page, fixtur
 		await expect( showIgnored ).toContainText( String( itemCount ) );
 		await showIgnored.click();
 		await expect( ignoredGroup.locator( '[data-actions-queue-maintenance-kind="unignore"]' ) ).toHaveCount( itemCount );
+
+		// With them all ignored, they can all be brought back together, in one request.
+		const unignoreRequests = [];
+		page.on( 'request', ( request ) => {
+			if ( request.method() === 'POST' && request.url().includes( '/admin-ajax.php' )
+				&& new URLSearchParams( request.postData() || '' ).get( 'ex' ) === 'maintenance_item_unignore' ) {
+				unignoreRequests.push( request );
+			}
+		} );
+		await ignoredGroup.locator( '[data-actions-queue-maintenance-all="unignore"]' ).click();
+		const restoredGroup = page.locator( `[data-actions-queue-section-key="review"] [data-actions-queue-group-key="${groupKey}"]:not(.is-all-ignored)` );
+		await expect( restoredGroup ).toHaveCount( 1, { timeout: 30_000 } );
+		expect( unignoreRequests ).toHaveLength( 1 );
+		await expect( restoredGroup.locator( '[data-actions-queue-maintenance-kind="ignore"]' ) ).toHaveCount( itemCount );
 	} );
 } );

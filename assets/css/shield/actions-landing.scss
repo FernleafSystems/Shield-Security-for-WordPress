@@ -919,11 +919,16 @@ $aq-pro-bg: #f2ebfc;
 	transition: opacity 0.15s ease;
 }
 
+// The foot of a group, with "Ignore all" or "Stop ignoring all", answers the pointer as the rows above it do.
 .actions-queue-row-group__foot {
 	border-top: 1px solid $aq-soft-line;
 	display: flex;
 	justify-content: flex-end;
 	padding: 8px 14px;
+
+	&:hover {
+		background: #fafafb;
+	}
 }
 
 // A group of maintenance items: a small heading row (styled with the box headings above), then one row per item.

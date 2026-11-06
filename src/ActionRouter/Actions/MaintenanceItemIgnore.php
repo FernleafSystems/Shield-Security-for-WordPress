@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 
 class MaintenanceItemIgnore extends BaseAction {
 
+	use Traits\MaintenanceItemIdentifiers;
 	use Traits\NonceVerifyRequired;
 
 	public const SLUG = 'maintenance_item_ignore';
@@ -16,13 +17,7 @@ class MaintenanceItemIgnore extends BaseAction {
 	protected function exec() {
 		$provider = $this->buildMaintenanceIssueStateProvider();
 		$key = \sanitize_key( $this->action_data[ 'maintenance_key' ] );
-		// "Ignore all" sends every item of one kind together, as a list of identifiers.
-		$identifiers = \is_array( $this->action_data[ 'identifiers' ] ?? null )
-			? \array_values( \array_unique( \array_filter( \array_map(
-				fn( $identifier ) :string => \is_scalar( $identifier ) ? \trim( (string)$identifier ) : '',
-				$this->action_data[ 'identifiers' ]
-			) ) ) )
-			: [ \trim( (string)( $this->action_data[ 'identifier' ] ?? '' ) ) ];
+		$identifiers = $this->requestedIdentifiers();
 
 		if ( !$provider->isKnownMaintenanceKey( $key ) ) {
 			$this->fail( __( 'Invalid maintenance item.', 'wp-simple-firewall' ), self::ERROR_INVALID_KEY );

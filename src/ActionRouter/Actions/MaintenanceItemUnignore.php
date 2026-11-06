@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 
 class MaintenanceItemUnignore extends BaseAction {
 
+	use Traits\MaintenanceItemIdentifiers;
 	use Traits\NonceVerifyRequired;
 
 	public const SLUG = 'maintenance_item_unignore';
@@ -15,7 +16,7 @@ class MaintenanceItemUnignore extends BaseAction {
 	protected function exec() {
 		$provider = $this->buildMaintenanceIssueStateProvider();
 		$key = \sanitize_key( $this->action_data[ 'maintenance_key' ] );
-		$identifier = \trim( (string)( $this->action_data[ 'identifier' ] ?? '' ) );
+		$identifiers = $this->requestedIdentifiers();
 
 		if ( !$provider->isKnownMaintenanceKey( $key ) ) {
 			$this->fail( __( 'Invalid maintenance item.', 'wp-simple-firewall' ), self::ERROR_INVALID_KEY );
@@ -23,18 +24,18 @@ class MaintenanceItemUnignore extends BaseAction {
 		}
 
 		if ( $provider->supportsSubItems( $key ) ) {
-			if ( $identifier === '' ) {
+			if ( empty( $identifiers ) || \in_array( '', $identifiers, true ) ) {
 				$this->fail( __( 'A specific maintenance item identifier is required.', 'wp-simple-firewall' ), self::ERROR_MISSING_IDENTIFIER );
 				return;
 			}
 		}
 		else {
-			$identifier = MaintenanceIssueStateProvider::SINGLETON_TOKEN;
+			$identifiers = [ MaintenanceIssueStateProvider::SINGLETON_TOKEN ];
 		}
 
 		$currentIssueIdentifiersByKey = $provider->currentIssueIdentifiersByKey();
 		$ignoredItems = $provider->getNormalizedStoredIgnoredItems( $currentIssueIdentifiersByKey );
-		$ignoredItems[ $key ] = \array_values( \array_diff( $ignoredItems[ $key ], [ $identifier ] ) );
+		$ignoredItems[ $key ] = \array_values( \array_diff( $ignoredItems[ $key ], $identifiers ) );
 
 		self::con()->opts->optSet(
 			MaintenanceIssueStateProvider::OPT_KEY,
