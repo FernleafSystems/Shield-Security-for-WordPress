@@ -28,7 +28,9 @@ class ActionsQueueDrillDownGroups extends DrillDownAjaxRenderBase {
 	 *   landing_refresh?:array{
 	 *     has_drilldown_content:bool,
 	 *     root_step_json:string,
-	 *     buckets_html:string
+	 *     buckets_html:string,
+	 *     nav_status:string,
+	 *     nav_badges_html:string
 	 *   }
 	 * }
 	 */

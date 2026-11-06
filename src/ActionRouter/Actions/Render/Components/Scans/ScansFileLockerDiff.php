@@ -96,15 +96,6 @@ class ScansFileLockerDiff extends BaseScans {
 
 			$carb = Services::Request()->carbon( true );
 
-			$absPath = wp_normalize_path( ABSPATH );
-			$filePath = wp_normalize_path( $lock->path );
-			if ( \strpos( $filePath, $absPath ) !== false ) {
-				$data[ 'vars' ][ 'relative_path' ] = \str_replace( $absPath, '/', $filePath );
-			}
-			else {
-				$data[ 'vars' ][ 'relative_path' ] = '../'.basename( $filePath );
-			}
-
 			$data[ 'vars' ][ 'relative_path' ] = \str_replace( wp_normalize_path( ABSPATH ), '/', wp_normalize_path( $lock->path ) );
 			$data[ 'vars' ][ 'locked_at' ] = $carb->setTimestamp( $lock->created_at )->diffForHumans();
 			$data[ 'vars' ][ 'file_modified_at' ] =
