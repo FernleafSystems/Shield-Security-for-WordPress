@@ -726,7 +726,7 @@ class ScansResultsViewBuilder {
 			'panel_id'     => 'actions-queue-filelocker-card-'.$rid,
 			'panel_target' => 'actions-queue-filelocker-'.$rid,
 			'status'       => $status,
-			'icon_class'   => 'bi bi-file-lock2-fill',
+			'icon_class'   => $this->fileLockerIconClass( $path ),
 			'title'        => \basename( $path ),
 			'rail_title'   => $path,
 			'stat_text'    => $status === 'good'
@@ -738,6 +738,21 @@ class ScansResultsViewBuilder {
 				'rid' => $rid,
 			] ),
 		] );
+	}
+
+	/**
+	 * Each critical file's tab shows what kind of file it is: the site's configuration, the server's rules, or a
+	 * PHP file. Its colour gives the file's state.
+	 */
+	private function fileLockerIconClass( string $path ) :string {
+		$name = \strtolower( \basename( $path ) );
+		if ( $name === 'wp-config.php' ) {
+			return 'bi bi-gear-fill';
+		}
+		if ( $name === '.htaccess' || $name === 'web.config' ) {
+			return 'bi bi-server';
+		}
+		return \substr( $name, -4 ) === '.php' ? 'bi bi-filetype-php' : 'bi bi-file-lock2-fill';
 	}
 
 	/**
@@ -753,7 +768,7 @@ class ScansResultsViewBuilder {
 			'panel_id'           => 'actions-queue-filelocker-card-pending-'.$fileKey,
 			'panel_target'       => 'actions-queue-filelocker-pending-'.$fileKey,
 			'status'             => 'neutral',
-			'icon_class'         => 'bi bi-file-lock2-fill',
+			'icon_class'         => $this->fileLockerIconClass( $path ),
 			'title'              => $pendingLock[ 'title' ],
 			'rail_title'         => $path,
 			'stat_text'          => __( 'Initial lock is still being created.', 'wp-simple-firewall' ),
@@ -775,7 +790,7 @@ class ScansResultsViewBuilder {
 		return $this->normalizeQueueAssetCard( [
 			'key'                => 'inactive:'.$fileKey,
 			'status'             => 'neutral',
-			'icon_class'         => 'bi bi-file-lock2-fill',
+			'icon_class'         => $this->fileLockerIconClass( $path ),
 			'title'              => $inactiveLock[ 'title' ],
 			'rail_title'         => $path,
 			'stat_text'          => __( 'This file is not currently protected.', 'wp-simple-firewall' ),

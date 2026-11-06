@@ -34,7 +34,7 @@
 							data-mode-panel-target="{{ target|e('html_attr') }}"
 							aria-controls="{{ item.panel_id|default( 'FileLockerPanel-' ~ loop.index )|e('html_attr') }}"
 							aria-expanded="false">
-						<span class="actions-queue-file-tab__dot" aria-hidden="true"></span>
+						<i class="{{ item.icon_class }} actions-queue-file-tab__icon" aria-hidden="true"></i>
 						{{ item.title }}
 					</button>
 				{% endfor %}

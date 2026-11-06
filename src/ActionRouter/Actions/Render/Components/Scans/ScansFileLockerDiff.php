@@ -70,14 +70,12 @@ class ScansFileLockerDiff extends BaseScans {
 					'butt_accept'           => __( 'Accept Changes', 'wp-simple-firewall' ),
 					'file_name'             => CommonDisplayStrings::get( 'name_label' ),
 					'file_size'             => __( 'File Size', 'wp-simple-firewall' ),
-					'reviewing_locked_file' => __( 'Reviewing Locked File', 'wp-simple-firewall' ),
 					'file_details'          => __( 'File Details', 'wp-simple-firewall' ),
 					'modified_file'         => __( 'Modified File', 'wp-simple-firewall' ),
 					'locked'                => __( 'Locked', 'wp-simple-firewall' ),
 					'modified_timestamp'    => __( 'File Modified Timestamp', 'wp-simple-firewall' ),
 					'file_modified'         => __( 'File Modified', 'wp-simple-firewall' ),
 					'relative_path'         => __( 'Relative Path', 'wp-simple-firewall' ),
-					'full_path'             => __( 'Full Path', 'wp-simple-firewall' ),
 					'modified'              => __( 'Modified', 'wp-simple-firewall' ),
 					'download'              => __( 'Download', 'wp-simple-firewall' ),
 					'change_detected_at'    => __( 'Change Detected', 'wp-simple-firewall' ),
@@ -106,7 +104,6 @@ class ScansFileLockerDiff extends BaseScans {
 			else {
 				$data[ 'vars' ][ 'relative_path' ] = '../'.basename( $filePath );
 			}
-			$data[ 'vars' ][ 'full_path' ] = $filePath;
 
 			$data[ 'vars' ][ 'relative_path' ] = \str_replace( wp_normalize_path( ABSPATH ), '/', wp_normalize_path( $lock->path ) );
 			$data[ 'vars' ][ 'locked_at' ] = $carb->setTimestamp( $lock->created_at )->diffForHumans();

@@ -1347,23 +1347,20 @@ html.shield-results-overlay-open {
 	}
 }
 
-.actions-queue-file-tab__dot {
-	background: #a7aaad;
-	border-radius: 50%;
-	display: inline-block;
-	height: 8px;
-	width: 8px;
+// Each file's tab has an icon for its kind of file, coloured by the file's state.
+.actions-queue-file-tab__icon {
+	color: #8c8f94;
 
 	.status-good > & {
-		background: #00a32a;
+		color: #008a20;
 	}
 
 	.status-warning > & {
-		background: #dba617;
+		color: #996800;
 	}
 
 	.status-critical > & {
-		background: #d63638;
+		color: #d63638;
 	}
 }
 

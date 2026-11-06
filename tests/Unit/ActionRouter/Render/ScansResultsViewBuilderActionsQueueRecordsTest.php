@@ -222,6 +222,11 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertArrayNotHasKey( 'actions-queue-asset-render-action', $pane[ 'cards' ][ 1 ][ 'panel_data' ] );
 		$this->assertSame( '/index.php', $pane[ 'cards' ][ 1 ][ 'meta_text' ] );
 		$this->assertSame( 'info', $pane[ 'cards' ][ 1 ][ 'body_notice_variant' ] );
+		// Each file's tab icon says what kind of file it is.
+		$this->assertSame(
+			[ 'bi bi-gear-fill', 'bi bi-filetype-php', 'bi bi-server' ],
+			\array_column( $pane[ 'cards' ], 'icon_class' )
+		);
 	}
 
 	public function test_file_locker_not_enabled_premium_state_renders_inactive_cards_without_configuration_action() :void {
