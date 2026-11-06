@@ -21,7 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueAssetFileStatusDetail;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueBucketsBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueRefresh;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueGroupsBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueLandingAssessmentBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultScopeStateBuilder;
@@ -121,16 +121,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 	}
 
-	private function loadSelectedGroupPayload( string $bucket, string $groupKey, bool $includeLandingRefresh = false ) :array {
-		$actionData = [
+	private function loadSelectedGroupPayload( string $bucket, string $groupKey ) :array {
+		return $this->processQueueRefresh( [
 			'bucket' => $bucket,
 			'group'  => $groupKey,
-		];
-		if ( $includeLandingRefresh ) {
-			$actionData[ 'include_landing_refresh' ] = 1;
-		}
-
-		return $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, $actionData );
+		] );
 	}
 
 	private function enableAssetScanFixture( array $scanAreas ) :void {
@@ -643,10 +638,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)( $scans[ 'is_enabled' ] ?? false ) );
 		$this->assertFalse( (bool)( $scans[ 'has_issues' ] ?? true ) );
 		$this->assertNotEmpty( $scans[ 'assessment_rows' ] ?? [] );
-		$this->assertArrayNotHasKey( 'groups_render_action', $vars[ 'actions_queue_ajax' ] );
 		$this->assertSame(
-			ActionsQueueDrillDownGroups::SLUG,
-			(string)( \json_decode( (string)( $vars[ 'actions_queue_ajax' ][ 'groups_render_action_json' ] ?? '' ), true )[ 'render_slug' ] ?? '' )
+			ActionsQueueRefresh::SLUG,
+			(string)( \json_decode( (string)( $vars[ 'actions_queue_ajax' ][ 'refresh_action_json' ] ?? '' ), true )[ 'ex' ] ?? '' )
 		);
 	}
 
@@ -707,34 +701,26 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( 'activate', (string)( $queryArgs[ 'action' ] ?? '' ) );
 	}
 
-	public function test_groups_ajax_returns_bucket_groups_and_context() :void {
+	public function test_refresh_without_an_open_group_returns_only_the_landing() :void {
 		$this->setPluginUpdateAvailable();
 
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+		$payload = $this->processQueueRefresh( [
 			'bucket' => 'review',
 		] );
 
-		$this->assertSame(
-			(string)( $payload[ 'bucket_selection' ][ 'label' ] ?? '' ),
-			(string)( $payload[ 'header' ][ 'title' ] ?? '' )
-		);
-		$this->assertSame( 'warning', (string)( $payload[ 'header' ][ 'badge_status' ] ?? '' ) );
-		$this->assertArrayNotHasKey( 'active_sections', $payload );
-		$this->assertArrayNotHasKey( 'healthy_sections', $payload );
-		$this->assertArrayNotHasKey( 'landing_refresh', $payload );
-		$this->assertArrayNotHasKey( 'render_data', $payload );
-		$this->assertArrayNotHasKey( 'render_output', $payload );
-		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
+		$this->assertTrue( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] );
+		$this->assertNotSame( '', $payload[ 'landing_refresh' ][ 'buckets_html' ] );
+		$this->assertArrayNotHasKey( 'selected_group', $payload );
+		$this->assertArrayNotHasKey( 'html', $payload );
 	}
 
-	public function test_groups_ajax_can_refresh_the_current_selected_group_summary() :void {
+	public function test_refresh_can_refresh_the_current_selected_group_summary() :void {
 		$this->setPluginUpdateAvailable();
 		$selectedGroupKey = 'wp_plugins_updates';
 
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
-			'bucket'                  => 'review',
-			'group'                   => $selectedGroupKey,
-			'include_landing_refresh' => 1,
+		$payload = $this->processQueueRefresh( [
+			'bucket' => 'review',
+			'group'  => $selectedGroupKey,
 		] );
 
 		$this->assertSame( $selectedGroupKey, (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
@@ -750,7 +736,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'actions', (string)( $rootStep[ 'color_key' ] ?? '' ) );
 		$this->assertArrayHasKey( 'buckets_html', $payload[ 'landing_refresh' ] ?? [] );
 		$this->assertIsString( $payload[ 'landing_refresh' ][ 'buckets_html' ] );
-		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
 		$this->assertHeaderHasNoDisplayOptions( (array)( $payload[ 'selected_group' ][ 'header' ] ?? [] ) );
 	}
@@ -1040,7 +1025,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 		$this->resetScanResultCountMemoization();
 
-		$groupsPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+		$groupsPayload = $this->processQueueRefresh( [
 			'bucket' => 'critical',
 			'group'  => 'plugins:'.$pluginSlug,
 		] );
@@ -2061,5 +2046,18 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertNotSame( '', $warning );
 		$this->assertSame( $warning, (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? '' ) );
+	}
+
+	/**
+	 * The queue's refresh, as the page sends it, with its nonce.
+	 */
+	private function processQueueRefresh( array $data ) :array {
+		$snapshot = $this->seedActionNonceContext( ActionsQueueRefresh::class );
+		try {
+			return $this->processActionPayloadWithAdminBypass( ActionsQueueRefresh::SLUG, $data );
+		}
+		finally {
+			$this->restoreActionNonceContext( $snapshot );
+		}
 	}
 }

@@ -18,6 +18,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.layerRequests = {};
 		this.selectedBucket = null;
 		this.selectedGroup = null;
+		this.refreshRequest = null;
 
 		this.bindModePanelHandlers();
 		this.bindMaintenanceActionHandlers();
@@ -130,7 +131,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.adoptLandingBucket( launcher );
 		await ( isFile
 			? this.refreshAfterNestedAction( true )
-			: this.loadGroupsLayer( { showPlaceholder: false, includeLandingRefresh: true } ) );
+			: this.refreshQueue() );
 
 		// A user may have moved elsewhere while the closed dialog's refresh was pending.
 		const focused = document.activeElement;
@@ -216,15 +217,12 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 		this.selectedGroup = group;
 
-		// Group cards on the landing open results directly, over the queue, and the breadcrumb leads straight
-		// back to the landing: the landing already lists the lane, so the lane page is left out of the trail.
-		const fromLanding = item.closest( '[data-actions-queue-sections="1"]' ) !== null;
-		this.setLaneInTrail( shell, !fromLanding );
-		this.setResultsOverlay( shell, fromLanding );
+		// A group on the landing opens its results over the queue.
+		this.setResultsOverlay( shell, item.closest( '[data-actions-queue-sections="1"]' ) !== null );
 
 		drillCtrl.updateLayerHeader(
 			shell,
-			2,
+			layerIndex,
 			this.buildLoadingHeader( group.header, this.getDetailLoadingText() ),
 			{ announce: false }
 		);
@@ -234,41 +232,36 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 	}
 
 	/**
-	 * @param {HTMLElement} shell
-	 * @param {boolean} inTrail
+	 * After a change, the queue refreshes in place: its lanes, summary and sidebar counts, and the open group's
+	 * heading. Only the latest refresh is applied.
+	 * @return {Promise<Object|null>}
 	 */
-	setLaneInTrail( shell, inTrail ) {
-		const lane = shell.querySelector( '[data-drill-layer-key="groups"]' );
-		if ( lane instanceof HTMLElement ) {
-			lane.toggleAttribute( 'data-drill-crumb-skip', !inTrail );
-		}
-	}
-
-	loadGroupsLayer( { showPlaceholder = true, includeSelectedGroup = false, includeLandingRefresh = false, quiet = false } = {} ) {
-		if ( this.selectedBucket === null ) {
+	refreshQueue( { includeSelectedGroup = false } = {} ) {
+		const action = this.buildRenderAction( this.rootEl?.dataset.actionsQueueRefreshAction, {
+			bucket: this.selectedBucket?.key || '',
+			...( includeSelectedGroup && this.selectedGroup !== null ? { group: this.selectedGroup.key } : {} ),
+		} );
+		if ( this.selectedBucket === null || ObjectOps.IsEmpty( action ) ) {
 			return Promise.resolve( null );
 		}
-		// While the landing is showing, the lane layer refreshes out of sight and says nothing.
-		quiet = quiet || ( this.shellEl !== null && getActiveLayerIndex( getLayersForShell( this.shellEl ) ) === 0 );
 
-		const extraData = {
-			bucket: this.selectedBucket.key,
-		};
-		if ( includeSelectedGroup && this.selectedGroup !== null ) {
-			extraData.group = this.selectedGroup.key;
-		}
-		if ( includeLandingRefresh ) {
-			extraData.include_landing_refresh = 1;
-		}
-
-		return this.loadLayerContent(
-			'groups',
-			this.buildRenderAction( this.rootEl?.dataset.actionsQueueGroupsAction, extraData ),
-			showPlaceholder,
-			this.getGroupsLoadingText(),
-			( data ) => this.applyGroupsLayerResponse( data ),
-			quiet
-		);
+		const requestKey = `${Date.now()}-${Math.random()}`;
+		this.refreshRequest = requestKey;
+		return ( new AjaxService() )
+			.send( action, false, true )
+			.then( ( resp ) => {
+				if ( this.refreshRequest !== requestKey || resp?.success !== true ) {
+					return null;
+				}
+				this.applyRefreshResponse( resp.data );
+				return resp.data;
+			} )
+			.catch( () => null )
+			.finally( () => {
+				if ( this.refreshRequest === requestKey ) {
+					this.refreshRequest = null;
+				}
+			} );
 	}
 
 	loadDetailLayer( showPlaceholder = true ) {
@@ -285,22 +278,16 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		);
 	}
 
-	applyGroupsLayerResponse( data ) {
-		const shouldAbortLayerRefresh = this.applyLandingRefresh( data.landing_refresh || null );
-		if ( shouldAbortLayerRefresh ) {
+	/**
+	 * @param {{landing_refresh:Object, selected_group?:Object}} data
+	 */
+	applyRefreshResponse( data ) {
+		if ( this.applyLandingRefresh( data.landing_refresh ) ) {
 			return;
 		}
-
-		const drillCtrl = this.getDrillDownController();
-		if ( this.shellEl === null || drillCtrl === null ) {
-			return;
-		}
-
-		this.selectedBucket = this.readBucketSelectionPayload( data.bucket_selection );
-		drillCtrl.updateLayerHeader( this.shellEl, 1, data.header || this.selectedBucket.header );
-
-		if ( !ObjectOps.IsEmpty( data.selected_group || {} ) ) {
-			this.applySelectedGroupRefresh( data.selected_group );
+		if ( data.selected_group !== undefined ) {
+			this.selectedGroup = this.readGroupSelectionPayload( data.selected_group );
+			this.applyDetailLayerResponse();
 		}
 	}
 
@@ -310,25 +297,15 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			return;
 		}
 
-		drillCtrl.updateLayerHeader( this.shellEl, 2, this.selectedGroup.header );
-	}
-
-	applySelectedGroupRefresh( selectedGroup ) {
-		const drillCtrl = this.getDrillDownController();
-		if ( this.shellEl === null || drillCtrl === null ) {
-			return;
-		}
-
-		this.selectedGroup = this.readGroupSelectionPayload( selectedGroup );
-		drillCtrl.updateLayerHeader( this.shellEl, 2, this.selectedGroup.header );
+		drillCtrl.updateLayerHeader( this.shellEl, this.getLayerIndexByKey( this.shellEl, 'detail' ), this.selectedGroup.header );
 	}
 
 	applyLandingRefresh( landingRefresh ) {
-		if ( ObjectOps.IsEmpty( landingRefresh || {} ) || this.rootEl === null ) {
+		if ( this.rootEl === null ) {
 			return false;
 		}
 
-		this.updateOperatorRootStep( landingRefresh.root_step_json || '' );
+		this.updateOperatorRootStep( landingRefresh.root_step_json );
 		this.updateSidebarCounts( landingRefresh );
 
 		if ( landingRefresh.has_drilldown_content === false ) {
@@ -338,13 +315,13 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			}
 			this.selectedBucket = null;
 			this.selectedGroup = null;
-			this.cancelLayerRequest( 'groups' );
+			this.refreshRequest = null;
 			this.cancelLayerRequest( 'detail' );
 			this.initializeCurrentRoot();
 			return true;
 		}
 
-		if ( this.shellEl !== null && typeof landingRefresh.buckets_html === 'string' ) {
+		if ( this.shellEl !== null ) {
 			const bucketsLayer = this.getLayerByKey( this.shellEl, 'buckets' );
 			const bucketsBody = bucketsLayer?.querySelector( '.drill-layer__body' ) || null;
 			if ( bucketsBody !== null ) {
@@ -452,14 +429,8 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.rootEl = root;
 		this.shellEl = this.getShell( root );
 
-		switch ( String( item.dataset.actionsQueueRetry || '' ).trim() ) {
-			case 'groups':
-				this.loadGroupsLayer();
-				break;
-
-			case 'detail':
-				this.loadDetailLayer();
-				break;
+		if ( item.dataset.actionsQueueRetry === 'detail' ) {
+			this.loadDetailLayer();
 		}
 	}
 
@@ -470,20 +441,12 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			return;
 		}
 
-		const layerIndex = parseInt( String( evt.detail?.layer_index ?? -1 ), 10 );
+		// Back from results is always back to the landing.
 		this.setResultsOverlay( shell, false );
-		if ( layerIndex <= 0 ) {
-			this.selectedBucket = null;
-			this.selectedGroup = null;
-			this.cancelLayerRequest( 'groups' );
-			this.cancelLayerRequest( 'detail' );
-			return;
-		}
-
-		if ( layerIndex === 1 ) {
-			this.selectedGroup = null;
-			this.cancelLayerRequest( 'detail' );
-		}
+		this.selectedBucket = null;
+		this.selectedGroup = null;
+		this.refreshRequest = null;
+		this.cancelLayerRequest( 'detail' );
 	}
 
 	handleTableActionSuccess( evt ) {
@@ -738,11 +701,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			: '';
 		const resultsDisplayOptions = this.consumePendingResultsDisplayOptions();
 
-		return this.loadGroupsLayer( {
-			showPlaceholder: false,
-			includeSelectedGroup: this.selectedGroup !== null,
-			includeLandingRefresh: true,
-		} ).then( ( data ) => {
+		return this.refreshQueue( { includeSelectedGroup: this.selectedGroup !== null } ).then( ( data ) => {
 			if ( data === null || data?.landing_refresh?.has_drilldown_content === false || !reloadDetail || this.selectedGroup === null ) {
 				return data;
 			}
@@ -878,10 +837,6 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 	readGroupSelection( item ) {
 		return this.readGroupSelectionPayload( this.parseJsonDataset( item.dataset.drillGroupSelection ) );
-	}
-
-	getGroupsLoadingText() {
-		return this.rootEl?.dataset.actionsGroupsLoading || '';
 	}
 
 	getDetailLoadingText() {

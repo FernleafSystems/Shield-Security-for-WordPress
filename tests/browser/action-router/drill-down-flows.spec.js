@@ -118,10 +118,9 @@ function isIgnoreAllRequest( request ) {
 function isActionsQueueGroupsRefreshRequest( request, fixture ) {
 	const params = actionRouterParams( request );
 	return isAdminAjaxPost( request )
-		&& params.get( 'render_slug' ) === 'actions_queue_drill_down_groups'
+		&& params.get( 'ex' ) === 'actions_queue_refresh'
 		&& params.get( 'bucket' ) === fixture.bucket_key
-		&& params.get( 'group' ) === fixture.group_key
-		&& params.get( 'include_landing_refresh' ) === '1';
+		&& params.get( 'group' ) === fixture.group_key;
 }
 
 function isCloakedPluginsDetailRenderRequest( request ) {
@@ -215,7 +214,7 @@ test( 'actions queue drills into groups and back out, opening details when avail
 		const group = await actionsQueuePage.waitForLandingGroup( fixture.bucket_key, fixture.group_key );
 		await actionsQueuePage.clickElement( group );
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-		await expect( page.locator( '[data-drill-layer="1"]' ) ).toHaveClass( /drill-layer--compact/ );
+		await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
 		const actionTabs = page.locator( '[data-operator-step-tab="1"]' );
 		await expect( actionTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
 		// What acts on the results sits in the table's own actions, so the queue has no side rail.
@@ -226,7 +225,7 @@ test( 'actions queue drills into groups and back out, opening details when avail
 		await expect( page.locator( '[data-step-tab-drill-index="1"]' ) ).toHaveCount( 0 );
 		await actionsQueuePage.backToLanding();
 		await expect( actionsQueuePage.landingSection( fixture.bucket_key ) ).toBeVisible();
-		await expect( page.locator( '[data-drill-layer="2"]' ) ).toHaveClass( /drill-layer--hidden/ );
+		await expect( page.locator( '[data-drill-layer-key="detail"]' ) ).toHaveClass( /drill-layer--hidden/ );
 	} );
 } );
 
@@ -278,7 +277,7 @@ test( 'actions queue opens group results in a panel over the queue', async ( { p
 
 		await page.keyboard.press( 'Escape' );
 		await expect( panel ).toHaveCount( 0 );
-		await expect( page.locator( '[data-drill-layer="2"]' ) ).toHaveClass( /drill-layer--hidden/ );
+		await expect( page.locator( '[data-drill-layer-key="detail"]' ) ).toHaveClass( /drill-layer--hidden/ );
 		await expect( page.locator( '[data-drill-layer-key="detail"] [data-operator-context-rail="1"]' ) ).toHaveCount( 0 );
 
 		// The backdrop closes it too.

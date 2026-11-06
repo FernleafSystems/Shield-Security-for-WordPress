@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueRefresh;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -53,7 +54,6 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 	protected function getLandingStrings() :array {
 		return [
 			'pane_loading'           => __( 'Loading scan details...', 'wp-simple-firewall' ),
-			'groups_loading'         => __( 'Loading issue groups...', 'wp-simple-firewall' ),
 			'detail_loading'         => __( 'Loading results...', 'wp-simple-firewall' ),
 			'pane_load_error'        => __( 'Unable to load these scan details. Please try again.', 'wp-simple-firewall' ),
 			'layer_load_error'       => __( 'Unable to load this step. Please try again.', 'wp-simple-firewall' ),
@@ -70,13 +70,11 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 	}
 
 	protected function getLandingVars() :array {
-		$viewData = $this->getLandingViewData();
-		$groupsRenderAction = ActionData::BuildAjaxRender( ActionsQueueDrillDownGroups::class );
-
 		return \array_merge( parent::getLandingVars(), [
-			'zone_tiles'         => $viewData[ 'zone_tiles' ],
+			'zone_tiles'         => $this->getLandingViewData()[ 'zone_tiles' ],
 			'actions_queue_ajax' => [
-				'groups_render_action_json' => OperatorChromeContract::encodeJson( $groupsRenderAction ),
+				// The queue refreshes in place after a change, through this action.
+				'refresh_action_json' => ActionData::BuildJson( ActionsQueueRefresh::class ),
 			],
 		] );
 	}
@@ -104,27 +102,11 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 				],
 			],
 			[
-				'key'    => 'groups',
-				'body'   => '',
-				'header' => [
-					'compact_back_label' => $presentation->buildBackLabel( __( 'Issue Groups', 'wp-simple-firewall' ) ),
-					'active_back_label'  => $presentation->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
-					'breadcrumb_label'   => __( 'Issue groups', 'wp-simple-firewall' ),
-					'title'              => __( 'Issue groups', 'wp-simple-firewall' ),
-					'summary'            => __( 'Choose Fix now or Review next to start.', 'wp-simple-firewall' ),
-					'next_step'          => __( 'Choose one issue group to review matching results.', 'wp-simple-firewall' ),
-					'icon_class'         => 'bi bi-list-ul',
-					'badge'              => __( 'Select', 'wp-simple-firewall' ),
-					'badge_status'       => 'neutral',
-					'color_key'          => 'neutral',
-				],
-			],
-			[
 				'key'    => 'detail',
 				'body'   => '',
 				'header' => [
 					'compact_back_label' => $presentation->buildBackLabel( __( 'Results', 'wp-simple-firewall' ) ),
-					'active_back_label'  => $presentation->buildBackLabel( __( 'Issue Groups', 'wp-simple-firewall' ) ),
+					'active_back_label'  => $presentation->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
 					'breadcrumb_label'   => __( 'Results', 'wp-simple-firewall' ),
 					'title'              => __( 'Results', 'wp-simple-firewall' ),
 					'summary'            => __( 'Choose an issue group to review matching results.', 'wp-simple-firewall' ),

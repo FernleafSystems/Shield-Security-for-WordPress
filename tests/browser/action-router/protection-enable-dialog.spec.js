@@ -2,7 +2,6 @@ const { openShieldRoute, test, expect } = require( './support/shield-test' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 const { expectNamedDialog, expectFocusWithin } = require( './support/modal-accessibility' );
 const { expectNoAxeViolationsInDialog, parseShieldAjaxJson } = require( './support/security-assertions' );
-const groups = '[data-drill-layer-key="groups"]';
 // Protection tiles sit on the landing; after enabling one, focus returns to the landing layer.
 const landing = '[data-drill-layer-key="buckets"][aria-hidden="false"]';
 const detail = '[data-drill-layer-key="detail"][aria-hidden="false"]';
@@ -124,7 +123,7 @@ for ( const outcome of [ 'removed', 'refresh_failure', 'focus_moved' ] ) {
 			let pending = Promise.resolve();
 			const handler = async route => {
 				const params = new URLSearchParams( route.request().postData() || '' );
-				if ( !started && params.get( 'render_slug' ) === 'actions_queue_drill_down_groups' ) {
+				if ( !started && params.get( 'ex' ) === 'actions_queue_refresh' ) {
 					started = true;
 					pending = ( async () => {
 					await held;
@@ -148,7 +147,6 @@ for ( const outcome of [ 'removed', 'refresh_failure', 'focus_moved' ] ) {
 				release(); await expect.poll( () => finished ).toBe( true );
 				if ( outcome === 'removed' ) await expect( page.locator( '#PageContainer-Apto' ) ).toBeFocused();
 				else {
-					await expect( page.locator( groups ) ).toHaveAttribute( 'aria-busy', 'false' );
 					if ( outcome === 'focus_moved' ) await expect( other ).toBeFocused();
 					else await expect( page.locator( landing ) ).toBeFocused();
 				}

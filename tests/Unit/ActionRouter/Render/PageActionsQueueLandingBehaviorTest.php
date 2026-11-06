@@ -11,14 +11,13 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueRefresh;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
-	ActionsQueueDrillDownGroups,
 	DetailExpansionType,
 	PageActionsQueueLanding
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Urls;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Labels;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -39,7 +38,6 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
 	use MaintenanceAssetFixtures;
-	use AjaxRenderPolicyAssertions;
 
 	private object $capture;
 	private array $servicesSnapshot = [];
@@ -138,7 +136,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'actions', $vars[ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
 		$this->assertSame( 'actions_drill_shell', $vars[ 'drill_shell' ][ 'id' ] );
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] );
-		$this->assertSame( [ 'buckets', 'groups', 'detail' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ], 'key' ) );
+		$this->assertSame( [ 'buckets', 'detail' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ], 'key' ) );
 		$this->assertSame( '__BUCKETS_LAYER__', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] );
 		$this->assertArrayHasKey( 'title', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
 		$this->assertArrayHasKey( 'badge', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
@@ -150,14 +148,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		);
 		$this->assertArrayNotHasKey( 'drill_context_card', $vars );
 		$this->assertCount( 2, $vars[ 'zone_tiles' ] );
-		$this->assertArrayNotHasKey( 'groups_render_action', $vars[ 'actions_queue_ajax' ] );
-		$groupsRenderAction = \json_decode( $vars[ 'actions_queue_ajax' ][ 'groups_render_action_json' ] ?? '', true );
 		$this->assertSame(
-			ActionsQueueDrillDownGroups::SLUG,
-			$groupsRenderAction[ 'render_slug' ] ?? ''
+			ActionsQueueRefresh::SLUG,
+			\json_decode( $vars[ 'actions_queue_ajax' ][ 'refresh_action_json' ], true )[ 'ex' ]
 		);
-		$this->assertAjaxRenderPayloadAllowedByPolicy( $groupsRenderAction, 'actions queue groups render' );
-		$this->assertArrayHasKey( 'groups_loading', $renderData[ 'strings' ] ?? [] );
 		$this->assertArrayHasKey( 'detail_loading', $renderData[ 'strings' ] ?? [] );
 		$this->assertArrayNotHasKey( 'scans_results', $vars );
 		$this->assertFalse( $renderData[ 'flags' ][ 'queue_is_empty' ] );

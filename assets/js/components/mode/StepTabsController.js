@@ -152,9 +152,7 @@ export class StepTabsController extends BaseAutoExecComponent {
 
 		layers.forEach( ( layer ) => {
 			const layerIndex = parseInt( layer.dataset.drillLayer || '-1', 10 );
-			// A layer stepped over on the way in (such as a lane opened straight from the landing) has no crumb.
-			if ( layerIndex < 1 || layerIndex > activeIndex
-				 || ( layerIndex < activeIndex && layer.hasAttribute( 'data-drill-crumb-skip' ) ) ) {
+			if ( layerIndex < 1 || layerIndex > activeIndex ) {
 				return;
 			}
 

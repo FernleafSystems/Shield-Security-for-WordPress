@@ -296,14 +296,12 @@ test( 'actions queue drill path keeps layer state, focus, announcements, and axe
 		} );
 
 		const bucketsLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="buckets"]' ).first();
-		const groupsLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="groups"]' ).first();
 		const detailLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="detail"]' ).first();
 		const liveRegion = drillLiveRegion( page, '[data-actions-landing="1"]' );
 		const landingGroup = await actionsQueuePage.waitForLandingGroup( fixture.bucket_key, fixture.group_key );
 		const groupKey = await locatorSelectionKey( landingGroup, 'data-drill-group-selection' );
 
 		await expectLayerContract( bucketsLayer, { hidden: false } );
-		await expectLayerContract( groupsLayer, { hidden: true } );
 		await expectLayerContract( detailLayer, { hidden: true } );
 		await expectNoAxeViolations(
 			page,
@@ -315,7 +313,6 @@ test( 'actions queue drill path keeps layer state, focus, announcements, and axe
 		await actionsQueuePage.clickElement( landingGroup );
 		await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 		await expect( bucketsLayer ).toHaveAttribute( 'aria-hidden', 'true' );
-		await expect( groupsLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 		await expect.poll( () => activeElementDrillLayerKey( page ) ).toBe( 'detail' );
 		await expect.poll( () => liveRegionMutationCount( page ) ).toBeGreaterThan( 0 );
 		await expectLiveRegionContract( page, '[data-actions-landing="1"]', { minMutations: 1 } );
@@ -329,7 +326,6 @@ test( 'actions queue drill path keeps layer state, focus, announcements, and axe
 
 		await actionsQueuePage.backToLanding();
 		await expect( bucketsLayer ).toHaveAttribute( 'aria-hidden', 'false' );
-		await expect( groupsLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 		await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 		// Focus returns to the landing card that opened the results.
 		await expect.poll( () => page.evaluate(
@@ -365,7 +361,7 @@ test( 'actions queue drill back focuses the active layer when a group launcher i
 	} );
 } );
 
-test( 'actions queue opens results from the landing without loading the lane page', async ( { page, fixtureApi } ) => {
+test( 'actions queue opens results from the landing without refreshing the queue', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
@@ -375,7 +371,7 @@ test( 'actions queue opens results from the landing without loading the lane pag
 
 		let laneRequests = 0;
 		const countLaneRequests = ( request ) => {
-			if ( String( request.postData() || '' ).includes( 'actions_queue_drill_down_groups' ) ) {
+			if ( String( request.postData() || '' ).includes( 'actions_queue_refresh' ) ) {
 				laneRequests++;
 			}
 		};

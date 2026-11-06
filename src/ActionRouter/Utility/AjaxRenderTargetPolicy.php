@@ -24,7 +24,6 @@ class AjaxRenderTargetPolicy {
 		Actions\Render\Components\OffCanvas\ZoneComponentConfig::class,
 		Actions\Render\Components\OffCanvas\FormReportCreate::class,
 		Actions\Render\Components\UserMfa\ConfigForm::class,
-		Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups::class,
 		Actions\Render\PluginAdminPages\ActionsQueueAssetFileStatusDetail::class,
 		Actions\Render\Components\Scans\Results\Wordpress::class,
 		Actions\Render\Components\Scans\Results\Plugins::class,

@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemUnignore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueRefresh;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\InvalidActionNonceException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\SecurityAdminRequiredException;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
@@ -199,14 +199,11 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 			$this->assertTrue( (bool)( $response[ 'success' ] ?? false ) );
 		}
 
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
-			'bucket'                  => 'review',
-			'group'                   => $selectedGroupKey,
-			'include_landing_refresh' => 1,
+		$payload = $this->processQueueRefresh( [
+			'bucket' => 'review',
+			'group'  => $selectedGroupKey,
 		] );
 
-		$this->assertArrayNotHasKey( 'render_data', $payload );
-		$this->assertArrayNotHasKey( 'render_output', $payload );
 		$this->assertSame( $selectedGroupKey, (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'maintenance', (string)( $payload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertSame(
@@ -216,7 +213,6 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( \count( $pluginFiles ), (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
 		$this->assertNotSame( '', \trim( (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) ) );
 		$this->assertArrayNotHasKey( 'queue_is_empty', $payload[ 'landing_refresh' ] ?? [] );
-		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
 	}
 
 	/**
@@ -266,5 +262,18 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		}
 
 		\set_site_transient( 'update_plugins', $updates );
+	}
+
+	/**
+	 * The queue's refresh, as the page sends it, with its nonce.
+	 */
+	private function processQueueRefresh( array $data ) :array {
+		$snapshot = $this->seedActionNonceContext( ActionsQueueRefresh::class );
+		try {
+			return $this->processActionPayloadWithAdminBypass( ActionsQueueRefresh::SLUG, $data );
+		}
+		finally {
+			$this->restoreActionNonceContext( $snapshot );
+		}
 	}
 }

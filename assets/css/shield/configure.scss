@@ -202,33 +202,6 @@
 	color: #8c8f94;
 }
 
-.configure-zones {
-	display: grid;
-	gap: 1.2rem;
-}
-
-.configure-zones__section {
-	display: grid;
-	gap: 0.85rem;
-}
-
-.configure-zones__grid {
-	display: grid;
-	gap: 0.9rem;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-.reports-landing .operator-tile-card--reports {
-	--operator-card-accent-color: #{$mode-reports};
-	--operator-card-text-color: #{$mode-reports-text};
-	--operator-card-icon-bg: #{$mode-reports-light};
-	--operator-card-icon-color: #{$mode-reports};
-	--operator-card-action-border: #{rgba($mode-reports, 0.4)};
-	--operator-card-action-hover-bg: #{$mode-reports-light};
-
-	border-color: $mode-reports-border;
-}
-
 .configure-diagnosis {
 	display: grid;
 	gap: 1rem;
