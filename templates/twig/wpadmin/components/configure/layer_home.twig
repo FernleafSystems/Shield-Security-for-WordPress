@@ -1,6 +1,6 @@
 {#
 	The Search tab's home, under the search box: the goals that need attention, one row each, opening
-	that goal's tab.
+	that goal's tab. Each row carries its tab's icon, coloured the same way, so it's plain which tab it is.
 #}
 <section class="configure-home" aria-labelledby="ConfigureHomeAttention">
 	<h2 class="configure-home__heading" id="ConfigureHomeAttention">{{ strings.attention_heading }}</h2>
@@ -13,7 +13,7 @@
 						class="configure-home__row status-{{ goal.status }}"
 						data-drill-target="diagnosis"
 						data-drill-zone-selection="{{ goal.selection_json|e('html_attr') }}">
-					<span class="configure-home__dot" aria-hidden="true"></span>
+					<i class="configure-home__icon {{ goal.icon_class }}" aria-hidden="true"></i>
 					<span class="configure-home__copy">
 						<span class="configure-home__title">{{ goal.title }}</span>
 						<span class="configure-home__summary">{{ goal.summary }}</span>

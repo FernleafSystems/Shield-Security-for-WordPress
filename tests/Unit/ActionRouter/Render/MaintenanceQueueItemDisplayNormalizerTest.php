@@ -225,7 +225,9 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( '', $action[ 'target' ] ?? '' );
 		$this->assertSame( 'plugins.php', \basename( \parse_url( $action[ 'href' ] ?? '', \PHP_URL_PATH ) ?: '' ) );
 		\parse_str( (string)\parse_url( $action[ 'href' ] ?? '', \PHP_URL_QUERY ), $queryArgs );
-		$this->assertSame( 'hello-dolly/hello.php', $queryArgs[ 's' ] ?? '' );
+		// WordPress searches plugins by name, so the link names the plugin.
+		$this->assertSame( 'Hello Dolly', $queryArgs[ 's' ] ?? '' );
+		$this->assertSame( 'all', $queryArgs[ 'plugin_status' ] ?? '' );
 		$this->assertArrayNotHasKey( 'action', $queryArgs );
 	}
 

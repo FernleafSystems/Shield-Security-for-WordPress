@@ -115,10 +115,14 @@ class PluginURLs {
 	}
 
 	/**
-	 * The Plugins screen narrowed to one plugin, found by its main file.
+	 * The Plugins screen narrowed to one plugin: WordPress searches plugins by their name, within one of its
+	 * views, such as Shield's Vulnerable view.
 	 */
-	public function pluginInPluginsScreen( string $pluginFile ) :string {
-		return URL::Build( Services::WpGeneral()->getAdminUrl_Plugins(), [ 's' => $pluginFile ] );
+	public function pluginInPluginsScreen( string $pluginName, string $pluginStatus = 'all' ) :string {
+		return URL::Build( Services::WpGeneral()->getAdminUrl_Plugins(), [
+			'plugin_status' => $pluginStatus,
+			's'             => $pluginName,
+		] );
 	}
 
 	/**

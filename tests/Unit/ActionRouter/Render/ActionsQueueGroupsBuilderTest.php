@@ -28,6 +28,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	MaintenancePluginsService,
 	PluginControllerInstaller,
+	PluginUrlsControllerInstaller,
 	ServicesState
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
@@ -48,6 +49,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		PluginUrlsControllerInstaller::install();
 		if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
 			\define( 'HOUR_IN_SECONDS', 3600 );
 		}
@@ -938,6 +940,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$group = $payload[ 'selected_group' ];
 		$this->assertSame( 2, $group[ 'item_count' ] );
 		$this->assertSame( '2 plugins/themes contain known vulnerabilities.', $group[ 'narrative' ] );
+		// A vulnerable plugin puts the Plugins screen's Vulnerable view in the group's heading, in a new tab.
+		$this->assertSame( 'Manage Vulnerable Plugins', $group[ 'management_link' ][ 'label' ] );
+		$this->assertSame( '/wp-admin/plugins.php?plugin_status=vulnerable', $group[ 'management_link' ][ 'href' ] );
+		$this->assertSame( '_blank', $group[ 'management_link' ][ 'target' ] );
 		$this->assertTrue( $group[ 'is_interactive' ] );
 		$this->assertSame( Vulnerabilities::class, $group[ 'render_action_class' ] );
 		$this->assertSame( [ 'section' => 'vulnerable' ], $group[ 'render_action_data' ] );

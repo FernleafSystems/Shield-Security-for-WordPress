@@ -90,8 +90,8 @@ class UnitTestPluginUrls {
 		return empty( $zone ) ? $url : $url.'?zone='.$zone;
 	}
 
-	public function pluginInPluginsScreen( string $pluginFile ) :string {
-		return '/wp-admin/plugins.php?s='.\rawurlencode( $pluginFile );
+	public function pluginInPluginsScreen( string $pluginName, string $pluginStatus = 'all' ) :string {
+		return '/wp-admin/plugins.php?plugin_status='.$pluginStatus.'&s='.\rawurlencode( $pluginName );
 	}
 
 	public function vulnerablePlugins() :string {

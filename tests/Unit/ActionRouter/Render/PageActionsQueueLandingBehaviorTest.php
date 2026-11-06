@@ -345,7 +345,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $itemsByKey[ $key ][ 'expansion' ][ 'type' ] );
 		}
 		$this->assertSame(
-			'/wp-admin/plugins.php?s=hello-dolly%2Fhello.php',
+			'/wp-admin/plugins.php?plugin_status=all&s=Hello%20Dolly',
 			$itemsByKey[ 'wp_plugins_inactive' ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'href' ]
 		);
 		$this->assertSame( [], $itemsByKey[ 'wp_updates' ][ 'expansion' ] );

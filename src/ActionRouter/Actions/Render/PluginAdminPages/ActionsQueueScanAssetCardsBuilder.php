@@ -177,7 +177,7 @@ class ActionsQueueScanAssetCardsBuilder {
 			$actions[] = [
 				'type'         => 'deactivate',
 				'label'        => __( 'Deactivate', 'wp-simple-firewall' ),
-				'href'         => self::con()->plugin_urls->pluginInPluginsScreen( $summary[ 'subject_id' ] ),
+				'href'         => self::con()->plugin_urls->pluginInPluginsScreen( $summary[ 'title' ] ),
 				'is_action'    => false,
 				'icon_class'   => 'bi bi-power',
 				'tooltip_attr' => __( 'Go to plugin', 'wp-simple-firewall' ),

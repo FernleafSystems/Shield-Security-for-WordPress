@@ -151,7 +151,7 @@
 	cursor: pointer;
 	display: grid;
 	gap: 0.75rem;
-	grid-template-columns: 10px minmax(0, 1fr) auto;
+	grid-template-columns: 18px minmax(0, 1fr) auto;
 	padding: 0.75rem 0.9rem;
 	text-align: left;
 	width: 100%;
@@ -171,14 +171,14 @@
 	}
 }
 
-.configure-home__dot {
-	background: $status-color-warning;
-	border-radius: 50%;
-	height: 10px;
-	width: 10px;
+.configure-home__icon {
+	color: $status-color-warning;
+	font-size: 16px;
+	line-height: 1;
+	text-align: center;
 
 	.status-critical > & {
-		background: $status-color-critical;
+		color: $status-color-critical;
 	}
 }
 

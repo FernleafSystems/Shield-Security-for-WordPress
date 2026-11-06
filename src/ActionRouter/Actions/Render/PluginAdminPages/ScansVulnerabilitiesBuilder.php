@@ -343,8 +343,8 @@ class ScansVulnerabilitiesBuilder {
 	 * @return list<VulnerabilityAction>
 	 */
 	private function buildVulnerableAssetActions( $asset ) :array {
-		$actions = [
-			$this->buildNativeAction( $asset ),
+		return [
+			$this->buildNativeAction( $asset, true ),
 			[
 				'href'       => $asset instanceof WpPluginVo
 					? self::con()->plugin_urls->vulnerabilityLookupByPlugin( $asset->slug, $asset->Version )
@@ -358,14 +358,6 @@ class ScansVulnerabilitiesBuilder {
 				],
 			],
 		];
-		if ( $asset instanceof WpPluginVo ) {
-			$actions[] = [
-				'href'  => self::con()->plugin_urls->vulnerablePlugins(),
-				'label' => __( 'Manage Vulnerable Plugins', 'wp-simple-firewall' ),
-				'type'  => 'navigate',
-			];
-		}
-		return $actions;
 	}
 
 	/**
@@ -374,7 +366,7 @@ class ScansVulnerabilitiesBuilder {
 	 */
 	private function buildAbandonedAssetActions( $asset ) :array {
 		return [
-			$this->buildNativeAction( $asset ),
+			$this->buildNativeAction( $asset, false ),
 		];
 	}
 
@@ -382,7 +374,7 @@ class ScansVulnerabilitiesBuilder {
 	 * @param WpPluginVo|WpThemeVo $asset
 	 * @return array{href:string,label:string,type:string}
 	 */
-	private function buildNativeAction( $asset ) :array {
+	private function buildNativeAction( $asset, bool $isVulnerable ) :array {
 		$isPlugin = $asset instanceof WpPluginVo;
 
 		if ( $asset->hasUpdate() ) {
@@ -395,7 +387,7 @@ class ScansVulnerabilitiesBuilder {
 
 		return [
 			'href'  => $isPlugin
-				? self::con()->plugin_urls->pluginInPluginsScreen( $asset->file )
+				? self::con()->plugin_urls->pluginInPluginsScreen( $asset->Title, $isVulnerable ? 'vulnerable' : 'all' )
 				: self::con()->plugin_urls->themeInThemesScreen( $asset->stylesheet ),
 			'label' => $isPlugin
 				? __( 'Go to plugin', 'wp-simple-firewall' )

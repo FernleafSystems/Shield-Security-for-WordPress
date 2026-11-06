@@ -391,7 +391,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 				$this->buildVersionContext( $plugin->Version ),
 				$plugin->file,
 				$this->buildRowAction(
-					$this->buildPluginSearchHref( $plugin->file ),
+					self::con()->plugin_urls->pluginInPluginsScreen( $plugin->Title ),
 					__( 'Manage this plugin', 'wp-simple-firewall' ),
 					'bi bi-arrow-right-circle-fill',
 					__( 'Manage this plugin', 'wp-simple-firewall' ),
@@ -687,10 +687,6 @@ class MaintenanceQueueItemDisplayNormalizer {
 
 	protected function buildMaintenanceIssueStateProvider() :MaintenanceIssueStateProvider {
 		return new MaintenanceIssueStateProvider();
-	}
-
-	private function buildPluginSearchHref( string $pluginFile ) :string {
-		return self::con()->plugin_urls->pluginInPluginsScreen( $pluginFile );
 	}
 
 	/**

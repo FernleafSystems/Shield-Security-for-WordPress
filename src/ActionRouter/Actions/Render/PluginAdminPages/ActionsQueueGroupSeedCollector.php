@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 /**
@@ -13,6 +14,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type VulnerabilitySection from ScansVulnerabilitiesBuilder
  */
 class ActionsQueueGroupSeedCollector {
+
+	use PluginControllerConsumer;
 
 	private ActionsQueueGroupDefinitions $groupDefinitions;
 	private ScanResultsDisplayOptions $queueScanResultsOptions;
@@ -219,6 +222,16 @@ class ActionsQueueGroupSeedCollector {
 		$rowBuilder = new ActionsQueueCompactSummaryRowBuilder();
 		$seeds[ $definitionKey ][ 'maintenance_rows' ] = $rowBuilder->buildForAssets( $section[ 'items' ] );
 		$seeds[ $definitionKey ][ 'ignored_rows' ] = $rowBuilder->buildForAssets( $section[ 'ignored_items' ] );
+		if ( $definitionKey === 'vulnerabilities'
+			 && \in_array( 'plugin', \array_column( $section[ 'items' ], 'asset_type' ), true ) ) {
+			$seeds[ $definitionKey ][ 'management_link' ] = [
+				'label'      => __( 'Manage Vulnerable Plugins', 'wp-simple-firewall' ),
+				'href'       => self::con()->plugin_urls->vulnerablePlugins(),
+				'target'     => '_blank',
+				'rel'        => 'noopener noreferrer',
+				'icon_class' => 'bi-box-arrow-up-right',
+			];
+		}
 		return \array_values( $seeds );
 	}
 
