@@ -690,6 +690,31 @@ $aq-pro-bg: #f2ebfc;
 	}
 }
 
+// Working in a group, its heading and box edge darken a touch, so in a long list it's plain which group a row
+// belongs to.
+.actions-queue-box {
+	transition: border-color 0.12s ease;
+
+	// Keyboard focus counts as working in it too; a click's leftover focus doesn't.
+	&:hover,
+	&:has(:focus-visible) {
+		border-color: #a7aaad;
+	}
+
+	> .actions-queue-box__head,
+	.actions-queue-row-group__head {
+		transition: background-color 0.12s ease, color 0.12s ease;
+	}
+
+	&:hover > .actions-queue-box__head,
+	&:has(:focus-visible) > .actions-queue-box__head,
+	.actions-queue-row-group:hover > .actions-queue-row-group__head,
+	.actions-queue-row-group:has(:focus-visible) > .actions-queue-row-group__head {
+		background: #eceef0;
+		color: #1d2327;
+	}
+}
+
 .actions-queue-box__head,
 .actions-queue-row-group__head {
 	align-items: center;
