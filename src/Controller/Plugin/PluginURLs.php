@@ -114,6 +114,27 @@ class PluginURLs {
 		);
 	}
 
+	/**
+	 * The Plugins screen narrowed to one plugin, found by its main file.
+	 */
+	public function pluginInPluginsScreen( string $pluginFile ) :string {
+		return URL::Build( Services::WpGeneral()->getAdminUrl_Plugins(), [ 's' => $pluginFile ] );
+	}
+
+	/**
+	 * The Plugins screen's own Vulnerable view, which Shield adds.
+	 */
+	public function vulnerablePlugins() :string {
+		return URL::Build( Services::WpGeneral()->getAdminUrl_Plugins(), [ 'plugin_status' => 'vulnerable' ] );
+	}
+
+	/**
+	 * The Themes screen with one theme's details open.
+	 */
+	public function themeInThemesScreen( string $stylesheet ) :string {
+		return URL::Build( Services::WpGeneral()->getAdminUrl_Themes(), [ 'theme' => $stylesheet ] );
+	}
+
 	public function scansRun() :string {
 		return $this->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN );
 	}

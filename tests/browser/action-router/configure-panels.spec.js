@@ -13,12 +13,6 @@ const saveBar = ( page ) => diagnosis( page ).locator( '[data-configure-savebar=
 async function openGoal( page, goal ) {
 	await openShieldRoute( page, { nav: 'zones', nav_sub: 'overview', zone: goal } );
 	await expect( diagnosis( page ) ).toHaveAttribute( 'data-configure-zone', goal );
-	const expandLayout = diagnosis( page ).locator( '[data-configure-zone-layout="expand"]' );
-	if ( await expandLayout.getAttribute( 'aria-pressed' ) !== 'true' ) {
-		const saved = waitForShieldAjaxAction( page, 'set_ui_preference' );
-		await expandLayout.click();
-		await expectShieldAjaxSuccess( await saved );
-	}
 }
 
 async function openTopic( page, topic ) {
@@ -157,8 +151,7 @@ test( 'open panels pass the accessibility checks', async ( { page } ) => {
 test( 'needs attention leaves only the settings that need attention, each saying why', async ( { page } ) => {
 	await openGoal( page, 'accounts' );
 	await diagnosis( page ).locator( '[data-configure-zone-show="attention"]' ).click();
-	const form = diagnosis( page ).locator( '[data-configure-row-key="sessions"] form.options_form_for--panel' );
-	await expect( form ).toBeVisible( { timeout: 20_000 } );
+	const form = await openTopic( page, 'sessions' );
 
 	const flagged = form.locator( '.shield-panel-item.has-panel-issue' );
 	await expect( flagged.first() ).toBeVisible();

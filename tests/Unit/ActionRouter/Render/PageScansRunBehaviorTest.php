@@ -31,6 +31,10 @@ class PageScansRunBehaviorTest extends BaseUnitTest {
 		$this->servicesSnapshot = ServicesState::snapshot();
 		Functions\when( '__' )->returnArg();
 		Functions\when( 'sanitize_key' )->returnArg();
+		Functions\when( 'rawurlencode_deep' )->alias( fn( $value ) => $value );
+		Functions\when( 'add_query_arg' )->alias(
+			fn( array $args, string $url ) :string => $url.'?'.\http_build_query( $args )
+		);
 	}
 
 	protected function tearDown() :void {
@@ -80,37 +84,40 @@ class PageScansRunBehaviorTest extends BaseUnitTest {
 
 		$this->assertSame( 0, $dbState->writes );
 		$this->assertSame( 0, $dbState->reads );
-		$this->assertTrue( $renderData[ 'flags' ][ 'can_scan' ] ?? false );
-		$this->assertSame( [ 'afs', 'wpv' ], \array_keys( $renderData[ 'scans' ] ?? [] ) );
-		$this->assertSame( 'choose', $renderData[ 'vars' ][ 'opening_step' ] ?? '' );
+		$this->assertTrue( $renderData[ 'flags' ][ 'can_scan' ] );
+		$this->assertSame( [ 'afs', 'wpv', 'apc' ], \array_keys( $renderData[ 'scans' ] ) );
+		$this->assertSame( 'choose', $renderData[ 'vars' ][ 'opening_step' ] );
+		$this->assertSame( [ true, false, false ], \array_column( $renderData[ 'vars' ][ 'steps' ], 'is_current' ) );
+		$this->assertSame( '/admin/scans/run?step=choose', $renderData[ 'hrefs' ][ 'scan_again' ] );
 	}
 
 	private function installController() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->plugin_urls = new UnitTestPluginUrls();
-		$afs = new PageScansRunTestScanController( 'afs' );
-		$wpv = new PageScansRunTestScanController( 'wpv' );
+		$scanCons = [];
+		foreach ( [ 'afs', 'wpv', 'apc' ] as $slug ) {
+			$scanCons[ $slug ] = new PageScansRunTestScanController( $slug );
+		}
 		$controller->comps = (object)[
-			'scans' => new class( $afs, $wpv ) {
-				private PageScansRunTestScanController $afs;
-				private PageScansRunTestScanController $wpv;
+			'scans' => new class( $scanCons ) {
+				/** @var array<string,PageScansRunTestScanController> */
+				private array $scanCons;
 
-				public function __construct( PageScansRunTestScanController $afs, PageScansRunTestScanController $wpv ) {
-					$this->afs = $afs;
-					$this->wpv = $wpv;
+				public function __construct( array $scanCons ) {
+					$this->scanCons = $scanCons;
 				}
 
 				public function getReasonsScansCantExecute() :array {
 					return [];
 				}
 
-				public function getAllScanCons() :array {
-					return [ $this->afs, $this->wpv ];
+				public function getScanCon( string $slug ) :PageScansRunTestScanController {
+					return $this->scanCons[ $slug ];
 				}
 
 				public function AFS() :PageScansRunTestScanController {
-					return $this->afs;
+					return $this->scanCons[ 'afs' ];
 				}
 			},
 			'scans_queue' => new class {
@@ -178,11 +185,4 @@ class PageScansRunTestScanController {
 		return true;
 	}
 
-	public function isRestricted() :bool {
-		return false;
-	}
-
-	public function isEnabled() :bool {
-		return true;
-	}
 }

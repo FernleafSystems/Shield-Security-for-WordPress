@@ -545,6 +545,10 @@ class AssetsCustomizerControllerStub extends Controller {
 			public function actionsQueueScans() :string {
 				return '/wp-admin/admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=overview';
 			}
+
+			public function fileDownloadAsStream( string $category ) :string {
+				return '/wp-admin/admin.php?download='.$category;
+			}
 		};
 	}
 

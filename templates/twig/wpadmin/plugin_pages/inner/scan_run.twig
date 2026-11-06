@@ -6,21 +6,16 @@
 	scan that has just finished, otherwise choosing.
 #}
 {% block inner_page_body %}
-	{% set step_keys = [ 'choose', 'scanning', 'results' ] %}
 	{% set current_step = vars.opening_step %}
-	{% set current_index = step_keys|filter( k => k == current_step )|keys|first %}
-	<div class="shield-tool-page shield-scan-run" data-shield-scan-run="1" data-scan-step="{{ current_step }}">
+	<div class="shield-tool-page shield-scan-run" data-shield-scan-run="1" data-scan-step="{{ current_step }}"
+		 data-scan-again-href="{{ hrefs.scan_again }}" data-scan-again-label="{{ strings.try_again }}">
 
 		<ol class="shield-scan-steps" aria-label="{{ strings.steps_label }}">
-			{% for step in [
-				{ key: 'choose', label: strings.step_choose },
-				{ key: 'scanning', label: strings.step_scanning },
-				{ key: 'results', label: strings.step_results },
-			] %}
-				<li class="shield-scan-steps__step{% if loop.index0 < current_index %} is-done{% endif %}" data-scan-step-tab="{{ step.key }}"
-					{% if step.key == current_step %}aria-current="step"{% endif %}>
+			{% for step in vars.steps %}
+				<li class="shield-scan-steps__step{% if step.is_done %} is-done{% endif %}" data-scan-step-tab="{{ step.key }}"
+					{% if step.is_current %}aria-current="step"{% endif %}>
 					<span class="shield-scan-steps__num" aria-hidden="true">
-						<span class="shield-scan-steps__n">{{ loop.index }}</span>
+						<span class="shield-scan-steps__n">{{ step.number }}</span>
 						<i class="bi bi-check-lg shield-scan-steps__done"></i>
 					</span>
 					{{ step.label }}

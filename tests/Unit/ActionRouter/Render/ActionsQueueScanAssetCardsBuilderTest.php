@@ -9,6 +9,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueScanResultsTableBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	PluginUrlsControllerInstaller
+};
 
 class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 
@@ -22,6 +26,12 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
 		);
 		Functions\when( 'admin_url' )->alias( static fn( string $path = '' ) :string => '/wp-admin/'.\ltrim( $path, '/' ) );
+		PluginUrlsControllerInstaller::install();
+	}
+
+	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
+		parent::tearDown();
 	}
 
 	public function test_build_summary_records_uses_grouped_asset_rows_without_building_tables() :void {

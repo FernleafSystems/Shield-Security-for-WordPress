@@ -25,6 +25,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   data:array<string,mixed>,
  *   badge:array{}|SidebarBadge
  * }
+ * @phpstan-type ActionsSummary array{total_items:int,severity:string,critical_items:int,warning_items:int}
  */
 class NavMenuBuilder {
 
@@ -83,7 +84,7 @@ class NavMenuBuilder {
 	}
 
 	/**
-	 * @param array{has_items:bool,total_items:int,severity:string,critical_items:int,warning_items:int} $actionsSummary
+	 * @param ActionsSummary $actionsSummary
 	 * @return list<array<string,mixed>>
 	 */
 	private function buildNavigationLinks( string $currentMode, array $actionsSummary ) :array {
@@ -128,10 +129,6 @@ class NavMenuBuilder {
 				];
 			}
 			if ( $mode === PluginNavs::MODE_ACTIONS && $actionsSummary[ 'total_items' ] > 0 ) {
-				$item[ 'badge' ] = [
-					'text'   => (string)$actionsSummary[ 'total_items' ],
-					'status' => $actionsSummary[ 'severity' ],
-				];
 				// One count per severity, so critical items aren't overstated by the warnings beside them.
 				$item[ 'badges' ] = \array_values( \array_filter( [
 					[
@@ -414,30 +411,24 @@ class NavMenuBuilder {
 	}
 
 	/**
-	 * @return array{has_items:bool,total_items:int,severity:string,critical_items:int,warning_items:int}
+	 * @return ActionsSummary
 	 */
 	private function getActionsQueueSummary() :array {
 		try {
-			$summary = $this->buildActionsQueueSummaryContract();
+			return $this->buildActionsQueueSummaryContract();
 		}
 		catch ( \Throwable $e ) {
-			$summary = [
-				'total_items'  => 0,
-				'severity'     => 'good',
-				'has_items'    => false,
+			return [
+				'total_items'    => 0,
+				'severity'       => 'good',
+				'critical_items' => 0,
+				'warning_items'  => 0,
 			];
 		}
-		return [
-			'has_items'      => (bool)$summary[ 'has_items' ],
-			'total_items'    => (int)$summary[ 'total_items' ],
-			'severity'       => (string)$summary[ 'severity' ],
-			'critical_items' => (int)( $summary[ 'critical_items' ] ?? 0 ),
-			'warning_items'  => (int)( $summary[ 'warning_items' ] ?? 0 ),
-		];
 	}
 
 	/**
-	 * @return array{has_items:bool,total_items:int,severity:string,critical_items?:int,warning_items?:int}
+	 * @return ActionsSummary
 	 */
 	protected function buildActionsQueueSummaryContract() :array {
 		$attention = self::con()->comps->site_query->attention();
@@ -449,7 +440,6 @@ class NavMenuBuilder {
 			}
 		}
 		return [
-			'has_items'      => !$summary[ 'is_all_clear' ],
 			'total_items'    => $summary[ 'total' ],
 			'severity'       => $summary[ 'severity' ],
 			'critical_items' => $critical,
@@ -492,6 +482,7 @@ class NavMenuBuilder {
 			'target'    => '',
 			'data'      => [],
 			'badge'     => [],
+			'badges'    => [],
 			'kind'      => '',
 			'mode'      => '',
 			'route'     => [],

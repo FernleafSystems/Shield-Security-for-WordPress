@@ -224,8 +224,12 @@ class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( 'plugin', $itemsByAssetKey[ 'plugin-alpha/plugin-alpha.php' ][ 'asset_type' ] );
 		$this->assertSame( 'theme', $itemsByAssetKey[ 'twentytwentyfive' ][ 'asset_type' ] );
-		$this->assertSame( '/wp-admin/plugins.php', $itemsByAssetKey[ 'plugin-alpha/plugin-alpha.php' ][ 'actions' ][ 0 ][ 'href' ] );
-		$this->assertSame( '/wp-admin/themes.php', $itemsByAssetKey[ 'twentytwentyfive' ][ 'actions' ][ 0 ][ 'href' ] );
+		// Each goes to its own plugin or theme, and a vulnerable plugin also offers the Vulnerable plugins view.
+		$this->assertSame( '/wp-admin/plugins.php?s=plugin-alpha%2Fplugin-alpha.php', $itemsByAssetKey[ 'plugin-alpha/plugin-alpha.php' ][ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertSame( 'Go to plugin', $itemsByAssetKey[ 'plugin-alpha/plugin-alpha.php' ][ 'actions' ][ 0 ][ 'label' ] );
+		$this->assertSame( '/wp-admin/plugins.php?plugin_status=vulnerable', $itemsByAssetKey[ 'plugin-alpha/plugin-alpha.php' ][ 'actions' ][ 2 ][ 'href' ] );
+		$this->assertSame( '/wp-admin/themes.php?theme=twentytwentyfive', $itemsByAssetKey[ 'twentytwentyfive' ][ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertCount( 2, $itemsByAssetKey[ 'twentytwentyfive' ][ 'actions' ] );
 		$this->assertSame( 'navigate', $itemsByAssetKey[ 'plugin-alpha/plugin-alpha.php' ][ 'actions' ][ 0 ][ 'type' ] );
 		$this->assertSame( 'navigate', $itemsByAssetKey[ 'twentytwentyfive' ][ 'actions' ][ 0 ][ 'type' ] );
 	}
@@ -259,8 +263,8 @@ class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'shared/shared.php', $itemsByType[ 'theme' ][ 'asset_key' ] );
 		$this->assertSame( 'vulnerability-plugin-shared/shared.php', $itemsByType[ 'plugin' ][ 'key' ] );
 		$this->assertSame( 'vulnerability-theme-shared/shared.php', $itemsByType[ 'theme' ][ 'key' ] );
-		$this->assertSame( '/wp-admin/plugins.php', $itemsByType[ 'plugin' ][ 'actions' ][ 0 ][ 'href' ] );
-		$this->assertSame( '/wp-admin/themes.php', $itemsByType[ 'theme' ][ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertSame( '/wp-admin/plugins.php?s=shared%2Fshared.php', $itemsByType[ 'plugin' ][ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertSame( '/wp-admin/themes.php?theme=shared%2Fshared.php', $itemsByType[ 'theme' ][ 'actions' ][ 0 ][ 'href' ] );
 	}
 
 	public function test_unknown_or_empty_item_type_is_skipped() :void {

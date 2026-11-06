@@ -14,13 +14,29 @@
 .shield-section-datatable div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane {
 	margin-top: 0 !important;
 }
-.shield-section-datatable div.dataTables_paginate {
-	float: right;
+/* The search and the pages share one line: the search at the start, the pages at the end. */
+.shield-section-datatable .shield-dt-nav {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
+	justify-content: space-between;
+	margin-bottom: 0.5rem;
 }
-.shield-section-datatable div.dataTables_filter {
-	text-align: right;
-	display: block;
-	clear: both;
+.shield-section-datatable .shield-dt-nav div.dt-search {
+	flex: 0 1 auto;
+	text-align: left;
+}
+.shield-section-datatable .shield-dt-nav div.dt-search input {
+	margin-left: 0.5rem;
+	max-width: 100%;
+	width: 15rem;
+}
+.shield-section-datatable .shield-dt-nav div.dt-paging {
+	flex: 0 0 auto;
+}
+.shield-section-datatable .shield-dt-nav div.dt-paging ul.pagination {
+	margin: 0;
 }
 .shield-section-datatable div.dt-container.shield-table-is-busy::after {
 	background: rgba(255, 255, 255, 0.65);
@@ -35,6 +51,10 @@
 }
 .shield-section-datatable div.dt-container.shield-table-is-busy div.dt-processing {
 	z-index: 10;
+}
+/* A row answers the pointer with a faint shade, over its stripe, so you can follow it across the table. */
+.shield-section-datatable table.dataTable > tbody > tr:hover > * {
+	box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0.035);
 }
 /** https://stackoverflow.com/questions/3215553/make-a-div-fill-an-entire-table-cell **/
 table.dataTable {

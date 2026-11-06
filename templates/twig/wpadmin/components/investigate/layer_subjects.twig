@@ -1,6 +1,6 @@
 {#
 	Investigate's lookup: one search for users, IP addresses, plugins, themes and WordPress core. Results
-	are grouped by kind and open that subject's panel in place. "Looking up" narrows the search to one kind;
+	are grouped by kind and open that subject's panel in place. The kind buttons narrow the search to one kind;
 	with nothing typed, a kind is listed to browse. Each kind carries its subject, so its results open the
 	same panel its tile used to.
 #}
@@ -30,7 +30,7 @@
 	</div>
 
 	<div class="investigate-lookup__kinds" role="group" aria-labelledby="InvestigateLookupKindsLabel">
-		<span class="investigate-lookup__kinds-label" id="InvestigateLookupKindsLabel">{{ strings.lookup_kinds_label }}</span>
+		<span class="visually-hidden" id="InvestigateLookupKindsLabel">{{ strings.lookup_kinds_label }}</span>
 		<button type="button" class="investigate-lookup__kind" data-lookup-kind="any" aria-pressed="true">{{ strings.lookup_kind_any }}</button>
 		{% for kind in kinds %}
 			<button type="button"

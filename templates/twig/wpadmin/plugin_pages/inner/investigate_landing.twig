@@ -29,13 +29,6 @@
 			<div class="investigate-landing__tabpanel investigate-landing__log"
 				 data-investigate-tabpanel="{{ log.key }}"
 				 {% if current_tab != log.key %}hidden{% endif %}>
-				{% if log.actions is not empty %}
-					<div class="investigate-landing__log-actions">
-						{% for item in log.actions %}
-							{{ macros.tagAnchor(item.href, item.title, item.id|default(''), item.classes|default([])|merge(['btn', 'btn-sm', 'btn-outline-secondary']), item.new_window|default(false), item.data|default({}), item.disabled|default(false), item.is_action|default(false)) }}
-						{% endfor %}
-					</div>
-				{% endif %}
 				<div class="shield-section-datatable">
 					<table id="{{ log.table_id }}" class="table table-striped table-bordered" style="width: 100%;"></table>
 				</div>

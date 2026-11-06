@@ -11,6 +11,16 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 /**
  * @phpstan-import-type ActiveScanProgressRow from \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Controller
  * @phpstan-import-type ScanModalState from ScanActionBase
+ * @phpstan-type PageRow array{
+ *   id:int,
+ *   name:string,
+ *   scope_label:string,
+ *   status:'running'|'waiting'|'stalled'|'finished',
+ *   status_label:string,
+ *   can_attempt_recovery:bool,
+ *   progress:int,
+ *   aria_label:string
+ * }
  */
 class ScansProgress extends BaseScans {
 
@@ -18,13 +28,17 @@ class ScansProgress extends BaseScans {
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/progress.twig';
 	private const TEMPLATE_PAGE = '/wpadmin_pages/insights/scans/run/progress_page.twig';
 	public const RECENT_RESULT_WINDOW = 600;
+	/**
+	 * The order the scans are listed in on Run Manual Scan, from choosing them to their results.
+	 */
+	public const SCAN_ORDER = [ 'afs', 'wpv', 'apc' ];
 
 	protected function getRenderTemplate() :string {
 		return $this->isPageDisplay() ? self::TEMPLATE_PAGE : parent::getRenderTemplate();
 	}
 
 	private function isPageDisplay() :bool {
-		return ( $this->action_data[ 'display' ] ?? '' ) === ScanActionBase::DISPLAY_PAGE;
+		return $this->action_data[ 'display' ] === ScanActionBase::DISPLAY_PAGE;
 	}
 
 	protected function getRenderData() :array {
@@ -90,11 +104,7 @@ class ScansProgress extends BaseScans {
 		$con = self::con();
 		$state = $modalData[ 'vars' ][ 'modal_state' ];
 
-		// In the order the page lists them to choose from.
-		$slugs = \array_values( \array_intersect(
-			\array_unique( \array_merge( [ 'afs', 'wpv', 'apc' ], \array_keys( $con->comps->scans->getAllScanCons() ) ) ),
-			$this->pageScanSlugs()
-		) );
+		$slugs = \array_values( \array_intersect( self::SCAN_ORDER, $this->pageScanSlugs() ) );
 
 		$results = [];
 		$total = 0;
@@ -115,7 +125,7 @@ class ScansProgress extends BaseScans {
 			? \sprintf( _n( 'Scan finished: %s issue found', 'Scan finished: %s issues found', $total, 'wp-simple-firewall' ), $total )
 			: __( 'Scan finished: nothing found', 'wp-simple-firewall' );
 
-		$pageRows = $this->buildPageRows( $slugs, $modalData[ 'vars' ][ 'scan_rows' ] );
+		$pageRows = $this->buildPageRows( $slugs );
 		$finishedRows = \count( \array_filter( $pageRows, fn( array $row ) :bool => $row[ 'status' ] === 'finished' ) );
 
 		$page = [
@@ -157,7 +167,7 @@ class ScansProgress extends BaseScans {
 	 * @return list<string>
 	 */
 	private function pageScanSlugs() :array {
-		$slugs = $this->action_data[ 'scan_slugs' ] ?? [];
+		$slugs = $this->action_data[ 'scan_slugs' ];
 		if ( empty( $slugs ) ) {
 			// Picked up after a reload, without the started scans to go on: the ones running and the ones just finished.
 			$slugs = \array_unique( \array_merge(
@@ -171,7 +181,7 @@ class ScansProgress extends BaseScans {
 				fn( $scanCon ) :bool => $scanCon->isReady()
 			) );
 		}
-		return \array_map( '\strval', $slugs );
+		return $slugs;
 	}
 
 	/**
@@ -200,15 +210,25 @@ class ScansProgress extends BaseScans {
 	}
 
 	/**
-	 * Scans not in the active rows have finished, unless nothing is active yet because the scans are still being set up.
+	 * One row for each scan asked for. Scans not in the active rows have finished, unless nothing is active yet
+	 * because the scans are still being set up.
 	 * @param list<string> $slugs
-	 * @param list<array<string,mixed>> $renderRows
+	 * @return list<PageRow>
 	 */
-	private function buildPageRows( array $slugs, array $renderRows ) :array {
+	private function buildPageRows( array $slugs ) :array {
 		$con = self::con();
 		$activeBySlug = [];
-		foreach ( $this->action_data[ 'scan_rows' ] as $idx => $row ) {
-			$activeBySlug[ $row[ 'scan' ] ] ??= $renderRows[ $idx ] + [ 'status' => $row[ 'display_status' ] ];
+		foreach ( $this->action_data[ 'scan_rows' ] as $row ) {
+			$activeBySlug[ $row[ 'scan' ] ] ??= [
+				'id'                   => $row[ 'id' ],
+				'name'                 => $row[ 'name' ],
+				'scope_label'          => $this->scopeLabel( $row[ 'scope_type' ], $row[ 'scope_key' ] ),
+				'status'               => $row[ 'display_status' ],
+				'status_label'         => $this->statusPresentation( $row[ 'display_status' ] )[ 'label' ],
+				'can_attempt_recovery' => $row[ 'can_attempt_recovery' ],
+				'progress'             => $row[ 'progress' ],
+				'aria_label'           => $this->progressLabel( $row[ 'name' ] ),
+			];
 		}
 		$nothingActiveYet = empty( $activeBySlug );
 
@@ -224,13 +244,19 @@ class ScansProgress extends BaseScans {
 				'name'                 => $name,
 				'scope_label'          => '',
 				'status'               => $nothingActiveYet ? 'waiting' : 'finished',
-				'status_label'         => $nothingActiveYet ? __( 'waiting', 'wp-simple-firewall' ) : __( 'finished', 'wp-simple-firewall' ),
+				'status_label'         => $nothingActiveYet
+					? $this->statusPresentation( 'waiting' )[ 'label' ]
+					: __( 'finished', 'wp-simple-firewall' ),
 				'can_attempt_recovery' => false,
 				'progress'             => $nothingActiveYet ? 0 : 100,
-				'aria_label'           => sprintf( __( '%s progress', 'wp-simple-firewall' ), $name ),
+				'aria_label'           => $this->progressLabel( $name ),
 			];
 		}
 		return $rows;
+	}
+
+	private function progressLabel( string $scanName ) :string {
+		return \sprintf( __( '%s progress', 'wp-simple-firewall' ), $scanName );
 	}
 
 	/**
@@ -287,7 +313,7 @@ class ScansProgress extends BaseScans {
 				'progress_bar_class'   => $statusPresentation[ 'progress_bar_class' ],
 				'can_attempt_recovery' => $row[ 'can_attempt_recovery' ],
 				'progress'             => $row[ 'progress' ],
-				'aria_label'           => sprintf( __( '%s progress', 'wp-simple-firewall' ), $row[ 'name' ] ),
+				'aria_label'           => $this->progressLabel( $row[ 'name' ] ),
 			];
 		}
 		return $renderRows;
@@ -355,6 +381,8 @@ class ScansProgress extends BaseScans {
 			'remaining_scans',
 			'progress',
 			'scan_rows',
+			'scan_slugs',
+			'display',
 		];
 	}
 }

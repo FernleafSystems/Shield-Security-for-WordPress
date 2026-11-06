@@ -60,8 +60,8 @@ class SetupGuideDataBuilder {
 			$isDone = $handler->skipStep() || \in_array( $handler::SLUG, $done, true );
 			$steps[] = [
 				'slug'     => $handler::SLUG,
-				'name'     => $copy[ $handler::SLUG ][ 0 ] ?? $handler->getName(),
-				'hint'     => $copy[ $handler::SLUG ][ 1 ] ?? '',
+				'name'     => $copy[ $handler::SLUG ][ 0 ],
+				'hint'     => $copy[ $handler::SLUG ][ 1 ],
 				'is_done'  => $isDone,
 				// Completed steps need no form, which keeps every page render light, unless the guide was asked for.
 				'body'     => $isDone && !$isAskedFor ? '' : $handler->render(),
@@ -79,6 +79,8 @@ class SetupGuideDataBuilder {
 			'open_now'    => $isAskedFor,
 			'steps'       => $steps,
 			'next_name'   => \is_array( $next ) ? $next[ 'name' ] : '',
+			// The guide opens on the next step to do, or says setup is complete.
+			'open_step'   => \is_array( $next ) ? $next[ 'slug' ] : 'all_done',
 			'done_count'  => $doneCount,
 			'total'       => \count( $steps ),
 			'merlin_action_json' => ActionData::BuildJson( MerlinAction::class ),

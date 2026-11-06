@@ -401,19 +401,9 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( rail ).toBeHidden();
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-drill-target="editor"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] .zone-summary-header' ) ).toHaveCount( 0 );
-	// This flow uses the expanding layout; the layout is a stored per-user choice, so pick it.
-	const expandLayout = page.locator( '[data-configure-diagnosis="1"] [data-configure-zone-layout="expand"]' );
-	if ( await expandLayout.getAttribute( 'aria-pressed' ) !== 'true' ) {
-		const savedLayout = waitForShieldAjaxAction( page, 'set_ui_preference' );
-		await expandLayout.click();
-		await expectShieldAjaxSuccess( await savedLayout );
-	}
-	const expandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' ).first();
+	// The goal lists its components beside the one that's open, the first to start with; opening another shows it.
+	const expandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' ).nth( 1 );
 	const expandButton = expandRow.locator( '[data-shield-expand-trigger="1"]' );
-	// The component list opens its first component, which stays open when switching layout.
-	if ( await expandButton.getAttribute( 'aria-expanded' ) === 'true' ) {
-		await expandButton.click();
-	}
 	await expect( expandRow ).not.toHaveAttribute( 'role', 'button' );
 	await expect( expandRow ).not.toHaveAttribute( 'tabindex', '0' );
 	await expect( expandButton ).toBeVisible();
@@ -429,37 +419,33 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await firstSwitch().click();
 	await expect( saveBar ).toBeVisible();
 	await saveBar.locator( '[data-configure-savebar-save="1"]' ).click();
-	await expect( visibleExpandedForms ).toHaveCount( 0, { timeout: 20_000 } );
-	await expect( saveBar ).toBeHidden();
+	await expect( saveBar ).toBeHidden( { timeout: 20_000 } );
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
 	await expect( configureTabs ).toHaveCount( 2 );
 	await expect( page.locator( '[data-configure-tab="control"]' ) ).toHaveAttribute( 'aria-current', 'page' );
 	await expect( rail ).toBeHidden();
-	const refreshedExpandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' ).first();
-	const refreshedExpandButton = refreshedExpandRow.locator( '[data-shield-expand-trigger="1"]' );
-	await expect( refreshedExpandButton ).toBeVisible();
-	await refreshedExpandButton.click();
-	await expect( refreshedExpandButton ).toHaveAttribute( 'aria-expanded', 'true' );
-	await expect( visibleExpandedForms.first() ).toBeVisible();
-	await refreshedExpandRow.locator( '.shield-detail-row__title' ).click();
-	await expect( refreshedExpandButton ).toHaveAttribute( 'aria-expanded', 'false' );
-	await expect( visibleExpandedForms ).toHaveCount( 0 );
-	await refreshedExpandRow.locator( '.shield-detail-row__title' ).click();
-	await expect( refreshedExpandButton ).toHaveAttribute( 'aria-expanded', 'true' );
-	await expect( visibleExpandedForms.first() ).toBeVisible();
-	await refreshedExpandButton.press( 'Enter' );
-	await expect( refreshedExpandButton ).toHaveAttribute( 'aria-expanded', 'false' );
-	await expect( visibleExpandedForms ).toHaveCount( 0 );
-	await refreshedExpandButton.press( 'Space' );
-	await expect( refreshedExpandButton ).toHaveAttribute( 'aria-expanded', 'true' );
-	await expect( visibleExpandedForms.first() ).toBeVisible();
+	// Refreshed, the list opens its first component again and keeps exactly one open; the keyboard moves
+	// between components, and a click anywhere on a row opens it.
+	const refreshedRows = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' );
+	const firstButton = refreshedRows.nth( 0 ).locator( '[data-shield-expand-trigger="1"]' );
+	const secondButton = refreshedRows.nth( 1 ).locator( '[data-shield-expand-trigger="1"]' );
+	await expect( firstButton ).toHaveAttribute( 'aria-expanded', 'true', { timeout: 20_000 } );
+	await secondButton.press( 'Enter' );
+	await expect( secondButton ).toHaveAttribute( 'aria-expanded', 'true' );
+	await expect( firstButton ).toHaveAttribute( 'aria-expanded', 'false' );
+	await firstButton.press( 'Space' );
+	await expect( firstButton ).toHaveAttribute( 'aria-expanded', 'true' );
+	await expect( secondButton ).toHaveAttribute( 'aria-expanded', 'false' );
+	await refreshedRows.nth( 1 ).click();
+	await expect( secondButton ).toHaveAttribute( 'aria-expanded', 'true' );
+	await expect( visibleExpandedForms ).toHaveCount( 1 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-healthy-disclosure-toggle="1"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-healthy-disclosure-body="1"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] .shield-detail-row' ).first() ).toBeVisible();
 
 	await firstSwitch().click();
 	await saveBar.locator( '[data-configure-savebar-save="1"]' ).click();
-	await expect( visibleExpandedForms ).toHaveCount( 0, { timeout: 20_000 } );
+	await expect( saveBar ).toBeHidden( { timeout: 20_000 } );
 
 	await page.locator( '[data-configure-tab="search"]' ).click();
 	await expect( page.locator( '[data-configure-search-input="1"]' ) ).toBeVisible();
@@ -545,14 +531,14 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	const searchBody = page.locator( '[data-configure-search-body="1"]' );
 	const firstZoneCard = page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first();
 	await expect( searchInput ).toBeVisible();
-	await expect( searchDock ).toHaveAttribute( 'data-configure-search-state', 'idle' );
+	await expect( searchDock ).toHaveAttribute( 'data-search-state', 'idle' );
 	const zoneTopBefore = ( await firstZoneCard.boundingBox() )?.y || 0;
 
 	const firstSearchRequest = page.waitForRequest( ( request ) => isConfigureSearchRequest( request, 'scan frequency' ) );
 	const firstSearchResponse = page.waitForResponse( ( response ) => isConfigureSearchResponse( response, 'scan frequency' ) );
 	await searchInput.fill( 'scan frequency' );
 	await firstSearchRequest;
-	await expect( searchDock ).toHaveAttribute( 'data-configure-search-state', 'loading' );
+	await expect( searchDock ).toHaveAttribute( 'data-search-state', 'loading' );
 	await expect( searchBody ).toHaveAttribute( 'aria-busy', 'true' );
 
 	const secondSearchRequest = page.waitForRequest( ( request ) => isConfigureSearchRequest( request, 'comments cooldown' ) );
@@ -561,17 +547,17 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	await secondSearchRequest;
 	await Promise.all( [ firstSearchResponse, secondSearchResponse ] );
 
-	const optionResult = page.locator( '[data-configure-search-results="1"] a[href*="config_item=comments_cooldown"]' )
+	const optionResult = page.locator( '[data-search-results="1"] a[href*="config_item=comments_cooldown"]' )
 		.first();
 	await expect( optionResult ).toBeVisible( { timeout: 20_000 } );
 	await expect( optionResult ).toBeVisible();
-	await expect( searchDock ).toHaveAttribute( 'data-configure-search-state', 'ready' );
+	await expect( searchDock ).toHaveAttribute( 'data-search-state', 'ready' );
 	await expect( searchBody ).toHaveAttribute( 'aria-busy', 'false' );
 	await expect(
-		page.locator( '[data-configure-search-results="1"] a[href*="config_item=scan_frequency"]' )
+		page.locator( '[data-search-results="1"] a[href*="config_item=scan_frequency"]' )
 	).toHaveCount( 0 );
-	await expect( optionResult.locator( '.configure-search-results__icon i' ) ).toHaveClass( /bi/ );
-	await expect( optionResult.locator( '.configure-search-results__type' ) ).toHaveClass( /configure-search-results__type--option/ );
+	// Settings are the norm, so only goals carry a type label.
+	await expect( optionResult.locator( '.shield-search-results__type' ) ).toHaveCount( 0 );
 	const zoneTopAfter = ( await firstZoneCard.boundingBox() )?.y || 0;
 	expect( Math.abs( zoneTopAfter - zoneTopBefore ) ).toBeLessThan( 2 );
 	await expect( optionResult ).toHaveAttribute( 'href', /row_key=comment_spam/ );
@@ -595,7 +581,7 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	).toBeVisible( { timeout: 20_000 } );
 	expect( await page.evaluate( () => window.__configureSearchSentinel ) ).toBe( 'in-place-search' );
 	await expect( searchInput ).toHaveValue( '' );
-	await expect( searchDock ).toHaveAttribute( 'data-configure-search-state', 'idle' );
+	await expect( searchDock ).toHaveAttribute( 'data-search-state', 'idle' );
 	await expect.poll( () => new URL( page.url() ).searchParams.get( 'row_key' ) || '' ).toBe( '' );
 	await expect.poll( () => new URL( page.url() ).searchParams.get( 'config_item' ) || '' ).toBe( '' );
 

@@ -1,6 +1,6 @@
 /**
  * Marks the searched words in each result's name and detail, so it's clear why it matched. Only text
- * inside elements marked data-configure-search-highlight="1" is touched.
+ * inside elements marked data-search-highlight="1" is touched.
  * @param {ParentNode} container
  * @param {string} query
  */
@@ -11,7 +11,7 @@ export function highlightSearchTerms( container, query ) {
 	}
 	const escapeTerm = ( term ) => term.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
 	const pattern = new RegExp( `(${terms.map( escapeTerm ).join( '|' )})`, 'gi' );
-	container.querySelectorAll( '[data-configure-search-highlight="1"]' ).forEach( ( element ) => {
+	container.querySelectorAll( '[data-search-highlight="1"]' ).forEach( ( element ) => {
 		const walker = document.createTreeWalker( element, NodeFilter.SHOW_TEXT );
 		const textNodes = [];
 		while ( walker.nextNode() ) {

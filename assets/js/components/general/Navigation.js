@@ -39,8 +39,10 @@ export class Navigation extends BaseComponent {
 
 	/**
 	 * The sidebar's contents stick in view as the page scrolls, and are never taller than the room left in
-	 * the window below where they start and above any bar fixed to its bottom. So the items pinned to the
-	 * bottom of the nav sit at the bottom of the window, without scrolling the page to reach them.
+	 * the window below where they start and above the setup guide's bar along the bottom. So the items pinned
+	 * to the bottom of the nav sit at the bottom of the window, without scrolling the page to reach them.
+	 * Only the guide's slim bar takes room: opened, the guide lays over the page rather than squeezing the
+	 * sidebar, and the sidebar fits again whenever the guide opens, minimises or hides.
 	 */
 	fitSidebarToWindow() {
 		const inner = this.navSideBar.closest( '.sidebar-inner' );
@@ -50,7 +52,7 @@ export class Navigation extends BaseComponent {
 		let queued = false;
 		const fit = () => {
 			queued = false;
-			const bar = document.querySelector( '.shield-setup-guide:not([hidden])' );
+			const bar = document.querySelector( '.shield-setup-guide:not([hidden]) [data-setup-guide-bar="1"]' );
 			const barHeight = bar instanceof HTMLElement ? bar.getBoundingClientRect().height : 0;
 			const top = Math.max( inner.getBoundingClientRect().top, 0 );
 			inner.style.setProperty( '--shield-sidebar-max-height', `${Math.max( 240, window.innerHeight - top - barHeight )}px` );
@@ -63,7 +65,13 @@ export class Navigation extends BaseComponent {
 		};
 		window.addEventListener( 'scroll', queue, { passive: true } );
 		window.addEventListener( 'resize', queue );
-		new ResizeObserver( queue ).observe( document.body );
+		const observer = new ResizeObserver( queue );
+		observer.observe( document.body );
+		// The guide is fixed to the window, so its changes don't resize the page: watch it directly.
+		const guide = document.getElementById( 'ShieldSetupGuide' );
+		if ( guide instanceof HTMLElement ) {
+			observer.observe( guide );
+		}
 		fit();
 	}
 

@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
-	Render\PluginAdminPages\OperatorChromeContract,
-	SecurityAdminRemove
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemove;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
 
@@ -20,8 +17,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
  *   icon:string,
  *   classes:list<string>
  * }
- *
- * @phpstan-import-type OperatorChromeActionInput from OperatorChromeContract
+ * @phpstan-type SecAdminGoalLink array{
+ *   label:string,
+ *   href:string,
+ *   icon_class:string
+ * }
  */
 class SecurityAdminDisableActionBuilder {
 
@@ -42,18 +42,17 @@ class SecurityAdminDisableActionBuilder {
 	}
 
 	/**
-	 * @return list<OperatorChromeActionInput>
+	 * A quiet link on the Security Admin goal's title line, while Security Admin is on.
+	 * @return list<SecAdminGoalLink>
 	 */
-	public function buildConfigureContextActions() :array {
+	public function buildConfigureGoalLinks() :array {
 		if ( !$this->canBuild() ) {
 			return [];
 		}
 
 		return [
 			[
-				'kind'       => 'href',
 				'label'      => $this->label(),
-				'type'       => 'deactivate',
 				'icon_class' => $this->iconClass(),
 				'href'       => $this->buildHref( self::con()->plugin_urls->configureHome( Secadmin::Slug() ) ),
 			],

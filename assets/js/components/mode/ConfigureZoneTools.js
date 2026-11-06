@@ -1,13 +1,10 @@
 import { Collapse } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
-import { AjaxService } from "../services/AjaxService";
-import { ObjectOps } from "../../util/ObjectOps";
 import { ConfigureTabs } from "./ConfigureTabs";
 
 /**
- * Tools above a Configure zone's components: an in-place filter, a "Needs attention" view, and
- * a choice between expanding components in place and a component list beside one open panel.
- * The layout choice is stored per user.
+ * A Configure goal's components are a list beside the one open panel. Its title line carries an in-place
+ * filter and a "Needs attention" view.
  */
 export class ConfigureZoneTools extends BaseAutoExecComponent {
 
@@ -32,10 +29,6 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 				( chip ) => chip.setAttribute( 'aria-pressed', String( chip === button ) )
 			);
 			this.applyFilters( root );
-		} );
-
-		shieldEventsHandler_Main.add_Click( '[data-configure-zone-layout]', ( button ) => {
-			this.setLayout( button.closest( ConfigureZoneTools.ROOT_SELECTOR ), button.dataset.configureZoneLayout || 'expand', true );
 		} );
 
 		// In the component list only one panel is open: opening one closes the others, and the open one stays open.
@@ -73,11 +66,11 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 			} );
 		} ).observe( document.body, { childList: true, subtree: true } );
 
-		// A zone renders asynchronously; open a panel when a list-layout zone appears.
+		// A goal renders asynchronously; open a panel when one appears.
 		new MutationObserver( () => {
-			document.querySelectorAll( `${ConfigureZoneTools.ROOT_SELECTOR}[data-configure-layout="list"]:not([data-configure-layout-ready])` )
+			document.querySelectorAll( `${ConfigureZoneTools.ROOT_SELECTOR}:not([data-configure-list-ready])` )
 			.forEach( ( root ) => {
-				root.dataset.configureLayoutReady = '1';
+				root.dataset.configureListReady = '1';
 				this.ensureOnePanelOpen( root );
 			} );
 		} ).observe( document.body, { childList: true, subtree: true } );
@@ -89,40 +82,9 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 	 */
 	listRootFor( target ) {
 		const root = target instanceof Element ? target.closest( ConfigureZoneTools.ROOT_SELECTOR ) : null;
-		return root instanceof HTMLElement && root.dataset.configureLayout === 'list'
-			   && target.matches( '[data-shield-expand-body="1"]' )
+		return root instanceof HTMLElement && target.matches( '[data-shield-expand-body="1"]' )
 			? root
 			: null;
-	}
-
-	/**
-	 * @param {HTMLElement|null} root
-	 * @param {string} layout
-	 * @param {boolean} persist
-	 */
-	setLayout( root, layout, persist ) {
-		if ( !( root instanceof HTMLElement ) || ![ 'expand', 'list' ].includes( layout ) ) {
-			return;
-		}
-
-		root.dataset.configureLayout = layout;
-		root.classList.toggle( 'configure-diagnosis--layout-list', layout === 'list' );
-		root.classList.toggle( 'configure-diagnosis--layout-expand', layout === 'expand' );
-		root.querySelectorAll( '[data-configure-zone-layout]' ).forEach(
-			( button ) => button.setAttribute( 'aria-pressed', String( button.dataset.configureZoneLayout === layout ) )
-		);
-		if ( layout === 'list' ) {
-			this.ensureOnePanelOpen( root );
-		}
-
-		if ( persist && this._base_data.ajax.set_ui_preference ) {
-			( new AjaxService() )
-			.bg( ObjectOps.Merge( this._base_data.ajax.set_ui_preference, {
-				pref_key: 'configure_layout',
-				pref_value: layout,
-			} ) )
-			.catch( () => null );
-		}
 	}
 
 	/**
@@ -230,20 +192,12 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 			const visible = textMatches && ( !attentionOnly || needsAttention );
 			item.hidden = !visible;
 			visibleCount += visible ? 1 : 0;
-
-			// Narrowing the view opens what's left, so the matching settings show straight away.
-			if ( visible && ( attentionOnly || query.length > 0 ) && root.dataset.configureLayout !== 'list' ) {
-				const panel = item.querySelector( '[data-shield-expand-body="1"]' );
-				panel && Collapse.getOrCreateInstance( panel, { toggle: false } ).show();
-			}
 		} );
 
 		const empty = root.querySelector( '[data-configure-zone-empty="1"]' );
 		if ( empty instanceof HTMLElement ) {
 			empty.hidden = visibleCount > 0;
 		}
-		if ( root.dataset.configureLayout === 'list' ) {
-			this.ensureOnePanelOpen( root );
-		}
+		this.ensureOnePanelOpen( root );
 	}
 }

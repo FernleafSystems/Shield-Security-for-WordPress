@@ -3,8 +3,6 @@
 	the whole bar opens it; expanded it shows the steps on the left and the selected step on the right,
 	in a panel of fixed height so switching steps never moves it.
 #}
-{# With every step done, there's no step to open: |first gives false, so make it null for the checks below. #}
-{% set first_open = guide.steps|filter( s => not s.is_done )|first|default( null ) %}
 <section class="shield-setup-guide"
 		 id="ShieldSetupGuide"
 		 data-setup-guide="1"
@@ -13,8 +11,7 @@
 		 data-progress-template="{{ guide.strings.progress|e('html_attr') }}"
 		 data-next-template="{{ guide.strings.next|e('html_attr') }}"
 		 data-done-label="{{ guide.strings.done|e('html_attr') }}"
-		 data-total="{{ guide.total }}"
-		 {% if guide.open_now|default(false) %}data-open-now="1"{% endif %}
+		 {% if guide.open_now %}data-open-now="1"{% endif %}
 		 aria-labelledby="ShieldSetupGuideTitle">
 
 	<div class="shield-setup-guide__bar" data-setup-guide-bar="1">
@@ -45,7 +42,7 @@
 					<button type="button"
 							class="shield-setup-guide__step{{ step.is_done ? ' is-done' : '' }}"
 							data-setup-guide-step="{{ step.slug }}"
-							aria-current="{{ first_open is not null and step.slug == first_open.slug ? 'step' : 'false' }}">
+							aria-current="{{ step.slug == guide.open_step ? 'step' : 'false' }}">
 						<span class="shield-setup-guide__check" aria-hidden="true"><i class="bi bi-check-lg"></i></span>
 						<span class="shield-setup-guide__step-copy">
 							<span class="shield-setup-guide__step-name">{{ step.name }}</span>
@@ -60,7 +57,7 @@
 			{% for step in guide.steps %}
 				<div class="shield-setup-guide__pane"
 					 data-setup-guide-pane="{{ step.slug }}"
-					 {% if first_open is null or step.slug != first_open.slug %}hidden{% endif %}>
+					 {% if step.slug != guide.open_step %}hidden{% endif %}>
 					<h3 class="shield-setup-guide__pane-title">{{ step.name }}</h3>
 					{% if step.is_done %}
 						<p class="shield-setup-guide__done-note"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> {{ guide.strings.done }}</p>
@@ -75,7 +72,7 @@
 					{% endif %}
 				</div>
 			{% endfor %}
-			<div class="shield-setup-guide__pane" data-setup-guide-pane="all_done" {% if first_open is not null %}hidden{% endif %}>
+			<div class="shield-setup-guide__pane" data-setup-guide-pane="all_done" {% if guide.open_step != 'all_done' %}hidden{% endif %}>
 				<p class="shield-setup-guide__done-note"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> {{ guide.strings.all_done }}</p>
 			</div>
 		</div>

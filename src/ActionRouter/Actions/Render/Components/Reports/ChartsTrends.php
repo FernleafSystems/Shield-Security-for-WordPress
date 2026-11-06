@@ -46,12 +46,10 @@ class ChartsTrends extends Base {
 		unset( $event );
 
 		$periods = ChartOptions::buildSelectablePeriods();
-		if ( $lastPeriod !== '' ) {
-			foreach ( $periods as &$period ) {
-				$period[ 'is_default' ] = $period[ 'key' ] === $lastPeriod;
-			}
-			unset( $period );
+		foreach ( $periods as &$period ) {
+			$period[ 'is_selected' ] = $lastPeriod === '' ? $period[ 'is_default' ] : $period[ 'key' ] === $lastPeriod;
 		}
+		unset( $period );
 
 		return [
 			'strings' => self::renderStrings(),

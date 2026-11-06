@@ -42,6 +42,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
  *   card_type:'expandable'|'linked'|'category',
  *   narrative:string,
  *   drill_hint:string,
+ *   drill_icon:string,
  *   links:list<GroupLink>,
  *   management_link:array{}|GroupManagementLink,
  *   is_interactive:bool,

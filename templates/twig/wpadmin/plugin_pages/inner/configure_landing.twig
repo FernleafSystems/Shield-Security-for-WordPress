@@ -43,24 +43,24 @@
 			{% endfor %}
 		</nav>
 
-		<div class="configure-landing__search"
+		<div class="configure-landing__search shield-search"
 			 data-configure-search-dock="1"
-			 data-configure-search-state="idle"
+			 data-search-state="idle"
 			 data-configure-section="search"
 			 data-configure-tabpanel="search"
 			 {% if current_tab != 'search' %}hidden{% endif %}>
 			<label class="screen-reader-text" for="ConfigureLandingSearchInput">{{ strings.search_label }}</label>
-			<div class="configure-landing__search-input-wrap">
+			<div class="shield-search-box">
 				<i class="bi bi-search" aria-hidden="true"></i>
 				<input type="search"
 					   id="ConfigureLandingSearchInput"
-					   class="configure-landing__search-input"
+					   class="shield-search-box__input"
 					   data-configure-search-input="1"
 					   autocomplete="off"
 					   spellcheck="false"
 					   placeholder="{{ strings.search_placeholder }}">
 			</div>
-			<div class="configure-landing__search-results"
+			<div class="shield-search__results"
 				 data-configure-search-body="1"
 				 aria-live="polite"
 				 aria-busy="false"></div>

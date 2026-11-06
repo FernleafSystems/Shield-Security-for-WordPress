@@ -105,7 +105,7 @@ abstract class ScansBase extends BaseAction {
 	 *   remaining_scans:string,
 	 *   progress:int|float,
 	 *   scan_rows:list<ActiveScanProgressRow>,
-	 *   scan_slugs?:list<string>
+	 *   scan_slugs:list<string>
 	 * } $renderData
 	 * @return array{modal_state:ScanModalState,modal_html:string}
 	 */
@@ -122,7 +122,10 @@ abstract class ScansBase extends BaseAction {
 		];
 	}
 
-	private function isPageDisplay() :bool {
+	/**
+	 * Run Manual Scan asks for its progress drawn for the page; anything else gets the dialog.
+	 */
+	protected function isPageDisplay() :bool {
 		return ( $this->action_data[ 'display' ] ?? '' ) === self::DISPLAY_PAGE;
 	}
 

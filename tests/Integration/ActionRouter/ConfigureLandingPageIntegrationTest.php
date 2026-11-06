@@ -43,6 +43,21 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		return $payload;
 	}
 
+	/**
+	 * Configure's results are the one list in the shared results list; each opens its goal in place, so it
+	 * carries what that needs. Goals are the results labelled with a type.
+	 * @return list<array{type:string,href:string,focus_request_json:string}>
+	 */
+	private function configureSearchResults( array $payload ) :array {
+		$sections = $payload[ 'render_data' ][ 'vars' ][ 'sections' ];
+		$this->assertLessThanOrEqual( 1, \count( $sections ) );
+		return \array_map( fn( array $result ) :array => [
+			'type'               => $result[ 'type_label' ] === '' ? 'option' : 'zone',
+			'href'               => $result[ 'href' ],
+			'focus_request_json' => $result[ 'attributes' ][ 'data-configure-focus-request' ],
+		], $sections[ 0 ][ 'results' ] ?? [] );
+	}
+
 	public function test_landing_renders_shared_operator_chrome_and_two_layer_drill_shell() :void {
 		$payload = $this->renderConfigureLandingPage();
 		$this->assertIsArray( $payload[ 'render_data' ][ 'vars' ] ?? null );
@@ -135,7 +150,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'search' => 'silentcaptcha',
 		] );
 
-		$results = (array)( $payload[ 'render_data' ][ 'vars' ][ 'results' ] ?? [] );
+		$results = $this->configureSearchResults( $payload );
 
 		$this->assertNotSame( [], $results );
 		$this->assertContains( 'zone', \array_column( $results, 'type' ) );
@@ -183,7 +198,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			] );
 
 			$result = $this->findConfigureOptionResultByConfigItem(
-				(array)( $payload[ 'render_data' ][ 'vars' ][ 'results' ] ?? [] ),
+				$this->configureSearchResults( $payload ),
 				$case[ 'config_item' ]
 			);
 
@@ -235,7 +250,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			] );
 
 			$result = $this->findConfigureOptionResultByConfigItem(
-				(array)( $payload[ 'render_data' ][ 'vars' ][ 'results' ] ?? [] ),
+				$this->configureSearchResults( $payload ),
 				$case[ 'config_item' ]
 			);
 
@@ -287,7 +302,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
-	public function test_secadmin_diagnosis_header_actions_only_when_security_admin_is_enabled() :void {
+	public function test_secadmin_goal_links_to_disable_only_when_security_admin_is_enabled() :void {
 		$snapshot = $this->snapshotSelectedOptions( [
 			'admin_access_key',
 			'sec_admin_users',
@@ -313,11 +328,10 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				'zone' => 'control',
 			] );
 
-			$this->assertCount( 1, $enabledPayload[ 'header' ][ 'actions' ] ?? [] );
-			$this->assertSame( 'href', (string)( $enabledPayload[ 'header' ][ 'actions' ][ 0 ][ 'kind' ] ?? '' ) );
-			$this->assertSame( 'deactivate', (string)( $enabledPayload[ 'header' ][ 'actions' ][ 0 ][ 'type' ] ?? '' ) );
-			$this->assertNotSame( '', (string)( $enabledPayload[ 'header' ][ 'actions' ][ 0 ][ 'href' ] ?? '' ) );
-			$this->assertSame( [], $disabledPayload[ 'header' ][ 'actions' ] ?? [ 'unexpected' ] );
+			// Turning Security Admin off is a quiet link on the goal, not an action in the side rail.
+			$this->assertSame( [], $enabledPayload[ 'header' ][ 'actions' ] );
+			$this->assertStringContainsString( 'class="configure-zone-tools__link"', $enabledPayload[ 'html' ] );
+			$this->assertStringNotContainsString( 'class="configure-zone-tools__link"', $disabledPayload[ 'html' ] );
 		}
 		finally {
 			$this->restoreSelectedOptions( $snapshot );

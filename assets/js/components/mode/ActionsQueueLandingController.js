@@ -18,11 +18,9 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.layerRequests = {};
 		this.selectedBucket = null;
 		this.selectedGroup = null;
-		this.defaultLayerState = {};
 
 		this.bindModePanelHandlers();
 		this.bindMaintenanceActionHandlers();
-		this.bindOperatorContextActionHandlers();
 		this.bindTableActionHandlers();
 		this.bindDrillDownHandlers();
 		this.initializeCurrentRoot();
@@ -115,35 +113,8 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 				close.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true"></i>';
 				detail.prepend( close );
 			}
-			this.moveContextRail( shell, detail, isOpen );
 		}
 		document.documentElement.classList.toggle( 'shield-results-overlay-open', isOpen );
-	}
-
-	/**
-	 * The page's context rail holds the actions for the open results (ignore all, repair and so on), so
-	 * while the results are in the panel the rail moves into it, and returns to its place afterwards.
-	 * @param {HTMLElement} shell
-	 * @param {HTMLElement} detail
-	 * @param {boolean} intoPanel
-	 */
-	moveContextRail( shell, detail, intoPanel ) {
-		const modeShell = shell.closest( '[data-mode-shell="1"]' ) || document;
-		const rail = modeShell.querySelector( '[data-operator-context-rail="1"]' );
-		if ( !( rail instanceof HTMLElement ) ) {
-			return;
-		}
-		if ( intoPanel ) {
-			if ( !this.contextRailHome?.isConnected ) {
-				this.contextRailHome = document.createComment( 'context rail' );
-				rail.before( this.contextRailHome );
-			}
-			detail.append( rail );
-		}
-		else if ( this.contextRailHome?.isConnected ) {
-			this.contextRailHome.replaceWith( rail );
-			this.contextRailHome = null;
-		}
 	}
 
 	/**
@@ -193,14 +164,6 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		document.addEventListener( 'click', ( evt ) => this.handleMaintenanceActionClick( evt ) );
 	}
 
-	bindOperatorContextActionHandlers() {
-		if ( this.hasBoundOperatorContextActionHandlers ) {
-			return;
-		}
-		this.hasBoundOperatorContextActionHandlers = true;
-
-	}
-
 	bindTableActionHandlers() {
 		if ( this.hasBoundTableActionHandlers ) {
 			return;
@@ -209,11 +172,6 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 		document.addEventListener( 'shield:table-action-success', ( evt ) => this.handleTableActionSuccess( evt ) );
 		document.addEventListener( 'shield:scan-results-changed', ( evt ) => this.handleScanResultsChanged( evt ) );
-	}
-
-	initializeCurrentRoot() {
-		super.initializeCurrentRoot();
-		this.defaultLayerState = this.captureDefaultLayerState( this.shellEl );
 	}
 
 	getRoot() {
@@ -234,43 +192,9 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.rootEl = root;
 		this.shellEl = shell;
 
-		switch ( String( item.dataset.drillTarget || '' ).trim() ) {
-			case 'groups':
-				this.handleBucketSelection( item, shell );
-				break;
-
-			case 'detail':
-				this.handleGroupSelection( item, shell );
-				break;
+		if ( item.dataset.drillTarget === 'detail' ) {
+			this.handleGroupSelection( item, shell );
 		}
-	}
-
-	handleBucketSelection( item, shell ) {
-		const bucket = this.readBucketSelection( item );
-		if ( bucket.key.length < 1 ) {
-			return;
-		}
-
-		const layerIndex = this.getLayerIndexByKey( shell, 'groups' );
-		const drillCtrl = this.getDrillDownController();
-		if ( layerIndex < 0 || drillCtrl === null ) {
-			return;
-		}
-
-		this.selectedBucket = bucket;
-		this.selectedGroup = null;
-		this.setLaneInTrail( shell, true );
-		this.resetGroupsLayerHeader( shell );
-		this.resetDetailLayer( shell );
-		drillCtrl.updateLayerHeader(
-			shell,
-			1,
-			this.buildLoadingHeader( bucket.header, this.getGroupsLoadingText() ),
-			{ announce: false }
-		);
-		drillCtrl.drillTo( shell, layerIndex, { sourceEl: item } );
-
-		this.loadGroupsLayer();
 	}
 
 	handleGroupSelection( item, shell ) {
@@ -816,31 +740,6 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		} );
 	}
 
-	refreshCurrentDetailLayer( restoreAssetPanel ) {
-		const openAssetPanelTarget = restoreAssetPanel
-			? this.getOpenAssetPanelTarget()
-			: '';
-		const resultsDisplayOptions = this.captureCurrentDetailResultsDisplayOptions();
-
-		return this.loadGroupsLayer( {
-			showPlaceholder: false,
-			includeSelectedGroup: this.selectedGroup !== null,
-			includeLandingRefresh: false,
-		} ).then( ( data ) => {
-			if ( data === null || this.selectedGroup === null ) {
-				return data;
-			}
-
-			this.mergeSelectedGroupResultsDisplayOptions( resultsDisplayOptions );
-			return this.loadDetailLayer( false ).then( ( detailData ) => {
-				if ( openAssetPanelTarget.length > 0 ) {
-					this.restoreOpenAssetPanel( openAssetPanelTarget );
-				}
-				return detailData || data;
-			} );
-		} );
-	}
-
 	getOpenAssetPanelTarget() {
 		const assetShell = this.rootEl?.querySelector( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) || null;
 		const openPanel = assetShell?.querySelector( '[data-mode-panel="1"].is-open' ) || null;
@@ -929,51 +828,6 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			&& resultsDisplayOptions?.include_repaired === false
 			&& resultsDisplayOptions?.include_deleted === false
 			&& resultsDisplayOptions?.ignored_only === false;
-	}
-
-	resetGroupsLayerHeader( shell ) {
-		const defaultState = this.defaultLayerState.groups;
-		const drillCtrl = this.getDrillDownController();
-		if ( defaultState === undefined || drillCtrl === null ) {
-			return;
-		}
-
-		drillCtrl.updateLayerHeader( shell, 1, defaultState.header );
-	}
-
-	resetDetailLayer( shell ) {
-		const defaultState = this.defaultLayerState.detail;
-		const drillCtrl = this.getDrillDownController();
-		if ( defaultState === undefined || drillCtrl === null ) {
-			return;
-		}
-
-		const detailLayer = this.getLayerByKey( shell, 'detail' );
-		const detailBody = detailLayer?.querySelector( '.drill-layer__body' ) || null;
-		if ( detailBody !== null ) {
-			BootstrapTooltips.DisposeTooltipsWithin( detailBody );
-			detailBody.innerHTML = '';
-		}
-
-		drillCtrl.updateLayerHeader( shell, 2, defaultState.header );
-	}
-
-	captureDefaultLayerState( shell ) {
-		if ( shell === null ) {
-			return {};
-		}
-
-		return {
-			groups: this.readLayerState( shell, 'groups' ),
-			detail: this.readLayerState( shell, 'detail' ),
-		};
-	}
-
-	readLayerState( shell, layerKey ) {
-		const layer = this.getLayerByKey( shell, layerKey );
-		return {
-			header: this.parseJsonDataset( layer?.dataset.drillLayerHeader || '{}' ),
-		};
 	}
 
 	/**

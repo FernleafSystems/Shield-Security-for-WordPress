@@ -770,11 +770,11 @@ class PluginNavs {
 		return [ self::SUBNAV_REPORTS_OVERVIEW => PluginAdminPages\PageReportsLanding::class ];
 	}
 
+	/**
+	 * Reports opens on its charts unless a link asks for another tab.
+	 */
 	public static function reportsDefaultWorkspaceSubNav() :string {
-		$subNav = \key( self::reportsWorkspaceDefinitions() );
-		return \is_string( $subNav ) && !empty( $subNav )
-			? $subNav
-			: self::SUBNAV_REPORTS_LIST;
+		return self::SUBNAV_REPORTS_CHARTS;
 	}
 
 	private static function sanitizeOperatorMode( string $mode ) :string {

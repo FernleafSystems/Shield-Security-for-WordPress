@@ -316,18 +316,6 @@ export function bindScanResultsRowActions( {
 	}
 }
 
-export function bindScanResultsSelectionButtons( datatable, namespace = 'shieldScanResultsButtons' ) {
-	if ( datatable === null || typeof datatable.on !== 'function' ) {
-		return;
-	}
-
-	datatable.off( `.${namespace}` );
-	[ 'xhr', 'draw', 'select', 'deselect' ].forEach( ( eventName ) => {
-		datatable.on( `${eventName}.${namespace}`, () => syncScanResultsSelectionButtons( datatable ) );
-	} );
-	syncScanResultsSelectionButtons( datatable );
-}
-
 export function syncScanResultsSelectionButtons( datatable ) {
 	const selectionState = getScanResultsSelectionState( datatable );
 	[

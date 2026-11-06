@@ -60,7 +60,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			],
 			\array_keys( $workspace )
 		);
-		$this->assertSame( \key( $workspace ), PluginNavs::reportsDefaultWorkspaceSubNav() );
+		$this->assertSame( PluginNavs::SUBNAV_REPORTS_CHARTS, PluginNavs::reportsDefaultWorkspaceSubNav() );
 		$this->assertSame( PluginAdminPages\PageReportsLanding::class, $routeHandlers[ PluginNavs::SUBNAV_REPORTS_OVERVIEW ] );
 
 		foreach ( \array_keys( $workspace ) as $subNav ) {

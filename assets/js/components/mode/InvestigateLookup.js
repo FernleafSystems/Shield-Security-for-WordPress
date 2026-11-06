@@ -11,7 +11,7 @@ import { announceStatus } from "../ui/ShieldA11y";
 /**
  * Investigate's one lookup, and its tabs.
  *
- * Typing searches users, IP addresses, plugins, themes and WordPress core together; "Looking up" narrows
+ * Typing searches users, IP addresses, plugins, themes and WordPress core together; the kind buttons narrow
  * it to one kind, and a kind with nothing typed lists that kind to browse. Each result carries its kind's
  * subject, so a click opens that subject beneath the lookup through the landing's own handler, with the
  * result's value as the lookup. The lookup stays where it is, ready for the next search.

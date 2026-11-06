@@ -119,44 +119,26 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	}
 
 	/**
-	 * The log and IP rules tabs, each with the downloads its page used to offer.
-	 * @return list<array{key:string,table_id:string,actions:list<array<string,mixed>>}>
+	 * The log and IP rules tabs. Each table carries its own buttons, downloads among them.
+	 * @return list<array{key:string,table_id:string}>
 	 */
 	protected function buildLogTabs() :array {
-		$con = self::con();
-		$noPremium = !$con->isPremiumActive();
 		return [
 			[
 				'key'      => InvestigateTabs::ACTIVITY,
 				'table_id' => 'ShieldTable-ActivityLog',
-				'actions'  => [],
 			],
 			[
 				'key'      => InvestigateTabs::REQUESTS,
 				'table_id' => 'ShieldTable-TrafficViewer',
-				'actions'  => [
-					[
-						'title'    => __( 'Download Request Logs', 'wp-simple-firewall' ),
-						'href'     => $con->plugin_urls->fileDownloadAsStream( 'traffic' ),
-						'disabled' => $noPremium,
-					],
-				],
 			],
 			[
 				'key'      => InvestigateTabs::IP_RULES,
 				'table_id' => 'ShieldTable-IpRules',
-				'actions'  => [
-					[
-						'title'    => __( 'Download IP Rules as CSV', 'wp-simple-firewall' ),
-						'href'     => $con->plugin_urls->fileDownloadAsStream( 'ip_rules' ),
-						'disabled' => $noPremium,
-					],
-				],
 			],
 			[
 				'key'      => InvestigateTabs::SESSIONS,
 				'table_id' => 'ShieldTable-SessionsViewer',
-				'actions'  => [],
 			],
 		];
 	}

@@ -1,66 +1,21 @@
-import $ from 'jquery';
 import { BaseComponent } from "../BaseComponent";
 import { ObjectOps } from "../../util/ObjectOps";
-import { AjaxService } from "../services/AjaxService";
-import { highlightSearchTerms } from "../../util/SearchHighlight";
+import { SearchBox } from "./SearchBox";
 
+/**
+ * The search dialog's search: the shared search box, its results in the shared list.
+ */
 export class SuperSearchResults extends BaseComponent {
 
 	init() {
-		this.searchTimeout = false;
-
-		shieldEventsHandler_Main.add_Keyup( '#ModalSuperSearchBox input.search-text', ( targetEl ) => this.displayResults( targetEl.value ) );
-
-		$( document ).on( 'select2:open', () => {
-			document.querySelector( '.select2-search__field' ).focus();
+		const root = document.querySelector( '#ModalSuperSearchBox [data-super-search="1"]' );
+		this.searchBox = new SearchBox( {
+			container: root,
+			input: root.querySelector( '#ModalSuperSearchInput' ),
+			body: root.querySelector( '[data-super-search-body="1"]' ),
+			buildAction: ( query ) => ObjectOps.Merge( ObjectOps.ObjClone( this._base_data.ajax.render_search_results ), { search: query } ),
+			loadingText: this._base_data.strings.loading,
+			errorText: this._base_data.strings.error,
 		} );
-
-		$( document ).on( '#SuperSearchBox select2:select', ( evt ) => {
-			/**
-			 * Note: IP Address results are handled separately within IPAnalyse
-			 */
-			let optResultData = evt.params.data;
-			if ( typeof optResultData.ip === 'undefined' ) {
-				optResultData.new_window ? window.open( evt.params.data.href ) : window.location.href = evt.params.data.href;
-			}
-		} );
-	}
-
-	displayResults( search_text ) {
-
-		if ( this.searchTimeout ) {
-			clearTimeout( this.searchTimeout );
-		}
-
-		if ( search_text !== '' ) {
-			this.searchTimeout = setTimeout( () => {
-
-				$( '#ModalSuperSearchBox .modal-body' ).html(
-					'<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>'
-				);
-
-				const data = ObjectOps.ObjClone( this._base_data.ajax.render_search_results );
-				data[ 'search' ] = search_text;
-
-				( new AjaxService() )
-				.send( data, false )
-				.then( ( resp ) => {
-					if ( resp.success ) {
-						const body = document.querySelector( '#ModalSuperSearchBox .modal-body' );
-						$( body ).html( resp.data.render_output );
-						highlightSearchTerms( body, search_text );
-					}
-					else {
-						shieldServices.dialog().message( {
-							title: shieldStrings.string( 'request_failed' ),
-							message: resp.data.error,
-							launcher: document.querySelector( '#ModalSuperSearchBox input.search-text' ),
-							showTitle: true,
-						} );
-					}
-				} )
-				.finally();
-			}, 700 );
-		}
 	}
 }

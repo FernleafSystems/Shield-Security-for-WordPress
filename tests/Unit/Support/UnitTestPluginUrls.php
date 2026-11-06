@@ -90,6 +90,22 @@ class UnitTestPluginUrls {
 		return empty( $zone ) ? $url : $url.'?zone='.$zone;
 	}
 
+	public function pluginInPluginsScreen( string $pluginFile ) :string {
+		return '/wp-admin/plugins.php?s='.\rawurlencode( $pluginFile );
+	}
+
+	public function vulnerablePlugins() :string {
+		return '/wp-admin/plugins.php?plugin_status=vulnerable';
+	}
+
+	public function themeInThemesScreen( string $stylesheet ) :string {
+		return '/wp-admin/themes.php?theme='.\rawurlencode( $stylesheet );
+	}
+
+	public function scansRun() :string {
+		return '/admin/scans/run';
+	}
+
 	public function cloakedPlugins() :string {
 		return '/wp-admin/plugins.php?plugin_status=cloaked';
 	}

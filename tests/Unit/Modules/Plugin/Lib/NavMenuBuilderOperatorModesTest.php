@@ -104,7 +104,6 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		] );
 
 		$sidebar = $this->createBuilder( [
-			'has_items'      => true,
 			'total_items'    => 7,
 			'severity'       => 'critical',
 			'critical_items' => 3,
@@ -121,8 +120,6 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$actionsMode = $this->findItemBySlug( $sidebar[ 'navigation_links' ], 'mode-actions' );
 		$this->assertIsArray( $actionsMode );
 		$this->assertTrue( $actionsMode[ 'active' ] );
-		$this->assertSame( '7', $actionsMode[ 'badge' ][ 'text' ] );
-		$this->assertSame( 'critical', $actionsMode[ 'badge' ][ 'status' ] );
 		// Critical items and warnings are counted apart, each in its own colour.
 		$this->assertSame( [ '3', '4' ], \array_column( $actionsMode[ 'badges' ], 'text' ) );
 		$this->assertSame( [ 'critical', 'warning' ], \array_column( $actionsMode[ 'badges' ], 'status' ) );
@@ -266,9 +263,10 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 	private function createBuilder( array $summary = [] ) :NavMenuBuilder {
 		return new NavMenuBuilderTestDouble(
 			\array_merge( [
-				'has_items'   => false,
-				'total_items' => 0,
-				'severity'    => 'good',
+				'total_items'    => 0,
+				'severity'       => 'good',
+				'critical_items' => 0,
+				'warning_items'  => 0,
 			], $summary )
 		);
 	}

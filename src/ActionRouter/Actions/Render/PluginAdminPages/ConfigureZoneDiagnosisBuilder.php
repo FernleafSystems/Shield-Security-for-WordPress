@@ -16,7 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
  * @phpstan-import-type DetailAction from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailGroup from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailGroupRow from StatusDetailGroupsBuilder
- * @phpstan-import-type OperatorChromeActionInput from OperatorChromeContract
+ * @phpstan-import-type SecAdminGoalLink from SecurityAdminDisableActionBuilder
  */
 class ConfigureZoneDiagnosisBuilder {
 
@@ -83,7 +83,6 @@ class ConfigureZoneDiagnosisBuilder {
 			'badge'              => $zoneBadge,
 			'badge_status'       => $zoneTile[ 'status' ],
 			'color_key'          => $zoneTile[ 'status' ],
-			'actions'            => $this->buildHeaderActions( $zoneKey ),
 		] );
 
 		$zoneSelection = [
@@ -108,16 +107,17 @@ class ConfigureZoneDiagnosisBuilder {
 			'header'                    => $header,
 			'zone_selection'            => $zoneSelection,
 			'zone_selection_json'       => OperatorChromeContract::encodeJson( $zoneSelection ),
+			'goal_links'                => $this->buildGoalLinks( $zoneKey ),
 		];
 	}
 
 	/**
-	 * @return list<OperatorChromeActionInput>
+	 * @return list<SecAdminGoalLink>
 	 */
-	private function buildHeaderActions( string $zoneKey ) :array {
+	private function buildGoalLinks( string $zoneKey ) :array {
 		// Security Admin's settings live in the "Control who changes your site" goal.
 		return $zoneKey === PluginNavs::configureLegacyZoneGoals()[ Secadmin::Slug() ]
-			? $this->getSecurityAdminDisableActionBuilder()->buildConfigureContextActions()
+			? $this->getSecurityAdminDisableActionBuilder()->buildConfigureGoalLinks()
 			: [];
 	}
 

@@ -44,7 +44,8 @@ class ScansStart extends ScansBase {
 
 		$payload = [
 			'scans_running' => $isScanRunning,
-			'page_reload'   => $reloadPage && !$isScanRunning,
+			// Run Manual Scan shows the result itself, so only the dialog moves on to the queue.
+			'page_reload'   => $reloadPage && !$isScanRunning && !$this->isPageDisplay(),
 			'scan_ids'      => $startedScanIDs,
 			'message'       => $msg,
 		];

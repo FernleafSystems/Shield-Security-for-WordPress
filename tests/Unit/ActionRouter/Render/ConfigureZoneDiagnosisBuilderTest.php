@@ -297,24 +297,25 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'secadmin_summary', $diagnosis[ 'problem_rows' ][ 0 ][ 'summary' ] );
 	}
 
-	public function test_secadmin_header_includes_disable_action_when_enabled() :void {
+	public function test_secadmin_goal_links_to_disable_security_admin_when_enabled() :void {
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
 			$this->buildZoneTile( 'control', 'Security Admin', 'critical', 'Critical', '1 critical group', [] )
 		);
 
-		$this->assertCount( 1, $diagnosis[ 'header' ][ 'actions' ] );
-		$this->assertArrayHasKey( 'label', $diagnosis[ 'header' ][ 'actions' ][ 0 ] ?? [] );
-		$this->assertSame( 'deactivate', $diagnosis[ 'header' ][ 'actions' ][ 0 ][ 'type' ] ?? '' );
+		// It's a quiet link on the goal itself, not an action in the side rail.
+		$this->assertSame( [], $diagnosis[ 'header' ][ 'actions' ] );
+		$this->assertCount( 1, $diagnosis[ 'goal_links' ] );
+		$this->assertNotSame( '', $diagnosis[ 'goal_links' ][ 0 ][ 'label' ] );
 	}
 
-	public function test_secadmin_header_omits_disable_action_when_disabled() :void {
+	public function test_secadmin_goal_omits_disable_link_when_disabled() :void {
 		$this->secAdminController->enabled = false;
 
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
 			$this->buildZoneTile( 'control', 'Security Admin', 'critical', 'Critical', '1 critical group', [] )
 		);
 
-		$this->assertSame( [], $diagnosis[ 'header' ][ 'actions' ] );
+		$this->assertSame( [], $diagnosis[ 'goal_links' ] );
 	}
 
 	private function buildZoneTile(

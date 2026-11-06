@@ -1,9 +1,9 @@
 import { ObjectOps } from "../../util/ObjectOps";
-import { highlightSearchTerms } from "../../util/SearchHighlight";
 import { AjaxService } from "../services/AjaxService";
 import { AjaxBatchService } from "../services/AjaxBatchService";
 import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
 import { OffCanvasService } from "../ui/OffCanvasService";
+import { SearchBox } from "../search/SearchBox";
 
 export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 
@@ -19,8 +19,7 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		this.componentActionRoot = null;
 		this.layerRequests = {};
 		this.selectedZone = null;
-		this.searchTimeout = null;
-		this.searchRequestKey = null;
+		this.searchBox = null;
 
 		this.bindDrillDownHandlers();
 		this.bindSaveHandlers();
@@ -39,7 +38,6 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 			return;
 		}
 
-		this.setSearchState( 'idle', this.rootEl );
 		this.seedDiagnosisCacheFromCurrentLayer();
 		this.preloadDiagnosisLayers();
 		this.openInitialComponent();
@@ -96,9 +94,20 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		}
 		this.hasBoundSearchHandlers = true;
 
-		const searchInput = this.getRoot()?.querySelector( '[data-configure-search-input="1"]' ) || null;
-		if ( searchInput !== null ) {
-			searchInput.addEventListener( 'input', () => this.handleSearchInput( searchInput ) );
+		// Configure's search is the shared search box, its results opening goals in place.
+		const root = this.getRoot();
+		const input = this.getSearchInput( root );
+		if ( input !== null ) {
+			this.searchBox = new SearchBox( {
+				container: root.querySelector( '[data-configure-search-dock="1"]' ),
+				input,
+				body: root.querySelector( '[data-configure-search-body="1"]' ),
+				buildAction: ( query ) => this.buildRenderAction( root.dataset.configureSearchAction, { search: query } ),
+				loadingText: root.dataset.configureSearchLoading,
+				errorText: root.dataset.configureLayerError,
+				minChars: this.parseInteger( root.dataset.configureSearchMinChars ),
+				render: ( body, html ) => this.replaceLayerBodyHtml( body, html, true ),
+			} );
 		}
 	}
 
@@ -148,8 +157,7 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 
 		this.rootEl = root;
 		this.shellEl = this.getShell( root );
-		this.cancelPendingSearch();
-		this.clearSearchUi( root );
+		this.searchBox.clear();
 		this.openDiagnosisSelection( zone, {
 			sourceEl: item,
 			focusRequestJson: String( item.dataset.configureFocusRequest || '' ),
@@ -210,6 +218,17 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 			}
 		}
 
+		// A save can change how a goal stands, so its tab takes the new colour and attention mark.
+		Object.entries( landingRefresh.tab_states ).forEach( ( [ key, state ] ) => {
+			const tab = this.rootEl.querySelector( `[data-configure-tab="${CSS.escape( key )}"]` );
+			if ( tab instanceof HTMLElement ) {
+				[ ...tab.classList ].filter( ( cls ) => cls.startsWith( 'status-' ) )
+				.forEach( ( cls ) => tab.classList.remove( cls ) );
+				tab.classList.add( `status-${state.status}` );
+				tab.dataset.configureTabAttention = state.needs_attention ? '1' : '0';
+			}
+		} );
+
 		this.restartDiagnosisPreload();
 	}
 
@@ -242,79 +261,6 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		} );
 	}
 
-	handleSearchInput( input ) {
-		const root = this.rootEl || this.getRoot();
-		if ( root === null || !root.contains( input ) ) {
-			return;
-		}
-
-		const searchBody = this.getSearchBody( root );
-		if ( searchBody === null ) {
-			return;
-		}
-
-		this.rootEl = root;
-		const query = String( input.value || '' ).trim();
-		this.cancelPendingSearch();
-
-		if ( query.length < this.getSearchMinChars() ) {
-			this.clearSearchResults( root, searchBody );
-			return;
-		}
-
-		this.renderSearchLoading( root, searchBody );
-		this.searchTimeout = setTimeout( () => this.performSearch( query, searchBody ), this.getSearchDebounceMs() );
-	}
-
-	performSearch( query, searchBody ) {
-		this.searchTimeout = null;
-		const renderAction = this.buildRenderAction( this.rootEl?.dataset.configureSearchAction, {
-			search: query,
-		} );
-		if ( ObjectOps.IsEmpty( renderAction ) ) {
-			this.clearSearchResults( this.rootEl, searchBody );
-			return;
-		}
-
-		const requestKey = `${Date.now()}-${Math.random()}`;
-		this.searchRequestKey = requestKey;
-
-		( new AjaxService() )
-			.send( renderAction, false, true )
-			.then( ( resp ) => {
-				if ( this.searchRequestKey !== requestKey ) {
-					return;
-				}
-
-				if ( !resp.success || typeof resp?.data?.render_output !== 'string' ) {
-					this.renderSearchFailure( this.rootEl, searchBody );
-					return;
-				}
-
-				this.replaceLayerBodyHtml( searchBody, resp.data.render_output, true );
-				highlightSearchTerms( searchBody, query );
-				this.setSearchState( 'ready', this.rootEl );
-			} )
-			.catch( () => {
-				if ( this.searchRequestKey === requestKey ) {
-					this.renderSearchFailure( this.rootEl, searchBody );
-				}
-			} )
-			.finally( () => {
-				if ( this.searchRequestKey === requestKey ) {
-					this.searchRequestKey = null;
-				}
-			} );
-	}
-
-	cancelPendingSearch() {
-		if ( this.searchTimeout ) {
-			clearTimeout( this.searchTimeout );
-			this.searchTimeout = null;
-		}
-		this.searchRequestKey = `cancelled-${Date.now()}`;
-	}
-
 	readZoneSelection( item ) {
 		return this.readSelectionPayload( this.parseJsonDataset( item.dataset.drillZoneSelection ) );
 	}
@@ -323,28 +269,8 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		return this.rootEl?.dataset.configureDiagnosisLoading || '';
 	}
 
-	getSearchLoadingText() {
-		return this.rootEl?.dataset.configureSearchLoading || '';
-	}
-
-	getSearchDebounceMs() {
-		return 350;
-	}
-
-	getSearchMinChars() {
-		return this.parseInteger( this.rootEl?.dataset.configureSearchMinChars || 3 );
-	}
-
 	getSearchInput( root = this.rootEl ) {
 		return root?.querySelector( '[data-configure-search-input="1"]' ) || null;
-	}
-
-	getSearchBody( root = this.rootEl ) {
-		return root?.querySelector( '[data-configure-search-body="1"]' ) || null;
-	}
-
-	getSearchDock( root = this.rootEl ) {
-		return root?.querySelector( '[data-configure-search-dock="1"]' ) || null;
 	}
 
 	renderLayerFailure( body, layerKey ) {
@@ -364,69 +290,6 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 
 	buildLoadingMarkup( message ) {
 		return `<div class="text-muted small">${this.escapeHtml( message )}</div>`;
-	}
-
-	buildSearchFailureMarkup() {
-		const message = this.rootEl?.dataset.configureLayerError || '';
-		return this.buildSearchStatusMarkup( message );
-	}
-
-	renderSearchLoading( root, searchBody ) {
-		this.replaceLayerBodyHtml(
-			searchBody,
-			this.buildSearchStatusMarkup( this.getSearchLoadingText(), true )
-		);
-		this.setSearchState( 'loading', root );
-	}
-
-	renderSearchFailure( root, searchBody ) {
-		this.replaceLayerBodyHtml( searchBody, this.buildSearchFailureMarkup() );
-		this.setSearchState( 'error', root );
-	}
-
-	clearSearchResults( root, searchBody ) {
-		this.replaceLayerBodyHtml( searchBody, '' );
-		this.setSearchState( 'idle', root );
-	}
-
-	clearSearchUi( root = this.rootEl ) {
-		const input = this.getSearchInput( root );
-		if ( input !== null ) {
-			input.value = '';
-		}
-
-		const searchBody = this.getSearchBody( root );
-		if ( searchBody !== null ) {
-			this.clearSearchResults( root, searchBody );
-		}
-	}
-
-	setSearchState( state, root = this.rootEl ) {
-		const dock = this.getSearchDock( root );
-		if ( dock !== null ) {
-			dock.dataset.configureSearchState = state;
-		}
-
-		const searchBody = this.getSearchBody( root );
-		if ( searchBody !== null ) {
-			searchBody.setAttribute( 'aria-busy', state === 'loading' ? 'true' : 'false' );
-		}
-	}
-
-	buildSearchStatusMarkup( message, includeSpinner = false ) {
-		const spinnerMarkup = includeSpinner
-			? `<span class="configure-search-results__spinner">${this.buildSearchSpinnerMarkup()}</span>`
-			: '';
-
-		return `<div class="configure-search-results configure-search-results--status" data-configure-search-results="1"><div class="configure-search-results__status">${spinnerMarkup}<span class="configure-search-results__status-text">${this.escapeHtml( message )}</span></div></div>`;
-	}
-
-	buildSearchSpinnerMarkup() {
-		const spinner = document.getElementById( 'ShieldWaitSpinner' ).cloneNode( true );
-		spinner.id = '';
-		spinner.classList.remove( 'd-none' );
-		spinner.querySelector( '.spinner-border' )?.classList.remove( 'm-5' );
-		return spinner.outerHTML;
 	}
 
 	shouldAllowDefaultSearchResultClick( item, evt ) {

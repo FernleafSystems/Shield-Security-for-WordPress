@@ -106,8 +106,8 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 			$view[ 'diagnoses' ][ 'control' ][ 'preview_text' ],
 			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'summary' ]
 		);
-		$this->assertCount( 1, $view[ 'diagnoses' ][ 'control' ][ 'header' ][ 'actions' ] );
-		$this->assertNotEmpty( $view[ 'diagnoses' ][ 'control' ][ 'header' ][ 'actions' ][ 0 ][ 'label' ] );
+		$this->assertCount( 1, $view[ 'diagnoses' ][ 'control' ][ 'goal_links' ] );
+		$this->assertNotEmpty( $view[ 'diagnoses' ][ 'control' ][ 'goal_links' ][ 0 ][ 'label' ] );
 		$this->assertSame( 'warning', $view[ 'posture_summary' ][ 'status' ] );
 		$this->assertSame( 78, $view[ 'posture_summary' ][ 'meter' ][ 'percentage' ] );
 		$this->assertSame( '78%', $view[ 'root_step' ][ 'badge' ] );

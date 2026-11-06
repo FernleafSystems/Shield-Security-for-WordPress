@@ -19,6 +19,8 @@ class ScansProgressRenderTest extends BaseUnitTest {
 	public function test_render_data_exposes_per_scan_rows_for_twig() :void {
 		$renderData = ( new ScansProgressRenderTestDouble( [
 			'modal_state'     => ScansBase::SCAN_MODAL_STATE_RUNNING,
+			'scan_slugs'      => [],
+			'display'         => ScansBase::DISPLAY_MODAL,
 			'current_scan'    => 'File Guard',
 			'remaining_scans' => '2 scans remaining.',
 			'progress'        => 50,
@@ -77,6 +79,8 @@ class ScansProgressRenderTest extends BaseUnitTest {
 	public function test_render_data_exposes_recovery_for_current_stalled_row() :void {
 		$renderData = ( new ScansProgressRenderTestDouble( [
 			'modal_state'     => ScansBase::SCAN_MODAL_STATE_RUNNING,
+			'scan_slugs'      => [],
+			'display'         => ScansBase::DISPLAY_MODAL,
 			'current_scan'    => 'Asset Scan',
 			'remaining_scans' => '1 scan remaining.',
 			'progress'        => 10,
@@ -113,6 +117,8 @@ class ScansProgressRenderTest extends BaseUnitTest {
 	public function test_completed_render_data_exposes_terminal_progress_when_no_rows_are_present() :void {
 		$renderData = ( new ScansProgressRenderTestDouble( [
 			'modal_state'     => ScansBase::SCAN_MODAL_STATE_COMPLETED,
+			'scan_slugs'      => [],
+			'display'         => ScansBase::DISPLAY_MODAL,
 			'current_scan'    => 'No scan running.',
 			'remaining_scans' => 'No scans remaining.',
 			'progress'        => 100,

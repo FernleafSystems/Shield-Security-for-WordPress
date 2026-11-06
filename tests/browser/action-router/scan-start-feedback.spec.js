@@ -42,17 +42,6 @@ async function withTimeout( promise, label, timeout = 10000 ) {
 	}
 }
 
-async function startWithEmptyTrackedScanIds( page ) {
-	await page.addInitScript( () => {
-		window.addEventListener( 'load', () => {
-			const scans = window.shield_vars_main?.comps?.scans;
-			if ( scans ) {
-				scans.started_scan_ids = [];
-			}
-		}, { once: true } );
-	} );
-}
-
 async function coordinateInitialScanCheckRace( page, staleModalState, staleModalHtml, runningModalHtml ) {
 	await page.addInitScript( () => {
 		window.addEventListener( 'load', () => {
@@ -477,7 +466,6 @@ test( 'scan progress away from Run Manual Scan still opens the shared dialog', a
 } );
 
 test( 'manual start normalizes tracked scan IDs and preserves them for empty or invalid replacements', async ( { page } ) => {
-	await startWithEmptyTrackedScanIds( page );
 	await openScanRunPage( page );
 
 	const replacements = [

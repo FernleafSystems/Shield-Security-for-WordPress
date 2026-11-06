@@ -218,7 +218,7 @@ class ScansVulnerabilitiesBuilder {
 					$this->buildAbandonedAssetActions( $asset ),
 					__( 'This asset appears to be abandoned and should be reviewed.', 'wp-simple-firewall' )
 				),
-				[ 'ignore_action' => $this->buildIgnoreToggleAction( (int)$item->VO->resultitem_id, $isIgnored ) ]
+				[ 'ignore_action' => $this->buildIgnoreToggleAction( (int)$item->VO->resultitem_id, $isIgnored, $asset instanceof WpPluginVo ) ]
 			);
 		}
 
@@ -228,14 +228,22 @@ class ScansVulnerabilitiesBuilder {
 	/**
 	 * @return IgnoreToggleAction
 	 */
-	private function buildIgnoreToggleAction( int $resultItemID, bool $isIgnored ) :array {
+	private function buildIgnoreToggleAction( int $resultItemID, bool $isIgnored, bool $isPlugin ) :array {
+		if ( $isPlugin ) {
+			$tooltip = $isIgnored
+				? __( 'Stop ignoring this abandoned plugin', 'wp-simple-firewall' )
+				: __( 'Ignore this abandoned plugin', 'wp-simple-firewall' );
+		}
+		else {
+			$tooltip = $isIgnored
+				? __( 'Stop ignoring this abandoned theme', 'wp-simple-firewall' )
+				: __( 'Ignore this abandoned theme', 'wp-simple-firewall' );
+		}
 		return [
 			'kind'        => $isIgnored ? 'unignore' : 'ignore',
 			'label'       => $isIgnored ? __( 'Stop ignoring', 'wp-simple-firewall' ) : __( 'Ignore', 'wp-simple-firewall' ),
 			'icon'        => $isIgnored ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill',
-			'tooltip'     => $isIgnored
-				? __( 'Stop ignoring this abandoned plugin', 'wp-simple-firewall' )
-				: __( 'Ignore this abandoned plugin', 'wp-simple-firewall' ),
+			'tooltip'     => $tooltip,
 			'ajax_action' => ActionData::Build( ScanResultsTableAction::class, true, [
 				'sub_action' => $isIgnored ? 'unignore' : 'ignore',
 				'rids'       => [ $resultItemID ],
@@ -335,7 +343,7 @@ class ScansVulnerabilitiesBuilder {
 	 * @return list<VulnerabilityAction>
 	 */
 	private function buildVulnerableAssetActions( $asset ) :array {
-		return [
+		$actions = [
 			$this->buildNativeAction( $asset ),
 			[
 				'href'       => $asset instanceof WpPluginVo
@@ -350,6 +358,14 @@ class ScansVulnerabilitiesBuilder {
 				],
 			],
 		];
+		if ( $asset instanceof WpPluginVo ) {
+			$actions[] = [
+				'href'  => self::con()->plugin_urls->vulnerablePlugins(),
+				'label' => __( 'Manage Vulnerable Plugins', 'wp-simple-firewall' ),
+				'type'  => 'navigate',
+			];
+		}
+		return $actions;
 	}
 
 	/**
@@ -379,11 +395,11 @@ class ScansVulnerabilitiesBuilder {
 
 		return [
 			'href'  => $isPlugin
-				? Services::WpGeneral()->getAdminUrl_Plugins()
-				: Services::WpGeneral()->getAdminUrl_Themes(),
+				? self::con()->plugin_urls->pluginInPluginsScreen( $asset->file )
+				: self::con()->plugin_urls->themeInThemesScreen( $asset->stylesheet ),
 			'label' => $isPlugin
-				? __( 'Go to plugins', 'wp-simple-firewall' )
-				: __( 'Go to themes', 'wp-simple-firewall' ),
+				? __( 'Go to plugin', 'wp-simple-firewall' )
+				: __( 'Go to theme', 'wp-simple-firewall' ),
 			'type'  => 'navigate',
 		];
 	}

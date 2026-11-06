@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
 	WpThemeVo
@@ -110,6 +111,8 @@ use FernleafSystems\Wordpress\Services\Services;
  * }
  */
 class MaintenanceQueueItemDisplayNormalizer {
+
+	use PluginControllerConsumer;
 
 	/**
 	 * @param list<QueueItem> $items
@@ -687,7 +690,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 	}
 
 	private function buildPluginSearchHref( string $pluginFile ) :string {
-		return Services::WpGeneral()->getAdminUrl_Plugins().'?s='.rawurlencode( $pluginFile );
+		return self::con()->plugin_urls->pluginInPluginsScreen( $pluginFile );
 	}
 
 	/**

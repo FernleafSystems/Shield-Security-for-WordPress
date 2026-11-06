@@ -101,9 +101,7 @@ class PageReportsLanding extends PageModeLandingBase {
 	 */
 	protected function renderSettings() :string {
 		$data = $this->buildConfigureDiagnosisRenderData( self::SETTINGS_GOAL );
-		unset( $data[ 'zone_tools' ] );
 		$data[ 'is_embedded' ] = true;
-		$data[ 'zone_layout' ] = 'list';
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/configure/layer_diagnosis.twig' )
 			->setData( $data )
@@ -112,7 +110,7 @@ class PageReportsLanding extends PageModeLandingBase {
 
 	protected function getCurrentTab() :string {
 		$key = sanitize_key( $this->getTextInputFromRequestOrActionData( 'workspace' ) );
-		return isset( PluginNavs::reportsWorkspaceDefinitions()[ $key ] ) ? $key : PluginNavs::SUBNAV_REPORTS_CHARTS;
+		return isset( PluginNavs::reportsWorkspaceDefinitions()[ $key ] ) ? $key : PluginNavs::reportsDefaultWorkspaceSubNav();
 	}
 
 	protected function getLandingTitle() :string {

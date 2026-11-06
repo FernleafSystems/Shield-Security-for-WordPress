@@ -48,25 +48,24 @@ class PluginSetUiPreferenceTest extends BaseUnitTest {
 	public function test_known_preference_is_stored_for_the_current_user() :void {
 		$meta = $this->installEnvironment();
 
-		$action = new PluginSetUiPreference( $this->actionData( UiPreferences::CONFIGURE_ZONE_LAYOUT, 'list' ) );
+		$action = new PluginSetUiPreference( $this->actionData( UiPreferences::ACTIONS_QUEUE_VIEW, 'tabs' ) );
 		$action->process();
 
 		$this->assertTrue( (bool)( $action->response()->payload()[ 'saved' ] ?? false ) );
-		$this->assertSame( [ UiPreferences::CONFIGURE_ZONE_LAYOUT => 'list' ], $meta->ui_prefs );
-		$this->assertSame( 'list', ( new UiPreferences() )->get( UiPreferences::CONFIGURE_ZONE_LAYOUT ) );
+		$this->assertSame( [ UiPreferences::ACTIONS_QUEUE_VIEW => 'tabs' ], $meta->ui_prefs );
+		$this->assertSame( 'tabs', ( new UiPreferences() )->get( UiPreferences::ACTIONS_QUEUE_VIEW ) );
 	}
 
 	public function test_unknown_keys_and_values_are_rejected_and_defaults_apply() :void {
 		$meta = $this->installEnvironment( [ UiPreferences::ACTIONS_QUEUE_VIEW => 'tabs' ] );
 
-		foreach ( [ [ 'not_a_pref', 'list' ], [ UiPreferences::CONFIGURE_ZONE_LAYOUT, 'grid' ] ] as [ $key, $value ] ) {
+		foreach ( [ [ 'not_a_pref', 'tabs' ], [ UiPreferences::ACTIONS_QUEUE_VIEW, 'grid' ] ] as [ $key, $value ] ) {
 			$action = new PluginSetUiPreference( $this->actionData( $key, $value ) );
 			$action->process();
 			$this->assertFalse( (bool)( $action->response()->payload()[ 'saved' ] ?? true ) );
 		}
 
 		$this->assertSame( [ UiPreferences::ACTIONS_QUEUE_VIEW => 'tabs' ], $meta->ui_prefs );
-		$this->assertSame( 'list', ( new UiPreferences() )->get( UiPreferences::CONFIGURE_ZONE_LAYOUT ) );
 		$this->assertSame( 'tabs', ( new UiPreferences() )->get( UiPreferences::ACTIONS_QUEUE_VIEW ) );
 	}
 

@@ -2,8 +2,7 @@
 	<fieldset class="shield-tool-box shield-scan-choose">
 		<legend class="visually-hidden">{{ strings.scanselect }}</legend>
 
-		{% for slug in [ 'afs', 'wpv', 'apc' ]|filter( s => scans[s] is defined ) %}
-			{% set scan = scans[slug] %}
+		{% for slug, scan in scans %}
 			<div class="shield-scan-choose__row{% if not scan.flags.is_available %} is-unavailable{% endif %}">
 				<input type="checkbox" name="{{ slug }}" id="_{{ slug }}" value="Y" data-scan-choice="1"
 					   {% if not scan.flags.is_available %}disabled="disabled"{% endif %}
@@ -13,7 +12,7 @@
 						<span class="shield-scan-choose__name">{{ scan.strings.name }}</span>
 						<span class="shield-scan-choose__desc">{{ scan.strings.subtitle }}</span>
 					</label>
-					{% if scan.strings.sub_items|default([]) is not empty %}
+					{% if scan.strings.sub_items is not empty %}
 						<span class="shield-scan-choose__areas">
 							{% for sub_item_text, sub_item_enabled in scan.strings.sub_items %}
 								<span class="shield-scan-choose__area{% if sub_item_enabled %} is-on{% endif %}">{{ sub_item_text }}</span>

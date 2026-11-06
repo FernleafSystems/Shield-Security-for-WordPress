@@ -10,7 +10,7 @@ export class ScansCheck extends BaseComponent {
 		this.nextStepTimer = null;
 		this.requestRevision = 0;
 		this.recoveryInFlight = false;
-		this.trackedScanIds = this.normalizeScanIds( this._base_data.started_scan_ids );
+		this.trackedScanIds = [];
 		this.bindRecoveryClickHandler();
 		this.exec();
 	}

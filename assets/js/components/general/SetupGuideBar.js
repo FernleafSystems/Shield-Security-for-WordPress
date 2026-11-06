@@ -59,15 +59,14 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 				|| ( onBar ? this.root.querySelector( '[data-setup-guide-toggle="1"]' ) : null );
 			const step = target.closest( '[data-setup-guide-step]' );
 			const skip = target.closest( '[data-setup-guide-skip]' );
-			const complete = target.closest( '[data-setup-guide-complete]' );
 			if ( toggle ) {
 				this.setExpanded( toggle.getAttribute( 'aria-expanded' ) !== 'true' );
 			}
 			else if ( step ) {
 				this.showStep( step.dataset.setupGuideStep || '' );
 			}
-			else if ( skip || complete ) {
-				const slug = ( skip || complete ).dataset.setupGuideSkip || ( skip || complete ).dataset.setupGuideComplete || '';
+			else if ( skip ) {
+				const slug = skip.dataset.setupGuideSkip;
 				this.whileBusy( this.sendUpdate( { op: 'skip', step_slug: slug } ) ).then( () => this.completeStep( slug ) );
 			}
 			else if ( target.closest( '[data-setup-guide-hide="1"]' ) ) {
@@ -114,21 +113,7 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 		this.writeSessionHidden( false );
 		this.setHidden( false );
 		this.setExpanded( true );
-		this.ensureStepShown();
 		this.root.querySelector( '[data-setup-guide-toggle="1"]' )?.focus();
-	}
-
-	/**
-	 * Opened from a link, the guide may have no step showing; it shows the next one to do (or the first).
-	 */
-	ensureStepShown() {
-		const panes = [ ...this.root.querySelectorAll( '[data-setup-guide-pane]' ) ];
-		if ( panes.length === 0 || panes.some( ( pane ) => pane instanceof HTMLElement && !pane.hidden ) ) {
-			return;
-		}
-		const steps = [ ...this.root.querySelectorAll( '[data-setup-guide-step]' ) ];
-		const next = steps.find( ( step ) => !step.classList.contains( 'is-done' ) ) || steps[ 0 ];
-		this.showStep( next instanceof HTMLElement ? next.dataset.setupGuideStep || '' : 'all_done' );
 	}
 
 	setExpanded( isExpanded ) {
@@ -137,7 +122,7 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 			toggle.setAttribute( 'aria-expanded', String( isExpanded ) );
 			const label = toggle.querySelector( '[data-setup-guide-toggle-label="1"]' );
 			if ( label ) {
-				label.textContent = ( isExpanded ? toggle.dataset.labelOpen : toggle.dataset.labelClosed ) || label.textContent;
+				label.textContent = isExpanded ? toggle.dataset.labelOpen : toggle.dataset.labelClosed;
 			}
 		}
 		const sheet = this.root.querySelector( '.shield-setup-guide__sheet' );
@@ -191,13 +176,13 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 		step?.classList.add( 'is-done' );
 		const hint = step?.querySelector( '[data-setup-guide-step-hint="1"]' );
 		if ( hint ) {
-			hint.textContent = this.root.dataset.doneLabel || hint.textContent;
+			hint.textContent = this.root.dataset.doneLabel;
 		}
 
 		const steps = [ ...this.root.querySelectorAll( '[data-setup-guide-step]' ) ];
 		const doneCount = steps.filter( ( s ) => s.classList.contains( 'is-done' ) ).length;
 		const total = steps.length;
-		const label = String( this.root.dataset.progressTemplate || '%1$s / %2$s' )
+		const label = this.root.dataset.progressTemplate
 		.replace( '%1$s', String( doneCount ) )
 		.replace( '%2$s', String( total ) );
 		const count = this.root.querySelector( '[data-setup-guide-count="1"]' );
@@ -220,7 +205,7 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 		if ( nextLabel ) {
 			const nextName = next?.querySelector( '.shield-setup-guide__step-name' )?.textContent || '';
 			nextLabel.textContent = nextName.length > 0
-				? String( this.root.dataset.nextTemplate || '%s' ).replace( '%s', nextName )
+				? this.root.dataset.nextTemplate.replace( '%s', nextName )
 				: '';
 		}
 		this.showStep( next ? next.dataset.setupGuideStep || '' : 'all_done' );
@@ -240,10 +225,7 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 	}
 
 	submitStep( form ) {
-		const action = this.parseAction( this.root.dataset.merlinAction );
-		if ( action === null ) {
-			return;
-		}
+		const action = JSON.parse( this.root.dataset.merlinAction );
 		const slug = String( form.querySelector( '[name="step_slug"]' )?.value || '' );
 		this.whileBusy( ( new AjaxService() ).send( ObjectOps.Merge( action, { form_params: Forms.Serialize( form ) } ), false ) )
 		.then( ( resp ) => {
@@ -286,20 +268,9 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 	}
 
 	sendUpdate( data ) {
-		const action = this.parseAction( this.root.dataset.updateAction );
-		return action === null
-			? Promise.resolve( null )
-			: ( new AjaxService() ).bg( ObjectOps.Merge( action, data ) ).catch( () => null );
-	}
-
-	parseAction( json ) {
-		try {
-			const action = JSON.parse( json || '{}' );
-			return ObjectOps.IsEmpty( action ) ? null : action;
-		}
-		catch {
-			return null;
-		}
+		return ( new AjaxService() )
+		.bg( ObjectOps.Merge( JSON.parse( this.root.dataset.updateAction ), data ) )
+		.catch( () => null );
 	}
 
 	readSessionHidden() {

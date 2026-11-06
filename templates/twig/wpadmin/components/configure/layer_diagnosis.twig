@@ -43,52 +43,47 @@
 
 {% from _self import render_rows %}
 {% set diagnosis_id = 'configure-diagnosis-' ~ diagnosis.zone_key %}
-{% set zone_layout = zone_layout|default( zone_tools.layout|default( 'list' ) ) %}
-<div class="configure-diagnosis configure-diagnosis--layout-{{ zone_layout }}"
+{# The goal's components are a list beside the one that's open. #}
+<div class="configure-diagnosis"
 	 data-configure-diagnosis="1"
 	 data-configure-zone="{{ diagnosis.zone_key }}"
-	 data-configure-layout="{{ zone_layout }}"
 	 id="{{ diagnosis_id }}">
-	{# The tab names the goal briefly; its full name and what it's for head the page (elsewhere, its own tab does). #}
-	{% if not is_embedded|default(false) %}
+	{# The tab names the goal briefly; its full name and what it's for head the page, with the goal's own filter
+	   on the same line. Embedded elsewhere, its own tab names it, and it has neither. #}
+	{% if not is_embedded %}
 		<div class="configure-diagnosis__heading">
-			<h2 class="configure-diagnosis__title">{{ diagnosis.zone_label }}</h2>
-			{% if goal_summary|default('') is not empty %}
-				<p class="configure-diagnosis__summary">{{ goal_summary }}</p>
-			{% endif %}
-		</div>
-	{% endif %}
-	{% if zone_tools is defined %}
-		<div class="configure-zone-tools" data-configure-zone-tools="1">
-			<div class="configure-zone-tools__filter">
-				<label class="screen-reader-text" for="ConfigureZoneFilter-{{ diagnosis.zone_key }}">{{ zone_tools.filter_label }}</label>
-				<i class="bi bi-search" aria-hidden="true"></i>
-				<input type="search"
-					   id="ConfigureZoneFilter-{{ diagnosis.zone_key }}"
-					   class="form-control form-control-sm"
-					   data-configure-zone-filter="1"
-					   autocomplete="off"
-					   placeholder="{{ zone_tools.filter_placeholder }}">
-			</div>
-			<div class="configure-zone-tools__group" role="group" aria-label="{{ zone_tools.show_label }}">
-				<button type="button" class="configure-zone-chip" data-configure-zone-show="all" aria-pressed="true">{{ zone_tools.show_all }}</button>
-				{% if zone_tools.attention_count > 0 %}
-					<button type="button" class="configure-zone-chip" data-configure-zone-show="attention" aria-pressed="false">
-						{{ zone_tools.show_attention }} <span class="configure-zone-chip__count">{{ zone_tools.attention_count }}</span>
-					</button>
+			<div class="configure-diagnosis__heading-copy">
+				<h2 class="configure-diagnosis__title">{{ diagnosis.zone_label }}</h2>
+				{% if goal_summary is not empty %}
+					<p class="configure-diagnosis__summary">{{ goal_summary }}</p>
 				{% endif %}
 			</div>
-			<div class="configure-zone-tools__group configure-zone-tools__layout" role="group" aria-label="{{ zone_tools.layout_label }}">
-				<button type="button" class="configure-zone-chip" data-configure-zone-layout="expand"
-						aria-pressed="{{ zone_layout == 'expand' ? 'true' : 'false' }}">
-					<i class="bi bi-view-stacked" aria-hidden="true"></i>{{ zone_tools.layout_expand }}
-				</button>
-				<button type="button" class="configure-zone-chip" data-configure-zone-layout="list"
-						aria-pressed="{{ zone_layout == 'list' ? 'true' : 'false' }}">
-					<i class="bi bi-layout-sidebar" aria-hidden="true"></i>{{ zone_tools.layout_list }}
-				</button>
+			<div class="configure-zone-tools" data-configure-zone-tools="1">
+				{% for link in diagnosis.goal_links %}
+					<a class="configure-zone-tools__link" href="{{ link.href }}">
+						<i class="{{ link.icon_class }}" aria-hidden="true"></i>{{ link.label }}
+					</a>
+				{% endfor %}
+				<div class="configure-zone-tools__group" role="group" aria-label="{{ zone_tools.show_label }}">
+					<button type="button" class="configure-zone-chip" data-configure-zone-show="all" aria-pressed="true">{{ zone_tools.show_all }}</button>
+					{% if zone_tools.attention_count > 0 %}
+						<button type="button" class="configure-zone-chip" data-configure-zone-show="attention" aria-pressed="false">
+							{{ zone_tools.show_attention }} <span class="configure-zone-chip__count">{{ zone_tools.attention_count }}</span>
+						</button>
+					{% endif %}
+				</div>
+				<div class="configure-zone-tools__filter">
+					<label class="screen-reader-text" for="ConfigureZoneFilter-{{ diagnosis.zone_key }}">{{ zone_tools.filter_label }}</label>
+					<i class="bi bi-search" aria-hidden="true"></i>
+					<input type="search"
+						   id="ConfigureZoneFilter-{{ diagnosis.zone_key }}"
+						   class="form-control form-control-sm"
+						   data-configure-zone-filter="1"
+						   autocomplete="off"
+						   placeholder="{{ zone_tools.filter_placeholder }}">
+				</div>
 			</div>
-			<p class="configure-zone-tools__empty" data-configure-zone-empty="1" hidden>{{ zone_tools.filter_empty }}</p>
+			<p class="configure-zone-tools__empty" data-configure-zone-empty="1" role="status" hidden>{{ zone_tools.filter_empty }}</p>
 		</div>
 	{% endif %}
 
@@ -100,11 +95,11 @@
 	{% set healthy_rows = diagnosis.healthy_rows|filter( r => r.key != 'advanced' ) %}
 	<div class="configure-diagnosis__components">
 		{% if problem_rows is not empty %}
-			{{ render_rows(problem_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
+			{{ render_rows(problem_rows, diagnosis_id, explanation_fixes, show_me_label) }}
 		{% endif %}
 
 		{% if review_rows is not empty %}
-			{{ render_rows(review_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
+			{{ render_rows(review_rows, diagnosis_id, explanation_fixes, show_me_label) }}
 		{% endif %}
 
 		{% if healthy_rows is not empty %}
@@ -112,27 +107,25 @@
 		{% endif %}
 
 		{% if advanced_rows is not empty %}
-			{{ render_rows(advanced_rows, diagnosis_id, explanation_fixes|default({}), show_me_label|default('')) }}
+			{{ render_rows(advanced_rows, diagnosis_id, explanation_fixes, show_me_label) }}
 		{% endif %}
 	</div>
 
-	{% if savebar is defined %}
-		<div class="configure-savebar"
-			 data-configure-savebar="1"
-			 data-count-one="{{ savebar.count_one|e('html_attr') }}"
-			 data-count-many="{{ savebar.count_many|e('html_attr') }}"
-			 data-saving-label="{{ savebar.saving|e('html_attr') }}"
-			 data-pin-mismatch="{{ savebar.pin_mismatch|e('html_attr') }}"
-			 role="region"
-			 aria-label="{{ savebar.label }}"
-			 hidden>
-			<span class="configure-savebar__dot" aria-hidden="true"></span>
-			<span class="configure-savebar__copy">
-				<strong data-configure-savebar-count="1"></strong>
-				<span class="configure-savebar__where" data-configure-savebar-where="1"></span>
-			</span>
-			<button type="button" class="btn btn-outline-secondary btn-sm" data-configure-savebar-discard="1">{{ savebar.discard }}</button>
-			<button type="button" class="btn btn-primary btn-sm" data-configure-savebar-save="1">{{ savebar.save }}</button>
-		</div>
-	{% endif %}
+	<div class="shield-actionbar"
+		 data-configure-savebar="1"
+		 data-count-one="{{ savebar.count_one|e('html_attr') }}"
+		 data-count-many="{{ savebar.count_many|e('html_attr') }}"
+		 data-saving-label="{{ savebar.saving|e('html_attr') }}"
+		 data-pin-mismatch="{{ savebar.pin_mismatch|e('html_attr') }}"
+		 role="region"
+		 aria-label="{{ savebar.label }}"
+		 hidden>
+		<span class="shield-actionbar__dot" aria-hidden="true"></span>
+		<span class="shield-actionbar__copy" aria-live="polite">
+			<strong data-configure-savebar-count="1"></strong>
+			<span class="shield-actionbar__where" data-configure-savebar-where="1"></span>
+		</span>
+		<button type="button" class="btn btn-sm shield-actionbar__secondary" data-configure-savebar-discard="1">{{ savebar.discard }}</button>
+		<button type="button" class="btn btn-primary btn-sm" data-configure-savebar-save="1">{{ savebar.save }}</button>
+	</div>
 </div>

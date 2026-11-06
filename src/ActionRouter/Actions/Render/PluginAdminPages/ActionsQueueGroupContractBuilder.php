@@ -149,6 +149,7 @@ class ActionsQueueGroupContractBuilder {
 			'card_type'           => $definition[ 'card_type' ],
 			'narrative'           => $narrative,
 			'drill_hint'          => '',
+			'drill_icon'          => 'bi bi-search',
 			'links'               => [],
 			'management_link'     => [],
 			'is_interactive'      => false,
@@ -215,6 +216,7 @@ class ActionsQueueGroupContractBuilder {
 			'card_type'           => 'expandable',
 			'narrative'           => $narrative,
 			'drill_hint'          => '',
+			'drill_icon'          => 'bi bi-search',
 			'links'               => [],
 			'management_link'     => [],
 			'is_interactive'      => false,
@@ -346,6 +348,9 @@ class ActionsQueueGroupContractBuilder {
 				$seed[ 'detail_shell' ],
 				$seed[ 'status' ]
 			),
+			'drill_icon'          => $this->isFileLockerToManage( $seed[ 'definition_key' ], $seed[ 'item_count' ] )
+				? 'bi bi-file-lock2'
+				: 'bi bi-search',
 			'links'               => $seed[ 'links' ],
 			'management_link'     => $seed[ 'management_link' ],
 			'is_interactive'      => $isInteractive,
@@ -421,7 +426,18 @@ class ActionsQueueGroupContractBuilder {
 		}
 	}
 
+	/**
+	 * File Locker with no changed files to look at is in the queue for files left unlocked: its row manages
+	 * the locks.
+	 */
+	private function isFileLockerToManage( string $definitionKey, int $itemCount ) :bool {
+		return $definitionKey === 'file_locker' && $itemCount < 1;
+	}
+
 	private function buildDrillHint( string $definitionKey, int $itemCount, string $detailShell, string $status ) :string {
+		if ( $this->isFileLockerToManage( $definitionKey, $itemCount ) ) {
+			return __( 'Manage', 'wp-simple-firewall' );
+		}
 		if ( $itemCount < 1 || $detailShell === 'maintenance' || $status === 'good' ) {
 			return '';
 		}

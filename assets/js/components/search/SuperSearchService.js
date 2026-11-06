@@ -1,14 +1,13 @@
-import $ from 'jquery';
-import 'select2';
 import { BaseComponent } from "../BaseComponent";
-import { ObjectOps } from "../../util/ObjectOps";
 import { SuperSearchResults } from "./SuperSearchResults";
 import { BootstrapModals } from "../ui/BootstrapModals";
 
+/**
+ * Opens the search dialog from the sidebar's search, or with Ctrl+K.
+ */
 export class SuperSearchService extends BaseComponent {
 
 	init() {
-
 		this.theModalDisplayed = false;
 		this.theModal = null;
 
@@ -28,33 +27,6 @@ export class SuperSearchService extends BaseComponent {
 				return false;
 			}
 		}, true );
-
-		$( '#SuperSearchBox select' ).select2( {
-			minimumInputLength: 3,
-			language: {
-				inputTooShort: () => this._base_data.strings.enter_at_least_3_chars
-			},
-			placeholder: this._base_data.strings.placeholder,
-			templateResult: ( val ) => ( typeof val.icon === 'undefined' ? '' : ' <span class="svg-container me-2"><i class="' + val.icon + '" aria-hidden="true"></i></span>' )
-				+ val.text,
-			escapeMarkup: ( content ) => content,
-			ajax: {
-				delay: 750,
-				url: this._base_data.ajax.select_search.ajaxurl,
-				contentType: "application/json; charset=utf-8",
-				dataType: 'json',
-				data: ( params ) => {
-					let query = ObjectOps.ObjClone( this._base_data.ajax.select_search );
-					query.search = params.term;
-					return query;
-				},
-				processResults: ( response ) => {
-					return {
-						results: response.data.results
-					};
-				},
-			}
-		} );
 	}
 
 	launchModal() {
@@ -62,11 +34,11 @@ export class SuperSearchService extends BaseComponent {
 			this.theModalDisplayed = true;
 			if ( this.theModal === null ) {
 				this.theModal = document.getElementById( 'ModalSuperSearchBox' );
-				this.theModal.addEventListener( 'shown.bs.modal', evt => {
-					this.theModal.getElementsByTagName( 'input' )[ 0 ].focus();
+				this.theModal.addEventListener( 'shown.bs.modal', () => {
+					this.theModal.querySelector( '#ModalSuperSearchInput' ).focus();
 				} );
-				this.theModal.addEventListener( 'hidden.bs.modal', evt => this.theModalDisplayed = false );
-				new SuperSearchResults( this._base_data )
+				this.theModal.addEventListener( 'hidden.bs.modal', () => this.theModalDisplayed = false );
+				new SuperSearchResults( this._base_data );
 			}
 			BootstrapModals.Show( this.theModal );
 		}

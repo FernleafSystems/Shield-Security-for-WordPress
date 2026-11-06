@@ -334,7 +334,8 @@ abstract class BaseRender extends BaseAction {
 				'search_shield'            => sprintf( __( 'Search %s', 'wp-simple-firewall' ), $con->labels->Name ),
 				'search_shield_label'      => __( 'Click to launch plugin search modal', 'wp-simple-firewall' ),
 				'search_shield_intro'      => esc_html( sprintf( __( 'Use the Super Search box to find absolutely anything within the %s plugin, including options, IP address, tools, help, etc.', 'wp-simple-firewall' ), $con->labels->Name ) ),
-				'search_modal_placeholder' => __( 'Search using whole words of at least 3 characters.', 'wp-simple-firewall' ),
+				'search_modal_placeholder' => __( 'Search settings, tools, IP addresses and help', 'wp-simple-firewall' ),
+				'search_modal_min_chars'   => __( 'Search using whole words of at least 3 characters.', 'wp-simple-firewall' ),
 				'search_modal_you_could'   => __( 'You could search for', 'wp-simple-firewall' ),
 				'search_suggestions'       => [
 					sprintf( __( '%s options and modules', 'wp-simple-firewall' ), $con->labels->Name ),

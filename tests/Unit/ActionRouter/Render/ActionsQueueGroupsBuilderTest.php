@@ -1227,7 +1227,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			'count'       => 1,
 			'severity'    => 'critical',
 			'actions'     => $ignoreKind === '' ? [
-				[ 'href' => '/wp-admin/plugins.php', 'label' => 'Go to plugins', 'type' => 'navigate' ],
+				[ 'href' => '/wp-admin/plugins.php', 'label' => 'Go to plugin', 'type' => 'navigate' ],
 			] : [],
 		];
 		if ( $ignoreKind !== '' ) {

@@ -15,28 +15,10 @@
   min-width: 0;
 }
 
-.shield-reports-trends__card {
-  border: 1px solid $border-color-neutral-subtle;
-  border-radius: $card-border-radius;
-  box-shadow: $card-box-shadow;
-  overflow: hidden;
-}
-
-.shield-reports-trends__card-header {
-  background: linear-gradient(180deg, #ffffff 0%, $surface-color-neutral-raised 100%);
+// The controls and the chart sit straight on the page, not boxed; a rule separates them.
+.shield-reports-trends__controls {
   border-bottom: 1px solid $border-color-neutral-subtle;
-  padding: 1rem 1.25rem 1.1rem;
-  position: relative;
-
-  &::before {
-    background: $mode-reports;
-    content: '';
-    height: 3px;
-    left: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-  }
+  padding: 0 0 1.1rem;
 }
 
 .shield-reports-trends__toolbar {
@@ -77,7 +59,7 @@
 }
 
 .shield-reports-trends__selection-note {
-  color: #6b7280;
+  color: #50575e;
   font-size: 0.82rem;
 }
 
@@ -161,14 +143,13 @@
   outline: 0;
 }
 
-.shield-reports-trends__card-body {
-  background: #ffffff;
-  padding: 1.15rem 1.25rem 1.35rem;
+.shield-reports-trends__chart-area {
+  padding: 1.15rem 0 0;
 }
 
 .shield-reports-trends__chart-placeholder {
   align-items: center;
-  color: #667085;
+  color: #50575e;
   display: flex;
   font-size: 0.95rem;
   justify-content: center;
@@ -247,12 +228,6 @@
 }
 
 @media (max-width: 991.98px) {
-  .shield-reports-trends__card-header,
-  .shield-reports-trends__card-body {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
   .shield-reports-trends__actions {
     justify-content: flex-start;
   }

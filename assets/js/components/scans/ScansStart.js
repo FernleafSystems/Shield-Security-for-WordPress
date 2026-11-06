@@ -18,7 +18,7 @@ export class ScansStart extends BaseComponent {
 	}
 
 	startScans( form ) {
-		if ( form.querySelector( 'input[data-scan-choice]' ) !== null && !ScanRunPage.HasChoice( form ) ) {
+		if ( !ScanRunPage.HasChoice( form ) ) {
 			return;
 		}
 		ScanProgressModal.ShowInitiating( this._base_data.strings );

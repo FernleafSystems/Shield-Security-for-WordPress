@@ -138,7 +138,8 @@ export class ShieldTableScanResults extends ShieldTableBase {
 		const headings = {
 			selected: 'Selected',
 			all: 'All results',
-			tools: this._base_data.vars.malware_refresh === null ? 'Tools' : 'Malware scan',
+			// The scan's own tools are only there for the malware scan's refresh.
+			tools: 'Malware scan',
 			asset: this._base_data.vars.asset_actions === null ? '' : this._base_data.vars.asset_actions.heading,
 		};
 		const starts = [
@@ -397,7 +398,7 @@ export class ShieldTableScanResults extends ShieldTableBase {
 	}
 
 	getFilterAwareLanguage() {
-		const message = 'No results match the current display filters. Use Display Results to show ignored, repaired, or deleted results.';
+		const message = 'No results match the current display filters. Use Display results to show ignored, repaired, or deleted results.';
 		return {
 			emptyTable: message,
 			zeroRecords: message,

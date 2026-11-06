@@ -24,6 +24,8 @@ $code-color: $secondary;
 @import './shield/operator-landing-cards';
 @import './shield/landing-stack-rows';
 @import './shield/mode-tabs';
+@import './shield/action-bar';
+@import './shield/search';
 @import './shield/scan-results';
 @import './shield/tool-pages';
 @import './shield/scan-run';
@@ -44,6 +46,7 @@ $code-color: $secondary;
 @import './shield/progress.scss';
 @import './shield/third-party-overrides.scss';
 @import './shield/video_modal';
+@import './shield/reduced-motion';
 @import './shield/zones';
 @import './shield/dashboard';
 @import './shield/dashboard-task-guide';
@@ -303,10 +306,6 @@ th.column-is_secadmin {
 }
 
 /** END IPS Insights **/
-.scan-select .form-text {
-  white-space: normal;
-}
-
 /** TABLES SCANS **/
 @media (max-width: 782px) {
   table.scan-table.wp-list-table tr:not(.inline-edit-row):not(.no-items) td.column-primary ~ td:not(.check-column) {
@@ -1260,30 +1259,6 @@ td.status_file_size {
 #SuperSearchLaunch > input.disabled {
   border: 2px solid transparent;
   cursor: no-drop;
-}
-
-#ModalSuperSearchBox .search-icon > .bi {
-  width: 32px;
-  height: 32px;
-  color: #999999;
-}
-
-#ModalSuperSearchBox input.search-text,
-#ModalSuperSearchBox input.search-text:active,
-#ModalSuperSearchBox input.search-text:hover {
-  border: 1px solid transparent !important;
-  box-shadow: none;
-  margin-left: 20px;
-  min-width: 400px;
-}
-
-#ModalSuperSearchBox input.search-text:focus {
-  margin-left: 20px;
-  min-width: 400px;
-}
-
-#ModalSuperSearchBox input.search-text:focus-visible {
-	border-color: rgba(0, 128, 0, 1) !important;
 }
 
 .select2-search__field:active,

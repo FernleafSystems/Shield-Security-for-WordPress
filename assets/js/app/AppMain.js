@@ -44,13 +44,9 @@ import { ActionsQueueSections } from "../components/mode/ActionsQueueSections";
 import { HealthyDisclosureController } from "../components/ui/HealthyDisclosureController";
 import { SecurityAdmin } from "../components/general/SecurityAdmin";
 import { ShieldServicesPlugin } from "../services/ShieldServicesPlugin";
-import { ShieldTableActivityLog } from "../components/tables/ShieldTableActivityLog";
 import { ShieldTableImportExportSites } from "../components/tables/ShieldTableImportExportSites";
-import { ShieldTableIpRules } from "../components/tables/ShieldTableIpRules";
 import { ShieldTableReports } from "../components/tables/ShieldTableReports";
 import { ShieldTableSecurityRules } from "../components/tables/ShieldTableSecurityRules";
-import { ShieldTableTrafficLog } from "../components/tables/ShieldTableTrafficLog";
-import { ShieldTableSessions } from "../components/tables/ShieldTableSessions";
 import { ShieldStrings } from "../services/ShieldStrings";
 import { ShieldEventsHandler } from "../services/ShieldEventsHandler";
 import { SuperSearchService } from "../components/search/SuperSearchService";
@@ -109,7 +105,7 @@ export class AppMain extends AppBase {
 		this.components.investigate_landing = new InvestigateLandingController(
 			'investigate_landing' in comps ? comps.investigate_landing : {}
 		);
-		this.components.investigate_lookup = new InvestigateLookup( comps.tables?.investigate_logs || {} );
+		this.components.investigate_lookup = new InvestigateLookup( comps.tables.investigate_logs || {} );
 		this.components.configure_landing = new ConfigureLandingController(
 			'zones_manager' in comps ? comps.zones_manager : {}
 		);
@@ -131,12 +127,8 @@ export class AppMain extends AppBase {
 		this.components.testrest = ( 'testrest' in comps ) ? new TestRest( comps.testrest ) : null;
 		this.components.traffic = ( 'traffic' in comps ) ? new TrafficLiveLogs( comps.traffic ) : null;
 
-		this.components.tables_activity = ( 'activity' in comps.tables ) ? new ShieldTableActivityLog( comps.tables.activity ) : null;
 		this.components.tables_import_export_sites = ( 'import_export_sites' in comps.tables ) ? new ShieldTableImportExportSites( comps.tables.import_export_sites ) : null;
-		this.components.tables_ip_rules = ( 'ip_rules' in comps.tables ) ? new ShieldTableIpRules( comps.tables.ip_rules ) : null;
 		this.components.tables_reports = ( 'reports' in comps.tables ) ? new ShieldTableReports( comps.tables.reports ) : null;
-		this.components.tables_sessions = ( 'sessions' in comps.tables ) ? new ShieldTableSessions( comps.tables.sessions ) : null;
-		this.components.tables_traffic = ( 'traffic' in comps.tables ) ? new ShieldTableTrafficLog( comps.tables.traffic ) : null;
 		this.components.tables_security_rules = ( 'security_rules' in comps.tables ) ? new ShieldTableSecurityRules( comps.tables.security_rules ) : null;
 		this.components.navi = ( 'navi' in comps ) ? new Navigation( comps.navi ) : null;
 

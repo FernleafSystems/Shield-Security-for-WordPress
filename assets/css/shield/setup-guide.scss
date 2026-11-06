@@ -137,7 +137,6 @@ $setup-guide-sheet-height: 640px;
 }
 
 .shield-setup-guide__continue,
-.shield-setup-guide__primary,
 .shield-setup-guide .merlin-form [type="submit"] {
 	align-items: center;
 	background: $status-color-good;
@@ -414,13 +413,6 @@ $setup-guide-sheet-height: 640px;
 	margin: 0;
 }
 
-.shield-setup-guide__actions {
-	align-items: center;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.75rem 1rem;
-}
-
 .shield-setup-guide__skip {
 	padding-top: 0.25rem;
 }
@@ -584,7 +576,7 @@ body.has-shield-setup-guide #PageMainBody_Inner-Apto {
 	padding: 1px 7px;
 }
 
-body.has-shield-setup-guide .configure-savebar {
+body.has-shield-setup-guide .shield-actionbar {
 	bottom: 4.4rem;
 }
 

@@ -11,6 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	MaintenanceAssetFixtures,
+	PluginControllerInstaller,
+	PluginUrlsControllerInstaller,
 	ServicesState,
 	UnitTestMaintenanceIssueStateProvider,
 	UnitTestRequest,
@@ -68,9 +70,11 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'service_request' => new UnitTestRequest(),
 			'service_wpusers' => new UnitTestUsers( 0 ),
 		] );
+		PluginUrlsControllerInstaller::install();
 	}
 
 	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}

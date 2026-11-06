@@ -25,7 +25,7 @@
 	color: #50575e;
 	cursor: pointer;
 	display: inline-flex;
-	font-size: 13.5px;
+	font-size: $mode-tab-font-size;
 	font-weight: 500;
 	gap: 0.45rem;
 	margin-bottom: -1px;
@@ -75,10 +75,20 @@
 	}
 }
 
+// The goal's name and summary, with its filter at the end of the same line.
 .configure-diagnosis__heading {
-	display: grid;
-	gap: 0.15rem;
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.6rem 1.25rem;
 	margin-bottom: 0.85rem;
+}
+
+.configure-diagnosis__heading-copy {
+	display: grid;
+	flex: 1 1 14rem;
+	gap: 0.15rem;
+	min-width: 0;
 }
 
 .configure-diagnosis__title {
@@ -96,56 +106,8 @@
 
 // ─── Search every setting ───
 .configure-landing__search {
-	display: grid;
-	gap: 0.75rem;
 	margin-bottom: 1.25rem;
 	max-width: 880px;
-}
-
-.configure-landing__search-input-wrap {
-	align-items: center;
-	background: #fff;
-	border: 1px solid #8c8f94;
-	border-radius: 8px;
-	display: flex;
-	gap: 0.6rem;
-	padding: 0 0.9rem;
-
-	> .bi {
-		color: #50575e;
-		font-size: 17px;
-	}
-
-	&:focus-within {
-		border-color: $mode-configure;
-		box-shadow: 0 0 0 2px rgba($mode-configure, 0.18);
-	}
-}
-
-.configure-landing__search-input,
-.configure-landing__search-input[type="search"] {
-	background: transparent;
-	border: 0;
-	box-shadow: none;
-	color: #1d2327;
-	flex: 1 1 auto;
-	font-size: 15px;
-	min-height: 48px;
-	min-width: 0;
-	padding: 0;
-
-	&:focus {
-		box-shadow: none;
-		outline: none;
-	}
-}
-
-.configure-landing__search-results {
-	display: none;
-}
-
-.configure-landing__search:not([data-configure-search-state="idle"]) .configure-landing__search-results {
-	display: block;
 }
 
 // ─── What needs attention, under the search ───
@@ -240,190 +202,6 @@
 	color: #8c8f94;
 }
 
-.configure-search-results {
-	background: #fff;
-	border: 1px solid $border-color-neutral-subtle;
-	border-radius: $card-border-radius;
-	box-shadow: 0 14px 28px rgba($mode-configure, 0.12), 0 4px 10px rgba(15, 23, 42, 0.08);
-	max-height: min(24rem, 52vh);
-	overflow-x: hidden;
-	overflow-y: auto;
-	overscroll-behavior: contain;
-}
-
-.configure-search-results__list {
-	display: grid;
-}
-
-// Search results (concept): the best match set apart, then one plain list; no icon clutter.
-.configure-search-results__item {
-	align-items: center;
-	color: #1d2327;
-	display: grid;
-	gap: 1px 12px;
-	grid-template-columns: minmax(0, 1fr) auto;
-	padding: 8px 14px;
-	text-decoration: none;
-}
-
-.configure-search-results__item:hover,
-.configure-search-results__item:focus-visible {
-	background: #f6f2fd;
-	color: #1d2327;
-}
-
-.configure-search-results__item:focus-visible {
-	@include shield-focus-ring(-3px);
-}
-
-.configure-search-results__item.is-best {
-	background: #f6f2fd;
-	border-bottom: 1px solid $border-color-neutral-subtle;
-	padding-bottom: 10px;
-	padding-top: 10px;
-}
-
-.configure-search-results__icon {
-	display: none;
-}
-
-.configure-search-results__copy {
-	display: grid;
-	gap: 1px;
-	min-width: 0;
-}
-
-.configure-search-results__best,
-.configure-search-results__heading {
-	color: $mode-configure;
-	font-size: 10.5px;
-	font-weight: 700;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-}
-
-.configure-search-results__heading {
-	color: #646970;
-	padding: 8px 14px 2px;
-}
-
-// The search dialog heads each kind of result with a real heading, set like Configure's.
-h3.configure-search-results__heading {
-	line-height: inherit;
-	margin: 0;
-}
-
-.configure-search-results__name {
-	align-items: center;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-}
-
-.configure-search-results__type {
-	color: #646970;
-	font-size: 10.5px;
-	font-weight: 600;
-}
-
-.configure-search-results__type--option {
-	display: none; // settings are the norm; only zones are labelled
-}
-
-.configure-search-results__label {
-	color: #1d2327;
-	font-size: 13.5px;
-	font-weight: 600;
-}
-
-.configure-search-results__summary,
-.configure-search-results__empty {
-	color: #646970;
-	font-size: 12px;
-}
-
-.configure-search-results__summary {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.configure-search-results__path {
-	color: #50575e;
-}
-
-.configure-search-results__value {
-	color: #646970;
-	font-size: 12px;
-	max-width: 13rem;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.configure-search-results mark {
-	background: #fff1b8;
-	border-radius: 2px;
-	color: inherit;
-	padding: 0 1px;
-}
-
-.configure-search-results__foot {
-	background: #fafafa;
-	border-top: 1px solid $border-color-neutral-subtle;
-	bottom: 0;
-	color: #646970;
-	display: flex;
-	font-size: 11.5px;
-	justify-content: space-between;
-	padding: 7px 14px;
-	position: sticky;
-
-	kbd {
-		background: #ffffff;
-		border: 1px solid $border-color-neutral-subtle;
-		border-bottom-width: 2px;
-		border-radius: 4px;
-		box-shadow: none;
-		color: #1d2327;
-		font-size: 10.5px;
-		padding: 0 5px;
-	}
-}
-
-.configure-search-results__empty {
-	margin: 0;
-	padding: 0.95rem 1rem;
-}
-
-.configure-search-results--status {
-	padding: 0.95rem 1rem;
-}
-
-.configure-search-results__status {
-	align-items: center;
-	color: #5f6974;
-	display: flex;
-	gap: 0.7rem;
-}
-
-.configure-search-results__status-text {
-	font-size: 0.8rem;
-}
-
-.configure-search-results__spinner {
-	align-items: center;
-	display: inline-flex;
-	flex: 0 0 auto;
-	justify-content: center;
-}
-
-.configure-search-results__spinner .spinner-border {
-	height: 1rem;
-	margin: 0;
-	width: 1rem;
-}
-
 .configure-zones {
 	display: grid;
 	gap: 1.2rem;
@@ -503,11 +281,6 @@ h3.configure-search-results__heading {
 		overflow-x: auto;
 		scrollbar-width: thin;
 	}
-
-	.configure-search-results__item {
-		gap: 0.65rem;
-		padding: 0.8rem 0.85rem;
-	}
 }
 
 // One save bar per zone page, fixed to the bottom of the viewport; JS lines it up with the zone.
@@ -515,67 +288,34 @@ h3.configure-search-results__heading {
 	display: none;
 }
 
-.configure-savebar {
-	align-items: center;
-	background: #ffffff;
-	border: 1px solid $border-color-neutral-subtle;
-	border-radius: 10px;
-	bottom: 0.75rem;
-	box-shadow: 0 -6px 22px rgba(29, 35, 39, 0.12);
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.6rem 0.9rem;
-	// The right padding keeps Save clear of the floating help-desk button in that corner.
-	padding: 0.65rem 5.5rem 0.65rem 0.9rem;
-	position: fixed;
-	z-index: 9990;
-
-	&[hidden] {
-		display: none;
-	}
-}
-
+// The save bar is the shared action bar; the goal leaves room for it at its foot.
 .configure-diagnosis.has-configure-savebar {
 	padding-bottom: 5rem;
-}
-
-.configure-savebar__dot {
-	background: #2271b1;
-	border-radius: 50%;
-	flex: 0 0 auto;
-	height: 10px;
-	width: 10px;
-}
-
-.configure-savebar__copy {
-	display: flex;
-	flex: 1 1 14rem;
-	flex-wrap: wrap;
-	gap: 0.2rem 0.6rem;
-	min-width: 0;
-}
-
-.configure-savebar__where {
-	color: #5f6974;
-	font-size: 0.82rem;
-	min-width: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.configure-savebar .btn {
-	margin: 0;
 }
 
 // ─── Zone tools: filter, "Needs attention", layout choice ───
 .configure-zone-tools {
 	align-items: center;
 	display: flex;
-	flex-wrap: wrap;
-	gap: 0.6rem 1rem;
-	grid-column: 1 / -1;
-	margin-bottom: 0.85rem;
+	gap: 0.6rem 0.75rem;
+	flex: 0 1 auto;
+	justify-content: flex-end;
+	margin-left: auto;
+
+	.configure-zone-tools__group {
+		flex-wrap: nowrap;
+	}
+
+	.configure-zone-chip {
+		white-space: nowrap;
+	}
+
+	// On a narrow screen the views and the filter take a line each.
+	@media (max-width: 640px) {
+		flex-wrap: wrap;
+		margin-left: 0;
+		width: 100%;
+	}
 }
 
 .configure-zone-tools__filter {
@@ -597,14 +337,26 @@ h3.configure-search-results__heading {
 	}
 }
 
+// A quiet link beside the goal's tools, such as turning Security Admin off.
+.configure-zone-tools__link {
+	align-items: center;
+	color: #50575e;
+	display: inline-flex;
+	font-size: 0.8rem;
+	gap: 0.35rem;
+	text-decoration: none;
+
+	&:hover,
+	&:focus {
+		color: #1d2327;
+		text-decoration: underline;
+	}
+}
+
 .configure-zone-tools__group {
 	display: inline-flex;
 	flex-wrap: wrap;
 	gap: 0.3rem;
-}
-
-.configure-zone-tools__layout {
-	margin-left: auto;
 }
 
 .configure-zone-chip {
@@ -801,7 +553,7 @@ h3.configure-search-results__heading {
 
 // ─── Component list layout: one joined panel, components on the left, the open one on the right ───
 @media (min-width: 961px) {
-	.configure-diagnosis--layout-list {
+	.configure-diagnosis {
 		.configure-diagnosis__components {
 			align-items: stretch;
 			// The whole component column is one grey; the open component's settings sit on white.
@@ -863,9 +615,32 @@ h3.configure-search-results__heading {
 		}
 
 		.shield-detail-row .shield-detail-row__desc,
-		.shield-detail-row .shield-detail-row__explanations,
-		.shield-detail-row__end {
+		.shield-detail-row .shield-detail-row__explanations {
 			display: none;
+		}
+
+		// The whole row opens its component: its button stretches over the row, so a click anywhere and the
+		// keyboard both reach it, and it shows the focus ring on the row.
+		.shield-detail-item--configure > .shield-detail-row .shield-detail-row__end {
+			align-self: stretch;
+			inset: 0;
+			margin: 0;
+			padding: 0;
+			position: absolute;
+		}
+
+		.shield-detail-item--configure > .shield-detail-row .shield-detail-row__expand-toggle {
+			height: 100%;
+			width: 100%;
+
+			.shield-detail-row__expand-cta,
+			.shield-detail-row__chevron {
+				display: none;
+			}
+
+			&:focus-visible {
+				@include shield-focus-ring(-3px);
+			}
 		}
 
 		.shield-detail-expansion {
@@ -918,13 +693,6 @@ h3.configure-search-results__heading {
 			color: #646970;
 			font-size: 12.5px;
 		}
-	}
-}
-
-// The component list needs the width of a desktop screen, so phones only get the expanding layout.
-@media (max-width: 960px) {
-	.configure-zone-tools__layout {
-		display: none;
 	}
 }
 

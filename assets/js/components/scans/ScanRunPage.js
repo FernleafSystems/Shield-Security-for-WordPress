@@ -1,4 +1,5 @@
 import { announceStatus } from "../ui/ShieldA11y";
+import { Html } from "../../util/Html";
 
 /**
  * Run Manual Scan shows scan progress and the result in the page, in place of the progress dialog. The scan
@@ -29,18 +30,12 @@ export class ScanRunPage {
 		host.hidden = false;
 
 		const root = host.closest( '[data-shield-scan-run="1"]' );
-		const choose = root?.querySelector( '[data-scan-step-panel="choose"]' );
-		if ( choose instanceof HTMLElement ) {
-			choose.hidden = true;
-		}
+		root.querySelector( '[data-scan-step-panel="choose"]' ).hidden = true;
 
 		const stateEl = host.querySelector( '[data-shield-scan-modal-state]' );
-		const state = stateEl instanceof HTMLElement ? stateEl.dataset.shieldScanModalState : 'running';
+		const state = stateEl.dataset.shieldScanModalState;
 		ScanRunPage.setStep( root, state === 'completed' ? 'results' : 'scanning' );
-
-		if ( stateEl instanceof HTMLElement ) {
-			announceStatus( host, stateEl.dataset.shieldScanModalAnnouncement, { allowRepeat: false } );
-		}
+		announceStatus( host, stateEl.dataset.shieldScanModalAnnouncement, { allowRepeat: false } );
 		if ( state === 'completed' ) {
 			host.querySelector( '#ScanFinishedTitle' )?.focus( { preventScroll: true } );
 		}
@@ -48,7 +43,9 @@ export class ScanRunPage {
 	}
 
 	static ShowLocal( { state, heading, message, announcement, busy } ) {
-		const esc = ScanRunPage.escapeHtml;
+		const esc = ( text ) => Html.Escape( String( text ) );
+		// A failure here leaves the page without its choices, so it offers the way back, as the server's failure does.
+		const again = ScanRunPage.Host().closest( '[data-shield-scan-run="1"]' ).dataset;
 		const body = state === 'failed'
 			? `<section class="shield-tool-status is-critical">
 				<span class="shield-tool-status__badge"><i class="bi bi-x-lg" aria-hidden="true"></i></span>
@@ -56,6 +53,9 @@ export class ScanRunPage {
 					<h2 class="shield-tool-status__title">${esc( heading )}</h2>
 					<p class="shield-tool-status__desc">${esc( message )}</p>
 				</div>
+				<a class="shield-tool-btn" href="${esc( again.scanAgainHref )}">
+					<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>${esc( again.scanAgainLabel )}
+				</a>
 			</section>`
 			: `<section class="shield-tool-box">
 				<div class="shield-scan-progress__overall">
@@ -92,16 +92,14 @@ export class ScanRunPage {
 		return form.querySelector( 'input[data-scan-choice]:checked' ) !== null;
 	}
 
+	/**
+	 * The steps are in order in the page, so the ones before the current step are done.
+	 */
 	static setStep( root, step ) {
-		if ( !( root instanceof HTMLElement ) ) {
-			return;
-		}
-
 		root.dataset.scanStep = step;
-		const order = [ 'choose', 'scanning', 'results' ];
-		const current = order.indexOf( step );
-		root.querySelectorAll( '[data-scan-step-tab]' ).forEach( ( tab ) => {
-			const index = order.indexOf( tab.dataset.scanStepTab );
+		const tabs = [ ...root.querySelectorAll( '[data-scan-step-tab]' ) ];
+		const current = tabs.findIndex( ( tab ) => tab.dataset.scanStepTab === step );
+		tabs.forEach( ( tab, index ) => {
 			tab.classList.toggle( 'is-done', index < current );
 			if ( index === current ) {
 				tab.setAttribute( 'aria-current', 'step' );
@@ -110,14 +108,5 @@ export class ScanRunPage {
 				tab.removeAttribute( 'aria-current' );
 			}
 		} );
-	}
-
-	static escapeHtml( text = '' ) {
-		return String( text )
-		.replace( /&/g, '&amp;' )
-		.replace( /</g, '&lt;' )
-		.replace( />/g, '&gt;' )
-		.replace( /"/g, '&quot;' )
-		.replace( /'/g, '&#39;' );
 	}
 }

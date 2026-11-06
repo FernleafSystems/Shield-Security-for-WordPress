@@ -126,7 +126,7 @@
 			<span class="actions-queue-row__action actions-queue-row__action--enable"><i class="bi bi-toggle-on" aria-hidden="true"></i>{{ strings.turn_on }}</span>
 		{% elseif can_drill %}
 			<span class="actions-queue-row__action actions-queue-row__action--{{ group.status }}">
-				<i class="bi bi-search" aria-hidden="true"></i>{{ group.drill_hint is not empty ? group.drill_hint : strings.review }}
+				<i class="{{ group.drill_icon }}" aria-hidden="true"></i>{{ group.drill_hint is not empty ? group.drill_hint : strings.review }}
 			</span>
 		{% elseif group.card_type == 'linked' and group.links is not empty %}
 			<span class="actions-queue-row__links">

@@ -211,7 +211,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'active_back_label' ] ?? '' );
 	}
 
-	public function test_secadmin_diagnosis_header_exposes_disable_context_action_when_enabled() :void {
+	public function test_secadmin_diagnosis_header_has_no_side_rail_actions() :void {
 		ServicesState::installItems( [
 			'service_request'   => new UnitTestRequest( [ 'zone' => 'control' ] ),
 			'service_wpgeneral' => new UnitTestGeneral(),
@@ -220,11 +220,8 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
 
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
-		$actions = $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'actions' ] ?? [];
-
-		$this->assertCount( 1, $actions );
-		$this->assertSame( 'deactivate', $actions[ 0 ][ 'type' ] ?? '' );
-		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] ?? '' );
+		// Disabling Security Admin is a link on the goal, so the goal's header has no side-rail actions.
+		$this->assertSame( [], $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'actions' ] );
 	}
 
 	public function test_invalid_zone_deep_link_falls_back_to_zone_layer() :void {

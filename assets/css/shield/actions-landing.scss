@@ -383,7 +383,7 @@ $aq-pro-bg: #f2ebfc;
 	color: $aq-muted;
 	cursor: pointer;
 	display: inline-flex;
-	font-size: 13px;
+	font-size: $mode-tab-font-size;
 	font-weight: 600;
 	gap: 0.45rem;
 	margin-bottom: -1px;
@@ -633,12 +633,17 @@ $aq-pro-bg: #f2ebfc;
 	border-bottom: 1px solid $aq-line;
 	color: #50575e;
 	display: flex;
-	font-size: 11px;
+	font-size: 12px;
 	font-weight: 700;
 	gap: 8px;
 	letter-spacing: 0.06em;
-	padding: 7px 14px;
+	padding: 8px 14px;
 	text-transform: uppercase;
+}
+
+.actions-queue-row-group__icon {
+	font-size: 14px;
+	line-height: 1;
 }
 
 // One row per issue group or item: icon, what it is, a line of detail, and the action.
@@ -649,9 +654,9 @@ $aq-pro-bg: #f2ebfc;
 	border-top: 1px solid $aq-soft-line;
 	color: #1d2327;
 	display: grid;
-	font-size: 13px;
+	font-size: 14px;
 	gap: 4px 12px;
-	grid-template-columns: 26px minmax(0, 1fr) auto;
+	grid-template-columns: 30px minmax(0, 1fr) auto;
 	cursor: default;
 	padding: 10px 14px;
 	text-align: left;
@@ -661,11 +666,16 @@ $aq-pro-bg: #f2ebfc;
 		border-top: 0;
 	}
 
+	// Every row answers the pointer: faintly when it only holds its own buttons, more when the row opens.
+	&:hover {
+		background: #fafafb;
+	}
+
 	&.is-actionable {
 		cursor: pointer;
 
 		&:hover {
-			background: #f6f7f8;
+			background: #f3f4f6;
 			box-shadow: inset 3px 0 0 #c3c4c7;
 		}
 
@@ -674,8 +684,34 @@ $aq-pro-bg: #f2ebfc;
 		}
 	}
 
+	// An ignored row reads quieter until you point at it or move into it. Its text and buttons stay readable
+	// (greyed, not made see-through), so they keep enough contrast; only the icon fades.
 	&.is-ignored {
-		opacity: 0.6;
+		background: #fafafb;
+
+		.actions-queue-row__icon {
+			opacity: 0.55;
+			transition: opacity 0.12s ease;
+		}
+
+		.actions-queue-row__title {
+			color: #50575e;
+			font-weight: 500;
+		}
+
+		&:hover,
+		&:focus-within {
+			background: #ffffff;
+
+			.actions-queue-row__icon {
+				opacity: 1;
+			}
+
+			.actions-queue-row__title {
+				color: #1d2327;
+				font-weight: 600;
+			}
+		}
 	}
 }
 
@@ -685,9 +721,10 @@ $aq-pro-bg: #f2ebfc;
 	border-radius: 6px;
 	color: $aq-neutral;
 	display: inline-flex;
-	height: 26px;
+	font-size: 15px;
+	height: 30px;
 	justify-content: center;
-	width: 26px;
+	width: 30px;
 
 	.actions-queue-row--critical > & { background: $aq-crit-bg; color: $aq-crit; }
 	.actions-queue-row--warning > & { background: $aq-warn-bg; color: $aq-warn-text; }
@@ -713,13 +750,13 @@ $aq-pro-bg: #f2ebfc;
 
 .actions-queue-row__meta {
 	color: $aq-muted;
-	font-size: 12px;
+	font-size: 13px;
 	font-weight: 400;
 }
 
 .actions-queue-row__desc {
 	color: $aq-muted;
-	font-size: 12px;
+	font-size: 13px;
 }
 
 .actions-queue-pill {

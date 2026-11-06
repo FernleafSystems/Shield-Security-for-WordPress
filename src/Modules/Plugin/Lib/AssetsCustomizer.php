@@ -447,19 +447,10 @@ class AssetsCustomizer {
 				'data'    => fn() => [
 					'ajax'    => [
 						'render_search_results' => ActionData::BuildAjaxRender( Components\SuperSearchResults::class ),
-						'select_search'         => ActionData::Build( Actions\PluginSuperSearch::class ),
 					],
 					'strings' => [
-						'enter_at_least_3_chars' => __( 'Search using whole words of at least 3 characters...', 'wp-simple-firewall' ),
-						'placeholder'            => sprintf( '%s (%s)',
-							__( 'Search for anything', 'wp-simple-firewall' ),
-							'e.g. '.\implode( ', ', [
-								__( 'IPs', 'wp-simple-firewall' ),
-								__( 'options', 'wp-simple-firewall' ),
-								__( 'tools', 'wp-simple-firewall' ),
-								__( 'help', 'wp-simple-firewall' ),
-							] )
-						),
+						'loading' => __( 'Searching...', 'wp-simple-firewall' ),
+						'error'   => __( 'The search could not be completed. Please try again.', 'wp-simple-firewall' ),
 					],
 				],
 			],
@@ -606,7 +597,6 @@ class AssetsCustomizer {
 					'ajax' => [
 						'batch_requests' => ActionData::Build( Actions\AjaxBatchRequests::class ),
 						Components\OffCanvas\ZoneComponentConfig::SLUG => ActionData::BuildAjaxRender( Components\OffCanvas\ZoneComponentConfig::class ),
-						'set_ui_preference' => ActionData::Build( Actions\PluginSetUiPreference::class ),
 					],
 				],
 			],
@@ -732,7 +722,22 @@ class AssetsCustomizer {
 			],
 			'vars' => [
 				'datatables_init' => ( new ForTraffic() )->buildRaw(),
+				'downloads'       => [
+					$this->tableDownload( __( 'Download Request Logs', 'wp-simple-firewall' ), 'traffic' ),
+				],
 			]
+		];
+	}
+
+	/**
+	 * A download a table offers among its own buttons. Downloads are a Pro feature.
+	 * @return array{label:string,href:string,is_available:bool}
+	 */
+	private function tableDownload( string $label, string $category ) :array {
+		return [
+			'label'        => $label,
+			'href'         => self::con()->plugin_urls->fileDownloadAsStream( $category ),
+			'is_available' => self::con()->isPremiumActive(),
 		];
 	}
 
@@ -747,6 +752,9 @@ class AssetsCustomizer {
 			],
 			'vars'    => [
 				'datatables_init' => ( new ForIpRules() )->buildRaw(),
+				'downloads'       => [
+					$this->tableDownload( __( 'Download IP Rules as CSV', 'wp-simple-firewall' ), 'ip_rules' ),
+				],
 			]
 		];
 	}

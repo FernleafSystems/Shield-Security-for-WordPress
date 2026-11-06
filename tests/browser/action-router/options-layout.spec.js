@@ -124,7 +124,7 @@ test( 'Reports settings show the Configure panels for reports and instant alerts
 	} );
 
 	const settings = page.locator( '[data-reports-tabpanel="settings"]' );
-	await expect( settings.locator( '[data-configure-diagnosis="1"]' ) ).toHaveAttribute( 'data-configure-layout', 'list' );
+	await expect( settings.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
 	// The list opens on its first component; choosing the other shows it instead.
 	await expect( settings.locator( '[data-configure-row-key="reports"] form.options_form_for--panel' ) ).toBeVisible( { timeout: 20_000 } );
 	await expect( settings.locator( '[data-option-key="block_send_email_address"]' ) ).toBeVisible();
