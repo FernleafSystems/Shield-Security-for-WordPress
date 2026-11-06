@@ -2,140 +2,9 @@
 	The Actions Queue landing, following the approved concept: each lane that needs action is one card
 	with a tinted header and a flat list of rows, and a row opens its results directly. Checks that are
 	passing, and checks the plan doesn't cover or that are turned off, each get one section of their own
-	at the end. The same sections can show as tabs instead.
+	at the end. The same sections can show as tabs instead. The sections and their boxes come laid out
+	(ActionsQueueLandingSectionsBuilder); this only draws them.
 #}
-{% set lanes = [] %}
-{% set passing_candidates = [] %}
-{% set not_covered_candidates = [] %}
-{% set active_keys = [] %}
-{% for bucket in buckets|filter( b => b.is_interactive ) %}
-	{% set layer = bucket_groups[ bucket.key ]|default( {} ) %}
-	{% set lane_sections = [] %}
-	{% set lane_breakdown = [] %}
-	{% set tagged_sections = layer.active_sections|default( [] )|map( s => s|merge( { is_healthy: false } ) )
-		|merge( layer.healthy_sections|default( [] )|map( s => s|merge( { is_healthy: true } ) ) ) %}
-	{% for group_section in tagged_sections %}
-		{% set lane_groups = [] %}
-		{% for group in group_section.groups %}
-			{% set entry = { group: group, bucket_selection: layer.bucket_selection } %}
-			{% if group.is_pro_upsell or group.enable_dialog_json is not empty %}
-				{% set not_covered_candidates = not_covered_candidates|merge( [ entry ] ) %}
-			{% elseif group.detail_shell == 'maintenance' and group.ignored_rows is not empty %}
-				{# Ignored items stay in their lane, in a faded group of their own, so each can be restored. They count for nothing. #}
-				{% set lane_groups = lane_groups|merge( [ group ] ) %}
-				{% set active_keys = active_keys|merge( [ group.key ] ) %}
-			{% elseif group.status == 'good' or group_section.is_healthy %}
-				{% set passing_candidates = passing_candidates|merge( [ entry ] ) %}
-			{% else %}
-				{% set lane_groups = lane_groups|merge( [ group ] ) %}
-				{% set active_keys = active_keys|merge( [ group.key ] ) %}
-				{% set group_count = group.card_type == 'category'
-					? ( group.maintenance_rows is not empty ? group.maintenance_rows|filter( r => not r.is_ignored )|length : 1 )
-					: group.item_count %}
-				{% set lane_breakdown = lane_breakdown|merge( [ { label: group.label, count: group_count } ] ) %}
-			{% endif %}
-		{% endfor %}
-		{% if lane_groups is not empty %}
-			{% set lane_sections = lane_sections|merge( [ {
-				heading: group_section.heading_label,
-				icon_class: group_section.heading_icon,
-				groups: lane_groups
-			} ] ) %}
-		{% endif %}
-	{% endfor %}
-	{% if lane_sections is not empty %}
-		{# Only the lane that needs attention next starts open; the rest show a one-line breakdown. #}
-		{% set lanes = lanes|merge( [ {
-			key: bucket.key,
-			status: bucket.status,
-			label: bucket.label,
-			icon_class: bucket.icon_class,
-			count: bucket.display_count,
-			summary: bucket.summary_text,
-			breakdown: lane_breakdown,
-			selection_json: bucket.selection.selection_json,
-			bucket_selection: layer.bucket_selection,
-			group_sections: lane_sections,
-			is_open: lanes is empty
-		} ] ) %}
-	{% endif %}
-{% endfor %}
-
-{#
-	Each lane lists every group it doesn't flag as passing, so the same passing group can arrive from
-	several lanes, and a group one lane flags can arrive as passing from another. List each group once,
-	and only as passing when no lane needs it.
-#}
-{#
-	A group gathering several maintenance items ("System", "WordPress") would only repeat items already listed
-	one by one, so passing lists the items themselves.
-#}
-{% set passing = [] %}
-{% set seen_keys = active_keys %}
-{% for entry in passing_candidates %}
-	{% if entry.group.key not in seen_keys and ( entry.group.key|split( ':' )|first ) not in aggregate_group_keys %}
-		{% set passing = passing|merge( [ entry ] ) %}
-		{% set seen_keys = seen_keys|merge( [ entry.group.key ] ) %}
-	{% endif %}
-{% endfor %}
-{% set not_covered = [] %}
-{% for entry in not_covered_candidates %}
-	{% if entry.group.key not in seen_keys %}
-		{% set not_covered = not_covered|merge( [ entry ] ) %}
-		{% set seen_keys = seen_keys|merge( [ entry.group.key ] ) %}
-	{% endif %}
-{% endfor %}
-
-{# A passing check can show both as a group and as a summary row; list it once, and never when it needs action. #}
-{% set passing_labels = passing|map( p => p.group.label|lower ) %}
-{% set healthy_rows = healthy_rows|filter( r => r.title|lower not in passing_labels and r.group_key not in seen_keys ) %}
-{# Shield's own protections first, then WordPress and the server. #}
-{% set passing_blocks = [
-	{
-		label: strings.passing_shield,
-		icon_class: 'bi bi-shield-check',
-		groups: passing|filter( p => p.group.detail_shell != 'maintenance' ),
-		rows: healthy_rows|filter( r => r.zone == 'scans' )
-	},
-	{
-		label: strings.passing_system,
-		icon_class: 'bi bi-hdd-stack',
-		groups: passing|filter( p => p.group.detail_shell == 'maintenance' ),
-		rows: healthy_rows|filter( r => r.zone == 'maintenance' )
-	}
-]|filter( b => b.groups is not empty or b.rows is not empty ) %}
-{% set passing_count = passing|length + healthy_rows|length %}
-{% set passing_names = ( passing|map( p => p.group.label ) )|merge( healthy_rows|map( r => r.title ) )|filter( n => n is not empty ) %}
-{% set sections = lanes %}
-{% if passing_count > 0 %}
-	{% set sections = sections|merge( [ {
-		key: 'passing',
-		status: 'good',
-		label: strings.passing_label|format( passing_count ),
-		icon_class: 'bi bi-check-circle-fill',
-		count: passing_count,
-		summary: passing_names|length > 3
-			? strings.passing_more|format( passing_names|slice( 0, 3 )|join( ', ' ), passing_names|length - 3 )
-			: passing_names|join( ', ' ),
-		breakdown: [],
-		selection_json: '',
-		is_open: false
-	} ] ) %}
-{% endif %}
-{% if not_covered is not empty %}
-	{% set sections = sections|merge( [ {
-		key: 'not_covered',
-		status: 'pro',
-		label: strings.not_covered_label,
-		icon_class: 'bi bi-lock-fill',
-		count: not_covered|length,
-		summary: not_covered|map( e => e.group.label )|join( ', ' ),
-		breakdown: [],
-		selection_json: '',
-		is_open: false
-	} ] ) %}
-{% endif %}
-
 <div class="actions-queue-sections actions-queue-sections--{{ view }}"
 	 data-actions-queue-sections="1"
 	 data-view="{{ view }}"
@@ -153,7 +22,7 @@
 							aria-controls="ActionsQueueSection-{{ section.key }}"
 							aria-selected="{{ loop.first ? 'true' : 'false' }}"
 							data-actions-queue-tab="{{ section.key }}">
-						<i class="{{ section.icon_class }}" aria-hidden="true"></i>{{ section.key == 'passing' ? strings.passing_tab : section.label }}
+						<i class="{{ section.icon_class }}" aria-hidden="true"></i>{{ section.tab_label }}
 						<span class="actions-queue-sections__count">{{ section.count }}</span>
 					</button>
 				{% endfor %}
@@ -176,7 +45,7 @@
 		</div>
 	{% endif %}
 
-	{% if lanes is empty %}
+	{% if not has_lanes %}
 		<div class="actions-queue-sections__clear">
 			<i class="bi bi-check-circle-fill" aria-hidden="true"></i>{{ strings.nothing_here }}
 		</div>
@@ -207,7 +76,7 @@
 						{% endfor %}
 					</span>
 				{% endif %}
-				{% if section.key != 'passing' %}
+				{% if section.show_count %}
 					<span class="actions-queue-section__count">{{ section.count }}</span>
 				{% endif %}
 				<i class="bi bi-chevron-down actions-queue-section__chevron" aria-hidden="true"></i>
@@ -218,118 +87,65 @@
 				 {% if not section.is_open and view != 'tabs' %}hidden{% endif %}>
 				{#
 					Each group sits in a box of its own, a little apart from the next. A group that lists its items
-					brings its own heading; groups shown as single rows share a box under their section's heading,
+					brings its own heading; groups shown as single rows share a box under their kind's heading,
 					so a heading never stands over nothing of its own.
 				#}
-				{% if section.key == 'passing' %}
-					{% for block in passing_blocks %}
+				{% for box in section.boxes %}
+					{% if box.type == 'plain' %}
 						<div class="actions-queue-box">
-						<div class="actions-queue-box__head">
-							<i class="{{ block.icon_class }}" aria-hidden="true"></i>{{ block.label }}
-						</div>
-						<div class="actions-queue-passing-grid">
-							{% for entry in block.groups %}
+							{% for entry in box.entries %}
 								{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
 									group: entry.group,
 									bucket_selection: entry.bucket_selection,
 									strings: strings
 								} only %}
 							{% endfor %}
-							{% for row in block.rows %}
-								{% include '/wpadmin/components/actions_queue/landing_item_row.twig' with {
-									row: row,
-									is_passing: true
-								} only %}
-							{% endfor %}
 						</div>
-						</div>
-					{% endfor %}
-				{% elseif section.key == 'not_covered' %}
-					<div class="actions-queue-box">
-						{% for entry in not_covered %}
+					{% elseif box.type == 'group' %}
+						<div class="actions-queue-box" data-actions-queue-kind="{{ box.kind }}">
 							{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
-								group: entry.group,
-								bucket_selection: entry.bucket_selection,
-								strings: strings
+								group: box.entries[0].group,
+								bucket_selection: box.entries[0].bucket_selection,
+								strings: strings,
+								collapsible: box.collapsible
 							} only %}
-						{% endfor %}
-					</div>
-				{% else %}
-					{#
-						Each kind of problem gets a box of its own, most serious first: WordPress's own files, PHP
-						malware, the Critical File Locker and vulnerabilities; then plugins, and themes, with modified
-						files, each kind gathered together. Anything else follows in the order it came.
-					#}
-					{% set kind_order = [ 'wordpress', 'malware', 'file_locker', 'vulnerabilities', 'plugins', 'themes' ] %}
-					{% set entries = [] %}
-					{% for group_section in section.group_sections %}
-						{% for group in group_section.groups %}
-							{% set entries = entries|merge( [ {
-								group: group,
-								kind: group.key|split( ':' )|first,
-								heading: group_section.heading,
-								icon_class: group_section.icon_class
-							} ] ) %}
-						{% endfor %}
-					{% endfor %}
-					{% set kinds = kind_order|filter( k => k in entries|map( e => e.kind ) ) %}
-					{% for entry in entries %}
-						{% if entry.kind not in kinds %}
-							{% set kinds = kinds|merge( [ entry.kind ] ) %}
-						{% endif %}
-					{% endfor %}
-
-					{# Review next is the longest lane, so its boxes start folded to a heading and a count. #}
-					{% set collapsible = section.key == 'review' %}
-					{% for kind in kinds %}
-						{% set kind_entries = entries|filter( e => e.kind == kind ) %}
-						{# A group that lists its items brings its own heading; single rows share one. #}
-						{% set listed = kind_entries|filter( e => e.group.card_type == 'category' or e.group.maintenance_rows is not empty or e.group.ignored_rows is not empty ) %}
-						{% set single = kind_entries|filter( e => not ( e.group.card_type == 'category' or e.group.maintenance_rows is not empty or e.group.ignored_rows is not empty ) ) %}
-						{% if single is not empty %}
-							{% set first_single = single|first %}
-							{% set heading = strings.kind_headings[ kind ]|default( first_single.heading ) %}
-							{% set body_id = 'AqBoxBody-' ~ random() %}
-							{% set box_icon = first_single.group.icon_class is not empty ? first_single.group.icon_class : first_single.icon_class %}
-							<div class="actions-queue-box" data-actions-queue-kind="{{ kind|e('html_attr') }}">
-								{% if heading is not empty and collapsible %}
-									<div class="actions-queue-box__head">
-										<button type="button" class="actions-queue-box-toggle"
-												data-actions-queue-box-toggle="kind:{{ kind|e('html_attr') }}"
-												aria-expanded="false" aria-controls="{{ body_id }}">
-											<i class="{{ box_icon }}" aria-hidden="true"></i>{{ heading }}
-											<span class="actions-queue-box-toggle__count">{{ single|length }}</span>
-											<i class="bi bi-chevron-down actions-queue-box-toggle__chevron" aria-hidden="true"></i>
-										</button>
-									</div>
-								{% elseif heading is not empty %}
-									<div class="actions-queue-box__head">
-										<i class="{{ box_icon }}" aria-hidden="true"></i>{{ heading }}
-									</div>
-								{% endif %}
-								<div id="{{ body_id }}" {% if collapsible and heading is not empty %}hidden{% endif %}>
-								{% for entry in single %}
+						</div>
+					{% else %}
+						{% set body_id = 'AqBoxBody-' ~ random() %}
+						<div class="actions-queue-box"{% if box.kind is not empty %} data-actions-queue-kind="{{ box.kind }}"{% endif %}>
+							{% if box.collapsible %}
+								<div class="actions-queue-box__head">
+									<button type="button" class="actions-queue-box-toggle"
+											data-actions-queue-box-toggle="kind:{{ box.kind }}"
+											aria-expanded="false" aria-controls="{{ body_id }}">
+										<i class="{{ box.icon_class }}" aria-hidden="true"></i>{{ box.heading }}
+										<span class="actions-queue-box-toggle__count">{{ box.entries|length }}</span>
+										<i class="bi bi-chevron-down actions-queue-box-toggle__chevron" aria-hidden="true"></i>
+									</button>
+								</div>
+							{% elseif box.heading is not empty %}
+								<div class="actions-queue-box__head">
+									<i class="{{ box.icon_class }}" aria-hidden="true"></i>{{ box.heading }}
+								</div>
+							{% endif %}
+							<div id="{{ body_id }}"{% if box.type == 'passing' %} class="actions-queue-passing-grid"{% endif %} {% if box.collapsible %}hidden{% endif %}>
+								{% for entry in box.entries %}
 									{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
 										group: entry.group,
-										bucket_selection: section.bucket_selection,
+										bucket_selection: entry.bucket_selection,
 										strings: strings
 									} only %}
 								{% endfor %}
-								</div>
+								{% for row in box.rows %}
+									{% include '/wpadmin/components/actions_queue/landing_item_row.twig' with {
+										row: row,
+										is_passing: true
+									} only %}
+								{% endfor %}
 							</div>
-						{% endif %}
-						{% for entry in listed %}
-							<div class="actions-queue-box" data-actions-queue-kind="{{ kind|e('html_attr') }}">
-								{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
-									group: entry.group,
-									bucket_selection: section.bucket_selection,
-									strings: strings,
-									collapsible: collapsible
-								} only %}
-							</div>
-						{% endfor %}
-					{% endfor %}
-				{% endif %}
+						</div>
+					{% endif %}
+				{% endfor %}
 			</div>
 		</section>
 	{% endfor %}

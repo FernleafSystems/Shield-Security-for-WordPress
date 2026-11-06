@@ -136,13 +136,18 @@ trait BuildsActionsQueueLandingData {
 			}
 		}
 
+		$layout = ( new ActionsQueueLandingSectionsBuilder() )->build(
+			$this->getBucketsData(),
+			$bucketGroups,
+			$this->getHealthyRowsData(),
+			( new ActionsQueueGroupDefinitions() )->reviewMaintenanceAggregateGroupKeys()
+		);
+
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/actions_queue/layer_buckets.twig' )
 			->setData( [
-				'buckets'       => $this->getBucketsData(),
-				'bucket_groups' => $bucketGroups,
-				'healthy_rows'  => $this->getHealthyRowsData(),
-				'aggregate_group_keys' => ( new ActionsQueueGroupDefinitions() )->reviewMaintenanceAggregateGroupKeys(),
+				'sections'      => $layout[ 'sections' ],
+				'has_lanes'     => $layout[ 'has_lanes' ],
 				'view'          => ( new UiPreferences() )->get( UiPreferences::ACTIONS_QUEUE_VIEW ),
 				'set_view_action_json' => ActionData::BuildJson( PluginSetUiPreference::class ),
 				'hrefs'         => [
@@ -154,14 +159,6 @@ trait BuildsActionsQueueLandingData {
 					'view_sections' => __( 'Sections', 'wp-simple-firewall' ),
 					'view_tabs'     => __( 'Tabs', 'wp-simple-firewall' ),
 					'nothing_here'  => __( 'Nothing needs your action right now.', 'wp-simple-firewall' ),
-					/* translators: %s: number of checks */
-					'passing_label' => __( '%s checks passing', 'wp-simple-firewall' ),
-					'passing_tab'   => __( 'Passing', 'wp-simple-firewall' ),
-					/* translators: %1$s: the first few check names, %2$s: how many more */
-					'passing_more'  => __( '%1$s and %2$s more', 'wp-simple-firewall' ),
-					'not_covered_label'   => __( 'Not covered', 'wp-simple-firewall' ),
-					'passing_shield' => __( 'Shield protections', 'wp-simple-firewall' ),
-					'passing_system' => __( 'System', 'wp-simple-firewall' ),
 					'pro_pill'       => __( 'Shield Pro', 'wp-simple-firewall' ),
 					'turned_off_pill' => __( 'Turned off', 'wp-simple-firewall' ),
 					'compare_plans'  => __( 'Compare plans', 'wp-simple-firewall' ),
@@ -173,14 +170,6 @@ trait BuildsActionsQueueLandingData {
 					'ignored_count'  => __( '(%s ignored)', 'wp-simple-firewall' ),
 					/* translators: %s: how many items are ignored */
 					'ignored_toggle' => __( '%s ignored', 'wp-simple-firewall' ),
-					// One box for each kind of problem in a lane.
-					'kind_headings'  => [
-						'wordpress'   => __( 'WordPress core files', 'wp-simple-firewall' ),
-						'malware'     => __( 'PHP malware', 'wp-simple-firewall' ),
-						'file_locker' => __( 'Critical File Locker', 'wp-simple-firewall' ),
-						'plugins'     => __( 'Plugins with scan results', 'wp-simple-firewall' ),
-						'themes'      => __( 'Themes with scan results', 'wp-simple-firewall' ),
-					],
 				],
 			] )
 			->render();
