@@ -20,16 +20,7 @@
 			>
 				<span class="mode-icon"><i class="{{ nav_item.img }}" aria-hidden="true"></i></span>
 				<span class="mode-label">{{ nav_item.title }}</span>
-				{% if nav_item.badges is not empty %}
-					<span class="mode-badges">
-						{% for badge in nav_item.badges %}
-							<span class="mode-badge status-{{ badge.status }}" title="{{ badge.label|e('html_attr') }}">
-								<span aria-hidden="true">{{ badge.text }}</span>
-								<span class="visually-hidden">{{ badge.label }}</span>
-							</span>
-						{% endfor %}
-					</span>
-				{% endif %}
+				{% include '/wpadmin/components/page/mode_badges.twig' with { badges: nav_item.badges } only %}
 			</a>
 			{% if nav_item.divider_after %}<div class="sidebar-sep"></div>{% endif %}
 		{% endfor %}

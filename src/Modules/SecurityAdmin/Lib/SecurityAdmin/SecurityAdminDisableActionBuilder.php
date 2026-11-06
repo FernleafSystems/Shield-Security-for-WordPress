@@ -20,7 +20,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
  * @phpstan-type SecAdminGoalLink array{
  *   label:string,
  *   href:string,
- *   icon_class:string
+ *   icon_class:string,
+ *   confirm:string
  * }
  */
 class SecurityAdminDisableActionBuilder {
@@ -55,6 +56,7 @@ class SecurityAdminDisableActionBuilder {
 				'label'      => $this->label(),
 				'icon_class' => $this->iconClass(),
 				'href'       => $this->buildHref( self::con()->plugin_urls->configureHome( Secadmin::Slug() ) ),
+				'confirm'    => __( 'Do you want to disable Security Admin? Shield and its settings will no longer need the PIN.', 'wp-simple-firewall' ),
 			],
 		];
 	}

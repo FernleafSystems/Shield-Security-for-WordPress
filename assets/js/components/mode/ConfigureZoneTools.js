@@ -31,6 +31,21 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 			this.applyFilters( root );
 		} );
 
+		// A goal's link that changes something (turning Security Admin off) asks first.
+		shieldEventsHandler_Main.add_Click( '.configure-zone-tools__link[data-confirm-message]', async ( link, evt ) => {
+			evt.preventDefault();
+			const dialog = shieldServices.dialog();
+			const confirmed = await dialog.confirm( {
+				message: link.dataset.confirmMessage,
+				confirmLabel: dialog.resolveConfirmLabel( link ),
+				danger: true,
+				launcher: link,
+			} );
+			if ( confirmed ) {
+				window.location.href = link.href;
+			}
+		}, true );
+
 		// In the component list only one panel is open: opening one closes the others, and the open one stays open.
 		document.addEventListener( 'show.bs.collapse', ( evt ) => {
 			const root = this.listRootFor( evt.target );

@@ -437,6 +437,70 @@ $aq-pro-bg: #f2ebfc;
 	margin-left: auto;
 }
 
+// While scans run, the breadcrumb line says so: a link to their progress, ahead of the Sections / Tabs choice.
+.shield-scan-indicator {
+	align-items: center;
+	background: #e8f0fb;
+	border: 1px solid #b6cdf0;
+	border-radius: 999px;
+	color: #0a4b8f;
+	display: inline-flex;
+	flex: none;
+	font-size: 13px;
+	font-weight: 600;
+	gap: 0.45rem;
+	margin-left: auto;
+	padding: 4px 12px;
+	text-decoration: none;
+
+	+ .actions-queue-sections__view {
+		margin-left: 0.6rem;
+	}
+
+	&:hover,
+	&:focus {
+		background: #dbe7f8;
+		color: #083d75;
+		text-decoration: none;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+
+	.spinner-border {
+		height: 0.85rem;
+		width: 0.85rem;
+	}
+
+	.shield-scan-indicator__detail {
+		font-weight: 400;
+	}
+
+	.shield-scan-indicator__done,
+	.shield-scan-indicator__failed {
+		display: none;
+	}
+
+	&[data-state="completed"] {
+		background: #e7f4ea;
+		border-color: #b7dcc0;
+		color: #1e6b33;
+
+		.spinner-border { display: none; }
+		.shield-scan-indicator__done { display: inline; }
+	}
+
+	&[data-state="failed"] {
+		background: #fcf0f1;
+		border-color: #f0b6bb;
+		color: #a3222d;
+
+		.spinner-border { display: none; }
+		.shield-scan-indicator__failed { display: inline; }
+	}
+}
+
 // The Sections / Tabs choice is moved up to the end of the breadcrumb line. Without tabs to show, the bar
 // it came from then holds nothing.
 .operator-step-tabs > .actions-queue-sections__view {
@@ -684,33 +748,16 @@ $aq-pro-bg: #f2ebfc;
 		}
 	}
 
-	// An ignored row reads quieter until you point at it or move into it. Its text and buttons stay readable
-	// (greyed, not made see-through), so they keep enough contrast; only the icon fades.
+	// An ignored row is set well back: faint, though still legible, until you point at it or move into it.
 	&.is-ignored {
 		background: #fafafb;
-
-		.actions-queue-row__icon {
-			opacity: 0.55;
-			transition: opacity 0.12s ease;
-		}
-
-		.actions-queue-row__title {
-			color: #50575e;
-			font-weight: 500;
-		}
+		opacity: 0.45;
+		transition: opacity 0.12s ease;
 
 		&:hover,
 		&:focus-within {
 			background: #ffffff;
-
-			.actions-queue-row__icon {
-				opacity: 1;
-			}
-
-			.actions-queue-row__title {
-				color: #1d2327;
-				font-weight: 600;
-			}
+			opacity: 1;
 		}
 	}
 }
@@ -913,6 +960,13 @@ $aq-pro-bg: #f2ebfc;
 		font-size: 10.5px;
 		letter-spacing: 0;
 		padding: 0 7px;
+	}
+
+	&__ignored {
+		color: #646970;
+		font-weight: 500;
+		letter-spacing: 0;
+		text-transform: none;
 	}
 
 	&__chevron {

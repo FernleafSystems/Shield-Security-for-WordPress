@@ -60,7 +60,7 @@
 			</div>
 			<div class="configure-zone-tools" data-configure-zone-tools="1">
 				{% for link in diagnosis.goal_links %}
-					<a class="configure-zone-tools__link" href="{{ link.href }}">
+					<a class="configure-zone-tools__link" href="{{ link.href }}" data-confirm-message="{{ link.confirm|e('html_attr') }}">
 						<i class="{{ link.icon_class }}" aria-hidden="true"></i>{{ link.label }}
 					</a>
 				{% endfor %}

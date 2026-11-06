@@ -113,7 +113,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   header:DrillLayerHeader,
  *   zone_selection:DrillSelection,
  *   zone_selection_json:string,
- *   goal_links:list<array{label:string,href:string,icon_class:string}>
+ *   goal_links:list<array{label:string,href:string,icon_class:string,confirm:string}>
  * }
  * @phpstan-type ConfigureSearchResult array{
  *   type:'zone'|'option',

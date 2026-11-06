@@ -167,8 +167,9 @@ trait BuildsActionsQueueLandingData {
 					'compare_plans'  => __( 'Compare plans', 'wp-simple-firewall' ),
 					'turn_on'        => __( 'Turn on', 'wp-simple-firewall' ),
 					'review'         => __( 'Review', 'wp-simple-firewall' ),
-					/* translators: %s: how many items */
-					'ignore_all'     => __( 'Ignore all %s', 'wp-simple-firewall' ),
+					'ignore_all'     => __( 'Ignore all', 'wp-simple-firewall' ),
+					/* translators: %s: how many of a group's items are ignored */
+					'ignored_count'  => __( '(%s ignored)', 'wp-simple-firewall' ),
 					/* translators: %s: how many items are ignored */
 					'ignored_toggle' => __( '%s ignored', 'wp-simple-firewall' ),
 					// One box for each kind of problem in a lane.

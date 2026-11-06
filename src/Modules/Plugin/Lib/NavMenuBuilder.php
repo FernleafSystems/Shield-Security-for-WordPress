@@ -123,29 +123,48 @@ class NavMenuBuilder {
 				'divider_after'=> $mode === PluginNavs::MODE_ACTIONS,
 			];
 			if ( $mode === PluginNavs::MODE_ACTIONS ) {
-				// While it's open, the Actions Queue item takes the colour of its most severe item.
+				$queue = $this->buildActionsQueueState( $actionsSummary );
 				$item[ 'data' ] = [
-					'queue-status' => $actionsSummary[ 'total_items' ] > 0 ? $actionsSummary[ 'severity' ] : 'good',
+					'queue-status' => $queue[ 'status' ],
 				];
-			}
-			if ( $mode === PluginNavs::MODE_ACTIONS && $actionsSummary[ 'total_items' ] > 0 ) {
-				// One count per severity, so critical items aren't overstated by the warnings beside them.
-				$item[ 'badges' ] = \array_values( \array_filter( [
-					[
-						'text'   => (string)$actionsSummary[ 'critical_items' ],
-						'status' => 'critical',
-						'label'  => \sprintf( _n( '%s critical item', '%s critical items', $actionsSummary[ 'critical_items' ], 'wp-simple-firewall' ), $actionsSummary[ 'critical_items' ] ),
-					],
-					[
-						'text'   => (string)$actionsSummary[ 'warning_items' ],
-						'status' => 'warning',
-						'label'  => \sprintf( _n( '%s warning', '%s warnings', $actionsSummary[ 'warning_items' ], 'wp-simple-firewall' ), $actionsSummary[ 'warning_items' ] ),
-					],
-				], fn( array $badge ) :bool => $badge[ 'text' ] !== '0' ) );
+				$item[ 'badges' ] = $queue[ 'badges' ];
 			}
 			$items[] = $item;
 		}
 		return $items;
+	}
+
+	/**
+	 * The Actions Queue item's colour and counts, for the sidebar as it renders and for the queue to refresh
+	 * them in place as items are ignored or fixed.
+	 * @return array{status:string,badges:list<array{text:string,status:string,label:string}>}
+	 */
+	public function buildActionsQueueNavState() :array {
+		return $this->buildActionsQueueState( $this->getActionsQueueSummary() );
+	}
+
+	/**
+	 * While it's open, the item takes the colour of its most severe item. It has one count per severity, so
+	 * critical items aren't overstated by the warnings beside them.
+	 * @param ActionsSummary $actionsSummary
+	 * @return array{status:string,badges:list<array{text:string,status:string,label:string}>}
+	 */
+	private function buildActionsQueueState( array $actionsSummary ) :array {
+		return [
+			'status' => $actionsSummary[ 'total_items' ] > 0 ? $actionsSummary[ 'severity' ] : 'good',
+			'badges' => \array_values( \array_filter( [
+				[
+					'text'   => (string)$actionsSummary[ 'critical_items' ],
+					'status' => 'critical',
+					'label'  => \sprintf( _n( '%s critical item', '%s critical items', $actionsSummary[ 'critical_items' ], 'wp-simple-firewall' ), $actionsSummary[ 'critical_items' ] ),
+				],
+				[
+					'text'   => (string)$actionsSummary[ 'warning_items' ],
+					'status' => 'warning',
+					'label'  => \sprintf( _n( '%s warning', '%s warnings', $actionsSummary[ 'warning_items' ], 'wp-simple-firewall' ), $actionsSummary[ 'warning_items' ] ),
+				],
+			], fn( array $badge ) :bool => $badge[ 'text' ] !== '0' ) ),
+		];
 	}
 
 	private function buildTaskGuideItem() :array {

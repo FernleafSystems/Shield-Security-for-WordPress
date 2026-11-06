@@ -23,6 +23,8 @@
 	{# With everything ignored there's nothing to fold: the group shows faded, its items behind "N ignored". #}
 	{% set is_all_ignored = group_rows is empty and ignored_rows is not empty %}
 	{% set is_collapsible = collapsible|default(false) and not is_all_ignored %}
+	{# The heading counts what still needs doing; ignored rows listed among them are counted apart. #}
+	{% set ignored_in_rows = group_rows|filter( r => r.is_ignored )|length %}
 	{% set body_id = 'AqGroupBody-' ~ random() %}
 	{% set ignored_id = 'AqGroupIgnored-' ~ random() %}
 	<div class="actions-queue-row-group{% if is_all_ignored %} is-all-ignored{% endif %}" data-actions-queue-group-key="{{ group.key|e('html_attr') }}"
@@ -34,7 +36,10 @@
 						aria-expanded="false" aria-controls="{{ body_id }}">
 					<span class="actions-queue-row-group__icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
 					<span class="actions-queue-row-group__label">{{ group.label }}</span>
-					<span class="actions-queue-box-toggle__count">{{ group_rows|length }}</span>
+					<span class="actions-queue-box-toggle__count">{{ group_rows|length - ignored_in_rows }}</span>
+					{% if ignored_in_rows > 0 %}
+						<span class="actions-queue-box-toggle__ignored">{{ strings.ignored_count|format( ignored_in_rows ) }}</span>
+					{% endif %}
 					<i class="bi bi-chevron-down actions-queue-box-toggle__chevron" aria-hidden="true"></i>
 				</button>
 			{% else %}
@@ -76,7 +81,7 @@
 			<div class="actions-queue-row-group__foot">
 				<button type="button" class="actions-queue-row__ignore" data-actions-queue-maintenance-ignore-all="1">
 					<i class="bi bi-eye-slash-fill" aria-hidden="true"></i>
-					{{ strings.ignore_all|default('Ignore all')|format( ignores|length ) }}
+					{{ strings.ignore_all }}
 				</button>
 			</div>
 		{% endif %}

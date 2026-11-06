@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
+
 /**
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
@@ -60,10 +62,17 @@ class ActionsQueueDrillDownGroups extends DrillDownAjaxRenderBase {
 		];
 		if ( !empty( $this->action_data[ 'include_landing_refresh' ] ) ) {
 			$hasDrilldownContent = $this->hasDrilldownContent();
+			$navState = ( new NavMenuBuilder() )->buildActionsQueueNavState();
 			$data[ 'landing_refresh' ] = [
 				'has_drilldown_content'  => $hasDrilldownContent,
 				'root_step_json'         => $this->buildActionsQueueOperatorRootStepJson(),
 				'buckets_html'           => $hasDrilldownContent ? $this->renderBucketsLayer() : '',
+				// The sidebar's Actions Queue counts follow what's left in the queue.
+				'nav_status'             => $navState[ 'status' ],
+				'nav_badges_html'        => self::con()->comps->render
+					->setTemplate( '/wpadmin/components/page/mode_badges.twig' )
+					->setData( [ 'badges' => $navState[ 'badges' ] ] )
+					->render(),
 			];
 		}
 		if ( isset( $renderPayload[ 'selected_group' ] ) ) {

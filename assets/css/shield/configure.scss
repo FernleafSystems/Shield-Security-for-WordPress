@@ -337,19 +337,32 @@
 	}
 }
 
-// A quiet link beside the goal's tools, such as turning Security Admin off.
+// A link beside the goal's tools, such as turning Security Admin off: a small button in the warning colour,
+// kept on one line.
 .configure-zone-tools__link {
 	align-items: center;
-	color: #50575e;
+	background: #fcf9e8;
+	border: 1px solid #dba617;
+	border-radius: 999px;
+	color: #6e4e00;
 	display: inline-flex;
+	flex: none;
 	font-size: 0.8rem;
+	font-weight: 500;
 	gap: 0.35rem;
+	padding: 0.28rem 0.75rem;
 	text-decoration: none;
+	white-space: nowrap;
 
 	&:hover,
 	&:focus {
-		color: #1d2327;
-		text-decoration: underline;
+		background: #f9efc6;
+		color: #4a3500;
+		text-decoration: none;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
 	}
 }
 
