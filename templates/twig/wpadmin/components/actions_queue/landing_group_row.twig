@@ -27,32 +27,38 @@
 	{% set ignored_in_rows = group_rows|filter( r => r.is_ignored )|length %}
 	{% set body_id = 'AqGroupBody-' ~ random() %}
 	{% set ignored_id = 'AqGroupIgnored-' ~ random() %}
+	{% set ignored_label %}
+		<i class="bi bi-eye-slash-fill" aria-hidden="true"></i>{{ strings.ignored_toggle|format( ignored_rows|length ) }}
+		<i class="bi bi-chevron-down actions-queue-row-group__link-chevron" aria-hidden="true"></i>
+	{% endset %}
 	<div class="actions-queue-row-group{% if is_all_ignored %} is-all-ignored{% endif %}" data-actions-queue-group-key="{{ group.key|e('html_attr') }}"
 		 {% if bucket_selection.selection_json is defined and bucket_selection.selection_json is not empty %}data-actions-queue-bucket-selection="{{ bucket_selection.selection_json|e('html_attr') }}"{% endif %}>
 		<div class="actions-queue-row-group__head status-{{ group.status }}">
-			{% if is_collapsible %}
+			{% if is_collapsible or is_all_ignored %}
+				{# With everything ignored, the whole heading opens the ignored items. #}
 				<button type="button" class="actions-queue-box-toggle"
-						data-actions-queue-box-toggle="{{ group.key|e('html_attr') }}"
-						aria-expanded="false" aria-controls="{{ body_id }}">
+						data-actions-queue-box-toggle="{{ ( is_all_ignored ? 'ignored:' ~ group.key : group.key )|e('html_attr') }}"
+						aria-expanded="false" aria-controls="{{ is_all_ignored ? ignored_id : body_id }}">
 					<span class="actions-queue-row-group__icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
 					<span class="actions-queue-row-group__label">{{ group.label }}</span>
-					<span class="actions-queue-box-toggle__count">{{ group_rows|length - ignored_in_rows }}</span>
-					{% if ignored_in_rows > 0 %}
-						<span class="actions-queue-box-toggle__ignored">{{ strings.ignored_count|format( ignored_in_rows ) }}</span>
+					{% if is_all_ignored %}
+						<span class="actions-queue-row-group__link">{{ ignored_label }}</span>
+					{% else %}
+						<span class="actions-queue-box-toggle__count">{{ group_rows|length - ignored_in_rows }}</span>
+						{% if ignored_in_rows > 0 %}
+							<span class="actions-queue-box-toggle__ignored">{{ strings.ignored_count|format( ignored_in_rows ) }}</span>
+						{% endif %}
+						<i class="bi bi-chevron-down actions-queue-box-toggle__chevron" aria-hidden="true"></i>
 					{% endif %}
-					<i class="bi bi-chevron-down actions-queue-box-toggle__chevron" aria-hidden="true"></i>
 				</button>
 			{% else %}
 				<span class="actions-queue-row-group__icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
 				<span class="actions-queue-row-group__label">{{ group.label }}</span>
 			{% endif %}
-			{% if ignored_rows is not empty %}
+			{% if ignored_rows is not empty and not is_all_ignored %}
 				<button type="button" class="actions-queue-row-group__link"
 						data-actions-queue-box-toggle="ignored:{{ group.key|e('html_attr') }}"
-						aria-expanded="false" aria-controls="{{ ignored_id }}">
-					<i class="bi bi-eye-slash-fill" aria-hidden="true"></i>{{ strings.ignored_toggle|format( ignored_rows|length ) }}
-					<i class="bi bi-chevron-down actions-queue-row-group__link-chevron" aria-hidden="true"></i>
-				</button>
+						aria-expanded="false" aria-controls="{{ ignored_id }}">{{ ignored_label }}</button>
 			{% endif %}
 			{% if group.management_link is not empty %}
 				<a class="actions-queue-row-group__link"

@@ -892,7 +892,8 @@ $aq-pro-bg: #f2ebfc;
 	}
 }
 
-// A group's own link (Manage Plugins) is a quiet button like Ignore, at the end of its heading.
+// A group's own link (Manage Plugins) is a quiet button like Ignore, at the end of its heading. Only the first of
+// them takes the spare room, or they'd share it and land wherever the heading's length left them.
 .actions-queue-row-group__link {
 	align-items: center;
 	background: #ffffff;
@@ -908,6 +909,7 @@ $aq-pro-bg: #f2ebfc;
 	padding: 3px 9px;
 	text-decoration: none;
 	text-transform: none;
+	white-space: nowrap;
 
 	&:hover,
 	&:focus {
@@ -918,6 +920,21 @@ $aq-pro-bg: #f2ebfc;
 
 	&:focus-visible {
 		@include shield-focus-ring();
+	}
+
+	& + & {
+		margin-left: 0;
+	}
+
+	// The same width whichever it is, so the "N ignored" beside each lines up from one group to the next.
+	@at-root a#{&} {
+		justify-content: center;
+		min-width: 132px;
+	}
+
+	.actions-queue-box-toggle:hover > & {
+		border-color: #8c8f94;
+		color: #1d2327;
 	}
 }
 
@@ -931,14 +948,9 @@ button.actions-queue-row-group__link {
 	font-size: 10px;
 	transition: transform 0.15s ease;
 
-	[aria-expanded="true"] > & {
+	[aria-expanded="true"] & {
 		transform: rotate(180deg);
 	}
-}
-
-// With no active rows above them, nothing shows under the heading until the ignored rows are opened.
-.actions-queue-row-group__head:has(+ .actions-queue-row-group__body > .actions-queue-row-group__ignored[hidden]:only-child) {
-	border-bottom-color: transparent;
 }
 
 // A group whose items are all ignored stays in its lane, quieter, so the items can be restored from it.
@@ -970,6 +982,15 @@ button.actions-queue-row-group__link {
 
 	.actions-queue-section__summary {
 		display: none;
+	}
+
+	// A heading's own link drops beneath it on a phone, rather than being pushed out of its box.
+	.actions-queue-row-group__head {
+		flex-wrap: wrap;
+
+		> .actions-queue-box-toggle {
+			flex-basis: 100%;
+		}
 	}
 }
 

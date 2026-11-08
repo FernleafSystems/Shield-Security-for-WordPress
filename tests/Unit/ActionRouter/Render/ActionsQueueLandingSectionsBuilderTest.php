@@ -36,8 +36,8 @@ class ActionsQueueLandingSectionsBuilderTest extends BaseUnitTest {
 		$this->assertCount( 2, $critical[ 'boxes' ][ 1 ][ 'entries' ] );
 		$this->assertFalse( $critical[ 'boxes' ][ 1 ][ 'collapsible' ] );
 		$this->assertSame(
-			// The breakdown keeps the order the groups came in.
-			[ [ 'label' => 'Plugin A', 'count' => 1 ], [ 'label' => 'PHP Malware', 'count' => 3 ], [ 'label' => 'Plugin B', 'count' => 2 ] ],
+			// The folded summary follows the order of the boxes, not the order the groups came in.
+			[ [ 'label' => 'PHP Malware', 'count' => 3 ], [ 'label' => 'Plugin A', 'count' => 1 ], [ 'label' => 'Plugin B', 'count' => 2 ] ],
 			$critical[ 'breakdown' ]
 		);
 	}
@@ -49,6 +49,40 @@ class ActionsQueueLandingSectionsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ true, true ], \array_column( $review[ 'boxes' ], 'collapsible' ) );
 		// The fully ignored group stays in the lane but counts for nothing; the other counts its rows not ignored.
 		$this->assertSame( [ [ 'label' => 'WordPress', 'count' => 1 ] ], $review[ 'breakdown' ] );
+	}
+
+	public function test_plugin_and_theme_housekeeping_closes_the_lane_in_a_fixed_order() :void {
+		$group = fn( string $key, string $label, string $status, array $ignored = [] ) :array => $this->group(
+			$key, $label, $status, [ 'detail_shell' => 'maintenance', 'card_type' => 'category', 'ignored_rows' => $ignored ]
+		);
+		$review = ( new ActionsQueueLandingSectionsBuilder() )->build(
+			[ $this->bucket( 'review' ) ],
+			[
+				'review' => $this->layer( 'review', [
+					$this->section( [
+						$group( 'wp_themes_updates', 'Themes With Updates', 'warning' ),
+						$group( 'wp_plugins_inactive', 'Inactive Plugins', 'warning' ),
+						$group( 'maintenance_system', 'System', 'warning' ),
+						$group( 'wp_plugins_updates', 'Plugins With Updates', 'warning' ),
+					] ),
+				], [
+					// Everything ignored arrives after the rest, but keeps its place among them.
+					$this->section( [ $group( 'wp_themes_inactive', 'Inactive Themes', 'good', [ $this->row( 'Twenty', true ) ] ) ] ),
+				] ),
+			],
+			[],
+			[]
+		)[ 'sections' ][ 0 ];
+
+		$this->assertSame(
+			[ 'maintenance_system', 'wp_plugins_updates', 'wp_plugins_inactive', 'wp_themes_updates', 'wp_themes_inactive' ],
+			\array_column( $review[ 'boxes' ], 'kind' )
+		);
+		// The folded summary reads in the same order, leaving out the group with everything ignored.
+		$this->assertSame(
+			[ 'System', 'Plugins With Updates', 'Inactive Plugins', 'Themes With Updates' ],
+			\array_column( $review[ 'breakdown' ], 'label' )
+		);
 	}
 
 	public function test_passing_lists_each_check_once_and_never_one_a_lane_needs() :void {

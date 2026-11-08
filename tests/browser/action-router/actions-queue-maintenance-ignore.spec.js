@@ -75,7 +75,9 @@ test( 'a group of like items can be ignored all at once', async ( { page, fixtur
 		// Its items wait behind "N ignored", each with its way back.
 		const showIgnored = ignoredGroup.locator( '[data-actions-queue-box-toggle^="ignored:"]' );
 		await expect( showIgnored ).toContainText( String( itemCount ) );
-		await showIgnored.click();
+		// The whole heading opens them, even clicked well away from the count.
+		await ignoredGroup.locator( '.actions-queue-row-group__label' ).click();
+		await expect( showIgnored ).toHaveAttribute( 'aria-expanded', 'true' );
 		await expect( ignoredGroup.locator( '[data-actions-queue-maintenance-kind="unignore"]' ) ).toHaveCount( itemCount );
 
 		// With them all ignored, they can all be brought back together, in one request.

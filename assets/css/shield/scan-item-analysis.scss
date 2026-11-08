@@ -2,18 +2,21 @@
 
 .scan-item-overview__verdict {
 	padding: 0.85rem 1rem;
-	border: 1px solid var(--bs-warning-border-subtle);
 	border-radius: var(--bs-border-radius-lg);
 	background: var(--bs-warning-bg-subtle);
 
 	&--danger {
-		border-color: var(--bs-danger-border-subtle);
 		background: var(--bs-danger-bg-subtle);
 	}
 
 	&--success {
-		border-color: var(--bs-success-border-subtle);
 		background: var(--bs-success-bg-subtle);
+	}
+
+	// The bar's own text colour: link green can't be read against its tints.
+	details summary {
+		cursor: pointer;
+		text-decoration: underline;
 	}
 }
 
@@ -21,7 +24,7 @@
 	display: grid;
 	grid-template-columns: max-content 1fr;
 	gap: 0.4rem 1rem;
-	margin: 1rem 0;
+	margin: 0 0 1rem;
 
 	dt {
 		font-weight: normal;
@@ -35,19 +38,11 @@
 	}
 }
 
-.scan-item-overview__card {
-	padding: 0.85rem 1rem;
-	margin-bottom: 0.85rem;
-	border: 1px solid var(--bs-border-color);
-	border-radius: var(--bs-border-radius-lg);
-
-	details summary {
-		cursor: pointer;
-		color: var(--bs-link-color);
-	}
+.scan-item-overview__actions {
+	margin: 1.25rem 0 0.5rem;
 }
 
-.scan-item-overview__card-title {
+.scan-item-overview__actions-title {
 	margin-bottom: 0.5rem;
 	font-size: 0.75rem;
 	font-weight: 600;

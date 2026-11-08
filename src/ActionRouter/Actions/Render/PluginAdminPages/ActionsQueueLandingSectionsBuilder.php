@@ -16,6 +16,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   group:GroupData,
  *   bucket_selection:BucketSelection
  * }
+ * @phpstan-type HeadedEntry array{
+ *   group:GroupData,
+ *   bucket_selection:BucketSelection,
+ *   heading:string,
+ *   icon_class:string
+ * }
  * @phpstan-type LandingBox array{
  *   type:'shared'|'group'|'passing'|'plain',
  *   kind:string,
@@ -48,6 +54,11 @@ class ActionsQueueLandingSectionsBuilder {
 	private const KIND_ORDER = [ 'wordpress', 'malware', 'file_locker', 'vulnerabilities', 'plugins', 'themes' ];
 
 	/**
+	 * Housekeeping on plugins and themes closes a lane, always in this order, whatever each holds or has ignored.
+	 */
+	private const CLOSING_KIND_ORDER = [ 'wp_plugins_updates', 'wp_plugins_inactive', 'wp_themes_updates', 'wp_themes_inactive' ];
+
+	/**
 	 * @param list<BucketData>              $buckets
 	 * @param array<string,GroupsLayerData> $bucketGroups the groups of each lane that can be opened
 	 * @param list<HealthyRow>              $healthyRows
@@ -66,7 +77,7 @@ class ActionsQueueLandingSectionsBuilder {
 			}
 			$layer = $bucketGroups[ $bucket[ 'key' ] ];
 			$laneEntries = [];
-			$breakdown = [];
+			$toDoEntries = [];
 
 			$tagged = \array_merge(
 				\array_map( fn( array $s ) :array => [ $s, false ], $layer[ 'active_sections' ] ),
@@ -94,11 +105,8 @@ class ActionsQueueLandingSectionsBuilder {
 					}
 					else {
 						$laneEntries[] = $entry;
+						$toDoEntries[] = $entry;
 						$activeKeys[] = $group[ 'key' ];
-						$breakdown[] = [
-							'label' => $group[ 'label' ],
-							'count' => $this->countStillToDo( $group ),
-						];
 					}
 				}
 			}
@@ -114,7 +122,7 @@ class ActionsQueueLandingSectionsBuilder {
 					'count'          => $bucket[ 'display_count' ],
 					'show_count'     => true,
 					'summary'        => $bucket[ 'summary_text' ],
-					'breakdown'      => $breakdown,
+					'breakdown'      => $this->buildBreakdown( $toDoEntries ),
 					'selection_json' => $bucket[ 'selection' ][ 'selection_json' ],
 					'is_open'        => empty( $lanes ),
 					// Review next is the longest lane, so its boxes start folded to a heading and a count.
@@ -195,27 +203,54 @@ class ActionsQueueLandingSectionsBuilder {
 	}
 
 	/**
-	 * Groups shown as single rows share a box for their kind, under that kind's heading; a group that lists its
-	 * items brings its own heading and box.
-	 * @param list<array{group:GroupData,bucket_selection:BucketSelection,heading:string,icon_class:string}> $laneEntries
-	 * @return list<LandingBox>
+	 * A folded lane's one-line summary of what still needs doing, in the order its boxes open.
+	 * @param list<HeadedEntry> $toDoEntries
+	 * @return list<array{label:string,count:int}>
 	 */
-	private function buildLaneBoxes( array $laneEntries, bool $collapsible ) :array {
+	private function buildBreakdown( array $toDoEntries ) :array {
+		$breakdown = [];
+		foreach ( $this->entriesByKind( $toDoEntries ) as $kindEntries ) {
+			foreach ( $kindEntries as $entry ) {
+				$breakdown[] = [
+					'label' => $entry[ 'group' ][ 'label' ],
+					'count' => $this->countStillToDo( $entry[ 'group' ] ),
+				];
+			}
+		}
+		return $breakdown;
+	}
+
+	/**
+	 * A lane's entries gathered by kind of problem, the kinds in the order the lane shows them.
+	 * @param list<HeadedEntry> $entries
+	 * @return array<string,list<HeadedEntry>>
+	 */
+	private function entriesByKind( array $entries ) :array {
 		$byKind = [];
-		foreach ( $laneEntries as $entry ) {
+		foreach ( $entries as $entry ) {
 			$byKind[ \explode( ':', $entry[ 'group' ][ 'key' ] )[ 0 ] ][] = $entry;
 		}
 		$kinds = \array_merge(
-			\array_values( \array_intersect( self::KIND_ORDER, \array_keys( $byKind ) ) ),
-			\array_values( \array_diff( \array_keys( $byKind ), self::KIND_ORDER ) )
+			\array_intersect( self::KIND_ORDER, \array_keys( $byKind ) ),
+			\array_diff( \array_keys( $byKind ), self::KIND_ORDER, self::CLOSING_KIND_ORDER ),
+			\array_intersect( self::CLOSING_KIND_ORDER, \array_keys( $byKind ) )
 		);
+		return \array_replace( \array_fill_keys( $kinds, [] ), $byKind );
+	}
 
+	/**
+	 * Groups shown as single rows share a box for their kind, under that kind's heading; a group that lists its
+	 * items brings its own heading and box.
+	 * @param list<HeadedEntry> $laneEntries
+	 * @return list<LandingBox>
+	 */
+	private function buildLaneBoxes( array $laneEntries, bool $collapsible ) :array {
 		$kindHeadings = $this->kindHeadings();
 		$boxes = [];
-		foreach ( $kinds as $kind ) {
+		foreach ( $this->entriesByKind( $laneEntries ) as $kind => $kindEntries ) {
 			$single = [];
 			$listed = [];
-			foreach ( $byKind[ $kind ] as $entry ) {
+			foreach ( $kindEntries as $entry ) {
 				if ( $this->listsItsItems( $entry[ 'group' ] ) ) {
 					$listed[] = $entry;
 				}
@@ -243,7 +278,7 @@ class ActionsQueueLandingSectionsBuilder {
 	}
 
 	/**
-	 * @param list<array{group:GroupData,bucket_selection:BucketSelection,heading:string,icon_class:string}> $passing
+	 * @param list<HeadedEntry> $passing
 	 * @param list<HealthyRow> $healthyRows
 	 * @return LandingSection|null
 	 */
