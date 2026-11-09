@@ -34,7 +34,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   header_badge_override?:string,
  *   header_badge_status_override?:string,
  *   header_color_key_override?:string,
- *   suppress_detail_render_action_if_noninteractive?:bool,
  *   detail_table:array<string,mixed>,
  *   render_action_class_override?:class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender>,
  *   render_action_data_override?:array<string,mixed>,
@@ -287,19 +286,15 @@ class ActionsQueueGroupContractBuilder {
 		$narrative = $seed[ 'narrative' ] !== ''
 			? $seed[ 'narrative' ]
 			: $this->buildNarrative( $seed[ 'definition_key' ], $seed[ 'item_count' ] );
+		$renderActionClass = $seed[ 'render_action_class_override' ] ?? $definition[ 'render_action_class' ];
 		$isInteractive = $seed[ 'is_interactive_override' ]
-			?? $this->determineInteractivity( $seed );
+			?? ( $renderActionClass !== null && $this->determineInteractivity( $seed ) );
 		$renderActionData = $seed[ 'render_action_data_override' ]
 			?? $definition[ 'render_action_data' ];
 		$scopeCounts = $this->buildScanResultsScopeCountsForGroup( $seed[ 'definition_key' ], $renderActionData );
 		if ( $this->shouldExposeIgnoredOnlyDirectTableGroup( $seed, $scopeCounts ) ) {
 			$isInteractive = true;
 			$renderActionData = $definition[ 'render_action_data' ];
-		}
-		$suppressDetailRenderAction = !$isInteractive
-			&& !empty( $seed[ 'suppress_detail_render_action_if_noninteractive' ] );
-		if ( $suppressDetailRenderAction ) {
-			$renderActionData = [];
 		}
 		$seedHeaderOverrides = \array_filter( [
 			'summary'      => $seed[ 'header_summary_override' ] ?? '',
@@ -321,13 +316,7 @@ class ActionsQueueGroupContractBuilder {
 			$iconClass,
 			$seed[ 'item_count' ],
 			$seed[ 'detail_shell' ],
-			$suppressDetailRenderAction
-				? []
-				: $this->buildDetailRenderAction(
-					$seed[ 'render_action_class_override' ]
-						?? $definition[ 'render_action_class' ],
-					$renderActionData
-				),
+			$this->buildDetailRenderAction( $renderActionClass, $renderActionData ),
 			$narrative,
 			$headerOverrides
 		);
@@ -357,8 +346,7 @@ class ActionsQueueGroupContractBuilder {
 			'is_pro_upsell'      => (bool)( $seed[ 'is_pro_upsell' ] ?? false ),
 			'enable_dialog_json' => $seed[ 'enable_dialog_json' ] ?? '',
 			'detail_table'        => $seed[ 'detail_table' ],
-			'render_action_class' => $seed[ 'render_action_class_override' ]
-				?? $definition[ 'render_action_class' ],
+			'render_action_class' => $renderActionClass,
 			'render_action_data'  => $renderActionData,
 			'maintenance_rows'    => $seed[ 'maintenance_rows' ],
 			'ignored_rows'        => $seed[ 'ignored_rows' ] ?? [],
@@ -449,10 +437,6 @@ class ActionsQueueGroupContractBuilder {
 			case 'malware':
 			case 'file_locker':
 				$pattern = _n( 'View %s file', 'View %s files', $itemCount, 'wp-simple-firewall' );
-				break;
-
-			case 'hidden_plugins':
-				$pattern = _n( 'View %s cloaked plugin', 'View %s cloaked plugins', $itemCount, 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -747,12 +731,13 @@ class ActionsQueueGroupContractBuilder {
 	}
 
 	/**
-	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender> $renderActionClass
+	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender>|null $renderActionClass
+	 *        null for a group with no detail to open
 	 * @param array<string,mixed> $renderActionData
 	 * @return array<string,mixed>
 	 */
-	private function buildDetailRenderAction( string $renderActionClass, array $renderActionData ) :array {
-		return ActionData::BuildAjaxRender( $renderActionClass, $renderActionData );
+	private function buildDetailRenderAction( ?string $renderActionClass, array $renderActionData ) :array {
+		return $renderActionClass === null ? [] : ActionData::BuildAjaxRender( $renderActionClass, $renderActionData );
 	}
 
 }

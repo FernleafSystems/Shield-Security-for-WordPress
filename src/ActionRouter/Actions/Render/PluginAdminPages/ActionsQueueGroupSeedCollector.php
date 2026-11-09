@@ -94,6 +94,10 @@ class ActionsQueueGroupSeedCollector {
 					}
 					continue 2;
 
+				case 'cloaked_plugins':
+					$this->mergeCloakedPluginsSeed( $seeds, $definitionKey, $item );
+					continue 2;
+
 				case 'maintenance':
 					if ( $maintenanceItemsByGroupKey === null ) {
 						$maintenanceItemsByGroupKey = $this->groupMaintenanceItemsByGroupKey(
@@ -154,6 +158,24 @@ class ActionsQueueGroupSeedCollector {
 		], 'good' );
 		$seeds[ $seedKey ][ 'attention_items' ][] = $item;
 		unset( $seeds[ $seedKey ][ 'render_action_data_override' ] );
+	}
+
+	/**
+	 * Each cloaked plugin is listed in the queue itself, with its actions.
+	 * @param array<int|string,GroupSeed> $seeds
+	 * @phpstan-param AttentionItem $item
+	 */
+	private function mergeCloakedPluginsSeed( array &$seeds, string $definitionKey, array $item ) :void {
+		$rows = $this->scanSource->cloakedPluginRows();
+		if ( $rows[ 'active' ] === [] ) {
+			return;
+		}
+
+		$this->mergeAttentionSeed( $seeds, $definitionKey, $item );
+		$seeds[ $definitionKey ] = \array_merge( $seeds[ $definitionKey ], [
+			'maintenance_rows' => $rows[ 'active' ],
+			'ignored_rows'     => $rows[ 'ignored' ],
+		] );
 	}
 
 	/**

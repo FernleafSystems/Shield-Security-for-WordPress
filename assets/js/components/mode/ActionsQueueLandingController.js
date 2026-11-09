@@ -681,7 +681,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 	/**
 	 * One request for a group's ignores, or its restores: scan results go as one list of result IDs,
-	 * maintenance items as one list of identifiers for their shared key.
+	 * maintenance items and cloaked plugins as one list of identifiers.
 	 * @param {Array<Object>} actions
 	 * @return {Object}
 	 */

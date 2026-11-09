@@ -17,8 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   item_icon_class:string,
  *   status:string,
  *   status_label:string,
- *   status_icon_class:string,
- *   has_useful_detail?:bool
+ *   status_icon_class:string
  * }
  * @phpstan-type AssessmentRowsByZone array{
  *   scans:list<AssessmentRow>,

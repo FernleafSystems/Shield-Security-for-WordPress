@@ -123,12 +123,6 @@ function isActionsQueueGroupsRefreshRequest( request, fixture ) {
 		&& params.get( 'group' ) === fixture.group_key;
 }
 
-function isCloakedPluginsDetailRenderRequest( request ) {
-	const params = actionRouterParams( request );
-	return isAdminAjaxPost( request )
-		&& params.get( 'render_slug' ) === 'scanresults_cloakedplugins';
-}
-
 function isScanResultsTableReloadRequest( request ) {
 	const params = actionRouterParams( request );
 	return isAdminAjaxPost( request )
@@ -169,31 +163,6 @@ function isFileLockerActionRequest( request, expectedPayload ) {
 		&& params.get( 'ex' ) === 'filelocker_fileaction'
 		&& Object.entries( expectedPayload ).every( ( [ key, value ] ) => params.get( key ) === String( value ) );
 }
-
-async function operatorContextAjaxAction( rail, matcher ) {
-	const actions = rail.locator( '[data-operator-context-action-ajax="1"]' );
-	const count = await actions.count();
-
-	for ( let index = 0; index < count; index++ ) {
-		const candidate = actions.nth( index );
-		const actionJson = await candidate.getAttribute( 'data-operator-context-action-json' );
-		if ( !actionJson ) {
-			continue;
-		}
-
-		try {
-			const action = JSON.parse( actionJson );
-			if ( matcher( action ) ) {
-				return candidate;
-			}
-		}
-		catch ( error ) {
-		}
-	}
-
-	return null;
-}
-
 
 test( 'actions queue drills into groups and back out, opening details when available', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
@@ -293,60 +262,27 @@ test( 'actions queue opens group results in a panel over the queue', async ( { p
 test( 'actions queue landing keeps clear risks inert beside clickable vulnerability findings', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'empty_cloaked_plugins', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
-		let cloakedDetailRenderRequests = 0;
-		const countCloakedDetailRenderRequests = ( request ) => {
-			if ( isCloakedPluginsDetailRenderRequest( request ) ) {
-				cloakedDetailRenderRequests++;
-			}
-		};
-		page.on( 'request', countCloakedDetailRenderRequests );
-
-		try {
-			await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
-			const detailLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="detail"]' ).first();
-
-			const cloaked = await actionsQueuePage.waitForLandingGroupOuter( fixture.group_key );
-			expect( await cloaked.evaluate( ( element ) => element.tagName ) ).toBe( 'DIV' );
-			await expect( cloaked ).not.toHaveAttribute( 'data-drill-target' );
-			await expect( cloaked ).not.toHaveAttribute( 'data-drill-bucket-selection' );
-			await expect( cloaked ).not.toHaveAttribute( 'data-drill-group-selection' );
-			await expect.poll( async () => await cloaked.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'default' );
-			await actionsQueuePage.clickElement( cloaked );
-			await delay( 250 );
-			await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
-			expect( cloakedDetailRenderRequests ).toBe( 0 );
-
-			const abandoned = await actionsQueuePage.waitForLandingGroupOuter( 'abandoned' );
-			await expect.poll( async () => await abandoned.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'default' );
-			// Each vulnerable plugin or theme is listed in the queue itself, with its actions.
-			const vulnerabilities = await actionsQueuePage.waitForLandingGroupOuter( 'vulnerabilities' );
-			await expect( vulnerabilities ).not.toHaveAttribute( 'data-drill-target' );
-			const vulnerable = vulnerabilities.locator( '.actions-queue-row--item' );
-			await expect( vulnerable.first() ).toBeVisible();
-			await expect( vulnerable.first().locator( 'a.actions-queue-row__button' ).first() ).toBeVisible();
-		}
-		finally {
-			page.off( 'request', countCloakedDetailRenderRequests );
-		}
-	} );
-} );
-
-test( 'actions queue keeps ignored Cloaked Plugins interactive with the Unignore context action', async ( { page, fixtureApi } ) => {
-	await fixtureApi.withActionsQueueFixture( 'ignored_cloaked_plugins', async ( fixture ) => {
-		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
-		const cloaked = await actionsQueuePage.waitForLandingGroupOuter( fixture.group_key );
-		await expect( cloaked ).toHaveAttribute( 'data-drill-target', 'detail' );
-		await expect( cloaked ).toHaveAttribute( 'data-drill-group-selection', /"key":"hidden_plugins"/ );
+		const detailLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="detail"]' ).first();
 
+		const cloaked = await actionsQueuePage.waitForLandingGroupOuter( fixture.group_key );
+		expect( await cloaked.evaluate( ( element ) => element.tagName ) ).toBe( 'DIV' );
+		await expect( cloaked ).not.toHaveAttribute( 'data-drill-target' );
+		await expect( cloaked ).not.toHaveAttribute( 'data-drill-bucket-selection' );
+		await expect( cloaked ).not.toHaveAttribute( 'data-drill-group-selection' );
+		await expect.poll( async () => await cloaked.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'default' );
 		await actionsQueuePage.clickElement( cloaked );
-		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-		const action = await operatorContextAjaxAction(
-			page.locator( '[data-actions-queue-detail="1"]' ),
-			( candidate ) => candidate?.ex === 'cloaked_plugin_unignore'
-		);
-		expect( action ).not.toBeNull();
-		await expect( action ).toBeVisible();
+		await delay( 250 );
+		await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
+
+		const abandoned = await actionsQueuePage.waitForLandingGroupOuter( 'abandoned' );
+		await expect.poll( async () => await abandoned.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'default' );
+		// Each vulnerable plugin or theme is listed in the queue itself, with its actions.
+		const vulnerabilities = await actionsQueuePage.waitForLandingGroupOuter( 'vulnerabilities' );
+		await expect( vulnerabilities ).not.toHaveAttribute( 'data-drill-target' );
+		const vulnerable = vulnerabilities.locator( '.actions-queue-row--item' );
+		await expect( vulnerable.first() ).toBeVisible();
+		await expect( vulnerable.first().locator( 'a.actions-queue-row__button' ).first() ).toBeVisible();
 	} );
 } );
 

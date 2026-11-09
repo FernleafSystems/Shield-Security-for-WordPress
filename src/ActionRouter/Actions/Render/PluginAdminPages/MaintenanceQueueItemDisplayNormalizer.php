@@ -30,8 +30,8 @@ use FernleafSystems\Wordpress\Services\Services;
  *   icon:string,
  *   tooltip:string,
  *   target:string,
- *   ajax_action?:array<string,mixed>,
- *   ajax_action_json:string
+ *   ajax_action_json:string,
+ *   maintenance_key:string
  * }
  * @phpstan-type MaintenancePrimaryAction array{
  *   href:string,
@@ -590,8 +590,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 			'icon'             => $isIgnored ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill',
 			'tooltip'          => $tooltip,
 			'target'           => '',
-			'ajax_action'      => $ajaxAction,
 			'ajax_action_json' => $this->encodeActionData( $ajaxAction ),
+			'maintenance_key'  => $maintenanceKey,
 		];
 	}
 

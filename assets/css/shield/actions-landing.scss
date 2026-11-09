@@ -1,4 +1,6 @@
+// The queue takes the page's width: a long lane heading is cut short rather than widening everything else.
 .actions-landing__drilldown .drill-shell {
+	grid-template-columns: minmax(0, 1fr);
 	min-width: 0;
 }
 
@@ -213,6 +215,7 @@ $aq-pro-bg: #f2ebfc;
 	display: grid;
 	font-size: 13px;
 	gap: 14px;
+	grid-template-columns: minmax(0, 1fr);
 }
 
 .actions-queue-sections__bar {
@@ -536,6 +539,7 @@ $aq-pro-bg: #f2ebfc;
 .actions-queue-section__body {
 	display: grid;
 	gap: 10px;
+	grid-template-columns: minmax(0, 1fr);
 	padding-top: 10px;
 
 	&[hidden] {
@@ -700,6 +704,37 @@ $aq-pro-bg: #f2ebfc;
 .actions-queue-row__desc {
 	color: $aq-muted;
 	font-size: 13px;
+}
+
+.actions-queue-row__details {
+	color: $aq-muted;
+	font-size: 13px;
+
+	summary {
+		cursor: pointer;
+		width: fit-content;
+
+		&:focus-visible {
+			@include shield-focus-ring(1px);
+		}
+	}
+
+	dl {
+		column-gap: 12px;
+		display: grid;
+		grid-template-columns: max-content minmax(0, 1fr);
+		margin: 6px 0 2px;
+		row-gap: 3px;
+	}
+
+	dt {
+		font-weight: 600;
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
 }
 
 .actions-queue-pill {
@@ -980,8 +1015,20 @@ button.actions-queue-row-group__link {
 		justify-self: start;
 	}
 
+	// A long button label wraps, rather than running out of its box.
+	.actions-queue-row__action,
+	.actions-queue-row__button,
+	.actions-queue-row__ignore {
+		white-space: normal;
+	}
+
 	.actions-queue-section__summary {
 		display: none;
+	}
+
+	// There's no width to spare for indenting a section's groups.
+	.actions-queue-sections--sections .actions-queue-section__body {
+		padding-left: 0;
 	}
 
 	// A heading's own link drops beneath it on a phone, rather than being pushed out of its box.
@@ -990,7 +1037,29 @@ button.actions-queue-row-group__link {
 
 		> .actions-queue-box-toggle {
 			flex-basis: 100%;
+			min-width: 0;
 		}
+	}
+}
+
+// On the narrowest phones a row's buttons take its full width, and headings wrap rather than run out of their box.
+@media (max-width: 360px) {
+	.actions-queue-row__action,
+	.actions-queue-row__links {
+		grid-column: 1 / -1;
+	}
+
+	.actions-queue-section__label,
+	.actions-queue-row-group__link {
+		white-space: normal;
+	}
+
+	.actions-queue-section__breakdown {
+		display: none;
+	}
+
+	.actions-queue-row-group__head > .actions-queue-box-toggle {
+		flex-wrap: wrap;
 	}
 }
 
@@ -1034,7 +1103,7 @@ button.actions-queue-row-group__link {
 		}
 	}
 
-	.actions-queue-row__desc {
+	> .actions-queue-row .actions-queue-row__desc {
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;

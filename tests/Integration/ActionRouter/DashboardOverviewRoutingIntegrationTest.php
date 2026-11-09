@@ -600,7 +600,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			$this->assertSame( 'critical', $assessmentRow[ 'status' ] ?? null );
 			$this->assertNotSame( '', $assessmentRow[ 'description' ] ?? '' );
 			$this->assertCount( 1, $provider->attentionItems() );
-			$this->assertSame( 'critical', $provider->railPaneData()[ 'status' ] );
+			$this->assertCount( 1, $provider->queueRows()[ 'active' ] );
 		}
 		finally {
 			\remove_filter( 'all_plugins', [ $this, 'hideCloakedPluginOnlyOnPluginsPage' ], 1000 );

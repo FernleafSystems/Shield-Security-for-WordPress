@@ -86,7 +86,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type VulnerabilityItem from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitySection from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
- * @phpstan-import-type CloakedPluginsRailPane from CloakedPluginsQueueIssueProvider
  * @phpstan-type QueueAssetPane array{
  *   is_disabled:bool,
  *   disabled_message:string,
@@ -258,13 +257,6 @@ class ScansResultsViewBuilder {
 			'disabled_actions' => [],
 			'cards'            => $this->buildFileLockerQueueRecords(),
 		];
-	}
-
-	/**
-	 * @return CloakedPluginsRailPane
-	 */
-	public function buildActionsQueueCloakedPluginsPane() :array {
-		return ( new CloakedPluginsQueueIssueProvider() )->railPaneData();
 	}
 
 	/**
@@ -458,15 +450,11 @@ class ScansResultsViewBuilder {
 
 	/**
 	 * @param array{count?:int,status?:string,sections?:array<string,mixed>} $vulnerabilities
-	 * @return ScanResultsRailPane|CloakedPluginsRailPane
+	 * @return ScanResultsRailPane
 	 */
 	public function buildRailPaneData( string $tabKey, array $vulnerabilities = [], ?string $vulnerabilitySection = null ) :array {
 		$tabKey = \strtolower( \trim( $tabKey ) );
 		$availability = $this->getRailTabAvailability( $tabKey );
-		if ( $tabKey === 'hidden_plugins' && $availability[ 'is_available' ] ) {
-			return $this->buildActionsQueueCloakedPluginsPane();
-		}
-
 		$meta = $this->getRailTabMeta( $tabKey );
 		$items = [];
 		$count = 0;
@@ -476,8 +464,7 @@ class ScansResultsViewBuilder {
 		$disabledStatus = $availability[ 'disabled_status' ];
 		$disabledActions = [];
 
-		if ( !$availability[ 'is_available' ]
-			 && ( $tabKey === 'hidden_plugins' || $this->isProtectedScanResultsArea( $tabKey ) ) ) {
+		if ( !$availability[ 'is_available' ] && $this->isProtectedScanResultsArea( $tabKey ) ) {
 			$isDisabled = true;
 			$status = $disabledStatus;
 			$disabledMessage = $availability[ 'disabled_message' ];

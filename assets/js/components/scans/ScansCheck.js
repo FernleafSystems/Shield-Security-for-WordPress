@@ -6,12 +6,15 @@ import { ScanIndicator } from "./ScanIndicator";
 
 export class ScansCheck extends BaseComponent {
 
+	static MISSED_UPDATES_BEFORE_NOTICE = 3;
+
 	init() {
 		this.scanState = null;
 		this.nextStepTimer = null;
 		this.requestRevision = 0;
 		this.recoveryInFlight = false;
 		this.trackedScanIds = [];
+		this.missedUpdates = 0;
 		this.bindRecoveryClickHandler();
 		this.exec();
 	}
@@ -134,6 +137,7 @@ export class ScansCheck extends BaseComponent {
 
 		this.advanceRequestRevision();
 		this.scanState = 'running';
+		this.missedUpdates = 0;
 		this.setRecoveryControlsBusy( this.recoveryInFlight );
 		this.scheduleCheck( 1000 );
 	}
@@ -172,11 +176,18 @@ export class ScansCheck extends BaseComponent {
 	 */
 	handleModalResponse( resp ) {
 		if ( !ScanProgressModal.HasModalResponse( resp ) ) {
-			this.recordScanFailure();
-			this.showError( ScanProgressModal.ExtractErrorMessage( resp ) );
+			const message = ScanProgressModal.ExtractErrorMessage( resp );
+			if ( message.length > 0 ) {
+				this.recordScanFailure();
+				this.showError( message );
+			}
+			else {
+				this.noteMissedUpdate();
+			}
 			return;
 		}
 
+		this.missedUpdates = 0;
 		this.scanState = resp.data.modal_state;
 		if ( ScanIndicator.IsAvailable() ) {
 			const current = resp.data.scan_rows.find( ( row ) => row.is_current ) || resp.data.scan_rows[ 0 ];
@@ -188,6 +199,26 @@ export class ScansCheck extends BaseComponent {
 		}
 		else {
 			ScanProgressModal.ShowHtml( resp.data.modal_html );
+		}
+	}
+
+	/**
+	 * An update can go unanswered for reasons that have nothing to do with the scans, such as leaving the page
+	 * while it's on its way, so the polling carries on. Only when updates keep going missing does the page say so,
+	 * and the next update to arrive replaces that.
+	 */
+	noteMissedUpdate() {
+		this.scanState = 'running';
+		this.missedUpdates++;
+		if ( this.missedUpdates !== ScansCheck.MISSED_UPDATES_BEFORE_NOTICE ) {
+			return;
+		}
+
+		if ( ScanIndicator.IsAvailable() ) {
+			ScanIndicator.Show( 'running', this._base_data.strings.indicator_stale, this._base_data );
+		}
+		else {
+			ScanProgressModal.ShowStale( this._base_data.strings );
 		}
 	}
 

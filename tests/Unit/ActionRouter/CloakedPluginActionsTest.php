@@ -58,7 +58,7 @@ class CloakedPluginActionsTest extends BaseUnitTest {
 		$action = new CloakedPluginIgnoreActionTestDouble(
 			$this->state( [ $finding ], [] ),
 			[
-				'finding_id' => $finding->identityKey(),
+				'identifier' => $finding->identityKey(),
 			]
 		);
 
@@ -69,6 +69,57 @@ class CloakedPluginActionsTest extends BaseUnitTest {
 			[ $finding->identityKey() ],
 			$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ]
 		);
+	}
+
+	public function test_ignore_all_stores_every_identity_in_one_request() :void {
+		$first = $this->finding( 'first/first.php' );
+		$second = $this->finding( 'second/second.php' );
+		$action = new CloakedPluginIgnoreActionTestDouble(
+			$this->state( [ $first, $second ], [] ),
+			[
+				'identifiers' => [ $first->identityKey(), $second->identityKey() ],
+			]
+		);
+
+		$action->process();
+
+		$this->assertTrue( $action->response()->payload()[ 'success' ] );
+		$this->assertEqualsCanonicalizing(
+			[ $first->identityKey(), $second->identityKey() ],
+			$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ]
+		);
+	}
+
+	public function test_ignore_all_still_applies_when_one_plugin_has_gone() :void {
+		$present = $this->finding( 'present/present.php' );
+		$action = new CloakedPluginIgnoreActionTestDouble(
+			$this->state( [ $present ], [] ),
+			[
+				'identifiers' => [ \str_repeat( 'a', 40 ), $present->identityKey() ],
+			]
+		);
+
+		$action->process();
+
+		$this->assertTrue( $action->response()->payload()[ 'success' ] );
+		$this->assertSame( [ $present->identityKey() ], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+	}
+
+	public function test_stop_ignoring_all_removes_every_identity_in_one_request() :void {
+		$first = $this->finding( 'first/first.php' );
+		$second = $this->finding( 'second/second.php' );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [ $first->identityKey(), $second->identityKey() ];
+		$action = new CloakedPluginUnignoreActionTestDouble(
+			$this->state( [], [ $first, $second ] ),
+			[
+				'identifiers' => [ $first->identityKey(), $second->identityKey() ],
+			]
+		);
+
+		$action->process();
+
+		$this->assertTrue( $action->response()->payload()[ 'success' ] );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
 	}
 
 	public function test_ignore_rejects_shield_mu_loader_identity_without_mutating_state() :void {
@@ -82,7 +133,7 @@ class CloakedPluginActionsTest extends BaseUnitTest {
 		$action = new CloakedPluginIgnoreActionTestDouble(
 			$this->state( [ $finding ], [] ),
 			[
-				'finding_id' => $finding->identityKey(),
+				'identifier' => $finding->identityKey(),
 			]
 		);
 
@@ -98,7 +149,7 @@ class CloakedPluginActionsTest extends BaseUnitTest {
 		$action = new CloakedPluginIgnoreActionTestDouble(
 			$this->state( [], [] ),
 			[
-				'finding_id' => \str_repeat( 'a', 40 ),
+				'identifier' => \str_repeat( 'a', 40 ),
 			]
 		);
 
@@ -114,7 +165,7 @@ class CloakedPluginActionsTest extends BaseUnitTest {
 		$action = new CloakedPluginIgnoreActionTestDouble(
 			$this->state( [], [] ),
 			[
-				'finding_id' => '',
+				'identifier' => '',
 			]
 		);
 
@@ -131,7 +182,7 @@ class CloakedPluginActionsTest extends BaseUnitTest {
 		$action = new CloakedPluginUnignoreActionTestDouble(
 			$this->state( [], [ $finding ] ),
 			[
-				'finding_id' => $finding->identityKey(),
+				'identifier' => $finding->identityKey(),
 			]
 		);
 

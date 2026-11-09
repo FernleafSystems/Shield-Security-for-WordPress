@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
-	CloakedPlugins,
 	Malware,
 	Vulnerabilities,
 	Wordpress
@@ -13,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetFileStatusDetail,
 	ActionsQueueBucketsBuilder,
+	ActionsQueueCompactSummaryRowBuilder,
 	ActionsQueueDrillDownPresentationBuilder,
 	ActionsQueueGroupContractBuilder,
 	ActionsQueueGroupDefinitions,
@@ -481,14 +481,14 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'critical', $group[ 'status' ] );
 		$this->assertSame( 'direct_table', $group[ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $group[ 'card_type' ] );
-		$this->assertSame( CloakedPlugins::class, $group[ 'render_action_class' ] );
+		$this->assertCount( 2, $group[ 'maintenance_rows' ] );
+		$this->assertSame( 'Cloaked Two', $group[ 'maintenance_rows' ][ 1 ][ 'title' ] );
+		$this->assertCount( 1, $group[ 'ignored_rows' ] );
+		$this->assertFalse( $group[ 'is_interactive' ] );
+		$this->assertNull( $group[ 'render_action_class' ] );
 		$this->assertSame( [], $group[ 'render_action_data' ] );
-		$this->assertSame( [], $group[ 'selection' ][ 'header' ][ 'actions' ] );
-		$this->assertNotSame( '', $group[ 'drill_hint' ] );
-		$this->assertAjaxRenderPayloadAllowedByPolicy(
-			$group[ 'selection' ][ 'detail_render_action' ],
-			'cloaked plugin group detail render'
-		);
+		$this->assertSame( [], $group[ 'selection' ][ 'detail_render_action' ] );
+		$this->assertSame( '', $group[ 'drill_hint' ] );
 	}
 
 	public function test_build_keeps_file_integrity_together_before_other_healthy_sections() :void {
@@ -649,6 +649,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'tooltip'          => 'Stop ignoring this maintenance item',
 						'target'           => '',
 						'ajax_action_json' => '{"ex":"maintenance_item_unignore"}',
+						'maintenance_key'  => 'wp_plugins_updates',
 					],
 					'expansion'     => [],
 				],
@@ -749,6 +750,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 											'tooltip'          => 'Ignore this maintenance item',
 											'target'           => '',
 											'ajax_action_json' => '{"ex":"maintenance_item_ignore"}',
+											'maintenance_key'  => 'wp_plugins_updates',
 										],
 									],
 								],
@@ -1074,6 +1076,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'tooltip'          => 'Stop ignoring this maintenance item',
 						'target'           => '',
 						'ajax_action_json' => '{"ex":"maintenance_item_unignore"}',
+						'maintenance_key'  => 'wp_plugins_updates',
 					],
 					'expansion'     => [],
 				],
@@ -1323,9 +1326,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'hidden_plugins', $payload[ 'selected_group' ][ 'key' ] );
 		$this->assertSame( 'good', $payload[ 'selected_group' ][ 'status' ] );
 		$this->assertSame( 'expandable', $payload[ 'selected_group' ][ 'card_type' ] );
-		$this->assertTrue( $payload[ 'selected_group' ][ 'is_interactive' ] );
+		$this->assertFalse( $payload[ 'selected_group' ][ 'is_interactive' ] );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'render_action_data' ] );
-		$this->assertSame( 'scanresults_cloakedplugins', $payload[ 'selected_group' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'selection' ][ 'detail_render_action' ] );
+		$this->assertCount( 1, $payload[ 'selected_group' ][ 'ignored_rows' ] );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'actions' ] );
 	}
 
@@ -1344,7 +1348,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'status'            => 'good',
 					'status_label'      => 'Good',
 					'status_icon_class' => 'bi bi-patch-check-fill',
-					'has_useful_detail' => false,
 				] ],
 				'maintenance' => [],
 			]
@@ -1958,6 +1961,17 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 									];
 							}
 							return $this->vulnerabilitiesPayload[ 'sections' ][ $sectionKey ];
+						}
+
+						public function cloakedPluginRows() :array {
+							$rows = new ActionsQueueCompactSummaryRowBuilder();
+							return [
+								'active'  => [
+									$rows->build( 'bi bi-plug', 'Cloaked One', 'Hidden' ),
+									$rows->build( 'bi bi-plug', 'Cloaked Two', 'Hidden' ),
+								],
+								'ignored' => [ $rows->build( 'bi bi-plug', 'Cloaked Three', 'Hidden', 'Ignored', true ) ],
+							];
 						}
 
 						public function getVulnerabilitiesPayloadCalls() :int {

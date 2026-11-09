@@ -12,7 +12,7 @@
 {% set kind = is_pro ? 'pro' : ( is_enable ? 'enable' : ( is_passing ? 'good' : group.status ) ) %}
 
 {#
-	A group that lists its items (maintenance, or each vulnerable plugin and theme) shows them in place. Where
+	A group that lists its items (maintenance, or each vulnerable, abandoned or cloaked asset) shows them in place. Where
 	asked (Review next, the longest lane), it starts folded to its heading and a count, and its heading opens it.
 	Items that are ignored count for nothing, so a passing group can still list them, behind "2 ignored" in its heading.
 #}

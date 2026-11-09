@@ -50,7 +50,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
  *   is_pro_upsell:bool,
  *   enable_dialog_json:string,
  *   detail_table:array<string,mixed>,
- *   render_action_class:class-string<BaseRender>,
+ *   render_action_class:class-string<BaseRender>|null,
  *   render_action_data:array<string,mixed>,
  *   maintenance_rows:list<CompactSummaryRow>,
  *   ignored_rows:list<CompactSummaryRow>,

@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
-	CloakedPlugins,
 	Malware,
 	Maintenance,
 	Vulnerabilities,
@@ -50,7 +49,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertGroupDefinitionShape( $definitions[ 'hidden_plugins' ] );
 		$this->assertSame( 'direct_table', $definitions[ 'hidden_plugins' ][ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $definitions[ 'hidden_plugins' ][ 'card_type' ] );
-		$this->assertSame( CloakedPlugins::class, $definitions[ 'hidden_plugins' ][ 'render_action_class' ] );
+		$this->assertNull( $definitions[ 'hidden_plugins' ][ 'render_action_class' ] );
 		$this->assertSame( [], $definitions[ 'hidden_plugins' ][ 'render_action_data' ] );
 		$this->assertSame( Malware::class, $definitions[ 'malware' ][ 'render_action_class' ] );
 		$this->assertSame(
@@ -165,7 +164,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				'definition_key' => 'hidden_plugins',
-				'seed_strategy'  => 'attention_aggregate',
+				'seed_strategy'  => 'cloaked_plugins',
 			],
 			$definitions->summaryBehaviourForKey( 'hidden_plugins' )
 		);

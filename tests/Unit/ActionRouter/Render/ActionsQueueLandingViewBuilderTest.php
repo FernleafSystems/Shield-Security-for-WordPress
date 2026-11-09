@@ -260,7 +260,7 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 								'is_action'   => true,
 								'icon'        => 'bi bi-eye-fill',
 								'tooltip'     => 'Stop ignoring this maintenance item',
-								'ajax_action' => [ 'ex' => 'maintenance_item_unignore' ],
+								'ajax_action_json' => '{"ex":"maintenance_item_unignore"}',
 							],
 							'expansion'     => [],
 						],

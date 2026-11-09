@@ -778,19 +778,23 @@ class ActionsQueueFixtureBuilder {
 	 */
 	private function seedIgnoredCloakedPlugins( array &$state ) :array {
 		$this->snapshotAndClearCloakedPluginState( $state );
-		$pluginFile = $this->createCloakedPluginFixture( $state );
-		$identity = \sha1( \json_encode( [
-			'type' => \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\PluginType::Standard,
-			'file' => $pluginFile,
-		] ) ?: 'standard|'.$pluginFile );
-		$this->storeCloakedPluginState( [
-			$identity => [
+		$findings = [];
+		foreach ( [
+			$this->createCloakedPluginFixture( $state ),
+			$this->createCloakedPluginFixture( $state, 'shield-browser-cloaked-fixture-two', 'Shield Browser Cloaked Fixture Two' ),
+		] as $pluginFile ) {
+			$identity = \sha1( \json_encode( [
+				'type' => \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\PluginType::Standard,
+				'file' => $pluginFile,
+			] ) ?: 'standard|'.$pluginFile );
+			$findings[ $identity ] = [
 				'type'          => \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\PluginType::Standard,
 				'file'          => $pluginFile,
 				'cloak_reasons' => [ \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakReason::AllPlugins ],
 				'detected_at'   => 1700000000,
-			],
-		], [ $identity ] );
+			];
+		}
+		$this->storeCloakedPluginState( $findings, \array_keys( $findings ) );
 		$this->seedUnrelatedCriticalVulnerability( $state );
 
 		return [
@@ -798,7 +802,7 @@ class ActionsQueueFixtureBuilder {
 			'target_group_key'            => 'hidden_plugins',
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
-			'expected_interactivity'      => true,
+			'expected_interactivity'      => false,
 			'require_scan_results_table'  => false,
 			'require_populated_scan_results_table' => false,
 		];
@@ -884,17 +888,20 @@ class ActionsQueueFixtureBuilder {
 	/**
 	 * @phpstan-param FixtureState $state
 	 */
-	private function createCloakedPluginFixture( array &$state ) :string {
-		$slug = 'shield-browser-cloaked-fixture';
+	private function createCloakedPluginFixture(
+		array &$state,
+		string $slug = 'shield-browser-cloaked-fixture',
+		string $name = 'Shield Browser Cloaked Fixture'
+	) :string {
 		$directory = \wp_normalize_path( WP_PLUGIN_DIR.'/'.$slug );
 		$path = $directory.'/'.$slug.'.php';
 		if ( !\is_dir( $directory ) && !\wp_mkdir_p( $directory ) ) {
 			throw new \RuntimeException( 'Unable to create the Cloaked Plugins fixture directory.' );
 		}
-		if ( \file_put_contents( $path, "<?php\n/*\nPlugin Name: Shield Browser Cloaked Fixture\nVersion: 1.0.0\n*/\nadd_action('init', static function () {});\n" ) === false ) {
+		if ( \file_put_contents( $path, "<?php\n/*\nPlugin Name: $name\nVersion: 1.0.0\n*/\nadd_action('init', static function () {});\n" ) === false ) {
 			throw new \RuntimeException( 'Unable to create the Cloaked Plugins fixture plugin.' );
 		}
-		$state[ 'cloaked_plugin_paths' ] = [ $directory, $path ];
+		$state[ 'cloaked_plugin_paths' ] = \array_merge( $state[ 'cloaked_plugin_paths' ] ?? [], [ $directory, $path ] );
 		$this->cleanPluginsCache();
 
 		return $slug.'/'.$slug.'.php';

@@ -693,6 +693,93 @@ test( 'manual scan start shows a local error in the page when the response lacks
 	await expectNoAxeViolations( page, '[data-shield-scan-run="1"]' );
 } );
 
+/**
+ * Answers the scan polling in the order given: 'running' as the server would, 'lost' as a request that never
+ * gets an answer, and 'rejected' as the server refusing with its reason. The last answer repeats.
+ */
+async function scriptScanChecks( page, outcomes ) {
+	await page.addInitScript( () => {
+		window.addEventListener( 'load', () => {
+			const flags = window.shield_vars_main?.comps?.scans?.flags;
+			if ( flags ) {
+				flags.initial_check = true;
+			}
+		}, { once: true } );
+	} );
+
+	let polls = 0;
+	await page.route( '**/admin-ajax.php', async ( route ) => {
+		if ( !isScanRequest( route.request(), 'scans_check' ) ) {
+			await route.fallback();
+			return;
+		}
+		const outcome = outcomes[ Math.min( polls, outcomes.length - 1 ) ];
+		polls++;
+		if ( outcome === 'lost' ) {
+			await route.abort( 'failed' );
+		}
+		else if ( outcome === 'rejected' ) {
+			await route.fulfill( actionRouterResponse( { success: false, message: 'scan-contract-refused' } ) );
+		}
+		else {
+			await route.fulfill( actionRouterResponse( {
+				success: true,
+				running: { afs: true, wpv: false, apc: false },
+				failed: false,
+				failure_message: '',
+				modal_state: 'running',
+				modal_html: scanProgressHtml( 'running', 37 ),
+				scan_rows: [ { name: 'WordPress Filesystem Scan', is_current: true, progress: 37 } ],
+			} ) );
+		}
+	} );
+	return () => polls;
+}
+
+test( 'one unanswered progress update leaves the scans running and the polling going', async ( { page } ) => {
+	const polls = await scriptScanChecks( page, [ 'running', 'lost', 'running' ] );
+	await openShieldRoute( page, { nav: 'scans', nav_sub: 'run' } );
+
+	await expect.poll( polls, { timeout: 15000 } ).toBeGreaterThanOrEqual( 3 );
+	await assertScanModalState( scanModal( page ), 'running', 'true' );
+} );
+
+test( 'progress updates that keep going unanswered say so without calling the scan failed, then recover', async ( { page } ) => {
+	const polls = await scriptScanChecks( page, [ 'running', 'lost', 'lost', 'lost', 'running' ] );
+	await openShieldRoute( page, { nav: 'scans', nav_sub: 'run' } );
+
+	const progress = scanModal( page );
+	await expect( progress.locator( '[data-shield-scan-modal-state]' ) )
+	.toHaveAttribute( 'data-shield-scan-modal-state', 'stale', { timeout: 15000 } );
+	await expect( progress ).toContainText( 'may still be running' );
+	await expect( progress.locator( '[data-shield-scan-modal-state]' ) ).not.toContainText( 'failed' );
+	await expect( progress.getByRole( 'link', { name: 'Refresh' } ) ).toHaveAttribute( 'href', /nav_sub=run/ );
+	await expectNoAxeViolations( page, '[data-shield-scan-run="1"]' );
+
+	await expect.poll( polls, { timeout: 15000 } ).toBeGreaterThanOrEqual( 5 );
+	await assertScanModalState( progress, 'running', 'true' );
+} );
+
+test( 'the actions queue keeps showing scans as running while progress updates go unanswered', async ( { page } ) => {
+	await scriptScanChecks( page, [ 'running', 'lost', 'lost', 'lost', 'running' ] );
+	await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
+
+	const indicator = page.locator( '[data-shield-scan-indicator="1"]' );
+	await expect( indicator ).toContainText( "couldn't be updated", { timeout: 15000 } );
+	await expect( indicator ).toHaveAttribute( 'data-state', 'running' );
+	await expect( indicator ).toContainText( 'WordPress Filesystem Scan 37%', { timeout: 15000 } );
+} );
+
+test( 'a progress update the server refuses still shows as a failure, with its reason', async ( { page } ) => {
+	await scriptScanChecks( page, [ 'running', 'rejected' ] );
+	await openShieldRoute( page, { nav: 'scans', nav_sub: 'run' } );
+
+	const progress = scanModal( page );
+	await expect( progress.locator( '[data-shield-scan-modal-state]' ) )
+	.toHaveAttribute( 'data-shield-scan-modal-state', 'failed', { timeout: 15000 } );
+	await expect( progress ).toContainText( 'scan-contract-refused' );
+} );
+
 function scanProgressHtml( modalState, progress, options = {} ) {
 	const isInitiating = modalState === 'initiating';
 	const isRunning = isInitiating || modalState === 'running';

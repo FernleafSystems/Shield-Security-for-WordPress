@@ -87,23 +87,14 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 	}
 
 	public function test_active_standard_plugin_is_reported_across_actions_queue_contracts() :void {
-		$provider = new CloakedPluginsQueueIssueProviderTestDouble(
-			[
-				$this->finding(
-					new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Cloaked Plugin', '1.2.3', '/plugins/cloaked/cloaked.php' ),
-					[ CloakReason::AllPlugins ],
-					true
-				),
-			],
-			'/deactivate-cloaked'
+		$finding = $this->finding(
+			new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Cloaked Plugin', '1.2.3', '/plugins/cloaked/cloaked.php' ),
+			[ CloakReason::AllPlugins ],
+			true
 		);
+		$provider = new CloakedPluginsQueueIssueProviderTestDouble( [ $finding ], '/deactivate-cloaked' );
 
-		$attentionItems = $provider->attentionItems();
-		$assessmentRows = $provider->assessmentRows();
-		$pane = $provider->railPaneData();
-
-		$this->assertCount( 1, $attentionItems );
-		$attentionItem = $attentionItems[ 0 ];
+		$attentionItem = $provider->attentionItems()[ 0 ];
 		$this->assertSame( 'hidden_plugins', $attentionItem[ 'key' ] );
 		$this->assertSame( 'scans', $attentionItem[ 'zone' ] );
 		$this->assertSame( 'security_check', $attentionItem[ 'source' ] );
@@ -113,33 +104,30 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$this->assertTrue( $attentionItem[ 'supports_sub_items' ] );
 		$this->assertSame( '/admin/scans/overview?zone=scans', $attentionItem[ 'href' ] );
 
-		$assessmentRow = $assessmentRows[ 0 ];
+		$assessmentRow = $provider->assessmentRows()[ 0 ];
 		$this->assertSame( 'critical', $assessmentRow[ 'status' ] );
 		$this->assertSame( 'critical', $assessmentRow[ 'drill_bucket' ] );
 		$this->assertSame( 'bi bi-eye-slash-fill', $assessmentRow[ 'item_icon_class' ] );
-		$this->assertTrue( $assessmentRow[ 'has_useful_detail' ] );
 
-		$this->assertSame( 'hidden_plugins', $pane[ 'key' ] );
-		$this->assertSame( 'critical', $pane[ 'status' ] );
-		$this->assertSame( 1, $pane[ 'count_items' ] );
-		$this->assertTrue( $pane[ 'is_loaded' ] );
-		$this->assertFalse( $pane[ 'is_disabled' ] );
-		$this->assertSame( [], $pane[ 'render_action' ] );
-		$this->assertCount( 1, $pane[ 'items' ] );
-		$row = $pane[ 'items' ][ 0 ];
+		$rows = $provider->queueRows();
+		$this->assertCount( 1, $rows[ 'active' ] );
+		$this->assertSame( [], $rows[ 'ignored' ] );
+		$row = $rows[ 'active' ][ 0 ];
 		$this->assertSame( 'Cloaked Plugin', $row[ 'title' ] );
-		$this->assertSame( 'critical', $row[ 'status' ] );
-		$this->assertFalse( $row[ 'expandable' ] );
-		$this->assertFalse( $row[ 'show_gear' ] );
-		$this->assertSame( [], $row[ 'expansion' ] );
+		$this->assertSame( $finding->cloakReasonSummary(), $row[ 'summary' ] );
+		$this->assertFalse( $row[ 'is_ignored' ] );
+		$this->assertSame( '', $row[ 'badge_label' ] );
 		$this->assertSame( '/deactivate-cloaked', $row[ 'actions' ][ 0 ][ 'href' ] );
-		$this->assertSame( 'deactivate', $row[ 'actions' ][ 0 ][ 'type' ] );
-		$this->assertTrue( $row[ 'actions' ][ 1 ][ 'is_action' ] );
-		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 1 ] )[ 'ex' ] ?? '' );
-		$this->assertSame( '1', $row[ 'actions' ][ 1 ][ 'attributes' ][ 'data-operator-context-action-ajax' ] );
-		$this->assertSame( [], $row[ 'explanations' ] );
-		$this->assertSame( 'code', $row[ 'detail_items' ][ 1 ][ 'style' ] );
-		$this->assertSame( 'wp-content/plugins/cloaked/cloaked.php', $row[ 'detail_items' ][ 1 ][ 'value' ] );
+		$this->assertFalse( $row[ 'actions' ][ 0 ][ 'is_action' ] );
+		$this->assertSame( 'ignore', $row[ 'actions' ][ 1 ][ 'kind' ] );
+		$this->assertSame( 'hidden_plugins', $row[ 'actions' ][ 1 ][ 'maintenance_key' ] );
+		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 1 ] )[ 'ex' ] );
+		$this->assertSame( $finding->identityKey(), $this->decodeAction( $row[ 'actions' ][ 1 ] )[ 'identifier' ] );
+		$this->assertSame(
+			[ 'value' => 'wp-content/plugins/cloaked/cloaked.php', 'style' => 'code' ],
+			$this->detailNamed( $row, 'Path' )
+		);
+		$this->assertSame( 'Active', $this->detailNamed( $row, 'Status' )[ 'value' ] );
 	}
 
 	public function test_clear_state_is_good_without_attention_item() :void {
@@ -149,12 +137,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$assessmentRow = $provider->assessmentRows()[ 0 ];
 		$this->assertSame( 'good', $assessmentRow[ 'status' ] );
 		$this->assertSame( 'critical', $assessmentRow[ 'drill_bucket' ] );
-		$this->assertFalse( $assessmentRow[ 'has_useful_detail' ] );
-
-		$pane = $provider->railPaneData();
-		$this->assertSame( 'good', $pane[ 'status' ] );
-		$this->assertSame( 0, $pane[ 'count_items' ] );
-		$this->assertSame( [], $pane[ 'items' ] );
+		$this->assertSame( [ 'active' => [], 'ignored' => [] ], $provider->queueRows() );
 	}
 
 	public function test_inactive_standard_plugin_uses_plugins_management_link() :void {
@@ -170,12 +153,11 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 			'/plugins-search'
 		);
 
-		$row = $provider->railPaneData()[ 'items' ][ 0 ];
+		$row = $provider->queueRows()[ 'active' ][ 0 ];
 
 		$this->assertSame( '/plugins-search', $row[ 'actions' ][ 0 ][ 'href' ] );
-		$this->assertSame( 'navigate', $row[ 'actions' ][ 0 ][ 'type' ] );
-		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 1 ] )[ 'ex' ] ?? '' );
-		$this->assertNotEmpty( $row[ 'detail_items' ][ 3 ][ 'value' ] );
+		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 1 ] )[ 'ex' ] );
+		$this->assertSame( 'Inactive', $this->detailNamed( $row, 'Status' )[ 'value' ] );
 	}
 
 	public function test_must_use_plugin_has_manual_remediation_with_ignore_action() :void {
@@ -190,15 +172,15 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 			]
 		);
 
-		$row = $provider->railPaneData()[ 'items' ][ 0 ];
+		$row = $provider->queueRows()[ 'active' ][ 0 ];
 
 		$this->assertCount( 1, $row[ 'actions' ] );
-		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'ex' ] ?? '' );
-		$this->assertSame( 'wp-content/mu-plugins/loader.php', $row[ 'detail_items' ][ 1 ][ 'value' ] );
-		$this->assertCount( 5, $row[ 'detail_items' ] );
+		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'ex' ] );
+		$this->assertSame( 'wp-content/mu-plugins/loader.php', $this->detailNamed( $row, 'Path' )[ 'value' ] );
+		$this->assertNotSame( '', $this->detailNamed( $row, 'Recommended action' )[ 'value' ] );
 	}
 
-	public function test_ignored_plugin_is_shown_in_detail_without_active_attention_item() :void {
+	public function test_ignored_plugin_is_listed_apart_and_can_be_restored_without_active_attention_item() :void {
 		$ignoredFinding = $this->finding(
 			new PluginEntry( PluginType::Standard, 'quiet/quiet.php', 'Quiet Plugin', '2.0.0', '/plugins/quiet/quiet.php' ),
 			[ CloakReason::PluginsList ],
@@ -212,19 +194,19 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( [], $provider->attentionItems() );
-		$this->assertTrue( $provider->assessmentRows()[ 0 ][ 'has_useful_detail' ] );
 
-		$pane = $provider->railPaneData();
-		$this->assertSame( 'good', $pane[ 'status' ] );
-		$this->assertSame( 0, $pane[ 'count_items' ] );
-		$this->assertCount( 1, $pane[ 'items' ] );
+		$rows = $provider->queueRows();
+		$this->assertSame( [], $rows[ 'active' ] );
+		$this->assertCount( 1, $rows[ 'ignored' ] );
 
-		$row = $pane[ 'items' ][ 0 ];
-		$this->assertSame( 'good', $row[ 'status' ] );
-		$this->assertNotEmpty( $row[ 'status_label' ] );
-		$this->assertSame( CloakedPluginUnignore::SLUG, $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'ex' ] ?? '' );
-		$this->assertSame( $ignoredFinding->identityKey(), $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'finding_id' ] ?? '' );
-		$this->assertCount( 4, $row[ 'detail_items' ] );
+		$row = $rows[ 'ignored' ][ 0 ];
+		$this->assertTrue( $row[ 'is_ignored' ] );
+		$this->assertSame( 'Ignored', $row[ 'badge_label' ] );
+		$this->assertCount( 1, $row[ 'actions' ] );
+		$this->assertSame( 'unignore', $row[ 'actions' ][ 0 ][ 'kind' ] );
+		$this->assertSame( CloakedPluginUnignore::SLUG, $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'ex' ] );
+		$this->assertSame( $ignoredFinding->identityKey(), $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'identifier' ] );
+		$this->assertNull( $this->detailNamed( $row, 'Recommended action' ) );
 	}
 
 	public function test_auto_ignored_shield_mu_has_no_queue_actions() :void {
@@ -241,12 +223,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 			[ $ignoredFinding->identityKey() ]
 		);
 
-		$pane = $provider->railPaneData();
-		$row = $pane[ 'items' ][ 0 ];
-
-		$this->assertSame( 'good', $pane[ 'status' ] );
-		$this->assertSame( 0, $pane[ 'count_items' ] );
-		$this->assertSame( [], $row[ 'actions' ] );
+		$this->assertSame( [], $provider->queueRows()[ 'ignored' ][ 0 ][ 'actions' ] );
 	}
 
 	public function test_active_shield_mu_has_no_ignore_queue_action() :void {
@@ -263,13 +240,10 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 			[ $activeFinding->identityKey() ]
 		);
 
-		$row = $provider->railPaneData()[ 'items' ][ 0 ];
-
-		$this->assertSame( 'critical', $row[ 'status' ] );
-		$this->assertSame( [], $row[ 'actions' ] );
+		$this->assertSame( [], $provider->queueRows()[ 'active' ][ 0 ][ 'actions' ] );
 	}
 
-	public function test_unavailable_detection_omits_queue_rows_and_disables_direct_pane() :void {
+	public function test_unavailable_detection_reports_nothing_to_the_queue() :void {
 		$this->installCapability( false );
 		$finding = $this->finding(
 			new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Cloaked Plugin', '1.2.3', '/plugins/cloaked/cloaked.php' ),
@@ -280,12 +254,6 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 
 		$this->assertSame( [], $provider->attentionItems() );
 		$this->assertSame( [], $provider->assessmentRows() );
-		$pane = $provider->railPaneData();
-		$this->assertTrue( $pane[ 'is_disabled' ] );
-		$this->assertSame( 'neutral', $pane[ 'status' ] );
-		$this->assertSame( 0, $pane[ 'count_items' ] );
-		$this->assertSame( [], $pane[ 'items' ] );
-		$this->assertSame( [], $pane[ 'disabled_actions' ] );
 	}
 
 	private function installCapability( bool $available ) :void {
@@ -314,8 +282,19 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 	}
 
 	private function decodeAction( array $action ) :array {
-		$decoded = \json_decode( $action[ 'attributes' ][ 'data-operator-context-action-json' ] ?? '', true );
-		return \is_array( $decoded ) ? $decoded : [];
+		return \json_decode( $action[ 'ajax_action_json' ], true );
+	}
+
+	/**
+	 * @return array{value:string,style:string}|null
+	 */
+	private function detailNamed( array $row, string $label ) :?array {
+		foreach ( $row[ 'details' ][ 'items' ] as $item ) {
+			if ( $item[ 'label' ] === $label ) {
+				return [ 'value' => $item[ 'value' ], 'style' => $item[ 'style' ] ];
+			}
+		}
+		return null;
 	}
 
 }

@@ -254,17 +254,12 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		$seeds = [];
 		foreach ( $rowsByDefinitionKey as $definitionKey => $rows ) {
 			$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
-			$interaction = $this->buildHealthyScanInteraction(
-				$definitionKey,
-				$definitionKey === 'hidden_plugins'
-					? $this->hasUsefulDetail( $rows )
-					: null
-			);
+			$interaction = $this->buildHealthyScanInteraction( $definitionKey );
 			$seed = [
 				'key'                         => $definitionKey,
 				'definition_key'              => $definitionKey,
 				'label'                       => $definition[ 'label' ],
-				'item_count'                  => $interaction[ 'item_count_override' ],
+				'item_count'                  => 0,
 				'status'                      => 'good',
 				'narrative'                   => $this->combineHealthyAssessmentNarratives( $rows ),
 				'detail_shell'                => $definition[ 'detail_shell' ],
@@ -282,6 +277,9 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				$seed[ 'ignored_rows' ] = ( new ActionsQueueCompactSummaryRowBuilder() )->buildForAssets(
 					$this->scanSource->vulnerabilitySection( 'abandoned' )[ 'ignored_items' ]
 				);
+			}
+			if ( $definitionKey === 'hidden_plugins' ) {
+				$seed[ 'ignored_rows' ] = $this->scanSource->cloakedPluginRows()[ 'ignored' ];
 			}
 			if ( $definitionKey === 'file_locker' ) {
 				$pendingFileLockerCount = $this->getPendingFileLockerCount();
@@ -312,9 +310,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 					);
 				}
 			}
-			if ( $interaction[ 'suppress_detail_render_action_if_noninteractive' ] ) {
-				$seed[ 'suppress_detail_render_action_if_noninteractive' ] = true;
-			}
 			$seeds[] = $seed;
 		}
 
@@ -344,50 +339,22 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	/**
 	 * @return array{
 	 *   is_interactive:bool,
-	 *   item_count_override:int,
-	 *   render_action_data:array<string,mixed>,
-	 *   suppress_detail_render_action_if_noninteractive:bool
+	 *   render_action_data:array<string,mixed>
 	 * }
 	 */
-	private function buildHealthyScanInteraction( string $definitionKey, ?bool $hasUsefulDetail ) :array {
-		if ( $definitionKey === 'hidden_plugins' && $hasUsefulDetail === false ) {
-			return [
-				'is_interactive'                               => false,
-				'item_count_override'                          => 0,
-				'render_action_data'                           => [],
-				'suppress_detail_render_action_if_noninteractive' => true,
-			];
-		}
-
+	private function buildHealthyScanInteraction( string $definitionKey ) :array {
 		$interactionMode = $this->groupDefinitions->healthyInteractionModeForGroupKey( $definitionKey );
 		if ( $interactionMode === 'default_detail' ) {
 			return [
-				'is_interactive'                               => true,
-				'item_count_override'                          => 0,
-				'render_action_data'                           => $this->groupDefinitions->definitionForGroupKey( $definitionKey )[ 'render_action_data' ],
-				'suppress_detail_render_action_if_noninteractive' => false,
+				'is_interactive'     => true,
+				'render_action_data' => $this->groupDefinitions->definitionForGroupKey( $definitionKey )[ 'render_action_data' ],
 			];
 		}
 
 		return [
-			'is_interactive'                               => false,
-			'item_count_override'                          => 0,
-			'render_action_data'                           => [],
-			'suppress_detail_render_action_if_noninteractive' => false,
+			'is_interactive'     => false,
+			'render_action_data' => [],
 		];
-	}
-
-	/**
-	 * @param list<AssessmentRow> $rows
-	 */
-	private function hasUsefulDetail( array $rows ) :?bool {
-		foreach ( $rows as $row ) {
-			if ( \array_key_exists( 'has_useful_detail', $row ) ) {
-				return (bool)$row[ 'has_useful_detail' ];
-			}
-		}
-
-		return null;
 	}
 
 	/**

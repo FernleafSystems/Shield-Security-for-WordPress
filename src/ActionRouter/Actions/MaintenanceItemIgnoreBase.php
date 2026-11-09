@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 abstract class MaintenanceItemIgnoreBase extends BaseAction {
 
 	use Traits\NonceVerifyRequired;
+	use Traits\RequestedIdentifiers;
 
 	public const ERROR_IDENTIFIER_UNAVAILABLE = 'maintenance_identifier_unavailable';
 	public const ERROR_INVALID_KEY = 'maintenance_invalid_key';
@@ -76,16 +77,6 @@ abstract class MaintenanceItemIgnoreBase extends BaseAction {
 	abstract protected function changeIgnored( array $ignored, array $identifiers ) :array;
 
 	abstract protected function successMessage() :string;
-
-	/**
-	 * One "identifier", or a list of "identifiers".
-	 * @return list<string>
-	 */
-	private function requestedIdentifiers() :array {
-		return \is_array( $this->action_data[ 'identifiers' ] ?? null )
-			? \array_values( \array_unique( \array_map( 'strval', $this->action_data[ 'identifiers' ] ) ) )
-			: [ (string)( $this->action_data[ 'identifier' ] ?? '' ) ];
-	}
 
 	private function fail( string $message, string $errorCode ) :void {
 		$this->response()->setPayload( [

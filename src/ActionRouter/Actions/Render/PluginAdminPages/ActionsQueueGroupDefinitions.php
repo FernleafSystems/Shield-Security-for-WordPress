@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
-	CloakedPlugins,
 	Maintenance,
 	Malware,
 	Plugins,
@@ -29,7 +28,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   card_type:'expandable'|'linked'|'category',
  *   summary_keys:list<string>,
  *   healthy_interaction_mode:'none'|'default_detail',
- *   render_action_class:class-string<BaseRender>,
+ *   render_action_class:class-string<BaseRender>|null,
  *   render_action_data:array<string,mixed>
  * }
  * @phpstan-type GroupMetadata array{
@@ -39,12 +38,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
  *   card_type:'expandable'|'linked'|'category',
  *   healthy_interaction_mode:'none'|'default_detail',
- *   render_action_class:class-string<BaseRender>,
+ *   render_action_class:class-string<BaseRender>|null,
  *   render_action_data:'none'|'scan_results'|array<string,mixed>
  * }
  * @phpstan-type SummaryBehaviour array{
  *   definition_key:string,
- *   seed_strategy:'attention_aggregate'|'asset_cards'|'vulnerability_section'|'maintenance',
+ *   seed_strategy:'attention_aggregate'|'asset_cards'|'vulnerability_section'|'cloaked_plugins'|'maintenance',
  *   asset_source?:'plugins'|'themes',
  *   vulnerability_section?:'vulnerable'|'abandoned'
  * }
@@ -115,8 +114,9 @@ class ActionsQueueGroupDefinitions {
 			'section_order'            => 1,
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'expandable',
-			'healthy_interaction_mode' => 'default_detail',
-			'render_action_class'      => CloakedPlugins::class,
+			'healthy_interaction_mode' => 'none',
+			// Each cloaked plugin is listed in the queue, so there's no separate detail to open.
+			'render_action_class'      => null,
 			'render_action_data'       => [],
 		],
 		'malware' => [
@@ -172,6 +172,10 @@ class ActionsQueueGroupDefinitions {
 			'definition_key'        => 'abandoned',
 			'seed_strategy'         => 'vulnerability_section',
 			'vulnerability_section' => 'abandoned',
+		],
+		'hidden_plugins' => [
+			'definition_key' => 'hidden_plugins',
+			'seed_strategy'  => 'cloaked_plugins',
 		],
 	];
 

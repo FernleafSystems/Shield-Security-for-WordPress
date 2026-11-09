@@ -12,8 +12,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   tooltip:string,
  *   target:string,
  *   ajax_action_json:string,
- *   kind?:string,
- *   maintenance_key?:string
+ *   kind:''|'ignore'|'unignore',
+ *   maintenance_key:string
+ * }
+ * @phpstan-type CompactSummaryDetailItem array{
+ *   label:string,
+ *   value:string,
+ *   style:'text'|'code'
+ * }
+ * @phpstan-type CompactSummaryFoldedDetails array{
+ *   label:string,
+ *   items:list<CompactSummaryDetailItem>
  * }
  * @phpstan-type CompactSummaryRow array{
  *   icon_class:string,
@@ -22,13 +31,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   summary:string,
  *   badge_label:string,
  *   is_ignored:bool,
- *   actions:list<CompactSummaryAction>
+ *   actions:list<CompactSummaryAction>,
+ *   details:array{}|CompactSummaryFoldedDetails
  * }
  */
 class ActionsQueueCompactSummaryRowBuilder {
 
 	/**
 	 * @param list<CompactSummaryAction> $actions
+	 * @param array{}|CompactSummaryFoldedDetails $details more about the item, folded under its line of detail
 	 * @return CompactSummaryRow
 	 */
 	public function build(
@@ -38,7 +49,8 @@ class ActionsQueueCompactSummaryRowBuilder {
 		string $badgeLabel = '',
 		bool $isIgnored = false,
 		array $actions = [],
-		string $inlineMeta = ''
+		string $inlineMeta = '',
+		array $details = []
 	) :array {
 		return [
 			'icon_class'  => $iconClass,
@@ -48,6 +60,7 @@ class ActionsQueueCompactSummaryRowBuilder {
 			'badge_label' => $badgeLabel,
 			'is_ignored'  => $isIgnored,
 			'actions'     => $actions,
+			'details'     => $details,
 		];
 	}
 
@@ -62,10 +75,12 @@ class ActionsQueueCompactSummaryRowBuilder {
 				'href'             => $action[ 'href' ],
 				'is_action'        => false,
 				'label'            => $action[ 'label' ],
-				'icon'             => $action[ 'icon' ] ?? '',
+				'icon'             => $action[ 'icon' ] ?? 'bi bi-arrow-right',
 				'tooltip'          => '',
 				'target'           => $action[ 'attributes' ][ 'target' ] ?? '',
 				'ajax_action_json' => '',
+				'kind'             => '',
+				'maintenance_key'  => '',
 			],
 			$item[ 'actions' ]
 		);
@@ -76,6 +91,7 @@ class ActionsQueueCompactSummaryRowBuilder {
 				'href'             => '',
 				'is_action'        => true,
 				'kind'             => $ignoreAction[ 'kind' ],
+				'maintenance_key'  => '',
 				'label'            => $ignoreAction[ 'label' ],
 				'icon'             => $ignoreAction[ 'icon' ],
 				'tooltip'          => $ignoreAction[ 'tooltip' ],

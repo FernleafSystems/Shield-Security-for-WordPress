@@ -129,14 +129,14 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( 'bi bi-eye-slash-fill', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'icon' ] ?? '' );
 		$this->assertSame(
 			'maintenance_item_ignore',
-			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ] ?? ''
+			\json_decode( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action_json' ], true )[ 'ex' ]
 		);
 		$this->assertSame(
 			'ignore',
 			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'kind' ] ?? ''
 		);
 		$this->assertNotEmpty(
-			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'exnonce' ] ?? ''
+			\json_decode( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action_json' ], true )[ 'exnonce' ]
 		);
 		$this->assertNotEmpty(
 			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action_json' ] ?? ''
@@ -332,7 +332,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( 'bi bi-eye-fill', $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 1 ][ 'secondary_actions' ][ 0 ][ 'icon' ] ?? '' );
 		$this->assertSame(
 			'maintenance_item_unignore',
-			$items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 1 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ] ?? ''
+			\json_decode( $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 1 ][ 'secondary_actions' ][ 0 ][ 'ajax_action_json' ], true )[ 'ex' ]
 		);
 		$this->assertSame(
 			'unignore',
@@ -367,7 +367,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( '', $items[ 0 ][ 'toggle_action' ][ 'href' ] ?? 'unexpected' );
 		$this->assertTrue( $items[ 0 ][ 'toggle_action' ][ 'is_action' ] ?? false );
 		$this->assertSame( 'bi bi-eye-fill', $items[ 0 ][ 'toggle_action' ][ 'icon' ] ?? '' );
-		$this->assertSame( 'maintenance_item_unignore', $items[ 0 ][ 'toggle_action' ][ 'ajax_action' ][ 'ex' ] ?? '' );
+		$this->assertSame( 'maintenance_item_unignore', \json_decode( $items[ 0 ][ 'toggle_action' ][ 'ajax_action_json' ], true )[ 'ex' ] );
 		$this->assertSame( 'unignore', $items[ 0 ][ 'toggle_action' ][ 'kind' ] ?? '' );
 	}
 
@@ -482,7 +482,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( 'bi bi-eye-fill', $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'icon' ] ?? '' );
 		$this->assertSame(
 			'maintenance_item_unignore',
-			$items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ] ?? ''
+			\json_decode( $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action_json' ], true )[ 'ex' ]
 		);
 		$this->assertSame(
 			'unignore',

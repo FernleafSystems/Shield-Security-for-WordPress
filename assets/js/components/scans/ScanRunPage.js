@@ -42,22 +42,25 @@ export class ScanRunPage {
 		return true;
 	}
 
-	static ShowLocal( { state, heading, message, announcement, busy } ) {
+	static ShowLocal( { state, heading, message, announcement, busy, refreshLabel } ) {
 		const esc = ( text ) => Html.Escape( String( text ) );
-		// A failure here leaves the page without its choices, so it offers the way back, as the server's failure does.
-		const again = ScanRunPage.Host().closest( '[data-shield-scan-run="1"]' ).dataset;
-		const body = state === 'failed'
-			? `<section class="shield-tool-status is-critical">
-				<span class="shield-tool-status__badge"><i class="bi bi-x-lg" aria-hidden="true"></i></span>
+		const notice = ( tone, icon, href, label ) => `<section class="shield-tool-status ${tone}">
+				<span class="shield-tool-status__badge"><i class="bi ${icon}" aria-hidden="true"></i></span>
 				<div class="shield-tool-status__copy">
 					<h2 class="shield-tool-status__title">${esc( heading )}</h2>
 					<p class="shield-tool-status__desc">${esc( message )}</p>
 				</div>
-				<a class="shield-tool-btn" href="${esc( again.scanAgainHref )}">
-					<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>${esc( again.scanAgainLabel )}
+				<a class="shield-tool-btn" href="${esc( href )}">
+					<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>${esc( label )}
 				</a>
-			</section>`
-			: `<section class="shield-tool-box">
+			</section>`;
+		// A failure here leaves the page without its choices, so it offers the way back, as the server's failure does.
+		const again = ScanRunPage.Host().closest( '[data-shield-scan-run="1"]' ).dataset;
+		const notices = {
+			failed: () => notice( 'is-critical', 'bi-x-lg', again.scanAgainHref, again.scanAgainLabel ),
+			stale: () => notice( 'is-warning', 'bi-exclamation-triangle', window.location.href, refreshLabel ),
+		};
+		const body = notices[ state ]?.() || `<section class="shield-tool-box">
 				<div class="shield-scan-progress__overall">
 					<h2 class="shield-scan-progress__title">${esc( heading )}</h2>
 					<div class="shield-scan-progress__bar" role="progressbar" aria-label="${esc( heading )}"

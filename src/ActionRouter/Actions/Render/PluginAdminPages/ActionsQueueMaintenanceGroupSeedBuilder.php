@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type MaintenanceExpansionRow from MaintenanceQueueItemDisplayNormalizer
  * @phpstan-import-type MaintenanceItemCta from MaintenanceQueueItemDisplayNormalizer
  * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
- * @phpstan-import-type MaintenanceUiAction from MaintenanceQueueItemDisplayNormalizer
  */
 class ActionsQueueMaintenanceGroupSeedBuilder {
 
@@ -279,7 +278,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 				'',
 				$row[ 'ignored_label' ],
 				$row[ 'is_ignored' ],
-				$this->normalizeToggleActions( $row[ 'secondary_actions' ] ),
+				$row[ 'secondary_actions' ],
 				$row[ 'inline_meta' ]
 			),
 			$this->extractRows( $maintenanceItem )
@@ -311,7 +310,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 	 * @return array{}|CompactSummaryRow
 	 */
 	private function buildSummaryRow( array $maintenanceItem ) :array {
-		$toggleAction = $this->normalizeToggleAction( $maintenanceItem[ 'toggle_action' ] );
+		$toggleAction = $maintenanceItem[ 'toggle_action' ];
 		if ( $maintenanceItem[ 'description' ] === '' && empty( $toggleAction ) ) {
 			return [];
 		}
@@ -354,7 +353,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			$actions[] = $navigationAction;
 		}
 
-		$toggleAction = $this->normalizeToggleAction( $maintenanceItem[ 'toggle_action' ] );
+		$toggleAction = $maintenanceItem[ 'toggle_action' ];
 		if ( !empty( $toggleAction ) ) {
 			$actions[] = $toggleAction;
 		}
@@ -380,48 +379,8 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			'tooltip'          => $cta[ 'label' ],
 			'target'           => $cta[ 'target' ],
 			'ajax_action_json' => '',
-		];
-	}
-
-	/**
-	 * @param list<MaintenanceUiAction> $toggleActions
-	 * @return list<CompactSummaryAction>
-	 */
-	private function normalizeToggleActions( array $toggleActions ) :array {
-		return \array_values( \array_filter( \array_map(
-			fn( array $toggleAction ) :array => $this->normalizeToggleAction( $toggleAction ),
-			$toggleActions
-		) ) );
-	}
-
-	/**
-	 * @param array{}|MaintenanceUiAction $toggleAction
-	 * @return array{}|CompactSummaryAction
-	 */
-	private function normalizeToggleAction( array $toggleAction ) :array {
-		if ( empty( $toggleAction ) ) {
-			return [];
-		}
-
-		$href = \trim( $toggleAction[ 'href' ] );
-		$label = \trim( $toggleAction[ 'label' ] );
-		$icon = \trim( $toggleAction[ 'icon' ] );
-		if ( $label === '' || $icon === '' ) {
-			return [];
-		}
-		$isAction = $toggleAction[ 'is_action' ];
-
-		return [
-			'href'             => $isAction ? '' : $href,
-			'is_action'        => $isAction,
-			'label'            => $label,
-			'icon'             => $icon,
-			'tooltip'          => \trim( $toggleAction[ 'tooltip' ] ),
-			'target'           => $isAction ? '' : \trim( $toggleAction[ 'target' ] ),
-			'ajax_action_json' => \trim( $toggleAction[ 'ajax_action_json' ] ),
-			// Which kind of toggle, and for which item, so like items can be ignored together.
-			'kind'             => $toggleAction[ 'kind' ],
-			'maintenance_key'  => (string)( $toggleAction[ 'ajax_action' ][ 'maintenance_key' ] ?? '' ),
+			'kind'             => '',
+			'maintenance_key'  => '',
 		];
 	}
 

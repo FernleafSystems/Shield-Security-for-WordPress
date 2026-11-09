@@ -29,17 +29,14 @@ export class ScanProgressModal {
 	}
 
 	static ShowInitiating( strings = {} ) {
-		const content = {
+		return ScanProgressModal.showLocal( {
 			state: 'initiating',
 			title: strings.modal_title,
 			heading: strings.modal_initiating,
 			message: strings.modal_wait,
 			announcement: strings.modal_initiating,
 			busy: true
-		};
-		return ScanRunPage.IsActive()
-			? ScanRunPage.ShowLocal( content )
-			: ScanProgressModal.ShowHtml( ScanProgressModal.buildLocalModalContent( content ) );
+		} );
 	}
 
 	static ShowError( strings = {}, message = '' ) {
@@ -47,14 +44,32 @@ export class ScanProgressModal {
 			? message
 			: strings.modal_error_message;
 
-		const content = {
+		return ScanProgressModal.showLocal( {
 			state: 'failed',
 			title: strings.modal_title,
 			heading: strings.modal_error_title,
 			message: safeMessage,
 			announcement: safeMessage,
 			busy: false
-		};
+		} );
+	}
+
+	/**
+	 * The scans may be fine: it's only their progress that can't be reached at the moment.
+	 */
+	static ShowStale( strings = {} ) {
+		return ScanProgressModal.showLocal( {
+			state: 'stale',
+			title: strings.modal_title,
+			heading: strings.modal_stale_title,
+			message: strings.modal_stale_message,
+			announcement: `${strings.modal_stale_title} ${strings.modal_stale_message}`,
+			busy: false,
+			refreshLabel: strings.refresh
+		} );
+	}
+
+	static showLocal( content ) {
 		return ScanRunPage.IsActive()
 			? ScanRunPage.ShowLocal( content )
 			: ScanProgressModal.ShowHtml( ScanProgressModal.buildLocalModalContent( content ) );
