@@ -382,6 +382,23 @@ Operational notes:
     - Use `composer test:browser -- -- -g "..."` for a pure Playwright grep, or `composer test:browser -- -- <path-or-filter> -g "..."` when you also want to narrow to a file.
 13. `php bin/shield test:site:fixture` is a manual diagnostic path only. Playwright specs must use the REST-backed fixture API exposed by `tests/browser/action-router/support/shield-test.js`.
 
+### UI screenshots
+
+`composer test:browser:screenshots` captures the main admin screens from seeded browser lanes for visual review, such as comparing a change against its design. It asserts nothing, so a run only fails if a screen can no longer be reached. `tests/browser/action-router/ui-screenshots.spec.js` is skipped by every other browser run, including CI.
+
+```bash
+composer test:browser:screenshots
+composer test:browser:screenshots -- --list
+composer test:browser:screenshots -- -g "configure"
+SHIELD_UI_WIDTH=390 composer test:browser:screenshots -- -g "actions-queue"
+SHIELD_UI_FIXTURE=malware_direct_table composer test:browser:screenshots -- -g "actions-queue"
+```
+
+1. Images are written to `test-results/ui-screenshots/` as `<screen>-<state>.png`, with the width appended when it isn't the default. Each run overwrites the images of the screens it captures.
+2. `SHIELD_UI_WIDTH` sets the window width (default 1286).
+3. `SHIELD_UI_FIXTURE` picks the Actions Queue fixture scenario for screens that don't name their own (default `direct_table`).
+4. To add a screen, add an entry to `SCREENS` in the spec: a `name`, an optional `fixture`, and a `capture` function using `ui.open()`, `ui.click()` and `ui.shot()`. Each entry becomes its own Playwright test.
+
 ### Focused silentCAPTCHA engine coverage
 
 After installing the selected Playwright engine with the pinned Node runtime, run:
