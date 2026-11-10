@@ -267,8 +267,6 @@ class ActionsQueueGroupSeedCollector {
 		array $renderActionData,
 		array $attentionItems
 	) :array {
-		$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
-
 		return [
 			'key'              => $definitionKey.':'.$summary[ 'key' ],
 			'definition_key'   => $definitionKey,

@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class FormParams {
 
-	public const ENC_NONE = 'none';
 	public const ENC_BASE64 = 'b64';
 	public const ENC_JSON = 'json';
 	public const ENC_OBSCURE = 'obscure';

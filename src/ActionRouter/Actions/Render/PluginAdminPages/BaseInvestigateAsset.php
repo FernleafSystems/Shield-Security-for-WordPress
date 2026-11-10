@@ -33,7 +33,6 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 	use InvestigateAssetOptionsBuilder;
 	use InvestigateCountCache;
 	use InvestigateRenderContracts;
-	use InvestigateStatusMapping;
 
 	private ?InvestigateAssetDataAdapter $assetDataAdapter = null;
 

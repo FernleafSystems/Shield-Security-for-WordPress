@@ -15,7 +15,6 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 
 	use BuildsActionsQueueLandingData;
 
-	private ?ActionsQueueDrillDownPresentationBuilder $drillDownPresentation = null;
 
 	public const SLUG = 'plugin_admin_page_actions_queue_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/actions_queue_landing.twig';
@@ -83,7 +82,6 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 	 */
 	protected function getLayers() :array {
 		$summary = $this->getQueueSummary();
-		$presentation = $this->drillDownPresentation();
 
 		return [
 			[
@@ -126,13 +124,4 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 	private function getQueueSummary() :array {
 		return $this->getLandingViewData()[ 'summary' ];
 	}
-
-	private function drillDownPresentation() :ActionsQueueDrillDownPresentationBuilder {
-		if ( $this->drillDownPresentation === null ) {
-			$this->drillDownPresentation = new ActionsQueueDrillDownPresentationBuilder();
-		}
-
-		return $this->drillDownPresentation;
-	}
-
 }

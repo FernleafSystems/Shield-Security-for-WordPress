@@ -121,8 +121,6 @@ class BuildOptionsForDisplay {
 		$con = self::con();
 		$opts = $con->opts;
 
-		$isPremiumActive = $con->isPremiumActive();
-
 		$allOptions = [];
 
 		foreach ( $section === 'section_hidden' ? [] : $con->cfg->configuration->optsForSection( $section ) as $optDef ) {

@@ -67,7 +67,6 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 				'allow_submit'          => $parsed->ready_to_create,
 				'has_unset_condition'   => $parsed->has_unset_condition,
 				'has_unset_response'    => $parsed->has_unset_response,
-				'is_rule_edit'          => $parsed->edit_rule_id >= 0,
 				'is_early_draft'        => $isDraft,
 			],
 			'imgs'    => [

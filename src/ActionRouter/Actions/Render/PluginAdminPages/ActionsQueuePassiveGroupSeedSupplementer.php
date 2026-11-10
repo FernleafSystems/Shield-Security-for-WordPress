@@ -64,7 +64,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	) :array {
 		$seeds = [];
 
-		foreach ( $this->buildDisabledScanSeedsForBucket( $bucketKey, $bucketSource ) as $seed ) {
+		foreach ( $this->buildDisabledScanSeedsForBucket( $bucketSource ) as $seed ) {
 			if ( isset( $existingGroupKeys[ $seed[ 'key' ] ] ) ) {
 				continue;
 			}
@@ -72,7 +72,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 			$existingGroupKeys[ $seed[ 'key' ] ] = true;
 		}
 
-		foreach ( $this->buildHealthyScanSeedsForBucket( $bucketKey, $bucketSource, $assessmentRowsByZone[ 'scans' ] ?? [] ) as $seed ) {
+		foreach ( $this->buildHealthyScanSeedsForBucket( $bucketKey, $assessmentRowsByZone[ 'scans' ] ?? [] ) as $seed ) {
 			if ( isset( $existingGroupKeys[ $seed[ 'key' ] ] ) ) {
 				continue;
 			}
@@ -173,7 +173,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	/**
 	 * @return list<GroupSeed>
 	 */
-	private function buildDisabledScanSeedsForBucket( string $bucketKey, array $bucketSource ) :array {
+	private function buildDisabledScanSeedsForBucket( array $bucketSource ) :array {
 		$seeds = [];
 		foreach ( $bucketSource[ 'disabled_groups' ] as $definitionKey => $availability ) {
 			$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
@@ -227,11 +227,10 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	}
 
 	/**
-	 * @phpstan-param BucketSource $bucketSource
 	 * @param list<AssessmentRow> $assessmentRows
 	 * @return list<GroupSeed>
 	 */
-	private function buildHealthyScanSeedsForBucket( string $bucketKey, array $bucketSource, array $assessmentRows ) :array {
+	private function buildHealthyScanSeedsForBucket( string $bucketKey, array $assessmentRows ) :array {
 		$rowsByDefinitionKey = [];
 
 		foreach ( $assessmentRows as $row ) {

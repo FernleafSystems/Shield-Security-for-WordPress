@@ -55,7 +55,6 @@ class PluginNavs {
 	/** @deprecated 22.0. legacy redirect target only */
 	public const SUBNAV_SCANS_RESULTS = 'results';
 	public const SUBNAV_SCANS_RUN = 'run';
-	public const NAV_STATS = 'stats';
 	public const NAV_TRAFFIC = 'traffic';
 	public const SUBNAV_LIVE = 'live';
 	public const NAV_TOOLS = 'tools';

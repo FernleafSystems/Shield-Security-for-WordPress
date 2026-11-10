@@ -142,23 +142,6 @@ class SessionController {
 		return $VO;
 	}
 
-	/**
-	 * This is a hack to directly access and set the raw data for the user sessions by removing 1 of the array entries.
-	 */
-	public function removeSessionBasedOnUniqueID( int $userID, string $uniqueID ) {
-		$manager = \WP_Session_Tokens::get_instance( $userID );
-		if ( $manager instanceof \WP_User_Meta_Session_Tokens ) {
-			$raw = get_user_meta( $userID, 'session_tokens', true );
-			foreach ( $raw as $hash => $session ) {
-				if ( \is_array( $session ) && $uniqueID === ( $session[ 'shield' ][ 'unique' ] ?? '' ) ) {
-					unset( $raw[ $hash ] );
-					update_user_meta( $userID, 'session_tokens', $raw );
-					break;
-				}
-			}
-		}
-	}
-
 	public function updateSessionParameter( SessionVO $session, string $key, $value ) {
 		if ( $session->valid && ( $session->shield[ 'user_id' ] ?? 0 ) > 0 ) {
 			$shield = $session->shield;

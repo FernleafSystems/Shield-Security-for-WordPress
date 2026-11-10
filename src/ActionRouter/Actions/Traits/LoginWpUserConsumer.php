@@ -38,14 +38,4 @@ trait LoginWpUserConsumer {
 
 		return $user;
 	}
-
-	public function hasValidLoginSession() :bool {
-		try {
-			$this->getLoginWPUser();
-			return true;
-		}
-		catch ( ActionException $e ) {
-			return false;
-		}
-	}
 }

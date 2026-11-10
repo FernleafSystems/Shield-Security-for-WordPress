@@ -78,7 +78,6 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 				global $submenu;
 				$menuID = $con->plugin_urls->rootAdminPageSlug();
 				if ( isset( $submenu[ $menuID ] ) ) {
-//					$submenu[ $menuID ][ 0 ][ 0 ] = __( 'Security Dashboard', 'wp-simple-firewall' );
 					unset( $submenu[ $menuID ][ 0 ] );
 				}
 				else {

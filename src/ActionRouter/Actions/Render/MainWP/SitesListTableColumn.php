@@ -45,7 +45,6 @@ class SitesListTableColumn extends BaseRender {
 			],
 			'vars'    => [
 				'status_key'          => $statusKey,
-				'status_name'         => \current( $status ),
 				'issues_count'        => $issueSummary[ 'count' ],
 				'issues_button_class' => $issueSummary[ 'button_class' ],
 				'version'             => self::con()->cfg->version()

@@ -21,10 +21,6 @@ class Cleanup {
 	public const CRON_DELAY = 60;
 	private const MAX_RETRIES = 1;
 
-	public function getHook() :string {
-		return self::con()->prefix( 'afs_asset_change_cleanup' );
-	}
-
 	public function schedule( string $assetType, string $assetKey, int $delay = self::CRON_DELAY, int $retry = 0 ) :bool {
 		unset( $retry );
 		[ $assetType, $assetKey ] = $this->normalizeAsset( $assetType, $assetKey );

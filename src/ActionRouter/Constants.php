@@ -214,8 +214,6 @@ class Constants {
 		Actions\Render\Components\UserMfa\LoginIntent\LoginIntentFormFieldShield::class,
 		Actions\Render\Components\UserMfa\LoginIntent\LoginIntentFormFieldWpReplica::class,
 		Actions\Render\Components\Users\ProfileSuspend::class,
-		Actions\Render\Components\Zones\SecurityZone::class,
-		Actions\Render\Components\Zones\SecurityZoneComponent::class,
 		Actions\Render\FullPage\Block\BlockAuthorFishing::class,
 		Actions\Render\FullPage\Block\BlockFirewall::class,
 		Actions\Render\FullPage\Block\BlockIpAddressShield::class,

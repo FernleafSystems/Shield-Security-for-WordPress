@@ -43,7 +43,6 @@ $code-color: $secondary;
 @import './shield/third-party-overrides.scss';
 @import './shield/video_modal';
 @import './shield/reduced-motion';
-@import './shield/zones';
 @import './shield/dashboard';
 @import './shield/dashboard-task-guide';
 @import './shield/setup-guide';
@@ -91,10 +90,6 @@ body.rtl {
 
 #wpbody-content {
   padding-bottom: 0;
-}
-
-.pluginlogo_16 {
-  background: url("../images/pluginlogo_16x16.png?ver=1.0.0") no-repeat 0 3px transparent;
 }
 
 .submit span {
@@ -251,9 +246,6 @@ label input[type=checkbox] {
 }
 
 /** TABLES **/
-.icwpAjaxTableContainer .tablenav {
-  height: auto;
-}
 
 th.column-created_at,
 th.column-last_access_at,
@@ -268,15 +260,6 @@ td .timestamp-small {
   font-size: smaller;
 }
 
-.odp-table td.check-column input[type=checkbox],
-.odp-table th.check-column input[type=checkbox] {
-  margin: 0 4px;
-}
-
-a.ip-whois {
-  color: #739e31;
-}
-
 /** END TABLES **/
 /** Sessions Table **/
 th.column-is_secadmin {
@@ -284,23 +267,6 @@ th.column-is_secadmin {
 }
 
 /** End Sessions Table **/
-/** IPS Insights **/
-.odp-table .actions-block {
-  font-size: 0.75rem;
-  opacity: 0.6;
-}
-
-.odp-table tr:hover .actions-block {
-  opacity: 1;
-}
-
-.odp-table .actions-block .btn {
-  font-size: 0.85rem;
-  padding-left: 0;
-  padding-right: 0;
-}
-
-/** END IPS Insights **/
 /** TABLES SCANS **/
 @media (max-width: 782px) {
   table.scan-table.wp-list-table tr:not(.inline-edit-row):not(.no-items) td.column-primary ~ td:not(.check-column) {
@@ -342,34 +308,6 @@ ul.nav.nav-tabs.shield_body-sub-nav a.nav-link.active {
   box-shadow: none;
 }
 
-.scan-results-section ul.nav.nav-tabs {
-  border-bottom: transparent;
-}
-
-.scan-results-section a.nav-link {
-  background: transparent;
-  border: 1px solid #c2c2c2 !important;
-  border-radius: 3px;
-  margin-right: 0;
-}
-
-.scan-results-section a.nav-link:hover {
-  background: rgba(255, 255, 255, 0.50);
-}
-
-.scan-results-section a.nav-link.active {
-  background-color: white;
-  border: 1px solid #c2c2c2;
-}
-
-.scan-results-section .card.card-scan_results {
-  margin-top: 0;
-}
-
-.scan-results-section nav > a.nav-link .badge {
-  font-size: 12px;
-}
-
 .card.card-scan_results {
   background-color: transparent;
   border: 0 none;
@@ -379,16 +317,6 @@ ul.nav.nav-tabs.shield_body-sub-nav a.nav-link.active {
   background-color: transparent;
   border: 0 none;
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-table.odp-table.scan-table {
-  border-bottom: 0 none;
-  border-top: 0 none;
-}
-
-table.odp-table.scan-table td.column-path code {
-  font-size: 0.7rem;
-  padding: 0;
 }
 
 #TableSessions .tablenav.bottom,
@@ -557,18 +485,6 @@ a[target="_blank"]:not(.shield-footer-version):not(.option_link_info):not(.card-
   }
 }
 
-dl.pro-features dt {
-  margin-left: 2px;
-}
-
-dl.pro-features dt:before {
-  content: "\1f44d";
-}
-
-dl.pro-features dd {
-  margin-bottom: 10px;
-}
-
 .form-check .form-check-input:checked,
 .form-check .form-check-input:checked,
 .option-checkbox.custom-switch .form-check-input:checked {
@@ -580,11 +496,6 @@ dl.pro-features dd {
 .form-check .form-check-input:checked::before,
 .option-checkbox.custom-switch .form-check-input:checked::before {
   content: none;
-}
-
-.option-checkbox.custom-switch .form-check-input:disabled:checked {
-  background-color: rgba(69, 119, 0, 0.3);
-  border-color: rgba(69, 119, 0, 0.3);
 }
 
 .form-check .custom-control-input:disabled {
@@ -621,148 +532,12 @@ dl.pro-features dd {
   font-size: 24px;
 }
 
-.overview.card.state-good .title-icon:before,
-.overview.card.state-good .card-title,
-.overview.card.state-good .card-header .card-link .dashicons {
-  color: #015b01;
-}
-
-.overview.card.state-ok .title-icon:before,
-.overview.card.state-ok .card-title,
-.overview.card.state-ok .card-header .card-link .dashicons {
-  color: #345c83;
-}
-
-.overview.card.state-warning .title-icon:before,
-.overview.card.state-warning .card-title,
-.overview.card.state-warning .card-header .card-link .dashicons {
-  color: #ae5403;
-}
-
-.overview.card.state-danger .title-icon:before,
-.overview.card.state-danger .card-title,
-.overview.card.state-danger .card-header .card-link .dashicons {
-  color: #811313;
-}
-
-.overview.card.state-danger .title-icon:before {
-  content: "\f153";
-}
-
-.overview.card.state-warning .title-icon:before {
-  content: "\f534";
-}
-
-.overview.card.state-ok .title-icon:before {
-  content: "\f348";
-}
-
-.overview.card.state-good .title-icon:before {
-  content: "\f12a";
-}
-
-.overview.card.state-danger,
-.overview.card.state-danger > .card-header,
-.overview.card.state-danger > .card-footer {
-  /*border-color: #cf0000;*/
-}
-
-.overview.card.state-warning,
-.overview.card.state-warning > .card-header,
-.overview.card.state-warning > .card-footer {
-  /*border-color: #d26605;*/
-}
-
-.overview.card.state-ok,
-.overview.card.state-ok > .card-header,
-.overview.card.state-ok > .card-footer {
-  /*border-color: #0579d2;*/
-}
-
-.overview.card.state-good,
-.overview.card.state-good > .card-header,
-.overview.card.state-good > .card-footer {
-  /*border-color: #008000;*/
-}
-
-.overview.card.state-good > .card-header {
-  background-color: rgba(98, 214, 83, 0.2);
-}
-
-.overview.card.state-good > .card-body {
-  background-color: rgba(115, 255, 99, 0.08);
-}
-
-.overview.card.state-good > .card-footer {
-  background-color: rgba(115, 255, 99, 0.02);
-}
-
-.overview.card.state-good > .card-footer > a {
-  color: #008000;
-}
-
-.overview.card.state-warning > .card-header {
-  background-color: rgba(255, 161, 99, 0.2);
-}
-
-.overview.card.state-warning > .card-body {
-  background-color: rgba(255, 161, 99, 0.08);
-}
-
-.overview.card.state-warning > .card-footer {
-  background-color: rgba(255, 161, 99, 0.02);
-}
-
-.overview.card.state-warning > .card-footer > a {
-  color: #9f4000;
-}
-
-.overview.card.state-danger > .card-header {
-  background-color: rgba(207, 0, 0, 0.2);
-}
-
-.overview.card.state-danger > .card-body {
-  background-color: rgba(207, 0, 0, 0.08);
-}
-
-.overview.card.state-danger > .card-footer {
-  background-color: rgba(207, 0, 0, 0.02);
-}
-
-.overview.card.state-danger > .card-footer > a {
-  color: #cf0000;
-}
-
-.overview.card.state-ok > .card-header {
-  background-color: rgba(99, 187, 255, 0.2);
-}
-
-.overview.card.state-ok > .card-body {
-  background-color: rgba(99, 187, 255, 0.08);
-}
-
-.overview.card.state-ok > .card-footer {
-  background-color: rgba(99, 187, 255, 0.02);
-}
-
-.overview.card.state-ok > .card-footer > a {
-  color: #007ba2;
-}
-
-a.card_help {
-  text-decoration: none !important;
-}
-
 .card .badge.badge-secondary a {
   color: white;
 }
 
 .nav-pills a.nav-link.active {
   background-color: #008000;
-}
-
-.badge.bigger-badge {
-  font-size: 1rem;
 }
 
 #DynamicChangelog dl {
@@ -1023,10 +798,6 @@ body:has(.shield-setup-guide:not([hidden])) {
   position: sticky;
   top: 88px;
   z-index: 5;
-}
-
-.toggleable-text {
-  cursor: pointer;
 }
 
 .tooltip {

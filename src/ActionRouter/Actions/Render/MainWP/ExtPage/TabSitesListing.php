@@ -15,13 +15,6 @@ class TabSitesListing extends BaseSubPage {
 	protected function getRenderData() :array {
 		$mwp = self::con()->mwpVO;
 
-		$statsHead = [
-			'connected'    => 0,
-			'disconnected' => 0,
-			'with_issues'  => 0,
-			'needs_update' => 0,
-		];
-
 		$sites = \array_filter( \array_map(
 			function ( $site ) {
 				try {
@@ -34,26 +27,9 @@ class TabSitesListing extends BaseSubPage {
 			apply_filters( 'mainwp_getsites', $mwp->child_file, $mwp->child_key )
 		) );
 
-		foreach ( $sites as $site ) {
-			$shieldData = $site[ 'shield' ];
-			if ( $shieldData[ 'is_active' ] ) {
-				$statsHead[ 'connected' ]++;
-			}
-			else {
-				$statsHead[ 'disconnected' ]++;
-			}
-			if ( $shieldData[ 'has_update' ] ) {
-				$statsHead[ 'needs_update' ]++;
-			}
-			if ( $shieldData[ 'has_issues' ] ) {
-				$statsHead[ 'with_issues' ]++;
-			}
-		}
-
 		return [
 			'vars' => [
-				'sites'      => $sites,
-				'stats_head' => $statsHead,
+				'sites' => $sites,
 			],
 		];
 	}

@@ -52,10 +52,6 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		return $this->status()[ 'level' ];
 	}
 
-	protected function hasCapability() :bool {
-		return true;
-	}
-
 	public function getActions() :array {
 		$actions = [];
 		if ( $this->hasConfigAction() ) {
@@ -150,10 +146,6 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		}
 
 		throw new \LogicException( 'Configure rows require a stable non-empty row scope slug.' );
-	}
-
-	public function getLinks() :array {
-		return [];
 	}
 
 	protected function hasConfigAction() :bool {

@@ -161,37 +161,3 @@
 .shield-live-logs--light {
 	background: #ffffff;
 }
-
-.shield-live-logs--dark {
-	background: #0f1419;
-	border-color: #1f2c39;
-	color: #ebf4ef;
-
-	.shield-live-logs__row {
-		border-bottom-color: rgba( 180, 198, 188, 0.18 );
-	}
-
-	.shield-live-logs__timestamp {
-		color: #9db5a9;
-	}
-
-	.shield-live-logs__ip,
-	.shield-live-logs__ip a {
-		color: #8ce8c2;
-	}
-
-	.shield-live-logs__title {
-		background: rgba( 244, 251, 247, 0.08 );
-		border-color: rgba( 180, 198, 188, 0.2 );
-		color: #f4fbf7;
-	}
-
-	.shield-live-logs__description {
-		color: #d2dfd8;
-	}
-
-	.shield-live-logs__empty,
-	.text-muted {
-		color: #9db5a9 !important;
-	}
-}

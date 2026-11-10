@@ -1,5 +1,4 @@
 import { ObjectOps } from "../../util/ObjectOps";
-import { AjaxService } from "../services/AjaxService";
 import { AjaxBatchService } from "../services/AjaxBatchService";
 import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
 import { OffCanvasService } from "../ui/OffCanvasService";

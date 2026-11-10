@@ -27,10 +27,6 @@ class Update extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Updat
 		return $this->updateRecord( $IP, $data );
 	}
 
-	public function updateLabel( Record $IP, string $label ) :bool {
-		return $this->updateRecord( $IP, [ 'label' => \trim( $label ) ] );
-	}
-
 	/**
 	 * @param Record|IpRuleRecord $record
 	 */

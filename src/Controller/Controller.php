@@ -13,15 +13,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\ModConfigV
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Extensions\ExtensionsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	AuditTrail,
-	HackGuard,
 	Integrations,
-	IPs,
 	License,
-	LoginGuard,
 	Plugin,
-	Plugin\Lib\Ops\ResetPlugin,
-	SecurityAdmin
+	Plugin\Lib\Ops\ResetPlugin
 };
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;

@@ -14,7 +14,6 @@ class RulesManager extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 		$records->deleteOldDrafts();
 		return [
 			'flags'   => [
-				'has_custom_rules' => !empty( $records->getCustom() ),
 			],
 			'strings' => [
 				'set_to_export' => __( 'Allow Export', 'wp-simple-firewall' ),

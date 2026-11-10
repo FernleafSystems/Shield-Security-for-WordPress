@@ -144,11 +144,6 @@ class BaseSubPage extends BaseMWP {
 		return URL::Build( $this->getExtensionRootUri(), $params );
 	}
 
-	protected function getSites() :string {
-		$mwp = self::con()->mwpVO;
-		return apply_filters( 'mainwp_getsites', $mwp->child_file, $mwp->child_key );
-	}
-
 	/**
 	 * @throws \Exception
 	 */

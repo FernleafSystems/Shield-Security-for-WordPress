@@ -170,10 +170,6 @@ class PluginURLs {
 		return $url;
 	}
 
-	public function wizard( string $wizardKey ) :string {
-		return $this->adminTopNav( PluginNavs::NAV_WIZARD, $wizardKey );
-	}
-
 	public function adminIpRules() :string {
 		return $this->adminTopNav( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES );
 	}

@@ -116,13 +116,6 @@ abstract class BaseExtension {
 		];
 	}
 
-	protected function getUpgradeConfig() :array {
-		return [
-			'file' => $this->file,
-			'slug' => sprintf( 'shield-ext-%s', static::SLUG ),
-		];
-	}
-
 	public function version() :string {
 		return ( new Files() )->findPluginFromFile( $this->file )->Version ?? '';
 	}

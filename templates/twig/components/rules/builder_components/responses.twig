@@ -2,8 +2,6 @@
 
 	{% if form_item.type == 'response' %}
 
-		{% set unselected_response = form_item.value == '--' %}
-
 		<div class="row">
 			<div class="col-4">
 				<select class="form-select" name="{{ form_item.name }}" class="form-control">

@@ -51,7 +51,6 @@ class PageLicense extends PageModeLandingBase {
 		}
 
 		$strings = [
-			'pro_features'        => $proFeatures,
 
 			'license_upgrade_eyebrow'      => __( 'Upgrade', 'wp-simple-firewall' ),
 			'license_activate_title'       => sprintf( __( 'Activate %s Pro', 'wp-simple-firewall' ), $con->labels->Name ),
@@ -83,16 +82,12 @@ class PageLicense extends PageModeLandingBase {
 
 		return \array_replace_recursive( parent::getRenderData(), [
 			'flags'   => [
-				'show_ads'              => false,
-				'button_enabled_check'  => true,
-				'show_standard_options' => false,
-				'show_alt_content'      => true,
-				'has_licence'           => $hasLicence,
-				'is_pro'                => $isPro,
+				'button_enabled_check' => true,
+				'has_licence'          => $hasLicence,
+				'is_pro'               => $isPro,
 			],
 			'hrefs'   => [
 				'shield_pro_url' => 'https://clk.shldscrty.com/buyshieldpro',
-				'iframe_url'     => $config->def( 'landing_page_url' ),
 				'keyless_cp'     => $config->def( 'keyless_cp' ),
 			],
 			'imgs'    => [

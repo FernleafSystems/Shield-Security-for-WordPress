@@ -2,13 +2,6 @@
 	margin-top: 100px;
 }
 
-.shield-scan-progress__status {
-	display: inline-flex;
-	align-items: center;
-	justify-content: flex-end;
-	gap: 0.35rem;
-	white-space: nowrap;
-}
 @keyframes shield-scan-progress-spin {
 	from {
 		transform: rotate(0deg);

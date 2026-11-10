@@ -77,7 +77,6 @@ class ScansProgress extends BaseScans {
 				'progress'        => $progress,
 				'announcement'    => $announcement,
 				'is_busy'         => $isRunning,
-				'show_progress'   => !$isFailed,
 				'scan_rows'       => $scanRows,
 			],
 		];

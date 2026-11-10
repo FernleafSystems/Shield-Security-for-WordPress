@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Services\Services;
 
 class MerlinStep extends BaseRender {
 
@@ -61,15 +60,10 @@ class MerlinStep extends BaseRender {
 			$strings[ 'welcome_video_title' ] = sprintf( __( '%s, Founder Introduction', 'wp-simple-firewall' ), $pluginName );
 		}
 
-		$videoId = $this->action_data[ 'vars' ][ 'video_id' ] ?? '';
-
 		return [
 			'hrefs'   => [
 				'dashboard' => self::con()->plugin_urls->adminHome(),
 				'gopro'     => 'https://clk.shldscrty.com/ap',
-			],
-			'imgs'    => [
-				'video_thumb' => $this->getVideoThumbnailUrl( $videoId )
 			],
 			'strings' => $strings,
 		];
@@ -77,19 +71,5 @@ class MerlinStep extends BaseRender {
 
 	protected function getRenderTemplate() :string {
 		return sprintf( parent::getRenderTemplate(), $this->action_data[ 'vars' ][ 'step_slug' ] );
-	}
-
-	/**
-	 * @see https://stackoverflow.com/questions/1361149/get-img-thumbnails-from-vimeo
-	 */
-	private function getVideoThumbnailUrl( string $videoID ) :string {
-		$thumbnail = '';
-		if ( !empty( $videoID ) ) {
-			$raw = Services::HttpRequest()->getContent( sprintf( 'https://vimeo.com/api/v2/video/%s.json', $videoID ) );
-			if ( !empty( $raw ) ) {
-				$thumbnail = \json_decode( $raw, true )[ 0 ][ 'thumbnail_large' ] ?? '';
-			}
-		}
-		return $thumbnail;
 	}
 }
