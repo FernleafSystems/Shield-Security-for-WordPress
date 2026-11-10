@@ -290,8 +290,8 @@ test( 'connected master sync-now button sends existing import request', async ( 
 		await syncButton.click();
 		await syncRequest;
 		await expect( syncButton ).toBeEnabled( { timeout: 15_000 } );
-		// Bootstrap transitions the button colours for 150ms after it is re-enabled.
-		await page.waitForTimeout( 200 );
+		// The re-enabled button is under the mouse and its hover colours fade in, so contrast is measured with no fade.
+		await page.addStyleTag( { content: '* { transition: none !important; }' } );
 		await expectNoAxeViolations( page, '#PageContainer-Apto' );
 	}, [ 'connected-master' ] );
 } );

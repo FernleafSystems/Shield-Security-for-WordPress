@@ -73,28 +73,6 @@ class BotActions extends Base {
 		return $status;
 	}
 
-	public function postureSignals() :array {
-		$states = $this->botSignalStates();
-		$signals = [];
-		foreach ( $this->botSignalDefinitions() as $optKey => $definition ) {
-			$enabled = !empty( $states[ $optKey ] );
-			$signals[] = $this->buildPostureSignal(
-				'bot_signal_'.$optKey,
-				sprintf( __( 'Bot Signal: %s', 'wp-simple-firewall' ), $this->botSignalName( $optKey ) ),
-				$definition[ 'weight' ],
-				$enabled ? $definition[ 'weight' ] : 0,
-				$enabled ? 'good' : 'critical',
-				$enabled,
-				[
-					$enabled
-						? sprintf( __( "Visitors that repeatedly trigger '%s' are penalised.", 'wp-simple-firewall' ), $this->botSignalName( $optKey ) )
-						: sprintf( __( "Visitors that repeatedly trigger '%s' aren't penalised.", 'wp-simple-firewall' ), $this->botSignalName( $optKey ) ),
-				]
-			);
-		}
-		return $signals;
-	}
-
 	/**
 	 * @return array<string,bool>
 	 */
@@ -107,18 +85,18 @@ class BotActions extends Base {
 	}
 
 	/**
-	 * @return array<string,array{name:string,weight:int,primary:bool}>
+	 * @return array<string,array{name:string,primary:bool}>
 	 */
 	private function botSignalDefinitions() :array {
 		return [
-			'track_logininvalid'   => [ 'name' => __( 'Invalid Usernames', 'wp-simple-firewall' ), 'weight' => 6, 'primary' => true ],
-			'track_loginfailed'    => [ 'name' => __( 'Failed Login', 'wp-simple-firewall' ), 'weight' => 5, 'primary' => true ],
-			'track_xmlrpc'         => [ 'name' => __( 'XML-RPC Access', 'wp-simple-firewall' ), 'weight' => 6, 'primary' => true ],
-			'track_fakewebcrawler' => [ 'name' => __( 'Fake Web Crawler', 'wp-simple-firewall' ), 'weight' => 3, 'primary' => false ],
-			'track_404'            => [ 'name' => __( '404 Detect', 'wp-simple-firewall' ), 'weight' => 2, 'primary' => false ],
-			'track_linkcheese'     => [ 'name' => __( 'Link Cheese', 'wp-simple-firewall' ), 'weight' => 2, 'primary' => false ],
-			'track_invalidscript'  => [ 'name' => __( 'Invalid Script Load', 'wp-simple-firewall' ), 'weight' => 2, 'primary' => false ],
-			'track_useragent'      => [ 'name' => __( 'Empty User Agents', 'wp-simple-firewall' ), 'weight' => 2, 'primary' => false ],
+			'track_logininvalid'   => [ 'name' => __( 'Invalid Usernames', 'wp-simple-firewall' ), 'primary' => true ],
+			'track_loginfailed'    => [ 'name' => __( 'Failed Login', 'wp-simple-firewall' ), 'primary' => true ],
+			'track_xmlrpc'         => [ 'name' => __( 'XML-RPC Access', 'wp-simple-firewall' ), 'primary' => true ],
+			'track_fakewebcrawler' => [ 'name' => __( 'Fake Web Crawler', 'wp-simple-firewall' ), 'primary' => false ],
+			'track_404'            => [ 'name' => __( '404 Detect', 'wp-simple-firewall' ), 'primary' => false ],
+			'track_linkcheese'     => [ 'name' => __( 'Link Cheese', 'wp-simple-firewall' ), 'primary' => false ],
+			'track_invalidscript'  => [ 'name' => __( 'Invalid Script Load', 'wp-simple-firewall' ), 'primary' => false ],
+			'track_useragent'      => [ 'name' => __( 'Empty User Agents', 'wp-simple-firewall' ), 'primary' => false ],
 		];
 	}
 

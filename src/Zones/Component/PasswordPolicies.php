@@ -18,10 +18,6 @@ class PasswordPolicies extends Base {
 		return 'enable_password_policies';
 	}
 
-	protected function postureWeight() :int {
-		return 3;
-	}
-
 	protected function status() :array {
 		$status = parent::status();
 		if ( self::con()->comps->opts_lookup->isPassPoliciesEnabled() ) {

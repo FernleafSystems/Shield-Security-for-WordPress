@@ -18,10 +18,6 @@ class TrustedCommenters extends Base {
 		return 'trusted_commenter_minimum';
 	}
 
-	protected function postureWeight() :int {
-		return 1;
-	}
-
 	protected function status() :array {
 		$status = parent::status();
 		$minimum = self::con()->comps->opts_lookup->getCommenterTrustedMinimum();

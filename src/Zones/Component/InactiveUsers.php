@@ -56,8 +56,4 @@ class InactiveUsers extends Base {
 
 		return $status;
 	}
-
-	protected function postureWeight() :int {
-		return 2;
-	}
 }

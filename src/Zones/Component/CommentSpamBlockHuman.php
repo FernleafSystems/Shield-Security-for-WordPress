@@ -38,10 +38,6 @@ class CommentSpamBlockHuman extends Base {
 		return $status;
 	}
 
-	protected function postureWeight() :int {
-		return 2;
-	}
-
 	protected function configureTreatsBadStatusAsWarning() :bool {
 		return true;
 	}

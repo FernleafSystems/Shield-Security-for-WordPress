@@ -156,38 +156,6 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		return [];
 	}
 
-	/**
-	 * @return array<int,array{
-	 *   slug:string,
-	 *   title:string,
-	 *   weight:int,
-	 *   score:int,
-	 *   is_protected:bool,
-	 *   severity:'good'|'warning'|'critical',
-	 *   explanation:list<string>,
-	 *   config_action:array<string,mixed>
-	 * }>
-	 */
-	public function postureSignals() :array {
-		$weight = $this->postureWeight();
-		if ( $weight <= 0 ) {
-			return [];
-		}
-
-		$severity = EnumEnabledStatus::toSeverity( $this->enabledStatus(), 'good' );
-		return [
-			$this->buildPostureSignal(
-				static::Slug(),
-				$this->title(),
-				$weight,
-				$this->scoreForSeverity( $severity, $weight ),
-				$severity,
-				$severity === 'good',
-				$this->explanation()
-			),
-		];
-	}
-
 	protected function hasConfigAction() :bool {
 		return \count( $this->getOptions() ) > 0;
 	}
@@ -358,61 +326,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		];
 	}
 
-	protected function postureWeight() :int {
-		return 0;
-	}
-
 	protected function resolveBooleanMethod( object $object, string $method, bool $fallback ) :bool {
 		return \method_exists( $object, $method ) ? (bool)$object->{$method}() : $fallback;
-	}
-
-	/**
-	 * @param string[] $explanation
-	 * @param 'good'|'warning'|'critical' $severity
-	 * @return array{
-	 *   slug:string,
-	 *   title:string,
-	 *   weight:int,
-	 *   score:int,
-	 *   is_protected:bool,
-	 *   severity:'good'|'warning'|'critical',
-	 *   explanation:list<string>,
-	 *   config_action:array<string,mixed>
-	 * }
-	 */
-	protected function buildPostureSignal(
-		string $slug,
-		string $title,
-		int $weight,
-		int $score,
-		string $severity,
-		bool $isProtected,
-		array $explanation = []
-	) :array {
-		return [
-			'slug'         => sanitize_key( $slug ),
-			'title'        => $title,
-			'weight'       => max( 0, $weight ),
-			'score'        => max( 0, min( $weight, $score ) ),
-			'is_protected' => $isProtected,
-			'severity'     => \in_array( $severity, [ 'good', 'warning', 'critical' ], true ) ? $severity : 'good',
-			'explanation'  => \array_values( \array_filter( \array_map(
-				static fn( $line ) :string => trim( (string)$line ),
-				$explanation
-			) ) ),
-			'config_action' => $this->getActions()[ 'config' ] ?? [],
-		];
-	}
-
-	protected function scoreForSeverity( string $severity, int $weight ) :int {
-		switch ( $severity ) {
-			case 'critical':
-				return 0;
-			case 'warning':
-				return (int)round( $weight/2 );
-			case 'good':
-			default:
-				return $weight;
-		}
 	}
 }

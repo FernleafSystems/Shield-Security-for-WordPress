@@ -72,41 +72,6 @@ class FileScanning extends Base {
 		return $status;
 	}
 
-	public function postureSignals() :array {
-		$states = $this->fileScanningStates();
-		$signals = [];
-
-		foreach ( $this->scanControlDefinitions() as $areaKey => $definition ) {
-			$enabled = !empty( $states[ 'scan_controls' ][ $areaKey ] );
-			$signals[] = $this->buildPostureSignal(
-				$definition[ 'slug' ],
-				$definition[ 'title' ],
-				$definition[ 'weight' ],
-				$enabled ? $definition[ 'weight' ] : 0,
-				$enabled ? 'good' : $definition[ 'severity' ],
-				$enabled,
-				[
-					$enabled ? $definition[ 'enabled_message' ] : $definition[ 'posture_disabled_message' ],
-				]
-			);
-		}
-
-		foreach ( $this->repairControlDefinitions() as $areaKey => $definition ) {
-			$enabled = !empty( $states[ 'repair_controls' ][ $areaKey ] );
-			$signals[] = $this->buildPostureSignal(
-				$definition[ 'slug' ],
-				$definition[ 'title' ],
-				$definition[ 'weight' ],
-				$enabled ? $definition[ 'weight' ] : 0,
-				$enabled ? 'good' : 'warning',
-				$enabled,
-				[ $enabled ? $definition[ 'enabled_message' ] : $definition[ 'posture_disabled_message' ] ]
-			);
-		}
-
-		return $signals;
-	}
-
 	/**
 	 * @return array{
 	 *   afs_enabled:bool,
@@ -147,135 +112,69 @@ class FileScanning extends Base {
 
 	/**
 	 * @return array<string,array{
-	 *   slug:string,
-	 *   title:string,
-	 *   weight:int,
-	 *   severity:string,
 	 *   is_primary:bool,
 	 *   method:string,
-	 *   disabled_message:string,
-	 *   posture_disabled_message:string,
-	 *   enabled_message:string
+	 *   disabled_message:string
 	 * }>
 	 */
 	private function scanControlDefinitions() :array {
 		return [
 			'malware_php' => [
-				'slug'                    => 'scan_enabled_mal',
-				'title'                   => __( 'Malware Scanning', 'wp-simple-firewall' ),
-				'weight'                  => 4,
-				'severity'                => 'critical',
-				'is_primary'              => true,
-				'method'                  => 'isEnabledMalwareScanPHP',
-				'disabled_message'        => __( "PHP files aren't scanned for malware.", 'wp-simple-firewall' ),
-				'posture_disabled_message'=> __( 'PHP files are not scanned for malware.', 'wp-simple-firewall' ),
-				'enabled_message'         => __( 'PHP files are scanned for malware.', 'wp-simple-firewall' ),
+				'is_primary'       => true,
+				'method'           => 'isEnabledMalwareScanPHP',
+				'disabled_message' => __( "PHP files aren't scanned for malware.", 'wp-simple-firewall' ),
 			],
 			'wp' => [
-				'slug'                    => 'scan_enabled_afs_core',
-				'title'                   => __( 'Core File Scanning', 'wp-simple-firewall' ),
-				'weight'                  => 4,
-				'severity'                => 'critical',
-				'is_primary'              => true,
-				'method'                  => 'isScanEnabledWpCore',
-				'disabled_message'        => __( "WordPress core files aren't scanned for corruption.", 'wp-simple-firewall' ),
-				'posture_disabled_message'=> __( 'WordPress core files are not scanned for corruption.', 'wp-simple-firewall' ),
-				'enabled_message'         => __( 'WordPress core files are scanned for corruption.', 'wp-simple-firewall' ),
+				'is_primary'       => true,
+				'method'           => 'isScanEnabledWpCore',
+				'disabled_message' => __( "WordPress core files aren't scanned for corruption.", 'wp-simple-firewall' ),
 			],
 			'plugins' => [
-				'slug'                    => 'scan_enabled_afs_plugins',
-				'title'                   => __( 'Plugin File Scanning', 'wp-simple-firewall' ),
-				'weight'                  => 4,
-				'severity'                => 'critical',
-				'is_primary'              => true,
-				'method'                  => 'isScanEnabledPlugins',
-				'disabled_message'        => __( "Plugin files aren't scanned for corruption.", 'wp-simple-firewall' ),
-				'posture_disabled_message'=> __( 'Plugin files are not scanned for corruption.', 'wp-simple-firewall' ),
-				'enabled_message'         => __( 'Plugin files are scanned for corruption.', 'wp-simple-firewall' ),
+				'is_primary'       => true,
+				'method'           => 'isScanEnabledPlugins',
+				'disabled_message' => __( "Plugin files aren't scanned for corruption.", 'wp-simple-firewall' ),
 			],
 			'themes' => [
-				'slug'                    => 'scan_enabled_afs_themes',
-				'title'                   => __( 'Theme File Scanning', 'wp-simple-firewall' ),
-				'weight'                  => 4,
-				'severity'                => 'critical',
-				'is_primary'              => true,
-				'method'                  => 'isScanEnabledThemes',
-				'disabled_message'        => __( "Theme files aren't scanned for corruption.", 'wp-simple-firewall' ),
-				'posture_disabled_message'=> __( 'Theme files are not scanned for corruption.', 'wp-simple-firewall' ),
-				'enabled_message'         => __( 'Theme files are scanned for corruption.', 'wp-simple-firewall' ),
+				'is_primary'       => true,
+				'method'           => 'isScanEnabledThemes',
+				'disabled_message' => __( "Theme files aren't scanned for corruption.", 'wp-simple-firewall' ),
 			],
 			'wpcontent' => [
-				'slug'                    => 'scan_enabled_afs_wpcontent',
-				'title'                   => __( 'wp-content Scanning', 'wp-simple-firewall' ),
-				'weight'                  => 2,
-				'severity'                => 'critical',
-				'is_primary'              => false,
-				'method'                  => 'isScanEnabledWpContent',
-				'disabled_message'        => __( "/wp-content/ directory isn't scanned.", 'wp-simple-firewall' ),
-				'posture_disabled_message'=> __( '/wp-content/ directory is not scanned.', 'wp-simple-firewall' ),
-				'enabled_message'         => __( '/wp-content/ directory is scanned.', 'wp-simple-firewall' ),
+				'is_primary'       => false,
+				'method'           => 'isScanEnabledWpContent',
+				'disabled_message' => __( "/wp-content/ directory isn't scanned.", 'wp-simple-firewall' ),
 			],
 			'wproot' => [
-				'slug'                    => 'scan_enabled_afs_wproot',
-				'title'                   => __( 'WP Root Scanning', 'wp-simple-firewall' ),
-				'weight'                  => 2,
-				'severity'                => 'critical',
-				'is_primary'              => false,
-				'method'                  => 'isScanEnabledWpRoot',
-				'disabled_message'        => __( "WP root directory isn't scanned.", 'wp-simple-firewall' ),
-				'posture_disabled_message'=> __( 'WP root directory is not scanned.', 'wp-simple-firewall' ),
-				'enabled_message'         => __( 'WP root directory is scanned.', 'wp-simple-firewall' ),
+				'is_primary'       => false,
+				'method'           => 'isScanEnabledWpRoot',
+				'disabled_message' => __( "WP root directory isn't scanned.", 'wp-simple-firewall' ),
 			],
 		];
 	}
 
 	/**
 	 * @return array<string,array{
-	 *   slug:string,
-	 *   title:string,
-	 *   weight:int,
-	 *   severity:string,
 	 *   scan_area:string,
 	 *   method:string,
-	 *   disabled_message:string,
-	 *   posture_disabled_message:string,
-	 *   enabled_message:string
+	 *   disabled_message:string
 	 * }>
 	 */
 	private function repairControlDefinitions() :array {
 		return [
 			'wp' => [
-				'slug'                    => 'scan_enabled_afs_autorepair_core',
-				'title'                   => __( 'Core Auto-Repair', 'wp-simple-firewall' ),
-				'weight'                  => 6,
-				'severity'                => 'warning',
-				'scan_area'               => 'wp',
-				'method'                  => 'isRepairFileWP',
-				'disabled_message'        => __( "WordPress core file auto-repair isn't enabled.", 'wp-simple-firewall' ),
-				'posture_disabled_message'=> __( 'WordPress core file auto-repair is not enabled.', 'wp-simple-firewall' ),
-				'enabled_message'         => __( 'WordPress core file auto-repair is enabled.', 'wp-simple-firewall' ),
+				'scan_area'        => 'wp',
+				'method'           => 'isRepairFileWP',
+				'disabled_message' => __( "WordPress core file auto-repair isn't enabled.", 'wp-simple-firewall' ),
 			],
 			'plugin' => [
-				'slug'                    => 'scan_enabled_afs_autorepair_plugins',
-				'title'                   => __( 'Plugin Auto-Repair', 'wp-simple-firewall' ),
-				'weight'                  => 4,
-				'severity'                => 'warning',
-				'scan_area'               => 'plugins',
-				'method'                  => 'isRepairFilePlugin',
-				'disabled_message'        => __( "Plugin file auto-repair isn't enabled.", 'wp-simple-firewall' ),
-				'posture_disabled_message'=> __( 'Plugin file auto-repair is not enabled.', 'wp-simple-firewall' ),
-				'enabled_message'         => __( 'Plugin file auto-repair is enabled.', 'wp-simple-firewall' ),
+				'scan_area'        => 'plugins',
+				'method'           => 'isRepairFilePlugin',
+				'disabled_message' => __( "Plugin file auto-repair isn't enabled.", 'wp-simple-firewall' ),
 			],
 			'theme' => [
-				'slug'                    => 'scan_enabled_afs_autorepair_themes',
-				'title'                   => __( 'Theme Auto-Repair', 'wp-simple-firewall' ),
-				'weight'                  => 2,
-				'severity'                => 'warning',
-				'scan_area'               => 'themes',
-				'method'                  => 'isRepairFileTheme',
-				'disabled_message'        => __( "Theme file auto-repair isn't enabled.", 'wp-simple-firewall' ),
-				'posture_disabled_message'=> __( 'Theme file auto-repair is not enabled.', 'wp-simple-firewall' ),
-				'enabled_message'         => __( 'Theme file auto-repair is enabled.', 'wp-simple-firewall' ),
+				'scan_area'        => 'themes',
+				'method'           => 'isRepairFileTheme',
+				'disabled_message' => __( "Theme file auto-repair isn't enabled.", 'wp-simple-firewall' ),
 			],
 		];
 	}
@@ -295,5 +194,4 @@ class FileScanning extends Base {
 		$areas = self::con()->opts->optGet( 'file_repair_areas' );
 		return \is_array( $areas ) ? \array_values( \array_filter( $areas, 'is_string' ) ) : [];
 	}
-
 }

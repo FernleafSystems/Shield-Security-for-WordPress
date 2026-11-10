@@ -40,8 +40,4 @@ class SecadminWpAdmins extends Base {
 
 		return $status;
 	}
-
-	protected function postureWeight() :int {
-		return 3;
-	}
 }

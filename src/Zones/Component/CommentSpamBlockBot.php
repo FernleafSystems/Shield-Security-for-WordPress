@@ -38,10 +38,6 @@ class CommentSpamBlockBot extends Base {
 		return $status;
 	}
 
-	protected function postureWeight() :int {
-		return 7;
-	}
-
 	protected function configureTreatsBadStatusAsWarning() :bool {
 		return true;
 	}

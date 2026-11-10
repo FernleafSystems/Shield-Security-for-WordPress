@@ -18,10 +18,6 @@ class ScanScheduling extends Base {
 		return 'scan_frequency';
 	}
 
-	protected function postureWeight() :int {
-		return 2;
-	}
-
 	protected function configureStatus() :array {
 		$status = parent::status();
 		$frequency = (int)self::con()->opts->optGet( 'scan_frequency' );
