@@ -25,28 +25,19 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 class ScansProgress extends BaseScans {
 
 	public const SLUG = 'render_scans_progress';
-	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/progress.twig';
-	private const TEMPLATE_PAGE = '/wpadmin_pages/insights/scans/run/progress_page.twig';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/run/progress_page.twig';
 	public const RECENT_RESULT_WINDOW = 600;
 	/**
 	 * The order the scans are listed in on Run Manual Scan, from choosing them to their results.
 	 */
 	public const SCAN_ORDER = [ 'afs', 'wpv', 'apc' ];
 
-	protected function getRenderTemplate() :string {
-		return $this->isPageDisplay() ? self::TEMPLATE_PAGE : parent::getRenderTemplate();
-	}
-
-	private function isPageDisplay() :bool {
-		return $this->action_data[ 'display' ] === ScanActionBase::DISPLAY_PAGE;
-	}
-
 	protected function getRenderData() :array {
-		$data = $this->buildModalRenderData();
-		return $this->isPageDisplay() ? \array_replace_recursive( $data, $this->buildPageRenderData( $data ) ) : $data;
+		$data = $this->buildProgressRenderData();
+		return \array_replace_recursive( $data, $this->buildPageRenderData( $data ) );
 	}
 
-	private function buildModalRenderData() :array {
+	protected function buildProgressRenderData() :array {
 		/** @var array{modal_state:ScanModalState,current_scan:string,remaining_scans:string,progress:int,scan_rows:list<ActiveScanProgressRow>} $data */
 		$data = $this->action_data;
 		$modalState = $data[ 'modal_state' ];
@@ -75,7 +66,6 @@ class ScansProgress extends BaseScans {
 
 		return [
 			'strings' => [
-				'modal_title'        => __( 'Scan Progress', 'wp-simple-firewall' ),
 				'patience_1'         => __( 'File scanning is an intensive operation and takes time.', 'wp-simple-firewall' ),
 				'patience_2'         => __( 'We appreciate your patience.', 'wp-simple-firewall' ),
 				'progress_label'     => __( 'Scan progress', 'wp-simple-firewall' ),
@@ -90,7 +80,6 @@ class ScansProgress extends BaseScans {
 				'is_busy'         => $isRunning,
 				'show_progress'   => !$isFailed,
 				'scan_rows'       => $scanRows,
-				'modal_title_id'  => 'ShieldModalContainerLabel',
 			],
 		];
 	}
@@ -98,11 +87,11 @@ class ScansProgress extends BaseScans {
 	/**
 	 * The page shows every scan that was asked for: while they run, the ones already done show as finished;
 	 * once they're all done, what each one found and the way on to the Actions Queue.
-	 * @param array<string,mixed> $modalData
+	 * @param array<string,mixed> $progressData
 	 */
-	private function buildPageRenderData( array $modalData ) :array {
+	private function buildPageRenderData( array $progressData ) :array {
 		$con = self::con();
-		$state = $modalData[ 'vars' ][ 'modal_state' ];
+		$state = $progressData[ 'vars' ][ 'modal_state' ];
 
 		$slugs = \array_values( \array_intersect( self::SCAN_ORDER, $this->pageScanSlugs() ) );
 
@@ -393,7 +382,6 @@ class ScansProgress extends BaseScans {
 			'progress',
 			'scan_rows',
 			'scan_slugs',
-			'display',
 		];
 	}
 }

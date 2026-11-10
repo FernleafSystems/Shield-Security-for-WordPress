@@ -54,7 +54,7 @@ class ScansCheckTest extends BaseUnitTest {
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 		$this->assertRenderActionUsed( $controller->action_router );
 		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] );
-		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
+		$this->assertSame( 2, $controller->db_con->scans->selector->queryCount );
 		$this->assertWatchdogNeverUsed( $controller->comps->scans_queue );
 	}
 
@@ -62,6 +62,7 @@ class ScansCheckTest extends BaseUnitTest {
 		$controller = $this->installController( '', '', [], [ 'afs' => false, 'wpv' => false, 'apc' => false ], 0.2, [
 			(object)[
 				'id'     => 32,
+				'scan'     => 'afs',
 				'status' => 'failed',
 				'meta'   => [
 					RunState::META_KEY_LAST_ERROR => 'second_requested_failure',
@@ -69,6 +70,7 @@ class ScansCheckTest extends BaseUnitTest {
 			],
 			(object)[
 				'id'     => 21,
+				'scan'     => 'afs',
 				'status' => 'failed',
 				'meta'   => [
 					RunState::META_KEY_LAST_ERROR => 'first_requested_failure',
@@ -84,7 +86,7 @@ class ScansCheckTest extends BaseUnitTest {
 
 		$this->assertModalPayloadContract( $payload, ScansCheck::SCAN_MODAL_STATE_FAILED );
 		$this->assertSame( 'first_requested_failure', $payload[ 'failure_message' ] );
-		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
+		$this->assertSame( 2, $controller->db_con->scans->selector->queryCount );
 		$this->assertSame( [ 21, 32 ], $controller->db_con->scans->selector->filteredIDs );
 		$this->assertWatchdogNeverUsed( $controller->comps->scans_queue );
 	}
@@ -97,13 +99,14 @@ class ScansCheckTest extends BaseUnitTest {
 		] );
 
 		$this->assertSame( [ 21, 32 ], $controller->db_con->scans->selector->filteredIDs );
-		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
+		$this->assertSame( 2, $controller->db_con->scans->selector->queryCount );
 	}
 
 	public function test_exec_uses_default_failed_message_when_failed_row_has_no_error_meta() :void {
 		$controller = $this->installController( '', '', [], [ 'afs' => false, 'wpv' => false, 'apc' => false ], 0.2, [
 			(object)[
 				'id'     => 21,
+				'scan'     => 'afs',
 				'status' => 'failed',
 				'meta'   => [],
 			],
@@ -117,7 +120,7 @@ class ScansCheckTest extends BaseUnitTest {
 
 		$this->assertModalPayloadContract( $payload, ScansCheck::SCAN_MODAL_STATE_FAILED );
 		$this->assertArrayHasKey( 'failure_message', $payload );
-		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
+		$this->assertSame( 2, $controller->db_con->scans->selector->queryCount );
 		$this->assertWatchdogNeverUsed( $controller->comps->scans_queue );
 	}
 
@@ -514,6 +517,7 @@ class ScansCheckTest extends BaseUnitTest {
 							return [
 								(object)[
 							'id'     => $this->ids[ 0 ],
+							'scan'     => 'afs',
 							'status' => 'failed',
 							'meta'   => [
 								RunState::META_KEY_LAST_ERROR => $this->failureMessage,

@@ -117,7 +117,6 @@ class PageScansRun extends PageScansBase {
 			'progress'        => 100,
 			'scan_rows'       => [],
 			'scan_slugs'      => ScansProgress::RecentlyFinishedScanSlugs(),
-			'display'         => ScansBase::DISPLAY_PAGE,
 		] );
 	}
 

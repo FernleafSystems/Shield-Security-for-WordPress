@@ -23,8 +23,6 @@ abstract class ScansBase extends BaseAction {
 	/**
 	 * The Run Manual Scan page shows progress and results in the page itself, so it asks for that markup instead.
 	 */
-	public const DISPLAY_PAGE = 'page';
-	public const DISPLAY_MODAL = 'modal';
 
 	/**
 	 * @param list<int> $startedScanIDs
@@ -72,7 +70,7 @@ abstract class ScansBase extends BaseAction {
 				? 100
 				: $this->currentScanProgressFromRows( $scanRows ),
 			'scan_rows'       => $scanRows,
-			'scan_slugs'      => $this->isPageDisplay() ? $this->scanSlugsForIDs( $startedScanIDs ) : [],
+			'scan_slugs'      => $this->scanSlugsForIDs( $startedScanIDs ),
 		] ) );
 	}
 
@@ -114,19 +112,11 @@ abstract class ScansBase extends BaseAction {
 
 		$renderData[ 'modal_state' ] = $modalState;
 		$renderData[ 'progress' ] = $progress;
-		$renderData[ 'display' ] = $this->isPageDisplay() ? self::DISPLAY_PAGE : self::DISPLAY_MODAL;
 
 		return [
 			'modal_state' => $modalState,
 			'modal_html'  => self::con()->action_router->render( ScansProgress::class, $renderData ),
 		];
-	}
-
-	/**
-	 * Run Manual Scan asks for its progress drawn for the page; anything else gets the dialog.
-	 */
-	protected function isPageDisplay() :bool {
-		return ( $this->action_data[ 'display' ] ?? '' ) === self::DISPLAY_PAGE;
 	}
 
 	/**

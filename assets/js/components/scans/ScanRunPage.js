@@ -2,10 +2,12 @@ import { announceStatus } from "../ui/ShieldA11y";
 import { Html } from "../../util/Html";
 
 /**
- * Run Manual Scan shows scan progress and the result in the page, in place of the progress dialog. The scan
- * polling hands its markup here whenever the page's progress area exists.
+ * Run Manual Scan shows scan progress and the result in the page. The scan polling hands its markup here whenever
+ * the page's progress area exists.
  */
 export class ScanRunPage {
+
+	static progressStates = [ 'initiating', 'running', 'completed', 'failed' ];
 
 	static Host() {
 		const host = document.querySelector( '[data-shield-scan-inline="1"]' );
@@ -16,8 +18,51 @@ export class ScanRunPage {
 		return ScanRunPage.Host() !== null;
 	}
 
-	static AjaxParams() {
-		return ScanRunPage.IsActive() ? { display: 'page' } : {};
+	static HasProgressResponse( resp ) {
+		return !!( resp?.data
+			&& typeof resp.data.modal_html === 'string'
+			&& resp.data.modal_html.length > 0
+			&& ScanRunPage.progressStates.includes( resp.data.modal_state ) );
+	}
+
+	static ErrorMessage( resp ) {
+		const message = resp?.data?.message;
+		return typeof message === 'string' && message.length > 0 ? message : '';
+	}
+
+	static ShowInitiating( strings ) {
+		return ScanRunPage.showLocal( {
+			state: 'initiating',
+			heading: strings.modal_initiating,
+			message: strings.modal_wait,
+			announcement: strings.modal_initiating,
+			busy: true
+		} );
+	}
+
+	static ShowError( strings, message = '' ) {
+		const reason = message.length > 0 ? message : strings.modal_error_message;
+		return ScanRunPage.showLocal( {
+			state: 'failed',
+			heading: strings.modal_error_title,
+			message: reason,
+			announcement: reason,
+			busy: false
+		} );
+	}
+
+	/**
+	 * The scans may be fine: it's only their progress that can't be reached at the moment.
+	 */
+	static ShowStale( strings ) {
+		return ScanRunPage.showLocal( {
+			state: 'stale',
+			heading: strings.modal_stale_title,
+			message: strings.modal_stale_message,
+			announcement: `${strings.modal_stale_title} ${strings.modal_stale_message}`,
+			busy: false,
+			refreshLabel: strings.refresh
+		} );
 	}
 
 	static Show( html ) {
@@ -42,7 +87,7 @@ export class ScanRunPage {
 		return true;
 	}
 
-	static ShowLocal( { state, heading, message, announcement, busy, refreshLabel } ) {
+	static showLocal( { state, heading, message, announcement, busy, refreshLabel } ) {
 		const esc = ( text ) => Html.Escape( String( text ) );
 		const notice = ( tone, icon, href, label ) => `<section class="shield-tool-status ${tone}">
 				<span class="shield-tool-status__badge"><i class="bi ${icon}" aria-hidden="true"></i></span>

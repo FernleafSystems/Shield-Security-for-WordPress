@@ -18,13 +18,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
  * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
- * @phpstan-type GroupLink array{
- *   label:string,
- *   href:string,
- *   target:string,
- *   rel:string,
- *   icon_class:string
- * }
  * @phpstan-type GroupManagementLink array{
  *   label:string,
  *   href:string,
@@ -40,16 +33,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
  *   status_label:string,
  *   icon_class:string,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
- *   card_type:'expandable'|'linked'|'category',
+ *   card_type:'expandable'|'category',
  *   narrative:string,
  *   drill_hint:string,
  *   drill_icon:string,
- *   links:list<GroupLink>,
  *   management_link:array{}|GroupManagementLink,
  *   is_interactive:bool,
  *   is_pro_upsell:bool,
  *   enable_dialog_json:string,
- *   detail_table:array<string,mixed>,
  *   render_action_class:class-string<BaseRender>|null,
  *   render_action_data:array<string,mixed>,
  *   maintenance_rows:list<CompactSummaryRow>,

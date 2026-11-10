@@ -8,7 +8,7 @@
 {% set is_passing = not is_pro and not is_enable and group.status == 'good' %}
 {# A passing group can still have results to open, such as ignored items that can be restored. #}
 {% set can_drill = not is_pro and not is_enable
-	and group.is_interactive and group.card_type != 'category' and group.card_type != 'linked' %}
+	and group.is_interactive and group.card_type != 'category' %}
 {% set kind = is_pro ? 'pro' : ( is_enable ? 'enable' : ( is_passing ? 'good' : group.status ) ) %}
 
 {#
@@ -137,17 +137,6 @@
 		{% elseif can_drill %}
 			<span class="actions-queue-row__action actions-queue-row__action--{{ group.status }}">
 				<i class="{{ group.drill_icon }}" aria-hidden="true"></i>{{ group.drill_hint is not empty ? group.drill_hint : strings.review }}
-			</span>
-		{% elseif group.card_type == 'linked' and group.links is not empty %}
-			<span class="actions-queue-row__links">
-				{% for link in group.links %}
-					<a class="actions-queue-row__link"
-					   href="{{ link.href }}"
-					   {% if link.target is not empty %}target="{{ link.target }}"{% endif %}
-					   {% if link.rel is not empty %}rel="{{ link.rel }}"{% endif %}>
-						<i class="bi {{ link.target == '_blank' ? 'bi-box-arrow-up-right' : 'bi-arrow-right' }}" aria-hidden="true"></i>{{ link.label }}
-					</a>
-				{% endfor %}
 			</span>
 		{% endif %}
 	</{{ tag }}>

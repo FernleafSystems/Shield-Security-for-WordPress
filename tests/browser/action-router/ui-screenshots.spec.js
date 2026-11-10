@@ -257,8 +257,8 @@ const SCREENS = [
 		capture: async ( ui ) => {
 			await ui.open( { nav: 'scans', nav_sub: 'run', step: 'choose' } );
 			await ui.shot( 'choose' );
-			const { modal_html: runningHtml } = await ui.fixtureApi.renderScanProgressFixture( 'running', 'page' );
-			const { modal_html: completedHtml } = await ui.fixtureApi.renderScanProgressFixture( 'completed', 'page' );
+			const { modal_html: runningHtml } = await ui.fixtureApi.renderScanProgressFixture( 'running' );
+			const { modal_html: completedHtml } = await ui.fixtureApi.renderScanProgressFixture( 'completed' );
 			let finished = false;
 			await ui.page.route( '**/admin-ajax.php', async ( route ) => {
 				const action = new URLSearchParams( route.request().postData() || '' ).get( 'ex' );

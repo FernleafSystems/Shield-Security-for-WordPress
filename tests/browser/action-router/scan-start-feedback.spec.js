@@ -383,8 +383,8 @@ function waitForScanOverviewRedirect( page, timeout = 8000 ) {
 test( 'manual scan start shows progress and then the result in the page, with no dialog or redirect', async ( { page, fixtureApi } ) => {
 	await openScanRunPage( page );
 
-	const { modal_html: runningHtml } = await fixtureApi.renderScanProgressFixture( 'running', 'page' );
-	const { modal_html: completedHtml } = await fixtureApi.renderScanProgressFixture( 'completed', 'page' );
+	const { modal_html: runningHtml } = await fixtureApi.renderScanProgressFixture( 'running' );
+	const { modal_html: completedHtml } = await fixtureApi.renderScanProgressFixture( 'completed' );
 	const delayedRequest = await delayScanStartRequest( page, runningHtml );
 	const scanCheckRequest = await holdNextScanCheckRequest( page, completedHtml );
 
@@ -433,7 +433,7 @@ test( 'scan progress on the Actions Queue shows in its top bar, not in a dialog'
 			}
 		}, { once: true } );
 	} );
-	const runningModalHtml = scanProgressModalHtml( 'running', 37 );
+	const runningModalHtml = scanProgressHtml( 'running', 37 );
 	const handler = async ( route ) => {
 		if ( !isScanRequest( route.request(), 'scans_check' ) ) {
 			await route.fallback();
@@ -666,7 +666,7 @@ test( 'manual start supersedes recovery while preserving its lock cleanup and po
 test( 'manual scan failure shows in the page with a way to try again', async ( { page, fixtureApi } ) => {
 	await openScanRunPage( page );
 
-	const { modal_html: failedHtml } = await fixtureApi.renderScanProgressFixture( 'failed', 'page' );
+	const { modal_html: failedHtml } = await fixtureApi.renderScanProgressFixture( 'failed' );
 	await failNextScanStartRequest( page, failedHtml );
 
 	await submitStartScansForm( page );
@@ -798,40 +798,6 @@ function scanProgressHtml( modalState, progress, options = {} ) {
 			 aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
 		${recoveryControl}
 	</div>`;
-}
-
-function scanProgressModalHtml( modalState, progress, options = {} ) {
-	const isInitiating = modalState === 'initiating';
-	const isFailed = modalState === 'failed';
-	const isRunning = isInitiating || modalState === 'running';
-	const recoveryScanId = Number( options.recoveryScanId || 0 );
-	const remainingScans = 'scan-contract-remaining';
-	const announcement = `scan-contract-${modalState}-${progress}`;
-	const heading = `scan-contract-heading-${modalState}`;
-	const recoveryControl = recoveryScanId > 0
-		? `<button type="button" data-shield-scan-attempt-recovery="1" data-scan-id="${recoveryScanId}">Recover</button>`
-		: '';
-
-	return `<div class="modal-header">
-		<h5 class="modal-title" id="ShieldModalContainerLabel">Scan Progress</h5>
-		<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-	</div>
-	<div class="modal-body">
-		<div data-shield-scan-modal-state="${escapeHtml( modalState )}"
-			 aria-busy="${isRunning ? 'true' : 'false'}"
-			 data-shield-scan-modal-announcement="${escapeHtml( announcement )}">
-			<h6>${escapeHtml( heading )}</h6>
-			<p>${escapeHtml( remainingScans )}</p>
-			${isFailed ? '' : `<div class="progress">
-				<div class="progress-bar" role="progressbar"
-					 style="width: ${progress}%"
-					 aria-label="Scan progress"
-					 aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
-			</div>`}
-			${recoveryControl}
-		</div>
-	</div>
-	<div class="modal-footer"></div>`;
 }
 
 function escapeHtml( text = '' ) {

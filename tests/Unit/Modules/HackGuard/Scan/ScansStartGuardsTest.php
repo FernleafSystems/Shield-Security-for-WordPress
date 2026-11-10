@@ -170,8 +170,8 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		$this->assertSame( [ StartScansResult::REASON_CREATE_FAILED ], \array_column( $payload[ 'start_failures' ], 'reason' ) );
 		$this->assertSame( [ [ 'afs', 'wpv' ] ], $controller->comps->scans->startCalls );
 		$this->assertSame( [ false ], $controller->comps->scans->resetIgnoreCalls );
-		$this->assertTrue( $payload[ 'page_reload' ] );
-		$this->assertSame( '/actions-queue-scans/', $payload[ 'redirect_url' ] );
+		$this->assertFalse( $payload[ 'page_reload' ] );
+		$this->assertArrayNotHasKey( 'redirect_url', $payload );
 		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $payload[ 'modal_state' ] );
 		$this->assertNotSame( '', $payload[ 'modal_html' ] );
 		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $controller->action_router->renderData[ 'modal_state' ] );

@@ -861,7 +861,7 @@ class ActionsQueueFixtureBuilder {
 			'target_group_key'            => 'abandoned',
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
-			'expected_interactivity'      => true,
+			'expected_interactivity'      => false,
 			'require_scan_results_table'  => false,
 			'require_populated_scan_results_table' => false,
 		];

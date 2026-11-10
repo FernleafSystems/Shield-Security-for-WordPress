@@ -37,11 +37,9 @@ import { ConfigureLandingController } from "../components/mode/ConfigureLandingC
 import { ActionsQueueLandingController } from "../components/mode/ActionsQueueLandingController";
 import { ReportsTabs } from "../components/mode/ReportsTabs";
 import { DetailRowExpandController } from "../components/mode/DetailRowExpandController";
-import { RailSidebarController } from "../components/mode/RailSidebarController";
 import { ConfigureExpandLoader } from "../components/mode/ConfigureExpandLoader";
 import { ConfigureZoneTools } from "../components/mode/ConfigureZoneTools";
 import { ActionsQueueSections } from "../components/mode/ActionsQueueSections";
-import { HealthyDisclosureController } from "../components/ui/HealthyDisclosureController";
 import { SecurityAdmin } from "../components/general/SecurityAdmin";
 import { ShieldServicesPlugin } from "../services/ShieldServicesPlugin";
 import { ShieldTableImportExportSites } from "../components/tables/ShieldTableImportExportSites";
@@ -101,7 +99,6 @@ export class AppMain extends AppBase {
 		this.components.mode_panel_state = new ModePanelStateController();
 		this.components.drill_down = new DrillDownController();
 		this.components.step_tabs = new StepTabsController();
-		this.components.healthy_disclosure = new HealthyDisclosureController();
 		this.components.investigate_landing = new InvestigateLandingController(
 			'investigate_landing' in comps ? comps.investigate_landing : {}
 		);
@@ -113,7 +110,6 @@ export class AppMain extends AppBase {
 		this.components.actions_queue_landing = new ActionsQueueLandingController();
 		this.components.actions_queue_sections = new ActionsQueueSections();
 		this.components.detail_row_expand = new DetailRowExpandController();
-		this.components.rail_sidebar = new RailSidebarController();
 		this.components.configure_expand_loader = ( 'zones_manager' in comps ) ? new ConfigureExpandLoader( comps.zones_manager ) : null;
 		this.components.configure_zone_tools = ( 'zones_manager' in comps ) ? new ConfigureZoneTools( comps.zones_manager ) : null;
 		this.components.reports_tabs = new ReportsTabs();

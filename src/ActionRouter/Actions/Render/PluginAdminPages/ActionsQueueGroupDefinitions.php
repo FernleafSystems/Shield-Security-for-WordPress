@@ -5,11 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
-	Maintenance,
 	Malware,
 	Plugins,
 	Themes,
-	Vulnerabilities,
 	Wordpress
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
@@ -25,7 +23,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   section_label:string,
  *   icon_class:string,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
- *   card_type:'expandable'|'linked'|'category',
+ *   card_type:'expandable'|'category',
  *   summary_keys:list<string>,
  *   healthy_interaction_mode:'none'|'default_detail',
  *   render_action_class:class-string<BaseRender>|null,
@@ -36,10 +34,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   section_key:string,
  *   section_order:int,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
- *   card_type:'expandable'|'linked'|'category',
+ *   card_type:'expandable'|'category',
  *   healthy_interaction_mode:'none'|'default_detail',
  *   render_action_class:class-string<BaseRender>|null,
- *   render_action_data:'none'|'scan_results'|array<string,mixed>
+ *   render_action_data:'scan_results'|array<string,mixed>
  * }
  * @phpstan-type SummaryBehaviour array{
  *   definition_key:string,
@@ -54,6 +52,7 @@ class ActionsQueueGroupDefinitions {
 	 * @var array<string,GroupMetadata>
 	 */
 	private const GROUP_METADATA = [
+		// A null render action is a group listed in the queue itself, with no separate detail to open.
 		'wordpress' => [
 			'sort_order'               => 2,
 			'section_key'              => 'wordpress',
@@ -91,10 +90,8 @@ class ActionsQueueGroupDefinitions {
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'none',
-			'render_action_class'      => Vulnerabilities::class,
-			'render_action_data'       => [
-				'section' => 'vulnerable',
-			],
+			'render_action_class'      => null,
+			'render_action_data'       => [],
 		],
 		'abandoned' => [
 			'sort_order'               => 1,
@@ -103,10 +100,8 @@ class ActionsQueueGroupDefinitions {
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'none',
-			'render_action_class'      => Vulnerabilities::class,
-			'render_action_data'       => [
-				'section' => 'abandoned',
-			],
+			'render_action_class'      => null,
+			'render_action_data'       => [],
 		],
 		'hidden_plugins' => [
 			'sort_order'               => 2,
@@ -115,7 +110,6 @@ class ActionsQueueGroupDefinitions {
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'none',
-			// Each cloaked plugin is listed in the queue, so there's no separate detail to open.
 			'render_action_class'      => null,
 			'render_action_data'       => [],
 		],
@@ -147,8 +141,8 @@ class ActionsQueueGroupDefinitions {
 			'detail_shell'             => 'maintenance',
 			'card_type'                => 'category',
 			'healthy_interaction_mode' => 'none',
-			'render_action_class'      => Maintenance::class,
-			'render_action_data'       => 'none',
+			'render_action_class'      => null,
+			'render_action_data'       => [],
 		],
 	];
 

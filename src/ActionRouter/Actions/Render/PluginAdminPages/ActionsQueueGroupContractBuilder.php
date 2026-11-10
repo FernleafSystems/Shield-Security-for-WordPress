@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type AttentionItem from \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems
  * @phpstan-import-type GroupData from ActionsQueueGroupsBuilder
  * @phpstan-import-type GroupSectionData from ActionsQueueGroupsBuilder
- * @phpstan-import-type GroupLink from ActionsQueueGroupsBuilder
  * @phpstan-import-type GroupManagementLink from ActionsQueueGroupsBuilder
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
  * @phpstan-type GroupSeed array{
@@ -20,9 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   status:string,
  *   narrative:string,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
- *   card_type_override?:'expandable'|'linked'|'category',
  *   icon_class_override?:string,
- *   links:list<GroupLink>,
  *   management_link:array{}|GroupManagementLink,
  *   is_interactive_override?:bool,
  *   is_pro_upsell?:bool,
@@ -34,7 +31,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   header_badge_override?:string,
  *   header_badge_status_override?:string,
  *   header_color_key_override?:string,
- *   detail_table:array<string,mixed>,
  *   render_action_class_override?:class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender>,
  *   render_action_data_override?:array<string,mixed>,
  *   attention_items:list<AttentionItem>,
@@ -149,12 +145,10 @@ class ActionsQueueGroupContractBuilder {
 			'narrative'           => $narrative,
 			'drill_hint'          => '',
 			'drill_icon'          => 'bi bi-search',
-			'links'               => [],
 			'management_link'     => [],
 			'is_interactive'      => false,
 			'is_pro_upsell'      => false,
 			'enable_dialog_json' => '',
-			'detail_table'        => [],
 			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $renderActionData,
 			'maintenance_rows'    => [],
@@ -216,12 +210,10 @@ class ActionsQueueGroupContractBuilder {
 			'narrative'           => $narrative,
 			'drill_hint'          => '',
 			'drill_icon'          => 'bi bi-search',
-			'links'               => [],
 			'management_link'     => [],
 			'is_interactive'      => false,
 			'is_pro_upsell'      => false,
 			'enable_dialog_json' => '',
-			'detail_table'        => [],
 			'render_action_class' => ActionsQueueAssetFileStatusDetail::class,
 			'render_action_data'  => $renderActionData,
 			'maintenance_rows'    => [],
@@ -329,7 +321,7 @@ class ActionsQueueGroupContractBuilder {
 			'status_label'        => $seed[ 'status_label_override' ] ?? $this->standardStatusLabel( $seed[ 'status' ] ),
 			'icon_class'          => $iconClass,
 			'detail_shell'        => $seed[ 'detail_shell' ],
-			'card_type'           => $seed[ 'card_type_override' ] ?? $definition[ 'card_type' ],
+			'card_type'           => $definition[ 'card_type' ],
 			'narrative'           => $narrative,
 			'drill_hint'          => $this->buildDrillHint(
 				$seed[ 'definition_key' ],
@@ -340,12 +332,10 @@ class ActionsQueueGroupContractBuilder {
 			'drill_icon'          => $this->isFileLockerToManage( $seed[ 'definition_key' ], $seed[ 'item_count' ] )
 				? 'bi bi-file-lock2'
 				: 'bi bi-search',
-			'links'               => $seed[ 'links' ],
 			'management_link'     => $seed[ 'management_link' ],
 			'is_interactive'      => $isInteractive,
 			'is_pro_upsell'      => (bool)( $seed[ 'is_pro_upsell' ] ?? false ),
 			'enable_dialog_json' => $seed[ 'enable_dialog_json' ] ?? '',
-			'detail_table'        => $seed[ 'detail_table' ],
 			'render_action_class' => $renderActionClass,
 			'render_action_data'  => $renderActionData,
 			'maintenance_rows'    => $seed[ 'maintenance_rows' ],
@@ -596,10 +586,8 @@ class ActionsQueueGroupContractBuilder {
 	 */
 	private function determineInteractivity( array $seed ) :bool {
 		return $seed[ 'detail_shell' ] !== 'maintenance'
-			&& ( $seed[ 'card_type_override' ] ?? '' ) !== 'linked'
 			&& (
-				!empty( $seed[ 'detail_table' ] )
-				|| !empty( $seed[ 'render_action_class_override' ] )
+				!empty( $seed[ 'render_action_class_override' ] )
 				|| !empty( $seed[ 'render_action_data_override' ] )
 				|| $seed[ 'item_count' ] > 0
 			);

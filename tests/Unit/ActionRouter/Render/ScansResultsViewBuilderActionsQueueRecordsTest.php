@@ -335,10 +335,6 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$sectionLabels = \array_column( $builder->buildRailPaneData( 'vulnerabilities' )[ 'items' ] ?? [], 'section_label' );
 		$this->assertContains( $vulnerableLabel, $sectionLabels );
 		$this->assertNotContains( $abandonedLabel, $sectionLabels );
-
-		$abandonedSectionLabels = \array_column( $builder->buildRailPaneData( 'abandoned' )[ 'items' ] ?? [], 'section_label' );
-		$this->assertContains( $abandonedLabel, $abandonedSectionLabels );
-		$this->assertNotContains( $vulnerableLabel, $abandonedSectionLabels );
 	}
 
 	public function test_vulnerability_items_keep_native_and_lookup_actions() :void {

@@ -437,7 +437,6 @@ class AssetsCustomizer {
 						'indicator_failed'    => __( 'A scan failed', 'wp-simple-firewall' ),
 						'indicator_stale'     => __( "Progress couldn't be updated", 'wp-simple-firewall' ),
 						'indicator_view'      => __( 'View scan progress', 'wp-simple-firewall' ),
-						'modal_title'         => __( 'Scan Progress', 'wp-simple-firewall' ),
 						'modal_initiating'    => __( 'Preparing scans.', 'wp-simple-firewall' ),
 						'modal_wait'          => __( 'Please wait while the scan request starts.', 'wp-simple-firewall' ),
 						'modal_error_title'   => __( 'Scan failed.', 'wp-simple-firewall' ),

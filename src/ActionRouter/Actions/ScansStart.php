@@ -12,7 +12,6 @@ class ScansStart extends ScansBase {
 	protected function exec() {
 		$con = self::con();
 		$success = false;
-		$reloadPage = false;
 		$startedScanIDs = [];
 		$selectedScans = [];
 		$errorCode = '';
@@ -33,7 +32,6 @@ class ScansStart extends ScansBase {
 			$errorCode = $result->getErrorCode();
 			if ( $result->hasStarted() ) {
 				$success = true;
-				$reloadPage = true;
 			}
 		}
 		elseif ( $msg === '' ) {
@@ -44,14 +42,11 @@ class ScansStart extends ScansBase {
 
 		$payload = [
 			'scans_running' => $isScanRunning,
-			// Run Manual Scan shows the result itself, so only the dialog moves on to the queue.
-			'page_reload'   => $reloadPage && !$isScanRunning && !$this->isPageDisplay(),
+			// Run Manual Scan, where scans start, shows the result itself.
+			'page_reload'   => false,
 			'scan_ids'      => $startedScanIDs,
 			'message'       => $msg,
 		];
-		if ( $payload[ 'page_reload' ] ) {
-			$payload[ 'redirect_url' ] = $con->plugin_urls->actionsQueueScans();
-		}
 		if ( $errorCode !== '' ) {
 			$payload[ 'error_code' ] = $errorCode;
 		}

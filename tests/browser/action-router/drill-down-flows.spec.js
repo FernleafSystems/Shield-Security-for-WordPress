@@ -316,8 +316,6 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 		nav_sub: 'overview',
 	} );
 
-	await expect( page.locator( '[data-healthy-disclosure-toggle="1"]' ) ).toHaveCount( 0 );
-	await expect( page.locator( '[data-healthy-disclosure-body="1"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
 
 	const zone = page.locator(

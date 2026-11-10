@@ -129,7 +129,6 @@ class BrowserFixtureRegistry {
 			throw new \RuntimeException( 'Unknown scan progress render scenario.' );
 		}
 		RuntimeTestState::loginAsSecurityAdmin();
-		$isPage = ( $args[ 1 ] ?? '' ) === ScansBase::DISPLAY_PAGE;
 		return [
 			'modal_state' => $state,
 			'modal_html' => RuntimeTestState::controller()->action_router->render( ScansProgress::SLUG, [
@@ -137,9 +136,8 @@ class BrowserFixtureRegistry {
 				'current_scan' => 'Browser fixture scan',
 				'remaining_scans' => 'Browser fixture progress',
 				'progress' => $progress[ $state ],
-				'scan_rows' => $isPage && $state === 'running' ? self::scanProgressFixtureRows() : [],
+				'scan_rows' => $state === 'running' ? self::scanProgressFixtureRows() : [],
 				'scan_slugs' => [ 'afs', 'wpv', 'apc' ],
-				'display' => $isPage ? ScansBase::DISPLAY_PAGE : ScansBase::DISPLAY_MODAL,
 			] ),
 		];
 	}

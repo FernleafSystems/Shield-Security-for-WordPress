@@ -154,8 +154,7 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 	protected function buildAggregateVulnerabilityPane( array $tabs, array $vulnerabilities ) :array {
 		$tab = ( new ScansResultsViewBuilder() )->buildRailPaneData(
 			'vulnerabilities',
-			$vulnerabilities,
-			'vulnerable'
+			$vulnerabilities
 		);
 		$tab[ 'pane_id' ] = $tabs[ 'vulnerabilities' ][ 'pane_id' ];
 

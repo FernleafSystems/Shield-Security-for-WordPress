@@ -297,7 +297,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $cloaked[ 'render_action_data' ] );
 		$this->assertSame( [], $cloaked[ 'selection' ][ 'detail_render_action' ] );
 
-		$unrelated = $this->newBuilder()->buildEmptyGroup( 'abandoned', 'Fix now' );
+		$unrelated = $this->newBuilder()->buildEmptyGroup( 'malware', 'Fix now' );
 		$this->assertFalse( $unrelated[ 'is_interactive' ] );
 		$this->assertNotSame( [], $unrelated[ 'selection' ][ 'detail_render_action' ] );
 	}
@@ -426,9 +426,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 			'status'          => 'warning',
 			'narrative'       => '',
 			'detail_shell'    => 'direct_table',
-			'links'           => [],
 			'management_link' => [],
-			'detail_table'    => [],
 			'attention_items' => [],
 			'maintenance_rows' => [],
 			'summary_row'     => [],

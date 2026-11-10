@@ -16,8 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	FileLocker as FileLockerPane,
 	Malware as MalwarePane,
 	Plugins as PluginsPane,
-	Themes as ThemesPane,
-	Vulnerabilities as VulnerabilitiesPane
+	Themes as ThemesPane
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueAssetFileStatusDetail;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueBucketsBuilder;
@@ -437,16 +436,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'is_disabled' ] ?? false ), $context );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'asset_cards' ] ?? [ 'unexpected' ], $context );
-	}
-
-	private function assertDisabledRailPaneRenderPayload( array $payload, string $context ) :void {
-		$this->assertRouteRenderOutputHealthy( $payload, $context );
-		$renderData = \is_array( $payload[ 'render_data' ] ?? null ) ? $payload[ 'render_data' ] : [];
-		$tab = \is_array( $renderData[ 'tab' ] ?? null ) ? $renderData[ 'tab' ] : [];
-
-		$this->assertTrue( (bool)( $tab[ 'is_disabled' ] ?? false ), $context );
-		$this->assertSame( [], $tab[ 'items' ] ?? [ 'unexpected' ], $context );
-		$this->assertSame( 0, (int)( $tab[ 'count_items' ] ?? -1 ), $context );
 	}
 
 	private function findZoneTile( array $zoneTiles, string $key ) :array {
@@ -1664,15 +1653,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 1, $this->groupCountForPrefix( $groups, 'themes:' ) );
 		$this->assertSame( [ 'count' => 1, 'status' => 'critical', 'bucket' => 'critical' ], $groups[ 'vulnerabilities' ] );
 		$this->assertSame( [ 'count' => 1, 'status' => 'critical', 'bucket' => 'critical' ], $groups[ 'abandoned' ] );
-
-		$vulnerablePayload = $this->processActionPayloadWithAdminBypass( VulnerabilitiesPane::SLUG, [ 'section' => 'vulnerable' ] );
-		$this->assertRouteRenderOutputHealthy( $vulnerablePayload, 'notified vulnerability rail remains visible' );
-		$vulnerableTab = \is_array( $vulnerablePayload[ 'render_data' ][ 'tab' ] ?? null )
-			? $vulnerablePayload[ 'render_data' ][ 'tab' ]
-			: [];
-		$this->assertFalse( (bool)( $vulnerableTab[ 'is_disabled' ] ?? true ) );
-		$this->assertSame( 1, (int)( $vulnerableTab[ 'count_items' ] ?? 0 ) );
-		$this->assertNotEmpty( $vulnerableTab[ 'items' ] ?? [] );
 	}
 
 	public function test_pro_deactivated_stale_scan_result_details_render_disabled_panes() :void {
@@ -1742,25 +1722,17 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$this->processActionPayloadWithAdminBypass( ThemesPane::SLUG, $displayOptions->buildDisplayContextActionData() ),
 			'pro-deactivated stale theme cards'
 		);
-		$this->assertDisabledRailPaneRenderPayload(
-			$this->processActionPayloadWithAdminBypass( VulnerabilitiesPane::SLUG, [ 'section' => 'vulnerable' ] ),
-			'pro-deactivated stale vulnerability rail'
+		// Abandoned checks don't need Pro, so they stay listed; vulnerabilities are an upgrade row with nothing to open.
+		$this->assertSame( 1, $this->buildActionsQueueGroupMetrics()[ 'abandoned' ][ 'count' ] );
+		$this->assertSame(
+			[],
+			$this->loadSelectedGroupPayload( 'critical', 'vulnerabilities' )[ 'selected_group' ][ 'detail_render_action' ]
 		);
 
-		$abandonedPayload = $this->processActionPayloadWithAdminBypass( VulnerabilitiesPane::SLUG, [ 'section' => 'abandoned' ] );
-		$this->assertRouteRenderOutputHealthy( $abandonedPayload, 'pro-deactivated abandoned rail remains available' );
-		$abandonedTab = \is_array( $abandonedPayload[ 'render_data' ][ 'tab' ] ?? null )
-			? $abandonedPayload[ 'render_data' ][ 'tab' ]
-			: [];
-		$this->assertFalse( (bool)( $abandonedTab[ 'is_disabled' ] ?? true ) );
-		$this->assertSame( 1, (int)( $abandonedTab[ 'count_items' ] ?? 0 ) );
-		$this->assertNotEmpty( $abandonedTab[ 'items' ] ?? [] );
-
 		foreach ( [
-			'plugins'         => 'asset_cards',
-			'themes'          => 'asset_cards',
-			'malware'         => 'direct_table',
-			'vulnerabilities' => 'direct_table',
+			'plugins' => 'asset_cards',
+			'themes'  => 'asset_cards',
+			'malware' => 'direct_table',
 		] as $groupKey => $expectedShell ) {
 			$groupsPayload = $this->loadSelectedGroupPayload( 'critical', $groupKey );
 			$this->assertSame( $groupKey, (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
@@ -1772,11 +1744,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			if ( $groupKey === 'plugins' || $groupKey === 'themes' ) {
 				$this->assertDisabledAssetCardsRenderPayload( $detailPayload, 'selected disabled '.$groupKey.' group detail' );
 			}
-			elseif ( $groupKey === 'malware' ) {
-				$this->assertDisabledDirectScanRenderPayload( $detailPayload, 'selected disabled malware group detail' );
-			}
 			else {
-				$this->assertDisabledRailPaneRenderPayload( $detailPayload, 'selected disabled vulnerabilities group detail' );
+				$this->assertDisabledDirectScanRenderPayload( $detailPayload, 'selected disabled malware group detail' );
 			}
 		}
 	}

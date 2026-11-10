@@ -6,7 +6,6 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
 	Malware,
-	Vulnerabilities,
 	Wordpress
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
@@ -276,8 +275,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( Wordpress::class, $groups[ 'wordpress' ][ 'render_action_class' ] );
 		$this->assertSame( Malware::class, $groups[ 'malware' ][ 'render_action_class' ] );
 		$this->assertSame( FileLocker::class, $groups[ 'file_locker' ][ 'render_action_class' ] );
-		$this->assertSame( Vulnerabilities::class, $groups[ 'vulnerabilities' ][ 'render_action_class' ] );
-		$this->assertSame( [ 'section' => 'vulnerable' ], $groups[ 'vulnerabilities' ][ 'render_action_data' ] );
+		$this->assertNull( $groups[ 'vulnerabilities' ][ 'render_action_class' ] );
+		$this->assertSame( [], $groups[ 'vulnerabilities' ][ 'render_action_data' ] );
 		$this->assertSame(
 			[
 				'display_context'         => 'actions_queue',
@@ -292,13 +291,11 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 		$this->assertSame( '1 plugin/theme contains known vulnerabilities.', $groups[ 'vulnerabilities' ][ 'narrative' ] );
 		$this->assertSame( 1, $groups[ 'abandoned' ][ 'item_count' ] );
-		$this->assertTrue( $groups[ 'abandoned' ][ 'is_interactive' ] );
-		$this->assertSame( [ 'section' => 'abandoned' ], $groups[ 'abandoned' ][ 'render_action_data' ] );
-		$this->assertSame( [], $groups[ 'vulnerabilities' ][ 'links' ] );
-		$this->assertTrue( $groups[ 'vulnerabilities' ][ 'is_interactive' ] );
-		$this->assertSame( 'scanresults_vulnerabilities', $groups[ 'vulnerabilities' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] );
+		$this->assertFalse( $groups[ 'abandoned' ][ 'is_interactive' ] );
+		$this->assertSame( [], $groups[ 'abandoned' ][ 'render_action_data' ] );
+		$this->assertFalse( $groups[ 'vulnerabilities' ][ 'is_interactive' ] );
+		$this->assertSame( [], $groups[ 'vulnerabilities' ][ 'selection' ][ 'detail_render_action' ] );
 		$this->assertSame( 'direct_table', $groups[ 'plugins:example-plugin' ][ 'detail_shell' ] );
-		$this->assertSame( [], $groups[ 'plugins:example-plugin' ][ 'detail_table' ] );
 		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $groups[ 'plugins:example-plugin' ][ 'render_action_class' ] );
 		$this->assertSame(
 			[
@@ -382,7 +379,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'direct_table', $group[ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $group[ 'card_type' ] );
 		$this->assertNotSame( '', $group[ 'drill_hint' ] );
-		$this->assertSame( [], $group[ 'detail_table' ] );
 		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $group[ 'render_action_class' ] );
 		$this->assertSame( 'example-plugin/example-plugin.php', $group[ 'render_action_data' ][ 'subject_id' ] );
 		$this->assertSame( 'plugins:example-plugin', $group[ 'selection' ][ 'key' ] );
@@ -939,12 +935,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Manage Vulnerable Plugins', $group[ 'management_link' ][ 'label' ] );
 		$this->assertSame( '/wp-admin/plugins.php?plugin_status=vulnerable', $group[ 'management_link' ][ 'href' ] );
 		$this->assertSame( '_blank', $group[ 'management_link' ][ 'target' ] );
-		$this->assertTrue( $group[ 'is_interactive' ] );
-		$this->assertSame( Vulnerabilities::class, $group[ 'render_action_class' ] );
-		$this->assertSame( [ 'section' => 'vulnerable' ], $group[ 'render_action_data' ] );
-		$this->assertSame( 'scanresults_vulnerabilities', $group[ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] );
-		$this->assertSame( 'vulnerable', $group[ 'selection' ][ 'detail_render_action' ][ 'section' ] );
-		$this->assertSame( [], $group[ 'links' ] );
+		$this->assertFalse( $group[ 'is_interactive' ] );
+		$this->assertNull( $group[ 'render_action_class' ] );
+		$this->assertSame( [], $group[ 'render_action_data' ] );
+		$this->assertSame( [], $group[ 'selection' ][ 'detail_render_action' ] );
 	}
 
 	public function test_build_reads_vulnerabilities_payload_once_when_expanding_both_sections() :void {
@@ -1283,8 +1277,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'vulnerabilities', 'abandoned' ], \array_column( $healthyGroups, 'key' ) );
 		$this->assertSame( 'expandable', $healthyGroups[ 0 ][ 'card_type' ] );
 		$this->assertSame( 'expandable', $healthyGroups[ 1 ][ 'card_type' ] );
-		$this->assertSame( [], $healthyGroups[ 0 ][ 'links' ] );
-		$this->assertSame( [], $healthyGroups[ 1 ][ 'links' ] );
 		$this->assertFalse( $healthyGroups[ 0 ][ 'is_interactive' ] );
 		$this->assertFalse( $healthyGroups[ 1 ][ 'is_interactive' ] );
 		$this->assertSame( [], $healthyGroups[ 0 ][ 'render_action_data' ] );

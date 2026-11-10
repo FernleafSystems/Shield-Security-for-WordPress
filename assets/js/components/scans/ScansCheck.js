@@ -1,6 +1,5 @@
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
-import { ScanProgressModal } from "./ScanProgressModal";
 import { ScanRunPage } from "./ScanRunPage";
 import { ScanIndicator } from "./ScanIndicator";
 
@@ -20,7 +19,9 @@ export class ScansCheck extends BaseComponent {
 	}
 
 	canRun() {
-		return this._base_data.flags?.initial_check === true;
+		// Only the Actions Queue and Run Manual Scan have somewhere to show the progress.
+		return this._base_data.flags?.initial_check === true
+			&& ( ScanRunPage.IsActive() || ScanIndicator.IsAvailable() );
 	}
 
 	run() {
@@ -37,7 +38,6 @@ export class ScansCheck extends BaseComponent {
 		( new AjaxService() )
 		.send( {
 			...this._base_data.ajax.check,
-			...ScanRunPage.AjaxParams(),
 			scan_ids: this.trackedScanIds
 		}, false, true )
 		.then( ( resp ) => {
@@ -92,7 +92,6 @@ export class ScansCheck extends BaseComponent {
 		( new AjaxService() )
 		.send( {
 			...recoverAjax,
-			...ScanRunPage.AjaxParams(),
 			scan_id: scanId
 		}, true, true )
 		.then( ( resp ) => {
@@ -171,12 +170,11 @@ export class ScansCheck extends BaseComponent {
 	}
 
 	/**
-	 * Progress shows in Run Manual Scan's page, or as the Actions Queue's indicator, and only elsewhere in the
-	 * progress dialog.
+	 * Progress shows in Run Manual Scan's page, or as the Actions Queue's indicator.
 	 */
 	handleModalResponse( resp ) {
-		if ( !ScanProgressModal.HasModalResponse( resp ) ) {
-			const message = ScanProgressModal.ExtractErrorMessage( resp );
+		if ( !ScanRunPage.HasProgressResponse( resp ) ) {
+			const message = ScanRunPage.ErrorMessage( resp );
 			if ( message.length > 0 ) {
 				this.recordScanFailure();
 				this.showError( message );
@@ -198,7 +196,7 @@ export class ScansCheck extends BaseComponent {
 			);
 		}
 		else {
-			ScanProgressModal.ShowHtml( resp.data.modal_html );
+			ScanRunPage.Show( resp.data.modal_html );
 		}
 	}
 
@@ -218,7 +216,7 @@ export class ScansCheck extends BaseComponent {
 			ScanIndicator.Show( 'running', this._base_data.strings.indicator_stale, this._base_data );
 		}
 		else {
-			ScanProgressModal.ShowStale( this._base_data.strings );
+			ScanRunPage.ShowStale( this._base_data.strings );
 		}
 	}
 
@@ -227,7 +225,7 @@ export class ScansCheck extends BaseComponent {
 			ScanIndicator.Show( 'failed', '', this._base_data );
 		}
 		else {
-			ScanProgressModal.ShowError( this._base_data.strings, message );
+			ScanRunPage.ShowError( this._base_data.strings, message );
 		}
 	}
 
@@ -242,7 +240,7 @@ export class ScansCheck extends BaseComponent {
 		}
 
 		this.clearScheduledNextStep();
-		// Run Manual Scan shows the result in the page; elsewhere the Actions Queue opens, or reloads, with it.
+		// Run Manual Scan shows the result in the page; the Actions Queue reloads with it.
 		if ( this.scanState === 'completed' && !ScanRunPage.IsActive() ) {
 			this.nextStepTimer = setTimeout( () => {
 				this.nextStepTimer = null;
