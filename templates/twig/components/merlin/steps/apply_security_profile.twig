@@ -29,7 +29,7 @@
 							{% for section_key, section in vars.profile_structure %}
 								<div class="section-header">{{ section.title }}</div>
 								{% for item_key, item in section.opts %}
-									{% set item_value = level.structure[section_key]['opts'][item_key].value|default(null) %}
+									{% set item_value = level.structure[section_key]['opts'][item_key].value %}
 									<div class="feature-item">
 										{% if item_value is same as(true) or item_value is same as('Y') %}
 											<i class="bi bi-check-circle-fill fi-on"></i>

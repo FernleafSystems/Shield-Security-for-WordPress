@@ -13,9 +13,6 @@ class Wizards {
 		Steps\SecurityAdmin::class,
 		Steps\ReportEmail::class,
 		Steps\Integrations::class,
-//		Steps\BotBlocking::class,
-//		Steps\LoginProtection::class,
-//		Steps\CommentSpam::class,
 		Steps\SecurityBadge::class,
 		Steps\ThankYou::class,
 	];

@@ -65,7 +65,6 @@ class ScansFileLockerDiff extends BaseScans {
 					'rid' => $RID,
 				],
 				'strings' => [
-					'no_changes'            => __( 'There have been no changes to the selected file.', 'wp-simple-firewall' ),
 					'butt_restore'          => __( 'Restore File', 'wp-simple-firewall' ),
 					'butt_accept'           => __( 'Accept Changes', 'wp-simple-firewall' ),
 					'file_name'             => CommonDisplayStrings::get( 'name_label' ),
@@ -73,7 +72,6 @@ class ScansFileLockerDiff extends BaseScans {
 					'file_details'          => __( 'File Details', 'wp-simple-firewall' ),
 					'modified_file'         => __( 'Modified File', 'wp-simple-firewall' ),
 					'locked'                => __( 'Locked', 'wp-simple-firewall' ),
-					'modified_timestamp'    => __( 'File Modified Timestamp', 'wp-simple-firewall' ),
 					'file_modified'         => __( 'File Modified', 'wp-simple-firewall' ),
 					'relative_path'         => __( 'Relative Path', 'wp-simple-firewall' ),
 					'modified'              => __( 'Modified', 'wp-simple-firewall' ),
@@ -81,15 +79,12 @@ class ScansFileLockerDiff extends BaseScans {
 					'change_detected_at'    => __( 'Change Detected', 'wp-simple-firewall' ),
 					'file_content_original' => __( 'Original File Content', 'wp-simple-firewall' ),
 					'file_content_current'  => __( 'Current File Content', 'wp-simple-firewall' ),
-					'download_original'     => __( 'Download Original', 'wp-simple-firewall' ),
-					'download_modified'     => __( 'Download Modified', 'wp-simple-firewall' ),
 					'file_download'         => __( 'File Download', 'wp-simple-firewall' ),
 					'file_info'             => __( 'File Info', 'wp-simple-firewall' ),
 					'file_accept'           => __( 'Accept File Changes', 'wp-simple-firewall' ),
 					'file_accept_checkbox'  => __( 'Are you sure you want to keep the file changes?', 'wp-simple-firewall' ),
 					'file_restore'          => __( 'Restore Original File', 'wp-simple-firewall' ),
 					'file_restore_checkbox' => __( 'Are you sure you want to restore the original file contents?', 'wp-simple-firewall' ),
-					'file_restore_button'   => __( 'Are you sure you want to restore the original file contents?', 'wp-simple-firewall' ),
 					'diff_unavailable'      => __( 'The file comparison could not be displayed. File details and actions are still available below.', 'wp-simple-firewall' ),
 				]
 			];

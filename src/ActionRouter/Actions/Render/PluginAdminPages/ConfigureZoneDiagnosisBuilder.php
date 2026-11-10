@@ -71,8 +71,6 @@ class ConfigureZoneDiagnosisBuilder {
 			$reviewFindings[] = $this->buildFallbackReviewFinding( $zoneBadge, $zoneTile[ 'stat_line' ] );
 		}
 		$header = OperatorChromeContract::normalizeHeader( [
-			'compact_back_label' => $this->buildBackLabel( $zoneLabel ),
-			'active_back_label'  => $this->buildBackLabel( __( 'Configure', 'wp-simple-firewall' ) ),
 			'breadcrumb_label'   => $zoneLabel,
 			'title'              => $zoneLabel,
 			'meta'               => $zoneTile[ 'status_label' ],
@@ -413,12 +411,6 @@ class ConfigureZoneDiagnosisBuilder {
 		);
 	}
 
-	private function buildBackLabel( string $label ) :string {
-		return sprintf(
-			__( 'Back to %s', 'wp-simple-firewall' ),
-			$label
-		);
-	}
 
 	/**
 	 * @param DetailGroupRow $row

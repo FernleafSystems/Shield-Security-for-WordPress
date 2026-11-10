@@ -62,7 +62,6 @@ class SitesListTableColumn extends BaseRender {
 				'tooltip_not_installed'    => sprintf( __( "%s isn't installed on this site.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'tooltip_sync_required'    => __( "Sync Required.", 'wp-simple-firewall' ),
 				'tooltip_version_mismatch' => sprintf( __( "%s version on site doesn't match this server.", 'wp-simple-firewall' ), self::con()->labels->Name ),
-				'tooltip_please_update'    => sprintf( __( "Please update your %s plugins to the same versions and re-sync.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'tooltip_issues_found'     => __( "Issues Found", 'wp-simple-firewall' ),
 			]
 		];

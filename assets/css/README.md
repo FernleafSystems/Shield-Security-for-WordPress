@@ -9,7 +9,6 @@ assets/css/
   plugin-login2fa.scss        Two-factor authentication login form
   plugin-userprofile.scss     User profile MFA section
   plugin-mainwp-server.scss   MainWP server extension
-  plugin-main-modern.scss     Future @use/@forward version (not active)
 
   shield/
     _status-colors.scss       Shared status, neutral surface, and accent color tokens
@@ -24,7 +23,6 @@ assets/css/
     charts.scss               Chart styling
     dashboard-widget.scss     WP dashboard widget
     datatables.css            DataTables customisations
-    dialog.css                Dialog/modal styling
     third-party-overrides.scss  Third-party library fixes
     wpadmin-toast.scss        Shared wp-admin toast notifications
     video_modal.scss          Video modal

@@ -4,7 +4,7 @@
 	Takes: tabs { label, tabs: [ { key, label, icon_class, href, is_current, attributes? } ] }, key_attr, mode.
 #}
 {# Class names are written out in full so the stylesheet build keeps them. #}
-{% set mode_class = { investigate: 'shield-tabs--investigate', reports: 'shield-tabs--reports', configure: 'shield-tabs--configure' }[ mode ]|default('') %}
+{% set mode_class = { investigate: 'shield-tabs--investigate', reports: 'shield-tabs--reports', configure: 'shield-tabs--configure' }[ mode ] %}
 <nav class="shield-tabs {{ mode_class }}" aria-label="{{ tabs.label }}">
 	<div class="shield-tabs__list">
 		{% for tab in tabs.tabs %}
@@ -12,7 +12,7 @@
 			   href="{{ tab.href }}"
 			   {{ key_attr }}="{{ tab.key }}"
 			   {% if tab.is_current %}aria-current="page"{% endif %}
-			   {% for attr, value in tab.attributes|default({}) %} {{ attr }}="{{ value|e('html_attr') }}"{% endfor %}>
+			   {% for attr, value in tab.attributes %} {{ attr }}="{{ value|e('html_attr') }}"{% endfor %}>
 				{% if tab.key == 'live' %}
 					<span class="shield-tabs__live-dot" aria-hidden="true"></span>
 				{% else %}

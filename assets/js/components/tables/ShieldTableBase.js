@@ -376,25 +376,6 @@ export class ShieldTableBase extends BaseComponent {
 		return true;
 	}
 
-	static resolveDatatableForTableElement( tableEl ) {
-		return tableEl instanceof HTMLTableElement
-			&& $.fn.dataTable
-			&& $.fn.dataTable.isDataTable( tableEl )
-			? $( tableEl ).DataTable()
-			: null;
-	}
-
-	static setBusyForTableElement( tableEl, isBusy ) {
-		const datatable = ShieldTableBase.resolveDatatableForTableElement( tableEl );
-		const processingDatatable = /** @type {{processing?: ( isBusy: boolean ) => void}|null} */ ( datatable );
-		if ( processingDatatable === null || typeof processingDatatable.processing !== 'function' ) {
-			return false;
-		}
-
-		processingDatatable.processing( isBusy );
-		return true;
-	}
-
 	extractResponseData( resp ) {
 		return ( resp && typeof resp === 'object' && resp.data && typeof resp.data === 'object' )
 			? resp.data

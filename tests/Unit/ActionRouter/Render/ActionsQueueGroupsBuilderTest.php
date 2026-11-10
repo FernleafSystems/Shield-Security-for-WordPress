@@ -272,10 +272,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $data[ 'healthy_sections' ] );
 		$this->assertSame( [ 'expandable' ], \array_values( \array_unique( \array_column( $groups, 'card_type' ) ) ) );
 		$groups = \array_column( $groups, null, 'key' );
-		$this->assertSame( Wordpress::class, $groups[ 'wordpress' ][ 'render_action_class' ] );
-		$this->assertSame( Malware::class, $groups[ 'malware' ][ 'render_action_class' ] );
-		$this->assertSame( FileLocker::class, $groups[ 'file_locker' ][ 'render_action_class' ] );
-		$this->assertNull( $groups[ 'vulnerabilities' ][ 'render_action_class' ] );
+		$this->assertSame( Wordpress::SLUG, $groups[ 'wordpress' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] );
+		$this->assertSame( Malware::SLUG, $groups[ 'malware' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] );
+		$this->assertSame( FileLocker::SLUG, $groups[ 'file_locker' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] );
+		$this->assertSame( [], $groups[ 'vulnerabilities' ][ 'selection' ][ 'detail_render_action' ] );
 		$this->assertSame( [], $groups[ 'vulnerabilities' ][ 'render_action_data' ] );
 		$this->assertSame(
 			[
@@ -296,7 +296,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertFalse( $groups[ 'vulnerabilities' ][ 'is_interactive' ] );
 		$this->assertSame( [], $groups[ 'vulnerabilities' ][ 'selection' ][ 'detail_render_action' ] );
 		$this->assertSame( 'direct_table', $groups[ 'plugins:example-plugin' ][ 'detail_shell' ] );
-		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $groups[ 'plugins:example-plugin' ][ 'render_action_class' ] );
+		$this->assertSame( ActionsQueueAssetFileStatusDetail::SLUG, $groups[ 'plugins:example-plugin' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] );
 		$this->assertSame(
 			[
 				'display_context'         => 'actions_queue',
@@ -379,7 +379,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'direct_table', $group[ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $group[ 'card_type' ] );
 		$this->assertNotSame( '', $group[ 'drill_hint' ] );
-		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $group[ 'render_action_class' ] );
+		$this->assertSame( ActionsQueueAssetFileStatusDetail::SLUG, $group[ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] );
 		$this->assertSame( 'example-plugin/example-plugin.php', $group[ 'render_action_data' ][ 'subject_id' ] );
 		$this->assertSame( 'plugins:example-plugin', $group[ 'selection' ][ 'key' ] );
 		$this->assertSame( 'direct_table', $group[ 'selection' ][ 'detail_shell' ] );
@@ -450,8 +450,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 	public function test_build_surfaces_cloaked_plugin_security_check_as_own_scan_group() :void {
 		$builder = $this->createBuilder();
 
-		$payload = $builder->buildWithSelectedGroup(
-			'critical',
+		$payload = $this->buildLayerAndGroup( $builder, 'critical',
 			'hidden_plugins',
 			[
 				'items' => [
@@ -481,7 +480,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Cloaked Two', $group[ 'maintenance_rows' ][ 1 ][ 'title' ] );
 		$this->assertCount( 1, $group[ 'ignored_rows' ] );
 		$this->assertFalse( $group[ 'is_interactive' ] );
-		$this->assertNull( $group[ 'render_action_class' ] );
+		$this->assertSame( [], $group[ 'selection' ][ 'detail_render_action' ] );
 		$this->assertSame( [], $group[ 'render_action_data' ] );
 		$this->assertSame( [], $group[ 'selection' ][ 'detail_render_action' ] );
 		$this->assertSame( '', $group[ 'drill_hint' ] );
@@ -577,8 +576,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$payload = $builder->buildWithSelectedGroup(
-			'critical',
+		$payload = $this->buildLayerAndGroup( $builder, 'critical',
 			'vulnerabilities',
 			[ 'items' => [] ],
 			[
@@ -923,7 +921,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				],
 			],
 		] );
-		$payload = $builder->buildWithSelectedGroup( 'critical', 'vulnerabilities', [
+		$payload = $this->buildLayerAndGroup( $builder, 'critical', 'vulnerabilities', [
 			'items' => [ [ 'key' => 'vulnerable_assets', 'count' => 2, 'severity' => 'critical', 'zone' => 'scans' ] ],
 		], [ 'scans' => [], 'maintenance' => [] ] );
 
@@ -936,7 +934,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( '/wp-admin/plugins.php?plugin_status=vulnerable', $group[ 'management_link' ][ 'href' ] );
 		$this->assertSame( '_blank', $group[ 'management_link' ][ 'target' ] );
 		$this->assertFalse( $group[ 'is_interactive' ] );
-		$this->assertNull( $group[ 'render_action_class' ] );
+		$this->assertSame( [], $group[ 'selection' ][ 'detail_render_action' ] );
 		$this->assertSame( [], $group[ 'render_action_data' ] );
 		$this->assertSame( [], $group[ 'selection' ][ 'detail_render_action' ] );
 	}
@@ -1077,8 +1075,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$payload = $builder->buildWithSelectedGroup(
-			'review',
+		$payload = $this->buildLayerAndGroup( $builder, 'review',
 			'maintenance_wordpress',
 			[
 				'items' => [
@@ -1241,8 +1238,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 	public function test_build_critical_bucket_keeps_healthy_vulnerability_and_abandoned_groups_together() :void {
 		$builder = $this->createBuilder();
 
-		$payload = $builder->buildWithSelectedGroup(
-			'critical',
+		$payload = $this->buildLayerAndGroup( $builder, 'critical',
 			'vulnerabilities',
 			[
 				'items' => [],
@@ -1291,8 +1287,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 	public function test_build_critical_bucket_includes_healthy_cloaked_plugins_group() :void {
 		$builder = $this->createBuilder();
 
-		$payload = $builder->buildWithSelectedGroup(
-			'critical',
+		$payload = $this->buildLayerAndGroup( $builder, 'critical',
 			'hidden_plugins',
 			[
 				'items' => [],
@@ -1326,8 +1321,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_build_critical_bucket_keeps_empty_cloaked_plugins_noninteractive_without_a_detail_action() :void {
-		$payload = $this->createBuilder()->buildWithSelectedGroup(
-			'critical',
+		$payload = $this->buildLayerAndGroup( $this->createBuilder(), 'critical',
 			'hidden_plugins',
 			[ 'items' => [] ],
 			[
@@ -1372,8 +1366,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$payload = $builder->buildWithSelectedGroup(
-			'critical',
+		$payload = $this->buildLayerAndGroup( $builder, 'critical',
 			'malware',
 			[
 				'items' => [],
@@ -1398,8 +1391,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 	public function test_build_with_selected_group_resolves_healthy_abandoned_group_without_falling_back_to_vulnerabilities() :void {
 		$builder = $this->createBuilder();
 
-		$payload = $builder->buildWithSelectedGroup(
-			'critical',
+		$payload = $this->buildLayerAndGroup( $builder, 'critical',
 			'abandoned',
 			[
 				'items' => [],
@@ -1523,8 +1515,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 	public function test_build_with_selected_group_keeps_healthy_file_locker_interactive_at_zero_items() :void {
 		$builder = $this->createBuilder();
 
-		$payload = $builder->buildWithSelectedGroup(
-			'critical',
+		$payload = $this->buildLayerAndGroup( $builder, 'critical',
 			'file_locker',
 			[
 				'items' => [],
@@ -1742,6 +1733,19 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			'subject_type' => $subjectType,
 			'subject_id'   => $subjectId,
 			'has_update'   => false,
+		];
+	}
+
+	private function buildLayerAndGroup(
+		ActionsQueueGroupsBuilder $builder,
+		string $bucketKey,
+		string $groupKey,
+		array $attentionQuery,
+		array $assessmentRowsByZone
+	) :array {
+		return [
+			'layer'          => $builder->build( $bucketKey, $attentionQuery, $assessmentRowsByZone ),
+			'selected_group' => $builder->buildGroup( $bucketKey, $groupKey, $attentionQuery, $assessmentRowsByZone ),
 		];
 	}
 

@@ -615,8 +615,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 	buildEmptyHeader() {
 		return {
-			compact_back_label: '',
-			active_back_label: '',
 			breadcrumb_label: '',
 			title: '',
 			meta: '',

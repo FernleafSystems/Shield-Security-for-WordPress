@@ -148,8 +148,6 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			[ 'scans', 'maintenance', 'cloaked_plugin_detection' ],
 			\array_column( $data[ 'all_clear' ][ 'checks' ], 'slug' )
 		);
-		$this->assertIsArray( $data[ 'all_clear' ][ 'zone_chips' ] );
-		$this->assertGreaterThan( 0, \count( $data[ 'all_clear' ][ 'zone_chips' ] ) );
 	}
 
 	public function test_build_rows_follow_attention_scan_items_and_append_maintenance() :void {

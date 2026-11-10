@@ -11,7 +11,6 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\DetailExpansionType;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueLandingViewBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -226,7 +225,6 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 			static fn( array $tile ) :bool => $tile[ 'key' ] === 'maintenance'
 		) )[ 0 ];
 
-		$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $maintenance[ 'items' ][ 0 ][ 'expansion' ][ 'type' ] );
 		$this->assertSame( 'wp_plugins_updates', $maintenance[ 'maintenance_detail_groups' ][ 0 ][ 'rows' ][ 0 ][ 'key' ] );
 		$this->assertSame( [ 'warning', 'good' ], \array_column( $maintenance[ 'maintenance_detail_groups' ], 'status' ) );
 	}

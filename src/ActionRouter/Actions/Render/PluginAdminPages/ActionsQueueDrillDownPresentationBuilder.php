@@ -49,13 +49,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 		);
 	}
 
-	public function buildBackLabel( string $label ) :string {
-		return \sprintf(
-			__( 'Back to %s', 'wp-simple-firewall' ),
-			$label
-		);
-	}
-
 	public function buildBucketFocusText( string $bucketLabel, int $itemCount ) :string {
 		return \sprintf(
 			_n(
@@ -158,8 +151,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 		array $overrides = []
 	) :array {
 		return OperatorChromeContract::normalizeHeader( [
-			'compact_back_label' => $this->buildBackLabel( $label ),
-			'active_back_label'  => $this->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
 			'breadcrumb_label'   => $label,
 			'title'              => $label,
 			'meta'               => $meta,
@@ -188,8 +179,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 		array $overrides = []
 	) :array {
 		return OperatorChromeContract::normalizeHeader( [
-			'compact_back_label' => $this->buildBackLabel( $label ),
-			'active_back_label'  => $this->buildBackLabel( $bucketLabel ),
 			'breadcrumb_label'   => $label,
 			'title'              => $label,
 			'summary'            => $overrides[ 'summary' ] ?? $summary,

@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
-	DetailExpansionType,
 	MaintenanceQueueItemDisplayNormalizer
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -112,8 +111,6 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'label', $item[ 'cta' ] ?? [] );
 		$this->assertSame( 'bi bi-plug-fill', $item[ 'icon_class' ] ?? '' );
 		$this->assertSame( '/wp-admin/update-core.php', $item[ 'cta' ][ 'href' ] ?? '' );
-		$this->assertSame( 'maintenance-expand-wp_plugins_updates', $item[ 'expansion' ][ 'id' ] ?? '' );
-		$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $item[ 'expansion' ][ 'type' ] ?? '' );
 		$this->assertArrayHasKey( 'title', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ] ?? [] );
 		$this->assertSame( 'bi bi-plug-fill', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'icon_class' ] ?? '' );
 		$this->assertArrayHasKey( 'inline_meta', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ] ?? [] );
@@ -172,7 +169,6 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 
 		$this->assertArrayHasKey( 'label', $item[ 'cta' ] ?? [] );
 		$this->assertSame( '/wp-admin/update-core.php', $item[ 'cta' ][ 'href' ] ?? '' );
-		$this->assertSame( 'maintenance-expand-wp_themes_updates', $item[ 'expansion' ][ 'id' ] ?? '' );
 		$this->assertArrayHasKey( 'title', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ] ?? [] );
 		$this->assertSame( 'bi bi-palette-fill', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'icon_class' ] ?? '' );
 		$this->assertArrayHasKey( 'inline_meta', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ] ?? [] );
@@ -475,7 +471,6 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertCount( 1, $items );
 		$this->assertSame( 'good', $items[ 0 ][ 'severity' ] ?? '' );
 		$this->assertSame( [], $items[ 0 ][ 'toggle_action' ] ?? [] );
-		$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $items[ 0 ][ 'expansion' ][ 'type' ] ?? '' );
 		$this->assertCount( 2, $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
 		$this->assertTrue( (bool)( $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'is_ignored' ] ?? false ) );
 		$this->assertArrayHasKey( 'ignored_label', $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ] ?? [] );

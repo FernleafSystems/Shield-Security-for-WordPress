@@ -21,78 +21,21 @@
 	&.status-good {
 		background: $card-bg-good;
 		&::before { background: $status-color-good; }
-		.gauge-icon { color: $status-color-good; }
 		&:hover { background: $status-bg-good-light; }
 	}
 
 	&.status-warning {
 		background: $card-bg-warning;
 		&::before { background: $status-color-warning; }
-		.gauge-icon { color: $status-color-warning; }
 		&:hover { background: $status-bg-warning-light; }
 	}
 
 	&.status-critical {
 		background: $card-bg-critical;
 		&::before { background: $status-color-critical; }
-		.gauge-icon { color: $status-color-critical; }
 		&:hover { background: $status-bg-critical-light; }
 	}
 }
-
-.gauge-container {
-	position: relative;
-	width: 280px;
-	height: 160px;
-	margin: 0 auto;
-
-	canvas {
-		width: 100% !important;
-		height: 100% !important;
-	}
-}
-
-.gauge-label {
-	position: absolute;
-	bottom: 8px;
-	left: 50%;
-	transform: translateX(-50%);
-	text-align: center;
-
-	.gauge-icon {
-		font-size: 2rem;
-		line-height: 1;
-
-		.svg-container .bi {
-			width: 2rem;
-			height: 2rem;
-		}
-	}
-
-	.percentage {
-		font-size: 1.1rem;
-		font-weight: 600;
-		color: #333;
-		margin-top: 2px;
-	}
-}
-
-.gauge-scale {
-	display: flex;
-	justify-content: space-between;
-	width: 260px;
-	margin: 2px auto 0;
-	padding: 0 20px;
-
-	span {
-		font-size: 0.65rem;
-		color: #999;
-		font-weight: 500;
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-	}
-}
-
 .hero-title {
 	font-size: 1.1rem;
 	font-weight: 600;
@@ -106,7 +49,6 @@
 
 /* Dashboard overview: compact hero — graph + button only */
 .dashboard_overview_widget .meter-hero-card {
-
 	.hero-title,
 	.hero-subtitle,
 	.card-body > p {
@@ -164,47 +106,6 @@
 	font-weight: 700;
 	color: #1d2327;
 }
-
-/* ========== SECONDARY METER CARDS ========== */
-.meter-card {
-	border: none;
-	border-radius: $card-border-radius;
-	box-shadow: $card-box-shadow;
-	overflow: hidden;
-	background: white;
-}
-
-.meter-card-accent {
-	height: $card-accent-height;
-	width: 100%;
-
-	&.status-good { background: $status-color-good; }
-	&.status-warning { background: $status-color-warning; }
-	&.status-critical { background: $status-color-critical; }
-}
-
-.meter-card-header {
-	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
-	margin-bottom: 0.75rem;
-	gap: 0.75rem;
-}
-
-.meter-card-title {
-	font-size: 0.95rem;
-	font-weight: 600;
-	color: #1d2327;
-	margin: 0;
-	line-height: 1.3;
-}
-
-.meter-card-subtitle {
-	font-size: 0.78rem;
-	color: #646970;
-	margin: 0.15rem 0 0;
-}
-
 /* Status icon badge */
 .status-badge {
 	width: 42px;
@@ -255,26 +156,9 @@
 		white-space: nowrap;
 	}
 }
-
-.meter-card .progress-bar {
-	border-radius: 3px;
-	transition: width 0.6s ease;
-}
-
 .progress-bar.status-good { background-color: $status-color-good; }
 .progress-bar.status-warning { background-color: $status-color-warning; }
 .progress-bar.status-critical { background-color: $status-color-critical; }
-
-.meter-card-desc {
-	font-size: 0.82rem;
-	color: #50575e;
-	line-height: 1.5;
-}
-
-.meter-card-good { background-color: $card-bg-good; }
-.meter-card-warning { background-color: $card-bg-warning; }
-.meter-card-critical { background-color: $card-bg-critical; }
-
 .score-text {
 	font-size: 0.78rem;
 	color: #646970;

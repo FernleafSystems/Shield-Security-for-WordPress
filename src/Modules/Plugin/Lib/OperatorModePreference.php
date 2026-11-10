@@ -17,13 +17,6 @@ class OperatorModePreference {
 		return $this->sanitize( (string)get_user_meta( $userId, self::META_KEY_DEFAULT_MODE, true ) );
 	}
 
-	public function setCurrent( string $mode ) :void {
-		$userId = (int)get_current_user_id();
-		if ( $userId > 0 ) {
-			update_user_meta( $userId, self::META_KEY_DEFAULT_MODE, $this->sanitize( $mode ) );
-		}
-	}
-
 	public function sanitize( string $mode ) :string {
 		$mode = \strtolower( \trim( $mode ) );
 		return \in_array( $mode, PluginNavs::allOperatorModes(), true ) ? $mode : '';

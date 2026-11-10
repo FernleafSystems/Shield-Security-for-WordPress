@@ -52,7 +52,6 @@ declare const shieldAppMain: {
 declare const shieldEventsHandler_Main: {
 	add_Click( selector: string, callback: ( targetEl: Element, evt: Event ) => void, suppress?: boolean ) :void;
 	add_Change( selector: string, callback: ( targetEl: Element, evt: Event ) => void, suppress?: boolean ) :void;
-	add_Mouseover( selector: string, callback: ( targetEl: Element, evt: Event ) => void, suppress?: boolean ) :void;
 	add_Submit( selector: string, callback: ( targetEl: Element, evt: Event ) => void, suppress?: boolean ) :void;
 	addHandler( eventName: string, selector: string, callback: ( targetEl: Element, evt: Event ) => void, suppress?: boolean ) :void;
 };

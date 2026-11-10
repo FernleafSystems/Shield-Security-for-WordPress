@@ -24,7 +24,7 @@
 		<div class="shield-tabs actions-queue-file-tabs" role="tablist">
 			<div class="shield-tabs__list">
 				{% for item in vars.asset_cards %}
-					{% set target = item.panel_target|default( 'filelocker-' ~ loop.index ) %}
+					{% set target = item.panel_target %}
 					<button type="button"
 							class="shield-tabs__tab actions-queue-file-tab status-{{ item.status }}"
 							role="tab"
@@ -32,7 +32,7 @@
 							data-mode-tile-keep-open="1"
 							data-mode-tile-key="{{ item.key|e('html_attr') }}"
 							data-mode-panel-target="{{ target|e('html_attr') }}"
-							aria-controls="{{ item.panel_id|default( 'FileLockerPanel-' ~ loop.index )|e('html_attr') }}"
+							aria-controls="{{ item.panel_id|e('html_attr') }}"
 							aria-expanded="false">
 						<i class="{{ item.icon_class }} actions-queue-file-tab__icon" aria-hidden="true"></i>
 						{{ item.title }}
@@ -43,7 +43,7 @@
 
 		<div class="actions-queue-asset-cards__panels">
 			{% for item in vars.asset_cards %}
-				{% set target = item.panel_target|default( 'filelocker-' ~ loop.index ) %}
+				{% set target = item.panel_target %}
 				{% set panel_body %}
 					<div class="actions-queue-file-panel__head">
 						<span class="actions-queue-file-panel__state status-{{ item.status }}">{{ item.stat_text }}</span>
@@ -66,7 +66,7 @@
 				{% endset %}
 				{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
 					panel: {
-						id: item.panel_id|default( 'FileLockerPanel-' ~ loop.index ),
+						id: item.panel_id,
 						class: 'actions-queue-asset-panel actions-queue-file-panel',
 						spacing_top: 'none',
 						is_open: false,
@@ -169,6 +169,7 @@
 					panel: {
 						id: item.panel_id,
 						class: 'actions-queue-asset-panel',
+						spacing_top: 'md',
 						is_open: false,
 						target: item.panel_target,
 						target_default: item.panel_target,

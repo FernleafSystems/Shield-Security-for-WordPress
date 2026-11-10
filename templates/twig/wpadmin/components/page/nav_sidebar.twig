@@ -89,7 +89,7 @@
 	{% endif %}
 
 	{# While setup is unfinished, the guide can always be brought back from here, even after "Hide until next visit". #}
-	{% if vars.setup_guide.show|default(false) %}
+	{% if vars.setup_guide.show %}
 		<div class="sidebar-setup-footer">
 			<button type="button" class="mode-item sidebar-setup-item" data-setup-guide-open="1" aria-controls="ShieldSetupGuide">
 				<span class="mode-icon"><i class="bi bi-shield-fill-check" aria-hidden="true"></i></span>
@@ -100,9 +100,9 @@
 	{% endif %}
 
 	{# Bottom of the dashboard sidebar: the Live Monitor launcher and the licence / upgrade link. #}
-	{% if sidebar.home_live_monitor_item|default(null) is not empty or sidebar.home_license_item is not empty %}
+	{% if sidebar.home_live_monitor_item is not empty or sidebar.home_license_item is not empty %}
 		<div class="sidebar-home-footer">
-			{% if sidebar.home_live_monitor_item|default(null) is not empty %}
+			{% if sidebar.home_live_monitor_item is not empty %}
 				{% set live_monitor = sidebar.home_live_monitor_item %}
 				<button type="button"
 						class="mode-item {{ live_monitor.classes|join(' ') }}"

@@ -22,7 +22,6 @@ $code-color: $secondary;
 @import './shield/options.scss';
 @import './shield/config-panels.scss';
 @import './shield/operator-landing-cards';
-@import './shield/landing-stack-rows';
 @import './shield/mode-tabs';
 @import './shield/action-bar';
 @import './shield/search';
@@ -36,7 +35,6 @@ $code-color: $secondary;
 @import './shield/actions-queue-linked';
 @import './shield/pro-upsell';
 @import './shield/import-export.scss';
-@import './shield/item-box';
 @import './shield/_drill-down.scss';
 @import './shield/_mode-nav-loading.scss';
 @import './shield/_operator-chrome.scss';
@@ -49,7 +47,6 @@ $code-color: $secondary;
 @import './shield/dashboard';
 @import './shield/dashboard-task-guide';
 @import './shield/setup-guide';
-@import './shield/needs-attention';
 @import './shield/modal-layout';
 @import './shield/scan-item-analysis';
 @import './shield/security-admin';
@@ -911,7 +908,6 @@ body:has(.shield-setup-guide:not([hidden])) {
 }
 
 @include media-breakpoint-down(lg) {
-
   // --- Logo Section ---
   #PageMainSide-Apto .logo-container {
     padding: 8px 2px !important;
@@ -960,7 +956,6 @@ body:has(.shield-setup-guide:not([hidden])) {
     width: 100% !important;
     text-indent: 20px;
   }
-
 }
 
 #PageMainBody_Inner-Apto {
@@ -974,88 +969,6 @@ body:has(.shield-setup-guide:not([hidden])) {
 #PageMainBody_Inner-Apto label {
   font-size: 14px;
 }
-
-.inner-page-header .inner-page-header-title > .bi {
-  display: inline-block;
-  font-size: 1.2rem;
-  line-height: 1;
-  flex-shrink: 0;
-  margin-right: 6px;
-  color: #008000;
-}
-
-.inner-page-header .inner-page-header-title {
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-
-.inner-page-header .inner-page-subtitle {
-  font-size: 0.85rem;
-  color: #666;
-}
-
-.inner-page-header {
-  position: relative;
-}
-
-.mode-landing-accent-bar {
-  border-radius: 2px;
-  height: 4px;
-  margin-bottom: 1rem;
-
-  &.mode-landing-accent-bar--home {
-    background: #444444;
-  }
-
-  &.mode-landing-accent-bar--actions {
-    background: $mode-actions;
-  }
-
-  &.mode-landing-accent-bar--configure {
-    background: $mode-configure;
-  }
-
-  &.mode-landing-accent-bar--investigate {
-    background: $mode-investigate;
-  }
-
-  &.mode-landing-accent-bar--reports {
-    background: $mode-reports;
-  }
-
-  &.mode-landing-accent-bar--good {
-    background: $status-color-good;
-  }
-
-  &.mode-landing-accent-bar--warning {
-    background: $status-color-warning;
-  }
-
-  &.mode-landing-accent-bar--critical {
-    background: $status-color-critical;
-  }
-
-  &.mode-landing-accent-bar--info {
-    background: $status-color-info;
-  }
-
-  &.mode-landing-accent-bar--neutral {
-    background: $accent-color-salt-green;
-  }
-}
-
-.inner-page-header.inner-page-header-compact {
-  margin-bottom: 0.45rem !important;
-
-  .inner-page-header-title {
-    margin-bottom: 0.35rem !important;
-  }
-
-  p {
-    margin-bottom: 0.35rem !important;
-  }
-}
-
 [data-mode-panel="1"] {
   border: 1px solid $border-color-neutral-subtle;
   border-radius: $card-border-radius;
@@ -1110,19 +1023,6 @@ body:has(.shield-setup-guide:not([hidden])) {
   position: sticky;
   top: 88px;
   z-index: 5;
-}
-
-.stat_box .card-header {
-  text-align: center;
-}
-
-.stat_box .card-body {
-  background-color: #ffffff;
-}
-
-.stat_box .stat_count {
-  font-size: 3rem;
-  line-height: 3.5rem;
 }
 
 .toggleable-text {
@@ -1335,33 +1235,6 @@ td.status_file_size {
   width: 600px;
 }
 
-.inner-page-header .dropstart .page-action-menu-toggle {
-  color: #008000;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.15rem;
-  line-height: 1;
-}
-
-.inner-page-header .dropstart .page-action-menu-toggle::before {
-  margin-top: 0;
-  margin-right: 0.35rem;
-  align-self: center;
-}
-
-.inner-page-header .dropdown-menu {
-  border-color: #008000;
-  box-shadow: 1px 1px 2px rgb(0 128 0 / 20%);
-}
-
-.inner-page-header .dropstart .page-action-menu-toggle > .bi {
-  display: inline-block;
-  font-size: 1.35rem;
-  line-height: 1;
-}
-
-
 .load-wrapper {
   position: relative;
   height: 100%;
@@ -1430,13 +1303,4 @@ td.status_file_size {
   display: none !important;
   visibility: hidden !important;
   z-index: -1 !important;
-}
-
-.inner-page-header .inner-page-config button.page-action-menu-toggle {
-  border-radius: 40px;
-  padding: 10px;
-}
-
-.inner-page-header:hover .inner-page-config button.page-action-menu-toggle {
-  background: rgba(0, 128, 0, 0.1);
 }

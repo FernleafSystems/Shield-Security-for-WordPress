@@ -1,4 +1,4 @@
-{% set has_help_links = option.beacon_id|default(false) or option.link_info or option.vimeo_id|default('') is not empty or option.link_blog %}
+{% set has_help_links = option.beacon_id or option.link_info or option.vimeo_id is not empty or option.link_blog %}
 {% set has_details = option.description|length > 0 or has_help_links or option.default_label is not empty or ( option.disabled and option.unavailable ) %}
 
 <div class="shield-option-item{{ option.is_focus ? ' shield-option-item-expanded' : '' }}"
@@ -29,7 +29,7 @@
 
 		<div class="shield-option-control-col">
 			{% include '/components/config/option_control.twig' %}
-			{% if option.unit_label|default('') is not empty %}
+			{% if option.unit_label is not empty %}
 				<span class="shield-option-unit">{{ option.unit_label }}</span>
 			{% endif %}
 		</div>
@@ -65,7 +65,7 @@
 
 				{% if has_help_links or option.default_label is not empty %}
 					<div class="shield-option-links">
-						{% if option.beacon_id|default(false) %}
+						{% if option.beacon_id %}
 							<button type="button"
 									class="shield-option-link beacon-article"
 									data-beacon_article_format="sidebar"
@@ -78,7 +78,7 @@
 							</a>
 						{% endif %}
 
-						{% if option.vimeo_id|default('') is not empty %}
+						{% if option.vimeo_id is not empty %}
 							<button type="button" class="shield-option-link option-video" data-vimeoid="{{ option.vimeo_id }}">
 								<i class="{{ imgs.svgs.video }}" aria-hidden="true"></i>{{ strings.opt_info_video }}
 							</button>
@@ -92,7 +92,7 @@
 
 						{% if option.default_label is not empty %}
 							<span class="shield-option-default">
-								{{ strings.opt_default }}: {{ option.default_label }}{{ option.unit_label|default('') is not empty ? ' '~option.unit_label : '' }}
+								{{ strings.opt_default }}: {{ option.default_label }}{{ option.unit_label is not empty ? ' '~option.unit_label : '' }}
 								{% if not option.disabled %}
 									<button type="button"
 											class="shield-option-link shield-option-reset"

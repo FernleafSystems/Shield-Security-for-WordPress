@@ -23,7 +23,7 @@
 				{% endif %}
 			</div>
 			{# Why the component is flagged, in both layouts, with the settings that fix it marked once they load. #}
-			{% set issue_options = row.explanation_actions|default( [] )|map( a => a.attributes['data-option-key']|default('') )|filter( k => k is not empty ) %}
+			{% set issue_options = row.explanation_actions|map( a => a.attributes['data-option-key'] )|filter( k => k is not empty ) %}
 			{% if not is_panel and row.status in [ 'warning', 'critical' ] and row.explanations is not empty %}
 				<ul class="configure-expansion-issues configure-expansion-issues--{{ row.status }}"
 					data-configure-issue-options="{{ issue_options|join(',') }}">
@@ -47,6 +47,7 @@
 		{# No accordion parent: several components can stay open, and one save bar saves them together. #}
 		{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
 			id: expand.id,
+			parent_id: '',
 			type: 'options',
 			status: row.status,
 			body: expansion_body

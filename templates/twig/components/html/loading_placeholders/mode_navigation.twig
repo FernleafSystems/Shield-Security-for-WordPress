@@ -21,7 +21,7 @@
 
 {% macro tabs(widths, mode) %}
 	{% from _self import bar %}
-	{% set mode_class = { investigate: 'shield-tabs--investigate', reports: 'shield-tabs--reports', configure: 'shield-tabs--configure' }[ mode ]|default('') %}
+	{% set mode_class = { investigate: 'shield-tabs--investigate', reports: 'shield-tabs--reports', configure: 'shield-tabs--configure' }[ mode ] %}
 	<div class="shield-tabs {{ mode_class }} shield-mode-nav-placeholder__tabs">
 		<div class="shield-tabs__list">
 			{% for width in widths %}
@@ -34,7 +34,7 @@
 {% from _self import bar, crumbs, tabs %}
 
 {% set mode_labels = {} %}
-{% for nav_item in vars.nav_sidebar.navigation_links|default([]) %}
+{% for nav_item in vars.nav_sidebar.navigation_links %}
 	{% if nav_item.kind == 'operator_mode' %}
 		{% set mode_labels = mode_labels|merge( { (nav_item.mode): nav_item.title } ) %}
 	{% endif %}
@@ -44,7 +44,7 @@
 <div class="d-none shield_loading_placeholder shield-mode-nav-placeholder"
 	 data-shield-nav-loading-placeholder="actions"
 	 aria-hidden="true">
-	{{ crumbs( 'actions', mode_labels.actions|default('') ) }}
+	{{ crumbs( 'actions', mode_labels.actions ) }}
 	<div class="shield-mode-nav-placeholder__toolbar">{{ bar( '150px', 30 ) }}</div>
 	<div class="shield-mode-nav-placeholder__stack">
 		<div class="shield-mode-nav-placeholder__box">
@@ -71,7 +71,7 @@
 <div class="d-none shield_loading_placeholder shield-mode-nav-placeholder"
 	 data-shield-nav-loading-placeholder="investigate"
 	 aria-hidden="true">
-	{{ crumbs( 'investigate', mode_labels.investigate|default('') ) }}
+	{{ crumbs( 'investigate', mode_labels.investigate ) }}
 	{{ tabs( [ 58, 112, 112, 62, 96, 84 ], 'investigate' ) }}
 	<div class="shield-mode-nav-placeholder__lookup">
 		<div class="shield-mode-nav-placeholder__search">{{ bar( '46%', 14 ) }}</div>
@@ -89,7 +89,7 @@
 <div class="d-none shield_loading_placeholder shield-mode-nav-placeholder"
 	 data-shield-nav-loading-placeholder="configure"
 	 aria-hidden="true">
-	{{ crumbs( 'configure', mode_labels.configure|default('') ) }}
+	{{ crumbs( 'configure', mode_labels.configure ) }}
 	{{ tabs( [ 50, 64, 40, 52, 36, 36, 70, 50, 52, 46 ], 'configure' ) }}
 	<div class="shield-mode-nav-placeholder__search">{{ bar( '42%', 14 ) }}</div>
 	{{ bar( '110px', 10, 'shield-mode-nav-placeholder__label' ) }}
@@ -110,7 +110,7 @@
 <div class="d-none shield_loading_placeholder shield-mode-nav-placeholder"
 	 data-shield-nav-loading-placeholder="reports"
 	 aria-hidden="true">
-	{{ crumbs( 'reports', mode_labels.reports|default('') ) }}
+	{{ crumbs( 'reports', mode_labels.reports ) }}
 	{{ tabs( [ 120, 116, 220 ], 'reports' ) }}
 	<div class="shield-mode-nav-placeholder__box shield-mode-nav-placeholder__box--padded">
 		{{ bar( '30%', 14 ) }}

@@ -97,7 +97,8 @@
 								{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
 									group: entry.group,
 									bucket_selection: entry.bucket_selection,
-									strings: strings
+									strings: strings,
+									collapsible: false
 								} only %}
 							{% endfor %}
 						</div>
@@ -133,7 +134,8 @@
 									{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
 										group: entry.group,
 										bucket_selection: entry.bucket_selection,
-										strings: strings
+										strings: strings,
+										collapsible: false
 									} only %}
 								{% endfor %}
 								{% for row in box.rows %}

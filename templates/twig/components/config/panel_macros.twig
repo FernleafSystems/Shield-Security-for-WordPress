@@ -52,7 +52,7 @@
 {% endmacro %}
 
 {% macro help( option, strings ) %}
-	{% if option.beacon_id|default(false) %}
+	{% if option.beacon_id %}
 		<button type="button"
 				class="shield-panel-help beacon-article"
 				data-beacon_article_format="sidebar"
@@ -161,7 +161,7 @@
 			{% endfor %}
 		</div>
 
-	{% elseif item.prefix|default('') is not empty %}
+	{% elseif item.prefix is not empty %}
 		<span class="shield-option-prefixed">
 			<span class="shield-option-prefixed__prefix" aria-hidden="true">{{ item.prefix }}</span>
 			{% include '/components/config/option_control.twig' with { option: option, strings: strings } only %}
@@ -169,7 +169,7 @@
 
 	{% else %}
 		{% include '/components/config/option_control.twig' with { option: option, strings: strings } only %}
-		{% if option.unit_label|default('') is not empty %}
+		{% if option.unit_label is not empty %}
 			<span class="shield-option-unit">{{ option.unit_label }}</span>
 		{% endif %}
 	{% endif %}

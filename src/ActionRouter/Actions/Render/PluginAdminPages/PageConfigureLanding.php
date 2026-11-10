@@ -118,7 +118,6 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 				'key'    => 'zones',
 				'body'   => $this->renderConfigureZonesLayer(),
 				'header' => [
-					'compact_back_label' => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Configure', 'wp-simple-firewall' ) ),
 					'breadcrumb_label'   => __( 'Zones', 'wp-simple-firewall' ),
 					'title'              => __( 'Zones', 'wp-simple-firewall' ),
 					'summary'            => __( 'Review posture by zone and choose where to focus next.', 'wp-simple-firewall' ),
@@ -136,8 +135,6 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 				'header' => $selectedZoneKey !== ''
 					? $selectedDiagnosis[ 'header' ]
 					: [
-						'compact_back_label' => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Review Findings', 'wp-simple-firewall' ) ),
-						'active_back_label'  => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Configure', 'wp-simple-firewall' ) ),
 						'breadcrumb_label'   => __( 'Review findings', 'wp-simple-firewall' ),
 						'title'              => __( 'Review findings', 'wp-simple-firewall' ),
 						'summary'            => __( 'Open one zone to continue.', 'wp-simple-firewall' ),

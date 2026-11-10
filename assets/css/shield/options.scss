@@ -715,19 +715,6 @@ $options-rail-width-max: 260px;
 .options_form_for--modern .option-description .toggle-importexport-inclusion input[type="checkbox"] {
   cursor: pointer;
 }
-
-.options_form_for--modern .shield-options-save-row {
-  margin-top: 0.85rem;
-}
-
-.options_form_for--modern .shield-options-save-row .btn.icwp-form-button {
-  margin: 0;
-}
-
-.options_form_for--modern .shield-options-save-row-inline {
-  padding-left: 0.1rem;
-}
-
 // Stack the section rail before it leaves too little room for the options.
 @container (max-width: 800px) {
   .options_form_for--modern .shield-options-layout {
@@ -797,7 +784,6 @@ $options-rail-width-max: 260px;
 
 // Embedded expansion mode: strip all chrome
 .options_form_for--modern[data-context="expansion"] {
-
   .shield-options-layout {
     grid-template-columns: 1fr;
   }
@@ -823,11 +809,6 @@ $options-rail-width-max: 260px;
   .shield-options-panel-body {
     padding: 0.85rem;
   }
-
-  .shield-options-save-row {
-    display: none;
-  }
-
   // When rail is hidden, show all tab panes
   .tab-pane {
     display: block !important;

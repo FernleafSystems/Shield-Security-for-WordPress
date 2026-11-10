@@ -36,10 +36,6 @@
 						{% include '/wpadmin/components/scans/scan_results_table.twig' with {
 							table: expansion.table
 						} only %}
-					{% elseif expansion.type == 'investigation_table' %}
-						{% include '/wpadmin/components/investigate/table_container.twig' with {
-							table: expansion.table
-						} only %}
 					{% endif %}
 				{% endset %}
 				{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {

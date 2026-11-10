@@ -227,20 +227,13 @@ abstract class BaseRender extends BaseAction {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			$commonStrings,
 			[
-				'btn_save'            => __( 'Save Options', 'wp-simple-firewall' ),
 				'btn_options'         => CommonDisplayStrings::get( 'options_label' ),
 				'btn_help'            => CommonDisplayStrings::get( 'help_label' ),
-				'go_to_settings'      => __( 'Edit Settings', 'wp-simple-firewall' ),
-				'no_inner_page_title' => __( 'No inner page title set', 'wp-simple-firewall' ),
 				'on'                  => __( 'On', 'wp-simple-firewall' ),
 				'off'                 => __( 'Off', 'wp-simple-firewall' ),
 				'yes'                 => CommonDisplayStrings::get( 'yes_label' ),
 				'no'                  => CommonDisplayStrings::get( 'no_label' ),
 				'never'               => CommonDisplayStrings::get( 'never_label' ),
-				'time_until'          => __( 'Until', 'wp-simple-firewall' ),
-				'time_since'          => __( 'Since', 'wp-simple-firewall' ),
-				'more_info'           => __( 'Info', 'wp-simple-firewall' ),
-				'view_details'        => __( 'View Details', 'wp-simple-firewall' ),
 				'opt_info_helpdesk'   => __( 'HelpDesk article', 'wp-simple-firewall' ),
 				'opt_info_blog'       => __( 'Blog article', 'wp-simple-firewall' ),
 				'opt_info_video'      => __( 'Watch the explainer video', 'wp-simple-firewall' ),
@@ -253,19 +246,10 @@ abstract class BaseRender extends BaseAction {
 				'admin_shell_sidebar_label'    => sprintf( __( '%s admin sidebar', 'wp-simple-firewall' ), $con->labels->Name ),
 				'admin_shell_navigation_label' => sprintf( __( '%s admin navigation', 'wp-simple-firewall' ), $con->labels->Name ),
 				'options_title'               => CommonDisplayStrings::get( 'options_label' ),
-				'options_summary'             => __( 'Configure Module', 'wp-simple-firewall' ),
 				'actions_title'               => __( 'Actions and Info', 'wp-simple-firewall' ),
-				'actions_summary'             => __( 'Perform actions for this module', 'wp-simple-firewall' ),
 				'help_title'                  => CommonDisplayStrings::get( 'help_label' ),
-				'help_summary'                => __( 'Learn More', 'wp-simple-firewall' ),
 				'installation_id'             => __( 'Installation ID', 'wp-simple-firewall' ),
 				'select'                      => __( 'Select', 'wp-simple-firewall' ),
-				'filters_clear'               => __( 'Clear Filters', 'wp-simple-firewall' ),
-				'filters_apply'               => __( 'Apply Filters', 'wp-simple-firewall' ),
-				'jump_to_module'              => __( 'Jump To Module Settings', 'wp-simple-firewall' ),
-				'this_page'                   => __( 'This Page', 'wp-simple-firewall' ),
-				'jump_to_option'              => __( 'Find Plugin Option', 'wp-simple-firewall' ),
-				'type_below_search'           => __( 'Type below to search all plugin options', 'wp-simple-firewall' ),
 				'pro_only_option'             => __( 'Upgrade Required', 'wp-simple-firewall' ),
 				'go_pro'                      => __( 'Go Pro!', 'wp-simple-firewall' ),
 
@@ -284,30 +268,21 @@ abstract class BaseRender extends BaseAction {
 				'loading'                      => __( 'Loading', 'wp-simple-firewall' ),
 				'request_failed'               => __( 'Request Failed', 'wp-simple-firewall' ),
 				'scan_repair_limit_exceeded'   => __( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item.", 'wp-simple-firewall' ),
-				'aar_what_should_you_enter'    => __( 'Provide The Security Admin PIN.', 'wp-simple-firewall' ),
 				'aar_to_manage_must_enter_key' => __( 'PIN Required', 'wp-simple-firewall' ),
 				'aar_enter_access_key'         => __( 'Security Admin PIN', 'wp-simple-firewall' ),
 				'aar_submit_access_key'        => __( 'Submit PIN', 'wp-simple-firewall' ),
 				'aar_forget_key'               => __( 'Forgotten PIN', 'wp-simple-firewall' ),
-				'show_help_video_section'      => __( 'Show help video for this section', 'wp-simple-firewall' ),
 
 				'offense' => __( 'offense', 'wp-simple-firewall' ),
 				'debug'   => CommonDisplayStrings::get( 'debug_label' ),
 
-				'privacy_policy_agree'   => __( 'Agree To Privacy Policy', 'wp-simple-firewall' ),
-				'privacy_policy_confirm' => __( "I confirm that I've read and I agree to the Privacy Policy", 'wp-simple-firewall' ),
-				'privacy_policy_gdpr'    => __( 'We treat your information under our strict, and GDPR-compliant, privacy policy.', 'wp-simple-firewall' ),
 				'privacy_policy'         => __( 'Privacy Policy', 'wp-simple-firewall' ),
-				'privacy_never_spam'     => __( 'We never SPAM and you can remove yourself at any time.', 'wp-simple-firewall' ),
 
 				'options'        => CommonDisplayStrings::get( 'options_label' ),
 				'not_enabled'    => __( "This feature isn't currently enabled.", 'wp-simple-firewall' ),
-				'please_enable'  => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' ),
-				'yyyymmdd'       => __( 'YYYY-MM-DD', 'wp-simple-firewall' ),
 
 				'wphashes_token' => sprintf( '%s API Token', self::con()->labels->Name ),
 
-				'running_version'      => sprintf( '%s %s', $con->labels->Name, $this->buildRunningVersionHtml() ),
 				'running_version_only' => $this->buildRunningVersionHtml(),
 
 				'product_name'    => CommonDisplayStrings::get( 'name_label' ),
@@ -321,15 +296,8 @@ abstract class BaseRender extends BaseAction {
 				'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $con->labels->Name ),
 				'recommendation'      => \ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),
 				'suggestion'          => \ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),
-				'no_security_notices' => __( 'There are no important security notices at this time.', 'wp-simple-firewall' ),
-				'this_is_wonderful'   => __( 'This is wonderful!', 'wp-simple-firewall' ),
 
-				'um_current_user_settings' => __( 'Current User Sessions', 'wp-simple-firewall' ),
 				'um_username'              => CommonDisplayStrings::get( 'username_label' ),
-				'um_logged_in_at'          => __( 'Logged In At', 'wp-simple-firewall' ),
-				'um_last_activity_at'      => __( 'Last Activity At', 'wp-simple-firewall' ),
-				'um_last_activity_uri'     => __( 'Last Activity URI', 'wp-simple-firewall' ),
-				'um_login_ip'              => __( 'Login IP', 'wp-simple-firewall' ),
 
 				'search_shield'            => sprintf( __( 'Search %s', 'wp-simple-firewall' ), $con->labels->Name ),
 				'search_shield_label'      => __( 'Click to launch plugin search modal', 'wp-simple-firewall' ),
@@ -343,9 +311,7 @@ abstract class BaseRender extends BaseAction {
 					__( 'IP addresses', 'wp-simple-firewall' ),
 					__( 'Help docs & resources', 'wp-simple-firewall' ),
 				],
-				'translated_colon'         => __( ':', 'wp-simple-firewall' ),
 				'translated_colon_space'   => __( ': ', 'wp-simple-firewall' ),
-				'translated_dash_space'    => __( '- ', 'wp-simple-firewall' ),
 			] );
 	}
 

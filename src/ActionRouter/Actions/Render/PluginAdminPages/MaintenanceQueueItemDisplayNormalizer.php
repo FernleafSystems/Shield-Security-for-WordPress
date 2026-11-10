@@ -53,16 +53,8 @@ use FernleafSystems\Wordpress\Services\Services;
  *   ignored_label:string,
  *   secondary_actions:list<MaintenanceUiAction>
  * }
- * @phpstan-type MaintenanceExpansionTable array{
- *   columns:array{item:string,details:string,action:string},
- *   rows:list<MaintenanceExpansionRow>,
- *   empty_text:string
- * }
  * @phpstan-type MaintenanceItemExpansion array{
- *   id:string,
- *   type:string,
- *   status:string,
- *   table:MaintenanceExpansionTable
+ *   table:array{rows:list<MaintenanceExpansionRow>}
  * }
  * @phpstan-type QueueItem array{
  *   key:string,
@@ -285,9 +277,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 				break;
 		}
 
-		return $rows === []
-			? []
-			: $this->buildSimpleTableExpansion( $item, $rows );
+		return $rows === [] ? [] : [ 'table' => [ 'rows' => $rows ] ];
 	}
 
 	/**
@@ -437,28 +427,6 @@ class MaintenanceQueueItemDisplayNormalizer {
 		}
 
 		return $this->sortExpansionRows( $rows );
-	}
-
-	/**
-	 * @param QueueItem $item
-	 * @param list<MaintenanceExpansionRow> $rows
-	 * @return MaintenanceItemExpansion
-	 */
-	private function buildSimpleTableExpansion( array $item, array $rows ) :array {
-		return [
-			'id'     => 'maintenance-expand-'.sanitize_key( $item[ 'key' ] ),
-			'type'   => DetailExpansionType::SIMPLE_TABLE,
-			'status' => $item[ 'severity' ],
-			'table'  => [
-				'columns'    => [
-					'item'    => __( 'Item', 'wp-simple-firewall' ),
-					'details' => __( 'Details', 'wp-simple-firewall' ),
-					'action'  => __( 'Action', 'wp-simple-firewall' ),
-				],
-				'rows'       => $rows,
-				'empty_text' => __( 'No items are currently available.', 'wp-simple-firewall' ),
-			],
-		];
 	}
 
 	/**

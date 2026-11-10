@@ -159,7 +159,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'investigate', $ipHeader[ 'color_key' ] ?? '' );
 		$this->assertSame( [], $ipHeader[ 'actions' ] ?? [ 'unexpected' ] );
 		$this->assertSame( $tilesByKey[ 'ip' ][ 'icon_class' ], $ipHeader[ 'icon_class' ] ?? '' );
-		foreach ( [ 'compact_back_label', 'active_back_label', 'breadcrumb_label', 'title', 'summary', 'focus', 'next_step', 'badge' ] as $headerKey ) {
+		foreach ( [ 'breadcrumb_label', 'title', 'summary', 'focus', 'next_step', 'badge' ] as $headerKey ) {
 			$this->assertArrayHasKey( $headerKey, $ipHeader );
 			$this->assertNotSame( '', $ipHeader[ $headerKey ] );
 		}
@@ -190,7 +190,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			\array_column( $vars[ 'investigate_tabs' ][ 'tabs' ] ?? [], 'key' )
 		);
 		$this->assertSame( 'PANEL_LAYER:', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
-		$this->assertArrayHasKey( 'compact_back_label', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ] ?? [] );
+		$this->assertArrayHasKey( 'breadcrumb_label', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ] ?? [] );
 		$this->assertArrayHasKey( 'title', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
 		$this->assertSame( '', $idlePanel[ 'render_action_json' ] ?? 'missing' );
 		$this->assertSame( 'investigate', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );

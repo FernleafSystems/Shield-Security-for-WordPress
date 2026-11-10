@@ -27,12 +27,6 @@ abstract class BaseZoneReport {
 		$this->until = $until;
 	}
 
-	public function getZoneDescription() :array {
-		return [
-			'TODO: Zone Description'
-		];
-	}
-
 	public function buildChangeReportData( bool $isSummary ) :array {
 		$this->isSummary = $isSummary;
 		return $this->changesFromLogs();

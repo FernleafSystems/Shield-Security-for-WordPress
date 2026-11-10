@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\FullPageDisplay\DisplayReportAdmin,
 	Actions\FullPageDisplay\FullPageDisplayDynamic,
 	Actions\FullPageDisplay\FullPageDisplayNonTerminating,
-	Actions\OperatorModeSwitch,
+	Actions\DashboardLiveMonitorSetState,
 	Actions\PluginImportExport_NetworkInviteRequest,
 	Actions\Render,
 	Actions\Render\Components\Reports\Components\ReportAreaChanges,
@@ -175,12 +175,12 @@ class ExternalActionTransportPolicyTest extends BaseUnitTest {
 		$policy = new ExternalActionTransportPolicy();
 
 		$this->assertFalse( $policy->isAllowed(
-			OperatorModeSwitch::SLUG,
+			DashboardLiveMonitorSetState::SLUG,
 			[],
 			ActionRoutingController::ACTION_REST
 		) );
 		$this->assertFalse( $policy->isAllowed(
-			OperatorModeSwitch::class,
+			DashboardLiveMonitorSetState::class,
 			[],
 			ActionRoutingController::ACTION_REST
 		) );

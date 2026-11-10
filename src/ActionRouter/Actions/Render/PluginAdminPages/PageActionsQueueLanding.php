@@ -71,7 +71,6 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 
 	protected function getLandingVars() :array {
 		return \array_merge( parent::getLandingVars(), [
-			'zone_tiles'         => $this->getLandingViewData()[ 'zone_tiles' ],
 			'actions_queue_ajax' => [
 				// The queue refreshes in place after a change, through this action.
 				'refresh_action_json' => ActionData::BuildJson( ActionsQueueRefresh::class ),
@@ -91,7 +90,6 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 				'key'    => 'buckets',
 				'body'   => $this->renderBucketsLayer(),
 				'header' => [
-					'compact_back_label' => $presentation->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
 					'breadcrumb_label'   => __( 'Queue areas', 'wp-simple-firewall' ),
 					'title'              => __( 'Queue areas', 'wp-simple-firewall' ),
 					'summary'            => __( 'Each queue area lists its issue groups; open one to see its results.', 'wp-simple-firewall' ),
@@ -105,8 +103,6 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 				'key'    => 'detail',
 				'body'   => '',
 				'header' => [
-					'compact_back_label' => $presentation->buildBackLabel( __( 'Results', 'wp-simple-firewall' ) ),
-					'active_back_label'  => $presentation->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
 					'breadcrumb_label'   => __( 'Results', 'wp-simple-firewall' ),
 					'title'              => __( 'Results', 'wp-simple-firewall' ),
 					'summary'            => __( 'Choose an issue group to review matching results.', 'wp-simple-firewall' ),

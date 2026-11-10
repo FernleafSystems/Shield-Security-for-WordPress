@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Contexts\EmailReportInfo;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\OverviewReports;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\FullPageDisplay\DisplayReport,
@@ -102,20 +101,6 @@ class DisplayReportAccessIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'report_sig', $query );
 	}
 
-	public function test_overview_widget_report_producer_uses_admin_report_view_without_signature() :void {
-		$report = $this->insertReport( 'widget-link-marker' );
-		$data = ( new OverviewReportsAdminLinkTestDouble( [
-			'limit' => 1,
-		] ) )->renderDataForTest();
-
-		$href = (string)( $data[ 'vars' ][ 'reports' ][ 0 ][ 'href' ] ?? '' );
-		$query = $this->queryParamsFromUrl( $href );
-
-		$this->assertSame( DisplayReportAdmin::SLUG, $query[ ActionData::FIELD_EXECUTE ] ?? null );
-		$this->assertSame( $report[ 'unique_id' ], $query[ 'report_unique_id' ] ?? null );
-		$this->assertArrayNotHasKey( 'report_sig', $query );
-	}
-
 	public function test_email_report_producer_uses_admin_report_view_without_signature() :void {
 		$report = $this->buildReportFixture( Constants::REPORT_TYPE_INFO );
 		$data = ( new EmailReportInfoAdminLinkTestDouble( [
@@ -162,13 +147,6 @@ class DisplayReportAccessIntegrationTest extends ShieldIntegrationTestCase {
 class DisplayReportAdminAccessTestDouble extends DisplayReportAdmin {
 
 	protected function postExec() {
-	}
-}
-
-class OverviewReportsAdminLinkTestDouble extends OverviewReports {
-
-	public function renderDataForTest() :array {
-		return $this->getRenderData();
 	}
 }
 

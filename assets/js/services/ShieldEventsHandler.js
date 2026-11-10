@@ -66,10 +66,6 @@ export class ShieldEventsHandler extends BaseService {
 		this.addHandler( 'click', selector, callback, suppress );
 	}
 
-	add_DblClick( selector, callback, suppress = null ) {
-		this.addHandler( 'dblclick', selector, callback, suppress );
-	}
-
 	add_Keypress( selector, callback, suppress = null ) {
 		this.addHandler( 'keypress', selector, callback, suppress );
 	}
@@ -80,18 +76,6 @@ export class ShieldEventsHandler extends BaseService {
 
 	add_Keyup( selector, callback, suppress = null ) {
 		this.addHandler( 'keyup', selector, callback, suppress );
-	}
-
-	add_Mouseover( selector, callback, suppress = null ) {
-		this.addHandler( 'mouseover', selector, callback, suppress );
-	}
-
-	add_Mouseenter( selector, callback, suppress = null ) {
-		this.addHandler( 'mouseenter', selector, callback, suppress );
-	}
-
-	add_Mouseout( selector, callback, suppress = null ) {
-		this.addHandler( 'mouseout', selector, callback, suppress );
 	}
 
 	add_Submit( selector, callback, suppress = null ) {

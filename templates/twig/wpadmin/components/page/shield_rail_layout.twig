@@ -1,23 +1,23 @@
-{% set layout_data = layout|default({}) %}
+{% set layout_data = layout %}
 {% set layout_classes = [ 'shield-rail-layout' ] %}
-{% if layout_data.class|default('') is not empty %}
+{% if layout_data.class is not empty %}
 	{% set layout_classes = layout_classes|merge( [ layout_data.class ] ) %}
 {% endif %}
 
 <div class="{{ layout_classes|join(' ') }}">
-	{% if layout_data.content_first|default(false) %}
+	{% if layout_data.content_first %}
 		<div class="shield-rail-layout__content">
-			{{ layout_data.content_html|default('')|raw }}
+			{{ layout_data.content_html|raw }}
 		</div>
 		<div class="shield-rail-layout__sidebar">
-			{{ layout_data.rail_html|default('')|raw }}
+			{{ layout_data.rail_html|raw }}
 		</div>
 	{% else %}
 		<div class="shield-rail-layout__sidebar">
-			{{ layout_data.rail_html|default('')|raw }}
+			{{ layout_data.rail_html|raw }}
 		</div>
 		<div class="shield-rail-layout__content">
-			{{ layout_data.content_html|default('')|raw }}
+			{{ layout_data.content_html|raw }}
 		</div>
 	{% endif %}
 </div>

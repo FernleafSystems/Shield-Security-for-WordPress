@@ -90,17 +90,18 @@ test( 'role chips save the ticked roles, including none', async ( { page } ) => 
 	const roles = form.locator( '[data-option-key="two_factor_auth_user_roles"]' );
 	const original = await roles.locator( 'input[type="checkbox"]:checked' ).evaluateAll( ( inputs ) => inputs.map( ( i ) => i.value ) );
 
-	// Tick only Administrator.
-	await roles.locator( 'input[type="checkbox"]' ).evaluateAll( ( inputs ) => inputs.forEach( ( input ) => {
-		if ( input.checked !== ( input.value === 'administrator' ) ) {
+	// Change to a set that differs from whatever is saved now, so there's always something to save.
+	const ticked = original.length === 1 && original[ 0 ] === 'administrator' ? [ 'administrator', 'editor' ] : [ 'administrator' ];
+	await roles.locator( 'input[type="checkbox"]' ).evaluateAll( ( inputs, keep ) => inputs.forEach( ( input ) => {
+		if ( input.checked !== keep.includes( input.value ) ) {
 			input.click();
 		}
-	} ) );
+	} ), ticked );
 	await save( page );
 
 	form = await openTopic( page, 'two_factor' );
 	await expect.poll( async () => form.locator( '[data-option-key="two_factor_auth_user_roles"] input[type="checkbox"]:checked' )
-		.evaluateAll( ( inputs ) => inputs.map( ( i ) => i.value ) ) ).toEqual( [ 'administrator' ] );
+		.evaluateAll( ( inputs ) => inputs.map( ( i ) => i.value ) ) ).toEqual( ticked );
 
 	// No roles at all is a choice too.
 	await form.locator( '[data-option-key="two_factor_auth_user_roles"] input[type="checkbox"]:checked' ).evaluateAll( ( inputs ) => inputs.forEach( ( input ) => input.click() ) );

@@ -175,38 +175,6 @@
 	margin-top: 0.14rem;
 }
 
-// ------------------------------------
-// Reusable: .shield-list (clean widget list)
-// ------------------------------------
-.shield-list {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-	li {
-		padding: 7px 0;
-		border-bottom: 1px solid $border-color-neutral-subtle;
-		font-size: 0.82rem;
-		color: #50575e;
-		line-height: 1.4;
-		&:first-child { padding-top: 0; }
-		&:last-child { border-bottom: none; }
-	}
-	.ip-address {
-		font-family: monospace;
-		font-size: 0.78rem;
-		color: $status-color-good;
-		font-weight: 500;
-	}
-	.timestamp {
-		font-size: 0.7rem;
-		color: #646970;
-	}
-	.mono {
-		font-family: monospace;
-		font-size: 0.78rem;
-	}
-}
-
 .operator-mode-landing {
 	width: 100%;
 }
@@ -545,7 +513,6 @@
 		border-top: 1px solid $border-color-neutral-subtle;
 		grid-column: 1 / -1;
 	}
-
 }
 
 @container (max-width: 640px) {
@@ -1079,57 +1046,6 @@
 	}
 }
 
-// ============================================================
-// Dashboard-specific: Scan Strip
-// ============================================================
-.scan-strip {
-	background: #fff;
-	border-radius: $card-border-radius;
-	box-shadow: $card-box-shadow;
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
-}
-
-.scan-strip-body {
-	display: flex;
-	flex: 1;
-	align-items: stretch;
-}
-
-.scan-section {
-	flex: 1;
-	text-align: center;
-	padding: 14px 10px;
-	border-right: 1px solid $border-color-neutral-subtle;
-	transition: background 0.2s ease;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-
-	&:last-child { border-right: none; }
-
-	&.section-good { background: $card-bg-good; }
-	&.section-warning { background: $card-bg-warning; }
-	&.section-critical { background: $card-bg-critical; }
-	&.section-info { background: $card-bg-info; }
-	&.section-disabled { background: #f8f8f8; }
-
-	&.section-good:hover { background: $status-bg-good-light; }
-	&.section-warning:hover { background: $status-bg-warning-light; }
-	&.section-critical:hover { background: $status-bg-critical-light; }
-	&.section-info:hover { background: $status-bg-info-light; }
-}
-
-.scan-label {
-	font-size: 0.75rem;
-	text-transform: uppercase;
-	color: #646970;
-	font-weight: 600;
-	margin-bottom: 6px;
-}
-
 .scan-count {
 	font-size: 1.6rem;
 	font-weight: 700;
@@ -1144,25 +1060,6 @@
 }
 
 // Responsive: scan strip
-@media (max-width: 1199.98px) {
-	.scan-strip-body {
-		flex-wrap: wrap;
-	}
-	.scan-section {
-		flex: 0 0 50%;
-		border-bottom: 1px solid $border-color-neutral-subtle;
-	}
-	.scan-section:nth-child(2n) { border-right: none; }
-	.scan-section:nth-child(n+3) { border-bottom: none; }
-}
-@media (max-width: 767.98px) {
-	.scan-section {
-		flex: 0 0 100%;
-		border-right: none;
-	}
-	.scan-section:last-child { border-bottom: none; }
-}
-
 // ============================================================
 // Dashboard-specific: Widget card overrides
 // ============================================================

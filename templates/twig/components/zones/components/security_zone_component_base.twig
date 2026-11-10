@@ -39,7 +39,7 @@
 		<p class="component-subtitle">{{ strings.subtitle }}</p>
 	</div>
 
-	{% if strings.explanation|default(false) is not empty %}
+	{% if strings.explanation is not empty %}
 		<div class="explanations-block">
 			{% for expl in strings.explanation %}
 				<div class="explanation-item">

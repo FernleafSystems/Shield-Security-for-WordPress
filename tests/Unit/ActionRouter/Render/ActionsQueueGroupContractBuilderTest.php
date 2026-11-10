@@ -122,7 +122,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'example_plugin', $pluginGroup[ 'label' ] );
 		$this->assertSame( 'direct_table', $pluginGroup[ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $pluginGroup[ 'card_type' ] );
-		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $pluginGroup[ 'render_action_class' ] );
+		$this->assertSame( ActionsQueueAssetFileStatusDetail::SLUG, $pluginGroup[ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] );
 		$this->assertSame(
 			[
 				'display_context'         => 'actions_queue',
@@ -174,7 +174,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$group = $builder->buildEmptyGroup( 'plugins:missing-plugin/missing-plugin.php', 'fix_now' );
 
 		$this->assertSame( 'asset_cards', $group[ 'detail_shell' ] );
-		$this->assertSame( Plugins::class, $group[ 'render_action_class' ] );
+		$this->assertSame( Plugins::SLUG, $group[ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] );
 		$this->assertSame( $group[ 'label' ], $group[ 'selection' ][ 'label' ] );
 		$this->assertSame( $group[ 'label' ], $group[ 'selection' ][ 'header' ][ 'title' ] );
 		$this->assertAjaxRenderPayloadAllowedByPolicy(

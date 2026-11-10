@@ -72,7 +72,6 @@ class AssetsCustomizer {
 					'shield_vars_'.$handle,
 					[
 						'strings' => [
-							'select_action'        => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
 							'are_you_sure'         => __( 'Are you sure?', 'wp-simple-firewall' ),
 							'absolutely_sure'      => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
 							'cancel'               => __( 'Cancel', 'wp-simple-firewall' ),

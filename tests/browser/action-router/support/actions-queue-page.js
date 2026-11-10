@@ -68,7 +68,7 @@ class ActionsQueuePage {
 	}
 
 	/**
-	 * A landing group row; the passing section starts collapsed, so its section is opened first.
+	 * A landing group row; the passing section and its boxes start collapsed, so they're opened first.
 	 */
 	async waitForLandingGroupOuter( groupKey, timeout = 20000 ) {
 		const group = this.page.locator( `[data-actions-queue-sections="1"] [data-actions-queue-group-key="${groupKey}"]` ).first();
@@ -78,6 +78,10 @@ class ActionsQueuePage {
 				?.querySelector( '[data-actions-queue-section-toggle="1"]' );
 			if ( head instanceof HTMLElement && head.getAttribute( 'aria-expanded' ) === 'false' ) {
 				head.click();
+			}
+			const foldedBox = element.closest( '[hidden][id]' );
+			if ( foldedBox !== null ) {
+				document.querySelector( `[data-actions-queue-box-toggle][aria-controls="${foldedBox.id}"]` )?.click();
 			}
 		} );
 		await expect( group ).toBeVisible();

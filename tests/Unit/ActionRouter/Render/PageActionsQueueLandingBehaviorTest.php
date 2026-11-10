@@ -13,7 +13,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueRefresh;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
-	DetailExpansionType,
 	PageActionsQueueLanding
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Urls;
@@ -140,14 +139,14 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '__BUCKETS_LAYER__', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] );
 		$this->assertArrayHasKey( 'title', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
 		$this->assertArrayHasKey( 'badge', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
-		$this->assertArrayHasKey( 'compact_back_label', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ] ?? [] );
+		$this->assertArrayHasKey( 'breadcrumb_label', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ] ?? [] );
 		$this->assertArrayHasKey( 'summary', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
 		$this->assertSame(
 			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '',
 			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'breadcrumb_label' ] ?? ''
 		);
 		$this->assertArrayNotHasKey( 'drill_context_card', $vars );
-		$this->assertCount( 2, $vars[ 'zone_tiles' ] );
+		$this->assertCount( 2, $this->invokeNonPublicMethod( $this->newPage(), 'getLandingViewData' )[ 'zone_tiles' ] );
 		$this->assertSame(
 			ActionsQueueRefresh::SLUG,
 			\json_decode( $vars[ 'actions_queue_ajax' ][ 'refresh_action_json' ], true )[ 'ex' ]
@@ -246,7 +245,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$zoneTiles = $this->invokeNonPublicMethod( $this->newPage(), 'getLandingVars' )[ 'zone_tiles' ];
+		$zoneTiles = $this->invokeNonPublicMethod( $this->newPage(), 'getLandingViewData' )[ 'zone_tiles' ];
 		$maintenance = \array_values( \array_filter(
 			$zoneTiles,
 			static fn( array $tile ) :bool => $tile[ 'key' ] === 'maintenance'
@@ -324,9 +323,8 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$vars = $this->invokeNonPublicMethod( $this->newPage(), 'getLandingVars' );
 		$maintenanceTile = \array_values( \array_filter(
-			$vars[ 'zone_tiles' ],
+			$this->invokeNonPublicMethod( $this->newPage(), 'getLandingViewData' )[ 'zone_tiles' ],
 			static fn( array $tile ) :bool => $tile[ 'key' ] === 'maintenance'
 		) )[ 0 ];
 		$itemsByKey = [];
@@ -336,7 +334,6 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 		foreach ( [ 'wp_plugins_updates', 'wp_themes_updates', 'wp_plugins_inactive', 'wp_themes_inactive' ] as $key ) {
 			$this->assertNotEmpty( $itemsByKey[ $key ][ 'expansion' ], 'Expected expansion for '.$key );
-			$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $itemsByKey[ $key ][ 'expansion' ][ 'type' ] );
 		}
 		$this->assertSame(
 			'/wp-admin/plugins.php?plugin_status=all&s=Hello%20Dolly',
@@ -370,7 +367,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				$this->buildAssessmentRow( 'system_lib_openssl', 'OpenSSL Extension', 'All clear', 'good', 'Good', 'bi bi-check-circle-fill', 'review' ),
 			],
 		] );
-		$zoneTiles = $this->invokeNonPublicMethod( $page, 'getLandingVars' )[ 'zone_tiles' ];
+		$zoneTiles = $this->invokeNonPublicMethod( $page, 'getLandingViewData' )[ 'zone_tiles' ];
 		$maintenance = \array_values( \array_filter(
 			$zoneTiles,
 			static fn( array $tile ) :bool => $tile[ 'key' ] === 'maintenance'

@@ -24,7 +24,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueRef
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueGroupsBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueLandingAssessmentBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultScopeStateBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\DetailExpansionType;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageActionsQueueLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
@@ -438,6 +437,12 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [], $renderData[ 'vars' ][ 'asset_cards' ] ?? [ 'unexpected' ], $context );
 	}
 
+	private function landingZoneTiles() :array {
+		$method = new \ReflectionMethod( PageActionsQueueLanding::class, 'getLandingViewData' );
+		$method->setAccessible( true );
+		return $method->invoke( new PageActionsQueueLanding() )[ 'zone_tiles' ];
+	}
+
 	private function findZoneTile( array $zoneTiles, string $key ) :array {
 		$matches = \array_values( \array_filter(
 			$zoneTiles,
@@ -449,7 +454,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	private function findScanAssessmentRow( array $landingPayload, string $key ) :array {
 		$vars = \is_array( $landingPayload[ 'render_data' ][ 'vars' ] ?? null ) ? $landingPayload[ 'render_data' ][ 'vars' ] : [];
-		$scans = $this->findZoneTile( \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [], 'scans' );
+		$scans = $this->findZoneTile( $this->landingZoneTiles(), 'scans' );
 		$matches = \array_values( \array_filter(
 			\is_array( $scans[ 'assessment_rows' ] ?? null ) ? $scans[ 'assessment_rows' ] : [],
 			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === $key
@@ -579,7 +584,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing baseline state' );
 			$renderData = $payload[ 'render_data' ] ?? [];
 			$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
-			$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
+			$zoneTiles = $this->landingZoneTiles();
 
 			$this->assertModeShellPayload( $vars, 'actions', 'actions', false );
 			$this->assertModePanelPayload( $vars, '', false );
@@ -608,7 +613,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance state' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
-		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
+		$zoneTiles = $this->landingZoneTiles();
 		$maintenance = $this->findZoneTile( $zoneTiles, 'maintenance' );
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
 
@@ -640,7 +645,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance ctas' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
-		$maintenance = $this->findZoneTile( \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [], 'maintenance' );
+		$maintenance = $this->findZoneTile( $this->landingZoneTiles(), 'maintenance' );
 		$itemsByKey = [];
 		foreach ( $maintenance[ 'items' ] ?? [] as $item ) {
 			$itemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
@@ -661,7 +666,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing inactive plugin links' );
 		$renderData = \is_array( $payload[ 'render_data' ] ?? null ) ? $payload[ 'render_data' ] : [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
-		$maintenance = $this->findZoneTile( \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [], 'maintenance' );
+		$maintenance = $this->findZoneTile( $this->landingZoneTiles(), 'maintenance' );
 		$itemsByKey = [];
 		foreach ( $maintenance[ 'items' ] ?? [] as $item ) {
 			$itemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
@@ -675,7 +680,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		) );
 
 		$this->assertCount( 1, $matchingRows );
-		$this->assertSame( DetailExpansionType::SIMPLE_TABLE, (string)( $itemsByKey[ 'wp_plugins_inactive' ][ 'expansion' ][ 'type' ] ?? '' ) );
 		$this->assertSame(
 			(string)( $matchingRows[ 0 ][ 'action' ][ 'label' ] ?? '' ),
 			(string)( $matchingRows[ 0 ][ 'action' ][ 'tooltip' ] ?? '' )
@@ -1223,9 +1227,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$baselinePayload = $this->renderActionsQueueLandingPage();
 		$this->assertRouteRenderOutputHealthy( $baselinePayload, 'actions queue landing asset scan checklist baseline' );
 		$baselineScans = $this->findZoneTile(
-			\is_array( $baselinePayload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ] ?? null )
-				? $baselinePayload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ]
-				: [],
+			$this->landingZoneTiles(),
 			'scans'
 		);
 		$baselineKeys = \array_column( $baselineScans[ 'assessment_rows' ] ?? [], 'key' );
@@ -1237,9 +1239,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$payload = $this->renderActionsQueueLandingPage();
 		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing asset scan checklist gated' );
 		$scans = $this->findZoneTile(
-			\is_array( $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ] ?? null )
-				? $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ]
-				: [],
+			$this->landingZoneTiles(),
 			'scans'
 		);
 		$assessmentKeys = \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' );
@@ -1828,7 +1828,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing disabled historical scan results' );
 		$vars = \is_array( $payload[ 'render_data' ][ 'vars' ] ?? null ) ? $payload[ 'render_data' ][ 'vars' ] : [];
 		$scans = $this->findZoneTile(
-			\is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [],
+			$this->landingZoneTiles(),
 			'scans'
 		);
 

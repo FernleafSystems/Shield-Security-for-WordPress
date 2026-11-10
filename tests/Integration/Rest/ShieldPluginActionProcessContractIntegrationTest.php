@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rest;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	DashboardLiveMonitorSetState,
 	FullPageDisplay\FullPageDisplayDynamic,
-	OperatorModeSwitch,
 	Render,
 	Render\Components\Reports\Components\ReportAreaChanges,
 	Render\Components\Scans\Results\Wordpress,
@@ -14,8 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	Render\FullPage\Report\SecurityReport,
 	TestRestFetchRequests
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\OperatorModePreference;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process\ShieldPluginAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
@@ -51,22 +50,18 @@ class ShieldPluginActionProcessContractIntegrationTest extends ShieldIntegration
 	}
 
 	public function test_process_rejects_unlisted_rest_action_without_mutating_state() :void {
-		$userID = \get_current_user_id();
-		\update_user_meta( $userID, OperatorModePreference::META_KEY_DEFAULT_MODE, PluginNavs::MODE_ACTIONS );
+		( new DashboardLiveMonitorPreference() )->setCollapsed( false );
 
 		$result = ( new ShieldPluginActionProcessTestDouble() )->processForTest( [
-			'ex'      => OperatorModeSwitch::SLUG,
+			'ex'      => DashboardLiveMonitorSetState::SLUG,
 			'payload' => [
-				'mode' => PluginNavs::MODE_REPORTS,
+				'is_collapsed' => true,
 			],
 		] );
 
 		$this->assertFalse( (bool)$result[ 'success' ] );
 		$this->assertFalse( (bool)( $result[ 'data' ][ 'success' ] ?? true ) );
-		$this->assertSame(
-			PluginNavs::MODE_ACTIONS,
-			\get_user_meta( $userID, OperatorModePreference::META_KEY_DEFAULT_MODE, true )
-		);
+		$this->assertFalse( ( new DashboardLiveMonitorPreference() )->isCollapsed() );
 	}
 
 	public function test_process_returns_failure_envelope_for_action_exception() :void {

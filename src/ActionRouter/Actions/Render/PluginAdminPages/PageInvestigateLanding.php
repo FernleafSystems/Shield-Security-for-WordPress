@@ -247,7 +247,6 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 				'key'    => 'subjects',
 				'body'   => '',
 				'header' => [
-					'compact_back_label' => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
 					'breadcrumb_label'   => __( 'Subjects', 'wp-simple-firewall' ),
 					'title'              => __( 'Subjects', 'wp-simple-firewall' ),
 					'summary'            => __( 'Choose a subject to investigate.', 'wp-simple-firewall' ),
@@ -459,8 +458,6 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	 */
 	private function buildSubjectHeader( array $subject ) :array {
 		return OperatorChromeContract::normalizeHeader( [
-			'compact_back_label' => $this->buildBackLabel( $subject[ 'label' ] ),
-			'active_back_label'  => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
 			'breadcrumb_label'   => $subject[ 'label' ],
 			'title'              => $subject[ 'label' ],
 			'summary'            => $subject[ 'context_summary' ],
@@ -478,8 +475,6 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	 */
 	private function buildIdlePanelHeader() :array {
 		return OperatorChromeContract::normalizeHeader( [
-			'compact_back_label' => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
-			'active_back_label'  => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
 			'breadcrumb_label'   => __( 'Investigation', 'wp-simple-firewall' ),
 			'title'              => __( 'Investigation', 'wp-simple-firewall' ),
 			'summary'            => __( 'Select a subject from the grid.', 'wp-simple-firewall' ),
@@ -552,12 +547,6 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		return __( 'Unable to load this investigation panel. Please try again.', 'wp-simple-firewall' );
 	}
 
-	private function buildBackLabel( string $label ) :string {
-		return sprintf(
-			__( 'Back to %s', 'wp-simple-firewall' ),
-			$label
-		);
-	}
 
 	private function getActiveSubject() :string {
 		if ( $this->activeSubjectCache === null ) {

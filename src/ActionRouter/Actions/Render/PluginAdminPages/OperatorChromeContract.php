@@ -48,8 +48,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   actions:list<OperatorChromeAction>
  * }
  * @phpstan-type DrillLayerHeaderInput array{
- *   compact_back_label?:string,
- *   active_back_label?:string,
  *   breadcrumb_label?:string,
  *   title?:string,
  *   meta?:string,
@@ -63,8 +61,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   actions?:list<OperatorChromeActionInput>
  * }
  * @phpstan-type DrillLayerHeader array{
- *   compact_back_label:string,
- *   active_back_label:string,
  *   breadcrumb_label:string,
  *   title:string,
  *   meta:string,
@@ -141,9 +137,7 @@ final class OperatorChromeContract {
 	public static function normalizeHeader( array $header ) :array {
 		return \array_merge(
 			[
-				'compact_back_label' => self::normalizeText( $header[ 'compact_back_label' ] ?? '' ),
-				'active_back_label'  => self::normalizeText( $header[ 'active_back_label' ] ?? '' ),
-				'meta'               => self::normalizeText( $header[ 'meta' ] ?? '' ),
+				'meta' => self::normalizeText( $header[ 'meta' ] ?? '' ),
 			],
 			self::normalizeStep( [
 				'breadcrumb_label' => $header[ 'breadcrumb_label' ] ?? '',

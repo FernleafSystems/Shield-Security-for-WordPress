@@ -38,7 +38,6 @@
             "options.php"
         ]
     },
-    "max_free_days": 7,
     "action_hook_priority": 1000,
     "dashboard_intro_video_url_v22": "",
     "url_spam_blacklist_terms": "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
@@ -163,11 +162,6 @@
             "#'\\s+OR\\s+'([a-z0-9]+)'\\s*=\\s*'\\1'\\s+(--|\\(\\{|\\/\\*)\\s+#"
         ]
     },
-    "all_scan_slugs": [
-        "apc",
-        "wpv",
-        "afs"
-    ],
     "file_scan_extensions": [
         "php",
         "php5",
@@ -258,10 +252,7 @@
     "keyless_cp": "https://clk.shldscrty.com/c5",
     "lic_verify_expire_days": 14,
     "lic_verify_expire_grace_days": 3,
-    "keyless": true,
-    "keyless_handshake_expire": 90,
     "login_intent_timeout": 5,
     "login_intent_max_attempts": 5,
-    "href_privacy_policy": "https://clk.shldscrty.com/wpshieldprivacypolicy",
     "pwned_api_url_password_range": "https://api.pwnedpasswords.com/range"
 }

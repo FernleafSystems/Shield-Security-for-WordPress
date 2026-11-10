@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 
@@ -41,7 +40,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
  *   is_interactive:bool,
  *   is_pro_upsell:bool,
  *   enable_dialog_json:string,
- *   render_action_class:class-string<BaseRender>|null,
  *   render_action_data:array<string,mixed>,
  *   maintenance_rows:list<CompactSummaryRow>,
  *   ignored_rows:list<CompactSummaryRow>,
@@ -98,24 +96,6 @@ class ActionsQueueGroupsBuilder {
 		$computed = $this->compute( $bucketKey, $attentionQuery, $assessmentRowsByZone );
 		return $computed[ 'groups_indexed' ][ $groupKey ]
 			?? $this->contractBuilder()->buildEmptyGroup( $groupKey, $computed[ 'layer' ][ 'bucket_selection' ][ 'label' ] );
-	}
-
-	/**
-	 * @param AttentionQuery $attentionQuery
-	 * @param AssessmentRowsByZone $assessmentRowsByZone
-	 * @return array{
-	 *   layer:GroupsLayerData,
-	 *   selected_group:GroupData
-	 * }
-	 */
-	public function buildWithSelectedGroup( string $bucketKey, string $groupKey, array $attentionQuery, array $assessmentRowsByZone ) :array {
-		$computed = $this->compute( $bucketKey, $attentionQuery, $assessmentRowsByZone );
-
-		return [
-			'layer'          => $computed[ 'layer' ],
-			'selected_group' => $computed[ 'groups_indexed' ][ $groupKey ]
-				?? $this->contractBuilder()->buildEmptyGroup( $groupKey, $computed[ 'layer' ][ 'bucket_selection' ][ 'label' ] ),
-		];
 	}
 
 	/**

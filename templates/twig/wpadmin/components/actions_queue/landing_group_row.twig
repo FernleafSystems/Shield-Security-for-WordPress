@@ -22,7 +22,7 @@
 	{% set group_rows = is_passing ? [] : ( group.maintenance_rows is not empty ? group.maintenance_rows : ( group.summary_row is not empty ? [ group.summary_row ] : [] ) ) %}
 	{# With everything ignored there's nothing to fold: the group shows faded, its items behind "N ignored". #}
 	{% set is_all_ignored = group_rows is empty and ignored_rows is not empty %}
-	{% set is_collapsible = collapsible|default(false) and not is_all_ignored %}
+	{% set is_collapsible = collapsible and not is_all_ignored %}
 	{# The heading counts what still needs doing; ignored rows listed among them are counted apart. #}
 	{% set ignored_in_rows = group_rows|filter( r => r.is_ignored )|length %}
 	{% set body_id = 'AqGroupBody-' ~ random() %}
