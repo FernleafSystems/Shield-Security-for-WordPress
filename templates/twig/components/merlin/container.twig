@@ -16,8 +16,7 @@
 						{# Custom stepper #}
 						<div class="stepper">
 							{% for step in content.steps %}
-							<div class="stepper-step {{ loop.first ? 'current' : 'future' }}"
-								 data-step-index="{{ loop.index0 }}">
+							<div class="stepper-step {{ loop.first ? 'current' : 'future' }}">
 								<div class="stepper-circle">
 									<span class="step-number">{{ loop.index }}</span>
 									<i class="bi bi-check-lg step-check d-none"></i>
@@ -33,8 +32,7 @@
 							<div class="wizard-card-body">
 								{% for step in content.steps %}
 								<div class="wizard-step-pane {{ loop.first ? '' : 'd-none' }}"
-									 id="step-{{ step.step_slug }}"
-									 data-step-index="{{ loop.index0 }}">
+									 id="step-{{ step.step_slug }}">
 									{{ step.step_body|raw }}
 								</div>
 								{% endfor %}

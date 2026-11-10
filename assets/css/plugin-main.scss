@@ -268,15 +268,6 @@ th.column-is_secadmin {
 
 /** End Sessions Table **/
 /** TABLES SCANS **/
-@media (max-width: 782px) {
-  table.scan-table.wp-list-table tr:not(.inline-edit-row):not(.no-items) td.column-primary ~ td:not(.check-column) {
-    display: block;
-  }
-}
-
-table.scan-table.wp-list-table button.toggle-row {
-  display: none;
-}
 
 ul.nav.nav-tabs.shield_body-sub-nav {
   border-bottom: transparent !important;
@@ -308,19 +299,7 @@ ul.nav.nav-tabs.shield_body-sub-nav a.nav-link.active {
   box-shadow: none;
 }
 
-.card.card-scan_results {
-  background-color: transparent;
-  border: 0 none;
-}
-
-.card.card-scan_results .card-header {
-  background-color: transparent;
-  border: 0 none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-#TableSessions .tablenav.bottom,
-.container-scantable .tablenav.bottom {
+#TableSessions .tablenav.bottom {
   display: none;
 }
 
@@ -385,10 +364,6 @@ ul.nav.nav-tabs.shield_body-sub-nav a.nav-link.active {
   border-color: #008000;
 }
 
-input:checked + .icwp-slider {
-  background-color: #008000;
-}
-
 dd, li {
   margin-bottom: 0;
 }
@@ -424,7 +399,6 @@ a[target="_blank"]:not(.shield-footer-version):not(.option_link_info):not(.card-
   display: none;
 }
 
-.force-cursor-pointer,
 .beacon-article,
 .section_title_info {
   cursor: pointer;
@@ -485,21 +459,13 @@ a[target="_blank"]:not(.shield-footer-version):not(.option_link_info):not(.card-
   }
 }
 
-.form-check .form-check-input:checked,
-.form-check .form-check-input:checked,
-.option-checkbox.custom-switch .form-check-input:checked {
+.form-check .form-check-input:checked {
   background-color: rgba(69, 119, 0, 1) !important;
   border-color: rgba(69, 119, 0, 1) !important;
 }
 
-.form-check .form-check-input:checked::before,
-.form-check .form-check-input:checked::before,
-.option-checkbox.custom-switch .form-check-input:checked::before {
+.form-check .form-check-input:checked::before {
   content: none;
-}
-
-.form-check .custom-control-input:disabled {
-  opacity: 0;
 }
 
 #PageContainer-Apto .overview.card {
@@ -829,8 +795,7 @@ body:has(.shield-setup-guide:not([hidden])) {
   -webkit-user-select: none;
 }
 
-.scan-item-malaiquery ul,
-.scan-item-history ul {
+.scan-item-malaiquery ul {
   list-style: inside disc;
 }
 
@@ -989,7 +954,6 @@ td.status_file_size {
   box-shadow: -8px 0 20px rgba(15, 23, 42, 0.09);
 }
 
-#AptoOffcanvas.offcanvas_modconfig,
 #AptoOffcanvas.offcanvas_zone_component_config {
   width: 50%;
 }

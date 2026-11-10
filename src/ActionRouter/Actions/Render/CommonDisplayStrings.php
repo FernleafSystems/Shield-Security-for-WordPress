@@ -35,7 +35,6 @@ class CommonDisplayStrings {
 			'never_label'             => __( 'Never', 'wp-simple-firewall' ),
 			'version_label'           => __( 'Version', 'wp-simple-firewall' ),
 			'username'                => __( 'Username', 'wp-simple-firewall' ),
-			'username_label'          => __( 'Username', 'wp-simple-firewall' ),
 			'user_sessions_label'     => __( 'User Sessions', 'wp-simple-firewall' ),
 			'web_request_log_label'   => __( 'Web Request Log', 'wp-simple-firewall' ),
 			'view_report_label'       => __( 'View Report', 'wp-simple-firewall' ),
@@ -44,7 +43,6 @@ class CommonDisplayStrings {
 			'user_label'              => __( 'User', 'wp-simple-firewall' ),
 			'request_path_label'      => __( 'Request Path', 'wp-simple-firewall' ),
 			'timestamp_label'         => __( 'Timestamp', 'wp-simple-firewall' ),
-			'warning_label'           => __( 'Warning', 'wp-simple-firewall' ),
 			'url_label'               => __( 'URL', 'wp-simple-firewall' ),
 		];
 	}

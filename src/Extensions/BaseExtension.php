@@ -19,11 +19,6 @@ abstract class BaseExtension {
 	private ExtensionConfigVO $cfg;
 
 	/**
-	 * @var UpgradeHandlersBase
-	 */
-	protected $upgradesHandler;
-
-	/**
 	 * @throws \Exception
 	 */
 	public function __construct( string $file, array $cfg ) {

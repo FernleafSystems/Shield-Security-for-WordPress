@@ -10,8 +10,6 @@ abstract class BaseCmd {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	protected $execCmdFlags;
-
 	protected $execCmdArgs;
 
 	/**
@@ -60,7 +58,6 @@ abstract class BaseCmd {
 	 * @throws \Exception
 	 */
 	public function execCmd( array $flags, array $args ) :void {
-		$this->execCmdFlags = $flags;
 		$this->execCmdArgs = $args;
 		$this->preRunCmd();
 		$this->runCmd();

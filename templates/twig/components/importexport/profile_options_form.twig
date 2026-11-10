@@ -11,7 +11,7 @@
 	>
 		<input type="hidden" name="all_opts_keys" value="{{ vars.all_opts_keys|join(',') }}" />
 
-		<div class="import-export-profile-options" data-import-export-profile-options="1">
+		<div class="import-export-profile-options">
 			<div class="import-export-profile-options__toolbar">
 				<div class="import-export-profile-options__heading">
 					<h4 class="h6">{{ strings.sync_profile_settings_title }}</h4>
@@ -45,8 +45,7 @@
 				 hidden>{{ strings.profile_empty_search }}</div>
 
 			<div id="ImportExportProfileGroups-{{ unique_render_id }}"
-				 class="accordion import-export-profile-options__groups"
-				 data-import-export-profile-groups="1">
+				 class="accordion import-export-profile-options__groups">
 				{% for group in vars.groups %}
 					<section class="accordion-item import-export-profile-group"
 							 data-import-export-profile-group="1"
@@ -91,7 +90,6 @@
 
 						<div id="ImportExportProfileGroup-{{ unique_render_id }}-{{ group.slug }}"
 							 class="accordion-collapse collapse import-export-profile-group__body"
-							 data-import-export-profile-group-body="1"
 							 aria-labelledby="ImportExportProfileGroupHeader-{{ unique_render_id }}-{{ group.slug }}">
 							{% for section in group.sections %}
 								<section class="import-export-profile-section"

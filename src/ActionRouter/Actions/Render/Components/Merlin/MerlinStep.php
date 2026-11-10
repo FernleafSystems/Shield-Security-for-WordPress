@@ -63,7 +63,6 @@ class MerlinStep extends BaseRender {
 		return [
 			'hrefs'   => [
 				'dashboard' => self::con()->plugin_urls->adminHome(),
-				'gopro'     => 'https://clk.shldscrty.com/ap',
 			],
 			'strings' => $strings,
 		];

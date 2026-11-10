@@ -24,16 +24,7 @@ class ShieldPluginAction extends Base {
 				->action( $actionSlug, $payload, ActionRoutingController::ACTION_REST );
 			$data = $routed->payload();
 		}
-//		catch ( ActionDoesNotExistException $e ) {
-//		}
-//		catch ( ActionTypeDoesNotExistException $e ) {
-//		}
-//		catch ( InvalidActionNonceException $e ) {
-//		}
-//		catch ( SecurityAdminRequiredException $e ) {
-//		}
 		catch ( Exceptions\ActionException $e ) {
-//			error_log( $e->getMessage() );
 			$data = [
 				'success' => false,
 			];

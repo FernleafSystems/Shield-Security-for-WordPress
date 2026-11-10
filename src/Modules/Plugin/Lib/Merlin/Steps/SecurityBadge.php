@@ -21,14 +21,12 @@ class SecurityBadge extends Base {
 				'step_title' => __( "Show Your Visitors That You Take Security Seriously!", 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'security_badge_mode'    => $mode,
 				'security_badge_options' => \array_map(
 					static fn( array $option ) :array => \array_merge( $option, [
 						'selected' => $option[ 'value_key' ] === $mode,
 					] ),
 					PluginBadgeMode::selectOptions()
 				),
-				'video_id'               => '552430272',
 			],
 		];
 	}

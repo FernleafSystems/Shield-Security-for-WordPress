@@ -5,7 +5,6 @@ import { ProviderYubikey } from "./ProviderYubikey";
 import { ProviderGA } from "./ProviderGA";
 import { ProviderBackupCodes } from "./ProviderBackupCodes";
 import { ProviderPasskeys } from "./ProviderPasskeys";
-import { ProviderSMS } from "./ProviderSMS";
 
 export class MfaUserProfileRender extends BaseComponent {
 
@@ -53,9 +52,6 @@ export class MfaUserProfileRender extends BaseComponent {
 		}
 		if ( 'passkey' in providers ) {
 			this.providers[ 'passkey' ] = new ProviderPasskeys( providers.passkey, this );
-		}
-		if ( 'sms' in providers ) {
-			this.providers[ 'sms' ] = new ProviderSMS( providers.sms, this );
 		}
 	}
 }

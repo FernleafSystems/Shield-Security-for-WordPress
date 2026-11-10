@@ -12,7 +12,7 @@ class PrivacyPolicy {
 	use ExecOnce;
 
 	protected function canRun() :bool {
-		return !empty( self::con()->modules_loaded ) && \function_exists( 'wp_add_privacy_policy_content' );
+		return !empty( self::con()->modules_loaded );
 	}
 
 	protected function run() {

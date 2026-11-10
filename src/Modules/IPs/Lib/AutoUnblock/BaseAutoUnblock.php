@@ -87,7 +87,6 @@ abstract class BaseAutoUnblock {
 			error_log( 'Error updating bot signal with column problem: '.$e->getMessage() );
 		}
 		catch ( \Exception $e ) {
-//					error_log( 'Error updating bot signal: '.$e->getMessage() );
 		}
 
 		$unblocked = self::con()->db_con->ip_rules->getQueryUpdater()->updateById( $record->id, [

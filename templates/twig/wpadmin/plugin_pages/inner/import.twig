@@ -3,7 +3,7 @@
 {% block inner_page_body %}
 
 	{% if flags.can_importexport %}
-		<div class="import-export-page" data-import-export-page="1">
+		<div class="import-export-page">
 			{% if flags.has_network_invite_review %}
 				{% include '/wpadmin_pages/insights/importexport/network_invite_review.twig' with {
 					network_invite_review: vars.network_invite_review
@@ -18,7 +18,6 @@
 									data-bs-toggle="tab"
 									data-bs-target="#{{ tab.panel_id }}"
 									data-import-export-tab="{{ tab.key }}"
-									data-import-export-tab-available="{{ tab.is_available ? '1' : '0' }}"
 									role="tab"
 									aria-controls="{{ tab.panel_id }}"
 									aria-selected="{{ tab.is_active ? 'true' : 'false' }}">

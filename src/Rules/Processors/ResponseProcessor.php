@@ -59,7 +59,6 @@ class ResponseProcessor {
 				error_log( $e->getMessage() );
 			}
 			catch ( ParametersException|\Exception $e ) {
-//				error_log( $e->getMessage() );
 			}
 		}
 		foreach ( $nonTerminating as $response ) {

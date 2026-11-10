@@ -246,10 +246,6 @@ class PluginURLs {
 		] );
 	}
 
-	public function investigateByCore() :string {
-		return $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_CORE );
-	}
-
 	public function trafficLog() :string {
 		return $this->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS );
 	}

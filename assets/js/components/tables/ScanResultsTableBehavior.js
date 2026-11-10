@@ -338,7 +338,7 @@ export function syncScanResultsSelectionButtons( datatable ) {
 	}
 }
 
-export function getScanResultsSelectionState( datatable ) {
+function getScanResultsSelectionState( datatable ) {
 	const state = {
 		hasSelections: false,
 		hasActiveSelections: false,

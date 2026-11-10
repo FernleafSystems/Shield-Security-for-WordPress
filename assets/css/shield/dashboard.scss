@@ -46,14 +46,6 @@
 }
 
 // ------------------------------------
-// Reusable: .shield-stack (default vertical stack)
-// ------------------------------------
-.shield-stack {
-	display: grid;
-	gap: 1rem;
-}
-
-// ------------------------------------
 
 .shield-mode-strip__eyebrow {
 	color: #646970;
@@ -921,12 +913,6 @@
 	font-weight: 700;
 	line-height: 1.1;
 	margin-bottom: 6px;
-
-	&.count-good { color: $status-color-good; }
-	&.count-warning { color: $status-color-warning; }
-	&.count-critical { color: $status-color-critical; }
-	&.count-info { color: $status-color-info; }
-	&.count-disabled { color: #adb5bd; }
 }
 
 // ─── Launchpad: top queue groups and one way into the Actions Queue ───

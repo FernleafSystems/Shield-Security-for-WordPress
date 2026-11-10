@@ -13,12 +13,6 @@ class RulesManager extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 		$records = new RuleRecords();
 		$records->deleteOldDrafts();
 		return [
-			'flags'   => [
-			],
-			'strings' => [
-				'set_to_export' => __( 'Allow Export', 'wp-simple-firewall' ),
-				'set_no_export' => __( 'Prevent Export', 'wp-simple-firewall' ),
-			],
 		];
 	}
 }

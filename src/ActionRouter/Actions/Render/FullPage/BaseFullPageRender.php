@@ -30,7 +30,6 @@ abstract class BaseFullPageRender extends BaseRender {
 			],
 			'hrefs'   => [
 				'how_to_unblock' => 'https://clk.shldscrty.com/shieldhowtounblock',
-				'helpdesk'       => 'https://clk.shldscrty.com/shieldhelpdesk'
 			],
 			'imgs'    => [
 				'about_shield' => $con->urls->forImage( 'pluginlogo_128x128.png' ),
@@ -41,10 +40,7 @@ abstract class BaseFullPageRender extends BaseRender {
 					'megaphone'       => $con->svgs->iconClass( 'megaphone.svg' ),
 				],
 			],
-			'strings' => [
-			],
 			'vars'    => [
-				'visitor_ip' => $con->this_req->ip,
 				'home_url'   => $WP->getHomeUrl(),
 			],
 		];

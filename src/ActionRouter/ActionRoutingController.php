@@ -57,15 +57,12 @@ class ActionRoutingController {
 			$output = $payload[ 'render_output' ] ?? '';
 		}
 		catch ( Exceptions\SecurityAdminRequiredException $e ) {
-//			error_log( 'render::SecurityAdminRequiredException: '.$classOrSlug );
 			$output = self::con()->action_router->render( PageSecurityAdminRestricted::class );
 		}
 		catch ( Exceptions\UserAuthRequiredException $uare ) {
-//			error_log( 'render::UserAuthRequiredException: '.$classOrSlug );
 			$output = '';
 		}
 		catch ( Exceptions\ActionException $e ) {
-//			error_log( 'render::ActionException: '.$classOrSlug.' '.$e->getMessage() );
 			$output = $e->getMessage();
 		}
 

@@ -89,7 +89,7 @@
 		 data-mode-shell="1"
 		 data-mode="actions_queue_assets"
 		 data-mode-interactive="1">
-		<div class="investigate-landing__subject-grid actions-queue-asset-cards__grid" data-mode-tiles="1">
+		<div class="investigate-landing__subject-grid actions-queue-asset-cards__grid">
 			{% for item in vars.asset_cards %}
 				<button type="button"
 						class="investigate-landing__subject-card actions-queue-asset-card operator-card-surface operator-tile-card status-{{ item.status }}{% if item.is_inactive %} is-inactive{% endif %}"
@@ -110,7 +110,6 @@
 		</div>
 
 		<div class="actions-queue-asset-cards__hint"
-			 data-actions-queue-asset-hint="1"
 			 data-mode-landing-hint="1"
 			 aria-hidden="false">
 			<i class="bi bi-arrow-up investigate-landing__hint-icon" aria-hidden="true"></i>

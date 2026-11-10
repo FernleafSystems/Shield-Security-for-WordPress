@@ -110,12 +110,11 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				}
 			},
 			'service_wpplugins' => new MaintenancePluginsService( [
-				'updates'       => [],
-				'plugins'       => [],
-				'active'        => [],
-				'plugin_vos'    => [],
-				'activate_urls' => [],
-				'upgrade_urls'  => [],
+				'updates'      => [],
+				'plugins'      => [],
+				'active'       => [],
+				'plugin_vos'   => [],
+				'upgrade_urls' => [],
 			] ),
 		] );
 	}

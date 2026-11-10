@@ -80,7 +80,6 @@ class ScansFileLockerDiff extends BaseScans {
 					'file_content_original' => __( 'Original File Content', 'wp-simple-firewall' ),
 					'file_content_current'  => __( 'Current File Content', 'wp-simple-firewall' ),
 					'file_download'         => __( 'File Download', 'wp-simple-firewall' ),
-					'file_info'             => __( 'File Info', 'wp-simple-firewall' ),
 					'file_accept'           => __( 'Accept File Changes', 'wp-simple-firewall' ),
 					'file_accept_checkbox'  => __( 'Are you sure you want to keep the file changes?', 'wp-simple-firewall' ),
 					'file_restore'          => __( 'Restore Original File', 'wp-simple-firewall' ),

@@ -684,8 +684,7 @@ $aq-pro-bg: #f2ebfc;
 // results is itself the control, so its button brightens with the row. The icon carries the colour: the
 // row's status, Pro's purple, or green to turn something on. Ignore, below, is the quieter kind.
 .actions-queue-row__action,
-.actions-queue-row__button,
-.actions-queue-row__link {
+.actions-queue-row__button {
 	align-items: center;
 	background: #ffffff;
 	border: 1px solid #8c8f94;

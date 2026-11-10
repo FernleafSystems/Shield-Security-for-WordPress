@@ -2,8 +2,7 @@
 	One maintenance item, or one passing check, as a flat row: what it is, a line of detail, and its
 	actions written out ("Manage Users", "Ignore") rather than as bare icons.
 #}
-<div class="actions-queue-row actions-queue-row--item{% if is_passing %} actions-queue-row--good{% endif %}{% if row.is_ignored %} is-ignored{% endif %}"
-	 {% if row.is_ignored %}data-actions-queue-maintenance-ignored="1"{% endif %}>
+<div class="actions-queue-row actions-queue-row--item{% if is_passing %} actions-queue-row--good{% endif %}{% if row.is_ignored %} is-ignored{% endif %}">
 	<span class="actions-queue-row__icon">
 		<i class="{{ is_passing ? 'bi bi-check-lg' : ( row.icon_class is not empty ? row.icon_class : 'bi bi-dot' ) }}" aria-hidden="true"></i>
 	</span>

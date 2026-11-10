@@ -17,10 +17,6 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 
 	public const SLUG = 'plugin_admin_page_handler';
 
-	protected $pageHookSuffix;
-
-	protected $screenID;
-
 	protected function exec() {
 		if ( !Services::WpGeneral()->isAjax()
 		     && apply_filters( 'shield/show_admin_menu', self::con()->cfg->menu[ 'show' ] ?? true ) ) {
@@ -61,7 +57,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 
 		if ( $menu[ 'top_level' ] ) {
 
-			$this->pageHookSuffix = add_menu_page(
+			add_menu_page(
 				$con->labels->Name,
 				$con->labels->MenuTitle,
 				$con->cfg->properties[ 'base_permissions' ],

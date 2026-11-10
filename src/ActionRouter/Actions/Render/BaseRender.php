@@ -141,7 +141,6 @@ abstract class BaseRender extends BaseAction {
 				'is_ip_whitelisted' => $ipStatus->isBypass(),
 				'is_ip_blocked'     => $ipStatus->isBlocked(),
 				'is_mode_live'      => $con->is_mode_live,
-				'is_premium'        => $con->isPremiumActive(),
 				'is_security_admin' => $con->isPluginAdmin(),
 			],
 			'head'             => [
@@ -176,11 +175,10 @@ abstract class BaseRender extends BaseAction {
 			'hrefs'            => [
 				'ajax' => $WP->ajaxURL(),
 
-				'aar_forget_key' => $con->labels->url_secadmin_forgotten_key,
-				'plugin_home'    => $con->labels->PluginURI,
-				'go_pro'         => self::GO_PRO_URL,
+				'aar_forget_key'   => $con->labels->url_secadmin_forgotten_key,
+				'plugin_home'      => $con->labels->PluginURI,
+				'go_pro'           => self::GO_PRO_URL,
 				'compare_features' => self::COMPARE_FEATURES_URL,
-				'goprofooter'    => 'https://clk.shldscrty.com/goprofooter',
 
 				'dashboard_home' => $con->plugin_urls->adminHome(),
 				'form_action'    => Services::Request()->getUri(),
@@ -207,7 +205,6 @@ abstract class BaseRender extends BaseAction {
 				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),
 			],
 			'content'          => [
-				'options_form' => '',
 				'alt'          => '',
 				'actions'      => '',
 				'help'         => '',

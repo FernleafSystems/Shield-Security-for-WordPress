@@ -18,7 +18,7 @@
 		 data-{{ data_key|e('html_attr') }}="{{ data_value|e('html_attr') }}"
 		 {% endfor %}
 		 aria-hidden="{{ panel_is_open ? 'false' : 'true' }}">
-	<div class="shield-card-accent status-{{ panel_status }}" data-mode-panel-accent="1"></div>
+	<div class="shield-card-accent status-{{ panel_status }}"></div>
 	<div class="card-body">
 		<div class="d-flex justify-content-between align-items-center mb-2">
 			<div class="d-flex align-items-center gap-2">

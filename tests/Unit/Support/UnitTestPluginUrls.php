@@ -77,10 +77,6 @@ class UnitTestPluginUrls {
 		return empty( $lookup ) ? '/admin/activity/by_user' : '/admin/activity/by_user?user_lookup='.$lookup;
 	}
 
-	public function investigateByCore() :string {
-		return '/admin/activity/by_core';
-	}
-
 	public function ipAnalysis( string $ip ) :string {
 		return '/admin/ips/rules?analyse_ip='.$ip;
 	}

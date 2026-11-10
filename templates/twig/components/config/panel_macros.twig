@@ -43,7 +43,7 @@
 		</div>
 	</div>
 	{% if item.children is not empty %}
-		<div class="shield-panel-children" data-panel-children-of="{{ option.key }}">
+		<div class="shield-panel-children">
 			{% for child in item.children %}
 				{{ panel.item( child, strings, hrefs ) }}
 			{% endfor %}

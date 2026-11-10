@@ -14,18 +14,11 @@ class ThankYou extends Base {
 		$con = self::con();
 		return [
 			'hrefs'   => [
-				'facebook'  => 'https://clk.shldscrty.com/pluginshieldsecuritygroupfb',
-				'twitter'   => 'https://clk.shldscrty.com/pluginshieldsecuritytwitter',
 				'email'     => 'https://clk.shldscrty.com/pluginshieldsecuritynewsletter',
 				'dashboard' => $con->plugin_urls->adminHome(),
 			],
 			'imgs'    => [
-				'facebook' => $con->svgs->iconClass( 'facebook.svg' ),
-				'twitter'  => $con->svgs->iconClass( 'twitter.svg' ),
-				'email'    => $con->svgs->iconClass( 'envelope-fill.svg' ),
-			],
-			'vars'    => [
-				'video_id' => '269364269',
+				'email' => $con->svgs->iconClass( 'envelope-fill.svg' ),
 			],
 			'strings' => [
 				'step_title'          => sprintf( __( 'Thank You For Choosing %s', 'wp-simple-firewall' ), $con->labels->Name ),

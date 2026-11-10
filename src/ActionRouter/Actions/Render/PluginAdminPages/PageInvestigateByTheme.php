@@ -75,10 +75,6 @@ class PageInvestigateByTheme extends BaseInvestigateByAssetSubject {
 		return 'theme';
 	}
 
-	protected function getSubjectAvatarIcon() :string {
-		return 'palette-fill';
-	}
-
 	protected function getAssetIdentifierLabel() :string {
 		return __( 'Stylesheet', 'wp-simple-firewall' );
 	}

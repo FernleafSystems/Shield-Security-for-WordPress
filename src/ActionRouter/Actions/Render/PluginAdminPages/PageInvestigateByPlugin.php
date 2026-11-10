@@ -75,10 +75,6 @@ class PageInvestigateByPlugin extends BaseInvestigateByAssetSubject {
 		return 'plugin';
 	}
 
-	protected function getSubjectAvatarIcon() :string {
-		return 'puzzle-fill';
-	}
-
 	protected function getAssetIdentifierLabel() :string {
 		return __( 'File', 'wp-simple-firewall' );
 	}
