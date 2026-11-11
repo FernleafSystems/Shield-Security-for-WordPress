@@ -20,7 +20,7 @@ class ImportExportNetworkInviteReject extends BaseAction {
 	}
 
 	protected function exec() {
-		$form = $this->formData();
+		$form = $this->formParams();
 		( new NetworkInviteRepository() )->reject( (string)( $form[ 'invite_id' ] ?? '' ) );
 
 		$this->response()->setPayload( [
@@ -28,11 +28,6 @@ class ImportExportNetworkInviteReject extends BaseAction {
 			'page_reload'  => true,
 			'redirect_url' => $this->importExportUrl(),
 		] )->setPayloadSuccess( true );
-	}
-
-	private function formData() :array {
-		$form = $this->action_data[ 'form_params' ] ?? [];
-		return \is_array( $form ) ? $form : [];
 	}
 
 	private function importExportUrl() :string {

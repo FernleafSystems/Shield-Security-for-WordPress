@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	ActionExecutor,
 	Actions\DashboardLiveMonitorSetState,
 	Actions\SecurityAdminAuthClear,
 	CaptureAjaxAction,
@@ -16,7 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 /**
  * A request refused at an entry point for a bad nonce doesn't echo back the action or its request data.
  */
-class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCase {
+class EntryPointNonceFailureIntegrationTest extends ShieldIntegrationTestCase {
 
 	use ActionRequestNonceFixture;
 
@@ -53,7 +52,7 @@ class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCas
 
 		$filter = static function () {
 			return static function ( $message, $title = '', $args = [] ) :void {
-				throw new ActionExecutorNonceFailureWpDieException(
+				throw new EntryPointNonceFailureWpDieException(
 					\is_array( $args ) ? $args : []
 				);
 			};
@@ -61,15 +60,15 @@ class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCas
 		\add_filter( 'wp_die_handler', $filter );
 
 		try {
-			$capture = new ActionExecutorNonceFailurePluginCaptureTestDouble();
+			$capture = new EntryPointNonceFailurePluginCaptureTestDouble();
 			$this->assertTrue( $capture->canRunForTest() );
 			$capture->runForTest();
 			$this->fail( 'Expected wp_die() for invalid non-AJAX nonce.' );
 		}
-		catch ( ActionExecutorNonceFailureWpDieException $e ) {
+		catch ( EntryPointNonceFailureWpDieException $e ) {
 			$args = $e->args();
-			$this->assertSame( ActionExecutor::WP_DIE_INVALID_NONCE_CODE, $args[ 'code' ] ?? '' );
-			$this->assertSame( ActionExecutor::WP_DIE_INVALID_NONCE_STATUS, $args[ 'response' ] ?? 0 );
+			$this->assertSame( CapturePluginAction::WP_DIE_INVALID_NONCE_CODE, $args[ 'code' ] ?? '' );
+			$this->assertSame( CapturePluginAction::WP_DIE_INVALID_NONCE_STATUS, $args[ 'response' ] ?? 0 );
 			$this->assertArrayNotHasKey( 'action_data', $args );
 			$this->assertArrayNotHasKey( ActionData::FIELD_NONCE, $args );
 			$this->assertStringNotContainsString( 'nonce-leak-marker', (string)\wp_json_encode( $args ) );
@@ -86,7 +85,7 @@ class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCas
 		$request[ ActionData::FIELD_NONCE ] = 'invalid_nonce';
 		$this->applyCurrentShieldAjaxRequest( $request, true );
 
-		$capture = new ActionExecutorNonceFailureAjaxCaptureTestDouble();
+		$capture = new EntryPointNonceFailureAjaxCaptureTestDouble();
 		$this->assertTrue( $capture->canRunForTest() );
 		$payload = $capture->buildIssuePayloadForTest();
 
@@ -97,7 +96,7 @@ class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCas
 	}
 }
 
-class ActionExecutorNonceFailurePluginCaptureTestDouble extends CapturePluginAction {
+class EntryPointNonceFailurePluginCaptureTestDouble extends CapturePluginAction {
 
 	public function canRunForTest() :bool {
 		return $this->canRun();
@@ -108,7 +107,7 @@ class ActionExecutorNonceFailurePluginCaptureTestDouble extends CapturePluginAct
 	}
 }
 
-class ActionExecutorNonceFailureAjaxCaptureTestDouble extends CaptureAjaxAction {
+class EntryPointNonceFailureAjaxCaptureTestDouble extends CaptureAjaxAction {
 
 	public function canRunForTest() :bool {
 		return $this->canRun();
@@ -119,7 +118,7 @@ class ActionExecutorNonceFailureAjaxCaptureTestDouble extends CaptureAjaxAction 
 	}
 }
 
-class ActionExecutorNonceFailureWpDieException extends \RuntimeException {
+class EntryPointNonceFailureWpDieException extends \RuntimeException {
 
 	private array $args;
 

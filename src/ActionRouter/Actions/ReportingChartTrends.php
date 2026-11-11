@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\
 	ChartRequestVO
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\UiPreferences;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class ReportingChartTrends extends BaseAction {
 
@@ -22,7 +21,7 @@ class ReportingChartTrends extends BaseAction {
 
 	protected function exec() {
 		try {
-			$request = ( new ChartRequestVO() )->applyFromArray( FormParams::Retrieve() );
+			$request = ( new ChartRequestVO() )->applyFromArray( $this->formParams() );
 			$chart = ( new BuildChartData() )->build( $request );
 			// The page opens on the chart last drawn.
 			( new UiPreferences() )->setReportsTrends( $request->period_key, $request->event_keys );

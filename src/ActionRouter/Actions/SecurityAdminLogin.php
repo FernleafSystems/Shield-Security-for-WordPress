@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAd
 	ToggleSecAdminStatus,
 	VerifyPinRequest
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class SecurityAdminLogin extends SecurityAdminBase {
 
@@ -32,7 +31,7 @@ class SecurityAdminLogin extends SecurityAdminBase {
 		else {
 			$pin = $this->action_data[ 'sec_admin_key' ] ?? '';
 			if ( empty( $pin ) ) {
-				$pin = FormParams::Retrieve()[ 'sec_admin_key' ] ?? '';
+				$pin = $this->formParams()[ 'sec_admin_key' ] ?? '';
 			}
 			$success = ( new VerifyPinRequest() )->run( $pin );
 

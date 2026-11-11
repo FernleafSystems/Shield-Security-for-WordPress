@@ -23,7 +23,7 @@ class IpAutoUnblockShieldUserLinkRequest extends BaseAction {
 		$unBlocker = new AutoUnblockMagicLink();
 		if ( $unBlocker->canRunAutoUnblockProcess() ) {
 			try {
-				$unBlocker->processEmailSend();
+				$unBlocker->processEmailSend( (string)( $this->action_data[ 'ip' ] ?? '' ) );
 				$this->response()->setPayload( [
 					'message' => __( 'Please check your email for the unblocking link.', 'wp-simple-firewall' ),
 				] )->setPayloadSuccess( true );

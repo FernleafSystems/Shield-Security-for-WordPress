@@ -17,6 +17,10 @@ class ActionData {
 	public const FIELD_REST_NONCE = '_wpnonce';
 	public const FIELD_REST_URL = '_rest_url';
 	public const FIELD_WRAP_RESPONSE = 'apto_wrap_response';
+	/**
+	 * The request's decoded form, added by the entry point. Actions read their form from here.
+	 */
+	public const FIELD_FORM = 'shield_form';
 	public const EXECUTE_SLUG_PATTERN = '[a-z0-9_.:\-]+';
 
 	public static function extractActionSlug( string $candidate ) :string {

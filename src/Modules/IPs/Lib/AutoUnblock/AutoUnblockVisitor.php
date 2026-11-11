@@ -17,11 +17,10 @@ class AutoUnblockVisitor extends BaseAutoUnblockShield {
 	protected function preUnblockChecks() :bool {
 		parent::preUnblockChecks();
 
-		$req = Services::Request();
-		if ( $req->post( '_confirm' ) !== 'Y' ) {
+		if ( ( $this->submission[ '_confirm' ] ?? '' ) !== 'Y' ) {
 			throw new \Exception( __( 'No confirmation checkbox.', 'wp-simple-firewall' ) );
 		}
-		if ( !empty( $req->post( 'email' ) ) || !empty( $req->post( 'name' ) ) ) {
+		if ( !empty( $this->submission[ 'email' ] ) || !empty( $this->submission[ 'name' ] ) ) {
 			throw new \Exception( __( 'Oh so yummy.', 'wp-simple-firewall' ) );
 		}
 

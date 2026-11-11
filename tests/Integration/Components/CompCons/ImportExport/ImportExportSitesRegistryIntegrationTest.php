@@ -2943,10 +2943,16 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			->store();
 		$this->repo()->ensureLegacyImported( false );
 
+		$exportParams = [
+			'url'    => $url,
+			'id'     => $importID,
+			'method' => 'json',
+		];
+		// The ambient request names a different site: the export must act only on the parameters it is given.
 		ServicesState::mergeItems( [
 			'service_request' => new ImportExportSitesExportRequestStub( [
-				'url'    => $url,
-				'id'     => $importID,
+				'url'    => 'https://ambient-other-site.example.com',
+				'id'     => 'ambient-other-id',
 				'method' => 'json',
 			] ),
 		] );
@@ -2961,7 +2967,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		\add_filter( 'wp_die_ajax_handler', $dieFilter );
 		\ob_start();
 		try {
-			( new Export() )->toJson();
+			( new Export() )->toJson( $exportParams );
 		}
 		catch ( ImportExportSitesWpDieException $e ) {
 		}

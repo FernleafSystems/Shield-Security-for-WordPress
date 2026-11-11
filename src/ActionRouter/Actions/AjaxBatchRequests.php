@@ -128,7 +128,7 @@ class AjaxBatchRequests extends BaseAction {
 				throw new ActionException( __( 'Missing action slug in batched request.', 'wp-simple-firewall' ) );
 			}
 
-			$subrequestPayload = $this->stripTransportFields( $actionRequestData );
+			$subrequestPayload = ExternalEntryGuard::ActionDataFromTransport( $this->stripTransportFields( $actionRequestData ) );
 			$action = ( new ActionProcessor() )->getAction( $actionSlug, $subrequestPayload );
 			if ( $action::SLUG === self::SLUG ) {
 				return $this->buildFailureResult(

@@ -8,6 +8,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class CapturePluginAction extends CaptureActionBase {
 
+	public const WP_DIE_INVALID_NONCE_CODE = 'shield_action_invalid_nonce';
+	public const WP_DIE_INVALID_NONCE_STATUS = 400;
+
 	protected function canRun() :bool {
 		return !self::con()->this_req->wp_is_ajax && parent::canRun();
 	}
@@ -23,15 +26,33 @@ class CapturePluginAction extends CaptureActionBase {
 		$guard = new ExternalEntryGuard();
 		try {
 			$guard->verifyProof( $slug, $this->guardedEntry(), $transport );
-			$this->actionResponse = self::con()->action_router->action( $slug, $transport );
+			$post = Services::Request()->post;
+			$this->actionResponse = self::con()->action_router->action(
+				$slug,
+				ExternalEntryGuard::ActionDataFromTransport( $transport, \is_array( $post ) ? $post : [] )
+			);
 		}
 		catch ( InvalidActionNonceException $e ) {
 			$guard->recordRejection( $slug, $this->guardedEntry() );
-			ActionExecutor::DieInvalidNonce();
+			$this->dieInvalidNonce();
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );
 		}
+	}
+
+	/**
+	 * @return never
+	 */
+	private function dieInvalidNonce() :void {
+		wp_die(
+			__( 'Unexpected data. Please try again.', 'wp-simple-firewall' ),
+			'',
+			[
+				'code'     => self::WP_DIE_INVALID_NONCE_CODE,
+				'response' => self::WP_DIE_INVALID_NONCE_STATUS,
+			]
+		);
 	}
 
 	protected function postRun() {

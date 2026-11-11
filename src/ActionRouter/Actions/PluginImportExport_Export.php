@@ -16,6 +16,6 @@ class PluginImportExport_Export extends PluginImportExport_Base {
 	}
 
 	protected function exec() {
-		( new Export() )->run( $this->action_data[ 'method' ] ?? '' );
+		( new Export() )->run( (string)( $this->action_data[ 'method' ] ?? '' ), $this->action_data );
 	}
 }

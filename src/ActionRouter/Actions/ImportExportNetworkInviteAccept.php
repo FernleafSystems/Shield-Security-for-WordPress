@@ -26,7 +26,7 @@ class ImportExportNetworkInviteAccept extends BaseAction {
 		$import = null;
 		$importCompleted = false;
 		try {
-			$form = $this->formData();
+			$form = $this->formParams();
 			if ( ( $form[ 'confirm' ] ?? '' ) !== 'Y' ) {
 				throw new \RuntimeException( __( 'Please check the box to confirm this action.', 'wp-simple-firewall' ) );
 			}
@@ -61,11 +61,6 @@ class ImportExportNetworkInviteAccept extends BaseAction {
 			'page_reload'  => $success,
 			'redirect_url' => $success ? $this->importExportUrl() : '',
 		] )->setPayloadSuccess( $success );
-	}
-
-	private function formData() :array {
-		$form = $this->action_data[ 'form_params' ] ?? [];
-		return \is_array( $form ) ? $form : [];
 	}
 
 	private function importExportUrl() :string {

@@ -57,7 +57,6 @@ class BaseSubPage extends BaseMWP {
 				'actions'             => [
 					'sync'       => sprintf( __( 'Sync %s', 'wp-simple-firewall' ), $name ),
 					'activate'   => sprintf( __( 'Activate %s', 'wp-simple-firewall' ), $name ),
-					'align'      => sprintf( __( 'Align %s', 'wp-simple-firewall' ), $name ),
 					'deactivate' => sprintf( __( 'Deactivate %s', 'wp-simple-firewall' ), $name ),
 					'install'    => sprintf( __( 'Install %s', 'wp-simple-firewall' ), $name ),
 					'update'     => sprintf( __( 'Update %s', 'wp-simple-firewall' ), $name ),

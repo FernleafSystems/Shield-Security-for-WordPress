@@ -18,7 +18,7 @@ class PluginImportExport_NetworkInviteRequest extends PluginImportExport_Base {
 
 	protected function exec() {
 		if ( \strtoupper( (string)Services::Request()->server( 'REQUEST_METHOD', '' ) ) === 'POST' ) {
-			( new NetworkInviteRepository() )->receive( (string)Services::Request()->post( 'master_url', '' ) );
+			( new NetworkInviteRepository() )->receive( (string)( $this->formParams()[ 'master_url' ] ?? '' ) );
 		}
 
 		$this->response()->setPayload();

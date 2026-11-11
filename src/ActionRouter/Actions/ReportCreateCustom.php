@@ -7,7 +7,6 @@ use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\CustomReportAreaNormalizer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Exceptions\ReportDataEmptyException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportGenerator;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ReportCreateCustom extends BaseAction {
@@ -21,7 +20,7 @@ class ReportCreateCustom extends BaseAction {
 	}
 
 	protected function exec() {
-		$form = FormParams::Retrieve();
+		$form = $this->formParams();
 		try {
 			$title = \trim( $form[ 'title' ] ?? '' );
 			if ( empty( $title ) ) {

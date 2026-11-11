@@ -15,8 +15,6 @@ class SiteCustomAction extends BaseSiteMwpAction {
 		$subActionParams = \is_array( $subActionParams ) ? $subActionParams : [];
 		unset( $subActionParams[ 'action_overrides' ] );
 
-		// Older child sites expect this override metadata with every request. Newer child sites discard it.
-
 		return MainWP_Connect::fetch_url_authed(
 			$this->getMwpSite()->siteobj,
 			'extra_execution',
@@ -24,6 +22,8 @@ class SiteCustomAction extends BaseSiteMwpAction {
 				self::con()->prefix( 'mwp-action' ) => $this->action_data[ 'sub_action_slug' ],
 				self::con()->prefix( 'mwp-params' ) => \array_merge(
 					[
+						// Compatibility: child sites older than the MainWP entry guard expect this metadata. Newer child
+						// sites discard it. Remove when those older child sites are out of support.
 						'action_overrides' => [
 							'is_nonce_verify_required' => false,
 						],

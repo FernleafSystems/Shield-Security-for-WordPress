@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class ScansStart extends ScansBase {
 
@@ -28,7 +27,7 @@ class ScansStart extends ScansBase {
 			$errorCode = StartScansResult::CODE_START_BLOCKED;
 		}
 
-		$params = FormParams::Retrieve();
+		$params = $this->formParams();
 		if ( $con->comps->scans->canStartScans() ) {
 			$selectedScans = \array_values( \array_intersect( \array_keys( $params ), $con->comps->scans->getScanSlugs() ) );
 			$resetIgnore = (bool)( $params[ 'opt_clear_ignore' ] ?? false );

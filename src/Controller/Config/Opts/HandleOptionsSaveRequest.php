@@ -7,13 +7,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
 	EmailDeliveryVerificationMailer
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class HandleOptionsSaveRequest {
 
 	use PluginControllerConsumer;
 
 	private array $form;
+
+	/**
+	 * @param array $form the submitted options form, as decoded by the entry point
+	 */
+	public function __construct( array $form ) {
+		$this->form = $form;
+	}
 
 	public function handleSave() :bool {
 		try {
@@ -42,7 +48,7 @@ class HandleOptionsSaveRequest {
 	}
 
 	private function getForm() :array {
-		return $this->form ??= FormParams::Retrieve();
+		return $this->form;
 	}
 
 	/**

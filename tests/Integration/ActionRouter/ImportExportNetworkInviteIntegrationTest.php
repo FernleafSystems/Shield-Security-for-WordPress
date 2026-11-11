@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
@@ -238,11 +239,11 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->enableSync();
 		$invite = ( new NetworkInviteRepository() )->receive( self::REJECT_MASTER_URL );
 
-		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteReject::SLUG, [
+		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteReject::SLUG, ExternalEntryGuard::ActionDataFromTransport( [
 			'form_params' => [
 				'invite_id' => $invite[ 'id' ],
 			],
-		] )->payload();
+		] ) )->payload();
 
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
@@ -255,11 +256,11 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->enableSync();
 		$repo = new NetworkInviteRepository();
 		$invite = $repo->receive( self::REJECT_MASTER_URL );
-		( new ActionProcessor() )->processAction( ImportExportNetworkInviteReject::SLUG, [
+		( new ActionProcessor() )->processAction( ImportExportNetworkInviteReject::SLUG, ExternalEntryGuard::ActionDataFromTransport( [
 			'form_params' => [
 				'invite_id' => $invite[ 'id' ],
 			],
-		] );
+		] ) );
 
 		$blockedPayload = $this->submitAnonymousInvite( self::COOLDOWN_MASTER_URL );
 		$this->assertSame( [], $blockedPayload );
@@ -278,11 +279,11 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->enableSync();
 		$invite = ( new NetworkInviteRepository() )->receive( self::CONFIRM_MASTER_URL );
 
-		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, ExternalEntryGuard::ActionDataFromTransport( [
 			'form_params' => [
 				'invite_id' => $invite[ 'id' ],
 			],
-		] )->payload();
+		] ) )->payload();
 
 		$this->assertFalse( $payload[ 'success' ] );
 		$this->assertNotNull( ( new NetworkInviteRepository() )->find( $invite[ 'id' ] ) );
@@ -294,12 +295,12 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();
 		$invite = $this->seedPendingInvite( self::DISABLED_ACCEPT_MASTER_URL );
 
-		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, ExternalEntryGuard::ActionDataFromTransport( [
 			'form_params' => [
 				'invite_id' => $invite[ 'id' ],
 				'confirm'   => 'Y',
 			],
-		] )->payload();
+		] ) )->payload();
 
 		$this->assertFalse( $payload[ 'success' ] );
 		$this->assertArrayHasKey( $invite[ 'id' ], $this->requireController()->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
@@ -312,12 +313,12 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$master = self::ACCEPT_MASTER_URL;
 		$invite = ( new NetworkInviteRepository() )->receive( $master );
 
-		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, ExternalEntryGuard::ActionDataFromTransport( [
 			'form_params' => [
 				'invite_id' => $invite[ 'id' ],
 				'confirm'   => 'Y',
 			],
-		] )->payload();
+		] ) )->payload();
 
 		$this->assertTrue( $payload[ 'success' ], (string)\wp_json_encode( $payload ) );
 		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
@@ -330,12 +331,12 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$repo = new NetworkInviteRepository();
 		$invite = $repo->receive( self::HOSTILE_REJECTION_MASTER_URL );
 
-		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, ExternalEntryGuard::ActionDataFromTransport( [
 			'form_params' => [
 				'invite_id' => $invite[ 'id' ],
 				'confirm'   => 'Y',
 			],
-		] )->payload();
+		] ) )->payload();
 
 		$this->assertFalse( $payload[ 'success' ] );
 		$this->assertNotSame( '', $payload[ 'message' ] );
@@ -381,7 +382,7 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 				'ShieldNetwork'       => 'N',
 			],
 		] );
-		$action = new PluginImportFromSite();
+		$action = new PluginImportFromSite( ExternalEntryGuard::ActionDataFromTransport( Services::Request()->post ) );
 		$exec = new \ReflectionMethod( $action, 'exec' );
 		$exec->setAccessible( true );
 
@@ -417,7 +418,7 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 				'ShieldNetwork'       => 'N',
 			],
 		] );
-		$action = new PluginImportFromSite();
+		$action = new PluginImportFromSite( ExternalEntryGuard::ActionDataFromTransport( Services::Request()->post ) );
 		$exec = new \ReflectionMethod( $action, 'exec' );
 		$exec->setAccessible( true );
 
@@ -439,12 +440,12 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$invite = $repo->receive( self::REVOKED_ACCEPT_MASTER_URL );
 		$this->assertIsArray( $invite );
 
-		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, ExternalEntryGuard::ActionDataFromTransport( [
 			'form_params' => [
 				'invite_id' => $invite[ 'id' ],
 				'confirm'   => 'Y',
 			],
-		] )->payload();
+		] ) )->payload();
 
 		$this->assertFalse( $payload[ 'success' ] );
 		$this->assertNotNull( $repo->find( $invite[ 'id' ] ) );
@@ -458,12 +459,12 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 
 		try {
 			$invite = ( new NetworkInviteRepository() )->receive( self::SAME_HOST_MASTER_URL );
-			$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+			$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, ExternalEntryGuard::ActionDataFromTransport( [
 				'form_params' => [
 					'invite_id' => $invite[ 'id' ],
 					'confirm'   => 'Y',
 				],
-			] )->payload();
+			] ) )->payload();
 		}
 		finally {
 			\remove_filter( 'home_url', $homeFilter );
@@ -489,12 +490,12 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 			$this->assertSame( self::ROOT_SAME_HOST_MASTER_URL, $pending[ 0 ][ 'master_url' ] );
 			$this->assertNotNull( $repo->find( $invite[ 'id' ] ) );
 
-			$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+			$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, ExternalEntryGuard::ActionDataFromTransport( [
 				'form_params' => [
 					'invite_id' => $invite[ 'id' ],
 					'confirm'   => 'Y',
 				],
-			] )->payload();
+			] ) )->payload();
 		}
 		finally {
 			\remove_filter( 'home_url', $homeFilter );
@@ -510,12 +511,12 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$invite = ( new NetworkInviteRepository() )->receive( self::STALE_MASTER_URL );
 		$this->requireController()->opts->optSet( 'importexport_masterurl', 'https://existing-master.example.com' )->store();
 
-		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, ExternalEntryGuard::ActionDataFromTransport( [
 			'form_params' => [
 				'invite_id' => $invite[ 'id' ],
 				'confirm'   => 'Y',
 			],
-		] )->payload();
+		] ) )->payload();
 
 		$this->assertFalse( $payload[ 'success' ] );
 		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
@@ -527,12 +528,12 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$invite = ( new NetworkInviteRepository() )->receive( self::STALE_MASTER_URL );
 		( new SiteRepository() )->upsertActive( 'https://93.184.216.74/client-site', SitesDB::SOURCE_MANUAL, '', true );
 
-		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, ExternalEntryGuard::ActionDataFromTransport( [
 			'form_params' => [
 				'invite_id' => $invite[ 'id' ],
 				'confirm'   => 'Y',
 			],
-		] )->payload();
+		] ) )->payload();
 
 		$this->assertFalse( $payload[ 'success' ] );
 		$this->assertArrayHasKey( $invite[ 'id' ], $this->requireController()->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
@@ -553,12 +554,12 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 			],
 		] )->store();
 
-		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, ExternalEntryGuard::ActionDataFromTransport( [
 			'form_params' => [
 				'invite_id' => $id,
 				'confirm'   => 'Y',
 			],
-		] )->payload();
+		] ) )->payload();
 
 		$this->assertFalse( $payload[ 'success' ] );
 		$this->assertArrayHasKey( $id, $this->requireController()->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
@@ -572,12 +573,12 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->setSecurityAdminContext( false );
 
 		$this->expectException( SecurityAdminRequiredException::class );
-		( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+		( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, ExternalEntryGuard::ActionDataFromTransport( [
 			'form_params' => [
 				'invite_id' => $invite[ 'id' ],
 				'confirm'   => 'Y',
 			],
-		] );
+		] ) );
 	}
 
 	public function test_invite_request_is_denied_from_ajax_transport() :void {
@@ -663,9 +664,13 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 			]
 		);
 
-		return ( new ActionProcessor() )->processAction( PluginImportExport_NetworkInviteRequest::SLUG, [
+		$post = [
 			'master_url' => $masterUrl,
-		] )->payload();
+		];
+		return ( new ActionProcessor() )->processAction(
+			PluginImportExport_NetworkInviteRequest::SLUG,
+			ExternalEntryGuard::ActionDataFromTransport( $post, $post )
+		)->payload();
 	}
 
 	private function seedPendingInvite( string $masterUrl ) :array {

@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGu
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\ResolveSubmittedOptionValues;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Record as ProfileRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Profiles\ProfileRepository;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class ImportExportProfileOptionsSave extends BaseAction {
 
@@ -32,7 +31,7 @@ class ImportExportProfileOptionsSave extends BaseAction {
 				throw new \Exception();
 			}
 
-			$form = FormParams::Retrieve();
+			$form = $this->formParams();
 			if ( empty( $form[ 'all_opts_keys' ] ) ) {
 				throw new \Exception();
 			}

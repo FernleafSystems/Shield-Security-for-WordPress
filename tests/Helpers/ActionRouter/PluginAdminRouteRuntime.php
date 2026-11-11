@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\Render\PageAdminPlugin,
@@ -40,7 +41,7 @@ class PluginAdminRouteRuntime {
 
 		try {
 			return ( new ActionProcessor() )
-				->processAction( $actionSlug, $params )
+				->processAction( $actionSlug, ExternalEntryGuard::ActionDataFromTransport( $params ) )
 				->payload();
 		}
 		finally {

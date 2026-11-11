@@ -3,11 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
 	Actions,
 	Actions\BaseAction,
 	Constants,
 	Utility\ExternalEntryGuard
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class ExternalEntryGuardTest extends BaseUnitTest {
@@ -39,6 +41,47 @@ class ExternalEntryGuardTest extends BaseUnitTest {
 			Actions\MainWP\ClientActions\MainwpEnable::class      => 'MainWP authenticates the dashboard before Shield runs it.',
 		],
 	];
+
+	public function test_action_data_carries_the_decoded_encoded_form_from_its_own_transport() :void {
+		$form = [
+			'title' => 'Weekly',
+			'scans' => [ 'malware' ],
+		];
+		$transport = [
+			'ex'          => 'report_create_custom',
+			'form_params' => \base64_encode( (string)\json_encode( $form ) ),
+			'form_enc'    => [ FormParams::ENC_BASE64, FormParams::ENC_JSON ],
+		];
+
+		$actionData = ExternalEntryGuard::ActionDataFromTransport( $transport );
+
+		$this->assertSame( $form, $actionData[ ActionData::FIELD_FORM ] );
+		$this->assertSame( 'report_create_custom', $actionData[ 'ex' ] );
+	}
+
+	public function test_action_data_form_falls_back_to_the_plain_transport() :void {
+		$transport = [
+			'all_opts_keys' => 'enable_mainwp',
+			'enable_mainwp' => 'Y',
+		];
+
+		$this->assertSame( $transport, ExternalEntryGuard::ActionDataFromTransport( $transport )[ ActionData::FIELD_FORM ] );
+	}
+
+	public function test_action_data_form_comes_only_from_the_given_form_source() :void {
+		$query = [
+			'ex'       => 'ip_auto_unblock_shield_visitor',
+			'_confirm' => 'Y',
+		];
+		$post = [
+			'email' => 'filled-honeypot',
+		];
+
+		$actionData = ExternalEntryGuard::ActionDataFromTransport( \array_merge( $query, $post ), $post );
+
+		$this->assertSame( $post, $actionData[ ActionData::FIELD_FORM ] );
+		$this->assertSame( 'Y', $actionData[ '_confirm' ] );
+	}
 
 	public function test_undeclared_action_is_not_admitted() :void {
 		$guard = new ExternalEntryGuard();

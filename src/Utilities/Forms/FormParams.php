@@ -2,27 +2,28 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class FormParams {
 
 	public const ENC_BASE64 = 'b64';
 	public const ENC_JSON = 'json';
 	public const ENC_OBSCURE = 'obscure';
 
-	public static function Retrieve() :array {
-		$req = Services::Request();
+	/**
+	 * Decodes the form carried in a request's data: an encoded 'form_params' field when present, otherwise the
+	 * data itself.
+	 */
+	public static function Decode( array $data ) :array {
 		$formParams = [];
-		$raw = $req->post( 'form_params', '' );
+		$raw = $data[ 'form_params' ] ?? '';
 
 		if ( empty( $raw ) ) {
-			$formParams = $req->post;
+			$formParams = $data;
 		}
 		elseif ( \is_array( $raw ) ) {
 			$formParams = $raw;
 		}
 		else {
-			$formEnc = $req->post( 'form_enc' );
+			$formEnc = $data[ 'form_enc' ] ?? null;
 			if ( empty( $formEnc ) ) {
 				$formEnc = [ self::ENC_BASE64 ];
 			}

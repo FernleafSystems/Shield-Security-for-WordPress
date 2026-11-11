@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\RoutedResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
@@ -106,6 +107,14 @@ abstract class BaseAction extends DynPropertiesClass {
 	public function setResponse( RoutedResponse $response ) {
 		$this->routedResponse = $response;
 		$this->response = $this->routedResponse->actionResponse();
+	}
+
+	/**
+	 * The request's form, as decoded by the entry point that admitted this action.
+	 */
+	protected function formParams() :array {
+		$form = $this->action_data[ ActionData::FIELD_FORM ] ?? [];
+		return \is_array( $form ) ? $form : [];
 	}
 
 	protected function getDefaults() :array {

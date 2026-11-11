@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
 use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
@@ -63,7 +64,10 @@ class ReportCreateCustomIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->processor()->processAction(
 			ReportCreateCustom::SLUG,
-			ActionData::Build( ReportCreateCustom::class, true )
+			ExternalEntryGuard::ActionDataFromTransport( \array_merge(
+				\FernleafSystems\Wordpress\Services\Services::Request()->post,
+				ActionData::Build( ReportCreateCustom::class, true )
+			) )
 		)->payload();
 
 		$this->assertFalse( $payload[ 'success' ] ?? true );
@@ -98,7 +102,10 @@ class ReportCreateCustomIntegrationTest extends ShieldIntegrationTestCase {
 		CompiledReportAssetFixture::ensureReady( self::con()->getRootDir() );
 		$payload = $this->processor()->processAction(
 			ReportCreateCustom::SLUG,
-			ActionData::Build( ReportCreateCustom::class, true )
+			ExternalEntryGuard::ActionDataFromTransport( \array_merge(
+				\FernleafSystems\Wordpress\Services\Services::Request()->post,
+				ActionData::Build( ReportCreateCustom::class, true )
+			) )
 		)->payload();
 
 		$this->assertTrue( $payload[ 'success' ] );

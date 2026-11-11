@@ -36,7 +36,7 @@ class ShieldPluginAction extends Base {
 			}
 			$routed = self::con()
 				->action_router
-				->action( $actionSlug, $payload, ActionRoutingController::ACTION_REST );
+				->action( $actionSlug, ExternalEntryGuard::ActionDataFromTransport( $payload ), ActionRoutingController::ACTION_REST );
 			$data = $routed->payload();
 		}
 		catch ( Exceptions\ActionException $e ) {

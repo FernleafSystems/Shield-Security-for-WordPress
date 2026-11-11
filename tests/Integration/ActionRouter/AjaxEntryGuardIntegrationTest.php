@@ -154,6 +154,7 @@ class AjaxEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 		$payload = ( new ActionProcessor() )->processAction( MainwpServerClientActionHandler::SLUG, [
 			'client_site_id'                                => 1,
 			MainwpServerClientActionHandler::FIELD_OPERATION => PluginSetOpt::SLUG,
+			// The old browser-chosen action payload: it must have no effect.
 			'client_site_action_data'                       => [
 				'site_action_slug'   => PluginSetOpt::SLUG,
 				'site_action_params' => [

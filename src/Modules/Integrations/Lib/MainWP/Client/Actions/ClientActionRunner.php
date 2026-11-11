@@ -30,7 +30,7 @@ class ClientActionRunner {
 			throw new ActionException( 'This action is not available to MainWP.' );
 		}
 
-		$action = ( new ActionProcessor() )->getAction( $slug, $params );
+		$action = ( new ActionProcessor() )->getAction( $slug, ExternalEntryGuard::ActionDataFromTransport( $params ) );
 		$action->process();
 		return $action->response()->payload();
 	}

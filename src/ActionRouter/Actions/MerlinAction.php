@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SetupGuideState;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class MerlinAction extends BaseAction {
 
@@ -17,7 +16,7 @@ class MerlinAction extends BaseAction {
 	}
 
 	protected function exec() {
-		$form = FormParams::Retrieve();
+		$form = $this->formParams();
 		try {
 			$response = self::con()->comps->wizards->processFormSubmit( $form );
 			$success = $response->success;

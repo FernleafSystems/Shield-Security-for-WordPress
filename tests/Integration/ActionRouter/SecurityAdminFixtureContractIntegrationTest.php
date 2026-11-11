@@ -270,18 +270,19 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 	private function savePinThroughOptionsOwner( string $pin ) :void {
 		$snapshot = $this->snapshotCurrentRequestState();
 		try {
+			$form = [
+				'all_opts_keys'            => 'admin_access_key',
+				'admin_access_key'         => $pin,
+				'admin_access_key_confirm' => $pin,
+			];
 			$this->applyCurrentShieldAjaxRequest( [
-				'form_params' => [
-					'all_opts_keys'            => 'admin_access_key',
-					'admin_access_key'         => $pin,
-					'admin_access_key_confirm' => $pin,
-				],
+				'form_params' => $form,
 			], true );
 
 			$bypass = static fn() :bool => true;
 			\add_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), $bypass, 1000 );
 			try {
-				$this->assertTrue( ( new HandleOptionsSaveRequest() )->handleSave() );
+				$this->assertTrue( ( new HandleOptionsSaveRequest( $form ) )->handleSave() );
 				RuntimeTestState::resetOptionsRuntimeCache();
 			}
 			finally {

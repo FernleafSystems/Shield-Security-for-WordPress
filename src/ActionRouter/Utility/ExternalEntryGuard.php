@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Exceptions\InvalidActionNonceException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 /**
  * The external boundary for routed actions.
@@ -58,6 +59,18 @@ class ExternalEntryGuard {
 			 && !ActionNonce::Verify( $classOrSlug, (string)( $transport[ ActionData::FIELD_NONCE ] ?? '' ) ) ) {
 			throw new InvalidActionNonceException( 'Invalid Action Nonce.' );
 		}
+	}
+
+	/**
+	 * The action data an entry point passes to the action it admits: the request data captured by that entry
+	 * point, with its form decoded. Actions read only their action data, never the global request.
+	 *
+	 * @param array|null $formSource where the form was submitted, when that's narrower than the transport. The
+	 *                               ordinary route merges query and POST for routing, but a form is the POST body.
+	 */
+	public static function ActionDataFromTransport( array $transport, ?array $formSource = null ) :array {
+		$transport[ ActionData::FIELD_FORM ] = FormParams::Decode( $formSource ?? $transport );
+		return $transport;
 	}
 
 	/**

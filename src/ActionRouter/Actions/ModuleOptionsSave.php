@@ -20,7 +20,7 @@ class ModuleOptionsSave extends BaseAction {
 
 		$wasSecAdminEnabled = $con->comps->sec_admin->isEnabledSecAdmin();
 
-		$success = ( new HandleOptionsSaveRequest() )->handleSave();
+		$success = ( new HandleOptionsSaveRequest( $this->formParams() ) )->handleSave();
 
 		$this->response()->setPayload( [
 			'html'        => '',
