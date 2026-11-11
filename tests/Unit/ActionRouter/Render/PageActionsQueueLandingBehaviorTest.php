@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueRef
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	PageActionsQueueLanding
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQueryCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Urls;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Labels;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -63,6 +64,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		Functions\when( 'wp_hash' )->alias(
 			static fn( string $data, string $scheme = 'auth' ) :string => 'hash-'.$scheme.'-'.$data
 		);
+		// The site query cache starts empty, so maintenance checks are worked out for real.
+		Functions\when( 'wp_salt' )->justReturn( 'test-salt' );
+		Functions\when( 'get_transient' )->justReturn( false );
+		Functions\when( 'set_transient' )->justReturn( true );
 		Functions\when( 'get_rest_url' )->alias(
 			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
 		);
@@ -418,6 +423,11 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				'cfg'           => new class {
 					public array $paths = [ 'assets' => 'assets' ];
 
+					public array $properties = [
+						'slug_parent' => 'shield',
+						'slug_plugin' => 'security',
+					];
+
 					public function version() :string {
 						return 'test-version';
 					}
@@ -441,6 +451,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				'comps'         => (object)[
 					'scans'       => new UnitTestScansComponent(),
 					'license'     => new UnitTestLicenseComponent( false ),
+					'site_query'  => new SiteQueryCon(),
 					'file_locker' => new class {
 						public function isEnabled() :bool {
 							return false;

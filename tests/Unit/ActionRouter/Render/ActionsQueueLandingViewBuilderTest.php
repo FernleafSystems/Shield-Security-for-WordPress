@@ -48,6 +48,10 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		Functions\when( 'wp_hash' )->alias(
 			static fn( string $data, string $scheme = 'auth' ) :string => 'hash-'.$scheme.'-'.$data
 		);
+		// The site query cache starts empty, so maintenance checks are worked out for real.
+		Functions\when( 'wp_salt' )->justReturn( 'test-salt' );
+		Functions\when( 'get_transient' )->justReturn( false );
+		Functions\when( 'set_transient' )->justReturn( true );
 		Functions\when( 'get_rest_url' )->alias(
 			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
 		);
