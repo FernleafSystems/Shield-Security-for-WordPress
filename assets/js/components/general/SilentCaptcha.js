@@ -9,8 +9,6 @@ import { PageQueryParam } from "../../util/PageQueryParam";
 /**
  * @typedef {Record<string, any> & {
  *   ajaxurl?: string,
- *   _wpnonce?: string,
- *   _rest_url?: string,
  *   altcha_solution?: string
  * }} SilentCaptchaRequestData
  *
@@ -350,8 +348,6 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 		this.answered = false;
 		const reqData = /** @type {SilentCaptchaRequestData} */ ( ObjectOps.ObjClone( requestData ) );
 		delete reqData.ajaxurl;
-		delete reqData._rest_url;
-		delete reqData._wpnonce;
 		const response = await fetch( this.silentCaptchaAjaxData.ajaxurl, this.constructFetchRequestData( reqData ) );
 		const body = await response.text();
 		this.answered = true;

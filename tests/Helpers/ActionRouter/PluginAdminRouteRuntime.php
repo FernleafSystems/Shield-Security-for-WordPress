@@ -21,24 +21,12 @@ class PluginAdminRouteRuntime {
 		$filter = $con->prefix( 'bypass_is_plugin_admin' );
 		$isSecurityAdminSnapshot = $con->this_req->is_security_admin;
 		$wpIsAjaxSnapshot = $con->this_req->wp_is_ajax;
-		$servicesRequest = Services::Request();
-		$runtimeRequest = $con->this_req->request;
-		$querySnapshot = \is_array( $servicesRequest->query ) ? $servicesRequest->query : [];
-		$postSnapshot = \is_array( $servicesRequest->post ) ? $servicesRequest->post : [];
-		$runtimeQuerySnapshot = \is_array( $runtimeRequest->query ) ? $runtimeRequest->query : [];
-		$runtimePostSnapshot = \is_array( $runtimeRequest->post ) ? $runtimeRequest->post : [];
-		$requestPayload = \array_merge( $params, [
-			'action' => 'shield_action',
-			'ex'     => $actionSlug,
-		] );
 		\add_filter( $filter, '__return_true', 1000 );
 		$con->this_req->is_security_admin = true;
 		$con->this_req->wp_is_ajax = false;
-		$servicesRequest->query = \array_merge( $querySnapshot, $requestPayload );
-		$servicesRequest->post = \array_merge( $postSnapshot, $requestPayload );
-		$runtimeRequest->query = \array_merge( $runtimeQuerySnapshot, $requestPayload );
-		$runtimeRequest->post = \array_merge( $runtimePostSnapshot, $requestPayload );
 
+		// Inputs reach the action only as its action data, as an entry point delivers them. The global request is
+		// left alone so that an action reading it instead fails here.
 		try {
 			return ( new ActionProcessor() )
 				->processAction( $actionSlug, ExternalEntryGuard::ActionDataFromTransport( $params ) )
@@ -47,10 +35,6 @@ class PluginAdminRouteRuntime {
 		finally {
 			$con->this_req->is_security_admin = $isSecurityAdminSnapshot;
 			$con->this_req->wp_is_ajax = $wpIsAjaxSnapshot;
-			$servicesRequest->query = $querySnapshot;
-			$servicesRequest->post = $postSnapshot;
-			$runtimeRequest->query = $runtimeQuerySnapshot;
-			$runtimeRequest->post = $runtimePostSnapshot;
 			\remove_filter( $filter, '__return_true', 1000 );
 		}
 	}

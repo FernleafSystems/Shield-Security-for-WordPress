@@ -30,7 +30,7 @@ class CaptureAjaxActionTransportConsistencyIntegrationTest extends ShieldIntegra
 
 	public function test_post_transport_executes_ajax_render_request() :void {
 		$request = $this->buildScanResultsRenderRequest();
-		$this->applyCurrentShieldAjaxRequest( $request, false );
+		$this->applyCurrentShieldAjaxRequest( $request, true );
 
 		$subject = new CaptureAjaxActionTransportConsistencyTestDouble();
 		$issuePayload = $subject->buildIssuePayloadForTest();
@@ -41,6 +41,17 @@ class CaptureAjaxActionTransportConsistencyIntegrationTest extends ShieldIntegra
 		$this->assertTrue( (bool)( $issuePayload[ 'data' ][ 'success' ] ?? false ) );
 		$this->assertNotSame( '', \trim( (string)( $issuePayload[ 'data' ][ 'html' ] ?? '' ) ) );
 		$this->assertArrayNotHasKey( 'action_data', $issuePayload[ 'data' ] ?? [] );
+	}
+
+	public function test_ajax_render_of_security_admin_target_is_refused_without_security_admin() :void {
+		$request = $this->buildScanResultsRenderRequest();
+		$this->applyCurrentShieldAjaxRequest( $request, false );
+
+		$issuePayload = ( new CaptureAjaxActionTransportConsistencyTestDouble() )->buildIssuePayloadForTest();
+
+		$this->assertFalse( (bool)( $issuePayload[ 'success' ] ?? true ) );
+		$this->assertSame( 401, $issuePayload[ 'status_code' ] ?? null );
+		$this->assertArrayNotHasKey( 'html', $issuePayload[ 'data' ] ?? [] );
 	}
 
 	public function test_direct_render_action_slug_does_not_make_ajax_capture_runnable() :void {

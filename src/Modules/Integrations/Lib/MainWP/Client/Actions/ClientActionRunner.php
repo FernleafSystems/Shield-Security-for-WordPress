@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\MainWP\ClientActions\MainwpEnable,
-	Actions\PluginSetOpt,
 	Exceptions\ActionException,
 	Utility\ExternalEntryGuard
 };
@@ -15,6 +14,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
  * authenticates before Shield sees the request. Only actions declared for the `mainwp` entry can run.
  */
 class ClientActionRunner {
+
+	/**
+	 * Compatibility: dashboards switch the integration on by sending this generic option-write request, older
+	 * ones because they predate MainwpEnable and current ones so that older child sites understand it too. The
+	 * action it once named no longer exists, and this exact request is the only form still accepted. Remove when
+	 * versions older than MainwpEnable are out of support.
+	 */
+	public const LEGACY_ENABLE_SLUG = 'plugin_set_opt';
 
 	/**
 	 * @throws ActionException
@@ -36,11 +43,10 @@ class ClientActionRunner {
 	}
 
 	/**
-	 * Dashboards that predate MainwpEnable switch the integration on with a generic option write. Accept exactly
-	 * that request and nothing else.
+	 * Accept exactly the legacy enable request and nothing else.
 	 */
 	private function normaliseLegacyRequest( string $slug, array $params ) :array {
-		if ( $slug === PluginSetOpt::SLUG
+		if ( $slug === self::LEGACY_ENABLE_SLUG
 			 && ( $params[ 'opt_key' ] ?? null ) === 'enable_mainwp'
 			 && ( $params[ 'opt_value' ] ?? null ) === 'Y' ) {
 			$slug = MainwpEnable::SLUG;

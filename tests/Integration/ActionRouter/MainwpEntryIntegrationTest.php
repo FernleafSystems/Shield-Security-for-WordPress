@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\MainWP\ClientActions\MainwpEnable,
 	Actions\MainWP\MainwpSitePageDisplay,
 	Actions\ModuleOptionsSave,
-	Actions\PluginSetOpt,
 	CapturePluginAction,
 	Exceptions\ActionException,
 	Exceptions\UserAuthRequiredException
@@ -86,7 +85,7 @@ class MainwpEntryIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_legacy_enable_request_from_an_older_dashboard_switches_mainwp_on() :void {
-		$payload = ( new ClientActionRunner() )->run( PluginSetOpt::SLUG, [
+		$payload = ( new ClientActionRunner() )->run( ClientActionRunner::LEGACY_ENABLE_SLUG, [
 			'action_overrides' => [
 				'is_nonce_verify_required' => false,
 			],
@@ -107,7 +106,7 @@ class MainwpEntryIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_any_other_legacy_option_write_is_refused() :void {
 		try {
-			( new ClientActionRunner() )->run( PluginSetOpt::SLUG, [
+			( new ClientActionRunner() )->run( ClientActionRunner::LEGACY_ENABLE_SLUG, [
 				'opt_key'   => 'email_can_send_verified_at',
 				'opt_value' => 12345,
 			] );
@@ -120,7 +119,7 @@ class MainwpEntryIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_legacy_enable_request_with_another_value_is_refused() :void {
 		$this->expectException( ActionException::class );
-		( new ClientActionRunner() )->run( PluginSetOpt::SLUG, [
+		( new ClientActionRunner() )->run( ClientActionRunner::LEGACY_ENABLE_SLUG, [
 			'opt_key'   => 'enable_mainwp',
 			'opt_value' => 'N',
 		] );

@@ -28,17 +28,12 @@ class ActionRoutingController {
 	 * @throws Exceptions\ActionDoesNotExistException
 	 * @throws Exceptions\ActionException
 	 * @throws Exceptions\ActionTypeDoesNotExistException
+	 * @throws Exceptions\IpBlockedException
 	 * @throws Exceptions\SecurityAdminRequiredException
+	 * @throws Exceptions\UserAuthRequiredException
 	 */
 	public function action( string $classOrSlug, array $data = [], int $type = self::ACTION_SHIELD ) :RoutedResponse {
 		return $this->getExecutor()->execute( $classOrSlug, $data, $type );
-	}
-
-	/**
-	 * @internal Transition helper so capture classes can avoid routing recursion.
-	 */
-	public function executor() :ActionExecutor {
-		return $this->getExecutor();
 	}
 
 	/**

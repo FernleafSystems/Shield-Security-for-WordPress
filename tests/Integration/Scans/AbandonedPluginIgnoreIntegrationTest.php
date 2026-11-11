@@ -10,12 +10,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Store
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc\PluginScanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PluginAdminRouteRuntime;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class AbandonedPluginIgnoreIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ActionRequestNonceFixture;
 
 	private const SLUG = 'fixture-abandoned/fixture-abandoned.php';
 	private const LAST_UPDATED_AT = 1500000000;
@@ -174,15 +172,9 @@ class AbandonedPluginIgnoreIntegrationTest extends ShieldIntegrationTestCase {
 	 * @param list<int> $resultItemIDs
 	 */
 	private function actionForIDs( string $subAction, array $resultItemIDs ) :array {
-		$snapshot = $this->seedActionNonceContext( ScanResultsTableAction::class );
-		try {
-			return ( new PluginAdminRouteRuntime() )->processActionPayloadWithAdminBypass( ScanResultsTableAction::SLUG, [
-				'sub_action' => $subAction,
-				'rids'       => $resultItemIDs,
-			] );
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		return ( new PluginAdminRouteRuntime() )->processActionPayloadWithAdminBypass( ScanResultsTableAction::SLUG, [
+			'sub_action' => $subAction,
+			'rids'       => $resultItemIDs,
+		] );
 	}
 }

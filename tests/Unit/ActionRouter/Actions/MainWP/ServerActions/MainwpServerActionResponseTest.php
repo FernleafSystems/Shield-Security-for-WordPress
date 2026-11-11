@@ -30,16 +30,14 @@ namespace MainWP\Dashboard {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Actions\MainWP\ServerActions {
 
 	use Brain\Monkey\Functions;
-	use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
-		LicenseLookup,
-		PluginSetOpt
-	};
+	use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\LicenseLookup;
 	use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\{
 		BaseSiteMwpAction,
 		SiteActionUpdate,
 		SiteCustomAction
 	};
 	use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+	use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client\Actions\ClientActionRunner;
 	use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -141,7 +139,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Action
 
 		public function test_custom_action_sends_extra_execution_payload_with_canonical_override() :void {
 			$action = $this->customAction( [
-				'sub_action_slug'   => PluginSetOpt::SLUG,
+				'sub_action_slug'   => ClientActionRunner::LEGACY_ENABLE_SLUG,
 				'sub_action_params' => [
 					'opt_key'          => 'enable_mainwp',
 					'opt_value'        => 'Y',
@@ -158,7 +156,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Action
 			$call = MainWP_Connect::$fetchCalls[ 0 ];
 			$this->assertSame( 'extra_execution', $call[ 'action' ] );
 			$this->assertSame( 42, $call[ 'site' ]->id );
-			$this->assertSame( PluginSetOpt::SLUG, $call[ 'params' ][ 'shield-security-mwp-action' ] );
+			$this->assertSame( ClientActionRunner::LEGACY_ENABLE_SLUG, $call[ 'params' ][ 'shield-security-mwp-action' ] );
 			$this->assertSame( 'enable_mainwp', $call[ 'params' ][ 'shield-security-mwp-params' ][ 'opt_key' ] );
 			$this->assertSame( 'Y', $call[ 'params' ][ 'shield-security-mwp-params' ][ 'opt_value' ] );
 			$this->assertSame(
@@ -169,7 +167,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Action
 
 		public function test_custom_action_treats_malformed_sub_action_params_as_empty() :void {
 			$action = $this->customAction( [
-				'sub_action_slug'   => PluginSetOpt::SLUG,
+				'sub_action_slug'   => ClientActionRunner::LEGACY_ENABLE_SLUG,
 				'sub_action_params' => 'not-array',
 			] );
 

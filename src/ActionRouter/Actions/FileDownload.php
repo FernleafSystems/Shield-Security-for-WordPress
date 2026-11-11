@@ -47,7 +47,10 @@ class FileDownload extends BaseAction {
 		switch ( $downloadID ) {
 
 			case 'filelocker':
-				$fileDetails = $con->comps->file_locker->handleFileDownloadRequest();
+				$fileDetails = $con->comps->file_locker->handleFileDownloadRequest(
+					(int)( $this->action_data[ 'rid' ] ?? 0 ),
+					(string)( $this->action_data[ 'type' ] ?? '' )
+				);
 				break;
 
 			case 'scan_file':

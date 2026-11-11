@@ -27,8 +27,6 @@ abstract class BaseAction extends DynPropertiesClass {
 
 	private ActionResponse $response;
 
-	private RoutedResponse $routedResponse;
-
 	public function __construct( array $data = [], ?ActionResponse $response = null ) {
 		$this->action_data = $data;
 		$this->response = $response instanceof ActionResponse ? $response : new ActionResponse();
@@ -105,8 +103,7 @@ abstract class BaseAction extends DynPropertiesClass {
 	}
 
 	public function setResponse( RoutedResponse $response ) {
-		$this->routedResponse = $response;
-		$this->response = $this->routedResponse->actionResponse();
+		$this->response = $response->actionResponse();
 	}
 
 	/**
@@ -160,12 +157,5 @@ abstract class BaseAction extends DynPropertiesClass {
 	 */
 	public static function ExternalAccess() :array {
 		return [];
-	}
-
-	public static function NonceCfg() :array {
-		return [
-			'ip'  => false,
-			'ttl' => 12,
-		];
 	}
 }

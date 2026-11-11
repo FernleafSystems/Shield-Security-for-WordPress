@@ -8,9 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\CrowdsecResetEnrollment,
 	Actions\FullPageDisplay\DisplayReport,
 	Actions\IpAutoUnblockShieldVisitor,
+	Actions\MainWP\ClientActions\MainwpEnable,
 	Actions\MfaCanEmailSendVerify,
 	Actions\MfaLoginVerifyStep,
-	Actions\PluginSetOpt,
 	CapturePluginAction,
 	Utility\ExternalEntryGuard
 };
@@ -31,6 +31,7 @@ class OrdinaryRouteEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 	private const SNAPSHOT_OPTS = [
 		'email_can_send_verified_at',
 		'email_can_send_verification_sent_at',
+		'enable_mainwp',
 	];
 
 	private array $requestSnapshot = [];
@@ -66,18 +67,18 @@ class OrdinaryRouteEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 		parent::tear_down();
 	}
 
-	public function test_undeclared_action_is_not_captured_even_with_its_own_valid_nonce() :void {
+	public function test_action_not_declared_for_this_route_is_not_captured_even_with_its_own_valid_nonce() :void {
 		$this->loginAsSecurityAdmin();
-		$this->applyOrdinaryRequest( ActionData::Build( PluginSetOpt::class, false, [
-			'opt_key'   => 'email_can_send_verified_at',
-			'opt_value' => 12345,
-		] ) );
+		$this->requireController()->opts->optSet( 'enable_mainwp', 'N' );
+		$request = ActionData::Build( MainwpEnable::class, false );
+		$request[ ActionData::FIELD_NONCE ] = ActionNonce::Create( MainwpEnable::class );
+		$this->applyOrdinaryRequest( $request );
 
 		$capture = new OrdinaryRouteCaptureTestDouble();
 		$this->assertFalse( $capture->canRunForTest() );
 
 		$capture->execute();
-		$this->assertSame( 0, (int)$this->requireController()->opts->optGet( 'email_can_send_verified_at' ) );
+		$this->assertSame( 'N', $this->requireController()->opts->optGet( 'enable_mainwp' ) );
 	}
 
 	public function test_declared_command_without_nonce_is_rejected_before_it_runs() :void {

@@ -3,20 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	ActionProcessor,
-	Actions\PluginReinstall
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginReinstall;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Core\Plugins;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 
 class PluginReinstallActionIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ActionRequestNonceFixture;
+	use CurrentRequestFixture;
 	use ExternalEntryRefusalAssertions;
 
 	public function set_up() {

@@ -44,11 +44,4 @@ class CaptureNotBot extends BaseAction {
 			$response->setPayloadSuccess( false );
 		}
 	}
-
-	public static function NonceCfg() :array {
-		return [
-			'ip'  => false,
-			'ttl' => 24,
-		];
-	}
 }

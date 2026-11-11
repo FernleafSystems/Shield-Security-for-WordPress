@@ -62,7 +62,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 		try {
 			\ob_start();
 			$guard->verifyProof( $slug, $this->guardedEntry(), $transport );
-			$routedResponse = $con->action_router->executor()->execute(
+			$routedResponse = $con->action_router->action(
 				$slug,
 				ExternalEntryGuard::ActionDataFromTransport( $transport ),
 				ActionRoutingController::ACTION_AJAX

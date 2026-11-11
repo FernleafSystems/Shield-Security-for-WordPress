@@ -86,8 +86,8 @@ class ExternalEntryGuardTest extends BaseUnitTest {
 	public function test_undeclared_action_is_not_admitted() :void {
 		$guard = new ExternalEntryGuard();
 		foreach ( ExternalEntryGuard::ENTRIES as $entry ) {
-			$this->assertFalse( $guard->isAdmitted( Actions\PluginSetOpt::class, $entry ) );
-			$this->assertFalse( $guard->isAdmitted( Actions\PluginSetOpt::SLUG, $entry ) );
+			$this->assertFalse( $guard->isAdmitted( Actions\FullPageDisplay\FullPageDisplayDynamic::class, $entry ) );
+			$this->assertFalse( $guard->isAdmitted( Actions\FullPageDisplay\FullPageDisplayDynamic::SLUG, $entry ) );
 		}
 	}
 
@@ -172,7 +172,6 @@ class ExternalEntryGuardTest extends BaseUnitTest {
 		$guard = new ExternalEntryGuard();
 		foreach (
 			[
-				Actions\PluginSetOpt::class,
 				Actions\Render::class,
 				Actions\FullPageDisplay\DisplayBlockPage::class,
 				Actions\FullPageDisplay\FullPageDisplayDynamic::class,

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\PasswordGenerator;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -32,45 +33,45 @@ class ActionData {
 		return self::extractActionSlug( $candidate ) === $candidate && $candidate !== '';
 	}
 
+	/**
+	 * The request data a page or link sends to reach an action from outside. It carries what the action's
+	 * ExternalAccess() declaration requires: an action nonce only when an entry demands one, and REST
+	 * details only when the action is reachable over REST.
+	 * @param class-string<Actions\BaseAction> $actionClass
+	 */
 	public static function Build( string $actionClass, bool $isAjax = true, array $aux = [], bool $uniq = false ) :array {
-		$vo = new ActionDataVO();
-		$vo->action = $actionClass;
-		$vo->is_ajax = $isAjax;
-		$vo->aux = $aux;
-		$vo->unique = $uniq;
-		return self::BuildVO( $vo );
-	}
+		$access = ExternalEntryGuard::DeclaredAccess( $actionClass );
 
-	public static function BuildVO( ActionDataVO $VO ) :array {
-		$data = \array_merge( [
+		$data = [
 			self::FIELD_ACTION  => self::FIELD_SHIELD,
-			self::FIELD_EXECUTE => $VO->action::SLUG,
-			self::FIELD_NONCE   => ActionNonce::Create( $VO->action ),
-		], $VO->aux );
+			self::FIELD_EXECUTE => $actionClass::SLUG,
+		];
+		if ( \in_array( ExternalEntryGuard::PROOF_NONCE, $access, true ) ) {
+			$data[ self::FIELD_NONCE ] = ActionNonce::Create( $actionClass );
+		}
+		$data = \array_merge( $data, $aux );
 
-		if ( $VO->unique ) {
+		if ( $uniq ) {
 			$data[ 'uniq' ] = PasswordGenerator::Gen( 4, true, true, false );
 		}
 
-		if ( \count( $VO->excluded_fields ) > 0 ) {
-			$data = \array_diff_key( $data, \array_flip( $VO->excluded_fields ) );
-		}
-
-		if ( $VO->is_ajax ) {
+		if ( $isAjax ) {
 			$data[ self::FIELD_AJAXURL ] = Services::WpGeneral()->ajaxURL();
 
-			$data[ self::FIELD_REST_NONCE ] = wp_create_nonce( 'wp_rest' );
-			$data[ self::FIELD_REST_URL ] = URL::Build(
-				get_rest_url( null, sprintf( 'shield/v1/action/%s', $VO->action::SLUG ) ),
-				\array_diff_key(
-					$data,
-					\array_flip( [
-						self::FIELD_ACTION,
-						self::FIELD_EXECUTE,
-						self::FIELD_AJAXURL,
-					] )
-				)
-			);
+			if ( isset( $access[ ExternalEntryGuard::ENTRY_REST ] ) ) {
+				$data[ self::FIELD_REST_NONCE ] = wp_create_nonce( 'wp_rest' );
+				$data[ self::FIELD_REST_URL ] = URL::Build(
+					get_rest_url( null, sprintf( 'shield/v1/action/%s', $actionClass::SLUG ) ),
+					\array_diff_key(
+						$data,
+						\array_flip( [
+							self::FIELD_ACTION,
+							self::FIELD_EXECUTE,
+							self::FIELD_AJAXURL,
+						] )
+					)
+				);
+			}
 		}
 
 		return $data;

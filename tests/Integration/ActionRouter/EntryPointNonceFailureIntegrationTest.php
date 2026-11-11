@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	CaptureAjaxAction,
 	CapturePluginAction
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 /**
@@ -17,7 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
  */
 class EntryPointNonceFailureIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ActionRequestNonceFixture;
+	use CurrentRequestFixture;
 
 	private array $requestSnapshot = [];
 

@@ -8,11 +8,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\AjaxBatchRequests,
 	Actions\DashboardLiveMonitorSetState,
+	Actions\MainWP\ClientActions\MainwpEnable,
 	Actions\MainWP\ServerActions\MainwpServerClientActionHandler,
 	Actions\PluginBadgeClose,
-	Actions\PluginSetOpt,
 	CaptureAjaxAction
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client\Actions\ClientActionRunner;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
@@ -25,7 +26,10 @@ class AjaxEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 
 	use CurrentRequestFixture;
 
-	private const OPT = 'email_can_send_verified_at';
+	/**
+	 * Written only by MainwpEnable, which is declared for the MainWP entry alone.
+	 */
+	private const OPT = 'enable_mainwp';
 
 	private array $requestSnapshot = [];
 
@@ -39,7 +43,7 @@ class AjaxEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 		parent::set_up();
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
 		$this->optSnapshot = $this->requireController()->opts->optGet( self::OPT );
-		$this->requireController()->opts->optSet( self::OPT, 0 );
+		$this->requireController()->opts->optSet( self::OPT, 'N' );
 
 		$this->events = [];
 		$this->eventListener = function ( $event, $meta = [] ) {
@@ -55,16 +59,15 @@ class AjaxEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 		parent::tear_down();
 	}
 
-	public function test_undeclared_action_is_not_captured_over_ajax_and_is_recorded() :void {
+	public function test_action_not_declared_for_ajax_is_not_captured_even_with_its_own_valid_nonce() :void {
 		$this->loginAsSecurityAdmin();
-		$this->applyCurrentShieldAjaxRequest( ActionData::Build( PluginSetOpt::class, true, [
-			'opt_key'   => self::OPT,
-			'opt_value' => 12345,
-		] ), true );
+		$request = ActionData::Build( MainwpEnable::class );
+		$request[ ActionData::FIELD_NONCE ] = ActionNonce::Create( MainwpEnable::class );
+		$this->applyCurrentShieldAjaxRequest( $request, true );
 
 		$this->assertFalse( ( new AjaxEntryGuardCaptureTestDouble() )->canRunForTest() );
-		$this->assertSame( 0, (int)$this->requireController()->opts->optGet( self::OPT ) );
-		$this->assertRejectionRecorded( PluginSetOpt::SLUG, 'ajax' );
+		$this->assertSame( 'N', $this->requireController()->opts->optGet( self::OPT ) );
+		$this->assertRejectionRecorded( MainwpEnable::SLUG, 'ajax' );
 	}
 
 	public function test_declared_action_with_another_actions_nonce_is_refused_before_it_runs() :void {
@@ -127,25 +130,23 @@ class AjaxEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( ( new DashboardLiveMonitorPreference() )->isCollapsed() );
 	}
 
-	public function test_batch_item_for_undeclared_action_is_refused_even_with_its_own_valid_nonce() :void {
+	public function test_batch_item_for_action_not_declared_for_ajax_is_refused_even_with_its_own_valid_nonce() :void {
 		$this->loginAsSecurityAdmin();
-		$item = ActionData::Build( PluginSetOpt::class, true, [
-			'opt_key'   => self::OPT,
-			'opt_value' => 12345,
-		] );
+		$item = ActionData::Build( MainwpEnable::class );
+		$item[ ActionData::FIELD_NONCE ] = ActionNonce::Create( MainwpEnable::class );
 
 		$payload = ( new ActionProcessor() )->processAction( AjaxBatchRequests::SLUG, [
 			'requests' => [
 				[
-					'id'      => 'set_opt',
+					'id'      => 'enable',
 					'request' => $item,
 				],
 			],
 		] )->payload();
 
-		$this->assertSame( AjaxBatchRequests::ERROR_ACTION_TRANSPORT_NOT_ALLOWED, $payload[ 'results' ][ 'set_opt' ][ 'error_code' ] ?? '' );
-		$this->assertSame( 0, (int)$this->requireController()->opts->optGet( self::OPT ) );
-		$this->assertRejectionRecorded( PluginSetOpt::SLUG, 'ajax' );
+		$this->assertSame( AjaxBatchRequests::ERROR_ACTION_TRANSPORT_NOT_ALLOWED, $payload[ 'results' ][ 'enable' ][ 'error_code' ] ?? '' );
+		$this->assertSame( 'N', $this->requireController()->opts->optGet( self::OPT ) );
+		$this->assertRejectionRecorded( MainwpEnable::SLUG, 'ajax' );
 	}
 
 	public function test_mainwp_site_operation_is_chosen_only_from_the_fixed_list() :void {
@@ -153,20 +154,20 @@ class AjaxEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = ( new ActionProcessor() )->processAction( MainwpServerClientActionHandler::SLUG, [
 			'client_site_id'                                => 1,
-			MainwpServerClientActionHandler::FIELD_OPERATION => PluginSetOpt::SLUG,
+			MainwpServerClientActionHandler::FIELD_OPERATION => ClientActionRunner::LEGACY_ENABLE_SLUG,
 			// The old browser-chosen action payload: it must have no effect.
 			'client_site_action_data'                       => [
-				'site_action_slug'   => PluginSetOpt::SLUG,
+				'site_action_slug'   => ClientActionRunner::LEGACY_ENABLE_SLUG,
 				'site_action_params' => [
 					'opt_key'   => self::OPT,
-					'opt_value' => 12345,
+					'opt_value' => 'Y',
 				],
 			],
 		] )->payload();
 
 		$this->assertFalse( (bool)( $payload[ 'success' ] ?? true ) );
 		$this->assertSame( 'Unsupported site action.', $payload[ 'message' ] ?? '' );
-		$this->assertSame( 0, (int)$this->requireController()->opts->optGet( self::OPT ) );
+		$this->assertSame( 'N', $this->requireController()->opts->optGet( self::OPT ) );
 	}
 
 	public function test_mainwp_site_operation_from_the_list_is_not_refused_for_a_missing_nonce() :void {

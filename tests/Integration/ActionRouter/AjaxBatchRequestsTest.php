@@ -391,6 +391,7 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_batch_ajax_render_subrequest_allows_policy_approved_render_target() :void {
+		$this->loginAsSecurityAdmin();
 		$subrequest = ActionData::BuildAjaxRender( Wordpress::class, [
 			'display_context' => 'actions_queue',
 		] );

@@ -6,10 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\LicenseLookup,
 	Actions\MainWP\MainwpBase,
-	Actions\PluginSetOpt,
 	Exceptions\ActionException,
 	Utility\ExternalEntryGuard
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client\Actions\ClientActionRunner;
 
 /**
  * Runs one of a fixed set of operations against a MainWP client site. The request names the operation; the
@@ -55,7 +55,8 @@ class MainwpServerClientActionHandler extends MainwpBase {
 			'mwp_on'     => [
 				'site_action_slug'   => SiteCustomAction::SLUG,
 				'site_action_params' => [
-					'sub_action_slug'   => PluginSetOpt::SLUG,
+					// Sent in its legacy form so that child sites older than MainwpEnable also understand it.
+					'sub_action_slug'   => ClientActionRunner::LEGACY_ENABLE_SLUG,
 					'sub_action_params' => [
 						'opt_key'   => 'enable_mainwp',
 						'opt_value' => 'Y',

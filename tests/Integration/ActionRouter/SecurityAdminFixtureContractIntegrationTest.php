@@ -12,13 +12,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\HandleOptions
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\RawOptionStoreSnapshot;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityAdminFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ActionRequestNonceFixture;
+	use CurrentRequestFixture;
 
 	public function test_fixture_contract_owns_scenarios_and_cleanup_restores_raw_option_stores() :void {
 		$this->loginAsAdministrator();
@@ -299,25 +299,12 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 	 * @return array<string,mixed>
 	 */
 	private function runAction( string $actionSlug, array $actionData = [] ) :array {
-		$nonceSnapshot = null;
 		$this->requireController()->this_req->wp_is_ajax = false;
-		if ( $actionSlug === SecurityAdminAuthClear::SLUG ) {
-			$nonceSnapshot = $this->seedActionNonceContext( SecurityAdminAuthClear::class );
-		}
-
-		try {
-			$routed = $this->requireController()->action_router->action(
-				$actionSlug,
-				$actionData,
-				ActionRoutingController::ACTION_REST
-			);
-			return $routed->payload();
-		}
-		finally {
-			if ( \is_array( $nonceSnapshot ) ) {
-				$this->restoreActionNonceContext( $nonceSnapshot );
-			}
-		}
+		return $this->requireController()->action_router->action(
+			$actionSlug,
+			$actionData,
+			ActionRoutingController::ACTION_REST
+		)->payload();
 	}
 
 	private function writeSessionSecAdminAt( int $userId, string $token, int $timestamp ) :void {

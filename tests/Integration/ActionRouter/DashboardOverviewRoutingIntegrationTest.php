@@ -22,16 +22,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 	CloakedPluginFixtureTrait,
 	TestDataFactory
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	ActionRequestNonceFixture,
-	PluginAdminRouteRenderAssertions
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 
 class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ActionRequestNonceFixture;
 	use CloakedPluginFixtureTrait;
 	use PluginAdminRouteRenderAssertions;
 
@@ -235,17 +231,10 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertSame( 2, $initialZone[ 'total' ] );
 		$this->assertSame( 2, (int)( $initialItems[ 'plugin_files' ][ 'count' ] ?? 0 ) );
 
-		$snapshot = $this->seedActionNonceContext( ScanResultsTableAction::class );
-
-		try {
-			$actionPayload = $this->processor()->processAction( ScanResultsTableAction::SLUG, ActionData::Build( ScanResultsTableAction::class, false, [
-				'sub_action' => 'ignore',
-				'rids'       => [ (int)$active[ 'result_item_id' ] ],
-			] ) )->payload();
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		$actionPayload = $this->processor()->processAction( ScanResultsTableAction::SLUG, ActionData::Build( ScanResultsTableAction::class, false, [
+			'sub_action' => 'ignore',
+			'rids'       => [ (int)$active[ 'result_item_id' ] ],
+		] ) )->payload();
 
 		$this->assertTrue( $actionPayload[ 'success' ] ?? false );
 		$this->assertTrue( $actionPayload[ 'table_reload' ] ?? false );

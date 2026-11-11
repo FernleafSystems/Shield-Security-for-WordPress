@@ -9,14 +9,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItem
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueRefresh;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\SecurityAdminRequiredException;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ActionRequestNonceFixture;
+	use CurrentRequestFixture;
 	use ExternalEntryRefusalAssertions;
 	use PluginAdminRouteRenderAssertions;
 
@@ -162,18 +162,11 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$pluginFiles = $this->requireAtLeastInstalledPlugins( 1 );
 		$this->setPluginUpdatesAvailable( $pluginFiles );
 		$this->loginAsAdministrator();
-		$snapshot = $this->seedActionNonceContext( MaintenanceItemIgnore::class );
-
-		try {
-			$this->expectException( SecurityAdminRequiredException::class );
-			( new ActionProcessor() )->processAction( MaintenanceItemIgnore::SLUG, [
-				'maintenance_key' => 'wp_plugins_updates',
-				'identifier'      => $pluginFiles[ 0 ],
-			] );
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		$this->expectException( SecurityAdminRequiredException::class );
+		( new ActionProcessor() )->processAction( MaintenanceItemIgnore::SLUG, [
+			'maintenance_key' => 'wp_plugins_updates',
+			'identifier'      => $pluginFiles[ 0 ],
+		] );
 	}
 
 	public function test_groups_refresh_keeps_selected_review_group_resolvable_after_it_becomes_healthy() :void {
@@ -210,14 +203,7 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 	 * @param class-string<MaintenanceItemIgnore|MaintenanceItemUnignore> $actionClass
 	 */
 	private function processMaintenanceAction( string $actionClass, array $data ) :array {
-		$snapshot = $this->seedActionNonceContext( $actionClass );
-
-		try {
-			return ( new ActionProcessor() )->processAction( $actionClass::SLUG, $data )->payload();
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		return ( new ActionProcessor() )->processAction( $actionClass::SLUG, $data )->payload();
 	}
 
 	/**
@@ -255,16 +241,7 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		\set_site_transient( 'update_plugins', $updates );
 	}
 
-	/**
-	 * The queue's refresh, as the page sends it, with its nonce.
-	 */
 	private function processQueueRefresh( array $data ) :array {
-		$snapshot = $this->seedActionNonceContext( ActionsQueueRefresh::class );
-		try {
-			return $this->processActionPayloadWithAdminBypass( ActionsQueueRefresh::SLUG, $data );
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		return $this->processActionPayloadWithAdminBypass( ActionsQueueRefresh::SLUG, $data );
 	}
 }

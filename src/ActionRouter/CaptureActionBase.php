@@ -34,7 +34,6 @@ class CaptureActionBase {
 		$slug = (string)( $transport[ ActionData::FIELD_EXECUTE ] ?? '' );
 
 		return $action === ActionData::FIELD_SHIELD
-			   && $slug !== ''
 			   && ActionData::isValidActionSlug( $slug )
 			   && $this->isAdmittedByGuard( $slug );
 	}

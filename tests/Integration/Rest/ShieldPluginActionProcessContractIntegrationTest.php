@@ -64,6 +64,22 @@ class ShieldPluginActionProcessContractIntegrationTest extends ShieldIntegration
 		$this->assertSame( 0, (int)( $restData[ TestRestFetchRequests::DATA_SUCCESS_TEST_AT ] ?? 0 ) );
 	}
 
+	public function test_process_reports_failure_when_security_admin_is_required_without_running_the_action() :void {
+		$this->requireController()->opts->optSet( TestRestFetchRequests::OPT_KEY, [] );
+		$this->requireController()->this_req->is_security_admin = false;
+
+		$result = ( new ShieldPluginActionProcessTestDouble() )->processForTest( [
+			'ex'      => TestRestFetchRequests::SLUG,
+			'exnonce' => ActionNonce::Create( TestRestFetchRequests::class ),
+			'payload' => [],
+		] );
+
+		$this->assertFalse( (bool)$result[ 'success' ] );
+		$this->assertFalse( (bool)( $result[ 'data' ][ 'success' ] ?? true ) );
+		$restData = $this->requireController()->opts->optGet( TestRestFetchRequests::OPT_KEY );
+		$this->assertSame( 0, (int)( $restData[ TestRestFetchRequests::DATA_SUCCESS_TEST_AT ] ?? 0 ) );
+	}
+
 	public function test_process_rejects_unlisted_rest_action_without_mutating_state() :void {
 		( new DashboardLiveMonitorPreference() )->setCollapsed( false );
 

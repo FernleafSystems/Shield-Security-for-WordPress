@@ -4,7 +4,6 @@ import { Navigation } from "../../util/Navigation";
 import { ObjectOps } from "../../util/ObjectOps";
 import qs from "qs";
 import { Random } from "../../util/Random";
-import { RestService } from "./RestService";
 import { announceGlobal } from "../ui/ShieldA11y";
 
 export class AjaxService {
@@ -95,36 +94,26 @@ export class AjaxService {
 			throw new Error( 'Empty or null Ajax data.' );
 		}
 
-		/* const isRest = '_rest_url' in data; */
-		const isRest = false;
+		let url = typeof ajaxurl === 'undefined' ? data.ajaxurl : ajaxurl;
 
-		if ( isRest ) {
-			return ( new RestService() ).req( data );
-		}
-		else {
-			let url = typeof ajaxurl === 'undefined' ? data.ajaxurl : ajaxurl;
+		let reqData = ObjectOps.ObjClone( data );
+		reqData[ 'shield_uniq' ] = Random.Int( 1000, 9999 );
 
-			let reqData = ObjectOps.ObjClone( data );
-			reqData[ 'shield_uniq' ] = Random.Int( 1000, 9999 );
+		delete reqData.ajaxurl;
 
-			delete reqData._wpnonce;
-			delete reqData._rest_url;
-			delete reqData.ajaxurl;
-
-			return fetch( url, this.constructFetchRequestData( reqData, 'POST', isBackground ) )
-			.then( raw => raw.text().then( respTEXT => {
-				const respJSON = AjaxParseResponseService.ParseIt( respTEXT );
-				if ( respJSON === null
-					|| typeof respJSON !== 'object'
-					|| Array.isArray( respJSON )
-					|| ObjectOps.IsEmpty( respJSON ) ) {
-					throw new Error(
-						raw.ok ? 'Invalid AJAX response.' : `AJAX request failed with HTTP ${ raw.status }.`
-					);
-				}
-				return respJSON;
-			} ) );
-		}
+		return fetch( url, this.constructFetchRequestData( reqData, 'POST', isBackground ) )
+		.then( raw => raw.text().then( respTEXT => {
+			const respJSON = AjaxParseResponseService.ParseIt( respTEXT );
+			if ( respJSON === null
+				|| typeof respJSON !== 'object'
+				|| Array.isArray( respJSON )
+				|| ObjectOps.IsEmpty( respJSON ) ) {
+				throw new Error(
+					raw.ok ? 'Invalid AJAX response.' : `AJAX request failed with HTTP ${ raw.status }.`
+				);
+			}
+			return respJSON;
+		} ) );
 	}
 
 	constructFetchRequestData( core, method = 'POST', isBackground = false ) {

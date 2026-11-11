@@ -3,11 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	ActionProcessor,
-	Actions\ScanResultsTableAction
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler as ResultItemsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueScanResultScopeStateBuilder,
@@ -16,8 +12,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PluginAdminRouteRuntime;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use PHPUnit\Framework\ExpectationFailedException;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\ApiBase;
@@ -25,7 +21,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ActionRequestNonceFixture;
+	use CurrentRequestFixture;
 	use ExternalEntryRefusalAssertions;
 
 	public function set_up() {
@@ -865,15 +861,8 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	 * @return array<string,mixed>
 	 */
 	private function processScanResultsAction( array $params ) :array {
-		$snapshot = $this->seedActionNonceContext( ScanResultsTableAction::class );
-
-		try {
-			return ( new PluginAdminRouteRuntime() )
-				->processActionPayloadWithAdminBypass( ScanResultsTableAction::SLUG, $params );
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		return ( new PluginAdminRouteRuntime() )
+			->processActionPayloadWithAdminBypass( ScanResultsTableAction::SLUG, $params );
 	}
 
 	/**

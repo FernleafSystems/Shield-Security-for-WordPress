@@ -301,7 +301,8 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( \wp_check_password( 'CC22DD', $secondRecords[ 0 ]->unique_id ) );
 		$this->assertSame( ActionData::FIELD_SHIELD, (string)( $autoLoginQuery[ ActionData::FIELD_ACTION ] ?? '' ) );
 		$this->assertSame( MfaEmailAutoLogin::SLUG, (string)( $autoLoginQuery[ ActionData::FIELD_EXECUTE ] ?? '' ) );
-		$this->assertArrayHasKey( ActionData::FIELD_NONCE, $autoLoginQuery );
+		// The link is declared without nonce proof; its one-time code authorises it.
+		$this->assertArrayNotHasKey( ActionData::FIELD_NONCE, $autoLoginQuery );
 		$this->assertSame( 'email-login', (string)( $autoLoginQuery[ 'login_nonce' ] ?? '' ) );
 		$this->assertSame( (string)$user->ID, (string)( $autoLoginQuery[ 'user_id' ] ?? '' ) );
 		$this->assertSame( 'CC22DD', (string)( $autoLoginQuery[ ( new Email( $user ) )->getLoginIntentFormParameter() ] ?? '' ) );
@@ -364,15 +365,15 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 			$this->assertTrue( \WP_Session_Tokens::get_instance( $userID )->verify( $token ) );
 		}, 7, 6 );
 
-		$payload = ( new PluginAdminRouteRuntime() )->processActionPayloadWithAdminBypass(
-			MfaEmailAutoLogin::SLUG,
-			ActionData::Build( MfaEmailAutoLogin::class, false, [
-				'login_nonce'                        => 'email-auto-login',
-				'user_id'                            => $user->ID,
-				( new Email( $user ) )->getLoginIntentFormParameter() => 'EE33FF',
-				'redirect_to'                        => '/wp-admin/',
-			] )
-		);
+		$link = ActionData::Build( MfaEmailAutoLogin::class, false, [
+			'login_nonce'                        => 'email-auto-login',
+			'user_id'                            => $user->ID,
+			( new Email( $user ) )->getLoginIntentFormParameter() => 'EE33FF',
+			'redirect_to'                        => '/wp-admin/',
+		] );
+		// The email provider still reads the code from the request itself, so the request is the emailed link.
+		$this->mergeCurrentRequestTransport( $link );
+		$payload = ( new PluginAdminRouteRuntime() )->processActionPayloadWithAdminBypass( MfaEmailAutoLogin::SLUG, $link );
 
 		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
 		$this->assertSame( 'redirect', (string)( $payload[ 'next_step' ][ 'type' ] ?? '' ) );
