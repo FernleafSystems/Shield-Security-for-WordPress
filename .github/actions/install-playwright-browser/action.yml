@@ -1,8 +1,9 @@
 name: Install Playwright browser
 description: >-
   Installs one Playwright browser and the system packages it needs, from the Actions cache when it can. The browser
-  is cached per Playwright version and the packages per runner image, so a run downloads them only when one of those
-  changes. Run it after npm ci, and give the step a timeout: apt waits a long time on each mirror it can't reach.
+  is cached per Playwright version, and the packages are cached as a set, saved again whenever apt picks up a new
+  version, so a run downloads only what has changed. Run it after npm ci, and give the step a timeout: apt waits a
+  long time on each mirror it can't reach.
 
 inputs:
   browser:
@@ -28,13 +29,10 @@ runs:
         if [ "${ONLY_SHELL}" = 'true' ]; then
           target="${BROWSER}-shell"
         fi
-        # The packages a browser needs come from the runner image's apt sources, so they're kept per image. An older
-        # image's packages are restored as a start: apt downloads only those that have changed.
         os="${ImageOS:-$(. /etc/os-release && echo "${ID}${VERSION_ID}")}"
         {
           echo "browser=playwright-browser-${RUNNER_OS}-${RUNNER_ARCH}-${version}-${target}"
-          echo "apt-prefix=playwright-apt-${os}-${target}-"
-          echo "apt=playwright-apt-${os}-${target}-${ImageVersion:-unversioned}-${version}"
+          echo "apt-prefix=playwright-apt-${os}-${RUNNER_ARCH}-${target}-"
         } >> "$GITHUB_OUTPUT"
 
     - name: Restore cached browser
@@ -44,12 +42,14 @@ runs:
         path: ~/.cache/ms-playwright
         key: ${{ steps.keys.outputs.browser }}
 
+    # A package set is named for the package files it holds, which isn't known until apt has run, so the newest set
+    # saved for this browser is restored.
     - name: Restore cached system packages
       id: apt-cache
       uses: actions/cache/restore@v6
       with:
         path: ~/.cache/playwright-apt/*.deb
-        key: ${{ steps.keys.outputs.apt }}
+        key: ${{ steps.keys.outputs.apt-prefix }}
         restore-keys: ${{ steps.keys.outputs.apt-prefix }}
 
     # apt keeps the packages it downloads in the cached folder, so packages restored there need no download.
@@ -80,21 +80,27 @@ runs:
         path: ~/.cache/ms-playwright
         key: ${{ steps.keys.outputs.browser }}
 
-    # Packages restored from an older image that apt no longer offers are dropped first, so the cache doesn't grow
-    # with every image.
-    - name: Check for downloaded system packages
-      id: apt-files
-      if: steps.apt-cache.outputs.cache-hit != 'true'
+    # Cached entries can't be updated, so a set that has changed is saved under a new name: package files apt no longer
+    # offers are dropped, and the rest are named by a hash of their file names, which carry their versions.
+    - name: Name the system packages
+      id: apt-set
       shell: bash
+      env:
+        PREFIX: ${{ steps.keys.outputs.apt-prefix }}
+        RESTORED: ${{ steps.apt-cache.outputs.cache-matched-key }}
       run: |
         sudo apt-get autoclean -qq
-        if compgen -G "${HOME}/.cache/playwright-apt/*.deb" > /dev/null; then
-          echo 'found=true' >> "$GITHUB_OUTPUT"
+        cd "${HOME}/.cache/playwright-apt"
+        if compgen -G '*.deb' > /dev/null; then
+          key="${PREFIX}$(find . -maxdepth 1 -name '*.deb' -printf '%f\n' | sort | sha256sum | cut -c1-16)"
+          if [ "${key}" != "${RESTORED}" ]; then
+            echo "key=${key}" >> "$GITHUB_OUTPUT"
+          fi
         fi
 
     - name: Cache system packages
-      if: steps.apt-files.outputs.found == 'true'
+      if: steps.apt-set.outputs.key != ''
       uses: actions/cache/save@v6
       with:
         path: ~/.cache/playwright-apt/*.deb
-        key: ${{ steps.keys.outputs.apt }}
+        key: ${{ steps.apt-set.outputs.key }}
