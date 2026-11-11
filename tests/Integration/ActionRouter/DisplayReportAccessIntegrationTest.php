@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\FullPageDisplay\DisplayReport,
 	Actions\FullPageDisplay\DisplayReportAdmin,
+	Exceptions\ActionException,
 	Exceptions\UserAuthRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
@@ -79,14 +80,44 @@ class DisplayReportAccessIntegrationTest extends ShieldIntegrationTestCase {
 		$report = $this->insertReport( 'private-report-marker' );
 		$this->loginAsAdministrator();
 
-		$action = new DisplayReportAdminAccessTestDouble( [
-			'report_unique_id' => $report[ 'unique_id' ],
-		] );
-		$action->process();
-		$payload = $action->response()->payload();
+		$payload = $this->withAdminScreen( function () use ( $report ) :array {
+			$action = new DisplayReportAdminAccessTestDouble( [
+				'report_unique_id' => $report[ 'unique_id' ],
+			] );
+			$action->process();
+			return $action->response()->payload();
+		} );
 
 		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
 		$this->assertStringContainsString( 'private-report-marker', (string)( $payload[ 'render_output' ] ?? '' ) );
+	}
+
+	public function test_admin_report_view_is_refused_outside_the_wordpress_admin() :void {
+		$report = $this->insertReport( 'private-report-marker' );
+		$this->loginAsAdministrator();
+
+		$this->expectException( ActionException::class );
+
+		( new DisplayReportAdminAccessTestDouble( [
+			'report_unique_id' => $report[ 'unique_id' ],
+		] ) )->process();
+	}
+
+	/**
+	 * @return mixed
+	 */
+	private function withAdminScreen( callable $callback ) {
+		global $current_screen;
+
+		$screenSnapshot = $current_screen ?? null;
+		\set_current_screen( 'dashboard' );
+
+		try {
+			return $callback();
+		}
+		finally {
+			$current_screen = $screenSnapshot;
+		}
 	}
 
 	public function test_report_url_producer_uses_admin_report_view_without_signature() :void {

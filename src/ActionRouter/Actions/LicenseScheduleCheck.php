@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
 
 class LicenseScheduleCheck extends LicenseBase {
 
-	use Traits\NonceVerifyNotRequired;
 	use Traits\AuthNotRequired;
 
 	public const SLUG = 'license_schedule_check';

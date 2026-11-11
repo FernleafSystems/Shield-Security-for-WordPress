@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
-	ActionRoutingController,
 	CaptureAjaxAction,
 	CapturePluginAction,
 	Actions\ImportExportNetworkInviteAccept,
@@ -590,10 +589,9 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 
 		$subject = new ImportExportNetworkInviteCaptureAjaxActionTestDouble();
 
-		$this->assertFalse( ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalActionTransportPolicy() )->isAllowed(
+		$this->assertFalse( ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard() )->isAdmitted(
 			PluginImportExport_NetworkInviteRequest::SLUG,
-			$actionData,
-			ActionRoutingController::ACTION_AJAX
+			\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard::ENTRY_AJAX
 		) );
 		$this->assertFalse( $subject->canRunForTest() );
 		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );

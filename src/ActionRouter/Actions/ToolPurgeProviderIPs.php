@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ToolPurgeProviderIPs extends BaseAction {
 
-	use Traits\NonceVerifyRequired;
-
 	public const SLUG = 'tool_purge_provider_ips';
 
 	public static function ExternalAccess() :array {

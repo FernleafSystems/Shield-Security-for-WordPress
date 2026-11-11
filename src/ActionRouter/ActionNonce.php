@@ -48,8 +48,4 @@ class ActionNonce {
 		return $valid;
 	}
 
-	public static function VerifyFromRequest() :bool {
-		$req = Services::Request();
-		return self::Verify( (string)$req->request( ActionData::FIELD_EXECUTE ), (string)$req->request( ActionData::FIELD_NONCE ) );
-	}
 }

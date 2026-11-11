@@ -50,7 +50,7 @@ class PublicFullPageTransportPolicyIntegrationTest extends ShieldIntegrationTest
 		$this->assertFalse( ( new PublicFullPagePluginCaptureTestDouble() )->canRunForTest() );
 	}
 
-	public function test_public_block_recovery_transport_allows_known_block_target_without_external_render_data() :void {
+	public function test_block_page_display_is_internal_and_not_reachable_on_the_ordinary_route() :void {
 		$request = ActionData::Build( DisplayBlockPage::class, false, [
 			'render_slug' => BlockTrafficRateLimitExceeded::SLUG,
 		] );
@@ -58,10 +58,10 @@ class PublicFullPageTransportPolicyIntegrationTest extends ShieldIntegrationTest
 			'REQUEST_URI' => '/?'.\http_build_query( $request ),
 		], $request );
 
-		$this->assertTrue( ( new PublicFullPagePluginCaptureTestDouble() )->canRunForTest() );
+		$this->assertFalse( ( new PublicFullPagePluginCaptureTestDouble() )->canRunForTest() );
 	}
 
-	public function test_public_block_recovery_transport_rejects_external_render_data() :void {
+	public function test_block_page_display_is_not_reachable_with_external_render_data() :void {
 		$request = ActionData::Build( DisplayBlockPage::class, false, [
 			'render_slug' => BlockTrafficRateLimitExceeded::SLUG,
 			'render_data' => [

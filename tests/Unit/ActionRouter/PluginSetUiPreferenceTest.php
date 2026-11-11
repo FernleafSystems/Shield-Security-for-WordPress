@@ -11,10 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	Actions\PluginSetUiPreference,
-	Constants
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginSetUiPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\UiPreferences;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -92,11 +89,8 @@ class PluginSetUiPreferenceTest extends BaseUnitTest {
 
 	private function actionData( string $key, string $value ) :array {
 		return [
-			'pref_key'         => $key,
-			'pref_value'       => $value,
-			'action_overrides' => [
-				Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
-			],
+			'pref_key'   => $key,
+			'pref_value' => $value,
 		];
 	}
 }

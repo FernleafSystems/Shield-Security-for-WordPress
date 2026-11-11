@@ -8,8 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAd
 
 class SecurityAdminRequestRemoveByEmail extends SecurityAdminBase {
 
-	use Traits\NonceVerifyRequired;
-
 	public const SLUG = 'req_email_remove';
 
 	public static function ExternalAccess() :array {

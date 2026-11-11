@@ -39,7 +39,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Action
 		SiteActionUpdate,
 		SiteCustomAction
 	};
-	use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 	use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 	use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -147,7 +146,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Action
 					'opt_key'          => 'enable_mainwp',
 					'opt_value'        => 'Y',
 					'action_overrides' => [
-						Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => true,
+						'is_nonce_verify_required' => true,
 						'untrusted_override'                               => true,
 					],
 				],
@@ -163,7 +162,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Action
 			$this->assertSame( 'enable_mainwp', $call[ 'params' ][ 'shield-security-mwp-params' ][ 'opt_key' ] );
 			$this->assertSame( 'Y', $call[ 'params' ][ 'shield-security-mwp-params' ][ 'opt_value' ] );
 			$this->assertSame(
-				[ Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false ],
+				[ 'is_nonce_verify_required' => false ],
 				$call[ 'params' ][ 'shield-security-mwp-params' ][ 'action_overrides' ]
 			);
 		}
@@ -177,7 +176,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Action
 			$this->assertSame( [ 'status' => 'SUCCESS' ], $this->fireCustomAction( $action ) );
 			$call = MainWP_Connect::$fetchCalls[ 0 ];
 			$this->assertSame(
-				[ Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false ],
+				[ 'is_nonce_verify_required' => false ],
 				$call[ 'params' ][ 'shield-security-mwp-params' ][ 'action_overrides' ]
 			);
 			$this->assertArrayNotHasKey( 'opt_key', $call[ 'params' ][ 'shield-security-mwp-params' ] );
@@ -194,7 +193,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Action
 			$this->assertSame( 'extra_execution', $call[ 'action' ] );
 			$this->assertSame( LicenseLookup::SLUG, $call[ 'params' ][ 'shield-security-mwp-action' ] );
 			$this->assertSame(
-				[ Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false ],
+				[ 'is_nonce_verify_required' => false ],
 				$call[ 'params' ][ 'shield-security-mwp-params' ][ 'action_overrides' ]
 			);
 		}

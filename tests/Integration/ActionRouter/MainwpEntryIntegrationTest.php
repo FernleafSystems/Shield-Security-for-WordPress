@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\ModuleOptionsSave,
 	Actions\PluginSetOpt,
 	CapturePluginAction,
-	Constants,
 	Exceptions\ActionException,
 	Exceptions\UserAuthRequiredException
 };
@@ -89,7 +88,7 @@ class MainwpEntryIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_legacy_enable_request_from_an_older_dashboard_switches_mainwp_on() :void {
 		$payload = ( new ClientActionRunner() )->run( PluginSetOpt::SLUG, [
 			'action_overrides' => [
-				Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
+				'is_nonce_verify_required' => false,
 			],
 			'opt_key'          => 'enable_mainwp',
 			'opt_value'        => 'Y',
@@ -131,7 +130,7 @@ class MainwpEntryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->expectException( ActionException::class );
 		( new ClientActionRunner() )->run( ModuleOptionsSave::SLUG, [
 			'action_overrides' => [
-				Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
+				'is_nonce_verify_required' => false,
 			],
 		] );
 	}

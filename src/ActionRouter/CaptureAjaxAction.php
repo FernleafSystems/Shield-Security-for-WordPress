@@ -27,10 +27,6 @@ class CaptureAjaxAction extends CaptureActionBase {
 		return \is_array( $post ) ? $post : [];
 	}
 
-	protected function actionType() :int {
-		return ActionRoutingController::ACTION_AJAX;
-	}
-
 	protected function guardedEntry() :string {
 		return ExternalEntryGuard::ENTRY_AJAX;
 	}

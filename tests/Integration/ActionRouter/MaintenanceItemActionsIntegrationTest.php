@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemUnignore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueRefresh;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\InvalidActionNonceException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\SecurityAdminRequiredException;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 
 	use ActionRequestNonceFixture;
+	use ExternalEntryRefusalAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	private array $optionsSnapshot = [];
@@ -134,37 +135,27 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_ignore_action_requires_valid_nonce() :void {
 		$pluginFiles = $this->requireAtLeastInstalledPlugins( 1 );
 		$this->setPluginUpdatesAvailable( $pluginFiles );
-		$snapshot = $this->seedActionNonceContext( MaintenanceItemIgnore::class );
-		$this->mergeCurrentRequestTransport( [ 'exnonce' => '' ] );
+		$before = $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY );
 
-		try {
-			$this->expectException( InvalidActionNonceException::class );
-			( new ActionProcessor() )->processAction( MaintenanceItemIgnore::SLUG, [
-				'maintenance_key' => 'wp_plugins_updates',
-				'identifier'      => $pluginFiles[ 0 ],
-			] );
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		$this->assertAjaxRequestRefused( MaintenanceItemIgnore::class, [
+			'maintenance_key' => 'wp_plugins_updates',
+			'identifier'      => $pluginFiles[ 0 ],
+		] );
+
+		$this->assertSame( $before, $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ) );
 	}
 
 	public function test_ignore_action_rejects_invalid_nonce() :void {
 		$pluginFiles = $this->requireAtLeastInstalledPlugins( 1 );
 		$this->setPluginUpdatesAvailable( $pluginFiles );
-		$snapshot = $this->seedActionNonceContext( MaintenanceItemIgnore::class );
-		$this->mergeCurrentRequestTransport( [ 'exnonce' => 'invalid_nonce' ] );
+		$before = $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY );
 
-		try {
-			$this->expectException( InvalidActionNonceException::class );
-			( new ActionProcessor() )->processAction( MaintenanceItemIgnore::SLUG, [
-				'maintenance_key' => 'wp_plugins_updates',
-				'identifier'      => $pluginFiles[ 0 ],
-			] );
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		$this->assertAjaxRequestRefused( MaintenanceItemIgnore::class, [
+			'maintenance_key' => 'wp_plugins_updates',
+			'identifier'      => $pluginFiles[ 0 ],
+		], 'invalid_nonce' );
+
+		$this->assertSame( $before, $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ) );
 	}
 
 	public function test_ignore_action_requires_security_admin_even_with_valid_nonce() :void {

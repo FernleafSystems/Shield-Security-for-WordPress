@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionRoutingController,
 	Exceptions,
-	Utility\ExternalActionTransportPolicy,
 	Utility\ExternalEntryGuard,
 	Utility\ResponseEnvelopeNormalizer
 };
@@ -21,8 +20,7 @@ class ShieldPluginAction extends Base {
 		$guard = new ExternalEntryGuard();
 
 		try {
-			if ( !$guard->isAdmitted( $actionSlug, ExternalEntryGuard::ENTRY_REST )
-				 || !( new ExternalActionTransportPolicy() )->isAllowed( $actionSlug, $payload, ActionRoutingController::ACTION_REST ) ) {
+			if ( !$guard->isAdmitted( $actionSlug, ExternalEntryGuard::ENTRY_REST ) ) {
 				$guard->recordRejection( $actionSlug, ExternalEntryGuard::ENTRY_REST );
 				throw new Exceptions\ActionException( __( 'Action transport is not allowed.', 'wp-simple-firewall' ) );
 			}

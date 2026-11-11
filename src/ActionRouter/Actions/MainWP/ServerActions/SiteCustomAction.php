@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\LicenseLookup;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use MainWP\Dashboard\MainWP_Connect;
 
@@ -16,6 +15,8 @@ class SiteCustomAction extends BaseSiteMwpAction {
 		$subActionParams = \is_array( $subActionParams ) ? $subActionParams : [];
 		unset( $subActionParams[ 'action_overrides' ] );
 
+		// Older child sites expect this override metadata with every request. Newer child sites discard it.
+
 		return MainWP_Connect::fetch_url_authed(
 			$this->getMwpSite()->siteobj,
 			'extra_execution',
@@ -24,7 +25,7 @@ class SiteCustomAction extends BaseSiteMwpAction {
 				self::con()->prefix( 'mwp-params' ) => \array_merge(
 					[
 						'action_overrides' => [
-							Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
+							'is_nonce_verify_required' => false,
 						],
 					],
 					$subActionParams

@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
 	Actions\ThemeReinstall,
-	Exceptions\InvalidActionNonceException,
 	Exceptions\SecurityAdminRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 class ThemeReinstallActionIntegrationTest extends ShieldIntegrationTestCase {
 
 	use ActionRequestNonceFixture;
+	use ExternalEntryRefusalAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -31,26 +32,17 @@ class ThemeReinstallActionIntegrationTest extends ShieldIntegrationTestCase {
 		ServicesState::mergeItems( [
 			'service_wpthemes' => $themes,
 		] );
-		$snapshot = $this->seedActionNonceContext( ThemeReinstall::class );
-		$this->mergeCurrentRequestTransport( [
-			ActionData::FIELD_NONCE => '',
-		] );
-		$isSecurityAdmin = (bool)$this->requireController()->this_req->is_security_admin;
-		$this->requireController()->this_req->is_security_admin = true;
 
 		try {
-			$this->expectException( InvalidActionNonceException::class );
-			( new ActionProcessor() )->processAction( ThemeReinstall::SLUG, [
+			$this->assertAjaxRequestRefused( ThemeReinstall::class, [
 				'stylesheet' => 'twentytwentyfive',
 			] );
 		}
 		finally {
 			$themeLookupAttempted = $themes->wasThemeLookupAttempted();
-			$this->requireController()->this_req->is_security_admin = $isSecurityAdmin;
-			$this->restoreActionNonceContext( $snapshot );
 			ServicesState::restore( $servicesSnapshot );
-			$this->assertFalse( $themeLookupAttempted );
 		}
+		$this->assertFalse( $themeLookupAttempted );
 	}
 
 	public function test_reinstall_requires_security_admin_before_theme_lookup() :void {

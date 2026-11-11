@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
  */
 abstract class MaintenanceItemIgnoreBase extends BaseAction {
 
-	use Traits\NonceVerifyRequired;
 	use Traits\RequestedIdentifiers;
 
 	public const ERROR_IDENTIFIER_UNAVAILABLE = 'maintenance_identifier_unavailable';

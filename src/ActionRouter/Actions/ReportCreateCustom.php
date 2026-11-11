@@ -12,8 +12,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ReportCreateCustom extends BaseAction {
 
-	use Traits\NonceVerifyRequired;
-
 	public const SLUG = 'report_create_custom';
 
 	public static function ExternalAccess() :array {

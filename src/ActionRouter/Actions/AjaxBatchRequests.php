@@ -5,8 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
-	ActionRoutingController,
-	Constants,
 	Exceptions\ActionDoesNotExistException,
 	Exceptions\ActionException,
 	Exceptions\InvalidActionNonceException,
@@ -14,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Exceptions\UserAuthRequiredException,
 	ResponseAdapter\AjaxResponseAdapter,
 	Utility\AuthRefreshRequest,
-	Utility\ExternalActionTransportPolicy,
 	Utility\ExternalEntryGuard,
 	Utility\ResponseEnvelopeNormalizer
 };
@@ -143,8 +140,7 @@ class AjaxBatchRequests extends BaseAction {
 
 			// Each item is an AJAX request in its own right, so it passes the same boundary as a direct request.
 			$guard = new ExternalEntryGuard();
-			if ( !$guard->isAdmitted( $action::SLUG, ExternalEntryGuard::ENTRY_AJAX )
-				 || !( new ExternalActionTransportPolicy() )->isAllowed( $actionSlug, $actionRequestData, ActionRoutingController::ACTION_AJAX ) ) {
+			if ( !$guard->isAdmitted( $action::SLUG, ExternalEntryGuard::ENTRY_AJAX ) ) {
 				$guard->recordRejection( $action::SLUG, ExternalEntryGuard::ENTRY_AJAX );
 				return $this->buildFailureResult(
 					__( 'Action transport is not allowed.', 'wp-simple-firewall' ),
@@ -160,9 +156,6 @@ class AjaxBatchRequests extends BaseAction {
 				throw $e;
 			}
 
-			// The item's proof is verified above. Until the action-level nonce check is removed, stop it from
-			// looking for a nonce in the stripped item payload.
-			$action->setActionOverride( Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED, false );
 			$action->process();
 			$adapted = $this->adaptSubrequestResponse( $action->response() );
 			$payload = $this->normaliseAjaxPayload( $this->sanitizeSubrequestPayload( $adapted[ 'payload' ] ) );

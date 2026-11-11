@@ -17,7 +17,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 class ActionsQueueRefresh extends BaseAction {
 
 	use BuildsActionsQueueLandingData;
-	use Traits\NonceVerifyRequired;
 
 	public const SLUG = 'actions_queue_refresh';
 

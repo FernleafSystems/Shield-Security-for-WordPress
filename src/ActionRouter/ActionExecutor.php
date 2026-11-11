@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageSecurityAdminRestricted;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\InvalidActionNonceException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\SecurityAdminRequiredException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ResponseAdapter\ResponseAdapterFactory;
 use FernleafSystems\Wordpress\Services\Services;
@@ -28,7 +27,6 @@ class ActionExecutor {
 	 * @throws Exceptions\ActionException
 	 * @throws Exceptions\ActionTypeDoesNotExistException
 	 * @throws SecurityAdminRequiredException
-	 * @throws InvalidActionNonceException
 	 */
 	public function execute( string $classOrSlug, array $data = [], int $type = ActionRoutingController::ACTION_SHIELD ) :RoutedResponse {
 		$actionResponse = null;
@@ -42,12 +40,6 @@ class ActionExecutor {
 				throw $sare;
 			}
 			$routedResponse = $this->execute( PageSecurityAdminRestricted::class, $data );
-		}
-		catch ( InvalidActionNonceException $iane ) {
-			if ( Services::WpGeneral()->isAjax() ) {
-				throw $iane;
-			}
-			self::DieInvalidNonce();
 		}
 
 		if ( !$routedResponse instanceof RoutedResponse ) {

@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
-	Actions\ScanResultsTableAction,
-	Exceptions\InvalidActionNonceException
+	Actions\ScanResultsTableAction
 };
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler as ResultItemsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
@@ -26,6 +26,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
 	use ActionRequestNonceFixture;
+	use ExternalEntryRefusalAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -249,26 +250,17 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$tracked = $this->seedWordpressScanResult();
 		$resultItemId = (int)( $tracked[ 'result_item_id' ] ?? 0 );
 		$this->assertGreaterThan( 0, $resultItemId );
-		$snapshot = $this->seedActionNonceContext( ScanResultsTableAction::class );
-		$this->mergeCurrentRequestTransport( [
-			ActionData::FIELD_NONCE => '',
+
+		$this->assertAjaxRequestRefused( ScanResultsTableAction::class, [
+			'sub_action' => $subAction,
+			'type'       => 'malware',
+			'file'       => 'malware',
+			'rids'       => [ $resultItemId ],
 		] );
 
-		try {
-			$this->expectException( InvalidActionNonceException::class );
-			( new ActionProcessor() )->processAction( ScanResultsTableAction::SLUG, [
-				'sub_action' => $subAction,
-				'type' => 'malware',
-				'file' => 'malware',
-				'rids'       => [ $resultItemId ],
-			] );
-		}
-		finally {
-			$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( $resultItemId );
-			$this->restoreActionNonceContext( $snapshot );
-			$this->assertNotEmpty( $item );
-			$this->assertSame( 0, (int)( $item->ignored_at ?? -1 ) );
-		}
+		$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( $resultItemId );
+		$this->assertNotEmpty( $item );
+		$this->assertSame( 0, (int)( $item->ignored_at ?? -1 ) );
 	}
 
 	public static function nonceProtectedSubActionProvider() :array {

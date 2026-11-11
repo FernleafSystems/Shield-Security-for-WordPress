@@ -6,7 +6,6 @@ class Constants {
 
 	public const NAV_ID = 'nav';
 	public const NAV_SUB_ID = 'nav_sub';
-	public const ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED = 'is_nonce_verify_required';
 	/**
 	 * @type Actions\BaseAction[]
 	 */

@@ -5,13 +5,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionExecutor,
-	ActionRoutingController,
+	Actions\DashboardLiveMonitorSetState,
 	Actions\SecurityAdminAuthClear,
-	Exceptions\InvalidActionNonceException
+	CaptureAjaxAction,
+	CapturePluginAction
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
+/**
+ * A request refused at an entry point for a bad nonce doesn't echo back the action or its request data.
+ */
 class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCase {
 
 	use ActionRequestNonceFixture;
@@ -30,22 +34,22 @@ class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCas
 	}
 
 	public function test_non_ajax_invalid_nonce_does_not_leak_slug_or_request_data() :void {
+		$request = ActionData::Build( SecurityAdminAuthClear::class, false, [
+			'leak_marker' => 'nonce-leak-marker',
+		] );
+		$request[ ActionData::FIELD_NONCE ] = 'invalid_nonce';
 		$this->applyCurrentRequestState(
 			[
 				'REQUEST_METHOD' => 'POST',
 				'REQUEST_URI'    => '/wp-admin/admin.php?page=shield',
 			],
 			[],
-			[],
+			$request,
 			[
 				'path'       => '/wp-admin/admin.php',
 				'wp_is_ajax' => false,
 			]
 		);
-		$requestBagsSnapshot = $this->seedActionNonceContext( SecurityAdminAuthClear::class );
-		$this->mergeCurrentRequestTransport( [
-			ActionData::FIELD_NONCE => 'invalid_nonce',
-		] );
 
 		$filter = static function () {
 			return static function ( $message, $title = '', $args = [] ) :void {
@@ -57,13 +61,9 @@ class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCas
 		\add_filter( 'wp_die_handler', $filter );
 
 		try {
-			$this->requireController()->action_router->action(
-				SecurityAdminAuthClear::SLUG,
-				[
-					'leak_marker' => 'nonce-leak-marker',
-				],
-				ActionRoutingController::ACTION_SHIELD
-			);
+			$capture = new ActionExecutorNonceFailurePluginCaptureTestDouble();
+			$this->assertTrue( $capture->canRunForTest() );
+			$capture->runForTest();
 			$this->fail( 'Expected wp_die() for invalid non-AJAX nonce.' );
 		}
 		catch ( ActionExecutorNonceFailureWpDieException $e ) {
@@ -72,46 +72,50 @@ class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCas
 			$this->assertSame( ActionExecutor::WP_DIE_INVALID_NONCE_STATUS, $args[ 'response' ] ?? 0 );
 			$this->assertArrayNotHasKey( 'action_data', $args );
 			$this->assertArrayNotHasKey( ActionData::FIELD_NONCE, $args );
+			$this->assertStringNotContainsString( 'nonce-leak-marker', (string)\wp_json_encode( $args ) );
 		}
 		finally {
 			\remove_filter( 'wp_die_handler', $filter );
-			$this->restoreActionNonceContext( $requestBagsSnapshot );
 		}
 	}
 
-	public function test_ajax_invalid_nonce_still_throws_nonce_exception() :void {
-		$this->applyCurrentRequestState(
-			[
-				'REQUEST_METHOD' => 'POST',
-				'REQUEST_URI'    => '/wp-admin/admin-ajax.php',
-			],
-			[],
-			[],
-			[
-				'path'       => '/wp-admin/admin-ajax.php',
-				'wp_is_ajax' => true,
-			]
-		);
-		$requestBagsSnapshot = $this->seedActionNonceContext( SecurityAdminAuthClear::class );
-		$this->mergeCurrentRequestTransport( [
-			ActionData::FIELD_NONCE => 'invalid_nonce',
+	public function test_ajax_invalid_nonce_is_refused_without_leaking_request_data() :void {
+		$request = ActionData::Build( DashboardLiveMonitorSetState::class, true, [
+			'leak_marker' => 'nonce-leak-marker',
 		] );
-		\add_filter( 'wp_doing_ajax', '__return_true', 1000 );
+		$request[ ActionData::FIELD_NONCE ] = 'invalid_nonce';
+		$this->applyCurrentShieldAjaxRequest( $request, true );
 
-		try {
-			$this->expectException( InvalidActionNonceException::class );
-			$this->requireController()->action_router->action(
-				SecurityAdminAuthClear::SLUG,
-				[
-					'leak_marker' => 'nonce-leak-marker',
-				],
-				ActionRoutingController::ACTION_AJAX
-			);
-		}
-		finally {
-			\remove_filter( 'wp_doing_ajax', '__return_true', 1000 );
-			$this->restoreActionNonceContext( $requestBagsSnapshot );
-		}
+		$capture = new ActionExecutorNonceFailureAjaxCaptureTestDouble();
+		$this->assertTrue( $capture->canRunForTest() );
+		$payload = $capture->buildIssuePayloadForTest();
+
+		$this->assertSame( 401, $payload[ 'status_code' ] ?? 0 );
+		$this->assertFalse( (bool)( $payload[ 'success' ] ?? true ) );
+		$this->assertStringNotContainsString( 'nonce-leak-marker', (string)\wp_json_encode( $payload ) );
+		$this->assertStringNotContainsString( DashboardLiveMonitorSetState::SLUG, (string)\wp_json_encode( $payload[ 'data' ] ?? [] ) );
+	}
+}
+
+class ActionExecutorNonceFailurePluginCaptureTestDouble extends CapturePluginAction {
+
+	public function canRunForTest() :bool {
+		return $this->canRun();
+	}
+
+	public function runForTest() :void {
+		$this->theRun();
+	}
+}
+
+class ActionExecutorNonceFailureAjaxCaptureTestDouble extends CaptureAjaxAction {
+
+	public function canRunForTest() :bool {
+		return $this->canRun();
+	}
+
+	public function buildIssuePayloadForTest() :array {
+		return $this->buildAjaxIssuePayload();
 	}
 }
 

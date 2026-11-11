@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
-	Actions\PluginReinstall,
-	Exceptions\InvalidActionNonceException
+	Actions\PluginReinstall
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 class PluginReinstallActionIntegrationTest extends ShieldIntegrationTestCase {
 
 	use ActionRequestNonceFixture;
+	use ExternalEntryRefusalAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -30,23 +31,17 @@ class PluginReinstallActionIntegrationTest extends ShieldIntegrationTestCase {
 		ServicesState::mergeItems( [
 			'service_wpplugins' => $plugins,
 		] );
-		$snapshot = $this->seedActionNonceContext( PluginReinstall::class );
-		$this->mergeCurrentRequestTransport( [
-			ActionData::FIELD_NONCE => '',
-		] );
 
 		try {
-			$this->expectException( InvalidActionNonceException::class );
-			( new ActionProcessor() )->processAction( PluginReinstall::SLUG, [
+			$this->assertAjaxRequestRefused( PluginReinstall::class, [
 				'file' => 'akismet/akismet.php',
 			] );
 		}
 		finally {
 			$pluginLookupAttempted = $plugins->wasPluginLookupAttempted();
-			$this->restoreActionNonceContext( $snapshot );
 			ServicesState::restore( $servicesSnapshot );
-			$this->assertFalse( $pluginLookupAttempted );
 		}
+		$this->assertFalse( $pluginLookupAttempted );
 	}
 }
 

@@ -521,10 +521,6 @@ class AjaxBatchUnexpectedThrowableAction extends BaseAction {
 		return '';
 	}
 
-	protected function isNonceVerifyRequired() :bool {
-		return false;
-	}
-
 	protected function exec() {
 		throw new \RuntimeException( 'unexpected batch throwable' );
 	}

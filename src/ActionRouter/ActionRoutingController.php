@@ -29,7 +29,6 @@ class ActionRoutingController {
 	 * @throws Exceptions\ActionException
 	 * @throws Exceptions\ActionTypeDoesNotExistException
 	 * @throws Exceptions\SecurityAdminRequiredException
-	 * @throws Exceptions\InvalidActionNonceException
 	 */
 	public function action( string $classOrSlug, array $data = [], int $type = self::ACTION_SHIELD ) :RoutedResponse {
 		return $this->getExecutor()->execute( $classOrSlug, $data, $type );

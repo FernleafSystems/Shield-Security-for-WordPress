@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginTelemetry;
 
 class PluginDumpTelemetry extends BaseAction {
 
-	use Traits\NonceVerifyRequired;
-
 	public const SLUG = 'dump_telemetry_data';
 
 	public static function ExternalAccess() :array {

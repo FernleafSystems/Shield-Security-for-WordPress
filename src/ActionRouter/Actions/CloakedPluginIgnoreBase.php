@@ -13,7 +13,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
  */
 abstract class CloakedPluginIgnoreBase extends BaseAction {
 
-	use Traits\NonceVerifyRequired;
 	use Traits\RequestedIdentifiers;
 
 	public const ERROR_IDENTIFIER_UNAVAILABLE = 'cloaked_plugin_identifier_unavailable';

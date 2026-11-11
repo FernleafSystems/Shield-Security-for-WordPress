@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\LicenseLookup,
 	Actions\MainWP\MainwpBase,
 	Actions\PluginSetOpt,
-	Constants,
 	Exceptions\ActionException,
 	Utility\ExternalEntryGuard
 };
@@ -97,9 +96,6 @@ class MainwpServerClientActionHandler extends MainwpBase {
 		$params[ 'client_site_id' ] = $this->action_data[ 'client_site_id' ];
 
 		$action = ( new ActionProcessor() )->getAction( $operation[ 'site_action_slug' ], $params );
-		// The operation is chosen from the fixed list above and this handler's own nonce is already verified.
-		// Until the action-level nonce check is removed, stop the operation looking for a nonce of its own.
-		$action->setActionOverride( Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED, false );
 		$action->process();
 		return $action->response()->payload();
 	}

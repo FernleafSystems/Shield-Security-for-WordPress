@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 
 class LicenseHandshakeVerifyKeyless extends LicenseBase {
 
-	use Traits\NonceVerifyNotRequired;
 	use Traits\AuthNotRequired;
 
 	public const SLUG = 'keyless_handshake';

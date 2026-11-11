@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\DisplayBlockPage;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\{
 	BlockIpAddressCrowdsec,
 	BlockIpAddressShield,
@@ -181,10 +179,14 @@ class PublicBlockRecoveryFixtureBuilder {
 		];
 	}
 
+	/**
+	 * Block pages are internal to Shield; the browser fixture plugin shows the requested one.
+	 * @see shield_browser_fixture_display_block_page()
+	 */
 	private function blockPageUrl( string $renderSlug ) :string {
-		return '/?'.\http_build_query( ActionData::Build( DisplayBlockPage::class, false, [
-			'render_slug' => $renderSlug,
-		] ) );
+		return '/?'.\http_build_query( [
+			'shield_browser_block_page' => $renderSlug,
+		] );
 	}
 }
 

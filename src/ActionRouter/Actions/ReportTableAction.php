@@ -10,8 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Reports\{
 
 class ReportTableAction extends TableActionBase {
 
-	use Traits\NonceVerifyRequired;
-
 	public const SLUG = 'report_table_action';
 
 	public static function ExternalAccess() :array {

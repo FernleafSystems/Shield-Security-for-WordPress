@@ -3,10 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\{
-	ExternalActionTransportPolicy,
-	ExternalEntryGuard
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -39,29 +36,20 @@ class CaptureActionBase {
 		return $action === ActionData::FIELD_SHIELD
 			   && $slug !== ''
 			   && ActionData::isValidActionSlug( $slug )
-			   && $this->isAdmittedByGuard( $slug )
-			   && ( new ExternalActionTransportPolicy() )->isAllowed( $slug, $transport, $this->actionType() );
+			   && $this->isAdmittedByGuard( $slug );
 	}
 
 	private function isAdmittedByGuard( string $slug ) :bool {
-		$entry = $this->guardedEntry();
-		if ( $entry === '' ) {
-			return true;
-		}
 		$guard = new ExternalEntryGuard();
-		$admitted = $guard->isAdmitted( $slug, $entry );
+		$admitted = $guard->isAdmitted( $slug, $this->guardedEntry() );
 		if ( !$admitted ) {
-			$guard->recordRejection( $slug, $entry );
+			$guard->recordRejection( $slug, $this->guardedEntry() );
 		}
 		return $admitted;
 	}
 
-	protected function actionType() :int {
-		return ActionRoutingController::ACTION_SHIELD;
-	}
-
 	/**
-	 * The ExternalEntryGuard entry this capture enforces. Empty for captures not yet on the guard.
+	 * The ExternalEntryGuard entry this capture enforces. Without one, nothing is admitted.
 	 */
 	protected function guardedEntry() :string {
 		return '';

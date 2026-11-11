@@ -21,9 +21,8 @@ class ExternalEntryGuardTest extends BaseUnitTest {
 		ExternalEntryGuard::ENTRY_ORDINARY => [
 			Actions\MfaEmailAutoLogin::class                           => 'Email login link; verifies its own login nonce for the user.',
 			Actions\MfaCanEmailSendVerify::class                       => 'Email link to the report address, which may not be the sending admin; verifies its own per-send token.',
-			Actions\FullPageDisplay\DisplayBlockPage::class            => 'Read-only block page; target and render data restricted by ExternalActionTransportPolicy.',
 			Actions\FullPageDisplay\DisplayReport::class               => 'Public redirect to the admin report view; no state change.',
-			Actions\FullPageDisplay\DisplayReportAdmin::class          => 'Read-only admin report view; capability checked by the action, admin context by the policy.',
+			Actions\FullPageDisplay\DisplayReportAdmin::class          => 'Read-only admin report view; the action checks capability and admin context.',
 			Actions\LicenseHandshakeVerifyKeyless::class               => 'Licence server probe; answers whether its own handshake nonce is valid.',
 			Actions\ShieldNetHandshakeVerify::class                    => 'ShieldNET server probe; answers whether its own handshake nonce is valid.',
 			Actions\LicenseScheduleCheck::class                        => 'Licence server trigger; only schedules a licence check.',
@@ -132,12 +131,21 @@ class ExternalEntryGuardTest extends BaseUnitTest {
 			[
 				Actions\PluginSetOpt::class,
 				Actions\Render::class,
+				Actions\FullPageDisplay\DisplayBlockPage::class,
 				Actions\FullPageDisplay\FullPageDisplayDynamic::class,
 				Actions\FullPageDisplay\FullPageDisplayNonTerminating::class,
 			] as $action
 		) {
 			foreach ( ExternalEntryGuard::ENTRIES as $entry ) {
 				$this->assertFalse( $guard->isAdmitted( $action, $entry ), $action.' on '.$entry );
+			}
+		}
+	}
+
+	public function test_render_actions_are_not_directly_reachable() :void {
+		foreach ( $this->registeredActions() as $action ) {
+			if ( \is_a( $action, Actions\Render\BaseRender::class, true ) ) {
+				$this->assertSame( [], ExternalEntryGuard::DeclaredAccess( $action ), $action.' is reached only through AjaxRender or internally.' );
 			}
 		}
 	}

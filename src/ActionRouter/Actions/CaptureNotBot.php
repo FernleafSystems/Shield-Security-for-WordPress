@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Si
 class CaptureNotBot extends BaseAction {
 
 	use Traits\AuthNotRequired;
-	use Traits\NonceVerifyNotRequired;
 
 	public const SLUG = 'capture_not_bot';
 

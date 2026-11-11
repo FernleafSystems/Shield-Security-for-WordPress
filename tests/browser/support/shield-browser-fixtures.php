@@ -24,6 +24,25 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrowserFixtureRegistry
 	}
 } );
 
+// Before Shield's own IP block response (init priority 3), so any block page can be shown to a blocked visitor.
+\add_action( 'init', 'shield_browser_fixture_display_block_page', 0 );
+
+/**
+ * Block pages are internal to Shield. Browser tests open a specific one through this test-site-only route.
+ */
+function shield_browser_fixture_display_block_page() :void {
+	$renderSlug = \sanitize_key( (string)( $_GET[ 'shield_browser_block_page' ] ?? '' ) );
+	if ( $renderSlug === '' || !\function_exists( 'shield_security_get_plugin' ) ) {
+		return;
+	}
+	$displayBlockPage = \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\DisplayBlockPage::class;
+	if ( \in_array( $renderSlug, $displayBlockPage::allowedRenderSlugs(), true ) ) {
+		\shield_security_get_plugin()->getController()->action_router->action( $displayBlockPage, [
+			'render_slug' => $renderSlug,
+		] );
+	}
+}
+
 \add_filter( 'pre_http_request', 'shield_browser_fixture_filelocker_api_response', 10, 3 );
 \add_filter( 'pre_wp_mail', 'shield_browser_fixture_login_guard_mail_capture', 10, 2 );
 \add_action( 'shield/event', 'shield_browser_fixture_login_guard_event_capture', 10, 3 );

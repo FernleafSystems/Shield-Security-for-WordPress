@@ -23,6 +23,9 @@ class DisplayReportAdmin extends FullPageDisplayStatic {
 	 * @throws ActionException
 	 */
 	protected function retrieveContent() :string {
+		if ( !\is_admin() && !\is_network_admin() ) {
+			throw new ActionException( __( 'Reports can only be viewed from the WordPress admin.', 'wp-simple-firewall' ) );
+		}
 		$reportID = (string)( $this->action_data[ 'report_unique_id' ] ?? '' );
 		if ( $reportID === '' ) {
 			throw new ActionException( __( 'Report could not be found.', 'wp-simple-firewall' ) );

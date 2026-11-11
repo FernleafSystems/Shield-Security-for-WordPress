@@ -49,8 +49,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Integration
 
 	use Brain\Monkey\Functions;
 	use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-		Actions\PluginBadgeClose,
-		Constants
+		Actions\PluginBadgeClose
 	};
 	use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client\Actions\Init;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -174,7 +173,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Integration
 				'shield-security-mwp-action' => PluginBadgeClose::SLUG,
 				'shield-security-mwp-params' => [
 					'action_overrides' => [
-						Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
+						'is_nonce_verify_required' => false,
 					],
 				],
 			] );
@@ -236,7 +235,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Integration
 				'shield-security-mwp-action' => [ PluginBadgeClose::SLUG ],
 				'shield-security-mwp-params' => [
 					'action_overrides' => [
-						Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
+						'is_nonce_verify_required' => false,
 					],
 				],
 			] ) );
@@ -250,7 +249,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Integration
 				'shield-security-mwp-action' => 'missing_mainwp_action',
 				'shield-security-mwp-params' => [
 					'action_overrides' => [
-						Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
+						'is_nonce_verify_required' => false,
 					],
 				],
 			] );

@@ -239,10 +239,6 @@ class CloakedPluginIgnoreActionTestDouble extends CloakedPluginIgnore {
 		return '';
 	}
 
-	protected function isNonceVerifyRequired() :bool {
-		return false;
-	}
-
 	protected function currentFindingState() :array {
 		return $this->state;
 	}
@@ -259,10 +255,6 @@ class CloakedPluginUnignoreActionTestDouble extends CloakedPluginUnignore {
 
 	protected function getMinimumUserAuthCapability() :string {
 		return '';
-	}
-
-	protected function isNonceVerifyRequired() :bool {
-		return false;
 	}
 
 	protected function currentFindingState() :array {

@@ -3,16 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginAdmin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\{
-	NonceVerifyNotRequired,
-	SecurityAdminNotRequired
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginAdminPageHandler extends Actions\BaseAction {
-	use NonceVerifyNotRequired;
 	use SecurityAdminNotRequired;
 
 	public const SLUG = 'plugin_admin_page_handler';

@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageD
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\NonceVerifyNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\RenderActionTarget;
 use FernleafSystems\Wordpress\Services\Services;
@@ -13,7 +12,6 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseFullPageDisplay extends BaseAction {
 
 	use AuthNotRequired;
-	use NonceVerifyNotRequired;
 
 	protected function exec() {
 		$this->setResponse(

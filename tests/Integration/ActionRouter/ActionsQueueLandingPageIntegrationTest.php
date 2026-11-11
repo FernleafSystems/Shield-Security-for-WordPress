@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\InvalidActionNonceException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansFileLockerEnableFile;
@@ -42,6 +42,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	use ActionRequestNonceFixture;
+	use ExternalEntryRefusalAssertions;
 	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
 
@@ -1489,16 +1490,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_scan_enable_rejects_invalid_nonce_without_mutation() :void {
 		$this->enablePremiumCapabilities( [ 'scan_malware_local' ] );
 		$before = $this->requireController()->opts->values();
-		$snapshot = $this->seedActionNonceContext( ScansEnable::class );
-		$this->mergeCurrentRequestTransport( [ ActionData::FIELD_NONCE => 'invalid' ] );
-		try {
-			$this->expectException( InvalidActionNonceException::class );
-			$this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'scan' => 'malware' ] );
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-			$this->assertSame( $before, $this->requireController()->opts->values() );
-		}
+		$this->assertAjaxRequestRefused( ScansEnable::class, [
+			'scan' => 'malware',
+		], 'invalid' );
+		$this->assertSame( $before, $this->requireController()->opts->values() );
 	}
 
 	public function test_file_locker_enable_file_action_adds_key_and_refreshes_to_pending_card() :void {

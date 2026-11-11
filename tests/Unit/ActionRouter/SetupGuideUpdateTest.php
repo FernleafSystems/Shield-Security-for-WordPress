@@ -11,10 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	Actions\SetupGuideUpdate,
-	Constants
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SetupGuideUpdate;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SetupGuideState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -49,14 +46,14 @@ class SetupGuideUpdateTest extends BaseUnitTest {
 		$meta = $this->installEnvironment();
 
 		foreach ( [ 'report_email', 'report_email' ] as $slug ) {
-			$action = new SetupGuideUpdate( [ 'op' => 'skip', 'step_slug' => $slug ] + $this->overrides() );
+			$action = new SetupGuideUpdate( [ 'op' => 'skip', 'step_slug' => $slug ] );
 			$action->process();
 			$this->assertTrue( (bool)( $action->response()->payload()[ 'saved' ] ?? false ) );
 		}
 		$this->assertSame( [ 'report_email' ], ( new SetupGuideState() )->doneSlugs() );
 		$this->assertFalse( ( new SetupGuideState() )->isDismissed() );
 
-		$action = new SetupGuideUpdate( [ 'op' => 'dismiss' ] + $this->overrides() );
+		$action = new SetupGuideUpdate( [ 'op' => 'dismiss' ] );
 		$action->process();
 		$this->assertTrue( ( new SetupGuideState() )->isDismissed() );
 		$this->assertSame( 1700001234, $meta->setup_guide[ 'dismissed_at' ] ?? 0 );
@@ -65,7 +62,7 @@ class SetupGuideUpdateTest extends BaseUnitTest {
 	public function test_unknown_operation_changes_nothing() :void {
 		$meta = $this->installEnvironment();
 
-		$action = new SetupGuideUpdate( [ 'op' => 'reset_everything' ] + $this->overrides() );
+		$action = new SetupGuideUpdate( [ 'op' => 'reset_everything' ] );
 		$action->process();
 
 		$this->assertFalse( (bool)( $action->response()->payload()[ 'saved' ] ?? true ) );
@@ -93,13 +90,6 @@ class SetupGuideUpdateTest extends BaseUnitTest {
 		return $meta;
 	}
 
-	private function overrides() :array {
-		return [
-			'action_overrides' => [
-				Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
-			],
-		];
-	}
 }
 
 class SetupGuideUpdateControllerStub extends Controller {

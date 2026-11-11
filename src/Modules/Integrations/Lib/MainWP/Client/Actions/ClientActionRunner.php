@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\MainWP\ClientActions\MainwpEnable,
 	Actions\PluginSetOpt,
-	Constants,
 	Exceptions\ActionException,
 	Utility\ExternalEntryGuard
 };
@@ -21,7 +20,7 @@ class ClientActionRunner {
 	 * @throws ActionException
 	 */
 	public function run( string $slug, array $params ) :array {
-		// Older dashboards send override metadata; the request never controls security checks.
+		// Older dashboards send override metadata. It has no meaning here.
 		unset( $params[ 'action_overrides' ] );
 		[ $slug, $params ] = $this->normaliseLegacyRequest( $slug, $params );
 
@@ -32,9 +31,6 @@ class ClientActionRunner {
 		}
 
 		$action = ( new ActionProcessor() )->getAction( $slug, $params );
-		// MainWP has authenticated the request. Until the action-level nonce check is removed, stop the action
-		// looking for a nonce of its own.
-		$action->setActionOverride( Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED, false );
 		$action->process();
 		return $action->response()->payload();
 	}

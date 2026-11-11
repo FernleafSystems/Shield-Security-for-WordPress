@@ -13,7 +13,6 @@ class Render extends BaseAction {
 
 	use Traits\AuthNotRequired;
 	use Traits\ByPassIpBlock;
-	use Traits\NonceVerifyNotRequired;
 
 	public const SLUG = 'render';
 
