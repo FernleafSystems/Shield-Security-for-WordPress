@@ -28,6 +28,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   heading:string,
  *   icon_class:string,
  *   collapsible:bool,
+ *   two_columns:bool,
  *   entries:list<LandingEntry>,
  *   rows:list<HealthyRow>
  * }
@@ -56,6 +57,7 @@ class ActionsQueueLandingSectionsBuilder {
 
 	/**
 	 * Housekeeping on plugins and themes closes a lane, always in this order, whatever each holds or has ignored.
+	 * Each item is a name and a button or two, so they list two to a line where there's room.
 	 */
 	private const CLOSING_KIND_ORDER = [ 'wp_plugins_updates', 'wp_plugins_inactive', 'wp_themes_updates', 'wp_themes_inactive' ];
 
@@ -272,7 +274,10 @@ class ActionsQueueLandingSectionsBuilder {
 				);
 			}
 			foreach ( $listed as $entry ) {
-				$boxes[] = $this->box( 'group', (string)$kind, '', '', $collapsible, $this->entries( [ $entry ] ) );
+				$boxes[] = $this->box(
+					'group', (string)$kind, '', '', $collapsible, $this->entries( [ $entry ] ), [],
+					\in_array( $kind, self::CLOSING_KIND_ORDER, true )
+				);
 			}
 		}
 		return $boxes;
@@ -356,13 +361,14 @@ class ActionsQueueLandingSectionsBuilder {
 	 * @param list<HealthyRow>   $rows
 	 * @return LandingBox
 	 */
-	private function box( string $type, string $kind, string $heading, string $iconClass, bool $collapsible, array $entries, array $rows = [] ) :array {
+	private function box( string $type, string $kind, string $heading, string $iconClass, bool $collapsible, array $entries, array $rows = [], bool $twoColumns = false ) :array {
 		return [
 			'type'        => $type,
 			'kind'        => $kind,
 			'heading'     => $heading,
 			'icon_class'  => $iconClass,
 			'collapsible' => $collapsible,
+			'two_columns' => $twoColumns,
 			'entries'     => $entries,
 			'rows'        => $rows,
 		];

@@ -15,6 +15,7 @@
 	A group that lists its items (maintenance, or each vulnerable, abandoned or cloaked asset) shows them in place. Where
 	asked (Review next, the longest lane), it starts folded to its heading and a count, and its heading opens it.
 	Items that are ignored count for nothing, so a passing group can still list them, behind "2 ignored" in its heading.
+	Where asked (housekeeping on plugins and themes), its items list two to a line when there's room.
 #}
 {% set ignored_rows = group.ignored_rows %}
 {% if ( ( group.card_type == 'category' or group.maintenance_rows is not empty ) and not is_passing ) or ignored_rows is not empty %}
@@ -31,7 +32,7 @@
 		<i class="bi bi-eye-slash-fill" aria-hidden="true"></i>{{ strings.ignored_toggle|format( ignored_rows|length ) }}
 		<i class="bi bi-chevron-down actions-queue-row-group__link-chevron" aria-hidden="true"></i>
 	{% endset %}
-	<div class="actions-queue-row-group{% if is_all_ignored %} is-all-ignored{% endif %}" data-actions-queue-group-key="{{ group.key|e('html_attr') }}"
+	<div class="actions-queue-row-group{% if two_columns %} actions-queue-row-group--columns{% endif %}{% if is_all_ignored %} is-all-ignored{% endif %}" data-actions-queue-group-key="{{ group.key|e('html_attr') }}"
 		 {% if bucket_selection.selection_json is defined and bucket_selection.selection_json is not empty %}data-actions-queue-bucket-selection="{{ bucket_selection.selection_json|e('html_attr') }}"{% endif %}>
 		<div class="actions-queue-row-group__head status-{{ group.status }}">
 			{% if is_collapsible or is_all_ignored %}

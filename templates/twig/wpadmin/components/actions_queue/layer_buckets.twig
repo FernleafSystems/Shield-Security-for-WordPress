@@ -98,7 +98,8 @@
 									group: entry.group,
 									bucket_selection: entry.bucket_selection,
 									strings: strings,
-									collapsible: false
+									collapsible: false,
+									two_columns: false
 								} only %}
 							{% endfor %}
 						</div>
@@ -108,7 +109,8 @@
 								group: box.entries[0].group,
 								bucket_selection: box.entries[0].bucket_selection,
 								strings: strings,
-								collapsible: box.collapsible
+								collapsible: box.collapsible,
+								two_columns: box.two_columns
 							} only %}
 						</div>
 					{% else %}
@@ -135,7 +137,8 @@
 										group: entry.group,
 										bucket_selection: entry.bucket_selection,
 										strings: strings,
-										collapsible: false
+										collapsible: false,
+										two_columns: false
 									} only %}
 								{% endfor %}
 								{% for row in box.rows %}

@@ -78,6 +78,8 @@ class ActionsQueueLandingSectionsBuilderTest extends BaseUnitTest {
 			[ 'maintenance_system', 'wp_plugins_updates', 'wp_plugins_inactive', 'wp_themes_updates', 'wp_themes_inactive' ],
 			\array_column( $review[ 'boxes' ], 'kind' )
 		);
+		// Only the plugin and theme housekeeping lists its items two to a line.
+		$this->assertSame( [ false, true, true, true, true ], \array_column( $review[ 'boxes' ], 'two_columns' ) );
 		// The folded summary reads in the same order, leaving out the group with everything ignored.
 		$this->assertSame(
 			[ 'System', 'Plugins With Updates', 'Inactive Plugins', 'Themes With Updates' ],

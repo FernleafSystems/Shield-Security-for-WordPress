@@ -1008,28 +1008,45 @@ button.actions-queue-row-group__link {
 	}
 }
 
-// Passing checks need no detail: a compact two-column list, one line each, in a block per kind of check.
-.actions-queue-passing-grid {
+// Short rows list two to a line where there's room: passing checks, and the housekeeping on plugins and themes,
+// whose items are each a name and a button or two. Anything else in the list, such as a group's foot or its
+// ignored items, takes the whole width.
+.actions-queue-passing-grid,
+.actions-queue-row-group--columns > .actions-queue-row-group__body,
+.actions-queue-row-group--columns .actions-queue-row-group__ignored {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 
-	// A passing group with ignored items has rows to open, so it takes the whole width, after the plain rows.
-	> .actions-queue-row-group {
-		border-top: 1px solid $aq-soft-line;
+	&[hidden] {
+		display: none;
+	}
+
+	> :not(.actions-queue-row) {
 		grid-column: 1 / -1;
-		order: 1;
 	}
 
 	> .actions-queue-row {
 		border-right: 1px solid $aq-soft-line;
+
+		&:nth-child(2n) {
+			border-right: 0;
+		}
+	}
+}
+
+// Passing checks need no detail: one line each, in a block per kind of check.
+.actions-queue-passing-grid {
+	// A passing group with ignored items has rows to open, so it comes after the plain rows.
+	> .actions-queue-row-group {
+		border-top: 1px solid $aq-soft-line;
+		order: 1;
+	}
+
+	> .actions-queue-row {
 		padding-block: 8px;
 
 		&:nth-child(2) {
 			border-top: 0;
-		}
-
-		&:nth-child(2n) {
-			border-right: 0;
 		}
 	}
 
@@ -1040,17 +1057,21 @@ button.actions-queue-row-group__link {
 	}
 }
 
-@media (max-width: 700px) {
-	.actions-queue-passing-grid {
+// Before two to a line would squeeze a row's name against its buttons, they go one to a line. This follows the
+// page's width rather than the window's, which also holds the admin menus.
+@container operator-chrome (max-width: 800px) {
+	.actions-queue-passing-grid,
+	.actions-queue-row-group--columns > .actions-queue-row-group__body,
+	.actions-queue-row-group--columns .actions-queue-row-group__ignored {
 		grid-template-columns: minmax(0, 1fr);
 
 		> .actions-queue-row {
 			border-right: 0;
-
-			&:nth-child(2) {
-				border-top: 1px solid $aq-soft-line;
-			}
 		}
+	}
+
+	.actions-queue-passing-grid > .actions-queue-row:nth-child(2) {
+		border-top: 1px solid $aq-soft-line;
 	}
 }
 
