@@ -48,9 +48,24 @@ class EmailDeliveryVerification {
 		return \in_array( $this->status(), [ self::STATUS_UNSENT, self::STATUS_PENDING, self::STATUS_STALE ], true );
 	}
 
-	public function markSent() :self {
-		self::con()->opts->optSet( 'email_can_send_verification_sent_at', Services::Request()->ts() );
+	public function markSent( int $sentAt ) :self {
+		self::con()->opts->optSet( 'email_can_send_verification_sent_at', $sentAt );
 		return $this;
+	}
+
+	/**
+	 * The credential carried by the verification link: it cannot be forged without the site's salt, it is
+	 * bound to the recorded send time, so links from earlier sends stop working, and it stops working once
+	 * verification completes. It is not bound to a user, because the link goes to the report email address,
+	 * not necessarily to the admin who triggered it.
+	 */
+	public function linkToken( int $sentAt ) :string {
+		return $sentAt > 0 ? \substr( wp_hash( 'shield-email-send-verify|'.$sentAt, 'nonce' ), 0, 32 ) : '';
+	}
+
+	public function verifyLinkToken( string $token ) :bool {
+		$expected = $this->linkToken( $this->sentAt() );
+		return $expected !== '' && \hash_equals( $expected, $token );
 	}
 
 	public function markVerified() :self {

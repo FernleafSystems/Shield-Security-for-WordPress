@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalActionTransportPolicy;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\{
+	ExternalActionTransportPolicy,
+	ExternalEntryGuard
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -36,11 +39,19 @@ class CaptureActionBase {
 		return $action === ActionData::FIELD_SHIELD
 			   && $slug !== ''
 			   && ActionData::isValidActionSlug( $slug )
+			   && ( $this->guardedEntry() === '' || ( new ExternalEntryGuard() )->isAdmitted( $slug, $this->guardedEntry() ) )
 			   && ( new ExternalActionTransportPolicy() )->isAllowed( $slug, $transport, $this->actionType() );
 	}
 
 	protected function actionType() :int {
 		return ActionRoutingController::ACTION_SHIELD;
+	}
+
+	/**
+	 * The ExternalEntryGuard entry this capture enforces. Empty for captures not yet on the guard.
+	 */
+	protected function guardedEntry() :string {
+		return '';
 	}
 
 	protected function extractActionSlugFromTransport( array $transport ) :string {

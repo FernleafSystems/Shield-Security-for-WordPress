@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 
 class LicenseHandshakeVerifyKeyless extends LicenseBase {
@@ -10,6 +11,12 @@ class LicenseHandshakeVerifyKeyless extends LicenseBase {
 	use Traits\AuthNotRequired;
 
 	public const SLUG = 'keyless_handshake';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_ORDINARY => ExternalEntryGuard::PROOF_NONE,
+		];
+	}
 
 	protected function exec() {
 		$nonce = $this->action_data[ 'nonce' ] ?? '';

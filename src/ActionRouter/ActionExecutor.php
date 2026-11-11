@@ -47,14 +47,7 @@ class ActionExecutor {
 			if ( Services::WpGeneral()->isAjax() ) {
 				throw $iane;
 			}
-			wp_die(
-				__( 'Unexpected data. Please try again.', 'wp-simple-firewall' ),
-				'',
-				[
-					'code'     => self::WP_DIE_INVALID_NONCE_CODE,
-					'response' => self::WP_DIE_INVALID_NONCE_STATUS,
-				]
-			);
+			self::DieInvalidNonce();
 		}
 
 		if ( !$routedResponse instanceof RoutedResponse ) {
@@ -62,5 +55,19 @@ class ActionExecutor {
 		}
 
 		return $routedResponse;
+	}
+
+	/**
+	 * @return never
+	 */
+	public static function DieInvalidNonce() :void {
+		wp_die(
+			__( 'Unexpected data. Please try again.', 'wp-simple-firewall' ),
+			'',
+			[
+				'code'     => self::WP_DIE_INVALID_NONCE_CODE,
+				'response' => self::WP_DIE_INVALID_NONCE_STATUS,
+			]
+		);
 	}
 }

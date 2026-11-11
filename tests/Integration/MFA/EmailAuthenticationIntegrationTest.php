@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MfaEmailSendIntent
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
+	EmailDeliveryVerification,
 	Exceptions\OtpVerificationFailedException,
 	LoginIntentRequestValidate,
 	Provider\BackupCodes,
@@ -123,10 +124,11 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$user = \get_user_by( 'id', $userId );
 		$this->assertInstanceOf( \WP_User::class, $user );
+		$sentAt = \time() - 60;
 		RuntimeTestState::restoreOptions( [
 			'enable_email_authentication' => 'Y',
 			'email_can_send_verified_at'  => 0,
-			'email_can_send_verification_sent_at' => \time() - 60,
+			'email_can_send_verification_sent_at' => $sentAt,
 			'two_factor_auth_user_roles'  => [ 'administrator' ],
 		], true );
 		$this->resetMfaProviderCache();
@@ -135,7 +137,9 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 			$this->requireController()->comps->mfa->getProvidersActiveForUser( $user )
 		);
 
-		$payload = $this->requireController()->action_router->action( MfaCanEmailSendVerify::class )->payload();
+		$payload = $this->requireController()->action_router->action( MfaCanEmailSendVerify::class, [
+			MfaCanEmailSendVerify::FIELD_TOKEN => ( new EmailDeliveryVerification() )->linkToken( $sentAt ),
+		] )->payload();
 
 		$this->assertArrayHasKey( 'success', $payload );
 		$this->assertTrue( (bool)$payload[ 'success' ] );

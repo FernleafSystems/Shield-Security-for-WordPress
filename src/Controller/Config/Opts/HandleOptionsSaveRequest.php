@@ -78,9 +78,8 @@ class HandleOptionsSaveRequest {
 			return;
 		}
 
-		$verification = new EmailDeliveryVerification();
-		if ( $verification->needsVerificationSend() && ( new EmailDeliveryVerificationMailer() )->send() ) {
-			$verification->markSent();
+		if ( ( new EmailDeliveryVerification() )->needsVerificationSend() ) {
+			( new EmailDeliveryVerificationMailer() )->send();
 		}
 	}
 }

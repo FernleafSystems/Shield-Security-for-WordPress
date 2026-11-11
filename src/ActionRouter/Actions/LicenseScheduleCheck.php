@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
 
@@ -11,6 +12,12 @@ class LicenseScheduleCheck extends LicenseBase {
 	use Traits\AuthNotRequired;
 
 	public const SLUG = 'license_schedule_check';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_ORDINARY => ExternalEntryGuard::PROOF_NONE,
+		];
+	}
 
 	protected function exec() {
 

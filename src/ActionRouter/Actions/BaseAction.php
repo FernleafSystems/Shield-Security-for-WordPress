@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	UserAuthRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -189,6 +190,17 @@ abstract class BaseAction extends DynPropertiesClass {
 	}
 
 	protected function getRequiredDataKeys() :array {
+		return [];
+	}
+
+	/**
+	 * Entry points from which this action may be reached, each mapped to the proof the entry point must
+	 * verify before the action runs: ['ordinary' => 'nonce', ...]. Only honoured when declared on the
+	 * concrete class itself; the default makes an action unreachable from outside.
+	 * @see ExternalEntryGuard
+	 * @return array<string,string>
+	 */
+	public static function ExternalAccess() :array {
 		return [];
 	}
 

@@ -29,7 +29,6 @@ class MfaEmailSendVerification extends BaseAction {
 			$msg = __( 'Email sending has already been verified.', 'wp-simple-firewall' );
 		}
 		elseif ( ( new EmailDeliveryVerificationMailer() )->send() ) {
-			$verification->markSent();
 			$con->opts->store();
 			$status = $verification->status();
 			$msg = __( 'Verification email sent.', 'wp-simple-firewall' );

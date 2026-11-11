@@ -1,0 +1,94 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility;
+
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	ActionNonce,
+	Actions\BaseAction,
+	Exceptions\InvalidActionNonceException
+};
+
+/**
+ * The external boundary for routed actions.
+ *
+ * An action is reachable from an external entry point only if its own concrete class declares that
+ * entry in ExternalAccess(). The declaration also states whether the entry point must verify an action
+ * nonce for that exact action before the action runs. Declarations are never inherited, so a subclass
+ * of a reachable action is unreachable until it declares its own access.
+ */
+class ExternalEntryGuard {
+
+	public const ENTRY_ORDINARY = 'ordinary';
+	public const ENTRY_AJAX = 'ajax';
+	public const ENTRY_REST = 'rest';
+	public const ENTRY_MAINWP = 'mainwp';
+
+	public const PROOF_NONCE = 'nonce';
+	public const PROOF_NONE = 'none';
+
+	public const ENTRIES = [
+		self::ENTRY_ORDINARY,
+		self::ENTRY_AJAX,
+		self::ENTRY_REST,
+		self::ENTRY_MAINWP,
+	];
+
+	public const PROOFS = [
+		self::PROOF_NONCE,
+		self::PROOF_NONE,
+	];
+
+	public function isAdmitted( string $classOrSlug, string $entry ) :bool {
+		return $this->proofFor( $classOrSlug, $entry ) !== '';
+	}
+
+	/**
+	 * @throws InvalidActionNonceException
+	 */
+	public function verifyProof( string $classOrSlug, string $entry, array $transport ) :void {
+		$proof = $this->proofFor( $classOrSlug, $entry );
+		if ( $proof === '' ) {
+			throw new InvalidActionNonceException( 'Action is not declared for this entry point.' );
+		}
+		if ( $proof === self::PROOF_NONCE
+			 && !ActionNonce::Verify( $classOrSlug, (string)( $transport[ ActionData::FIELD_NONCE ] ?? '' ) ) ) {
+			throw new InvalidActionNonceException( 'Invalid Action Nonce.' );
+		}
+	}
+
+	/**
+	 * @return string the declared proof, or an empty string when the action is not admitted.
+	 */
+	public function proofFor( string $classOrSlug, string $entry ) :string {
+		$action = ActionsMap::ActionFromSlug( $classOrSlug );
+		$proof = empty( $action ) ? '' : ( self::DeclaredAccess( $action )[ $entry ] ?? '' );
+		return \in_array( $proof, self::PROOFS, true ) ? $proof : '';
+	}
+
+	/**
+	 * The access declared on the concrete class itself. Anything malformed is dropped, so a bad
+	 * declaration fails closed.
+	 * @param class-string<BaseAction> $actionClass
+	 * @return array<string,string>
+	 */
+	public static function DeclaredAccess( string $actionClass ) :array {
+		$declared = [];
+		if ( \is_a( $actionClass, BaseAction::class, true ) ) {
+			try {
+				$method = new \ReflectionMethod( $actionClass, 'ExternalAccess' );
+				if ( $method->getDeclaringClass()->getName() === \ltrim( $actionClass, '\\' ) ) {
+					$access = $actionClass::ExternalAccess();
+					foreach ( \is_array( $access ) ? $access : [] as $entry => $proof ) {
+						if ( \in_array( $entry, self::ENTRIES, true ) && \in_array( $proof, self::PROOFS, true ) ) {
+							$declared[ $entry ] = $proof;
+						}
+					}
+				}
+			}
+			catch ( \ReflectionException $e ) {
+			}
+		}
+		return $declared;
+	}
+}

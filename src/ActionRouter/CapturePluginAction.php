@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\InvalidActionNonceException;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CapturePluginAction extends CaptureActionBase {
@@ -10,13 +12,20 @@ class CapturePluginAction extends CaptureActionBase {
 		return !self::con()->this_req->wp_is_ajax && parent::canRun();
 	}
 
+	protected function guardedEntry() :string {
+		return ExternalEntryGuard::ENTRY_ORDINARY;
+	}
+
 	protected function theRun() {
 		$transport = $this->transportData();
+		$slug = $this->extractActionSlugFromTransport( $transport );
+
 		try {
-			$this->actionResponse = self::con()->action_router->action(
-				$this->extractActionSlugFromTransport( $transport ),
-				$transport
-			);
+			( new ExternalEntryGuard() )->verifyProof( $slug, $this->guardedEntry(), $transport );
+			$this->actionResponse = self::con()->action_router->action( $slug, $transport );
+		}
+		catch ( InvalidActionNonceException $e ) {
+			ActionExecutor::DieInvalidNonce();
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );

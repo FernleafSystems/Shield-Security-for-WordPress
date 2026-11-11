@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	BaseAction,
 	Traits\AuthNotRequired,
@@ -14,6 +15,12 @@ class DisplayReport extends BaseAction {
 	use NonceVerifyNotRequired;
 
 	public const SLUG = 'display_full_page_report';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_ORDINARY => ExternalEntryGuard::PROOF_NONE,
+		];
+	}
 
 	protected function exec() {
 		$reportID = \trim( (string)( $this->action_data[ 'report_unique_id' ] ?? '' ) );
