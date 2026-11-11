@@ -17,7 +17,7 @@ class UiPreferences {
 	public const REPORTS_TRENDS = 'reports_trends';
 
 	private const CHOICES = [
-		self::ACTIONS_QUEUE_VIEW    => [ 'sections', 'tabs' ],
+		self::ACTIONS_QUEUE_VIEW    => [ 'tabs', 'sections' ],
 	];
 
 	public function get( string $key ) :string {

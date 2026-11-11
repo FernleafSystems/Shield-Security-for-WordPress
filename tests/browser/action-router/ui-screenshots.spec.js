@@ -92,7 +92,10 @@ function screenTools( page, screenName, fixture, fixtureApi ) {
 	return ui;
 }
 
+// Only the sections view folds; the queue opens as tabs.
 const unfoldActionsQueue = async ( ui ) => {
+	await new ActionsQueuePage( ui.page ).showSectionsView();
+	await ui.settle();
 	await ui.unfoldAll( '[data-actions-queue-section-toggle="1"]' );
 	await ui.unfoldAll( '[data-actions-queue-box-toggle]' );
 };

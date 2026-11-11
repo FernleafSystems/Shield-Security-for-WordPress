@@ -9,6 +9,7 @@ const detail = '[data-drill-layer-key="detail"][aria-hidden="false"]';
 async function openQueue( page, fixture ) {
 	const queue = new ActionsQueuePage( page );
 	await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
+	await queue.showSectionsView();
 	return queue;
 }
 async function openProtection( page, tile ) {

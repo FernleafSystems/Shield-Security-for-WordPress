@@ -1,4 +1,5 @@
 const { openShieldRoute, test, expect } = require( './support/shield-test' );
+const { ActionsQueuePage } = require( './support/actions-queue-page' );
 
 /**
  * Abandoned plugins are listed in the Actions Queue itself. Ignoring one takes it out of the count but leaves it
@@ -13,10 +14,7 @@ const restoreButtons = ( page ) => abandonedGroup( page ).locator( '[data-action
 
 async function openQueue( page ) {
 	await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
-	const sectionsView = page.locator( '[data-actions-queue-view="sections"]' );
-	if ( await sectionsView.getAttribute( 'aria-pressed' ) !== 'true' ) {
-		await sectionsView.click();
-	}
+	await new ActionsQueuePage( page ).showSectionsView();
 }
 
 async function openSection( page, key ) {

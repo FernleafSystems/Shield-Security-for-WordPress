@@ -1,4 +1,5 @@
 const { openShieldRoute, test, expect } = require( './support/shield-test' );
+const { ActionsQueuePage } = require( './support/actions-queue-page' );
 
 /**
  * Ignoring maintenance items from the Actions Queue landing refreshes the queue in place: the section that
@@ -10,10 +11,7 @@ const section = ( page, key ) => page.locator( `[data-actions-queue-section-key=
 
 async function openReviewSection( page ) {
 	await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
-	const sectionsView = page.locator( '[data-actions-queue-view="sections"]' );
-	if ( await sectionsView.getAttribute( 'aria-pressed' ) !== 'true' ) {
-		await sectionsView.click();
-	}
+	await new ActionsQueuePage( page ).showSectionsView();
 	const head = section( page, 'review' ).locator( '[data-actions-queue-section-toggle="1"]' );
 	if ( await head.getAttribute( 'aria-expanded' ) !== 'true' ) {
 		await head.click();

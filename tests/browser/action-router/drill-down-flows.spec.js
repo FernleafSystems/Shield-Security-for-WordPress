@@ -217,14 +217,14 @@ test( 'actions queue landing lists lanes in place and opens a group directly', a
 		await actionsQueuePage.backToLanding();
 		await expect( section ).toBeVisible();
 
+		// The queue opens as tabs; switching to sections and back saves the choice each time.
 		const sections = page.locator( '[data-actions-queue-sections="1"]' );
+		await expect( sections ).toHaveAttribute( 'data-view', 'tabs' );
+		await actionsQueuePage.showSectionsView();
+		const restoreView = waitForShieldAjaxAction( page, 'set_ui_preference' );
 		await page.locator( '[data-actions-queue-view="tabs"]' ).click();
 		await expect( sections ).toHaveAttribute( 'data-view', 'tabs' );
 		await expect( page.locator( '[data-actions-queue-tab]' ).first() ).toHaveAttribute( 'aria-selected', 'true' );
-		// Wait for the saved preference so later tests start from the sections view.
-		const restoreView = waitForShieldAjaxAction( page, 'set_ui_preference' );
-		await page.locator( '[data-actions-queue-view="sections"]' ).click();
-		await expect( sections ).toHaveAttribute( 'data-view', 'sections' );
 		await expectShieldAjaxSuccess( await restoreView );
 	} );
 } );
@@ -264,6 +264,7 @@ test( 'actions queue landing keeps clear risks inert beside clickable vulnerabil
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
 		const detailLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="detail"]' ).first();
+		await actionsQueuePage.showSectionsView();
 
 		const cloaked = await actionsQueuePage.waitForLandingGroupOuter( fixture.group_key );
 		expect( await cloaked.evaluate( ( element ) => element.tagName ) ).toBe( 'DIV' );

@@ -44,6 +44,17 @@ class ActionsQueuePage {
 		await expect( this.page.locator( '[data-actions-landing="1"] [data-results-overlay="1"]' ) ).toHaveCount( 0 );
 	}
 
+	/**
+	 * The landing opens as tabs, showing only the first; the sections view lists every section at once.
+	 */
+	async showSectionsView() {
+		const sectionsView = this.page.locator( '[data-actions-queue-view="sections"]' );
+		if ( await sectionsView.getAttribute( 'aria-pressed' ) !== 'true' ) {
+			await sectionsView.click();
+		}
+		await expect( this.page.locator( '[data-actions-queue-sections="1"]' ) ).toHaveAttribute( 'data-view', 'sections' );
+	}
+
 	landingSection( bucketKey ) {
 		return this.page.locator( `[data-actions-queue-sections="1"] [data-actions-queue-section-key="${bucketKey}"]` );
 	}

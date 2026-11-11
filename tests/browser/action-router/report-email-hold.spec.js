@@ -1,4 +1,5 @@
 const { openShieldRoute, test, expect } = require( './support/shield-test' );
+const { ActionsQueuePage } = require( './support/actions-queue-page' );
 
 /**
  * While Shield holds its first scan alerts for a report email, choosing one leads Review next in the Actions Queue.
@@ -12,10 +13,7 @@ const reportEmailPane = ( page ) => page.locator( '#ShieldSetupGuide [data-setup
 
 async function openReviewSection( page ) {
 	await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
-	const sectionsView = page.locator( '[data-actions-queue-view="sections"]' );
-	if ( await sectionsView.getAttribute( 'aria-pressed' ) !== 'true' ) {
-		await sectionsView.click();
-	}
+	await new ActionsQueuePage( page ).showSectionsView();
 	const head = review( page ).locator( '[data-actions-queue-section-toggle="1"]' );
 	if ( await head.getAttribute( 'aria-expanded' ) !== 'true' ) {
 		await head.click();

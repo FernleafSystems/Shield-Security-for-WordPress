@@ -14,6 +14,7 @@ test( 'free Actions Queue upgrade cards open the shared Pro modal without drilli
 			nav_sub: 'overview',
 		} );
 		await page.setViewportSize( { width: 500, height: 900 } );
+		await actionsQueuePage.showSectionsView();
 
 		// Pro upsell rows are listed on the landing, in the "Not covered" section.
 		await expect( actionsQueuePage.landingSection( 'not_covered' ) ).toBeVisible();
