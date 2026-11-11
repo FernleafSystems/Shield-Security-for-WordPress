@@ -109,6 +109,7 @@ browser:
   - 'infrastructure/src/Tooling/Testing/DockerResourceSweeper.php'
   - 'infrastructure/src/Tooling/Testing/TestingEnvironmentResolver.php'
   - '.github/workflows/browser-tests.yml'
+  - '.github/actions/install-playwright-browser/**'
   - '.github/ci-path-filters.yml'
 
 ci_scripts:

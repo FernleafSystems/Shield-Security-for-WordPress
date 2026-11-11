@@ -1,0 +1,97 @@
+name: Install Playwright browser
+description: >-
+  Installs one Playwright browser and the system packages it needs, from the Actions cache when it can. The browser
+  is cached per Playwright version and the packages per runner image, so a run downloads them only when one of those
+  changes. Run it after npm ci, and give the step a timeout: apt waits a long time on each mirror it can't reach.
+
+inputs:
+  browser:
+    description: 'The browser to install: chromium, firefox or webkit.'
+    required: true
+  only-shell:
+    description: 'For chromium, install only the headless shell.'
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Work out cache keys
+      id: keys
+      shell: bash
+      env:
+        BROWSER: ${{ inputs.browser }}
+        ONLY_SHELL: ${{ inputs.only-shell }}
+      run: |
+        version="$(node -p "require('@playwright/test/package.json').version")"
+        target="${BROWSER}"
+        if [ "${ONLY_SHELL}" = 'true' ]; then
+          target="${BROWSER}-shell"
+        fi
+        # The packages a browser needs come from the runner image's apt sources, so they're kept per image. An older
+        # image's packages are restored as a start: apt downloads only those that have changed.
+        os="${ImageOS:-$(. /etc/os-release && echo "${ID}${VERSION_ID}")}"
+        {
+          echo "browser=playwright-browser-${RUNNER_OS}-${RUNNER_ARCH}-${version}-${target}"
+          echo "apt-prefix=playwright-apt-${os}-${target}-"
+          echo "apt=playwright-apt-${os}-${target}-${ImageVersion:-unversioned}-${version}"
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Restore cached browser
+      id: browser-cache
+      uses: actions/cache/restore@v6
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ steps.keys.outputs.browser }}
+
+    - name: Restore cached system packages
+      id: apt-cache
+      uses: actions/cache/restore@v6
+      with:
+        path: ~/.cache/playwright-apt/*.deb
+        key: ${{ steps.keys.outputs.apt }}
+        restore-keys: ${{ steps.keys.outputs.apt-prefix }}
+
+    # apt keeps the packages it downloads in the cached folder, so packages restored there need no download.
+    - name: Keep downloaded system packages
+      shell: bash
+      run: |
+        mkdir -p "${HOME}/.cache/playwright-apt/partial"
+        printf 'Dir::Cache::Archives "%s/.cache/playwright-apt/";\nAPT::Keep-Downloaded-Packages "true";\n' "${HOME}" \
+          | sudo tee /etc/apt/apt.conf.d/99-playwright-cache > /dev/null
+
+    - name: Install browser and system packages
+      shell: bash
+      env:
+        BROWSER: ${{ inputs.browser }}
+        ONLY_SHELL: ${{ inputs.only-shell }}
+      run: |
+        args=( --with-deps "${BROWSER}" )
+        if [ "${ONLY_SHELL}" = 'true' ]; then
+          args+=( --only-shell )
+        fi
+        php bin/run-node-tool.php playwright install "${args[@]}"
+
+    # Saved straight away, so a later test failure doesn't lose them.
+    - name: Cache browser
+      if: steps.browser-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v6
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ steps.keys.outputs.browser }}
+
+    - name: Check for downloaded system packages
+      id: apt-files
+      if: steps.apt-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        if compgen -G "${HOME}/.cache/playwright-apt/*.deb" > /dev/null; then
+          echo 'found=true' >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Cache system packages
+      if: steps.apt-files.outputs.found == 'true'
+      uses: actions/cache/save@v6
+      with:
+        path: ~/.cache/playwright-apt/*.deb
+        key: ${{ steps.keys.outputs.apt }}
