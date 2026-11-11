@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * A fresh install with no report email chosen, so the report email hold is active. The browser admin's setup guide
  * progress is kept aside too, since a scenario may skip a step.
- * @phpstan-type FixtureState array{options_snapshot:array<string,mixed>,wp_install_date:mixed,setup_guide:array<string,mixed>}
+ * @phpstan-type FixtureState array{options_snapshot:array<string,mixed>,setup_guide:array<string,mixed>}
  */
 class ReportEmailHoldFixtureBuilder {
 
@@ -24,16 +24,12 @@ class ReportEmailHoldFixtureBuilder {
 		$meta = $this->browserAdminMeta();
 		$state = [
 			'options_snapshot' => RuntimeTestState::snapshotOptions( self::OPTION_KEYS ),
-			'wp_install_date'  => \get_option( $this->wpInstallDateKey(), 0 ),
 			'setup_guide'      => \is_array( $meta->setup_guide ) ? $meta->setup_guide : [],
 		];
 
 		try {
-			$installedAt = Services::Request()->ts() - 60;
-			// Each request takes the earlier of Shield's install time and this WP option, so both must be fresh.
-			\update_option( $this->wpInstallDateKey(), $installedAt );
 			RuntimeTestState::controller()->opts
-				->optSet( 'installation_time', $installedAt )
+				->optSet( 'installation_time', Services::Request()->ts() - 60 )
 				->optSet( 'block_send_email_address', '' )
 				->store();
 			$meta->setup_guide = [];
@@ -66,19 +62,12 @@ class ReportEmailHoldFixtureBuilder {
 	 * @param array<string,mixed> $state
 	 */
 	public function cleanup( array $state ) :void {
-		if ( isset( $state[ 'wp_install_date' ] ) ) {
-			\update_option( $this->wpInstallDateKey(), (int)$state[ 'wp_install_date' ] );
-		}
 		RuntimeTestState::restoreOptions(
 			\is_array( $state[ 'options_snapshot' ] ?? null ) ? $state[ 'options_snapshot' ] : []
 		);
 		if ( \is_array( $state[ 'setup_guide' ] ?? null ) ) {
 			$this->browserAdminMeta()->setup_guide = $state[ 'setup_guide' ];
 		}
-	}
-
-	private function wpInstallDateKey() :string {
-		return RuntimeTestState::controller()->prefix( 'install_date', '_' );
 	}
 
 	private function browserAdminMeta() :object {
