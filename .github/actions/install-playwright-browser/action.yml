@@ -80,11 +80,14 @@ runs:
         path: ~/.cache/ms-playwright
         key: ${{ steps.keys.outputs.browser }}
 
+    # Packages restored from an older image that apt no longer offers are dropped first, so the cache doesn't grow
+    # with every image.
     - name: Check for downloaded system packages
       id: apt-files
       if: steps.apt-cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
+        sudo apt-get autoclean -qq
         if compgen -G "${HOME}/.cache/playwright-apt/*.deb" > /dev/null; then
           echo 'found=true' >> "$GITHUB_OUTPUT"
         fi
