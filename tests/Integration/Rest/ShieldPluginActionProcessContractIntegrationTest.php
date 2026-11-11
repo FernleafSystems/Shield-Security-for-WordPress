@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rest;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionNonce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	DashboardLiveMonitorSetState,
 	FullPageDisplay\FullPageDisplayDynamic,
@@ -30,6 +31,7 @@ class ShieldPluginActionProcessContractIntegrationTest extends ShieldIntegration
 		$process = new ShieldPluginActionProcessTestDouble();
 		$result = $process->processForTest( [
 			'ex'      => TestRestFetchRequests::SLUG,
+			'exnonce' => ActionNonce::Create( TestRestFetchRequests::class ),
 			'payload' => [],
 		] );
 
@@ -47,6 +49,19 @@ class ShieldPluginActionProcessContractIntegrationTest extends ShieldIntegration
 		$this->assertIsString( $result[ 'data' ][ 'html' ] );
 		$restData = $this->requireController()->opts->optGet( TestRestFetchRequests::OPT_KEY );
 		$this->assertGreaterThan( 0, (int)( $restData[ TestRestFetchRequests::DATA_SUCCESS_TEST_AT ] ?? 0 ) );
+	}
+
+	public function test_process_rejects_listed_action_without_its_nonce_without_mutating_state() :void {
+		$this->requireController()->opts->optSet( TestRestFetchRequests::OPT_KEY, [] );
+
+		$result = ( new ShieldPluginActionProcessTestDouble() )->processForTest( [
+			'ex'      => TestRestFetchRequests::SLUG,
+			'payload' => [],
+		] );
+
+		$this->assertFalse( (bool)$result[ 'success' ] );
+		$restData = $this->requireController()->opts->optGet( TestRestFetchRequests::OPT_KEY );
+		$this->assertSame( 0, (int)( $restData[ TestRestFetchRequests::DATA_SUCCESS_TEST_AT ] ?? 0 ) );
 	}
 
 	public function test_process_rejects_unlisted_rest_action_without_mutating_state() :void {

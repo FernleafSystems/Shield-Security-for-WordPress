@@ -8,8 +8,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	SecurityAdminRequiredException,
 	UserAuthRequiredException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\AuthRefreshRequest;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ResponseEnvelopeNormalizer;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\{
+	AuthRefreshRequest,
+	ExternalEntryGuard,
+	ResponseEnvelopeNormalizer
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Ajax\Response;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -26,6 +29,10 @@ class CaptureAjaxAction extends CaptureActionBase {
 
 	protected function actionType() :int {
 		return ActionRoutingController::ACTION_AJAX;
+	}
+
+	protected function guardedEntry() :string {
+		return ExternalEntryGuard::ENTRY_AJAX;
 	}
 
 	protected function theRun() {
@@ -53,11 +60,14 @@ class CaptureAjaxAction extends CaptureActionBase {
 	protected function buildAjaxIssuePayload() :array {
 		$con = self::con();
 		$transport = $this->transportData();
+		$slug = $this->extractActionSlugFromTransport( $transport );
+		$guard = new ExternalEntryGuard();
 
 		try {
 			\ob_start();
+			$guard->verifyProof( $slug, $this->guardedEntry(), $transport );
 			$routedResponse = $con->action_router->executor()->execute(
-				$this->extractActionSlugFromTransport( $transport ),
+				$slug,
 				$transport,
 				ActionRoutingController::ACTION_AJAX
 			);
@@ -66,12 +76,19 @@ class CaptureAjaxAction extends CaptureActionBase {
 		}
 		catch ( InvalidActionNonceException $e ) {
 			$statusCode = 401;
-			$msg = __( 'Nonce Failed.', 'wp-simple-firewall' );
-			$response = [
-				'success' => false,
-				'message' => $msg,
-				'error'   => $msg,
-			];
+			if ( AuthRefreshRequest::isRequested() && !Services::WpUsers()->isUserLoggedIn() ) {
+				// The page's nonce was issued to a session that has since expired: ask for a fresh login.
+				$response = ResponseEnvelopeNormalizer::forAjaxAuthRefresh();
+			}
+			else {
+				$guard->recordRejection( $slug, $this->guardedEntry() );
+				$msg = __( 'Nonce Failed.', 'wp-simple-firewall' );
+				$response = [
+					'success' => false,
+					'message' => $msg,
+					'error'   => $msg,
+				];
+			}
 		}
 		catch ( SecurityAdminRequiredException $e ) {
 			$statusCode = 401;

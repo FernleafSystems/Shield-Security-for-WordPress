@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Reports\{
 	BuildReportsTableData,
 	ReportsTableRequestNormalizer
@@ -12,6 +13,12 @@ class ReportTableAction extends TableActionBase {
 	use Traits\NonceVerifyRequired;
 
 	public const SLUG = 'report_table_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 	private const SUB_ACTION_DELETE = 'delete';
 
 	protected function getSubActionHandlers() :array {

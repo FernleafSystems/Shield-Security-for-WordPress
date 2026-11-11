@@ -2,9 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
+
 class MaintenanceItemUnignore extends MaintenanceItemIgnoreBase {
 
 	public const SLUG = 'maintenance_item_unignore';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	/**
 	 * Any item can be restored, even one that no longer needs attention.

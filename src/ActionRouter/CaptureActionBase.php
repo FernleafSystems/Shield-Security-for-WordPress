@@ -39,8 +39,21 @@ class CaptureActionBase {
 		return $action === ActionData::FIELD_SHIELD
 			   && $slug !== ''
 			   && ActionData::isValidActionSlug( $slug )
-			   && ( $this->guardedEntry() === '' || ( new ExternalEntryGuard() )->isAdmitted( $slug, $this->guardedEntry() ) )
+			   && $this->isAdmittedByGuard( $slug )
 			   && ( new ExternalActionTransportPolicy() )->isAllowed( $slug, $transport, $this->actionType() );
+	}
+
+	private function isAdmittedByGuard( string $slug ) :bool {
+		$entry = $this->guardedEntry();
+		if ( $entry === '' ) {
+			return true;
+		}
+		$guard = new ExternalEntryGuard();
+		$admitted = $guard->isAdmitted( $slug, $entry );
+		if ( !$admitted ) {
+			$guard->recordRejection( $slug, $entry );
+		}
+		return $admitted;
 	}
 
 	protected function actionType() :int {

@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\BaseAction,
 	Exceptions\InvalidActionNonceException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
  * The external boundary for routed actions.
@@ -18,6 +19,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
  * of a reachable action is unreachable until it declares its own access.
  */
 class ExternalEntryGuard {
+
+	use PluginControllerConsumer;
 
 	public const ENTRY_ORDINARY = 'ordinary';
 	public const ENTRY_AJAX = 'ajax';
@@ -54,6 +57,22 @@ class ExternalEntryGuard {
 		if ( $proof === self::PROOF_NONCE
 			 && !ActionNonce::Verify( $classOrSlug, (string)( $transport[ ActionData::FIELD_NONCE ] ?? '' ) ) ) {
 			throw new InvalidActionNonceException( 'Invalid Action Nonce.' );
+		}
+	}
+
+	/**
+	 * Records that an entry point refused a registered action, either because the action is not declared
+	 * for that entry or because its proof failed. Requests for unknown slugs are not recorded.
+	 */
+	public function recordRejection( string $classOrSlug, string $entry ) :void {
+		$action = ActionsMap::ActionFromSlug( $classOrSlug );
+		if ( !empty( $action ) ) {
+			self::con()->comps->events->fireEvent( 'action_request_rejected', [
+				'audit_params' => [
+					'action' => $action::SLUG,
+					'entry'  => $entry,
+				],
+			] );
 		}
 	}
 

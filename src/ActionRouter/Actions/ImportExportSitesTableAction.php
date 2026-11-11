@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExportSites\BuildImportExportSitesTableData;
@@ -9,6 +10,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExp
 class ImportExportSitesTableAction extends TableActionBase {
 
 	public const SLUG = 'importexport_sites_table_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 	public const SUB_ACTION_QUEUE_SYNC = 'queue_sync';
 	public const SUB_ACTION_DELETE_SITE = 'delete_site';
 	public const SUB_ACTION_REPAIR_CONNECTION = 'repair_connection';

@@ -25,6 +25,14 @@
         ],
         "level": "notice"
     },
+    "action_request_rejected": {
+        "audit_params": [
+            "action",
+            "entry"
+        ],
+        "level": "warning",
+        "offense": false
+    },
     "ade_check_option_disabled": {
         "level": "notice",
         "audit": true,

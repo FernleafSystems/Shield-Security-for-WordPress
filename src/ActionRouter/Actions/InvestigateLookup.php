@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\IpLookupSearch;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\InvestigateUserLookupBuilder;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
@@ -20,6 +21,12 @@ use FernleafSystems\Wordpress\Services\Services;
 class InvestigateLookup extends BaseAction {
 
 	public const SLUG = 'investigate_lookup';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 	public const KINDS = [ 'user', 'ip', 'plugin', 'theme', 'core' ];
 	private const LIMIT_ANY = 6;
 	private const LIMIT_KIND = 60;

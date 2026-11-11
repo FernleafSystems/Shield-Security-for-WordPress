@@ -32,6 +32,9 @@ class ExternalEntryGuardTest extends BaseUnitTest {
 			Actions\PluginImportExport_UpdateNotified::class           => 'Cross-site notification from the trusted master; schedules a pull from it.',
 			Actions\PluginImportExport_NetworkInviteRequest::class     => 'Cross-site invitation; stored as pending until an admin accepts it.',
 		],
+		ExternalEntryGuard::ENTRY_AJAX     => [
+			Actions\CaptureNotBot::class => 'Public silentCAPTCHA registration from possibly cached pages; records bot signals only.',
+		],
 	];
 
 	public function test_undeclared_action_is_not_admitted() :void {

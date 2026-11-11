@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TrafficLiveLog_SetEnabled extends BaseAction {
@@ -9,6 +10,12 @@ class TrafficLiveLog_SetEnabled extends BaseAction {
 	use Traits\SecurityAdminRequired;
 
 	public const SLUG = 'traffic_live_log_set_enabled';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$enabled = (string)( $this->action_data[ 'enabled' ] ?? '' );

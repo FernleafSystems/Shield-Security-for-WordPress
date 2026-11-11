@@ -15,7 +15,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionNonce,
 	Actions\BaseAction,
-	CaptureAjaxAction
+	CaptureAjaxAction,
+	Utility\ActionsMap,
+	Utility\ExternalEntryGuard
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\InvalidActionNonceException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
@@ -53,6 +55,7 @@ class AjaxTransportBindingTest extends BaseUnitTest {
 	}
 
 	public function test_ajax_capture_runnable_check_uses_post_transport_only() :void {
+		ActionsMap::ActionFromSlug( AjaxTransportBindingNonceActionTestDouble::class );
 		$transport = [
 			ActionData::FIELD_ACTION  => ActionData::FIELD_SHIELD,
 			ActionData::FIELD_EXECUTE => AjaxTransportBindingNonceActionTestDouble::SLUG,
@@ -154,6 +157,12 @@ class AjaxTransportBindingCaptureAjaxActionTestDouble extends CaptureAjaxAction 
 class AjaxTransportBindingNonceActionTestDouble extends BaseAction {
 
 	public const SLUG = 'ajax_transport_binding_test_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function getMinimumUserAuthCapability() :string {
 		return '';

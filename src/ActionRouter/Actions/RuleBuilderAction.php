@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\{
 	Ops as RulesDB,
 	RuleRecords
@@ -14,6 +15,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\{
 class RuleBuilderAction extends BaseAction {
 
 	public const SLUG = 'rule_builder_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$con = self::con();

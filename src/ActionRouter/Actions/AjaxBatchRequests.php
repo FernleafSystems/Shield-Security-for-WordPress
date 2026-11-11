@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	ActionNonce,
 	ActionProcessor,
 	ActionRoutingController,
 	Constants,
@@ -16,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ResponseAdapter\AjaxResponseAdapter,
 	Utility\AuthRefreshRequest,
 	Utility\ExternalActionTransportPolicy,
+	Utility\ExternalEntryGuard,
 	Utility\ResponseEnvelopeNormalizer
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\{
@@ -29,6 +29,12 @@ class AjaxBatchRequests extends BaseAction {
 	use SecurityAdminNotRequired;
 
 	public const SLUG = 'ajax_batch_requests';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 	public const ERROR_ACTION_NOT_FOUND = 'action_not_found';
 	public const ERROR_ACTION_EXCEPTION = 'action_exception';
 	public const ERROR_INVALID_NONCE = 'invalid_nonce';
@@ -121,21 +127,8 @@ class AjaxBatchRequests extends BaseAction {
 			}
 
 			$actionSlug = (string)( $actionRequestData[ ActionData::FIELD_EXECUTE ] ?? '' );
-			$actionNonce = (string)( $actionRequestData[ ActionData::FIELD_NONCE ] ?? '' );
-			if ( empty( $actionSlug ) || empty( $actionNonce ) ) {
-				throw new ActionException( __( 'Missing action slug or nonce in batched request.', 'wp-simple-firewall' ) );
-			}
-
-			if ( !( new ExternalActionTransportPolicy() )->isAllowed(
-				$actionSlug,
-				$actionRequestData,
-				ActionRoutingController::ACTION_AJAX
-			) ) {
-				return $this->buildFailureResult(
-					__( 'Action transport is not allowed.', 'wp-simple-firewall' ),
-					400,
-					self::ERROR_ACTION_TRANSPORT_NOT_ALLOWED
-				);
+			if ( empty( $actionSlug ) ) {
+				throw new ActionException( __( 'Missing action slug in batched request.', 'wp-simple-firewall' ) );
 			}
 
 			$subrequestPayload = $this->stripTransportFields( $actionRequestData );
@@ -148,10 +141,27 @@ class AjaxBatchRequests extends BaseAction {
 				);
 			}
 
-			if ( !ActionNonce::Verify( $action::SLUG, $actionNonce ) ) {
-				throw new InvalidActionNonceException( __( 'Nonce Failed.', 'wp-simple-firewall' ) );
+			// Each item is an AJAX request in its own right, so it passes the same boundary as a direct request.
+			$guard = new ExternalEntryGuard();
+			if ( !$guard->isAdmitted( $action::SLUG, ExternalEntryGuard::ENTRY_AJAX )
+				 || !( new ExternalActionTransportPolicy() )->isAllowed( $actionSlug, $actionRequestData, ActionRoutingController::ACTION_AJAX ) ) {
+				$guard->recordRejection( $action::SLUG, ExternalEntryGuard::ENTRY_AJAX );
+				return $this->buildFailureResult(
+					__( 'Action transport is not allowed.', 'wp-simple-firewall' ),
+					400,
+					self::ERROR_ACTION_TRANSPORT_NOT_ALLOWED
+				);
+			}
+			try {
+				$guard->verifyProof( $action::SLUG, ExternalEntryGuard::ENTRY_AJAX, $actionRequestData );
+			}
+			catch ( InvalidActionNonceException $e ) {
+				$guard->recordRejection( $action::SLUG, ExternalEntryGuard::ENTRY_AJAX );
+				throw $e;
 			}
 
+			// The item's proof is verified above. Until the action-level nonce check is removed, stop it from
+			// looking for a nonce in the stripped item payload.
 			$action->setActionOverride( Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED, false );
 			$action->process();
 			$adapted = $this->adaptSubrequestResponse( $action->response() );

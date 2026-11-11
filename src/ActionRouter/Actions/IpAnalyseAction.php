@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -9,6 +10,12 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 class IpAnalyseAction extends BaseAction {
 
 	public const SLUG = 'ip_analyse_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$ip = $this->action_data[ 'ip' ];

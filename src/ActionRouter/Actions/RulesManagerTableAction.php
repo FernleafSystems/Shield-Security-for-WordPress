@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\RuleRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\ReorderCustomRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SecurityRules\BuildSecurityRulesTableData;
@@ -9,6 +10,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SecurityR
 class RulesManagerTableAction extends BaseAction {
 
 	public const SLUG = 'rules_manager_table_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$con = self::con();

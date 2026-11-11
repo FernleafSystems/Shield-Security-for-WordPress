@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ToolPurgeProviderIPs extends BaseAction {
@@ -9,6 +10,12 @@ class ToolPurgeProviderIPs extends BaseAction {
 	use Traits\NonceVerifyRequired;
 
 	public const SLUG = 'tool_purge_provider_ips';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		Services::ServiceProviders()->clearProviders();

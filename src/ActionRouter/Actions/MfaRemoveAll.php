@@ -2,12 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
+
 class MfaRemoveAll extends MfaUserConfigBase {
 
 	/** Attempting to remove MFA settings on another user account. */
 	use Traits\SecurityAdminNotRequired;
 
 	public const SLUG = 'mfa_profile_remove_all';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$userID = $this->action_data[ 'user_id' ] ?? null;

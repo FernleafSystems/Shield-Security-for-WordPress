@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Import;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\ObservationPresenter;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
@@ -9,6 +10,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 class PluginImportFromSite extends BaseAction {
 
 	public const SLUG = 'import_from_site';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$formParams = \array_merge( [

@@ -20,11 +20,13 @@ class CapturePluginAction extends CaptureActionBase {
 		$transport = $this->transportData();
 		$slug = $this->extractActionSlugFromTransport( $transport );
 
+		$guard = new ExternalEntryGuard();
 		try {
-			( new ExternalEntryGuard() )->verifyProof( $slug, $this->guardedEntry(), $transport );
+			$guard->verifyProof( $slug, $this->guardedEntry(), $transport );
 			$this->actionResponse = self::con()->action_router->action( $slug, $transport );
 		}
 		catch ( InvalidActionNonceException $e ) {
+			$guard->recordRejection( $slug, $this->guardedEntry() );
 			ActionExecutor::DieInvalidNonce();
 		}
 		catch ( \Exception $e ) {

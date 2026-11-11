@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Exceptions\ActionException
@@ -19,6 +20,12 @@ class AjaxRender extends BaseAction {
 	use SecurityAdminNotRequired;
 
 	public const SLUG = 'ajax_render';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$renderAction = RenderActionTarget::require( (string)$this->action_data[ 'render_slug' ] );

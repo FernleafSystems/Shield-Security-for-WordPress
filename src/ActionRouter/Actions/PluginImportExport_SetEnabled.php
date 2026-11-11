@@ -2,11 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
+
 class PluginImportExport_SetEnabled extends BaseAction {
 
 	use Traits\SecurityAdminRequired;
 
 	public const SLUG = 'importexport_set_enabled';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$enabled = (string)( $this->action_data[ 'enabled' ] ?? '' );

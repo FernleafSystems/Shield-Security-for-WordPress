@@ -2,22 +2,39 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalActionTransportPolicy;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ResponseEnvelopeNormalizer;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	ActionRoutingController,
+	Exceptions,
+	Utility\ExternalActionTransportPolicy,
+	Utility\ExternalEntryGuard,
+	Utility\ResponseEnvelopeNormalizer
+};
 
 class ShieldPluginAction extends Base {
 
 	protected function process() :array {
 		$req = $this->getWpRestRequest();
 		$params = $req->get_params();
-		$actionSlug = (string)( $params[ 'ex' ] ?? '' );
+		$actionSlug = (string)( $params[ ActionData::FIELD_EXECUTE ] ?? '' );
 		$payload = \is_array( $params[ 'payload' ] ?? null ) ? $params[ 'payload' ] : [];
+		$guard = new ExternalEntryGuard();
 
 		try {
-			if ( !( new ExternalActionTransportPolicy() )->isAllowed( $actionSlug, $payload, ActionRoutingController::ACTION_REST ) ) {
+			if ( !$guard->isAdmitted( $actionSlug, ExternalEntryGuard::ENTRY_REST )
+				 || !( new ExternalActionTransportPolicy() )->isAllowed( $actionSlug, $payload, ActionRoutingController::ACTION_REST ) ) {
+				$guard->recordRejection( $actionSlug, ExternalEntryGuard::ENTRY_REST );
 				throw new Exceptions\ActionException( __( 'Action transport is not allowed.', 'wp-simple-firewall' ) );
+			}
+			try {
+				// The action nonce travels in the REST URL query, outside the payload.
+				$guard->verifyProof( $actionSlug, ExternalEntryGuard::ENTRY_REST, [
+					ActionData::FIELD_NONCE => (string)( $params[ ActionData::FIELD_NONCE ] ?? '' ),
+				] );
+			}
+			catch ( Exceptions\InvalidActionNonceException $e ) {
+				$guard->recordRejection( $actionSlug, ExternalEntryGuard::ENTRY_REST );
+				throw $e;
 			}
 			$routed = self::con()
 				->action_router

@@ -2,17 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\LicenseLookup;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginSetOpt;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\{
-	SiteActionActivate,
-	SiteActionDeactivate,
-	SiteActionInstall,
-	SiteActionSync,
-	SiteActionUpdate,
-	SiteCustomAction
-};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\{
@@ -39,11 +29,7 @@ class BaseSubPage extends BaseMWP {
 		$name = self::con()->labels->Name;
 		return [
 			'vars'    => [
-				'menu_topnav'  => $this->getMenuTopNavItems(),
-				'site_actions' => \array_map(
-					fn( $action ) => wp_json_encode( \is_array( $action ) ? $action : [ 'site_action_slug' => $action ] ),
-					$this->getSiteActions()
-				),
+				'menu_topnav' => $this->getMenuTopNavItems(),
 			],
 			'strings' => [
 				'site'            => __( 'Site', 'wp-simple-firewall' ),
@@ -100,32 +86,6 @@ class BaseSubPage extends BaseMWP {
 				'icon'    => 'list alternate outline',
 				'active'  => $this->getCurrentTab() === TabSitesListing::TAB,
 			]
-		];
-	}
-
-	protected function getSiteActions() :array {
-		return [
-			'sync'       => SiteActionSync::SLUG,
-			'activate'   => SiteActionActivate::SLUG,
-			'deactivate' => SiteActionDeactivate::SLUG,
-			'install'    => SiteActionInstall::SLUG,
-			'update'     => SiteActionUpdate::SLUG,
-			'license'    => [
-				'site_action_slug'   => SiteCustomAction::SLUG,
-				'site_action_params' => [
-					'sub_action_slug' => LicenseLookup::SLUG,
-				],
-			],
-			'mwp_on'     => [
-				'site_action_slug'   => SiteCustomAction::SLUG,
-				'site_action_params' => [
-					'sub_action_slug'   => PluginSetOpt::SLUG,
-					'sub_action_params' => [
-						'opt_key'   => 'enable_mainwp',
-						'opt_value' => 'Y',
-					],
-				],
-			],
 		];
 	}
 

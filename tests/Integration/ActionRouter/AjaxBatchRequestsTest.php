@@ -19,7 +19,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\Components\ToastPlaceholder,
 	Actions\Render\FullPage\Block\BlockTrafficRateLimitExceeded,
 	Exceptions\ActionException,
-	Exceptions\UserAuthRequiredException
+	Exceptions\UserAuthRequiredException,
+	Utility\ExternalEntryGuard
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
@@ -509,6 +510,12 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 class AjaxBatchUnexpectedThrowableAction extends BaseAction {
 
 	public const SLUG = 'ajax_batch_unexpected_throwable_test_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function getMinimumUserAuthCapability() :string {
 		return '';

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\{
 	InvestigationTableContract,
 	InvestigationSubjectResolver,
@@ -22,6 +23,12 @@ class InvestigationTableAction extends TableActionBase {
 	use HandlesRequestMetaTableAction;
 
 	public const SLUG = 'investigationtable_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 	private const ERROR_UNSUPPORTED_SUB_ACTION = 'unsupported_sub_action';
 	private const ERROR_MISSING_REQUIRED_ACTION_DATA = 'missing_required_action_data';
 	private const ERROR_UNSUPPORTED_TABLE_TYPE = 'unsupported_table_type';

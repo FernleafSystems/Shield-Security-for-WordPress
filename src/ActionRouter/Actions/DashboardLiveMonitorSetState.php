@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
 
 class DashboardLiveMonitorSetState extends SecurityAdminBase {
@@ -9,6 +10,12 @@ class DashboardLiveMonitorSetState extends SecurityAdminBase {
 	use Traits\NonceVerifyRequired;
 
 	public const SLUG = 'dashboard_live_monitor_set_state';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$collapsedRaw = $this->action_data[ 'is_collapsed' ] ?? $this->action_data[ 'collapsed' ] ?? false;
