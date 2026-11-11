@@ -22,6 +22,7 @@ Composer 2.8 or newer is required for the supported command surface. Unit comman
 | Package validation | `composer test:package` | Public wrapper around targeted package validation |
 | Public-to-current upgrade smoke lane | `composer test:upgrade-public` | Manual release-confidence lane: install latest public Shield, prime options, upgrade through WordPress updater to a current package zip, and fail on Shield-scoped errors |
 | Popular plugin compatibility smoke lane | `composer test:popular-plugins` | Manual release-confidence lane: install and activate the pinned known-good popular plugin set, then install current packaged Shield and fail on fatal or Shield-scoped errors |
+| WordPress.org Plugin Check | `composer test:plugin-check` | Manual release-confidence lane: run Plugin Check against the packaged plugin in a disposable Docker site and fail on findings not in `tests/plugin-check/baseline.json` |
 | Source static analysis | `composer analyze` | Public wrapper around source static analysis |
 | JS static checks | `npm run test:js` | Policy, ESLint, and checkJs TypeScript validation only |
 
@@ -249,6 +250,31 @@ Exit codes:
 
 This lane depends on Docker and WordPress.org availability, so it is intentionally manual and outside the default PR gate.
 
+### WordPress.org Plugin Check
+
+Use this lane to see what the WordPress.org plugin review tooling reports for the current package, and to stop new findings creeping in while existing ones are worked down.
+
+```powershell
+composer test:plugin-check
+php bin/shield test:plugin-check --package-path=<built-package-dir>
+php bin/shield test:plugin-check --mode=update
+php bin/shield test:plugin-check --update-baseline
+```
+
+The lane builds a package with `bin/package-plugin.php` (or uses `--package-path`), then runs the self-contained kit in `tests/plugin-check/`. Docker Compose starts an in-memory MySQL and a WP-CLI container. `check.sh` downloads the latest WordPress, installs the pinned Plugin Check version, activates Shield from the read-only package mount and runs `wp plugin check` with experimental and low-severity checks included. `report.php` prints findings by rule and lists any finding that is not in `tests/plugin-check/baseline.json`. Containers and volumes are removed after every run. A run takes about ten minutes.
+
+Baseline entries match on type, rule, file and message, but not line number, so unrelated edits do not invalidate them. After fixing findings, run with `--update-baseline` and commit the smaller `baseline.json`. The full report for the last run is written to `tmp/plugin-check/findings.json`.
+
+The default `--mode=new` applies the checks for a new WordPress.org submission; `--mode=update` applies the update review profile. Plugin Check is pinned to 2.2.0 in `tests/plugin-check/docker-compose.yml`; set `PLUGIN_CHECK_VERSION` to try another release, and refresh the baseline when moving the pin.
+
+Exit codes:
+
+| Code | Meaning |
+|---|---|
+| `0` | No findings beyond the baseline, or the baseline was updated. |
+| `1` | New findings not in the baseline. |
+| `2` | Setup/environment failure, such as Docker unavailable, package build failure or Shield activation failure. |
+
 ## Internal Lane Ownership
 
 These commands remain the owned internal lanes behind the public surface and CI workflows. Do not add new public wrappers for them.
@@ -264,6 +290,7 @@ These commands remain the owned internal lanes behind the public surface and CI 
 | `php bin/shield test:package-targeted` | Targeted package validation lane |
 | `php bin/shield test:package-full` | Manual local deep packaged runtime lane; latest WordPress by default |
 | `php bin/shield test:upgrade-public` | Manual public-to-current package upgrade smoke lane |
+| `php bin/shield test:plugin-check` | Manual WordPress.org Plugin Check lane against the packaged plugin, compared with a committed baseline |
 | `php bin/shield test:popular-plugins` | Manual packaged Shield compatibility lane against a pinned popular plugin stack |
 | `php bin/run-unit-tests.php --runner-mode=serial` | Serial unit sentinel path |
 

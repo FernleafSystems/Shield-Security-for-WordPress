@@ -211,6 +211,10 @@
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:popular-plugins"
     ],
+    "test:plugin-check":    [
+      "Composer\\Config::disableProcessTimeout",
+      "@php bin/shield test:plugin-check"
+    ],
     "analyze":              "@php bin/shield analyze:source",
     "package-plugin":       [
       "Composer\\Config::disableProcessTimeout",
