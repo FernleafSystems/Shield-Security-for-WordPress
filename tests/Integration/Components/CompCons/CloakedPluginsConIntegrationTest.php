@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\C
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPluginsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerCloakedPlugins;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Processor;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportEmailHold;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\CloakedPluginFixtureTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Services\Core\General;
@@ -39,6 +40,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 			CloakedPluginState::IGNORE_OPT_KEY,
 			CloakedPluginState::FINDINGS_OPT_KEY,
 			'block_send_email_address',
+			'installation_time',
 		] );
 		$this->requireController()->opts
 			->optSet( 'instant_alert_hidden_plugins', 'email' )
@@ -173,6 +175,71 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->observeRealPluginsTable();
 		$this->assertCount( 1, $this->getCapturedEventsByKey( 'plugin_hidden_detected' ) );
 		$this->assertCount( 1, $this->capturedMails() );
+	}
+
+	public function testReportEmailHoldKeepsTheAlertQueuedUntilAReportEmailIsChosen() :void {
+		global $pagenow;
+		$pagenow = 'plugins.php';
+
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'installation_time', Services::Request()->ts() - 60 )
+			->optSet( 'block_send_email_address', '' )
+			->store();
+		$pluginFile = $this->createStandardCloakedPlugin( 'shi-cloaked-held', 'SHI Cloaked Held' );
+		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+
+		$this->observeRealPluginsTable();
+		$this->assertSame( [], $this->capturedMails() );
+		$this->assertNotEmpty( $con->opts->optGet( 'instant_alerts_data' )[ AlertHandlerCloakedPlugins::class ] ?? [] );
+
+		$sendHook = $con->prefix( 'instant_alerts_send' );
+		\wp_clear_scheduled_hook( $sendHook );
+		$con->comps->instant_alerts->resetExecution()->execute();
+		\do_action( $sendHook );
+		$this->assertSame( [], $this->capturedMails(), 'Still held while no report email is chosen.' );
+
+		$con->opts->optSet( 'block_send_email_address', 'agency@example.test' )->store();
+		\do_action( $sendHook );
+
+		$this->assertCount( 1, $this->capturedMails() );
+		$mail = $this->lastCapturedMail();
+		$this->assertSame( 'agency@example.test', \is_array( $mail[ 'to' ] ) ? \implode( ',', $mail[ 'to' ] ) : $mail[ 'to' ] );
+		$this->assertHtmlContainsMarker( $pluginFile, (string)$mail[ 'html_body' ], 'Released cloaked plugin alert HTML body' );
+		$this->assertArrayNotHasKey( AlertHandlerCloakedPlugins::class, $con->opts->optGet( 'instant_alerts_data' ) );
+		\wp_clear_scheduled_hook( $sendHook );
+	}
+
+	public function testReportEmailHoldExpirySendsTheQueuedAlertOnceToTheSiteAdminEmail() :void {
+		global $pagenow;
+		$pagenow = 'plugins.php';
+
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'installation_time', Services::Request()->ts() - 60 )
+			->optSet( 'block_send_email_address', '' )
+			->store();
+		$pluginFile = $this->createStandardCloakedPlugin( 'shi-cloaked-expiry', 'SHI Cloaked Expiry' );
+		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+
+		$this->observeRealPluginsTable();
+		$this->assertSame( [], $this->capturedMails() );
+
+		$con->opts->optSet( 'installation_time', Services::Request()->ts() - ReportEmailHold::WINDOW )->store();
+		$sendHook = $con->prefix( 'instant_alerts_send' );
+		\wp_clear_scheduled_hook( $sendHook );
+		$con->comps->instant_alerts->resetExecution()->execute();
+		\do_action( $sendHook );
+		\do_action( $sendHook );
+
+		$this->assertCount( 1, $this->capturedMails(), 'The queued alert goes out once when the hold expires.' );
+		$mail = $this->lastCapturedMail();
+		$this->assertSame(
+			Services::WpGeneral()->getSiteAdminEmail(),
+			\is_array( $mail[ 'to' ] ) ? \implode( ',', $mail[ 'to' ] ) : $mail[ 'to' ]
+		);
+		$this->assertHtmlContainsMarker( $pluginFile, (string)$mail[ 'html_body' ], 'Expired-hold cloaked plugin alert HTML body' );
+		\wp_clear_scheduled_hook( $sendHook );
 	}
 
 	public function testBackgroundCheckFollowedByAdminObservationDetectsCloaking() :void {

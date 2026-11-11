@@ -39,6 +39,7 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 			this.openNow();
 			const url = new URL( window.location.href );
 			url.searchParams.delete( 'setup_guide' );
+			url.searchParams.delete( 'setup_step' );
 			window.history.replaceState( window.history.state, '', url.toString() );
 		}
 

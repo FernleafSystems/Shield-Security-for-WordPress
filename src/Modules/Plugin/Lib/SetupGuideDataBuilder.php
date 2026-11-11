@@ -27,10 +27,10 @@ class SetupGuideDataBuilder {
 	 * slides are left to the wizard itself.
 	 */
 	private const STEP_HANDLERS = [
+		Steps\ReportEmail::class,
+		Steps\SecurityAdmin::class,
 		Steps\License::class,
 		Steps\ApplySecurityProfile::class,
-		Steps\SecurityAdmin::class,
-		Steps\ReportEmail::class,
 		Steps\Integrations::class,
 		Steps\SecurityBadge::class,
 	];
@@ -73,14 +73,17 @@ class SetupGuideDataBuilder {
 			return [ 'show' => false ];
 		}
 		$next = \current( \array_filter( $steps, static fn( array $step ) :bool => !$step[ 'is_done' ] ) );
+		$askedStep = $isAskedFor ? (string)Services::Request()->query( 'setup_step' ) : '';
 
 		return [
 			'show'        => true,
 			'open_now'    => $isAskedFor,
 			'steps'       => $steps,
 			'next_name'   => \is_array( $next ) ? $next[ 'name' ] : '',
-			// The guide opens on the next step to do, or says setup is complete.
-			'open_step'   => \is_array( $next ) ? $next[ 'slug' ] : 'all_done',
+			// A link may ask for one step; otherwise the guide opens on the next step to do, or says setup is complete.
+			'open_step'   => \in_array( $askedStep, \array_column( $steps, 'slug' ), true )
+				? $askedStep
+				: ( \is_array( $next ) ? $next[ 'slug' ] : 'all_done' ),
 			'done_count'  => $doneCount,
 			'total'       => \count( $steps ),
 			'merlin_action_json' => ActionData::BuildJson( MerlinAction::class ),

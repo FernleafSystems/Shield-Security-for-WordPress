@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerVulnerabilities;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -44,18 +43,23 @@ class InstantAlertsCon {
 	}
 
 	private function sendAlerts() :void {
-		$alertsData = $this->getAlertsData();
 		$retained = [];
-		if ( isset( $alertsData[ AlertHandlerVulnerabilities::class ] )
-			 && !self::con()->comps->scans->isReadyForScanResultNotifications() ) {
-			$retained[ AlertHandlerVulnerabilities::class ] = $alertsData[ AlertHandlerVulnerabilities::class ];
-			unset( $alertsData[ AlertHandlerVulnerabilities::class ] );
+		$toSend = [];
+		foreach ( $this->getAlertsData() as $handlerClass => $alertGroupData ) {
+			$handler = $this->getAlertHandlers()[ $handlerClass ] ?? null;
+			if ( $handler === null || empty( $alertGroupData ) ) {
+				continue;
+			}
+			if ( $handler->isSendHeld() ) {
+				$retained[ $handlerClass ] = $alertGroupData;
+			}
+			else {
+				$toSend[ $handlerClass ] = $alertGroupData;
+			}
 		}
 		$this->setAlertsData( $retained );
-		foreach ( $alertsData as $handlerClass => $alertGroupData ) {
-			if ( !empty( $alertGroupData ) && isset( $this->getAlertHandlers()[ $handlerClass ] ) ) {
-				$this->sendAlert( $this->getAlertHandlers()[ $handlerClass ], $alertGroupData );
-			}
+		foreach ( $toSend as $handlerClass => $alertGroupData ) {
+			$this->sendAlert( $this->getAlertHandlers()[ $handlerClass ], $alertGroupData );
 		}
 	}
 
@@ -86,7 +90,7 @@ class InstantAlertsCon {
 
 		$this->setAlertsData( \array_merge( $this->getAlertsData(), [ \get_class( $handler ) => $dataForHandler ] ) );
 
-		if ( $handler->isImmediateAlert() ) {
+		if ( $handler->isImmediateAlert() && !$handler->isSendHeld() ) {
 			return $this->sendAlertFor( $handler );
 		}
 

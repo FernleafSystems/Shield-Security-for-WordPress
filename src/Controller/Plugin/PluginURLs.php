@@ -39,10 +39,13 @@ class PluginURLs {
 	}
 
 	/**
-	 * Configure, with the setup guide opened, even when it was finished or dismissed.
+	 * Configure, with the setup guide opened, even when it was finished or dismissed, optionally on one step.
 	 */
-	public function setupGuide() :string {
-		return URL::Build( $this->configureHome(), [ 'setup_guide' => 'open' ] );
+	public function setupGuide( string $stepSlug = '' ) :string {
+		return URL::Build( $this->configureHome(), \array_filter( [
+			'setup_guide' => 'open',
+			'setup_step'  => $stepSlug,
+		] ) );
 	}
 
 	public function investigateHome() :string {

@@ -49,9 +49,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 class ActionsQueueLandingSectionsBuilder {
 
 	/**
-	 * Each kind of problem gets a box of its own, most serious first. Anything else follows in the order it came.
+	 * Each kind of problem gets a box of its own: choosing a report email first while Shield holds alerts for it, then
+	 * the most serious. Anything else follows in the order it came.
 	 */
-	private const KIND_ORDER = [ 'wordpress', 'malware', 'file_locker', 'vulnerabilities', 'plugins', 'themes' ];
+	private const KIND_ORDER = [ 'report_email', 'wordpress', 'malware', 'file_locker', 'vulnerabilities', 'plugins', 'themes' ];
 
 	/**
 	 * Housekeeping on plugins and themes closes a lane, always in this order, whatever each holds or has ignored.

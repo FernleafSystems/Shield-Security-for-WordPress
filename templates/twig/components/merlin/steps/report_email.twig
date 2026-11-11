@@ -2,6 +2,9 @@
 
 {% block slide_body_video_section_blurb %}
 	<p>{{ strings.report_email_text }}</p>
+	{% if strings.hold_notice is not empty %}
+		<p class="text-body-secondary">{{ strings.hold_notice }}</p>
+	{% endif %}
 {% endblock %}
 
 {% block slide_body_action_area %}
@@ -22,5 +25,11 @@
 				{{ icwp_macros.formInput_Submit2( strings.report_email_button, null, 'secondary', false, 'mt-2' ) }}
 			</div>
 		</div>
+	</form>
+
+	<form class="form-horizontal merlin-form ajax-form mt-2">
+		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
+		{{ icwp_macros.formInput_Hidden( 'use_site_admin_email', 'Y' ) }}
+		<button type="submit" class="btn btn-link px-0">{{ strings.use_admin_button }}</button>
 	</form>
 {% endblock %}

@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MerlinWel
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MfaProfileFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\NotBotAltchaFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PublicBlockRecoveryFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ReportEmailHoldFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityAdminFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityHeadersFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\UserUiStateFixtureBuilder;
@@ -68,6 +69,8 @@ class BrowserFixtureRegistry {
 				return self::runNotBotAltchaFixture( $action, $args );
 			case 'public-block-recovery':
 				return self::runPublicBlockRecoveryFixture( $action, $args );
+			case 'report-email-hold':
+				return self::runReportEmailHoldFixture( $action );
 			case 'security-admin':
 				return self::runSecurityAdminFixture( $action, $args );
 			case 'security-headers':
@@ -104,6 +107,7 @@ class BrowserFixtureRegistry {
 		self::runMfaProfileFixture( 'cleanup' );
 		self::runNotBotAltchaFixture( 'cleanup', [] );
 		self::runPublicBlockRecoveryFixture( 'cleanup', [] );
+		self::runReportEmailHoldFixture( 'cleanup' );
 		self::runSecurityAdminFixture( 'cleanup', [] );
 		self::runSecurityHeadersFixture( 'cleanup' );
 		self::runCustomRulesTerminalFinalizationFixture( 'cleanup', [] );
@@ -240,6 +244,36 @@ class BrowserFixtureRegistry {
 	/**
 	 * @return array<string,mixed>
 	 */
+	private static function runReportEmailHoldFixture( string $action ) :array {
+		$builder = new ReportEmailHoldFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'report-email-hold' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'inspect':
+				return $builder->inspect( $state );
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
 	private static function runLiveTrafficToggleFixture( string $action ) :array {
 		$builder = new LiveTrafficToggleFixtureBuilder();
 		$optionKey = self::fixtureOptionKey( 'live-traffic-toggle' );

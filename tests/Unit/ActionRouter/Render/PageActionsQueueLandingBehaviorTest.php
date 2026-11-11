@@ -446,6 +446,12 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 							return false;
 						}
 					},
+					// An established site: no install time inside the report email hold.
+					'opts_lookup' => new class {
+						public function getInstalledAt() :int {
+							return 0;
+						}
+					},
 				],
 				'labels'        => $labels,
 				'caps'          => new class {

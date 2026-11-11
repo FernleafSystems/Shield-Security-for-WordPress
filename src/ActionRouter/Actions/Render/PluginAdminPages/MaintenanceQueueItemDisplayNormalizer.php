@@ -209,6 +209,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 		$target = $item[ 'target' ];
 
 		switch ( $item[ 'key' ] ) {
+			case 'report_email':
 			case 'default_admin_user':
 				return $this->buildMappedCta( $href, $item[ 'action' ], $target );
 
@@ -493,7 +494,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 	 */
 	private function buildToggleAction( array $item, array $state ) :array {
 		if ( $state[ 'supports_sub_items' ]
-			|| ( $state[ 'count' ] === 0 && $state[ 'ignored_count' ] === 0 ) ) {
+			|| ( $state[ 'count' ] === 0 && $state[ 'ignored_count' ] === 0 )
+			|| !$this->buildMaintenanceIssueStateProvider()->canBeIgnored( $item[ 'key' ] ) ) {
 			return [];
 		}
 

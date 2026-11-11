@@ -155,7 +155,10 @@ test( 'Merlin skip-step button advances the wizard by keyboard and click', async
 		await expect( page.locator( '#MerlinOverlay' ) ).toBeVisible();
 
 		const licensePane = page.locator( '#step-license' );
-		await page.locator( '#merlin .merlin-next' ).click();
+		// Report email and Security Admin come before the licence step while they still need doing.
+		for ( let step = 0; step < 3 && !( await licensePane.isVisible() ); step++ ) {
+			await page.locator( '#merlin .merlin-next' ).click();
+		}
 		await expect( licensePane ).toBeVisible();
 		await expect.poll( () => visibleMerlinStepId( page ) ).toBe( 'step-license' );
 
@@ -171,6 +174,9 @@ test( 'Merlin skip-step button advances the wizard by keyboard and click', async
 		await expect( licensePane ).toBeVisible();
 		await skipAction.click();
 		await expect.poll( () => visibleMerlinStepId( page ) ).toBe( keyboardNextStep );
+		// The next pane can reflow a button under the pointer. Check its resting colours, not a hover fading out.
+		await page.emulateMedia( { reducedMotion: 'reduce' } );
+		await page.mouse.move( 0, 0 );
 		await expectNoAxeViolations( page, '#MerlinOverlay', [ 'heading-order' ] );
 	} );
 } );

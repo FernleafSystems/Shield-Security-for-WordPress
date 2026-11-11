@@ -120,6 +120,25 @@ class MaintenanceItemActionsTest extends BaseUnitTest {
 		$this->assertSame( $before, $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ) );
 	}
 
+	public function test_ignore_rejects_the_report_email_choice_without_mutating_state() :void {
+		$before = $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY );
+		$action = new MaintenanceItemIgnoreTestDouble(
+			[
+				'report_email' => [ MaintenanceIssueStateProvider::SINGLETON_TOKEN ],
+			],
+			[],
+			[
+				'maintenance_key' => 'report_email',
+			]
+		);
+
+		$action->process();
+
+		$this->assertFalse( (bool)( $action->response()->payload()[ 'success' ] ?? true ) );
+		$this->assertSame( MaintenanceItemIgnore::ERROR_INVALID_KEY, $action->response()->payload()[ 'error_code' ] ?? '' );
+		$this->assertSame( $before, $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ) );
+	}
+
 	public function test_ignore_rejects_unavailable_singleton_without_mutating_state() :void {
 		$before = $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY );
 		$action = new MaintenanceItemIgnoreTestDouble(

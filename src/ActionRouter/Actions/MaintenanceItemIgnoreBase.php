@@ -21,7 +21,7 @@ abstract class MaintenanceItemIgnoreBase extends BaseAction {
 		$provider = $this->buildMaintenanceIssueStateProvider();
 		$key = \sanitize_key( $this->action_data[ 'maintenance_key' ] );
 
-		if ( !$provider->isKnownMaintenanceKey( $key ) ) {
+		if ( !$provider->canBeIgnored( $key ) ) {
 			$this->fail( __( 'Invalid maintenance item.', 'wp-simple-firewall' ), self::ERROR_INVALID_KEY );
 			return;
 		}

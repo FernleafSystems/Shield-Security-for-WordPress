@@ -665,6 +665,13 @@ class PluginNavs {
 				'drill_bucket'          => 'critical',
 			],
 			[
+				'key'                   => 'report_email',
+				'zone'                  => 'maintenance',
+				'component_class'       => Component\ReportEmailChoice::class,
+				'availability_strategy' => 'always',
+				'drill_bucket'          => 'review',
+			],
+			[
 				'key'                   => 'default_admin_user',
 				'zone'                  => 'maintenance',
 				'component_class'       => Component\DefaultAdminUser::class,
