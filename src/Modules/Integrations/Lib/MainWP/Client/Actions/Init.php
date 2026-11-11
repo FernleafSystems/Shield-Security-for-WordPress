@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\{
 	Client\Auth\ReproduceClientAuthByKey,
@@ -44,27 +43,8 @@ class Init {
 			}, 10, 2 );
 
 			/**
-			 * Execute custom actions via MainWP API.
-			 *
-			 * SECURITY: Action Overrides Handling
-			 *
-			 * MainWP Child 4.1+ authenticates extra_execution before firing this hook. MainWP server sends
-			 * action_overrides (e.g., is_nonce_verify_required=false) in POST data to allow server-to-server
-			 * communication without nonce verification. However, passing these overrides directly through
-			 * user input creates a CSRF bypass vulnerability where attackers could send
-			 * action_overrides[is_nonce_verify_required]=0 to skip CSRF protection.
-			 *
-			 * Solution: ActionProcessor::getAction() strips action_overrides from all input data. We
-			 * extract them here first, then set them programmatically via setActionOverride() inside
-			 * MainWP's authenticated extra_execution context. This ensures security controls are never
-			 * controllable via user input, while preserving legitimate MainWP server-to-server functionality.
-			 *
-			 * We instantiate ActionProcessor directly because we need the action object to
-			 * call setActionOverride() before processing.
-			 *
-			 * @see ActionProcessor::getAction() - strips action_overrides from all input
-			 * @see BaseAction::setActionOverride() - programmatic override setter
-			 * @see SiteCustomAction.php - MainWP server sends overrides
+			 * Run a Shield action requested by the MainWP dashboard. MainWP Child authenticates extra_execution
+			 * before firing this hook; ClientActionRunner runs only actions declared for MainWP.
 			 */
 			add_filter( 'mainwp_child_extra_execution', function ( $information, $post ) {
 				$information = \is_array( $information ) ? $information : [];
@@ -73,24 +53,9 @@ class Init {
 				$actionSlug = $post[ $con->prefix( 'mwp-action' ) ] ?? '';
 
 				if ( \is_scalar( $actionSlug ) && $actionSlug !== '' ) {
+					$params = $post[ $con->prefix( 'mwp-params' ) ] ?? [];
 					try {
-						$params = $post[ $con->prefix( 'mwp-params' ) ] ?? [];
-						$params = \is_array( $params ) ? $params : [];
-						$actionOverrides = $params[ 'action_overrides' ] ?? [];
-						$actionOverrides = \is_array( $actionOverrides ) ? $actionOverrides : [];
-
-						$action = ( new ActionProcessor() )->getAction( (string)$actionSlug, $params );
-
-						if ( !empty( $actionOverrides ) ) {
-							foreach ( $actionOverrides as $overrideKey => $overrideValue ) {
-								if ( \is_string( $overrideKey ) ) {
-									$action->setActionOverride( $overrideKey, $overrideValue );
-								}
-							}
-						}
-
-						$action->process();
-						$response = $action->response()->payload();
+						$response = ( new ClientActionRunner() )->run( (string)$actionSlug, \is_array( $params ) ? $params : [] );
 					}
 					catch ( ActionException $ae ) {
 						$response = [

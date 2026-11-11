@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\AjaxRender,
 	Actions\FullPageDisplay\DisplayBlockPage,
 	Actions\FullPageDisplay\FullPageDisplayDynamic,
+	Actions\MainWP\MainwpSitePageDisplay,
 	Actions\Render,
 	Actions\Render\Components\Scans\Results\Wordpress,
 	Actions\Render\FullPage\Block\BlockTrafficRateLimitExceeded,
@@ -76,13 +77,25 @@ class PublicFullPageTransportPolicyIntegrationTest extends ShieldIntegrationTest
 		$this->assertFalse( ( new PublicFullPagePluginCaptureTestDouble() )->canRunForTest() );
 	}
 
-	public function test_mainwp_dynamic_iframe_transport_accepts_generated_admin_url_shape() :void {
+	public function test_full_page_dynamic_display_is_not_reachable_on_the_ordinary_route_even_with_its_nonce() :void {
 		$this->loginAsAdministrator();
 		$request = ActionData::Build( FullPageDisplayDynamic::class, false, [
 			'render_slug' => TabManageSitePage::SLUG,
 			'render_data' => [
 				'site_id' => 123,
 			],
+		] );
+		$this->applyCurrentRequestState( [
+			'REQUEST_URI' => '/wp-admin/?'.\http_build_query( $request ),
+		], $request );
+
+		$this->assertFalse( ( new PublicFullPagePluginCaptureTestDouble() )->canRunForTest() );
+	}
+
+	public function test_mainwp_site_page_endpoint_accepts_generated_admin_url_shape() :void {
+		$this->loginAsAdministrator();
+		$request = ActionData::Build( MainwpSitePageDisplay::class, false, [
+			'site_id' => 123,
 		] );
 		$this->applyCurrentRequestState( [
 			'REQUEST_URI' => '/wp-admin/?'.\http_build_query( $request ),
@@ -91,72 +104,11 @@ class PublicFullPageTransportPolicyIntegrationTest extends ShieldIntegrationTest
 		$this->assertTrue( ( new PublicFullPagePluginCaptureTestDouble() )->canRunForTest() );
 	}
 
-	public function test_mainwp_dynamic_iframe_transport_rejects_missing_nonce() :void {
-		$this->loginAsAdministrator();
-		$request = ActionData::Build( FullPageDisplayDynamic::class, false, [
-			'render_slug' => TabManageSitePage::SLUG,
-			'render_data' => [
-				'site_id' => 123,
-			],
-		] );
-		unset( $request[ ActionData::FIELD_NONCE ] );
-		$this->applyCurrentRequestState( [
-			'REQUEST_URI' => '/wp-admin/?'.\http_build_query( $request ),
-		], $request );
-
-		$this->assertFalse( ( new PublicFullPagePluginCaptureTestDouble() )->canRunForTest() );
-	}
-
-	public function test_mainwp_dynamic_iframe_transport_rejects_wrong_render_slug() :void {
-		$this->loginAsAdministrator();
-		$request = ActionData::Build( FullPageDisplayDynamic::class, false, [
-			'render_slug' => ShieldLoginIntentPage::SLUG,
-			'render_data' => [
-				'site_id' => 123,
-			],
-		] );
-		$this->applyCurrentRequestState( [
-			'REQUEST_URI' => '/wp-admin/?'.\http_build_query( $request ),
-		], $request );
-
-		$this->assertFalse( ( new PublicFullPagePluginCaptureTestDouble() )->canRunForTest() );
-	}
-
 	public function test_mainwp_render_slug_is_not_a_direct_external_endpoint() :void {
 		$this->loginAsAdministrator();
 		$request = ActionData::Build( TabManageSitePage::class, false, [
 			'site_id' => 123,
 		] );
-		$this->applyCurrentRequestState( [
-			'REQUEST_URI' => '/wp-admin/?'.\http_build_query( $request ),
-		], $request );
-
-		$this->assertFalse( ( new PublicFullPagePluginCaptureTestDouble() )->canRunForTest() );
-	}
-
-	public function test_mainwp_dynamic_iframe_transport_rejects_invalid_site_id() :void {
-		$this->loginAsAdministrator();
-		$request = ActionData::Build( FullPageDisplayDynamic::class, false, [
-			'render_slug' => TabManageSitePage::SLUG,
-			'render_data' => [
-				'site_id' => 0,
-			],
-		] );
-		$this->applyCurrentRequestState( [
-			'REQUEST_URI' => '/wp-admin/?'.\http_build_query( $request ),
-		], $request );
-
-		$this->assertFalse( ( new PublicFullPagePluginCaptureTestDouble() )->canRunForTest() );
-	}
-
-	public function test_mainwp_dynamic_iframe_transport_rejects_unauthenticated_user() :void {
-		$request = ActionData::Build( FullPageDisplayDynamic::class, false, [
-			'render_slug' => TabManageSitePage::SLUG,
-			'render_data' => [
-				'site_id' => 123,
-			],
-		] );
-		\wp_set_current_user( 0 );
 		$this->applyCurrentRequestState( [
 			'REQUEST_URI' => '/wp-admin/?'.\http_build_query( $request ),
 		], $request );

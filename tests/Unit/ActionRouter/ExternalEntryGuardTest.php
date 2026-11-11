@@ -35,6 +35,10 @@ class ExternalEntryGuardTest extends BaseUnitTest {
 		ExternalEntryGuard::ENTRY_AJAX     => [
 			Actions\CaptureNotBot::class => 'Public silentCAPTCHA registration from possibly cached pages; records bot signals only.',
 		],
+		ExternalEntryGuard::ENTRY_MAINWP   => [
+			Actions\LicenseLookup::class                          => 'MainWP authenticates the dashboard before Shield runs it.',
+			Actions\MainWP\ClientActions\MainwpEnable::class      => 'MainWP authenticates the dashboard before Shield runs it.',
+		],
 	];
 
 	public function test_undeclared_action_is_not_admitted() :void {
@@ -111,16 +115,40 @@ class ExternalEntryGuardTest extends BaseUnitTest {
 		$guard = new ExternalEntryGuard();
 		foreach (
 			[
-				Actions\PluginSetOpt::class,
 				Actions\Render::class,
 				Actions\AjaxRender::class,
 				Actions\AjaxBatchRequests::class,
-				Actions\FullPageDisplay\FullPageDisplayNonTerminating::class,
 				Actions\PluginAdmin\PluginAdminPageHandler::class,
 				Actions\MainWP\ServerActions\MainwpServerClientActionHandler::class,
 			] as $action
 		) {
 			$this->assertFalse( $guard->isAdmitted( $action, ExternalEntryGuard::ENTRY_ORDINARY ), $action );
+		}
+	}
+
+	public function test_generic_actions_are_not_reachable_from_any_entry() :void {
+		$guard = new ExternalEntryGuard();
+		foreach (
+			[
+				Actions\PluginSetOpt::class,
+				Actions\Render::class,
+				Actions\FullPageDisplay\FullPageDisplayDynamic::class,
+				Actions\FullPageDisplay\FullPageDisplayNonTerminating::class,
+			] as $action
+		) {
+			foreach ( ExternalEntryGuard::ENTRIES as $entry ) {
+				$this->assertFalse( $guard->isAdmitted( $action, $entry ), $action.' on '.$entry );
+			}
+		}
+	}
+
+	public function test_mainwp_entry_never_declares_a_nonce() :void {
+		foreach ( $this->registeredActions() as $action ) {
+			$this->assertNotSame(
+				ExternalEntryGuard::PROOF_NONCE,
+				ExternalEntryGuard::DeclaredAccess( $action )[ ExternalEntryGuard::ENTRY_MAINWP ] ?? '',
+				$action.': MainWP authenticates its requests and sends no Shield nonce.'
+			);
 		}
 	}
 

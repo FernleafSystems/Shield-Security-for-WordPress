@@ -50,6 +50,8 @@ class Constants {
 		Actions\MaintenanceItemIgnore::class,
 		Actions\MaintenanceItemUnignore::class,
 		Actions\MainWP\MainwpExtensionTableSites::class,
+		Actions\MainWP\MainwpSitePageDisplay::class,
+		Actions\MainWP\ClientActions\MainwpEnable::class,
 		Actions\MainWP\ServerActions\MainwpServerClientActionHandler::class,
 		Actions\MainWP\ServerActions\SiteActionSync::class,
 		Actions\MainWP\ServerActions\SiteActionActivate::class,

@@ -69,6 +69,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Integration
 
 		private $badge;
 
+		private $events;
+
 		protected function setUp() :void {
 			parent::setUp();
 			if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
@@ -166,7 +168,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Integration
 			$this->assertSame( 0, $this->badge->closedCount );
 		}
 
-		public function test_extra_execution_applies_overrides_inside_mainwp_context_without_auth_replay() :void {
+		public function test_extra_execution_refuses_action_not_declared_for_mainwp_even_with_override_metadata() :void {
 			$callback = $this->extraExecutionCallback();
 			$result = $callback( [], [
 				'shield-security-mwp-action' => PluginBadgeClose::SLUG,
@@ -178,9 +180,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Integration
 			] );
 
 			$response = $this->decodeActionResponse( $result );
-			$this->assertSame( true, $response[ 'success' ] );
+			$this->assertSame( false, $response[ 'success' ] );
 			$this->assertSame( [], MainWP_Connect::$authCalls );
-			$this->assertSame( 1, $this->badge->closedCount );
+			$this->assertSame( 0, $this->badge->closedCount );
+			$this->assertSame( [ 'action_request_rejected' ], $this->events->fired );
 		}
 
 		public function test_site_sync_normalizes_non_array_callback_arguments() :void {
@@ -199,26 +202,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Integration
 			$this->assertSame( 0, $this->badge->closedCount );
 		}
 
-		public function test_extra_execution_ignores_numeric_override_keys_and_keeps_valid_sibling() :void {
-			$callback = $this->extraExecutionCallback();
-			$result = $callback( [], [
-				'shield-security-mwp-action' => PluginBadgeClose::SLUG,
-				'shield-security-mwp-params' => [
-					'action_overrides' => [
-						0 => true,
-						'123' => false,
-						Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
-					],
-				],
-			] );
-
-			$response = $this->decodeActionResponse( $result );
-			$this->assertTrue( (bool)$response[ 'success' ] );
-			$this->assertSame( [], MainWP_Connect::$authCalls );
-			$this->assertSame( 1, $this->badge->closedCount );
-		}
-
-		public function test_extra_execution_without_override_fails_nonce_and_does_not_auth_replay() :void {
+		public function test_extra_execution_refuses_action_not_declared_for_mainwp() :void {
 			$callback = $this->extraExecutionCallback();
 			$result = $callback( [], [
 				'shield-security-mwp-action' => PluginBadgeClose::SLUG,
@@ -315,6 +299,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Integration
 				}
 			};
 
+			$this->events = new class {
+				public array $fired = [];
+
+				public function fireEvent( string $event, array $meta = [] ) :void {
+					unset( $meta );
+					$this->fired[] = $event;
+				}
+			};
+
 			UnitTestControllerFactory::install(
 				null,
 				null,
@@ -327,7 +320,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Integration
 						],
 					],
 					'comps'    => (object)[
-						'badge' => $this->badge,
+						'badge'  => $this->badge,
+						'events' => $this->events,
 					],
 					'this_req' => (object)[
 						'ip'                                => '127.0.0.1',

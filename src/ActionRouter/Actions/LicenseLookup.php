@@ -10,7 +10,8 @@ class LicenseLookup extends LicenseBase {
 
 	public static function ExternalAccess() :array {
 		return [
-			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+			ExternalEntryGuard::ENTRY_AJAX   => ExternalEntryGuard::PROOF_NONCE,
+			ExternalEntryGuard::ENTRY_MAINWP => ExternalEntryGuard::PROOF_NONE,
 		];
 	}
 
