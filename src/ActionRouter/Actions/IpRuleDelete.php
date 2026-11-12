@@ -20,7 +20,7 @@ class IpRuleDelete extends BaseAction {
 	}
 
 	protected function exec() {
-		$ID = (int)( $this->action_data[ 'rid' ] ?? -1 );
+		$ID = $this->fields()->positiveInt( 'rid', -1 );
 
 		if ( $ID < 0 ) {
 			$success = false;

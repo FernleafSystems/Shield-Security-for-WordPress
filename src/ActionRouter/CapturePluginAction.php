@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\InvalidActionNonceException;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
+	ActionException,
+	InvalidActionNonceException
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -23,9 +26,8 @@ class CapturePluginAction extends CaptureActionBase {
 		$transport = $this->transportData();
 		$slug = $this->extractActionSlugFromTransport( $transport );
 
-		$guard = new ExternalEntryGuard();
 		try {
-			$guard->verifyProof( $slug, $this->guardedEntry(), $transport );
+			( new ExternalEntryGuard() )->requireProof( $slug, $this->guardedEntry(), $transport );
 			$post = Services::Request()->post;
 			$this->actionResponse = self::con()->action_router->action(
 				$slug,
@@ -33,11 +35,15 @@ class CapturePluginAction extends CaptureActionBase {
 			);
 		}
 		catch ( InvalidActionNonceException $e ) {
-			$guard->recordRejection( $slug, $this->guardedEntry() );
 			$this->dieInvalidNonce();
 		}
-		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
+		catch ( ActionException $e ) {
+			// The action refused the request: not permitted, or its data is missing or invalid. That's an
+			// outcome anyone can cause, not a fault, so it isn't logged.
+		}
+		catch ( \Throwable $e ) {
+			// A fault in the action, not a refusal.
+			error_log( \sprintf( 'Shield action %s failed: %s', $slug, $e->getMessage() ) );
 		}
 	}
 

@@ -76,22 +76,7 @@ abstract class ScansBase extends BaseAction {
 	 * @return list<int>
 	 */
 	protected function startedScanIdsFromActionData() :array {
-		return \array_values( \array_unique( \array_filter( \array_map(
-			fn( $value ) :int => $this->positiveScanIDFromValue( $value ),
-			\is_array( $this->action_data[ 'scan_ids' ] ?? null ) ? $this->action_data[ 'scan_ids' ] : []
-		) ) ) );
-	}
-
-	/**
-	 * @param mixed $value
-	 */
-	protected function positiveScanIDFromValue( $value ) :int {
-		if ( !\is_int( $value ) && !\is_string( $value ) ) {
-			return 0;
-		}
-
-		$scanID = \filter_var( $value, \FILTER_VALIDATE_INT );
-		return \is_int( $scanID ) && $scanID > 0 ? $scanID : 0;
+		return \array_values( \array_unique( $this->fields()->positiveIntList( 'scan_ids', [] ) ) );
 	}
 
 	/**

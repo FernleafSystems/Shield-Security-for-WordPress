@@ -223,13 +223,11 @@ class GoogleAuthProviderIntegrationTest extends ShieldIntegrationTestCase {
 
 		$provider = new GoogleAuth( $user );
 		$this->seedLoginIntent( $user, 'fixture-ga-login-'.$user->ID );
-		$this->mergeCurrentRequestTransport( [
-			$provider->getLoginIntentFormParameter() => $this->calculateOtp( $secret ),
-		] );
-
 		$validatedSlug = ( new LoginIntentRequestValidate() )
 			->setWpUser( $user )
-			->run( 'fixture-ga-login-'.$user->ID );
+			->run( 'fixture-ga-login-'.$user->ID, [
+				$provider->getLoginIntentFormParameter() => $this->calculateOtp( $secret ),
+			] );
 
 		$this->assertSame( GoogleAuth::ProviderSlug(), $validatedSlug );
 		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );

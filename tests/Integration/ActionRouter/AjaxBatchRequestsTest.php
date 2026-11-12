@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
+	ActionResponse,
 	Actions\AjaxRender,
 	Actions\AjaxBatchRequests,
 	Actions\BaseAction,
@@ -499,6 +500,76 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_batch_requests_keyed_by_names_are_processed_as_a_list() :void {
+		$results = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				'first'  => [
+					'id'      => 'bad_nonce',
+					'request' => $this->invalidBadgeCloseRequest(),
+				],
+				'second' => [
+					'request' => $this->invalidBadgeCloseRequest(),
+				],
+			],
+		] )->payload()[ 'results' ] ?? [];
+
+		$this->assertBatchFailure( $results[ 'bad_nonce' ] ?? [], 401, AjaxBatchRequests::ERROR_INVALID_NONCE );
+		$this->assertBatchFailure( $results[ 'item_1' ] ?? [], 401, AjaxBatchRequests::ERROR_INVALID_NONCE );
+	}
+
+	public function test_batch_items_refused_at_the_boundary_are_never_built() :void {
+		AjaxBatchConstructionCountingAction::$constructed = 0;
+		AjaxBatchNotAnAction::$constructed = 0;
+
+		$badNonce = ActionData::Build( AjaxBatchConstructionCountingAction::class );
+		$badNonce[ ActionData::FIELD_EXECUTE ] = AjaxBatchConstructionCountingAction::class;
+		$badNonce[ ActionData::FIELD_NONCE ] = 'invalid_nonce';
+
+		$undeclared = ActionData::Build( AjaxBatchUndeclaredCountingAction::class );
+		$undeclared[ ActionData::FIELD_EXECUTE ] = AjaxBatchUndeclaredCountingAction::class;
+
+		$notAnAction = ActionData::Build( AjaxBatchConstructionCountingAction::class );
+		$notAnAction[ ActionData::FIELD_EXECUTE ] = AjaxBatchNotAnAction::class;
+
+		$results = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'bad_nonce',
+					'request' => $badNonce,
+				],
+				[
+					'id'      => 'undeclared',
+					'request' => $undeclared,
+				],
+				[
+					'id'      => 'not_an_action',
+					'request' => $notAnAction,
+				],
+			],
+		] )->payload()[ 'results' ] ?? [];
+
+		$this->assertBatchFailure( $results[ 'bad_nonce' ] ?? [], 401, AjaxBatchRequests::ERROR_INVALID_NONCE );
+		$this->assertBatchFailure( $results[ 'undeclared' ] ?? [], 400, AjaxBatchRequests::ERROR_ACTION_TRANSPORT_NOT_ALLOWED );
+		$this->assertBatchFailure( $results[ 'not_an_action' ] ?? [], 400, AjaxBatchRequests::ERROR_ACTION_NOT_FOUND );
+		$this->assertSame( 0, AjaxBatchConstructionCountingAction::$constructed );
+		$this->assertSame( 0, AjaxBatchNotAnAction::$constructed );
+
+		// The same item with a genuine nonce is built and run, so the count above is meaningful.
+		$valid = ActionData::Build( AjaxBatchConstructionCountingAction::class );
+		$valid[ ActionData::FIELD_EXECUTE ] = AjaxBatchConstructionCountingAction::class;
+		$results = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'valid',
+					'request' => $valid,
+				],
+			],
+		] )->payload()[ 'results' ] ?? [];
+
+		$this->assertTrue( (bool)( $results[ 'valid' ][ 'success' ] ?? false ) );
+		$this->assertSame( 1, AjaxBatchConstructionCountingAction::$constructed );
+	}
+
 	private function assertBatchFailure( array $result, int $statusCode, string $errorCode ) :void {
 		$this->assertFalse( (bool)( $result[ 'success' ] ?? true ) );
 		$this->assertSame( $statusCode, (int)( $result[ 'status_code' ] ?? 0 ) );
@@ -524,5 +595,50 @@ class AjaxBatchUnexpectedThrowableAction extends BaseAction {
 
 	protected function exec() {
 		throw new \RuntimeException( 'unexpected batch throwable' );
+	}
+}
+
+class AjaxBatchConstructionCountingAction extends BaseAction {
+
+	public const SLUG = 'ajax_batch_construction_counting_test_action';
+
+	public static int $constructed = 0;
+
+	public function __construct( array $data = [], ?ActionResponse $response = null ) {
+		self::$constructed++;
+		parent::__construct( $data, $response );
+	}
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
+	protected function getMinimumUserAuthCapability() :string {
+		return '';
+	}
+
+	protected function exec() {
+		$this->response()->setPayloadSuccess( true );
+	}
+}
+
+/**
+ * Declares no access of its own, and declarations are not inherited, so no entry point admits it.
+ */
+class AjaxBatchUndeclaredCountingAction extends AjaxBatchConstructionCountingAction {
+
+	public const SLUG = 'ajax_batch_undeclared_counting_test_action';
+}
+
+class AjaxBatchNotAnAction {
+
+	public const SLUG = 'ajax_batch_not_an_action';
+
+	public static int $constructed = 0;
+
+	public function __construct() {
+		self::$constructed++;
 	}
 }

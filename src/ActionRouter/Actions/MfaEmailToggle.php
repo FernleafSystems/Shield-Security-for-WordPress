@@ -20,7 +20,8 @@ class MfaEmailToggle extends MfaUserConfigBase {
 		/** @var ?Email $provider */
 		$provider = $available[ Email::ProviderSlug() ] ?? null;
 		if ( !empty( $provider ) && !$provider->isEnforced() ) {
-			$turnOn = ( $this->action_data[ 'direction' ] ?? '' ) === 'on';
+			// Only an explicit "on" or "off" changes the setting; anything else refuses the request.
+			$turnOn = $this->fields()->oneOf( 'direction', [ 'on', 'off' ] ) === 'on';
 			$provider->toggleEmail2FA( $turnOn );
 			$success = $turnOn === $provider->isProfileActive();
 

@@ -34,6 +34,25 @@ class ActionRoutingDeterminismTest extends BaseUnitTest {
 		$this->assertSame( '', ActionsMap::ActionFromSlug( '' ) );
 	}
 
+	public function testRoutingFieldThatIsNotAStringReadsAsEmpty() :void {
+		$transport = [
+			'string' => 'ajax_render',
+			'list'   => [ 'ajax_render' ],
+			'map'    => [ 'a' => [ 'b' ] ],
+			'number' => 7,
+			'null'   => null,
+		];
+		$this->assertSame( 'ajax_render', ActionData::TransportField( $transport, 'string' ) );
+		foreach ( [ 'list', 'map', 'number', 'null', 'missing' ] as $field ) {
+			$this->assertSame( '', ActionData::TransportField( $transport, $field ), $field );
+		}
+	}
+
+	public function testClassNameThatIsNotAnActionIsUnresolved() :void {
+		$this->assertSame( '', ActionsMap::ActionFromSlug( \ArrayObject::class ) );
+		$this->assertSame( '', ActionsMap::ActionFromSlug( ActionsMap::class ) );
+	}
+
 	public function testActionFromKnownSlugResolvesExpectedClass() :void {
 		$this->assertSame( AjaxRender::class, ActionsMap::ActionFromSlug( 'ajax_render' ) );
 	}

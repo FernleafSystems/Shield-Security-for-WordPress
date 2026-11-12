@@ -18,7 +18,7 @@ class MfaRemoveAll extends MfaUserConfigBase {
 	}
 
 	protected function exec() {
-		$userID = $this->action_data[ 'user_id' ] ?? null;
+		$userID = $this->fields()->positiveInt( 'user_id', 0 );
 
 		if ( !self::con()->isPluginAdmin() ) {
 			$response = [
@@ -33,7 +33,7 @@ class MfaRemoveAll extends MfaUserConfigBase {
 			];
 		}
 		else {
-			$result = self::con()->comps->mfa->removeAllFactorsForUser( (int)$userID );
+			$result = self::con()->comps->mfa->removeAllFactorsForUser( $userID );
 			$response = [
 				'success'     => $result->success,
 				'message'     => $result->success ? $result->msg_text : $result->error_text,

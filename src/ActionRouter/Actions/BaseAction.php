@@ -12,7 +12,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	UserAuthRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\{
+	ExternalEntryGuard,
+	RequestFields
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -112,6 +115,21 @@ abstract class BaseAction extends DynPropertiesClass {
 	protected function formParams() :array {
 		$form = $this->action_data[ ActionData::FIELD_FORM ] ?? [];
 		return \is_array( $form ) ? $form : [];
+	}
+
+	/**
+	 * Typed reads of this action's data. When an action is reached from outside, its data is request input, so
+	 * read fields through this rather than casting them.
+	 */
+	protected function fields() :RequestFields {
+		return new RequestFields( $this->action_data );
+	}
+
+	/**
+	 * Typed reads of the request's decoded form.
+	 */
+	protected function formFields() :RequestFields {
+		return new RequestFields( $this->formParams() );
 	}
 
 	protected function getDefaults() :array {

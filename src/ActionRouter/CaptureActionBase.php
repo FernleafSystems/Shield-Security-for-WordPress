@@ -30,21 +30,12 @@ class CaptureActionBase {
 	}
 
 	protected function isRunnableShieldTransport( array $transport ) :bool {
-		$action = (string)( $transport[ ActionData::FIELD_ACTION ] ?? '' );
-		$slug = (string)( $transport[ ActionData::FIELD_EXECUTE ] ?? '' );
+		$action = ActionData::TransportField( $transport, ActionData::FIELD_ACTION );
+		$slug = ActionData::TransportField( $transport, ActionData::FIELD_EXECUTE );
 
 		return $action === ActionData::FIELD_SHIELD
 			   && ActionData::isValidActionSlug( $slug )
-			   && $this->isAdmittedByGuard( $slug );
-	}
-
-	private function isAdmittedByGuard( string $slug ) :bool {
-		$guard = new ExternalEntryGuard();
-		$admitted = $guard->isAdmitted( $slug, $this->guardedEntry() );
-		if ( !$admitted ) {
-			$guard->recordRejection( $slug, $this->guardedEntry() );
-		}
-		return $admitted;
+			   && ( new ExternalEntryGuard() )->admit( $slug, $this->guardedEntry() );
 	}
 
 	/**
@@ -55,7 +46,7 @@ class CaptureActionBase {
 	}
 
 	protected function extractActionSlugFromTransport( array $transport ) :string {
-		return ActionData::extractActionSlug( (string)( $transport[ ActionData::FIELD_EXECUTE ] ?? '' ) );
+		return ActionData::extractActionSlug( ActionData::TransportField( $transport, ActionData::FIELD_EXECUTE ) );
 	}
 
 	protected function run() {

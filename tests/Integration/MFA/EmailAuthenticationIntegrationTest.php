@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
 	EmailDeliveryVerification,
+	Exceptions\CouldNotValidate2FA,
 	Exceptions\OtpVerificationFailedException,
 	LoginIntentRequestValidate,
 	Provider\BackupCodes,
@@ -209,14 +210,12 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		$this->clearMfaRecordsCache( $user );
 		$this->resetMfaProviderCache();
 
-		$this->mergeCurrentRequestTransport( [
-			( new Email( $user ) )->getLoginIntentFormParameter()      => 'ZZ99YY',
-			( new GoogleAuth( $user ) )->getLoginIntentFormParameter() => $this->calculateOtp( $secret ),
-		] );
-
 		$validatedSlug = ( new LoginIntentRequestValidate() )
 			->setWpUser( $user )
-			->run( 'email-ga-login' );
+			->run( 'email-ga-login', [
+				( new Email( $user ) )->getLoginIntentFormParameter()      => 'ZZ99YY',
+				( new GoogleAuth( $user ) )->getLoginIntentFormParameter() => $this->calculateOtp( $secret ),
+			] );
 
 		$this->assertSame( GoogleAuth::ProviderSlug(), $validatedSlug );
 		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
@@ -248,14 +247,12 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		$this->clearMfaRecordsCache( $user );
 		$this->resetMfaProviderCache();
 
-		$this->mergeCurrentRequestTransport( [
-			( new Email( $user ) )->getLoginIntentFormParameter()       => 'ZZ99YY',
-			( new BackupCodes( $user ) )->getLoginIntentFormParameter() => 'ABC123- DEF456',
-		] );
-
 		$validatedSlug = ( new LoginIntentRequestValidate() )
 			->setWpUser( $user )
-			->run( 'email-backup-login' );
+			->run( 'email-backup-login', [
+				( new Email( $user ) )->getLoginIntentFormParameter()       => 'ZZ99YY',
+				( new BackupCodes( $user ) )->getLoginIntentFormParameter() => 'ABC123- DEF456',
+			] );
 
 		$this->assertSame( BackupCodes::ProviderSlug(), $validatedSlug );
 		$this->assertSame( [], $this->loadRecordsForSlug( $user->ID, BackupCodes::ProviderSlug() ) );
@@ -308,12 +305,10 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'CC22DD', (string)( $autoLoginQuery[ ( new Email( $user ) )->getLoginIntentFormParameter() ] ?? '' ) );
 		$this->assertSame( '/wp-admin/profile.php', (string)( $autoLoginQuery[ 'redirect_to' ] ?? '' ) );
 
-		$this->mergeCurrentRequestTransport( [
-			( new Email( $user ) )->getLoginIntentFormParameter() => 'AA11BB',
-		] );
-
 		try {
-			( new Email( $user ) )->validateLoginIntent( $hashedNonce );
+			( new Email( $user ) )->validateLoginIntent( $hashedNonce, [
+				( new Email( $user ) )->getLoginIntentFormParameter() => 'AA11BB',
+			] );
 			$this->fail( 'Expected the previous email OTP to be invalid after resend.' );
 		}
 		catch ( OtpVerificationFailedException $e ) {
@@ -353,13 +348,6 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		$this->seedLoginIntent( $user, 'email-auto-login' );
 		$this->otpSequence = [ 'EE33FF' ];
 		$this->processEmailSendAction( $user, 'email-auto-login', '/wp-admin/' );
-		$completedAtVerification = null;
-		\add_action( 'shield/event', function ( $event ) use ( &$completedAtVerification ) {
-			if ( $event === '2fa_verify_success' ) {
-				// This action emits its verification audit before building the response.
-				$completedAtVerification = $this->loginTimeline;
-			}
-		}, 2 );
 		\add_action( 'set_logged_in_cookie', function ( $cookie, $expire, $expiration, $userID, $scheme, $token ) {
 			$this->assertLoginSuccessCount( 0 );
 			$this->assertTrue( \WP_Session_Tokens::get_instance( $userID )->verify( $token ) );
@@ -371,17 +359,20 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 			( new Email( $user ) )->getLoginIntentFormParameter() => 'EE33FF',
 			'redirect_to'                        => '/wp-admin/',
 		] );
-		// The email provider still reads the code from the request itself, so the request is the emailed link.
-		$this->mergeCurrentRequestTransport( $link );
-		$payload = ( new PluginAdminRouteRuntime() )->processActionPayloadWithAdminBypass( MfaEmailAutoLogin::SLUG, $link );
+		$payload =( new PluginAdminRouteRuntime() )->processActionPayloadWithAdminBypass( MfaEmailAutoLogin::SLUG, $link );
 
 		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
 		$this->assertSame( 'redirect', (string)( $payload[ 'next_step' ][ 'type' ] ?? '' ) );
 		$this->assertSame( '/wp-admin/', (string)( $payload[ 'next_step' ][ 'url' ] ?? '' ) );
 		$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_success' ) );
 		$this->assertMfaLoginCompleted();
-		$this->assertSame( [ 'cookie', '2fa_success', 'login_success' ], $completedAtVerification );
-		$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_verify_success' ) );
+
+		// The link goes through the same 2FA check as the login form: the audit names the user, and the pending
+		// login is closed so it can't be finished a second time.
+		$verified = $this->getCapturedEventsByKey( '2fa_verify_success' );
+		$this->assertCount( 1, $verified );
+		$this->assertSame( $user->user_login, $verified[ 0 ][ 'meta' ][ 'audit_params' ][ 'user_login' ] ?? null );
+		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
 	}
 
 	public function test_send_intent_rejects_invalid_nonce_or_missing_provider_without_mail() :void {
@@ -457,15 +448,35 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		$this->clearMfaRecordsCache( $user );
 		$this->resetMfaProviderCache();
 
-		$this->mergeCurrentRequestTransport( [
-			( new Email( $user ) )->getLoginIntentFormParameter() => 'ZZ99YY',
-		] );
-
 		$this->expectException( OtpVerificationFailedException::class );
 
 		( new LoginIntentRequestValidate() )
 			->setWpUser( $user )
-			->run( 'invalid-email-login' );
+			->run( 'invalid-email-login', [
+				( new Email( $user ) )->getLoginIntentFormParameter() => 'ZZ99YY',
+			] );
+	}
+
+	public function test_login_intent_validation_treats_a_malformed_otp_as_no_otp() :void {
+		$user = \get_user_by( 'id', $this->createAdministratorUser() );
+		$this->seedLoginIntent( $user, 'malformed-email-login' );
+		$hashedNonce = $this->requireController()->comps->mfa->findHashedNonce( $user, 'malformed-email-login' );
+		TestDataFactory::insertMfaRecord( $user->ID, Email::ProviderSlug(), [
+			'hashed_login_nonce' => $hashedNonce,
+		], [
+			'unique_id' => \wp_hash_password( 'AA11BB' ),
+			'label'     => 'Fixture Email',
+		] );
+		$this->clearMfaRecordsCache( $user );
+		$this->resetMfaProviderCache();
+
+		$this->expectException( CouldNotValidate2FA::class );
+
+		( new LoginIntentRequestValidate() )
+			->setWpUser( $user )
+			->run( 'malformed-email-login', [
+				( new Email( $user ) )->getLoginIntentFormParameter() => [ 'AA11BB' ],
+			] );
 	}
 
 	public function nextEmailOtp() :string {

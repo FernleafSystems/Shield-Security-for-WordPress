@@ -30,10 +30,10 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 
 		// Either we're editing a rule, or starting a new rule.
 		$record = null;
-		$maybeEditRuleID = $this->action_data[ 'edit_rule_id' ] ?? -1;
+		$maybeEditRuleID = ParseRuleBuilderForm::EditRuleIdFrom( $this->action_data );
 		if ( $maybeEditRuleID >= 0 ) {
 			foreach ( ( new RuleRecords() )->getCustom() as $maybe ) {
-				if ( $maybe->id === (int)$maybeEditRuleID ) {
+				if ( $maybe->id === $maybeEditRuleID ) {
 					$record = $maybe;
 					break;
 				}

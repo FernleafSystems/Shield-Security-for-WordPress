@@ -19,7 +19,7 @@ class CaptureNotBotAltcha extends BaseAction {
 	protected function exec() {
 		$response = $this->response();
 		try {
-			$verified = $this->verifyAltChaSolution( $this->action_data );
+			$verified = $this->verifyAltChaSolution();
 			self::con()->comps->events->fireEvent( 'bottrack_multiple', [
 				'data' => [
 					'events' => \array_keys( \array_filter( [
@@ -41,23 +41,19 @@ class CaptureNotBotAltcha extends BaseAction {
 		}
 	}
 
-	private function verifyAltChaSolution( array $data ): bool {
+	private function verifyAltChaSolution() :bool {
 		$verified = false;
-		$keys = [
-			'altcha_version',
-			'altcha_challenge',
-			'altcha_solution',
-		];
-		if ( \count( \array_intersect_key( $data, \array_flip( $keys ) ) ) === \count( $keys )
-			 && (string)$data[ 'altcha_version' ] === AltChaV2Pbkdf2::VERSION ) {
-			try {
+		$fields = $this->fields();
+		try {
+			// A missing or malformed field throws, which leaves the solution unverified.
+			if ( $fields->string( 'altcha_version' ) === AltChaV2Pbkdf2::VERSION ) {
 				$verified = self::con()->comps->altcha->verifySolution(
-					(string)$data[ 'altcha_challenge' ],
-					(string)$data[ 'altcha_solution' ]
+					$fields->string( 'altcha_challenge' ),
+					$fields->string( 'altcha_solution' )
 				);
 			}
-			catch ( \Exception $e ) {
-			}
+		}
+		catch ( \Exception $e ) {
 		}
 
 		return $verified;

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\MainwpServerClientActionHandler as H;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
@@ -55,13 +56,13 @@ class BaseSubPage extends BaseMWP {
 				'st_version_mismatch' => sprintf( __( '%s plugin versions are out of sync.', 'wp-simple-firewall' ), $name ),
 				'st_unknown'          => sprintf( __( "Couldn't determine %s plugin status.", 'wp-simple-firewall' ), $name ),
 				'actions'             => [
-					'sync'       => sprintf( __( 'Sync %s', 'wp-simple-firewall' ), $name ),
-					'activate'   => sprintf( __( 'Activate %s', 'wp-simple-firewall' ), $name ),
-					'deactivate' => sprintf( __( 'Deactivate %s', 'wp-simple-firewall' ), $name ),
-					'install'    => sprintf( __( 'Install %s', 'wp-simple-firewall' ), $name ),
-					'update'     => sprintf( __( 'Update %s', 'wp-simple-firewall' ), $name ),
-					'license'    => sprintf( __( 'Check %s License', 'wp-simple-firewall' ), $name ),
-					'mwp_on'     => __( 'Switch-On MainWP Integration', 'wp-simple-firewall' ),
+					H::OP_SYNC       => sprintf( __( 'Sync %s', 'wp-simple-firewall' ), $name ),
+					H::OP_ACTIVATE   => sprintf( __( 'Activate %s', 'wp-simple-firewall' ), $name ),
+					H::OP_DEACTIVATE => sprintf( __( 'Deactivate %s', 'wp-simple-firewall' ), $name ),
+					H::OP_INSTALL    => sprintf( __( 'Install %s', 'wp-simple-firewall' ), $name ),
+					H::OP_UPDATE     => sprintf( __( 'Update %s', 'wp-simple-firewall' ), $name ),
+					H::OP_LICENSE    => sprintf( __( 'Check %s License', 'wp-simple-firewall' ), $name ),
+					H::OP_MWP_ON     => __( 'Switch-On MainWP Integration', 'wp-simple-firewall' ),
 				],
 			]
 		];

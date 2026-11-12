@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\MainwpServerClientActionHandler as H;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
 use FernleafSystems\Wordpress\Services\Services;
@@ -104,27 +105,27 @@ class TabSitesListing extends BaseSubPage {
 	private function determineSiteActions( array $flags ) :array {
 		$actions = [];
 		if ( $flags[ 'can_sync' ] ) {
-			$actions[] = 'sync';
+			$actions[] = H::OP_SYNC;
 		}
 
 		if ( $flags[ 'has_update' ] ) {
-			$actions[] = 'update';
+			$actions[] = H::OP_UPDATE;
 		}
 
 		if ( $flags[ 'is_notinstalled' ] ) {
-			$actions[] = 'install';
+			$actions[] = H::OP_INSTALL;
 		}
 		elseif ( $flags[ 'is_inactive' ] ) {
-			$actions[] = 'activate';
+			$actions[] = H::OP_ACTIVATE;
 		}
 		else {
-			$actions[] = 'deactivate';
+			$actions[] = H::OP_DEACTIVATE;
 		}
 
-		$actions[] = 'license';
+		$actions[] = H::OP_LICENSE;
 
 		if ( $flags[ 'is_mwpnoton' ] ) {
-			$actions[] = 'mwp_on';
+			$actions[] = H::OP_MWP_ON;
 		}
 
 		return $actions;

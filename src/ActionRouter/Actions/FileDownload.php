@@ -19,7 +19,7 @@ class FileDownload extends BaseAction {
 
 	protected function exec() {
 		try {
-			$cat = $this->action_data[ 'download_category' ] ?? '';
+			$cat = $this->fields()->string( 'download_category', '' );
 			if ( empty( $cat ) ) {
 				throw new \Exception( __( 'Invalid download request.', 'wp-simple-firewall' ) );
 			}
@@ -48,13 +48,13 @@ class FileDownload extends BaseAction {
 
 			case 'filelocker':
 				$fileDetails = $con->comps->file_locker->handleFileDownloadRequest(
-					(int)( $this->action_data[ 'rid' ] ?? 0 ),
-					(string)( $this->action_data[ 'type' ] ?? '' )
+					$this->fields()->positiveInt( 'rid' ),
+					$this->fields()->string( 'type', '' )
 				);
 				break;
 
 			case 'scan_file':
-				$fileDetails = ( new FileDownloadHandler() )->downloadByItemId( (int)( $this->action_data[ 'rid' ] ?? -1 ) );
+				$fileDetails = ( new FileDownloadHandler() )->downloadByItemId( $this->fields()->positiveInt( 'rid' ) );
 				break;
 
 			case 'plugin_export':
@@ -64,7 +64,7 @@ class FileDownload extends BaseAction {
 			case 'report_download_pdf':
 				$fileDetails = [
 					'name'    => wp_rand().'.pdf',
-					'content' => self::con()->comps->reports->convertToPdf( (int)( $this->action_data[ 'rid' ] ?? -1 ) )
+					'content' => self::con()->comps->reports->convertToPdf( $this->fields()->positiveInt( 'rid' ) )
 				];
 				break;
 

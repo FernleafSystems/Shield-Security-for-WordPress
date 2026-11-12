@@ -31,9 +31,7 @@ class ClientActionRunner {
 		unset( $params[ 'action_overrides' ] );
 		[ $slug, $params ] = $this->normaliseLegacyRequest( $slug, $params );
 
-		$guard = new ExternalEntryGuard();
-		if ( !$guard->isAdmitted( $slug, ExternalEntryGuard::ENTRY_MAINWP ) ) {
-			$guard->recordRejection( $slug, ExternalEntryGuard::ENTRY_MAINWP );
+		if ( !( new ExternalEntryGuard() )->admit( $slug, ExternalEntryGuard::ENTRY_MAINWP ) ) {
 			throw new ActionException( 'This action is not available to MainWP.' );
 		}
 

@@ -18,7 +18,16 @@ class IpAnalyseAction extends BaseAction {
 	}
 
 	protected function exec() {
-		$ip = $this->action_data[ 'ip' ];
+		$fields = $this->fields();
+		$ip = $fields->string( 'ip' );
+		$ipAction = $fields->oneOf( 'ip_action', [
+			'reset_offenses',
+			'block',
+			'unblock',
+			'bypass',
+			'unbypass',
+			'delete_notbot',
+		] );
 
 		try {
 			[ $ipKey, $ipName ] = ( new IpID( $ip ) )->run();
@@ -38,7 +47,7 @@ class IpAnalyseAction extends BaseAction {
 		else {
 			$ruleStatus = new IpRules\IpRuleStatus( $ip );
 
-			switch ( $this->action_data[ 'ip_action' ] ) {
+			switch ( $ipAction ) {
 
 				case 'reset_offenses':
 					try {

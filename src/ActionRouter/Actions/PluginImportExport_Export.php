@@ -16,6 +16,12 @@ class PluginImportExport_Export extends PluginImportExport_Base {
 	}
 
 	protected function exec() {
-		( new Export() )->run( (string)( $this->action_data[ 'method' ] ?? '' ), $this->action_data );
+		// Another site sends this request, so its fields are checked here and the export receives text only.
+		$fields = $this->fields();
+		$params = [];
+		foreach ( [ 'url', 'id', 'network', 'secret' ] as $key ) {
+			$params[ $key ] = $fields->string( $key, '' );
+		}
+		( new Export() )->run( $fields->string( 'method', '' ), $params );
 	}
 }

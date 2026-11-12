@@ -26,6 +26,7 @@
         "level": "notice"
     },
     "action_request_rejected": {
+        "audit": false,
         "audit_params": [
             "action",
             "entry"

@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\FullPageDisplayDynamic;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\MainWP\TabManageSitePage;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 
 /**
@@ -24,10 +23,7 @@ class MainwpSitePageDisplay extends MainwpBase {
 	}
 
 	protected function exec() {
-		$siteID = (int)$this->action_data[ 'site_id' ];
-		if ( $siteID < 1 ) {
-			throw new ActionException( __( 'Invalid MainWP site.', 'wp-simple-firewall' ) );
-		}
+		$siteID = $this->fields()->positiveInt( 'site_id' );
 
 		$this->setResponse( self::con()->action_router->action( FullPageDisplayDynamic::class, [
 			'render_slug' => TabManageSitePage::SLUG,

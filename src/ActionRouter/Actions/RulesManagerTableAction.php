@@ -27,8 +27,9 @@ class RulesManagerTableAction extends BaseAction {
 		];
 
 		try {
-			$RIDs = $this->action_data[ 'rids' ] ?? [];
-			$action = $this->action_data[ 'sub_action' ] ?? '';
+			$fields = $this->fields();
+			$RIDs = $fields->positiveIntList( 'rids', [] );
+			$action = $fields->string( 'sub_action', '' );
 			switch ( $action ) {
 				case 'retrieve_table_data':
 					$response = $this->retrieveTableData();
@@ -44,7 +45,7 @@ class RulesManagerTableAction extends BaseAction {
 					break;
 				default:
 
-					$rule = \count( $RIDs ) === 1 ? ( new RuleRecords() )->byID( (int)\array_pop( $RIDs ) ) : null;
+					$rule = \count( $RIDs ) === 1 ? ( new RuleRecords() )->byID( \array_pop( $RIDs ) ) : null;
 					if ( !empty( $rule ) ) {
 						$updateData = [];
 						switch ( $action ) {
@@ -69,7 +70,7 @@ class RulesManagerTableAction extends BaseAction {
 								$msg = __( "Rule won't be exported during sync", 'wp-simple-firewall' );
 								break;
 							default:
-								throw new \Exception( 'Not a supported Sessions table sub_action: '.$this->action_data[ 'sub_action' ] );
+								throw new \Exception( 'Not a supported Sessions table sub_action: '.$action );
 						}
 
 						$response[ 'message' ] = $msg;

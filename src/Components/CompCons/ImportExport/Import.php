@@ -77,7 +77,7 @@ class Import {
 		if ( !self::con()->isPluginAdmin() ) {
 			throw new \Exception( __( 'Not currently logged-in as security admin.', 'wp-simple-firewall' ) );
 		}
-		if ( ( $form[ 'confirm' ] ?? '' ) != 'Y' ) {
+		if ( ( $form[ 'confirm' ] ?? '' ) !== 'Y' ) {
 			throw new \Exception( __( 'Please check the box to confirm.', 'wp-simple-firewall' ) );
 		}
 

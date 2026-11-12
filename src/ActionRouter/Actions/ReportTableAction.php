@@ -48,12 +48,7 @@ class ReportTableAction extends TableActionBase {
 	}
 
 	private function deleteSelectedReports() :array {
-		$reportIDs = \array_values(
-			\array_filter(
-				\array_map( '\intval', $this->action_data[ 'rids' ] ?? [] ),
-				fn( int $id ) => $id > 0
-			)
-		);
+		$reportIDs = $this->fields()->positiveIntList( 'rids', [] );
 		if ( empty( $reportIDs ) ) {
 			return [
 				'success'     => false,

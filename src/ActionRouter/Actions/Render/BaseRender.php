@@ -130,7 +130,7 @@ abstract class BaseRender extends BaseAction {
 				'top_container' => \implode( ' ', \array_filter( [
 					'odp-outercontainer',
 					self::con()->isPremiumActive() ? 'is-pro' : 'is-not-pro',
-					Services::Request()->query( Constants::NAV_ID, '' )
+					$this->navClassFromRequest(),
 				] ) )
 			],
 			'flags'            => [
@@ -314,6 +314,15 @@ abstract class BaseRender extends BaseAction {
 			$value = $default;
 		}
 		return \trim( sanitize_text_field( \is_scalar( $value ) ? (string)$value : $default ) );
+	}
+
+	/**
+	 * The current page's nav, used as a class on the outer container. It comes from the query string, so
+	 * anything but a string is ignored.
+	 */
+	private function navClassFromRequest() :string {
+		$nav = Services::Request()->query( Constants::NAV_ID, '' );
+		return \is_string( $nav ) ? $nav : '';
 	}
 
 	private function buildRunningVersionHtml() :string {

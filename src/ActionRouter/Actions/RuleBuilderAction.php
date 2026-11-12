@@ -34,7 +34,7 @@ class RuleBuilderAction extends BaseAction {
 		}
 		else {
 			$action = $this->action_data[ 'builder_action' ] ?? '';
-			$editRuleID = (int)( $rawForm[ 'edit_rule_id' ] ?? -1 );
+			$editRuleID = ParseRuleBuilderForm::EditRuleIdFrom( $rawForm );
 
 			if ( $action === 'reset' ) {
 

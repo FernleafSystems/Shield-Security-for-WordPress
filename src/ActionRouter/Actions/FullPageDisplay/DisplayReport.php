@@ -21,7 +21,7 @@ class DisplayReport extends BaseAction {
 	}
 
 	protected function exec() {
-		$reportID = \trim( (string)( $this->action_data[ 'report_unique_id' ] ?? '' ) );
+		$reportID = \trim( $this->fields()->string( 'report_unique_id', '' ) );
 		$redirectURL = $this->isReportIDValid( $reportID ) ?
 			self::con()->plugin_urls->reportView( $reportID )
 			: self::con()->plugin_urls->reportsHome();

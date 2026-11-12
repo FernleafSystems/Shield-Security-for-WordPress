@@ -63,6 +63,23 @@ class ResponseEnvelopeNormalizer {
 		] );
 	}
 
+	/**
+	 * What an AJAX request is told when its action nonce fails, whether sent alone or in a batch.
+	 */
+	public static function nonceFailedMessage() :string {
+		return __( 'Nonce Failed.', 'wp-simple-firewall' );
+	}
+
+	/**
+	 * What an AJAX request is told when its action needs a Security Admin, whether sent alone or in a batch.
+	 */
+	public static function securityAdminRequiredMessage() :string {
+		return \implode( ' ', [
+			__( 'You must be authorised as a Security Admin to perform this action.', 'wp-simple-firewall' ),
+			__( 'You may need to reload this page to continue.', 'wp-simple-firewall' ),
+		] );
+	}
+
 	private static function ajaxBaseDefaults( string $message, string $error, string $html ) :array {
 		return [
 			'success' => false,

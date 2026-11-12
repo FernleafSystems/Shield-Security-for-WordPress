@@ -24,7 +24,7 @@ class MfaCanEmailSendVerify extends MfaUserConfigBase {
 		$con = self::con();
 		$verification = new EmailDeliveryVerification();
 
-		if ( $verification->verifyLinkToken( (string)( $this->action_data[ self::FIELD_TOKEN ] ?? '' ) ) ) {
+		if ( $verification->verifyLinkToken( $this->fields()->string( self::FIELD_TOKEN, '' ) ) ) {
 			$verification->markVerified();
 			$con->opts->store();
 			$success = true;

@@ -5,9 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
+	Actions\FullPageDisplay\FullPageDisplayDynamic,
 	Actions\MainWP\ClientActions\MainwpEnable,
 	Actions\MainWP\MainwpSitePageDisplay,
 	Actions\ModuleOptionsSave,
+	Actions\Render\FullPage\MainWP\TabManageSitePage,
 	CapturePluginAction,
 	Exceptions\ActionException,
 	Exceptions\UserAuthRequiredException
@@ -76,6 +78,22 @@ class MainwpEntryIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 	}
 
+	public function test_site_page_shows_the_security_admin_login_to_an_admin_who_is_not_security_admin() :void {
+		$this->loginAsAdministrator();
+
+		$display = new MainwpSitePageFullPageTestDouble( [
+			'render_slug' => TabManageSitePage::SLUG,
+			'render_data' => [
+				'site_id' => 123,
+			],
+		] );
+		$display->process();
+
+		$output = (string)( $display->response()->payload()[ 'render_output' ] ?? '' );
+		$this->assertStringContainsString( 'id="SecurityAdminLabel"', $output, 'The Security Admin PIN form is shown.' );
+		$this->assertSame( 403, $display->responseCodeForTest() );
+	}
+
 	public function test_site_page_requires_a_logged_in_admin() :void {
 		\wp_set_current_user( 0 );
 		$this->expectException( UserAuthRequiredException::class );
@@ -132,6 +150,19 @@ class MainwpEntryIntegrationTest extends ShieldIntegrationTestCase {
 				'is_nonce_verify_required' => false,
 			],
 		] );
+	}
+}
+
+/**
+ * The page the site page iframe displays, without sending it or ending the request.
+ */
+class MainwpSitePageFullPageTestDouble extends FullPageDisplayDynamic {
+
+	protected function postExec() {
+	}
+
+	public function responseCodeForTest() :int {
+		return $this->getResponseCode();
 	}
 }
 

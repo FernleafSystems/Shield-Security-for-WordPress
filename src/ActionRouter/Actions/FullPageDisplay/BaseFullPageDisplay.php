@@ -4,8 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageD
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageSecurityAdminRestricted;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
+	ActionException,
+	SecurityAdminRequiredException
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\RenderActionTarget;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -14,15 +18,24 @@ abstract class BaseFullPageDisplay extends BaseAction {
 	use AuthNotRequired;
 
 	protected function exec() {
-		$this->setResponse(
-			self::con()->action_router->action(
-				Render::class,
-				[
-					'render_action_slug' => $this->action_data[ 'render_slug' ],
-					'render_action_data' => $this->action_data[ 'render_data' ] ?? [],
-				]
-			)
-		);
+		$router = self::con()->action_router;
+		try {
+			$this->setResponse(
+				$router->action(
+					Render::class,
+					[
+						'render_action_slug' => $this->action_data[ 'render_slug' ],
+						'render_action_data' => $this->action_data[ 'render_data' ] ?? [],
+					]
+				)
+			);
+		}
+		catch ( SecurityAdminRequiredException $e ) {
+			// This action owns the page it outputs, so a refused page is shown as the Security Admin login.
+			$this->response()
+				 ->setPayload( [ 'render_output' => $router->render( PageSecurityAdminRestricted::class ) ] )
+				 ->setPayloadSuccess( false );
+		}
 	}
 
 	/**

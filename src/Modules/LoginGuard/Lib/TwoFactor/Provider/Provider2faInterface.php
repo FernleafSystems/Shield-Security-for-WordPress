@@ -26,12 +26,14 @@ interface Provider2faInterface {
 	public function isProviderStandalone() :bool;
 
 	/**
+	 * @param array $submitted the login form's submitted fields; each provider reads only its own field. The
+	 *                         caller that owns the request supplies them, so providers never read the request.
 	 * @return bool - always returns true if successful. Exception otherwise.
 	 * @throws OtpNotPresentException
 	 * @throws OtpVerificationFailedException
 	 * @throws ProviderNotActiveForUserException
 	 */
-	public function validateLoginIntent( string $hashedLoginNonce ) :bool;
+	public function validateLoginIntent( string $hashedLoginNonce, array $submitted ) :bool;
 
 	public function isProfileActive() :bool;
 

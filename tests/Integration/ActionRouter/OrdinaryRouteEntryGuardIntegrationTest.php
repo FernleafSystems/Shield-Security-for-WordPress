@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\MainWP\ClientActions\MainwpEnable,
 	Actions\MfaCanEmailSendVerify,
 	Actions\MfaLoginVerifyStep,
+	Actions\PluginImportExport_HandshakeConfirm,
 	CapturePluginAction,
 	Utility\ExternalEntryGuard
 };
@@ -32,6 +33,7 @@ class OrdinaryRouteEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 		'email_can_send_verified_at',
 		'email_can_send_verification_sent_at',
 		'enable_mainwp',
+		'importexport_handshake_expires_at',
 	];
 
 	private array $requestSnapshot = [];
@@ -173,6 +175,49 @@ class OrdinaryRouteEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 		return $query;
 	}
 
+	public function test_public_action_with_a_malformed_form_runs_without_error() :void {
+		\wp_set_current_user( 0 );
+		$this->requireController()->opts->optSet( 'importexport_handshake_expires_at', 0 );
+		$request = ActionData::Build( PluginImportExport_HandshakeConfirm::class, false, [
+			'form_params' => 'not-a-form',
+			'form_enc'    => 'not-a-list',
+		] );
+		$this->applyOrdinaryRequest( $request, 'POST' );
+
+		$capture = new OrdinaryRouteCaptureTestDouble();
+		$this->assertTrue( $capture->canRunForTest() );
+		$capture->runForTest();
+
+		$this->assertFalse( (bool)( $capture->responseForTest()[ 'success' ] ?? true ) );
+	}
+
+	/**
+	 * @dataProvider routingFieldsThatAreNotStrings
+	 */
+	public function test_routing_fields_that_are_not_strings_are_not_captured( array $overrides ) :void {
+		\wp_set_current_user( 0 );
+		$request = \array_merge( ActionData::Build( PluginImportExport_HandshakeConfirm::class, false ), $overrides );
+		$this->applyOrdinaryRequest( $request, 'POST' );
+
+		$this->assertFalse( ( new OrdinaryRouteCaptureTestDouble() )->canRunForTest() );
+	}
+
+	public function routingFieldsThatAreNotStrings() :array {
+		return [
+			'action as a list' => [ [ ActionData::FIELD_ACTION => [ ActionData::FIELD_SHIELD ] ] ],
+			'slug as a list'   => [ [ ActionData::FIELD_EXECUTE => [ PluginImportExport_HandshakeConfirm::SLUG ] ] ],
+			'slug as a map'    => [ [ ActionData::FIELD_EXECUTE => [ 'a' => [ 'b' => 'c' ] ] ] ],
+		];
+	}
+
+	public function test_nonce_that_is_not_a_string_is_refused_as_a_failed_nonce() :void {
+		$this->loginAsSecurityAdmin();
+		$request = ActionData::Build( CrowdsecResetEnrollment::class, false );
+		$request[ ActionData::FIELD_NONCE ] = [ ActionNonce::Create( CrowdsecResetEnrollment::class ) ];
+
+		$this->assertRejectedWithoutEffect( $request );
+	}
+
 	private function assertRejectedWithoutEffect( array $request ) :void {
 		$this->applyOrdinaryRequest( $request );
 
@@ -217,5 +262,9 @@ class OrdinaryRouteCaptureTestDouble extends CapturePluginAction {
 
 	public function runForTest() :void {
 		$this->theRun();
+	}
+
+	public function responseForTest() :array {
+		return $this->actionResponse === null ? [] : $this->actionResponse->payload();
 	}
 }

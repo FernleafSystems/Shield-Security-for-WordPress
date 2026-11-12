@@ -78,7 +78,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 			}
 			else {
 				$guard->recordRejection( $slug, $this->guardedEntry() );
-				$msg = __( 'Nonce Failed.', 'wp-simple-firewall' );
+				$msg = ResponseEnvelopeNormalizer::nonceFailedMessage();
 				$response = [
 					'success' => false,
 					'message' => $msg,
@@ -88,10 +88,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 		}
 		catch ( SecurityAdminRequiredException $e ) {
 			$statusCode = 401;
-			$msg = \implode( ' ', [
-				__( 'You must be authorised as a Security Admin to perform this action.', 'wp-simple-firewall' ),
-				__( 'You may need to reload this page to continue.', 'wp-simple-firewall' ),
-			] );
+			$msg = ResponseEnvelopeNormalizer::securityAdminRequiredMessage();
 			$response = [
 				'success' => false,
 				'message' => $msg,
@@ -114,6 +111,17 @@ class CaptureAjaxAction extends CaptureActionBase {
 				'success' => false,
 				'message' => $e->getMessage(),
 				'error'   => $e->getMessage(),
+			];
+		}
+		catch ( \Throwable $e ) {
+			// A fault in the action, not a refusal. The request still gets a controlled response.
+			\error_log( \sprintf( 'Shield AJAX action %s failed: %s', $slug, $e->getMessage() ) );
+			$statusCode = 500;
+			$msg = __( 'An unexpected error occurred.', 'wp-simple-firewall' );
+			$response = [
+				'success' => false,
+				'message' => $msg,
+				'error'   => $msg,
 			];
 		}
 		finally {

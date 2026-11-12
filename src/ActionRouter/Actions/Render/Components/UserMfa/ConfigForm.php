@@ -24,7 +24,7 @@ class ConfigForm extends UserMfaBase {
 	protected function getRenderData() :array {
 		$WPU = Services::WpUsers();
 		$currentUser = $WPU->getCurrentWpUser();
-		$requestedUserID = (int)( $this->action_data[ 'user_id' ] ?? 0 );
+		$requestedUserID = $this->fields()->positiveInt( 'user_id', 0 );
 		if ( $requestedUserID > 0 && $currentUser->ID !== $requestedUserID && !self::con()->this_req->is_security_admin ) {
 			throw new ActionException( __( 'Invalid profile request.', 'wp-simple-firewall' ) );
 		}

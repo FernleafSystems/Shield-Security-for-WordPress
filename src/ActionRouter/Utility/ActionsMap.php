@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 
 class ActionsMap {
@@ -9,11 +10,15 @@ class ActionsMap {
 	private static array $actions = [];
 
 	/**
+	 * Request input reaches here as a slug, so a class name only resolves when it is an action.
 	 * @return string|class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction>
 	 */
 	public static function ActionFromSlug( string $classOrSlug ) :string {
 		if ( !empty( $classOrSlug ) && !isset( self::$actions[ $classOrSlug ] ) ) {
 			if ( \class_exists( $classOrSlug ) ) {
+				if ( !\is_a( $classOrSlug, BaseAction::class, true ) ) {
+					return '';
+				}
 				self::$actions[ $classOrSlug::SLUG ] = $classOrSlug;
 				$classOrSlug = $classOrSlug::SLUG;
 			}

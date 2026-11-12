@@ -53,7 +53,7 @@ class ScansMalaiFileQuery extends ScansBase {
 	private function getMalaiStatus() :string {
 		$FS = Services::WpFs();
 
-		$item = ( new RetrieveItems() )->byID( (int)( $this->action_data[ 'rid' ] ?? -1 ) );
+		$item = ( new RetrieveItems() )->byID( $this->fields()->positiveInt( 'rid' ) );
 		if ( !$item instanceof ResultItem ) {
 			throw new \Exception( __( 'The selected scan result is not a supported file item.', 'wp-simple-firewall' ) );
 		}

@@ -11,10 +11,13 @@ class ReorderCustomRules {
 
 	use PluginControllerConsumer;
 
+	/**
+	 * @param int[] $newOrder rule IDs in their new order
+	 */
 	public function run( array $newOrder ) {
 		$position = 1;
 		foreach ( $newOrder as $recordID ) {
-			self::con()->db_con->rules->getQueryUpdater()->updateById( (int)$recordID, [
+			self::con()->db_con->rules->getQueryUpdater()->updateById( $recordID, [
 				'exec_order' => $position++,
 			] );
 		}

@@ -5,11 +5,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Email;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
+	Exceptions\CouldNotValidate2FA,
+	Exceptions\InvalidLoginIntentException,
+	Exceptions\NoActiveProvidersForUserException,
+	Exceptions\OtpVerificationFailedException,
+	Exceptions\TooManyAttemptsException,
+	LoginIntentRequestValidate,
+	Provider\Email
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * todo: duplicates logic in LoginIntentRequestValidate
+ * The one-click login link in a 2FA email.
  */
 class MfaEmailAutoLogin extends BaseAction {
 
@@ -25,64 +33,52 @@ class MfaEmailAutoLogin extends BaseAction {
 
 	protected function exec() {
 		$con = self::con();
-		$mfaCon = $con->comps->mfa;
-		$userID = (int)$this->action_data[ 'user_id' ];
+
+		// Every field is read before anything happens, so a malformed one can't fail after login.
+		$fields = $this->fields();
+		$userID = $fields->positiveInt( 'user_id' );
+		$loginNonce = $fields->string( 'login_nonce' );
+		$redirectTo = $fields->string( 'redirect_to', '' );
 
 		$user = Services::WpUsers()->getUserById( $userID );
 		if ( empty( $user ) ) {
 			throw new ActionException( __( 'No such user', 'wp-simple-firewall' ) );
 		}
-		if ( !$mfaCon->verifyLoginNonce( $user, $this->action_data[ 'login_nonce' ] ) ) {
-			// TODO: trigger offense?
+		$otpField = ( new Email( $user ) )->getLoginIntentFormParameter();
+		$otp = $fields->string( $otpField );
+
+		// The link logs in through the same 2FA check as the login form. Only the email code is passed, so the link
+		// can only ever count as an email login.
+		try {
+			( new LoginIntentRequestValidate() )
+				->setWpUser( $user )
+				->run( $loginNonce, [ $otpField => $otp ] );
+			$success = true;
+		}
+		catch ( InvalidLoginIntentException|TooManyAttemptsException $e ) {
 			throw new ActionException( __( 'Invalid login nonce', 'wp-simple-firewall' ) );
 		}
-		$providers = $mfaCon->getProvidersActiveForUser( $user );
-		if ( empty( $providers ) ) {
-			throw new ActionException( __( 'No active providers for user.', 'wp-simple-firewall' ) );
-		}
-		$emailProvider = $providers[ Email::ProviderSlug() ] ?? null;
-		if ( empty( $emailProvider ) ) {
+		catch ( NoActiveProvidersForUserException|CouldNotValidate2FA $e ) {
 			throw new ActionException( __( 'No email provider for user.', 'wp-simple-firewall' ) );
 		}
-
-		$success = false;
-		try {
-			\ob_start();
-			if ( $emailProvider->validateLoginIntent( $mfaCon->findHashedNonce( $user, $this->action_data[ 'login_nonce' ] ) ) ) {
-				$success = true;
-				if ( \method_exists( $emailProvider, 'postSuccessActions' ) ) {
-					$emailProvider->postSuccessActions();
-				}
-				wp_set_auth_cookie( $userID, true );
-				$con->comps->events->fireEvent( '2fa_success' );
-				$con->comps->login_success->recordSuccessfulLogin( $user );
-			}
-		}
-		catch ( \Exception $e ) {
-			error_log( 'failed auto login:'.$e->getMessage() );
-		}
-		finally {
-			$con->comps->events->fireEvent(
-				$success ? '2fa_verify_success' : '2fa_verify_fail',
-				[
-					'audit_params' => [
-						'user_login' => $userID,
-						'method'     => $emailProvider->getProviderName(),
-					]
-				]
-			);
-			\ob_end_clean();
+		catch ( OtpVerificationFailedException $e ) {
+			$success = false;
 		}
 
-		$redirectTo = $this->action_data[ 'redirect_to' ] ?? '';
+		if ( $success ) {
+			wp_set_auth_cookie( $userID, true );
+			$con->comps->events->fireEvent( '2fa_success' );
+			$con->comps->login_success->recordSuccessfulLogin( $user );
+		}
+
 		$this->response()
 			 ->setPayloadSuccess( $success )
 			 ->setPayloadRedirectNextStep( empty( $redirectTo ) ? Services::WpGeneral()->getHomeUrl() : $redirectTo );
 	}
 
 	protected function getRequiredDataKeys() :array {
+		// The email code is required too; its field is named by the email provider and read in exec().
 		return [
-			'icwp_wpsf_email_otp',
 			'login_nonce',
 			'user_id',
 		];

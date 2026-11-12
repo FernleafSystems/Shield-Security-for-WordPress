@@ -18,7 +18,7 @@ class LicenseHandshakeVerifyKeyless extends LicenseBase {
 	}
 
 	protected function exec() {
-		$nonce = $this->action_data[ 'nonce' ] ?? '';
+		$nonce = $this->fields()->string( 'nonce', '' );
 		if ( !empty( $nonce ) ) {
 			die( \wp_json_encode( [
 				'success' => ( new HandshakingNonce() )->verify( $nonce )

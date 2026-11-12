@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Exceptions\SecurityAdminRequiredException,
 	Exceptions\UserAuthRequiredException,
 	ResponseAdapter\AjaxResponseAdapter,
+	Utility\ActionsMap,
 	Utility\AuthRefreshRequest,
 	Utility\ExternalEntryGuard,
 	Utility\ResponseEnvelopeNormalizer
@@ -58,6 +59,8 @@ class AjaxBatchRequests extends BaseAction {
 					)
 				);
 			}
+			// The requests are a list, whatever keys the request gave them.
+			$requests = \array_values( $requests );
 
 			$lastRequestIndexes = $this->collectLastRequestIndexes( $requests );
 			$results = [];
@@ -123,14 +126,16 @@ class AjaxBatchRequests extends BaseAction {
 				throw new ActionException( __( 'Missing request payload for batch request item.', 'wp-simple-firewall' ) );
 			}
 
-			$actionSlug = (string)( $actionRequestData[ ActionData::FIELD_EXECUTE ] ?? '' );
+			$actionSlug = ActionData::TransportField( $actionRequestData, ActionData::FIELD_EXECUTE );
 			if ( empty( $actionSlug ) ) {
 				throw new ActionException( __( 'Missing action slug in batched request.', 'wp-simple-firewall' ) );
 			}
 
-			$subrequestPayload = ExternalEntryGuard::ActionDataFromTransport( $this->stripTransportFields( $actionRequestData ) );
-			$action = ( new ActionProcessor() )->getAction( $actionSlug, $subrequestPayload );
-			if ( $action::SLUG === self::SLUG ) {
+			$actionClass = ActionsMap::ActionFromSlug( $actionSlug );
+			if ( empty( $actionClass ) ) {
+				throw new ActionDoesNotExistException( 'There was no action handler available for '.esc_html( $actionSlug ) );
+			}
+			if ( $actionClass::SLUG === self::SLUG ) {
 				return $this->buildFailureResult(
 					__( 'Nested batch requests are not allowed.', 'wp-simple-firewall' ),
 					400,
@@ -138,24 +143,22 @@ class AjaxBatchRequests extends BaseAction {
 				);
 			}
 
-			// Each item is an AJAX request in its own right, so it passes the same boundary as a direct request.
+			// Each item is an AJAX request in its own right, so it passes the same boundary as a direct
+			// request, and does so before the action is built from the request.
 			$guard = new ExternalEntryGuard();
-			if ( !$guard->isAdmitted( $action::SLUG, ExternalEntryGuard::ENTRY_AJAX ) ) {
-				$guard->recordRejection( $action::SLUG, ExternalEntryGuard::ENTRY_AJAX );
+			if ( !$guard->admit( $actionClass, ExternalEntryGuard::ENTRY_AJAX ) ) {
 				return $this->buildFailureResult(
 					__( 'Action transport is not allowed.', 'wp-simple-firewall' ),
 					400,
 					self::ERROR_ACTION_TRANSPORT_NOT_ALLOWED
 				);
 			}
-			try {
-				$guard->verifyProof( $action::SLUG, ExternalEntryGuard::ENTRY_AJAX, $actionRequestData );
-			}
-			catch ( InvalidActionNonceException $e ) {
-				$guard->recordRejection( $action::SLUG, ExternalEntryGuard::ENTRY_AJAX );
-				throw $e;
-			}
+			$guard->requireProof( $actionClass, ExternalEntryGuard::ENTRY_AJAX, $actionRequestData );
 
+			$action = ( new ActionProcessor() )->getAction(
+				$actionClass,
+				ExternalEntryGuard::ActionDataFromTransport( $this->stripTransportFields( $actionRequestData ) )
+			);
 			$action->process();
 			$adapted = $this->adaptSubrequestResponse( $action->response() );
 			$payload = $this->normaliseAjaxPayload( $this->sanitizeSubrequestPayload( $adapted[ 'payload' ] ) );
@@ -167,14 +170,11 @@ class AjaxBatchRequests extends BaseAction {
 			];
 		}
 		catch ( InvalidActionNonceException $e ) {
-			return $this->buildFailureResult( __( 'Nonce Failed.', 'wp-simple-firewall' ), 401, self::ERROR_INVALID_NONCE );
+			return $this->buildFailureResult( ResponseEnvelopeNormalizer::nonceFailedMessage(), 401, self::ERROR_INVALID_NONCE );
 		}
 		catch ( SecurityAdminRequiredException $e ) {
 			return $this->buildFailureResult(
-				\implode( ' ', [
-					__( 'You must be authorised as a Security Admin to perform this action.', 'wp-simple-firewall' ),
-					__( 'You may need to reload this page to continue.', 'wp-simple-firewall' ),
-				] ),
+				ResponseEnvelopeNormalizer::securityAdminRequiredMessage(),
 				401,
 				self::ERROR_SECURITY_ADMIN_REQUIRED
 			);

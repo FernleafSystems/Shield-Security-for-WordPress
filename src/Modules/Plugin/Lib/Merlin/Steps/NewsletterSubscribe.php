@@ -33,7 +33,7 @@ class NewsletterSubscribe extends Base {
 	public function processStepFormSubmit( array $form ) :Response {
 		$resp = new Response();
 
-		if ( empty( $form[ 'gdpr_agree' ] ) ) {
+		if ( ( $form[ 'gdpr_agree' ] ?? '' ) !== 'Y' ) {
 			$resp->success = false;
 			$resp->error = __( 'We ask that you agree to our privacy policy.', 'wp-simple-firewall' );
 		}

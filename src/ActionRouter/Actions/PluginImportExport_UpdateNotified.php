@@ -15,9 +15,10 @@ class PluginImportExport_UpdateNotified extends PluginImportExport_Base {
 	}
 
 	protected function exec() {
+		$fields = $this->fields();
 		self::con()->comps->import_export->runOptionsUpdateNotified(
-			(string)( $this->action_data[ 'master_url' ] ?? '' ),
-			(string)( $this->action_data[ 'id' ] ?? '' )
+			$fields->string( 'master_url', '' ),
+			$fields->string( 'id', '' )
 		);
 	}
 }

@@ -15,9 +15,11 @@ class PluginSetTracking extends BaseAction {
 	}
 
 	protected function exec() {
+		// The notice sends true or false, which arrive as the text "true" or "false". Reading that text as a
+		// boolean once made "false" switch tracking on.
 		self::con()
 			->opts
-			->optSet( 'enable_tracking', ( $this->action_data[ 'agree' ] ?? false ) ? 'Y' : 'N' );
+			->optSet( 'enable_tracking', $this->fields()->flag( 'agree', 'true', 'false' ) ? 'Y' : 'N' );
 		$this->response()->setPayload()->setPayloadSuccess( true );
 	}
 }

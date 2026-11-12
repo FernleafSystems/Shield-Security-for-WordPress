@@ -24,6 +24,15 @@ class ActionData {
 	public const FIELD_FORM = 'shield_form';
 	public const EXECUTE_SLUG_PATTERN = '[a-z0-9_.:\-]+';
 
+	/**
+	 * A routing field (action, slug or nonce) from request data. Request data is untrusted and a field can arrive
+	 * as an array or a number, so anything that isn't a string reads as empty.
+	 */
+	public static function TransportField( array $transport, string $field ) :string {
+		$value = $transport[ $field ] ?? '';
+		return \is_string( $value ) ? $value : '';
+	}
+
 	public static function extractActionSlug( string $candidate ) :string {
 		\preg_match( '#^('.self::EXECUTE_SLUG_PATTERN.')$#', $candidate, $matches );
 		return $matches[ 1 ] ?? '';

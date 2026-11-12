@@ -20,6 +20,18 @@ class MainwpServerClientActionHandler extends MainwpBase {
 	public const SLUG = 'mwp_server_site_client_action_handler';
 	public const FIELD_OPERATION = 'client_site_action';
 
+	/**
+	 * The operations a dashboard can run on a client site. The sites listing offers them and labels them by these
+	 * names, and the page sends the chosen name back in FIELD_OPERATION.
+	 */
+	public const OP_SYNC = 'sync';
+	public const OP_ACTIVATE = 'activate';
+	public const OP_DEACTIVATE = 'deactivate';
+	public const OP_INSTALL = 'install';
+	public const OP_UPDATE = 'update';
+	public const OP_LICENSE = 'license';
+	public const OP_MWP_ON = 'mwp_on';
+
 	public static function ExternalAccess() :array {
 		return [
 			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
@@ -31,28 +43,28 @@ class MainwpServerClientActionHandler extends MainwpBase {
 	 */
 	public static function Operations() :array {
 		return [
-			'sync'       => [
+			self::OP_SYNC       => [
 				'site_action_slug' => SiteActionSync::SLUG,
 			],
-			'activate'   => [
+			self::OP_ACTIVATE   => [
 				'site_action_slug' => SiteActionActivate::SLUG,
 			],
-			'deactivate' => [
+			self::OP_DEACTIVATE => [
 				'site_action_slug' => SiteActionDeactivate::SLUG,
 			],
-			'install'    => [
+			self::OP_INSTALL    => [
 				'site_action_slug' => SiteActionInstall::SLUG,
 			],
-			'update'     => [
+			self::OP_UPDATE     => [
 				'site_action_slug' => SiteActionUpdate::SLUG,
 			],
-			'license'    => [
+			self::OP_LICENSE    => [
 				'site_action_slug'   => SiteCustomAction::SLUG,
 				'site_action_params' => [
 					'sub_action_slug' => LicenseLookup::SLUG,
 				],
 			],
-			'mwp_on'     => [
+			self::OP_MWP_ON     => [
 				'site_action_slug'   => SiteCustomAction::SLUG,
 				'site_action_params' => [
 					// Sent in its legacy form so that child sites older than MainwpEnable also understand it.
@@ -88,8 +100,8 @@ class MainwpServerClientActionHandler extends MainwpBase {
 	 * @throws ActionException
 	 */
 	protected function fireActionOnClientSite() :array {
-		$operation = self::Operations()[ (string)$this->action_data[ self::FIELD_OPERATION ] ] ?? null;
-		if ( empty( $operation ) ) {
+		$operation = self::Operations()[ $this->fields()->string( self::FIELD_OPERATION ) ] ?? null;
+		if ( $operation === null ) {
 			throw new ActionException( __( 'Unsupported site action.', 'wp-simple-firewall' ) );
 		}
 

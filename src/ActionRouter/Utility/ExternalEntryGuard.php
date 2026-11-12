@@ -48,6 +48,32 @@ class ExternalEntryGuard {
 	}
 
 	/**
+	 * The admission check an entry point makes for a request: whether the entry admits the action, recording the
+	 * refusal when it doesn't.
+	 */
+	public function admit( string $classOrSlug, string $entry ) :bool {
+		$admitted = $this->isAdmitted( $classOrSlug, $entry );
+		if ( !$admitted ) {
+			$this->recordRejection( $classOrSlug, $entry );
+		}
+		return $admitted;
+	}
+
+	/**
+	 * The proof check an entry point makes for a request, recording the refusal when the proof fails.
+	 * @throws InvalidActionNonceException
+	 */
+	public function requireProof( string $classOrSlug, string $entry, array $transport ) :void {
+		try {
+			$this->verifyProof( $classOrSlug, $entry, $transport );
+		}
+		catch ( InvalidActionNonceException $e ) {
+			$this->recordRejection( $classOrSlug, $entry );
+			throw $e;
+		}
+	}
+
+	/**
 	 * @throws InvalidActionNonceException
 	 */
 	public function verifyProof( string $classOrSlug, string $entry, array $transport ) :void {
@@ -56,7 +82,7 @@ class ExternalEntryGuard {
 			throw new InvalidActionNonceException( 'Action is not declared for this entry point.' );
 		}
 		if ( $proof === self::PROOF_NONCE
-			 && !ActionNonce::Verify( $classOrSlug, (string)( $transport[ ActionData::FIELD_NONCE ] ?? '' ) ) ) {
+			 && !ActionNonce::Verify( $classOrSlug, ActionData::TransportField( $transport, ActionData::FIELD_NONCE ) ) ) {
 			throw new InvalidActionNonceException( 'Invalid Action Nonce.' );
 		}
 	}

@@ -13,7 +13,7 @@ trait LoadsFileScanItem {
 	 */
 	protected function loadFileScanItem() :ResultItem {
 		try {
-			$item = ( new RetrieveItems() )->byID( (int)$this->action_data[ 'rid' ] );
+			$item = ( new RetrieveItems() )->byID( $this->fields()->positiveInt( 'rid' ) );
 		}
 		catch ( \Exception $e ) {
 			throw new ActionException( 'Not a valid scan item record' );
