@@ -100,10 +100,21 @@ test( 'Security Admin PIN is set through configure and verified through login', 
 		await form.locator( contract.selectors.pin_option ).fill( contract.pins.new );
 		await form.locator( contract.selectors.pin_option_confirm ).fill( contract.pins.new );
 
+		const leavePrompts = [];
+		page.on( 'dialog', async ( dialog ) => {
+			leavePrompts.push( dialog.type() );
+			await dialog.accept();
+		} );
+
 		const saveResponse = waitForShieldAjaxAction( page, contract.action_slugs.module_options_save );
+		const reloaded = page.waitForEvent( 'load' );
 		await page.locator( '[data-configure-diagnosis="1"] [data-configure-savebar-save="1"]' ).click();
 		const savePayload = await expectShieldAjaxSuccess( await saveResponse );
 		expect( savePayload.data.page_reload ).toBe( true );
+
+		// The page reloads itself once the PIN is saved. The change is saved, so leaving needs no warning.
+		await reloaded;
+		expect( leavePrompts, 'Saving must not raise the unsaved-changes warning when the page reloads.' ).toEqual( [] );
 
 		const afterSave = await fixtureApi.inspectSecurityAdminFixture();
 		expect( afterSave.current.enabled ).toBe( true );
