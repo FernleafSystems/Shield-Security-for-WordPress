@@ -5,11 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
-	LoginHide,
-	Modules\ModuleIntegrations,
-	Whitelabel
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModuleIntegrations;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -29,6 +25,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   data:array<string,mixed>,
  *   badge:array{}|SidebarBadge
  * }
+ * @phpstan-type ActionsSummary array{total_items:int,severity:string,critical_items:int,warning_items:int}
  */
 class NavMenuBuilder {
 
@@ -41,6 +38,7 @@ class NavMenuBuilder {
 	 *   task_guide_item:array<string,mixed>,
 	 *   tool_items:list<array<string,mixed>>,
 	 *   home_license_item:SidebarLicenseItem|null,
+	 *   home_live_monitor_item:array<string,mixed>|null,
 	 *   home_connect_title:string,
 	 *   home_connect_items:list<array<string,mixed>>
 	 * }
@@ -64,6 +62,9 @@ class NavMenuBuilder {
 				'task_guide_item'   => $taskGuideItem,
 				'tool_items'         => [],
 				'home_license_item'  => $this->normalizeItems( [ $this->buildHomeLicenseItem() ] )[ 0 ],
+				'home_live_monitor_item' => $this->inav() === PluginNavs::NAV_DASHBOARD
+					? $this->normalizeItems( [ $this->buildLiveMonitorItem() ] )[ 0 ]
+					: null,
 				'home_connect_title' => $connect[ 'title' ],
 				'home_connect_items' => $this->normalizeItems( $connect[ 'items' ] ),
 			];
@@ -74,14 +75,16 @@ class NavMenuBuilder {
 			'task_guide'        => $taskGuideData,
 			'task_guide_item'   => $taskGuideItem,
 			'tool_items'         => $this->normalizeItems( $this->toolsForMode( $mode ) ),
-			'home_license_item'  => null,
+			// On the free plan the way to Pro is on every main page, not only the dashboard.
+			'home_license_item'  => self::con()->isPremiumActive() ? null : $this->normalizeItems( [ $this->buildHomeLicenseItem() ] )[ 0 ],
+			'home_live_monitor_item' => null,
 			'home_connect_title' => '',
 			'home_connect_items' => [],
 		];
 	}
 
 	/**
-	 * @param array{has_items:bool,total_items:int,severity:string} $actionsSummary
+	 * @param ActionsSummary $actionsSummary
 	 * @return list<array<string,mixed>>
 	 */
 	private function buildNavigationLinks( string $currentMode, array $actionsSummary ) :array {
@@ -119,15 +122,49 @@ class NavMenuBuilder {
 				'classes'      => [ 'mode-item-link' ],
 				'divider_after'=> $mode === PluginNavs::MODE_ACTIONS,
 			];
-			if ( $mode === PluginNavs::MODE_ACTIONS && $actionsSummary[ 'total_items' ] > 0 ) {
-				$item[ 'badge' ] = [
-					'text'   => (string)$actionsSummary[ 'total_items' ],
-					'status' => $actionsSummary[ 'severity' ],
+			if ( $mode === PluginNavs::MODE_ACTIONS ) {
+				$queue = $this->buildActionsQueueState( $actionsSummary );
+				$item[ 'data' ] = [
+					'queue-status' => $queue[ 'status' ],
 				];
+				$item[ 'badges' ] = $queue[ 'badges' ];
 			}
 			$items[] = $item;
 		}
 		return $items;
+	}
+
+	/**
+	 * The Actions Queue item's colour and counts, for the sidebar as it renders and for the queue to refresh
+	 * them in place as items are ignored or fixed.
+	 * @return array{status:string,badges:list<array{text:string,status:string,label:string}>}
+	 */
+	public function buildActionsQueueNavState() :array {
+		return $this->buildActionsQueueState( $this->getActionsQueueSummary() );
+	}
+
+	/**
+	 * While it's open, the item takes the colour of its most severe item. It has one count per severity, so
+	 * critical items aren't overstated by the warnings beside them.
+	 * @param ActionsSummary $actionsSummary
+	 * @return array{status:string,badges:list<array{text:string,status:string,label:string}>}
+	 */
+	private function buildActionsQueueState( array $actionsSummary ) :array {
+		return [
+			'status' => $actionsSummary[ 'total_items' ] > 0 ? $actionsSummary[ 'severity' ] : 'good',
+			'badges' => \array_values( \array_filter( [
+				[
+					'text'   => (string)$actionsSummary[ 'critical_items' ],
+					'status' => 'critical',
+					'label'  => \sprintf( _n( '%s critical item', '%s critical items', $actionsSummary[ 'critical_items' ], 'wp-simple-firewall' ), $actionsSummary[ 'critical_items' ] ),
+				],
+				[
+					'text'   => (string)$actionsSummary[ 'warning_items' ],
+					'status' => 'warning',
+					'label'  => \sprintf( _n( '%s warning', '%s warnings', $actionsSummary[ 'warning_items' ], 'wp-simple-firewall' ), $actionsSummary[ 'warning_items' ] ),
+				],
+			], fn( array $badge ) :bool => $badge[ 'text' ] !== '0' ) ),
+		];
 	}
 
 	private function buildTaskGuideItem() :array {
@@ -198,24 +235,19 @@ class NavMenuBuilder {
 			$toolItemsById[ $definition[ 'id' ] ] = $this->buildToolItemFromDefinition( $definition );
 		}
 
-		$toolItemsById[ 'tool_whitelabel' ] = $this->buildConfigureZoneToolItem(
-			Whitelabel::Slug(),
-			PluginNavs::NAV_TOOLS.'-whitelabel',
-			__( 'White Label', 'wp-simple-firewall' ),
-			'palette'
-		);
-		$toolItemsById[ 'tool_loginhide' ] = $this->buildConfigureZoneToolItem(
-			LoginHide::Slug(),
-			PluginNavs::NAV_TOOLS.'-loginhide',
-			__( 'Hide Login', 'wp-simple-firewall' ),
-			'person-lock'
-		);
 		$toolItemsById[ 'tool_integrations' ] = $this->buildConfigureZoneToolItem(
 			ModuleIntegrations::Slug(),
 			PluginNavs::NAV_TOOLS.'-integrations',
 			__( 'Integrations', 'wp-simple-firewall' ),
 			'puzzle'
 		);
+		// Integrations has a Configure topic of its own, so its panel lays its settings out the same way.
+		$toolItemsById[ 'tool_integrations' ][ 'data' ][ 'configure_panel' ] = 'integrations:integrations';
+
+		// Guided Setup opens the setup guide: in place when it's on the page, or by its link.
+		$toolItemsById[ 'tool_guidedsetup' ][ 'href' ] = self::con()->plugin_urls->setupGuide();
+		$toolItemsById[ 'tool_guidedsetup' ][ 'active' ] = false;
+		$toolItemsById[ 'tool_guidedsetup' ][ 'data' ] = [ 'setup-guide-open' => '1' ];
 
 		// Configure sidebar mixes route links and zone offcanvas actions, so final UI order lives here.
 		return \array_map(
@@ -301,19 +333,34 @@ class NavMenuBuilder {
 	 */
 	private function buildHomeLicenseItem() :array {
 		$con = self::con();
+		$isPro = $con->isPremiumActive();
 
 		return [
 			'slug'    => PluginNavs::NAV_LICENSE,
-			'title'   => __( 'Shield Pro License', 'wp-simple-firewall' ),
-			'subtitle'=> __( 'Supercharged Security', 'wp-simple-firewall' ),
+			// On the free plan this is the way to Pro, so it says so plainly and stands out.
+			'title'   => $isPro ? __( 'Shield Pro License', 'wp-simple-firewall' ) : __( 'Upgrade to Shield Pro', 'wp-simple-firewall' ),
+			'subtitle'=> $isPro ? __( 'Supercharged Security', 'wp-simple-firewall' ) : __( 'See everything Pro adds', 'wp-simple-firewall' ),
 			'img'     => $con->svgs->iconClass( 'award' ),
 			'href'    => $con->plugin_urls->licenseCheck(),
 			'active'  => $this->inav() === PluginNavs::NAV_LICENSE,
-			'classes' => [ 'sidebar-license-link' ],
-			'badge'   => $con->isPremiumActive() ? [
+			'classes' => $isPro ? [ 'sidebar-license-link' ] : [ 'sidebar-license-link', 'is-free-plan' ],
+			'badge'   => $isPro ? [
 				'text'   => 'PRO',
 				'status' => 'good',
 			] : [],
+		];
+	}
+
+	private function buildLiveMonitorItem() :array {
+		return [
+			'slug'    => 'live_monitor',
+			'title'   => __( 'Live Monitor', 'wp-simple-firewall' ),
+			'img'     => self::con()->svgs->iconClass( 'broadcast' ),
+			'is_action' => true,
+			'classes' => [ 'sidebar-live-monitor-launch' ],
+			'data'    => [
+				'live-monitor-launch' => '1',
+			],
 		];
 	}
 
@@ -383,35 +430,39 @@ class NavMenuBuilder {
 	}
 
 	/**
-	 * @return array{has_items:bool,total_items:int,severity:string}
+	 * @return ActionsSummary
 	 */
 	private function getActionsQueueSummary() :array {
 		try {
-			$summary = $this->buildActionsQueueSummaryContract();
+			return $this->buildActionsQueueSummaryContract();
 		}
 		catch ( \Throwable $e ) {
-			$summary = [
-				'total_items'  => 0,
-				'severity'     => 'good',
-				'has_items'    => false,
+			return [
+				'total_items'    => 0,
+				'severity'       => 'good',
+				'critical_items' => 0,
+				'warning_items'  => 0,
 			];
 		}
-		return [
-			'has_items'   => (bool)$summary[ 'has_items' ],
-			'total_items' => (int)$summary[ 'total_items' ],
-			'severity'    => (string)$summary[ 'severity' ],
-		];
 	}
 
 	/**
-	 * @return array{has_items:bool,total_items:int,severity:string}
+	 * @return ActionsSummary
 	 */
 	protected function buildActionsQueueSummaryContract() :array {
-		$summary = self::con()->comps->site_query->attention()[ 'summary' ];
+		$attention = self::con()->comps->site_query->attention();
+		$summary = $attention[ 'summary' ];
+		$critical = 0;
+		foreach ( $attention[ 'items' ] as $item ) {
+			if ( $item[ 'severity' ] === 'critical' ) {
+				$critical += (int)$item[ 'count' ];
+			}
+		}
 		return [
-			'has_items'   => !$summary[ 'is_all_clear' ],
-			'total_items' => $summary[ 'total' ],
-			'severity'    => $summary[ 'severity' ],
+			'total_items'    => $summary[ 'total' ],
+			'severity'       => $summary[ 'severity' ],
+			'critical_items' => $critical,
+			'warning_items'  => \max( 0, $summary[ 'total' ] - $critical ),
 		];
 	}
 
@@ -450,6 +501,7 @@ class NavMenuBuilder {
 			'target'    => '',
 			'data'      => [],
 			'badge'     => [],
+			'badges'    => [],
 			'kind'      => '',
 			'mode'      => '',
 			'route'     => [],

@@ -19,8 +19,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\SecadminEnabled;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
 use FernleafSystems\Wordpress\Services\Services;
 use WP_User;
 
@@ -347,8 +345,8 @@ class SecurityAdminFixtureBuilder {
 				],
 			],
 			'configure_focus'            => [
-				'zone_key'    => Secadmin::Slug(),
-				'row_key'     => SecadminEnabled::Slug(),
+				'zone_key'    => 'control',
+				'row_key'     => 'security_admin',
 				'config_item' => 'admin_access_key',
 			],
 			'action_slugs'               => [
@@ -411,7 +409,7 @@ class SecurityAdminFixtureBuilder {
 				'pin_option'          => '#Opt-admin_access_key',
 				'pin_option_confirm'  => '#Opt-admin_access_key_confirm',
 				'configure_landing'   => '[data-configure-landing="1"]',
-				'configure_row'       => '[data-configure-row-key="'.SecadminEnabled::Slug().'"]',
+				'configure_row'       => '[data-configure-row-key="security_admin"]',
 				'options_form'        => 'form.options_form_for',
 				'page_action_menu'    => '.page-action-menu-toggle',
 				'end_session_action'  => 'a[href*="'.SecurityAdminAuthClear::SLUG.'"]',

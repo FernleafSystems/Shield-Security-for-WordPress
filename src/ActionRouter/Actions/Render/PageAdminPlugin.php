@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\Security
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ProUpsellDataBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SetupGuideDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices\Handler;
 
 class PageAdminPlugin extends BaseRender {
@@ -25,7 +26,6 @@ class PageAdminPlugin extends BaseRender {
 
 		return [
 			'classes' => [
-				'page_container' => 'page-'.$nav
 			],
 			'content' => [
 				'rendered_page_body' => self::con()->action_router->render(
@@ -34,7 +34,6 @@ class PageAdminPlugin extends BaseRender {
 				),
 			],
 			'flags'   => [
-				'is_advanced' => false,
 			],
 			'imgs'    => [
 				'logo_banner' => $con->labels->url_img_pagebanner,
@@ -51,6 +50,7 @@ class PageAdminPlugin extends BaseRender {
 				'active_module_settings' => $subNav,
 				'nav_sidebar'            => ( new NavMenuBuilder() )->build(),
 				'pro_upsell'             => ( new ProUpsellDataBuilder() )->build(),
+				'setup_guide'            => ( new SetupGuideDataBuilder() )->build(),
 			],
 		];
 	}
@@ -72,7 +72,7 @@ class PageAdminPlugin extends BaseRender {
 
 	private function resolveRouteLabel( string $nav, string $subNav ) :string {
 		if ( $nav === PluginNavs::NAV_REPORTS ) {
-			$workspace = $this->getTextInputFromRequestOrActionData( 'workspace' );
+			$workspace = $this->getTextInputFromActionData( 'workspace' );
 			if ( isset( PluginNavs::reportsWorkspaceDefinitions()[ $workspace ] ) ) {
 				return PluginNavs::reportsWorkspaceDefinitions()[ $workspace ][ 'page_title' ];
 			}

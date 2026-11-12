@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetMetadataResolver,
 	ActionsQueueAssetFileStatusDetail,
-	ActionsQueueContextActionsBuilder,
 	ActionsQueueDrillDownPresentationBuilder,
 	ActionsQueueGroupContractBuilder,
 	ActionsQueueGroupDefinitions,
@@ -123,7 +122,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'example_plugin', $pluginGroup[ 'label' ] );
 		$this->assertSame( 'direct_table', $pluginGroup[ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $pluginGroup[ 'card_type' ] );
-		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $pluginGroup[ 'render_action_class' ] );
+		$this->assertSame( ActionsQueueAssetFileStatusDetail::SLUG, $pluginGroup[ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] );
 		$this->assertSame(
 			[
 				'display_context'         => 'actions_queue',
@@ -175,7 +174,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$group = $builder->buildEmptyGroup( 'plugins:missing-plugin/missing-plugin.php', 'fix_now' );
 
 		$this->assertSame( 'asset_cards', $group[ 'detail_shell' ] );
-		$this->assertSame( Plugins::class, $group[ 'render_action_class' ] );
+		$this->assertSame( Plugins::SLUG, $group[ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] );
 		$this->assertSame( $group[ 'label' ], $group[ 'selection' ][ 'label' ] );
 		$this->assertSame( $group[ 'label' ], $group[ 'selection' ][ 'header' ][ 'title' ] );
 		$this->assertAjaxRenderPayloadAllowedByPolicy(
@@ -280,7 +279,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'actions_queue', (string)( $group[ 'render_action_data' ][ 'display_context' ] ?? '' ) );
 	}
 
-	public function test_empty_cloaked_seed_suppresses_only_its_detail_render_contract() :void {
+	public function test_cloaked_seed_has_no_detail_render_contract() :void {
 		$groups = $this->newBuilder()->buildResolvedGroups( 'Fix now', [
 			$this->groupSeed( [
 				'key'                         => 'hidden_plugins',
@@ -290,7 +289,6 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 				'status'                      => 'good',
 				'is_interactive_override'     => false,
 				'render_action_data_override' => [],
-				'suppress_detail_render_action_if_noninteractive' => true,
 			] ),
 		] );
 		$cloaked = $groups[ 'groups_indexed' ][ 'hidden_plugins' ];
@@ -299,7 +297,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $cloaked[ 'render_action_data' ] );
 		$this->assertSame( [], $cloaked[ 'selection' ][ 'detail_render_action' ] );
 
-		$unrelated = $this->newBuilder()->buildEmptyGroup( 'abandoned', 'Fix now' );
+		$unrelated = $this->newBuilder()->buildEmptyGroup( 'malware', 'Fix now' );
 		$this->assertFalse( $unrelated[ 'is_interactive' ] );
 		$this->assertNotSame( [], $unrelated[ 'selection' ][ 'detail_render_action' ] );
 	}
@@ -329,17 +327,6 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 			new ActionsQueueDrillDownPresentationBuilder(),
 			$resolver,
 			null,
-			new class extends ActionsQueueContextActionsBuilder {
-				public function buildForGroup(
-					string $definitionKey,
-					string $label,
-					string $detailShell,
-					int $itemCount,
-					array $renderActionData
-				) :array {
-					return [];
-				}
-			},
 			$scopeStateBuilder ?? $this->newScopeStateBuilder( 0, 0 )
 		);
 	}
@@ -439,9 +426,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 			'status'          => 'warning',
 			'narrative'       => '',
 			'detail_shell'    => 'direct_table',
-			'links'           => [],
 			'management_link' => [],
-			'detail_table'    => [],
 			'attention_items' => [],
 			'maintenance_rows' => [],
 			'summary_row'     => [],

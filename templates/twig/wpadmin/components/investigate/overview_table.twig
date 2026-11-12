@@ -1,7 +1,7 @@
-{% set overview_rows = rows|default([]) %}
+{% set overview_rows = rows %}
 
 <section class="investigate-flat-section investigate-overview-table">
-	{% if title|default('') is not empty %}
+	{% if title is not empty %}
 		<h3 class="mb-3 investigate-section-title">{{ title }}</h3>
 	{% endif %}
 
@@ -13,12 +13,12 @@
 				<tbody>
 				{% for row in overview_rows %}
 					<tr>
-						<th class="w-25">{{ row.label|default('') }}</th>
+						<th class="w-25">{{ row.label }}</th>
 						<td>
-							{% if row.value_href|default('') is not empty %}
-								<a href="{{ row.value_href }}" target="_blank" rel="noopener noreferrer">{{ row.value|default('') }}</a>
+							{% if row.value_href is not empty %}
+								<a href="{{ row.value_href }}" target="_blank" rel="noopener noreferrer">{{ row.value }}</a>
 							{% else %}
-								{{ row.value|default('') }}
+								{{ row.value }}
 							{% endif %}
 						</td>
 					</tr>

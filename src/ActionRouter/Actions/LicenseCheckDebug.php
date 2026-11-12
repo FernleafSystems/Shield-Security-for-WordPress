@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Licenses\Keyless;
 use FernleafSystems\Wordpress\Services\Utilities\Licenses\Keyless\Ping;
@@ -9,6 +10,12 @@ use FernleafSystems\Wordpress\Services\Utilities\Licenses\Keyless\Ping;
 class LicenseCheckDebug extends LicenseBase {
 
 	public const SLUG = 'license_debug';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$success = ( new Ping() )->ping();

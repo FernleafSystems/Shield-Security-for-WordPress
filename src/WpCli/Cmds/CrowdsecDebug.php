@@ -21,7 +21,6 @@ class CrowdsecDebug extends CrowdsecBase {
 	public function runCmd() :void {
 		try {
 			( new ImportDecisions() )->runImport();
-//			( new Enroll() )->enroll();
 		}
 		catch ( \Exception $e ) {
 			var_dump( $e->getMessage() );

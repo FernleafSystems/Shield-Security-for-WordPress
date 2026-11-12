@@ -10,7 +10,6 @@ class WPHooksOrder {
 	public const WP_LOADED = 40;
 	public const TEMPLATE_REDIRECT = 60;
 	public const REST_API_INIT = 70;
-	public const REST_API_AUTH = 73;
 	public const WP = 80;
 	public const SHUTDOWN = 100;
 

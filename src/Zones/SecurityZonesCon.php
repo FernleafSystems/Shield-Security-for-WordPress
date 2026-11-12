@@ -11,34 +11,11 @@ class SecurityZonesCon {
 	use PluginControllerConsumer;
 
 	/**
-	 * @var Zone\Base[]
-	 */
-	private array $zones;
-
-	public function getZone( string $slug ) :Zone\Base {
-		return $this->getZones()[ $slug ];
-	}
-
-	/**
 	 * @return Component\Base
 	 */
 	public function getZoneComponent( string $slug ) :Component\Base {
 		$c = $this->enumZoneComponents()[ $slug ];
 		return new $c();
-	}
-
-	/**
-	 * @return Component\Base[]
-	 */
-	public function getComponentsForZone( Zone\Base $zone ) :array {
-		return \array_map( fn( string $c ) => new $c(), $zone->components() );
-	}
-
-	/**
-	 * @return Zone\Base[]
-	 */
-	public function getZones() :array {
-		return $this->zones ??= \array_map( fn( string $class ) => new $class(), $this->enumZones() );
 	}
 
 	public function enumZoneComponents() :array {

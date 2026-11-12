@@ -124,10 +124,13 @@ trait PasskeyTestEnvironmentTrait {
 		];
 	}
 
-	protected function setPasskeyLoginOtpRequest( Passkey $provider, string $rawResponseJson ) :void {
-		$this->mergeCurrentRequestTransport( [
+	/**
+	 * The login form fields a browser submits for a passkey login.
+	 */
+	protected function passkeyLoginSubmission( Passkey $provider, string $rawResponseJson ) :array {
+		return [
 			$provider->getLoginIntentFormParameter() => \base64_encode( $rawResponseJson ),
-		] );
+		];
 	}
 
 	protected function insertLegacyPasskeyActionRecord( int $userId, string $label = 'Fixture Passkey' ) :int {

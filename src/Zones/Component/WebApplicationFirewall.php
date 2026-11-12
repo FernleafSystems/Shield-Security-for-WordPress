@@ -72,29 +72,6 @@ class WebApplicationFirewall extends Base {
 		return $status;
 	}
 
-	public function postureSignals() :array {
-		$states = $this->firewallRuleStates();
-		$signals = [];
-		foreach ( $this->firewallRuleDefinitions() as $optKey => $definition ) {
-			$enabled = !empty( $states[ $optKey ] );
-			$name = $this->firewallRuleName( $optKey );
-			$signals[] = $this->buildPostureSignal(
-				$definition[ 'slug' ],
-				sprintf( __( 'WAF Rule: %s', 'wp-simple-firewall' ), $name ),
-				$definition[ 'weight' ],
-				$enabled ? $definition[ 'weight' ] : 0,
-				$enabled ? 'good' : 'critical',
-				$enabled,
-				[
-					$enabled
-						? sprintf( __( "Requests that trigger '%s' are intercepted.", 'wp-simple-firewall' ), $name )
-						: sprintf( __( "Requests that trigger '%s' are not intercepted.", 'wp-simple-firewall' ), $name ),
-				]
-			);
-		}
-		return $signals;
-	}
-
 	/**
 	 * @return array<string,bool>
 	 */
@@ -107,15 +84,15 @@ class WebApplicationFirewall extends Base {
 	}
 
 	/**
-	 * @return array<string,array{name:string,slug:string,weight:int,primary:bool}>
+	 * @return array<string,array{name:string,primary:bool}>
 	 */
 	private function firewallRuleDefinitions() :array {
 		return [
-			'block_dir_traversal'    => [ 'name' => __( 'Directory Traversals', 'wp-simple-firewall' ), 'slug' => 'firewall_dir_traversal', 'weight' => 5, 'primary' => true ],
-			'block_sql_queries'      => [ 'name' => __( 'SQL Queries', 'wp-simple-firewall' ), 'slug' => 'firewall_sql_queries', 'weight' => 5, 'primary' => true ],
-			'block_field_truncation' => [ 'name' => __( 'Field Truncation', 'wp-simple-firewall' ), 'slug' => 'firewall_field_truncation', 'weight' => 3, 'primary' => false ],
-			'block_php_code'         => [ 'name' => __( 'PHP Code', 'wp-simple-firewall' ), 'slug' => 'firewall_php_code', 'weight' => 4, 'primary' => true ],
-			'block_aggressive'       => [ 'name' => __( 'Aggressive Scan', 'wp-simple-firewall' ), 'slug' => 'firewall_aggressive', 'weight' => 4, 'primary' => false ],
+			'block_dir_traversal'    => [ 'name' => __( 'Directory Traversals', 'wp-simple-firewall' ), 'primary' => true ],
+			'block_sql_queries'      => [ 'name' => __( 'SQL Queries', 'wp-simple-firewall' ), 'primary' => true ],
+			'block_field_truncation' => [ 'name' => __( 'Field Truncation', 'wp-simple-firewall' ), 'primary' => false ],
+			'block_php_code'         => [ 'name' => __( 'PHP Code', 'wp-simple-firewall' ), 'primary' => true ],
+			'block_aggressive'       => [ 'name' => __( 'Aggressive Scan', 'wp-simple-firewall' ), 'primary' => false ],
 		];
 	}
 

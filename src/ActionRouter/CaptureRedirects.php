@@ -24,12 +24,14 @@ class CaptureRedirects {
 		if ( is_admin() && !Services::WpGeneral()->isAjax() ) {
 
 			$redirectTo = null;
-			$page = (string)$req->query( 'page' );
+			// The admin page URL's values: only text is used.
+			$query = $req->query;
+			$page = ActionData::TransportField( $query, 'page' );
 
 			if ( $page === $urls->rootAdminPageSlug() ) {
 
-				$nav = (string)$req->query( Constants::NAV_ID );
-				$subNav = (string)$req->query( Constants::NAV_SUB_ID );
+				$nav = ActionData::TransportField( $query, Constants::NAV_ID );
+				$subNav = ActionData::TransportField( $query, Constants::NAV_SUB_ID );
 				$redirectTo = $urls->legacyAdminRouteRedirect( $nav, $subNav );
 
 				if ( empty( $redirectTo )
@@ -48,7 +50,7 @@ class CaptureRedirects {
 			}
 			elseif ( \preg_match( sprintf( '#^%s-([a-z_]+)$#', \preg_quote( $con->prefix(), '#' ) ), $page, $matches ) ) {
 				$nav = $matches[ 1 ];
-				$subNav = (string)$req->query( Constants::NAV_SUB_ID );
+				$subNav = ActionData::TransportField( $query, Constants::NAV_SUB_ID );
 				$redirectTo = $urls->legacyAdminRouteRedirect( $nav, $subNav );
 				if ( empty( $redirectTo ) ) {
 					$nav = PluginNavs::NavExists( $nav ) ? $nav : PluginNavs::NAV_DASHBOARD;
@@ -60,7 +62,8 @@ class CaptureRedirects {
 				$con->opts
 					->optSet( 'last_wizard_redirect_at', $req->ts() )
 					->store();
-				$redirectTo = $urls->adminTopNav( PluginNavs::NAV_WIZARD, PluginNavs::SUBNAV_WIZARD_WELCOME );
+				// New installs land on the dashboard, where the setup guide bar walks through the first steps.
+				$redirectTo = $urls->adminHome();
 			}
 
 			if ( !empty( $redirectTo ) ) {

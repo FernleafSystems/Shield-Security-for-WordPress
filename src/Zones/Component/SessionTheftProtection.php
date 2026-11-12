@@ -39,10 +39,10 @@ class SessionTheftProtection extends Base {
 		}
 
 		if ( empty( $con->opts->optGet( 'session_lock' ) ) ) {
-			$status[ 'exp' ][] = __( "It's good practice to lock a session at least 1 property to help prevent theft of the session.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( "It's good practice to lock a session at least 1 property to help prevent theft of the session.", 'wp-simple-firewall' ), 'session_lock' );
 		}
 		if ( $lookup->getSessionIdleInterval() === 0 ) {
-			$status[ 'exp' ][] = __( "It's good practice to limit session lifetime, particularly when left idle.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( "It's good practice to limit session lifetime, particularly when left idle.", 'wp-simple-firewall' ), 'session_idle_timeout_interval' );
 		}
 		$source = Services::Request()->getIpDetector()->getPublicRequestSource();
 		if ( $source !== 'REMOTE_ADDR' && \in_array( 'ip', $con->opts->optGet( 'session_lock' ), true ) ) {
@@ -51,9 +51,5 @@ class SessionTheftProtection extends Base {
 		}
 
 		return $status;
-	}
-
-	protected function postureWeight() :int {
-		return 4;
 	}
 }

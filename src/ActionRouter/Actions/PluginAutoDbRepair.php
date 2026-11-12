@@ -2,12 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginAutoDbRepair extends BaseAction {
 
 	public const SLUG = 'auto_db_repair';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$con = self::con();

@@ -212,7 +212,7 @@ test( 'paused request cleanup releases early exits and removes unmatched handler
 
 for ( const scenario of [
 	{ name: 'report creation', route: { nav: 'reports', nav_sub: 'overview' }, launcher: '.offcanvas_report_create_form', body: '.form_create_report', contextual: true, licensed: true },
-	{ name: 'IP rule creation', route: { nav: 'ips', nav_sub: 'rules' }, launcher: '.offcanvas_form_create_ip_rule', body: '#IpRuleAddForm', contextual: true },
+	{ name: 'IP rule creation', route: { nav: 'ips', nav_sub: 'rules' }, launcher: '.offcanvas_form_create_ip_rule', body: '#IpRuleAddForm' },
 	{ name: 'table search help', route: { nav: 'activity', nav_sub: 'logs' }, launcher: 'button.search-help', body: '.offcanvas-body table' },
 ] ) {
 	test( `${scenario.name} uses the named shared offcanvas and accessible loaded body`, async ( { page, fixtureApi } ) => {

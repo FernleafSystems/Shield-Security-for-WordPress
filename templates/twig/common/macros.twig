@@ -37,10 +37,6 @@
 	{% endif %}
 {% endmacro %}
 
-{% macro slideTitle(content) %}
-	<h4 class="my-3">{{ content }}</h4>
-{% endmacro %}
-
 {% macro formInput_Hidden(name,value,id='') %}
 	<input name="{{ name }}" value="{{ value }}" {% if id is not empty %}id="{{ id }}"{% endif %} type="hidden" />
 {% endmacro %}
@@ -72,51 +68,9 @@
 	</div>
 {% endmacro %}
 
-{% macro formInput_Email(name,value,label,placeholder,help,id) %}
-	{% import _self as icwp_macros %}
-	{{ icwp_macros.formInput_Base('email',name,value,label,placeholder,help,id) }}
-{% endmacro %}
-
 {% macro formInput_Password(name,value,label,placeholder,help,id,classes='') %}
 	{% import _self as icwp_macros %}
 	{{ icwp_macros.formInput_Base('password',name,value,label,placeholder,help,id,classes) }}
-{% endmacro %}
-
-{% macro formInput_Number(name,value,label,placeholder,help,id,classes='') %}
-	{% import _self as icwp_macros %}
-	{{ icwp_macros.formInput_Base('number',name,value,label,placeholder,help,id,classes) }}
-{% endmacro %}
-
-{% macro formInput_Text(name,value,label,placeholder,help,id,type='text') %}
-	{% import _self as icwp_macros %}
-	{{ icwp_macros.formInput_Base(type,name,value,label,placeholder,help,id) }}
-{% endmacro %}
-
-{% macro formInput_Radio(name,values,toplabel,id) %}
-	<div class="row">
-		<label class="col-4 col-form-label" for="{{ id|default( '_'~name) }}">{{ toplabel }}</label>
-		<div class="col-8">
-			<div class="form-check">
-				{% for value,label in values %}
-					<label class="form-check-label">
-						<input type="radio" name="{{ name }}"
-							   class="form-check-input"
-							   id="{{ name~value }}" value="{{ value }}">
-						{{ label|raw }}
-					</label>
-				{% endfor %}
-			</div>
-		</div>
-	</div>
-{% endmacro %}
-
-{% macro formInput_Radio_Wizard(name,values,toplabel,id) %}
-	{% for value,label in values %}
-		<label class="d-block form-label">
-			<input type="radio" name="{{ name }}" value="{{ value }}" id="{{ name~value }}">
-			<span>{{ label|raw }}</span>
-		</label>
-	{% endfor %}
 {% endmacro %}
 
 {% macro formInput_Submit2(label,name,btn,large=false,classes='') %}
@@ -145,36 +99,6 @@
 			{% if help is defined and help|length > 0 %}
 				<small class="form-text text-muted">{{ help|raw }}</small>
 			{% endif %}
-		</div>
-	</div>
-{% endmacro %}
-
-{% macro embedVimeo( video_id, width, height, class, id ) %}
-	<div class="embed-vimeo embed-responsive {{ class|default('embed-responsive-16by9') }}"
-		 id="{{ id|default('') }}">
-		<iframe src="https://player.vimeo.com/video/{{ video_id }}"
-				width="{{ width|default(640) }}" height="{{ height|default(480) }}"
-				frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-	</div>
-{% endmacro %}
-
-{% macro embedVimeoFeather( video_id, img_url, img_play, id ) %}
-	<style>
-		.vimeo-feather a {
-			background-image: url({{ img_play }});
-		}
-	</style>
-	<div class="d-flex justify-content-center">
-		<div class="vimeo-feather">
-			<a href="https://player.vimeo.com/video/{{ video_id }}"
-			   class="d-block"
-			   data-featherlight="iframe"
-			   data-featherlight-iframe-frameborder="0"
-			   data-featherlight-iframe-allowfullscreen="true"
-			   data-featherlight-iframe-style="display:block;border:none;height:85vh;width:85vw;background-color:transparent;"
-			>
-				<img id="VimeoImg{{ video_id }}" src="{{ img_url }}" class="img-fluid" />
-			</a>
 		</div>
 	</div>
 {% endmacro %}

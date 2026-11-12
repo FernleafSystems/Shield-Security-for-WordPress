@@ -24,6 +24,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	private ActionsQueueGroupDefinitions $groupDefinitions;
 	private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder;
 	private ActionsQueueGroupMaintenanceSource $maintenanceSource;
+	private ActionsQueueGroupScanSource $scanSource;
 	private ?GetPendingFileLockDisplays $pendingFileLockDisplays;
 	private ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder;
 	private ActionsQueueScanResultScopeResolver $scanResultScopeResolver;
@@ -33,6 +34,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		ActionsQueueGroupDefinitions $groupDefinitions,
 		ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
 		ActionsQueueGroupMaintenanceSource $maintenanceSource,
+		ActionsQueueGroupScanSource $scanSource,
 		?GetPendingFileLockDisplays $pendingFileLockDisplays = null,
 		?ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder = null,
 		?ActionsQueueScanResultScopeResolver $scanResultScopeResolver = null,
@@ -41,6 +43,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		$this->groupDefinitions = $groupDefinitions;
 		$this->maintenanceSeedBuilder = $maintenanceSeedBuilder;
 		$this->maintenanceSource = $maintenanceSource;
+		$this->scanSource = $scanSource;
 		$this->pendingFileLockDisplays = $pendingFileLockDisplays;
 		$this->scanResultScopeStateBuilder = $scanResultScopeStateBuilder ?? new ActionsQueueScanResultScopeStateBuilder();
 		$this->scanResultScopeResolver = $scanResultScopeResolver ?? new ActionsQueueScanResultScopeResolver();
@@ -61,7 +64,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	) :array {
 		$seeds = [];
 
-		foreach ( $this->buildDisabledScanSeedsForBucket( $bucketKey, $bucketSource ) as $seed ) {
+		foreach ( $this->buildDisabledScanSeedsForBucket( $bucketSource ) as $seed ) {
 			if ( isset( $existingGroupKeys[ $seed[ 'key' ] ] ) ) {
 				continue;
 			}
@@ -69,7 +72,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 			$existingGroupKeys[ $seed[ 'key' ] ] = true;
 		}
 
-		foreach ( $this->buildHealthyScanSeedsForBucket( $bucketKey, $bucketSource, $assessmentRowsByZone[ 'scans' ] ?? [] ) as $seed ) {
+		foreach ( $this->buildHealthyScanSeedsForBucket( $bucketKey, $assessmentRowsByZone[ 'scans' ] ?? [] ) as $seed ) {
 			if ( isset( $existingGroupKeys[ $seed[ 'key' ] ] ) ) {
 				continue;
 			}
@@ -155,15 +158,12 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'status'                      => 'good',
 				'narrative'                   => __( 'No active results remain in this group.', 'wp-simple-firewall' ),
 				'detail_shell'                => $definition[ 'detail_shell' ],
-				'links'                       => [],
 				'management_link'             => [],
 				'is_interactive_override'     => true,
-				'detail_table'                => [],
 				'render_action_data_override' => $definition[ 'render_action_data' ],
 				'attention_items'             => [],
 				'maintenance_rows'            => [],
 				'summary_row'                 => [],
-				'context_actions_override'    => [],
 			];
 		}
 
@@ -173,11 +173,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	/**
 	 * @return list<GroupSeed>
 	 */
-	private function buildDisabledScanSeedsForBucket( string $bucketKey, array $bucketSource ) :array {
-		if ( $bucketKey !== 'critical' ) {
-			return [];
-		}
-
+	private function buildDisabledScanSeedsForBucket( array $bucketSource ) :array {
 		$seeds = [];
 		foreach ( $bucketSource[ 'disabled_groups' ] as $definitionKey => $availability ) {
 			$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
@@ -185,20 +181,19 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				&& $availability[ 'disabled_reason' ] === 'not_enabled';
 			$statusLabel = $availability[ 'disabled_reason' ] === 'upgrade_required'
 				? __( 'Upgrade Required', 'wp-simple-firewall' )
-				: __( 'Not Enabled', 'wp-simple-firewall' );
+				: ( $isFileLockerSetup ? __( 'Not all locked', 'wp-simple-firewall' ) : __( 'Not Enabled', 'wp-simple-firewall' ) );
 
 			$seed = [
 				'key'                     => $definitionKey,
 				'definition_key'          => $definitionKey,
 				'label'                   => $definition[ 'label' ],
 				'item_count'              => 0,
-				'status'                  => 'neutral',
+				// Critical files left unlocked are a warning to review.
+				'status'                  => $isFileLockerSetup ? 'warning' : 'neutral',
 				'narrative'               => $availability[ 'disabled_message' ],
 				'detail_shell'            => $definition[ 'detail_shell' ],
-				'links'                   => [],
 				'management_link'         => [],
 				'is_interactive_override' => true,
-				'detail_table'            => [],
 				'attention_items'         => [],
 				'maintenance_rows'        => [],
 				'summary_row'             => [],
@@ -207,17 +202,16 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'header_focus_override'   => $availability[ 'disabled_reason' ] === 'upgrade_required'
 					? __( 'Upgrade your plan to unlock this protection.', 'wp-simple-firewall' )
 					: ( $isFileLockerSetup
-						? __( 'Enable File Locker for the files you want to protect.', 'wp-simple-firewall' )
+						? __( 'Lock each critical file so any change to it is caught.', 'wp-simple-firewall' )
 						: __( 'Open this protection\'s settings to switch it on.', 'wp-simple-firewall' ) ),
 				'header_next_step_override' => $availability[ 'disabled_reason' ] === 'upgrade_required'
 					? __( 'Review the upgrade option for this protection.', 'wp-simple-firewall' )
 					: ( $isFileLockerSetup
-						? __( 'Open File Locker to enable protection for individual files.', 'wp-simple-firewall' )
+						? __( 'Open File Locker and lock the files that are not locked yet.', 'wp-simple-firewall' )
 						: __( 'Review this protection\'s settings and switch it on.', 'wp-simple-firewall' ) ),
 				'header_badge_override'      => $statusLabel,
 				'header_badge_status_override' => 'neutral',
 				'header_color_key_override'    => 'neutral',
-				'context_actions_override'     => [],
 			];
 			if ( $availability[ 'disabled_reason' ] === 'upgrade_required'
 				&& \in_array( $definitionKey, self::PRO_UPSELL_GROUP_KEYS, true ) ) {
@@ -233,11 +227,10 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	}
 
 	/**
-	 * @phpstan-param BucketSource $bucketSource
 	 * @param list<AssessmentRow> $assessmentRows
 	 * @return list<GroupSeed>
 	 */
-	private function buildHealthyScanSeedsForBucket( string $bucketKey, array $bucketSource, array $assessmentRows ) :array {
+	private function buildHealthyScanSeedsForBucket( string $bucketKey, array $assessmentRows ) :array {
 		$rowsByDefinitionKey = [];
 
 		foreach ( $assessmentRows as $row ) {
@@ -256,29 +249,31 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		$seeds = [];
 		foreach ( $rowsByDefinitionKey as $definitionKey => $rows ) {
 			$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
-			$interaction = $this->buildHealthyScanInteraction(
-				$definitionKey,
-				$definitionKey === 'hidden_plugins'
-					? $this->hasUsefulDetail( $rows )
-					: null
-			);
+			$interaction = $this->buildHealthyScanInteraction( $definitionKey );
 			$seed = [
 				'key'                         => $definitionKey,
 				'definition_key'              => $definitionKey,
 				'label'                       => $definition[ 'label' ],
-				'item_count'                  => $interaction[ 'item_count_override' ],
+				'item_count'                  => 0,
 				'status'                      => 'good',
 				'narrative'                   => $this->combineHealthyAssessmentNarratives( $rows ),
 				'detail_shell'                => $definition[ 'detail_shell' ],
-				'links'                       => [],
 				'management_link'             => [],
 				'is_interactive_override'     => $interaction[ 'is_interactive' ],
-				'detail_table'                => [],
 				'render_action_data_override' => $interaction[ 'render_action_data' ],
 				'attention_items'             => [],
 				'maintenance_rows'            => [],
 				'summary_row'                 => [],
 			];
+			if ( $definitionKey === 'abandoned' ) {
+				// Everything here may be ignored, and each still needs its way back.
+				$seed[ 'ignored_rows' ] = ( new ActionsQueueCompactSummaryRowBuilder() )->buildForAssets(
+					$this->scanSource->vulnerabilitySection( 'abandoned' )[ 'ignored_items' ]
+				);
+			}
+			if ( $definitionKey === 'hidden_plugins' ) {
+				$seed[ 'ignored_rows' ] = $this->scanSource->cloakedPluginRows()[ 'ignored' ];
+			}
 			if ( $definitionKey === 'file_locker' ) {
 				$pendingFileLockerCount = $this->getPendingFileLockerCount();
 				if ( $pendingFileLockerCount > 0 ) {
@@ -307,12 +302,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 						]
 					);
 				}
-			}
-			if ( $interaction[ 'suppress_context_actions' ] ) {
-				$seed[ 'context_actions_override' ] = [];
-			}
-			if ( $interaction[ 'suppress_detail_render_action_if_noninteractive' ] ) {
-				$seed[ 'suppress_detail_render_action_if_noninteractive' ] = true;
 			}
 			$seeds[] = $seed;
 		}
@@ -343,54 +332,22 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	/**
 	 * @return array{
 	 *   is_interactive:bool,
-	 *   item_count_override:int,
-	 *   render_action_data:array<string,mixed>,
-	 *   suppress_context_actions:bool,
-	 *   suppress_detail_render_action_if_noninteractive:bool
+	 *   render_action_data:array<string,mixed>
 	 * }
 	 */
-	private function buildHealthyScanInteraction( string $definitionKey, ?bool $hasUsefulDetail ) :array {
-		if ( $definitionKey === 'hidden_plugins' && $hasUsefulDetail === false ) {
-			return [
-				'is_interactive'                               => false,
-				'item_count_override'                          => 0,
-				'render_action_data'                           => [],
-				'suppress_context_actions'                     => true,
-				'suppress_detail_render_action_if_noninteractive' => true,
-			];
-		}
-
+	private function buildHealthyScanInteraction( string $definitionKey ) :array {
 		$interactionMode = $this->groupDefinitions->healthyInteractionModeForGroupKey( $definitionKey );
 		if ( $interactionMode === 'default_detail' ) {
 			return [
-				'is_interactive'                               => true,
-				'item_count_override'                          => 0,
-				'render_action_data'                           => $this->groupDefinitions->definitionForGroupKey( $definitionKey )[ 'render_action_data' ],
-				'suppress_context_actions'                     => false,
-				'suppress_detail_render_action_if_noninteractive' => false,
+				'is_interactive'     => true,
+				'render_action_data' => $this->groupDefinitions->definitionForGroupKey( $definitionKey )[ 'render_action_data' ],
 			];
 		}
 
 		return [
-			'is_interactive'                               => false,
-			'item_count_override'                          => 0,
-			'render_action_data'                           => [],
-			'suppress_context_actions'                     => true,
-			'suppress_detail_render_action_if_noninteractive' => false,
+			'is_interactive'     => false,
+			'render_action_data' => [],
 		];
-	}
-
-	/**
-	 * @param list<AssessmentRow> $rows
-	 */
-	private function hasUsefulDetail( array $rows ) :?bool {
-		foreach ( $rows as $row ) {
-			if ( \array_key_exists( 'has_useful_detail', $row ) ) {
-				return (bool)$row[ 'has_useful_detail' ];
-			}
-		}
-
-		return null;
 	}
 
 	/**

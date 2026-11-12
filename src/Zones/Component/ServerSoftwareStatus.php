@@ -3,10 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\MinimumRequirements;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\SslStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\{
+	DbPasswordStrength,
+	SslStatus
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 use FernleafSystems\Wordpress\Services\Services;
-use ZxcvbnPhp\Zxcvbn;
 
 class ServerSoftwareStatus extends Base {
 
@@ -38,7 +40,7 @@ class ServerSoftwareStatus extends Base {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
 			$status[ 'exp' ][] = $this->sslStatus();
 		}
-		if ( ( ( new Zxcvbn() )->passwordStrength( DB_PASSWORD )[ 'score' ] ?? 0 ) < 4 ) {
+		if ( !( new DbPasswordStrength() )->isStrong() ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
 			$status[ 'exp' ][] = __( "WP Database password appears to be weak.", 'wp-simple-firewall' );
 		}

@@ -50,7 +50,6 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 				'current_content_empty' => false,
 			],
 			'strings' => [
-				'reviewing_locked_file' => 'Reviewing Locked File',
 				'file_content_original' => 'Original',
 				'file_content_current'  => 'Current',
 				'file_details'          => 'File Details',
@@ -71,7 +70,6 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 			],
 			'vars'    => [
 				'rid'                => 14,
-				'full_path'          => '/srv/www/wp-config.php',
 				'relative_path'      => 'wp-config.php',
 				'locked_at'          => '2026-03-12 08:00:00',
 				'file_size_locked'   => '2 KB',

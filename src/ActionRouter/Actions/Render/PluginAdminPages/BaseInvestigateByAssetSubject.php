@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\I
 abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 
 	protected function getRenderData() :array {
-		$con = self::con();
 		$strings = $this->getPageStrings();
 		$lookup = $this->getLookupValue( $this->getLookupQueryKey() );
 		$lookupAjax = $this->buildLookupAjaxPayload();
@@ -81,9 +80,6 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 			'hrefs'   => [
 				$this->getLookupHrefKey() => $this->getLookupHref(),
 			],
-			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->iconClass( $this->getSubjectAvatarIcon() ),
-			],
 			'strings' => $strings,
 			'vars'    => [
 				$this->getLookupQueryKey()      => $lookup,
@@ -154,8 +150,7 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 	protected function buildAggregateVulnerabilityPane( array $tabs, array $vulnerabilities ) :array {
 		$tab = ( new ScansResultsViewBuilder() )->buildRailPaneData(
 			'vulnerabilities',
-			$vulnerabilities,
-			'vulnerable'
+			$vulnerabilities
 		);
 		$tab[ 'pane_id' ] = $tabs[ 'vulnerabilities' ][ 'pane_id' ];
 
@@ -261,8 +256,6 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 	abstract protected function getLookupSubNav() :string;
 
 	abstract protected function getLookupSubjectKey() :string;
-
-	abstract protected function getSubjectAvatarIcon() :string;
 
 	abstract protected function getAssetIdentifierLabel() :string;
 

@@ -10,6 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	PluginUrlsControllerInstaller,
 	ServicesState,
 	UnitTestGeneral
 };
@@ -80,9 +82,11 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 				}
 			},
 		] );
+		PluginUrlsControllerInstaller::install();
 	}
 
 	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
 		unset( $GLOBALS[ 'wp_version' ] );
 		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
@@ -141,7 +145,7 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 					'label'        => 'Deactivate',
 					'href'         => '/wp-admin/plugins.php',
 					'icon_class'   => 'bi bi-power',
-					'tooltip_attr' => 'Go to plugins',
+					'tooltip_attr' => 'Go to plugin',
 					'attributes'   => [],
 				],
 			],

@@ -476,13 +476,11 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 
 		$provider = new GoogleAuth( $user );
 		$this->seedLoginIntent( $user, 'fixture-ga-login' );
-		$this->mergeCurrentRequestTransport( [
-			$provider->getLoginIntentFormParameter() => ( new GoogleAuthenticator() )->calculateCode( $totpSecret ),
-		] );
-
 		$validatedSlug = ( new LoginIntentRequestValidate() )
 			->setWpUser( $user )
-			->run( 'fixture-ga-login' );
+			->run( 'fixture-ga-login', [
+				$provider->getLoginIntentFormParameter() => ( new GoogleAuthenticator() )->calculateCode( $totpSecret ),
+			] );
 
 		$this->assertSame( GoogleAuth::ProviderSlug(), $validatedSlug );
 		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
@@ -503,18 +501,13 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 
 		$provider = new BackupCodes( $user );
 		$this->seedLoginIntent( $user, 'fixture-backup-login' );
-		$this->applyCurrentRequestState( [
-			'REQUEST_METHOD' => 'POST',
-			'REQUEST_URI'    => '/wp-login.php',
-		], [], [
-			$provider->getLoginIntentFormParameter() => $rawBackupCode,
-		] );
-
 		$this->startLocalEmailCapture();
 		try {
 			$validatedSlug = ( new LoginIntentRequestValidate() )
 				->setWpUser( $user )
-				->run( 'fixture-backup-login' );
+				->run( 'fixture-backup-login', [
+					$provider->getLoginIntentFormParameter() => $rawBackupCode,
+				] );
 		}
 		finally {
 			$this->stopLocalEmailCapture();

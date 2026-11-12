@@ -34,7 +34,7 @@ class AjaxActionRoutingPayloadContractIntegrationTest extends ShieldIntegrationT
 	public function test_ajax_routing_returns_rendered_html_for_ajax_render_request() :void {
 		$request = $this->buildScanResultsRenderRequest();
 
-		$this->applyCurrentShieldAjaxRequest( $request, false );
+		$this->applyCurrentShieldAjaxRequest( $request, true );
 
 		$routed = $this->requireController()->action_router->action(
 			AjaxRender::SLUG,

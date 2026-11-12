@@ -11,14 +11,13 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueRefresh;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
-	ActionsQueueDrillDownGroups,
-	DetailExpansionType,
 	PageActionsQueueLanding
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQueryCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Urls;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Labels;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -39,7 +38,6 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
 	use MaintenanceAssetFixtures;
-	use AjaxRenderPolicyAssertions;
 
 	private object $capture;
 	private array $servicesSnapshot = [];
@@ -66,6 +64,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		Functions\when( 'wp_hash' )->alias(
 			static fn( string $data, string $scheme = 'auth' ) :string => 'hash-'.$scheme.'-'.$data
 		);
+		// The site query cache starts empty, so maintenance checks are worked out for real.
+		Functions\when( 'wp_salt' )->justReturn( 'test-salt' );
+		Functions\when( 'get_transient' )->justReturn( false );
+		Functions\when( 'set_transient' )->justReturn( true );
 		Functions\when( 'get_rest_url' )->alias(
 			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
 		);
@@ -138,26 +140,22 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'actions', $vars[ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
 		$this->assertSame( 'actions_drill_shell', $vars[ 'drill_shell' ][ 'id' ] );
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] );
-		$this->assertSame( [ 'buckets', 'groups', 'detail' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ], 'key' ) );
+		$this->assertSame( [ 'buckets', 'detail' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ], 'key' ) );
 		$this->assertSame( '__BUCKETS_LAYER__', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] );
 		$this->assertArrayHasKey( 'title', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
 		$this->assertArrayHasKey( 'badge', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
-		$this->assertArrayHasKey( 'compact_back_label', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ] ?? [] );
+		$this->assertArrayHasKey( 'breadcrumb_label', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ] ?? [] );
 		$this->assertArrayHasKey( 'summary', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
 		$this->assertSame(
 			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '',
 			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'breadcrumb_label' ] ?? ''
 		);
 		$this->assertArrayNotHasKey( 'drill_context_card', $vars );
-		$this->assertCount( 2, $vars[ 'zone_tiles' ] );
-		$this->assertArrayNotHasKey( 'groups_render_action', $vars[ 'actions_queue_ajax' ] );
-		$groupsRenderAction = \json_decode( $vars[ 'actions_queue_ajax' ][ 'groups_render_action_json' ] ?? '', true );
+		$this->assertCount( 2, $this->invokeNonPublicMethod( $this->newPage(), 'getLandingViewData' )[ 'zone_tiles' ] );
 		$this->assertSame(
-			ActionsQueueDrillDownGroups::SLUG,
-			$groupsRenderAction[ 'render_slug' ] ?? ''
+			ActionsQueueRefresh::SLUG,
+			\json_decode( $vars[ 'actions_queue_ajax' ][ 'refresh_action_json' ], true )[ 'ex' ]
 		);
-		$this->assertAjaxRenderPayloadAllowedByPolicy( $groupsRenderAction, 'actions queue groups render' );
-		$this->assertArrayHasKey( 'groups_loading', $renderData[ 'strings' ] ?? [] );
 		$this->assertArrayHasKey( 'detail_loading', $renderData[ 'strings' ] ?? [] );
 		$this->assertArrayNotHasKey( 'scans_results', $vars );
 		$this->assertFalse( $renderData[ 'flags' ][ 'queue_is_empty' ] );
@@ -252,7 +250,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$zoneTiles = $this->invokeNonPublicMethod( $this->newPage(), 'getLandingVars' )[ 'zone_tiles' ];
+		$zoneTiles = $this->invokeNonPublicMethod( $this->newPage(), 'getLandingViewData' )[ 'zone_tiles' ];
 		$maintenance = \array_values( \array_filter(
 			$zoneTiles,
 			static fn( array $tile ) :bool => $tile[ 'key' ] === 'maintenance'
@@ -289,9 +287,6 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				'plugin_vos' => [
 					'akismet/akismet.php'   => $this->buildMaintenancePluginVo( 'akismet/akismet.php', 'Akismet Anti-Spam', '5.3.0' ),
 					'hello-dolly/hello.php' => $this->buildMaintenancePluginVo( 'hello-dolly/hello.php', 'Hello Dolly', '1.7.2' ),
-				],
-				'activate_urls' => [
-					'hello-dolly/hello.php' => '/wp-admin/plugins.php?action=activate&plugin=hello-dolly/hello.php',
 				],
 				'upgrade_urls' => [
 					'akismet/akismet.php' => '/wp-admin/update.php?action=upgrade-plugin&plugin=akismet/akismet.php',
@@ -330,9 +325,8 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$vars = $this->invokeNonPublicMethod( $this->newPage(), 'getLandingVars' );
 		$maintenanceTile = \array_values( \array_filter(
-			$vars[ 'zone_tiles' ],
+			$this->invokeNonPublicMethod( $this->newPage(), 'getLandingViewData' )[ 'zone_tiles' ],
 			static fn( array $tile ) :bool => $tile[ 'key' ] === 'maintenance'
 		) )[ 0 ];
 		$itemsByKey = [];
@@ -342,10 +336,9 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 		foreach ( [ 'wp_plugins_updates', 'wp_themes_updates', 'wp_plugins_inactive', 'wp_themes_inactive' ] as $key ) {
 			$this->assertNotEmpty( $itemsByKey[ $key ][ 'expansion' ], 'Expected expansion for '.$key );
-			$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $itemsByKey[ $key ][ 'expansion' ][ 'type' ] );
 		}
 		$this->assertSame(
-			'/wp-admin/plugins.php?s=hello-dolly%2Fhello.php',
+			'/wp-admin/plugins.php?plugin_status=all&s=Hello%20Dolly',
 			$itemsByKey[ 'wp_plugins_inactive' ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'href' ]
 		);
 		$this->assertSame( [], $itemsByKey[ 'wp_updates' ][ 'expansion' ] );
@@ -376,7 +369,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				$this->buildAssessmentRow( 'system_lib_openssl', 'OpenSSL Extension', 'All clear', 'good', 'Good', 'bi bi-check-circle-fill', 'review' ),
 			],
 		] );
-		$zoneTiles = $this->invokeNonPublicMethod( $page, 'getLandingVars' )[ 'zone_tiles' ];
+		$zoneTiles = $this->invokeNonPublicMethod( $page, 'getLandingViewData' )[ 'zone_tiles' ];
 		$maintenance = \array_values( \array_filter(
 			$zoneTiles,
 			static fn( array $tile ) :bool => $tile[ 'key' ] === 'maintenance'
@@ -430,6 +423,11 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				'cfg'           => new class {
 					public array $paths = [ 'assets' => 'assets' ];
 
+					public array $properties = [
+						'slug_parent' => 'shield',
+						'slug_plugin' => 'security',
+					];
+
 					public function version() :string {
 						return 'test-version';
 					}
@@ -453,9 +451,16 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				'comps'         => (object)[
 					'scans'       => new UnitTestScansComponent(),
 					'license'     => new UnitTestLicenseComponent( false ),
+					'site_query'  => new SiteQueryCon(),
 					'file_locker' => new class {
 						public function isEnabled() :bool {
 							return false;
+						}
+					},
+					// An established site: no install time inside the report email hold.
+					'opts_lookup' => new class {
+						public function getInstalledAt() :int {
+							return 0;
 						}
 					},
 				],

@@ -11,8 +11,6 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Plugin;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
@@ -62,16 +60,11 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			],
 			\array_keys( $workspace )
 		);
-		$this->assertSame( \key( $workspace ), PluginNavs::reportsDefaultWorkspaceSubNav() );
+		$this->assertSame( PluginNavs::SUBNAV_REPORTS_CHARTS, PluginNavs::reportsDefaultWorkspaceSubNav() );
 		$this->assertSame( PluginAdminPages\PageReportsLanding::class, $routeHandlers[ PluginNavs::SUBNAV_REPORTS_OVERVIEW ] );
 
-		foreach ( $workspace as $subNav => $definition ) {
+		foreach ( \array_keys( $workspace ) as $subNav ) {
 			$this->assertArrayNotHasKey( $subNav, $routeHandlers );
-			$this->assertContains( $definition[ 'render_action' ], [
-				OptionsFormFor::class,
-				Reports\PageReportsView::class,
-				Reports\ChartsTrends::class,
-			] );
 		}
 	}
 
@@ -112,14 +105,19 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			PluginAdminPages\PageInvestigateLanding::class,
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ][ 'handler' ]
 		);
-		$this->assertSame(
-			PluginAdminPages\PageUserSessions::class,
-			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_SESSIONS ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageActivityLogTable::class,
-			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_LOGS ][ 'handler' ]
-		);
+		// The logs, IP rules, sessions and live traffic keep their routes, which open their Investigate tab.
+		foreach ( [
+			[ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS ],
+			[ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ],
+			[ PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ],
+			[ PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ],
+			[ PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ],
+		] as [ $nav, $subNav ] ) {
+			$this->assertSame(
+				PluginAdminPages\PageInvestigateLanding::class,
+				$hierarchy[ $nav ][ 'sub_navs' ][ $subNav ][ 'handler' ]
+			);
+		}
 		foreach ( [
 			PluginNavs::SUBNAV_ACTIVITY_BY_USER,
 			PluginNavs::SUBNAV_ACTIVITY_BY_IP,
@@ -147,6 +145,8 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				PluginNavs::SUBNAV_TOOLS_BLOCKDOWN,
+				PluginNavs::SUBNAV_TOOLS_WHITELABEL,
+				PluginNavs::SUBNAV_TOOLS_LOGINHIDE,
 				PluginNavs::SUBNAV_TOOLS_DEBUG,
 				PluginNavs::SUBNAV_TOOLS_IMPORT,
 			],
@@ -210,21 +210,21 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertContains( 'default_admin_user', $maintenanceKeys );
 	}
 
-	public function test_configure_tile_definitions_keep_exclusive_target_contract() :void {
-		foreach ( PluginNavs::configureLandingTileDefinitions() as $definition ) {
-			$targetCount = (int)!empty( $definition[ 'zone_slug' ] ?? '' )
-						   + (int)!empty( $definition[ 'component_slug' ] ?? '' )
-						   + (int)!empty( $definition[ 'component_slugs' ] ?? [] );
-
-			$this->assertSame( 1, $targetCount );
-			$this->assertNotSame( '', \trim( $definition[ 'key' ] ) );
+	public function test_configure_tile_definitions_are_one_per_goal() :void {
+		$definitions = PluginNavs::configureLandingTileDefinitions();
+		$this->assertSame( \array_keys( PluginAdminPages\ConfigureGoalPanels::goals() ), \array_column( $definitions, 'key' ) );
+		foreach ( $definitions as $definition ) {
+			$this->assertSame( $definition[ 'key' ], $definition[ 'goal' ] );
 			$this->assertNotSame( '', \trim( $definition[ 'label' ] ) );
 			$this->assertNotSame( '', \trim( $definition[ 'icon' ] ) );
-			$this->assertNotSame( '', \trim( $definition[ 'summary' ] ?? '' ) );
-			if ( !empty( $definition[ 'force_neutral' ] ) ) {
-				$this->assertArrayHasKey( 'stat_line', $definition );
-				$this->assertNotSame( '', \trim( $definition[ 'stat_line' ] ) );
-			}
+			$this->assertNotSame( '', \trim( $definition[ 'summary' ] ) );
+		}
+	}
+
+	public function test_configure_legacy_zone_keys_map_to_goals() :void {
+		$goalKeys = \array_keys( PluginAdminPages\ConfigureGoalPanels::goals() );
+		foreach ( PluginNavs::configureLegacyZoneGoals() as $zoneKey => $goalKey ) {
+			$this->assertContains( $goalKey, $goalKeys, 'Legacy zone '.$zoneKey );
 		}
 	}
 

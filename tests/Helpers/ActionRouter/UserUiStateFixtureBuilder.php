@@ -27,6 +27,11 @@ class UserUiStateFixtureBuilder {
 			$meta->flags = $flags;
 		}
 
+		// Layout choices such as the Actions Queue sections view and the Configure component list.
+		if ( !empty( $meta->ui_prefs ) ) {
+			$meta->ui_prefs = [];
+		}
+
 		return [ 'reset' => true ];
 	}
 }

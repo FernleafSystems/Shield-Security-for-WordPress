@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRuleRecord,
 	LoadIpRules
@@ -12,8 +13,14 @@ class IpRuleDelete extends BaseAction {
 
 	public const SLUG = 'ip_rule_delete';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
-		$ID = (int)( $this->action_data[ 'rid' ] ?? -1 );
+		$ID = $this->fields()->positiveInt( 'rid', -1 );
 
 		if ( $ID < 0 ) {
 			$success = false;

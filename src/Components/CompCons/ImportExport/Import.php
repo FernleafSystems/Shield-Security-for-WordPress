@@ -73,11 +73,11 @@ class Import {
 	/**
 	 * @throws \Exception
 	 */
-	public function fromFileUpload() {
+	public function fromFileUpload( array $form ) {
 		if ( !self::con()->isPluginAdmin() ) {
 			throw new \Exception( __( 'Not currently logged-in as security admin.', 'wp-simple-firewall' ) );
 		}
-		if ( Services::Request()->post( 'confirm' ) != 'Y' ) {
+		if ( ( $form[ 'confirm' ] ?? '' ) !== 'Y' ) {
 			throw new \Exception( __( 'Please check the box to confirm.', 'wp-simple-firewall' ) );
 		}
 

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use Carbon\CarbonInterface;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\DashboardEventIcons;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -14,6 +15,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   time_ago:string,
  *   icon_class:string,
  *   has_record:bool,
+ *   week_count:int,
  *   recency_hue:int,
  *   accessible_label:string
  * }
@@ -57,17 +59,37 @@ class DashboardRecentEventsDataBuilder {
 		}
 
 		$now = Services::Request()->carbon();
+		$weekly = $this->countsForPastWeek( \array_keys( $labels ), $now );
 		$items = [];
 		foreach ( $labels as $key => $label ) {
-			$items[] = $this->buildItem( $key, $label, $latest[ $key ] ?? 0, $now );
+			$items[] = $this->buildItem( $key, $label, $latest[ $key ] ?? 0, $weekly[ $key ] ?? 0, $now );
 		}
+
+		// Newest first, so what just happened leads; events never recorded keep their listed order at the end.
+		$order = \array_flip( \array_keys( $labels ) );
+		\usort( $items, static fn( array $a, array $b ) :int => [ $latest[ $b[ 'key' ] ] ?? 0, $order[ $a[ 'key' ] ] ]
+																<=> [ $latest[ $a[ 'key' ] ] ?? 0, $order[ $b[ 'key' ] ] ] );
 		return $items;
+	}
+
+	/**
+	 * How many times each event happened in the past seven days, in a single query.
+	 * @param list<string> $keys
+	 * @return array<string,int>
+	 */
+	private function countsForPastWeek( array $keys, CarbonInterface $now ) :array {
+		/** @var EventsDB\Select $selector */
+		$selector = self::con()->db_con->events->getQuerySelector();
+		$counts = $selector->filterByBoundary( $now->getTimestamp() - \WEEK_IN_SECONDS, $now->getTimestamp() )
+						   ->sumEventsSeparately( \array_merge( $keys, self::COMMENT_SPAM_EVENTS ) );
+		$counts[ 'comment_spam_block' ] = \array_sum( \array_intersect_key( $counts, \array_flip( self::COMMENT_SPAM_EVENTS ) ) );
+		return \array_map( 'intval', $counts );
 	}
 
 	/**
 	 * @return DashboardRecentEvent
 	 */
-	private function buildItem( string $key, string $label, int $latestAt, CarbonInterface $now ) :array {
+	private function buildItem( string $key, string $label, int $latestAt, int $weekCount, CarbonInterface $now ) :array {
 		$hasRecord = $latestAt > 0;
 		$ageSeconds = \max( 0, $now->getTimestamp() - $latestAt );
 		$timeAgo = $hasRecord
@@ -82,6 +104,7 @@ class DashboardRecentEventsDataBuilder {
 			'time_ago'         => $timeAgo,
 			'icon_class'       => ( new DashboardEventIcons() )->iconClassForKey( $key ),
 			'has_record'       => $hasRecord,
+			'week_count'       => $weekCount,
 			// A logarithmic scale distinguishes seconds from minutes, then tapers to green at one week.
 			'recency_hue'      => (int)\round( 120 * \log( \max( 1, \min( 604800, $ageSeconds ) ) ) / \log( 604800 ) ),
 			'accessible_label' => $accessibleLabel,

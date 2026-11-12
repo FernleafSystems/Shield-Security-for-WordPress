@@ -168,6 +168,25 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'rendered-ip:203.0.113.88', (string)( $renderData[ 'content' ][ 'ip_analysis' ] ?? '' ) );
 	}
 
+	/**
+	 * The page reads only the data it's given: a value that's in the URL but wasn't passed to the page is ignored.
+	 */
+	public function test_lookup_comes_from_the_page_data_not_the_request() :void {
+		$this->installServices(
+			[ 'analyse_ip' => '203.0.113.88' ],
+			static fn( string $ip ) :bool => true
+		);
+		$page = new PageInvestigateByIp();
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_lookup' ] ?? true ) );
+		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'analyse_ip' ] ?? '' ) );
+
+		$page = new PageInvestigateByIp( [ 'analyse_ip' => '203.0.113.88' ] );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_lookup' ] ?? false ) );
+	}
+
 	public function test_render_data_includes_lookup_helper_string() :void {
 		$this->installServices();
 		$page = new PageInvestigateByIpUnitTestDouble();
@@ -205,4 +224,10 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 }
 
 class PageInvestigateByIpUnitTestDouble extends PageInvestigateByIp {
+	/**
+	 * Stands in for the admin page route, which passes the page URL's values to the page as its data.
+	 */
+	protected function getDefaults() :array {
+		return \FernleafSystems\Wordpress\Services\Services::Request()->query;
+	}
 }

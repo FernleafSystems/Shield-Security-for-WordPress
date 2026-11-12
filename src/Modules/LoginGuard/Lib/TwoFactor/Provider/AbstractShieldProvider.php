@@ -123,18 +123,6 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 		return [];
 	}
 
-	protected function auditLogin( bool $success ) {
-		self::con()->comps->events->fireEvent(
-			$success ? '2fa_verify_success' : '2fa_verify_fail',
-			[
-				'audit_params' => [
-					'user_login' => $this->getUser()->user_login,
-					'method'     => $this->getProviderName(),
-				]
-			]
-		);
-	}
-
 	public function getLoginIntentFormParameter() :string {
 		return self::con()->prefix( static::ProviderSlug().'_otp', '_' );
 	}

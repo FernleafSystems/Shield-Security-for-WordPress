@@ -2,10 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\MFA;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MfaPasskeyAuthenticationStart,
-	MfaPasskeyAuthenticationVerify,
 	MfaPasskeyRegistrationStart,
 	MfaPasskeyRegistrationVerify,
 	MfaPasskeyRemoveSource
@@ -109,47 +110,6 @@ class PasskeyActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'auth_challenge', $passkeys );
 	}
 
-	public function test_authentication_verify_action_accepts_legacy_ajax_payload_for_valid_login_intent() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-		$this->seedLegacyPasskey( $user );
-		$this->seedPasskeyAuthenticationOptions( $user );
-		$this->seedLoginIntent( $user, 'fixture-login-nonce' );
-
-		$routed = $this->requireController()->action_router->action(
-			MfaPasskeyAuthenticationVerify::class,
-			[
-				'login_wp_user' => $userId,
-				'login_nonce'   => 'fixture-login-nonce',
-				'auth'          => PasskeyFixtureLoader::authenticationResponse(),
-			],
-			ActionRoutingController::ACTION_SHIELD
-		);
-		$payload = $routed->payload();
-
-		$this->assertSuccessfulPayload( $payload );
-	}
-
-	public function test_authentication_verify_action_rejects_empty_legacy_ajax_payload() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-		$this->seedLegacyPasskey( $user );
-		$this->seedLoginIntent( $user, 'fixture-login-nonce' );
-
-		$routed = $this->requireController()->action_router->action(
-			MfaPasskeyAuthenticationVerify::class,
-			[
-				'login_wp_user' => $userId,
-				'login_nonce'   => 'fixture-login-nonce',
-				'auth'          => '',
-			],
-			ActionRoutingController::ACTION_SHIELD
-		);
-		$payload = $routed->payload();
-
-		$this->assertFailedPayload( $payload );
-	}
-
 	public function test_remove_source_action_deletes_existing_passkey_record() :void {
 		$userId = $this->loginAsAdministrator();
 		$this->insertLegacyPasskeyActionRecord( $userId );
@@ -184,6 +144,46 @@ class PasskeyActionsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertFailedPayload( $payload );
 		$this->assertNotEmpty(
+			$this->requireController()->db_con->mfa->getQuerySelector()->filterByUserID( $userId )->queryWithResult()
+		);
+	}
+
+	public function test_remove_source_action_refuses_a_source_id_that_is_not_text_and_keeps_the_passkey() :void {
+		$userId = $this->loginAsAdministrator();
+		$this->insertLegacyPasskeyActionRecord( $userId );
+
+		try {
+			( new ActionProcessor() )->processAction( MfaPasskeyRemoveSource::class, [
+				'wan_source_id' => [ PasskeyFixtureLoader::credentialUniqueId() ],
+			] );
+			$this->fail( 'Expected the malformed passkey ID to be refused.' );
+		}
+		catch ( ActionException $e ) {
+			$this->assertSame( 'Invalid request field: wan_source_id', $e->getMessage() );
+		}
+
+		$this->assertCount(
+			1,
+			$this->requireController()->db_con->mfa->getQuerySelector()->filterByUserID( $userId )->queryWithResult()
+		);
+	}
+
+	public function test_registration_verify_action_refuses_a_response_that_is_not_text() :void {
+		$userId = $this->loginAsAdministrator();
+		$this->seedPasskeyRegistrationOptions( \get_user_by( 'id', $userId ) );
+
+		try {
+			( new ActionProcessor() )->processAction( MfaPasskeyRegistrationVerify::class, [
+				'reg'   => [ PasskeyFixtureLoader::registrationResponse() ],
+				'label' => 'Desk Key',
+			] );
+			$this->fail( 'Expected the malformed registration response to be refused.' );
+		}
+		catch ( ActionException $e ) {
+			$this->assertSame( 'Invalid request field: reg', $e->getMessage() );
+		}
+
+		$this->assertEmpty(
 			$this->requireController()->db_con->mfa->getQuerySelector()->filterByUserID( $userId )->queryWithResult()
 		);
 	}

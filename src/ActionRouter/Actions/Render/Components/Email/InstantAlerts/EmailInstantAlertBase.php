@@ -20,7 +20,6 @@ abstract class EmailInstantAlertBase extends \FernleafSystems\Wordpress\Plugin\S
 		return [
 			'hrefs'   => [
 				'url_site'  => Services::WpGeneral()->getHomeUrl(),
-				'url_users' => Services::WpGeneral()->getAdminUrl( 'users.php' ),
 			],
 			'strings' => [
 				'url_site' => __( 'Site Address (URL)', 'wp-simple-firewall' ),

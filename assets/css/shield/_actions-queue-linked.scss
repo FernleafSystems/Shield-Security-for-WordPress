@@ -1,0 +1,23 @@
+// A group reached by a link, such as from the admin bar, is highlighted for a moment so it's easy to find.
+.actions-queue-sections .is-linked {
+	animation: shield-aq-linked 4s ease-out;
+	border-radius: 8px;
+}
+
+@keyframes shield-aq-linked {
+	0%,
+	60% {
+		box-shadow: 0 0 0 3px rgba(0, 128, 0, 0.45);
+	}
+
+	100% {
+		box-shadow: 0 0 0 3px rgba(0, 128, 0, 0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.actions-queue-sections .is-linked {
+		animation: none;
+		box-shadow: 0 0 0 3px rgba(0, 128, 0, 0.45);
+	}
+}

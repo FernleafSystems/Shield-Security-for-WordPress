@@ -48,8 +48,13 @@ class DashboardRecentEventsDataBuilderIntegrationTest extends ShieldIntegrationT
 		$wpdb = Services::WpDb()->loadWpdb();
 		$queriesBefore = $wpdb->num_queries;
 		$items = \array_column( $builder->build(), null, 'key' );
-		$this->assertSame( 1, $wpdb->num_queries - $queriesBefore );
-		$this->assertSame( $keys, \array_keys( $items ) );
+		// One query for the latest occurrences, one for the past week's counts.
+		$this->assertSame( 2, $wpdb->num_queries - $queriesBefore );
+		$this->assertEqualsCanonicalizing( $keys, \array_keys( $items ) );
+		// Recorded events lead, newest first; events never recorded follow.
+		$recorded = \array_column( $items, 'has_record' );
+		$recordedCount = \count( \array_filter( $recorded ) );
+		$this->assertSame( \array_fill( 0, $recordedCount, true ), \array_slice( $recorded, 0, $recordedCount ) );
 		$this->assertCount( 12, $items );
 		$this->assertTrue( $items[ 'login_success' ][ 'has_record' ] );
 		$this->assertSame(
@@ -58,6 +63,9 @@ class DashboardRecentEventsDataBuilderIntegrationTest extends ShieldIntegrationT
 		);
 		$this->assertSame( $items[ 'login_success' ][ 'time_ago' ], $items[ 'comment_spam_block' ][ 'time_ago' ] );
 		$this->assertSame( 120, $items[ 'scan_run' ][ 'recency_hue' ] );
+		$this->assertSame( 2, $items[ 'login_success' ][ 'week_count' ] );
+		$this->assertSame( 3, $items[ 'comment_spam_block' ][ 'week_count' ] );
+		$this->assertSame( 0, $items[ 'scan_run' ][ 'week_count' ] );
 		$this->assertFalse( $items[ 'firewall_block' ][ 'has_record' ] );
 		$this->assertSame( $items[ 'firewall_block' ][ 'time_ago' ], $items[ 'ip_blocked' ][ 'time_ago' ] );
 	}

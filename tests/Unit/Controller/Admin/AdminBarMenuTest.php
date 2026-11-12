@@ -46,6 +46,12 @@ class AdminBarMenuTest extends BaseUnitTest {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static fn( $value ) => \is_array( $value ) ? \array_map( 'rawurlencode', $value ) : \rawurlencode( (string)$value )
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static fn( array $params, string $url ) :string => $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\http_build_query( $params )
+		);
 		Functions\when( 'add_action' )->alias( function ( string $hook, callable $callback ) :bool {
 			$this->actions[ $hook ][] = $callback;
 			return true;
@@ -104,6 +110,10 @@ class AdminBarMenuTest extends BaseUnitTest {
 			[ 'shield-problems-scan-malware', 'shield-problems-scan-wp', 'shield-problems-scan-wpv' ],
 			$this->scanChildNodeIds( $adminBar )
 		);
+		$hrefs = \array_column( $adminBar->nodes, 'href', 'id' );
+		$this->assertSame( '/admin/scans/overview?zone=scans&aq_focus=malware', $hrefs[ 'shield-problems-scan-malware' ] );
+		$this->assertSame( '/admin/scans/overview?zone=scans&aq_focus=wordpress', $hrefs[ 'shield-problems-scan-wp' ] );
+		$this->assertSame( '/admin/scans/overview?zone=scans&aq_focus=vulnerabilities', $hrefs[ 'shield-problems-scan-wpv' ] );
 	}
 
 	public function test_admin_bar_uses_same_cached_scan_summary_on_plugin_pages() :void {

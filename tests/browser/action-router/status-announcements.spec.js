@@ -286,14 +286,15 @@ test( 'actions queue lazy asset panel announces quiet loading failure', async ( 
 			nav_sub: 'overview',
 		} );
 
+		// The first file's panel opens by itself along with the list, so its load is held and failed from before then.
+		const failedRequest = await failNextMatchingAdminAjaxRequest( page, ( request ) => (
+			requestActionSlug( request ) === 'ajax_render'
+			&& requestPostParam( request, 'render_slug' ) === 'filelocker_showdiff'
+		), 1500 );
+		await observeStatusRegionActivity( page );
 		await actionsQueuePage.drillToDetail( fixture );
 		const panel = actionsQueuePage.assetPanel( fixture.panel_target );
 		await expect( panel ).toHaveAttribute( 'data-actions-queue-asset-panel-lazy', '1' );
-		await expect( panel ).toHaveAttribute( 'data-actions-queue-asset-panel-loaded', '0' );
-
-		const failedRequest = await failNextMatchingAdminAjaxRequest( page );
-		await observeStatusRegionActivity( page );
-		await actionsQueuePage.openAssetPanel( fixture.panel_target );
 		await failedRequest.started;
 		await expectStatusAnnouncement( panel, 'polite' );
 		await expect.poll( () => statusRegionActivityCount( page ) ).toBeGreaterThan( 0 );

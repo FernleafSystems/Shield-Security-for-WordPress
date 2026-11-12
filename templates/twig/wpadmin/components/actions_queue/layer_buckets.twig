@@ -1,36 +1,157 @@
-<div class="actions-queue-buckets shield-stack">
-	<div class="actions-queue-buckets__grid">
-		{% for bucket in buckets %}
-			<button type="button"
-					class="actions-queue-bucket-card operator-card-surface operator-tile-card status-{{ bucket.status }}"
-					data-drill-target="groups"
-					data-drill-bucket-selection="{{ bucket.selection.selection_json }}"
-					{% if not bucket.is_interactive %}disabled{% endif %}>
-				<div class="operator-tile-card__main">
-					<span class="operator-tile-card__icon">
-						<i class="{{ bucket.icon_class }}" aria-hidden="true"></i>
-					</span>
-					<div class="operator-tile-card__copy">
-						<div class="actions-queue-bucket-card__severity operator-tile-card__status">
-							<span class="actions-queue-bucket-card__severity-label">{{ bucket.state_label }}</span>
-							<span class="actions-queue-bucket-card__count">{{ bucket.display_count }}</span>
-						</div>
-						<span class="actions-queue-bucket-card__title operator-tile-card__title">{{ bucket.label }}</span>
-					</div>
-				</div>
-				<p class="actions-queue-bucket-card__summary operator-tile-card__summary">{{ bucket.summary_text }}</p>
-			</button>
-		{% endfor %}
-	</div>
-	{% if healthy_rows is not empty %}
-		<div class="item-box item-box--good">
-			<div class="item-box__grid">
-				{% for row in healthy_rows %}
-					{% include '/wpadmin/components/actions_queue/compact_summary_row.twig' with {
-						row: row
-					} only %}
+{#
+	The Actions Queue landing, following the approved concept: each lane that needs action is one card
+	with a tinted header and a flat list of rows, and a row opens its results directly. Checks that are
+	passing, and checks the plan doesn't cover or that are turned off, each get one section of their own
+	at the end. The same sections can show as tabs instead. The sections and their boxes come laid out
+	(ActionsQueueLandingSectionsBuilder); this only draws them.
+#}
+<div class="actions-queue-sections actions-queue-sections--{{ view }}"
+	 data-actions-queue-sections="1"
+	 data-view="{{ view }}"
+	 data-set-view-action="{{ set_view_action_json|e('html_attr') }}">
+
+	{% if sections|length > 0 %}
+		<div class="actions-queue-sections__bar">
+			<div class="actions-queue-sections__tabline">
+			<div class="actions-queue-sections__tabs" role="tablist">
+				{% for section in sections %}
+					<button type="button"
+							class="actions-queue-sections__tab status-{{ section.status }}"
+							role="tab"
+							id="ActionsQueueTab-{{ section.key }}"
+							aria-controls="ActionsQueueSection-{{ section.key }}"
+							aria-selected="{{ loop.first ? 'true' : 'false' }}"
+							data-actions-queue-tab="{{ section.key }}">
+						<i class="{{ section.icon_class }}" aria-hidden="true"></i>{{ section.tab_label }}
+						<span class="actions-queue-sections__count">{{ section.count }}</span>
+					</button>
 				{% endfor %}
+			</div>
+			{# Not a tab of the queue but the way to fill it: it opens Run Manual Scan. #}
+			<a class="actions-queue-sections__tab actions-queue-sections__tab--run" href="{{ hrefs.scan_run }}">
+				<i class="bi bi-play-circle" aria-hidden="true"></i>{{ strings.run_scans_tab }}
+			</a>
+			</div>
+			<div class="actions-queue-sections__view" role="group" aria-label="{{ strings.view_label }}">
+				<button type="button" class="actions-queue-sections__view-btn" data-actions-queue-view="sections"
+						aria-pressed="{{ view == 'sections' ? 'true' : 'false' }}">
+					<i class="bi bi-view-stacked" aria-hidden="true"></i>{{ strings.view_sections }}
+				</button>
+				<button type="button" class="actions-queue-sections__view-btn" data-actions-queue-view="tabs"
+						aria-pressed="{{ view == 'tabs' ? 'true' : 'false' }}">
+					<i class="bi bi-segmented-nav" aria-hidden="true"></i>{{ strings.view_tabs }}
+				</button>
 			</div>
 		</div>
 	{% endif %}
+
+	{% if not has_lanes %}
+		<div class="actions-queue-sections__clear">
+			<i class="bi bi-check-circle-fill" aria-hidden="true"></i>{{ strings.nothing_here }}
+		</div>
+	{% endif %}
+
+	{% for section in sections %}
+		<section class="actions-queue-section status-{{ section.status }}"
+				 id="ActionsQueueSection-{{ section.key }}"
+				 data-actions-queue-section-key="{{ section.key }}"
+				 {% if section.selection_json is not empty %}data-actions-queue-bucket-selection="{{ section.selection_json }}"{% endif %}
+				 data-tab-selected="{{ loop.first ? '1' : '0' }}"
+				 aria-labelledby="ActionsQueueSectionHead-{{ section.key }}">
+			<button type="button"
+					class="actions-queue-section__head"
+					id="ActionsQueueSectionHead-{{ section.key }}"
+					data-actions-queue-section-toggle="1"
+					aria-expanded="{{ section.is_open ? 'true' : 'false' }}"
+					aria-controls="ActionsQueueSectionBody-{{ section.key }}">
+				<span class="actions-queue-section__icon"><i class="{{ section.icon_class }}" aria-hidden="true"></i></span>
+				<span class="actions-queue-section__label">{{ section.label }}</span>
+				{% if section.summary is not empty %}
+					<span class="actions-queue-section__summary{% if section.breakdown is not empty %} has-breakdown{% endif %}">{{ section.summary }}</span>
+				{% endif %}
+				{% if section.breakdown is not empty %}
+					<span class="actions-queue-section__breakdown">
+						{% for part in section.breakdown %}
+							<span class="actions-queue-section__part">{{ part.label }}{% if part.count > 0 %} <b>{{ part.count }}</b>{% endif %}</span>
+						{% endfor %}
+					</span>
+				{% endif %}
+				{% if section.show_count %}
+					<span class="actions-queue-section__count">{{ section.count }}</span>
+				{% endif %}
+				<i class="bi bi-chevron-down actions-queue-section__chevron" aria-hidden="true"></i>
+			</button>
+
+			<div class="actions-queue-section__body"
+				 id="ActionsQueueSectionBody-{{ section.key }}"
+				 {% if not section.is_open and view != 'tabs' %}hidden{% endif %}>
+				{#
+					Each group sits in a box of its own, a little apart from the next. A group that lists its items
+					brings its own heading; groups shown as single rows share a box under their kind's heading,
+					so a heading never stands over nothing of its own.
+				#}
+				{% for box in section.boxes %}
+					{% if box.type == 'plain' %}
+						<div class="actions-queue-box">
+							{% for entry in box.entries %}
+								{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
+									group: entry.group,
+									bucket_selection: entry.bucket_selection,
+									strings: strings,
+									collapsible: false,
+									two_columns: false
+								} only %}
+							{% endfor %}
+						</div>
+					{% elseif box.type == 'group' %}
+						<div class="actions-queue-box" data-actions-queue-kind="{{ box.kind }}">
+							{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
+								group: box.entries[0].group,
+								bucket_selection: box.entries[0].bucket_selection,
+								strings: strings,
+								collapsible: box.collapsible,
+								two_columns: box.two_columns
+							} only %}
+						</div>
+					{% else %}
+						{% set body_id = 'AqBoxBody-' ~ random() %}
+						<div class="actions-queue-box"{% if box.kind is not empty %} data-actions-queue-kind="{{ box.kind }}"{% endif %}>
+							{% if box.collapsible %}
+								<div class="actions-queue-box__head">
+									<button type="button" class="actions-queue-box-toggle"
+											data-actions-queue-box-toggle="kind:{{ box.kind }}"
+											aria-expanded="false" aria-controls="{{ body_id }}">
+										<i class="{{ box.icon_class }}" aria-hidden="true"></i>{{ box.heading }}
+										<span class="actions-queue-box-toggle__count">{{ box.entries|length }}</span>
+										<i class="bi bi-chevron-down actions-queue-box-toggle__chevron" aria-hidden="true"></i>
+									</button>
+								</div>
+							{% elseif box.heading is not empty %}
+								<div class="actions-queue-box__head">
+									<i class="{{ box.icon_class }}" aria-hidden="true"></i>{{ box.heading }}
+								</div>
+							{% endif %}
+							<div id="{{ body_id }}"{% if box.type == 'passing' %} class="actions-queue-passing-grid"{% endif %} {% if box.collapsible %}hidden{% endif %}>
+								{% for entry in box.entries %}
+									{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
+										group: entry.group,
+										bucket_selection: entry.bucket_selection,
+										strings: strings,
+										collapsible: false,
+										two_columns: false
+									} only %}
+								{% endfor %}
+								{% for row in box.rows %}
+									{% include '/wpadmin/components/actions_queue/landing_item_row.twig' with {
+										row: row,
+										is_passing: true
+									} only %}
+								{% endfor %}
+							</div>
+						</div>
+					{% endif %}
+				{% endfor %}
+			</div>
+		</section>
+	{% endfor %}
 </div>

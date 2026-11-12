@@ -55,26 +55,33 @@ export class OptionsFormSubmit extends BaseComponent {
 		shieldEventsHandler_Main.add_Submit( 'form.options_form_for', ( targetEl ) => this.#submitOptionsForm( targetEl ) );
 	}
 
-	#submitOptionsForm( form ) {
-		let passwordsReady = true;
-		form.querySelectorAll( 'input[type=password]' ).forEach( ( passwordField ) => {
-
+	/**
+	 * @param {HTMLFormElement} form
+	 * @return {HTMLInputElement|null} the confirm field that doesn't match its password, if any
+	 */
+	static findPasswordMismatch( form ) {
+		for ( const passwordField of form.querySelectorAll( 'input[type=password]' ) ) {
 			if ( passwordField.value && passwordField.value.length > 0 ) {
-
 				const confirmPass = form.querySelector( '#' + passwordField.id + '_confirm' );
 				if ( confirmPass && ( confirmPass.value.length === 0 || passwordField.value !== confirmPass.value ) ) {
-					confirmPass.classList.add( 'is-invalid' );
-					shieldServices.dialog().message( {
-						message: 'Form not submitted due to error: security admin PIN and confirm PIN do not match.',
-						launcher: confirmPass,
-					} );
-					passwordsReady = false;
+					return confirmPass;
 				}
 			}
-		} );
+		}
+		return null;
+	}
 
-		if ( passwordsReady ) {
+	#submitOptionsForm( form ) {
+		const confirmPass = OptionsFormSubmit.findPasswordMismatch( form );
+		if ( confirmPass === null ) {
 			this.#sendForm( form );
+		}
+		else {
+			confirmPass.classList.add( 'is-invalid' );
+			shieldServices.dialog().message( {
+				message: 'Form not submitted due to error: security admin PIN and confirm PIN do not match.',
+				launcher: confirmPass,
+			} );
 		}
 	};
 

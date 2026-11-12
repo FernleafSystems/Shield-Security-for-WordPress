@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\NonceVerifyNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
@@ -12,12 +11,15 @@ use FernleafSystems\Wordpress\Services\Utilities\PasswordGenerator;
 
 abstract class BaseRender extends BaseAction {
 
-	use NonceVerifyNotRequired;
-
 	public const TEMPLATE = '';
 	public const GO_PRO_URL = 'https://clk.shldscrty.com/shieldgoprofeature';
 	public const COMPARE_FEATURES_URL = 'https://clk.shldscrty.com/gp';
 	public const RENDER_ERROR_EXCEPTION = 'render_exception';
+	/**
+	 * Set by AjaxRender on the data it gives a render, to say the data came from a request. See
+	 * givenTemplateData() for what that changes.
+	 */
+	public const DATA_FROM_REQUEST = 'shield_data_from_request';
 
 	private string $renderErrorCode = '';
 
@@ -90,11 +92,31 @@ abstract class BaseRender extends BaseAction {
 	 * @throws ActionException
 	 */
 	protected function getAllRenderDataArrays() :array {
+		$common = $this->getCommonDisplayData();
 		return [
-			0  => $this->getCommonDisplayData(),
-			10 => $this->action_data,
+			0  => $common,
+			10 => $this->givenTemplateData( $common ),
 			50 => $this->getRenderData(),
 		];
+	}
+
+	/**
+	 * The part of the data this render was given that goes to its template as it is. From a caller inside the
+	 * plugin, that's all of it. From a request, it's the simple values only: a request supplies a render's
+	 * inputs, which the render reads for itself, and never the template's own structures (its flags, strings,
+	 * vars and so on, which are all arrays) or a value every render shares.
+	 *
+	 * @param array $shared the display data all renders share, when this render's template is given it
+	 */
+	protected function givenTemplateData( array $shared = [] ) :array {
+		$given = $this->action_data;
+		if ( !empty( $given[ self::DATA_FROM_REQUEST ] ) ) {
+			$given = \array_filter(
+				\array_diff_key( $given, $shared, [ self::DATA_FROM_REQUEST => true ] ),
+				'\is_scalar'
+			);
+		}
+		return $given;
 	}
 
 	/**
@@ -129,12 +151,11 @@ abstract class BaseRender extends BaseAction {
 		$isWhitelabelled = $con->comps->whitelabel->isEnabled();
 		return [
 			'unique_render_id' => PasswordGenerator::Gen( 6, false, true, false ),
-			'nonce_field'      => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ),
 			'classes'          => [
 				'top_container' => \implode( ' ', \array_filter( [
 					'odp-outercontainer',
 					self::con()->isPremiumActive() ? 'is-pro' : 'is-not-pro',
-					Services::Request()->query( Constants::NAV_ID, '' )
+					$this->navClassFromActionData(),
 				] ) )
 			],
 			'flags'            => [
@@ -142,7 +163,6 @@ abstract class BaseRender extends BaseAction {
 				'is_ip_whitelisted' => $ipStatus->isBypass(),
 				'is_ip_blocked'     => $ipStatus->isBlocked(),
 				'is_mode_live'      => $con->is_mode_live,
-				'is_premium'        => $con->isPremiumActive(),
 				'is_security_admin' => $con->isPluginAdmin(),
 			],
 			'head'             => [
@@ -177,41 +197,36 @@ abstract class BaseRender extends BaseAction {
 			'hrefs'            => [
 				'ajax' => $WP->ajaxURL(),
 
-				'aar_forget_key' => $con->labels->url_secadmin_forgotten_key,
-				'plugin_home'    => $con->labels->PluginURI,
-				'go_pro'         => self::GO_PRO_URL,
+				'aar_forget_key'   => $con->labels->url_secadmin_forgotten_key,
+				'plugin_home'      => $con->labels->PluginURI,
+				'go_pro'           => self::GO_PRO_URL,
 				'compare_features' => self::COMPARE_FEATURES_URL,
-				'goprofooter'    => 'https://clk.shldscrty.com/goprofooter',
 
 				'dashboard_home' => $con->plugin_urls->adminHome(),
 				'form_action'    => Services::Request()->getUri(),
 			],
 			'imgs'             => [
 				'svgs'           => [
-					'exit'        => $con->svgs->iconClass( 'box-arrow-left' ),
-					'help'        => $con->svgs->iconClass( 'question-circle' ),
-					'ignore'      => $con->svgs->iconClass( 'eye-slash-fill' ),
-					'info_square' => $con->svgs->iconClass( 'info-square' ),
-					'megaphone'   => $con->svgs->iconClass( 'megaphone' ),
-					'video'       => $con->svgs->iconClass( 'youtube' ),
-					'search'      => $con->svgs->iconClass( 'search' ),
-					'settings'    => $con->svgs->iconClass( 'gear' ),
-					'menu'        => $con->svgs->iconClass( 'card-list' ),
-					'email'       => $con->svgs->iconClass( 'envelope-fill' ),
-					'triangle'    => $con->svgs->iconClass( 'triangle-fill' ),
-					'expand'      => $con->svgs->iconClass( 'chevron-bar-expand' ),
-					'facebook'    => $con->svgs->iconClass( 'facebook' ),
-					'twitter'     => $con->svgs->iconClass( 'twitter' ),
-					'wordpress'   => $con->svgs->iconClass( 'wordpress' ),
-					'blog'        => $con->svgs->iconClass( 'file-text-fill' ),
-					'upgrade'     => $con->svgs->iconClass( 'coin' ),
+					'exit'      => $con->svgs->iconClass( 'box-arrow-left' ),
+					'help'      => $con->svgs->iconClass( 'question-circle' ),
+					'ignore'    => $con->svgs->iconClass( 'eye-slash-fill' ),
+					'megaphone' => $con->svgs->iconClass( 'megaphone' ),
+					'video'     => $con->svgs->iconClass( 'youtube' ),
+					'search'    => $con->svgs->iconClass( 'search' ),
+					'settings'  => $con->svgs->iconClass( 'gear' ),
+					'menu'      => $con->svgs->iconClass( 'card-list' ),
+					'email'     => $con->svgs->iconClass( 'envelope-fill' ),
+					'triangle'  => $con->svgs->iconClass( 'triangle-fill' ),
+					'expand'    => $con->svgs->iconClass( 'chevron-bar-expand' ),
+					'facebook'  => $con->svgs->iconClass( 'facebook' ),
+					'twitter'   => $con->svgs->iconClass( 'twitter' ),
+					'wordpress' => $con->svgs->iconClass( 'wordpress' ),
+					'blog'      => $con->svgs->iconClass( 'file-text-fill' ),
+					'upgrade'   => $con->svgs->iconClass( 'coin' ),
 				],
 				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),
-				'plugin_banner'  => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
-				'background_svg' => $urlBuilder->forImage( 'shield/background-blob' )
 			],
 			'content'          => [
-				'options_form' => '',
 				'alt'          => '',
 				'actions'      => '',
 				'help'         => '',
@@ -227,47 +242,27 @@ abstract class BaseRender extends BaseAction {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			$commonStrings,
 			[
-				'btn_save'            => __( 'Save Options', 'wp-simple-firewall' ),
-				'btn_options'         => CommonDisplayStrings::get( 'options_label' ),
-				'btn_help'            => CommonDisplayStrings::get( 'help_label' ),
-				'go_to_settings'      => __( 'Edit Settings', 'wp-simple-firewall' ),
-				'no_inner_page_title' => __( 'No inner page title set', 'wp-simple-firewall' ),
-				'on'                  => __( 'On', 'wp-simple-firewall' ),
-				'off'                 => __( 'Off', 'wp-simple-firewall' ),
-				'yes'                 => CommonDisplayStrings::get( 'yes_label' ),
-				'no'                  => CommonDisplayStrings::get( 'no_label' ),
-				'never'               => CommonDisplayStrings::get( 'never_label' ),
-				'time_until'          => __( 'Until', 'wp-simple-firewall' ),
-				'time_since'          => __( 'Since', 'wp-simple-firewall' ),
-				'more_info'           => __( 'Info', 'wp-simple-firewall' ),
-				'view_details'        => __( 'View Details', 'wp-simple-firewall' ),
-				'opt_info_helpdesk'   => __( 'HelpDesk article', 'wp-simple-firewall' ),
-				'opt_info_blog'       => __( 'Blog article', 'wp-simple-firewall' ),
-				'opt_info_video'      => __( 'Watch the explainer video', 'wp-simple-firewall' ),
-				'logged_in'           => __( 'Logged-In', 'wp-simple-firewall' ),
-				'blog'                => __( 'Blog', 'wp-simple-firewall' ),
-				'save_all_settings'   => __( 'Save Settings', 'wp-simple-firewall' ),
-				'plugin_name'                 => $con->labels->Name,
-				'admin_shell_title'           => sprintf( __( '%s admin page', 'wp-simple-firewall' ), $con->labels->Name ),
+				'on'                           => __( 'On', 'wp-simple-firewall' ),
+				'off'                          => __( 'Off', 'wp-simple-firewall' ),
+				'yes'                          => CommonDisplayStrings::get( 'yes_label' ),
+				'no'                           => CommonDisplayStrings::get( 'no_label' ),
+				'never'                        => CommonDisplayStrings::get( 'never_label' ),
+				'opt_info_helpdesk'            => __( 'HelpDesk article', 'wp-simple-firewall' ),
+				'opt_info_blog'                => __( 'Blog article', 'wp-simple-firewall' ),
+				'opt_info_video'               => __( 'Watch the explainer video', 'wp-simple-firewall' ),
+				'logged_in'                    => __( 'Logged-In', 'wp-simple-firewall' ),
+				'blog'                         => __( 'Blog', 'wp-simple-firewall' ),
+				'save_all_settings'            => __( 'Save Settings', 'wp-simple-firewall' ),
+				'plugin_name'                  => $con->labels->Name,
+				'admin_shell_title'            => sprintf( __( '%s admin page', 'wp-simple-firewall' ), $con->labels->Name ),
 				'admin_shell_main_label'       => sprintf( __( '%s admin content', 'wp-simple-firewall' ), $con->labels->Name ),
 				'admin_shell_sidebar_label'    => sprintf( __( '%s admin sidebar', 'wp-simple-firewall' ), $con->labels->Name ),
 				'admin_shell_navigation_label' => sprintf( __( '%s admin navigation', 'wp-simple-firewall' ), $con->labels->Name ),
-				'options_title'               => CommonDisplayStrings::get( 'options_label' ),
-				'options_summary'             => __( 'Configure Module', 'wp-simple-firewall' ),
-				'actions_title'               => __( 'Actions and Info', 'wp-simple-firewall' ),
-				'actions_summary'             => __( 'Perform actions for this module', 'wp-simple-firewall' ),
-				'help_title'                  => CommonDisplayStrings::get( 'help_label' ),
-				'help_summary'                => __( 'Learn More', 'wp-simple-firewall' ),
-				'installation_id'             => __( 'Installation ID', 'wp-simple-firewall' ),
-				'select'                      => __( 'Select', 'wp-simple-firewall' ),
-				'filters_clear'               => __( 'Clear Filters', 'wp-simple-firewall' ),
-				'filters_apply'               => __( 'Apply Filters', 'wp-simple-firewall' ),
-				'jump_to_module'              => __( 'Jump To Module Settings', 'wp-simple-firewall' ),
-				'this_page'                   => __( 'This Page', 'wp-simple-firewall' ),
-				'jump_to_option'              => __( 'Find Plugin Option', 'wp-simple-firewall' ),
-				'type_below_search'           => __( 'Type below to search all plugin options', 'wp-simple-firewall' ),
-				'pro_only_option'             => __( 'Upgrade Required', 'wp-simple-firewall' ),
-				'go_pro'                      => __( 'Go Pro!', 'wp-simple-firewall' ),
+				'actions_title'                => __( 'Actions and Info', 'wp-simple-firewall' ),
+				'installation_id'              => __( 'Installation ID', 'wp-simple-firewall' ),
+				'select'                       => __( 'Select', 'wp-simple-firewall' ),
+				'pro_only_option'              => __( 'Upgrade Required', 'wp-simple-firewall' ),
+				'go_pro'                       => __( 'Go Pro!', 'wp-simple-firewall' ),
 
 				'mode' => __( 'Mode', 'wp-simple-firewall' ),
 
@@ -284,30 +279,21 @@ abstract class BaseRender extends BaseAction {
 				'loading'                      => __( 'Loading', 'wp-simple-firewall' ),
 				'request_failed'               => __( 'Request Failed', 'wp-simple-firewall' ),
 				'scan_repair_limit_exceeded'   => __( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item.", 'wp-simple-firewall' ),
-				'aar_what_should_you_enter'    => __( 'Provide The Security Admin PIN.', 'wp-simple-firewall' ),
 				'aar_to_manage_must_enter_key' => __( 'PIN Required', 'wp-simple-firewall' ),
 				'aar_enter_access_key'         => __( 'Security Admin PIN', 'wp-simple-firewall' ),
 				'aar_submit_access_key'        => __( 'Submit PIN', 'wp-simple-firewall' ),
 				'aar_forget_key'               => __( 'Forgotten PIN', 'wp-simple-firewall' ),
-				'show_help_video_section'      => __( 'Show help video for this section', 'wp-simple-firewall' ),
 
 				'offense' => __( 'offense', 'wp-simple-firewall' ),
 				'debug'   => CommonDisplayStrings::get( 'debug_label' ),
 
-				'privacy_policy_agree'   => __( 'Agree To Privacy Policy', 'wp-simple-firewall' ),
-				'privacy_policy_confirm' => __( "I confirm that I've read and I agree to the Privacy Policy", 'wp-simple-firewall' ),
-				'privacy_policy_gdpr'    => __( 'We treat your information under our strict, and GDPR-compliant, privacy policy.', 'wp-simple-firewall' ),
 				'privacy_policy'         => __( 'Privacy Policy', 'wp-simple-firewall' ),
-				'privacy_never_spam'     => __( 'We never SPAM and you can remove yourself at any time.', 'wp-simple-firewall' ),
 
 				'options'        => CommonDisplayStrings::get( 'options_label' ),
 				'not_enabled'    => __( "This feature isn't currently enabled.", 'wp-simple-firewall' ),
-				'please_enable'  => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' ),
-				'yyyymmdd'       => __( 'YYYY-MM-DD', 'wp-simple-firewall' ),
 
 				'wphashes_token' => sprintf( '%s API Token', self::con()->labels->Name ),
 
-				'running_version'      => sprintf( '%s %s', $con->labels->Name, $this->buildRunningVersionHtml() ),
 				'running_version_only' => $this->buildRunningVersionHtml(),
 
 				'product_name'    => CommonDisplayStrings::get( 'name_label' ),
@@ -321,20 +307,12 @@ abstract class BaseRender extends BaseAction {
 				'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $con->labels->Name ),
 				'recommendation'      => \ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),
 				'suggestion'          => \ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),
-				'no_security_notices' => __( 'There are no important security notices at this time.', 'wp-simple-firewall' ),
-				'this_is_wonderful'   => __( 'This is wonderful!', 'wp-simple-firewall' ),
 
-				'um_current_user_settings' => __( 'Current User Sessions', 'wp-simple-firewall' ),
-				'um_username'              => CommonDisplayStrings::get( 'username_label' ),
-				'um_logged_in_at'          => __( 'Logged In At', 'wp-simple-firewall' ),
-				'um_last_activity_at'      => __( 'Last Activity At', 'wp-simple-firewall' ),
-				'um_last_activity_uri'     => __( 'Last Activity URI', 'wp-simple-firewall' ),
-				'um_login_ip'              => __( 'Login IP', 'wp-simple-firewall' ),
 
 				'search_shield'            => sprintf( __( 'Search %s', 'wp-simple-firewall' ), $con->labels->Name ),
 				'search_shield_label'      => __( 'Click to launch plugin search modal', 'wp-simple-firewall' ),
-				'search_shield_intro'      => esc_html( sprintf( __( 'Use the Super Search box to find absolutely anything within the %s plugin, including options, IP address, tools, help, etc.', 'wp-simple-firewall' ), $con->labels->Name ) ),
-				'search_modal_placeholder' => __( 'Search using whole words of at least 3 characters.', 'wp-simple-firewall' ),
+				'search_modal_placeholder' => __( 'Search settings, tools, IP addresses and help', 'wp-simple-firewall' ),
+				'search_modal_min_chars'   => __( 'Search using whole words of at least 3 characters.', 'wp-simple-firewall' ),
 				'search_modal_you_could'   => __( 'You could search for', 'wp-simple-firewall' ),
 				'search_suggestions'       => [
 					sprintf( __( '%s options and modules', 'wp-simple-firewall' ), $con->labels->Name ),
@@ -342,9 +320,7 @@ abstract class BaseRender extends BaseAction {
 					__( 'IP addresses', 'wp-simple-firewall' ),
 					__( 'Help docs & resources', 'wp-simple-firewall' ),
 				],
-				'translated_colon'         => __( ':', 'wp-simple-firewall' ),
 				'translated_colon_space'   => __( ': ', 'wp-simple-firewall' ),
-				'translated_dash_space'    => __( '- ', 'wp-simple-firewall' ),
 			] );
 	}
 
@@ -354,15 +330,22 @@ abstract class BaseRender extends BaseAction {
 		];
 	}
 
-	protected function getTextInputFromRequestOrActionData( string $key, string $default = '' ) :string {
-		$value = Services::Request()->query( $key, null );
-		if ( $value === null && \array_key_exists( $key, $this->action_data ) ) {
-			$value = $this->action_data[ $key ];
-		}
-		if ( $value === null ) {
-			$value = $default;
-		}
-		return \trim( sanitize_text_field( \is_scalar( $value ) ? (string)$value : $default ) );
+	/**
+	 * A text input this render was given: by the admin page route for a page load, or by the page's JS for a panel.
+	 * Renders don't read the request themselves; anything but text reads as the default.
+	 */
+	protected function getTextInputFromActionData( string $key, string $default = '' ) :string {
+		$actionData = $this->action_data;
+		$value = $actionData[ $key ] ?? null;
+		return \trim( sanitize_text_field( \is_string( $value ) ? $value : $default ) );
+	}
+
+	/**
+	 * The current page's nav, used as a class on the admin page's outer container. The admin page route passes it
+	 * in this render's data; other renders have none.
+	 */
+	private function navClassFromActionData() :string {
+		return $this->getTextInputFromActionData( Constants::NAV_ID );
 	}
 
 	private function buildRunningVersionHtml() :string {

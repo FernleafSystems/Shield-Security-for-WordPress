@@ -66,12 +66,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *       label:string,
  *       icon_class:string,
  *       severity:string
- *     }>,
- *     zone_chips:list<array{
- *       slug:string,
- *       label:string,
- *       icon_class:string,
- *       severity:string
  *     }>
  *   },
  *   actions_lane:ActionsQueueCardLane,
@@ -435,12 +429,6 @@ class ActionsQueueCardDataBuilder {
 	 *   subtitle:string,
 	 *   icon_class:string,
 	 *   checks:list<array{
-	 *     slug:string,
-	 *     label:string,
-	 *     icon_class:string,
-	 *     severity:string
-	 *   }>,
-	 *   zone_chips:list<array{
 	 *     slug:string,
 	 *     label:string,
 	 *     icon_class:string,

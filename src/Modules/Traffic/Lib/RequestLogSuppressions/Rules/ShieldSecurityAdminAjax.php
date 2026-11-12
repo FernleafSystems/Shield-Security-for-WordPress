@@ -68,12 +68,13 @@ class ShieldSecurityAdminAjax extends BaseRule {
 	 * @param array<string,mixed> $payload
 	 */
 	private function isSuppressiblePayload( array $payload, bool $allowBatch = true ) :bool {
-		if ( (string)( $payload[ ActionData::FIELD_ACTION ] ?? '' ) !== ActionData::FIELD_SHIELD ) {
+		if ( ActionData::TransportField( $payload, ActionData::FIELD_ACTION ) !== ActionData::FIELD_SHIELD ) {
 			return false;
 		}
 
-		$actionSlug = (string)( $payload[ ActionData::FIELD_EXECUTE ] ?? '' );
-		$action = ActionsMap::ActionFromSlug( $actionSlug );
+		// The request names its action, and a render's target, the way the entry points read them: by slug.
+		$actionSlug = ActionData::TransportField( $payload, ActionData::FIELD_EXECUTE );
+		$action = ActionsMap::ActionFromRequest( $actionSlug );
 		if ( empty( $action ) ) {
 			return false;
 		}
@@ -83,7 +84,9 @@ class ShieldSecurityAdminAjax extends BaseRule {
 		}
 
 		if ( $actionSlug === AjaxRender::SLUG ) {
-			$renderAction = RenderActionTarget::resolve( (string)( $payload[ 'render_slug' ] ?? '' ) );
+			$renderAction = RenderActionTarget::resolve(
+				ActionsMap::ActionFromRequest( ActionData::TransportField( $payload, 'render_slug' ) )
+			);
 			return !empty( $renderAction ) && !$this->isLoggableRenderAction( $renderAction );
 		}
 

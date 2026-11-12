@@ -254,7 +254,6 @@ class Collate {
 			__( 'PRO', 'wp-simple-firewall' )                    => $this->yesNo( $con->isPremiumActive() ),
 			__( 'WP Hashes Token', 'wp-simple-firewall' )        => ( $wpHashes->hasToken() ? $wpHashes->getToken() : '' ).' ('.$sPrev.')',
 			__( 'Security Admin Enabled', 'wp-simple-firewall' ) => $this->yesNo( $con->comps->sec_admin->isEnabledSecAdmin() ),
-			__( 'CrowdSec API Status', 'wp-simple-firewall' )    => 'TODO', // $con->comps->crowdsec->getApi()->getAuthStatus(),
 			__( 'Current Cache Directory Path', 'wp-simple-firewall' ) => empty( $cacheDir ) ?
 				__( 'Unavailable', 'wp-simple-firewall' ) :
 				sprintf( '<code>%s</code>', \htmlspecialchars( $cacheDir, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8' ) ),

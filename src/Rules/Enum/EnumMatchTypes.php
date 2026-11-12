@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum;
 
 class EnumMatchTypes {
 
-	public const MATCH_TYPES = [
-		self::MATCH_TYPE_EQUALS,
-		self::MATCH_TYPE_IP_RANGE,
-	];
 	public const MATCH_TYPE_EQUALS = 'match_equals';
 	public const MATCH_TYPE_EQUALS_I = 'match_exact_i';
 	public const MATCH_TYPE_CONTAINS = 'match_contains';

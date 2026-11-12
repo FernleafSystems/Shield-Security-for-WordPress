@@ -50,13 +50,15 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 				],
 				'configure_focus_request_json'    => $this->buildRequestedConfigureFocusRequestJson(),
 				'configure_component_action_json' => OperatorChromeContract::encodeJson( $this->buildRequestedComponentAction() ),
+				'configure_tabs'                  => $this->buildConfigureTabs(),
+				'configure_current_tab'           => $this->getValidRequestedConfigureZoneKey() ?: 'search',
 			]
 		);
 	}
 
 	private function buildRequestedComponentAction() :array {
 		$con = self::con();
-		$slug = $this->getTextInputFromRequestOrActionData( 'component' );
+		$slug = $this->getTextInputFromActionData( 'component' );
 		if ( !isset( $con->comps->zones->enumZoneComponents()[ $slug ] ) ) {
 			return [];
 		}
@@ -77,7 +79,7 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 		$data = $component->getActions()[ 'config' ][ 'data' ];
 		$data[ 'option_keys' ] = \implode( ',', $options );
 		$data[ 'form_context' ] = 'offcanvas';
-		$configItem = $this->getTextInputFromRequestOrActionData( 'config_item' );
+		$configItem = $this->getTextInputFromActionData( 'config_item' );
 		if ( \in_array( $configItem, $options, true ) ) {
 			$data[ 'config_item' ] = $configItem;
 		}
@@ -86,13 +88,14 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 
 	protected function getLandingStrings() :array {
 		return [
-			'posture_title'       => __( 'Configuration Coverage', 'wp-simple-firewall' ),
 			'diagnosis_loading'   => __( 'Loading diagnosis...', 'wp-simple-firewall' ),
 			'settings_loading'    => __( 'Loading settings.', 'wp-simple-firewall' ),
 			'layer_load_error'    => __( 'Unable to load this step right now.', 'wp-simple-firewall' ),
 			'layer_retry'         => __( 'Try again', 'wp-simple-firewall' ),
-			'search_label'        => __( 'Search Configure Options', 'wp-simple-firewall' ),
-			'search_placeholder'  => __( 'Search as you type to jump directly to a zone or option.', 'wp-simple-firewall' ),
+			'search_label'        => __( 'Search every setting', 'wp-simple-firewall' ),
+			'search_placeholder'  => __( 'Search every setting, such as "2FA", "login" or "email"', 'wp-simple-firewall' ),
+			'search_tab'          => __( 'Search', 'wp-simple-firewall' ),
+			'tabs_label'          => __( 'Configure', 'wp-simple-firewall' ),
 			'search_loading'      => __( 'Searching Configure...', 'wp-simple-firewall' ),
 		];
 	}
@@ -115,7 +118,6 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 				'key'    => 'zones',
 				'body'   => $this->renderConfigureZonesLayer(),
 				'header' => [
-					'compact_back_label' => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Configure', 'wp-simple-firewall' ) ),
 					'breadcrumb_label'   => __( 'Zones', 'wp-simple-firewall' ),
 					'title'              => __( 'Zones', 'wp-simple-firewall' ),
 					'summary'            => __( 'Review posture by zone and choose where to focus next.', 'wp-simple-firewall' ),
@@ -133,8 +135,6 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 				'header' => $selectedZoneKey !== ''
 					? $selectedDiagnosis[ 'header' ]
 					: [
-						'compact_back_label' => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Review Findings', 'wp-simple-firewall' ) ),
-						'active_back_label'  => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Configure', 'wp-simple-firewall' ) ),
 						'breadcrumb_label'   => __( 'Review findings', 'wp-simple-firewall' ),
 						'title'              => __( 'Review findings', 'wp-simple-firewall' ),
 						'summary'            => __( 'Open one zone to continue.', 'wp-simple-firewall' ),

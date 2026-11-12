@@ -2,12 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\NetworkInviteRepository;
 
+/**
+ * Turns an admin page URL's query values into the route and the data each page renders with. Those values come
+ * from the URL, so this is where they're checked: only text is used, and only the keys a page needs are passed on.
+ * The pages read the data they're given rather than the request.
+ */
 class PageAdminPluginRouteResolver {
 
 	private const INVESTIGATE_INPUT_KEYS = [ 'user_lookup', 'analyse_ip', 'plugin_slug', 'theme_slug', 'subject' ];
@@ -55,8 +61,8 @@ class PageAdminPluginRouteResolver {
 
 	private function canonicalActionData( array $data ) :array {
 		$route = PluginURLs::legacyAdminRouteParams(
-			(string)( $data[ Constants::NAV_ID ] ?? '' ),
-			(string)( $data[ Constants::NAV_SUB_ID ] ?? '' )
+			ActionData::TransportField( $data, Constants::NAV_ID ),
+			ActionData::TransportField( $data, Constants::NAV_SUB_ID )
 		);
 		if ( isset( $route[ 'wp_admin' ] ) ) {
 			throw new ActionException( 'This destination is a WordPress admin screen, not a Shield render action.' );
@@ -69,7 +75,7 @@ class PageAdminPluginRouteResolver {
 			return PluginNavs::NAV_RESTRICTED;
 		}
 
-		$nav = sanitize_key( (string)( $actionData[ Constants::NAV_ID ] ?? '' ) );
+		$nav = sanitize_key( ActionData::TransportField( $actionData, Constants::NAV_ID ) );
 		return PluginNavs::NavExists( $nav ) ? $nav : PluginNavs::NAV_DASHBOARD;
 	}
 
@@ -78,7 +84,7 @@ class PageAdminPluginRouteResolver {
 			return PluginNavs::SUBNAV_INDEX;
 		}
 
-		$subNav = sanitize_key( (string)( $actionData[ Constants::NAV_SUB_ID ] ?? '' ) );
+		$subNav = sanitize_key( ActionData::TransportField( $actionData, Constants::NAV_SUB_ID ) );
 		return PluginNavs::NavExists( $nav, $subNav ) ? $subNav : PluginNavs::GetDefaultSubNavForNav( $nav );
 	}
 
@@ -90,7 +96,7 @@ class PageAdminPluginRouteResolver {
 
 		if ( $nav === PluginNavs::NAV_ACTIVITY ) {
 			foreach ( self::INVESTIGATE_INPUT_KEYS as $key ) {
-				if ( \array_key_exists( $key, $actionData ) ) {
+				if ( \is_string( $actionData[ $key ] ?? null ) ) {
 					$data[ $key ] = $actionData[ $key ];
 				}
 			}
@@ -106,8 +112,12 @@ class PageAdminPluginRouteResolver {
 			 && isset( PluginNavs::reportsWorkspaceDefinitions()[ $workspace ] ) ) {
 			$data[ 'workspace' ] = $workspace;
 		}
-		if ( $nav === PluginNavs::NAV_SCANS && isset( $actionData[ 'zone' ] ) && \is_string( $actionData[ 'zone' ] ) ) {
-			$data[ 'zone' ] = sanitize_key( $actionData[ 'zone' ] );
+		if ( $nav === PluginNavs::NAV_SCANS ) {
+			foreach ( [ 'zone', 'step' ] as $key ) {
+				if ( \is_string( $actionData[ $key ] ?? null ) ) {
+					$data[ $key ] = sanitize_key( $actionData[ $key ] );
+				}
+			}
 		}
 		if ( $nav === PluginNavs::NAV_ZONES ) {
 			foreach ( [ 'zone', 'row_key', 'config_item', 'component' ] as $key ) {
@@ -126,10 +136,8 @@ class PageAdminPluginRouteResolver {
 	private function withNetworkInviteReviewData( array $data, array $actionData, string $nav, string $subNav ) :array {
 		if ( $nav === PluginNavs::NAV_TOOLS
 			 && $subNav === PluginNavs::SUBNAV_TOOLS_IMPORT
-			 && \array_key_exists( NetworkInviteRepository::REVIEW_QUERY_KEY, $actionData ) ) {
-			$data[ NetworkInviteRepository::REVIEW_QUERY_KEY ] = sanitize_key(
-				(string)$actionData[ NetworkInviteRepository::REVIEW_QUERY_KEY ]
-			);
+			 && \is_string( $actionData[ NetworkInviteRepository::REVIEW_QUERY_KEY ] ?? null ) ) {
+			$data[ NetworkInviteRepository::REVIEW_QUERY_KEY ] = sanitize_key( $actionData[ NetworkInviteRepository::REVIEW_QUERY_KEY ] );
 		}
 
 		return $data;

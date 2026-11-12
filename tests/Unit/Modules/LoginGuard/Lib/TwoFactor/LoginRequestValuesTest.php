@@ -121,53 +121,6 @@ class LoginRequestValuesTest extends BaseUnitTest {
 		];
 	}
 
-	#[\PHPUnit\Framework\Attributes\DataProvider( 'userIdProvider' )]
-	public function test_positive_user_id_contract( $value, ?int $expected ) :void {
-		$this->assertSame( $expected, LoginRequestValues::positiveUserId( $value ) );
-	}
-
-	public static function userIdProvider() :array {
-		return [
-			'native int'       => [ 42, 42 ],
-			'native max'       => [ \PHP_INT_MAX, \PHP_INT_MAX ],
-			'digit string'     => [ '42', 42 ],
-			'leading zeroes'   => [ '0042', 42 ],
-			'string max'       => [ (string)\PHP_INT_MAX, \PHP_INT_MAX ],
-			'zero int'         => [ 0, null ],
-			'zero string'      => [ '0', null ],
-			'all zeroes'       => [ '000', null ],
-			'negative int'     => [ -1, null ],
-			'negative string'  => [ '-1', null ],
-			'positive sign'    => [ '+1', null ],
-			'whitespace'       => [ ' 42 ', null ],
-			'decimal'          => [ '1.0', null ],
-			'exponent'         => [ '1e2', null ],
-			'unicode digit'    => [ "\xD9\xA1", null ],
-			'newline suffix'   => [ "42\n", null ],
-			'nul suffix'       => [ "42\0", null ],
-			'float'            => [ 1.0, null ],
-			'boolean'          => [ true, null ],
-			'empty'            => [ '', null ],
-			'nondigits'        => [ '1x', null ],
-			'overflow'         => [ (string)\PHP_INT_MAX.'0', null ],
-			'array'            => [ [ 1 ], null ],
-			'nested array'     => [ [ [ 1 ] ], null ],
-			'object'           => [ new \stdClass(), null ],
-			'stringable'       => [ new LoginRequestNumericStringable(), null ],
-			'null'             => [ null, null ],
-		];
-	}
-
-	public function test_resource_is_not_a_user_id() :void {
-		$resource = \fopen( 'php://memory', 'r' );
-		try {
-			$this->assertNull( LoginRequestValues::positiveUserId( $resource ) );
-		}
-		finally {
-			\fclose( $resource );
-		}
-	}
-
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'nonceProvider' )]
 	public function test_nonce_contract( $value, ?string $expected ) :void {
 		$this->assertSame( $expected, LoginRequestValues::nonEmptyString( $value ) );
@@ -336,11 +289,5 @@ class LoginRequestThrowingStringable {
 class LoginRequestErrorStringable {
 	public function __toString() :string {
 		throw new \Error( 'conversion failed' );
-	}
-}
-
-class LoginRequestNumericStringable {
-	public function __toString() :string {
-		return '42';
 	}
 }

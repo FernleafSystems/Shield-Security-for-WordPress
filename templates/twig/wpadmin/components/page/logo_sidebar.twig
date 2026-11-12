@@ -2,7 +2,7 @@
 	<a href="{{ hrefs.plugin_home }}"
 	   class="page-header-item sidebar-logo-link"
 	   target="_blank"
-	   aria-label="{{ strings.plugin_name|default('Shield Security') }}">
+	   aria-label="{{ strings.plugin_name }}">
 		<img class="sidebar-logo-banner"
 		     src="{{ imgs.logo_banner|default(imgs.logo_small) }}"
 		     alt="Shield Logo" />
@@ -13,7 +13,7 @@
 	</a>
 	{% if not flags.is_whitelabelled %}
 		<div class="shield-sidebar-version">
-			{{ strings.plugin_name|default('Shield Security') }} {{ strings.running_version_only|raw }}
+			{{ strings.plugin_name }} {{ strings.running_version_only|raw }}
 		</div>
 	{% endif %}
 </div>

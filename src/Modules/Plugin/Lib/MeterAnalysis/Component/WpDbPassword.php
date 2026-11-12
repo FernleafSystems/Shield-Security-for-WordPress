@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use ZxcvbnPhp\Zxcvbn;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\DbPasswordStrength;
 
 class WpDbPassword extends Base {
 
@@ -10,7 +10,7 @@ class WpDbPassword extends Base {
 	public const WEIGHT = 3;
 
 	protected function testIfProtected() :bool {
-		return ( ( new Zxcvbn() )->passwordStrength( DB_PASSWORD )[ 'score' ] ?? 0 ) >= 4;
+		return ( new DbPasswordStrength() )->isStrong();
 	}
 
 	public function title() :string {

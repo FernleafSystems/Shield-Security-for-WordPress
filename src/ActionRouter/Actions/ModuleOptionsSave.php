@@ -2,18 +2,25 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\HandleOptionsSaveRequest;
 
 class ModuleOptionsSave extends BaseAction {
 
 	public const SLUG = 'mod_options_save';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
 		$con = self::con();
 
 		$wasSecAdminEnabled = $con->comps->sec_admin->isEnabledSecAdmin();
 
-		$success = ( new HandleOptionsSaveRequest() )->handleSave();
+		$success = ( new HandleOptionsSaveRequest( $this->formParams() ) )->handleSave();
 
 		$this->response()->setPayload( [
 			'html'        => '',

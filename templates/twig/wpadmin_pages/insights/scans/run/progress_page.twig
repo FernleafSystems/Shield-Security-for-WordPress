@@ -1,0 +1,110 @@
+{#
+	Steps 2 and 3 of Run Manual Scan, drawn into the page by the scan polling. The root keeps the same state,
+	busy and announcement attributes as the progress dialog, so the polling treats both alike.
+#}
+<div class="shield-scan-progress shield-scan-progress--page"
+	 data-shield-scan-modal-state="{{ vars.modal_state }}"
+	 aria-busy="{{ vars.is_busy ? 'true' : 'false' }}"
+	 data-shield-scan-modal-announcement="{{ vars.announcement }}">
+
+{% if vars.modal_state == 'completed' %}
+	{% set has_issues = vars.total_issues > 0 %}
+	<section class="shield-tool-status {{ has_issues ? 'is-warning' : 'is-good' }}" aria-labelledby="ScanFinishedTitle">
+		<span class="shield-tool-status__badge">
+			<i class="bi {{ has_issues ? 'bi-exclamation-triangle' : 'bi-check-lg' }}" aria-hidden="true"></i>
+		</span>
+		<div class="shield-tool-status__copy">
+			<h2 class="shield-tool-status__title" id="ScanFinishedTitle" tabindex="-1">{{ strings.finished_title }}</h2>
+			<p class="shield-tool-status__desc">{{ strings.finished_desc }}</p>
+		</div>
+		<a class="shield-tool-btn {{ has_issues ? 'shield-tool-btn--danger' : '' }}" href="{{ hrefs.actions_queue }}">
+			<i class="bi bi-arrow-right" aria-hidden="true"></i>{{ has_issues ? strings.review_queue : strings.open_queue }}
+		</a>
+	</section>
+
+	<section class="shield-tool-box">
+		{% for result in vars.results %}
+			{% set found = result.count > 0 %}
+			<div class="shield-scan-progress__row">
+				<i class="bi {{ found ? 'bi-exclamation-triangle is-warning' : 'bi-check-lg is-good' }} shield-scan-progress__icon" aria-hidden="true"></i>
+				<span class="shield-scan-progress__name">{{ result.name }}</span>
+				<span class="shield-scan-progress__track" aria-hidden="true"><span class="shield-scan-progress__fill{% if found %} is-warning{% endif %}" style="width:100%"></span></span>
+				<span class="shield-scan-progress__result {{ found ? 'is-warning' : 'is-good' }}">{{ result.summary }}</span>
+			</div>
+		{% endfor %}
+		<div class="shield-scan-run__foot">
+			<a class="shield-tool-btn" href="{{ hrefs.scan_run }}">
+				<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>{{ strings.scan_again }}
+			</a>
+		</div>
+	</section>
+
+{% elseif vars.modal_state == 'failed' %}
+	<section class="shield-tool-status is-critical" aria-labelledby="ScanFailedTitle">
+		<span class="shield-tool-status__badge"><i class="bi bi-x-lg" aria-hidden="true"></i></span>
+		<div class="shield-tool-status__copy">
+			<h2 class="shield-tool-status__title" id="ScanFailedTitle">{{ vars.heading }}</h2>
+			<p class="shield-tool-status__desc">{{ vars.remaining_scans }}</p>
+		</div>
+		<a class="shield-tool-btn" href="{{ hrefs.scan_run }}">
+			<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>{{ strings.try_again }}
+		</a>
+	</section>
+
+{% else %}
+	<section class="shield-tool-box">
+		<div class="shield-scan-progress__overall">
+			<h2 class="shield-scan-progress__title">{{ strings.scanning_title }}</h2>
+			{# One part for each scan: done, under way, or still to come. How far the running one has got is on its own row below. #}
+			<div class="shield-scan-progress__bar" role="progressbar"
+				 aria-label="{{ strings.progress_label }}"
+				 aria-valuenow="{{ vars.overall_progress }}" aria-valuemin="0" aria-valuemax="100"
+				 aria-valuetext="{{ strings.overall_progress }}">
+				{% for row in vars.page_rows %}
+					<span class="shield-scan-progress__part is-{{ row.status }}"></span>
+				{% endfor %}
+			</div>
+			<p class="shield-scan-progress__current">{{ vars.heading }}</p>
+		</div>
+
+		{% for row in vars.page_rows %}
+			<div class="shield-scan-progress__row is-{{ row.status }}">
+				{% if row.status == 'running' %}
+					<span class="shield-scan-progress__spin" aria-hidden="true"></span>
+				{% elseif row.status == 'finished' %}
+					<i class="bi bi-check-lg is-good shield-scan-progress__icon" aria-hidden="true"></i>
+				{% elseif row.status == 'stalled' %}
+					<i class="bi bi-exclamation-triangle is-warning shield-scan-progress__icon" aria-hidden="true"></i>
+				{% else %}
+					<span class="shield-scan-progress__dot" aria-hidden="true"></span>
+				{% endif %}
+				<span class="shield-scan-progress__name">
+					{{ row.name }}
+					{% if row.scope_label is not empty %}
+						<span class="shield-scan-progress__scope">{{ row.scope_label }}</span>
+					{% endif %}
+				</span>
+				<span class="shield-scan-progress__track" role="progressbar"
+					  aria-label="{{ row.aria_label }}"
+					  aria-valuenow="{{ row.progress }}" aria-valuemin="0" aria-valuemax="100">
+					<span class="shield-scan-progress__fill{% if row.status == 'stalled' %} is-warning{% endif %}" style="width: {{ row.progress }}%"></span>
+				</span>
+				<span class="shield-scan-progress__result">
+					{{ row.status_label }}
+					{% if row.can_attempt_recovery %}
+						<button type="button" class="shield-tool-btn shield-tool-btn--quiet"
+								data-shield-scan-attempt-recovery="1"
+								data-scan-id="{{ row.id }}">
+							<i class="bi bi-arrow-repeat" aria-hidden="true"></i>{{ strings.attempt_resume_now }}
+						</button>
+					{% endif %}
+				</span>
+			</div>
+		{% endfor %}
+
+		<div class="shield-scan-run__foot">
+			<span class="shield-scan-run__foot-note">{{ strings.patience_1 }} {{ strings.leave_note }}</span>
+		</div>
+	</section>
+{% endif %}
+</div>

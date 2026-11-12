@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Reports\Ops as ReportDB;
@@ -12,11 +13,20 @@ class DisplayReportAdmin extends FullPageDisplayStatic {
 
 	public const SLUG = 'display_full_page_report_admin';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_ORDINARY => ExternalEntryGuard::PROOF_NONE,
+		];
+	}
+
 	/**
 	 * @throws ActionException
 	 */
 	protected function retrieveContent() :string {
-		$reportID = (string)( $this->action_data[ 'report_unique_id' ] ?? '' );
+		if ( !\is_admin() && !\is_network_admin() ) {
+			throw new ActionException( __( 'Reports can only be viewed from the WordPress admin.', 'wp-simple-firewall' ) );
+		}
+		$reportID = $this->fields()->string( 'report_unique_id', '' );
 		if ( $reportID === '' ) {
 			throw new ActionException( __( 'Report could not be found.', 'wp-simple-firewall' ) );
 		}

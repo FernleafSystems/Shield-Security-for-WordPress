@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\{
+	ExternalEntryGuard,
+	RequestFields
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 use IPLib\Factory;
 
@@ -9,33 +13,42 @@ class IpRuleAddSubmit extends BaseAction {
 
 	public const SLUG = 'ip_rule_add_submit';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
 		$con = self::con();
 		$dbh = $con->db_con->ip_rules;
-		$form = $this->action_data[ 'form_data' ];
 		try {
-			if ( empty( $form ) || !\is_array( $form ) ) {
+			$formData = $this->fields()->array( 'form_data', [] );
+			if ( empty( $formData ) ) {
 				throw new \Exception( __( 'No data. Please retry', 'wp-simple-firewall' ) );
 			}
-			$label = \trim( $form[ 'label' ] ?? '' );
+			$form = new RequestFields( $formData );
+			$label = \trim( $form->string( 'label', '' ) );
+			$type = $form->string( 'type', '' );
+			$ip = $form->string( 'ip', '' );
 			if ( !empty( $label ) && \preg_match( '#[^a-z\d\s_-]#i', $label ) ) {
 				throw new \Exception( __( 'The label must be alphanumeric with no special characters', 'wp-simple-firewall' ) );
 			}
-			if ( empty( $form[ 'type' ] ) ) {
+			if ( empty( $type ) ) {
 				throw new \Exception( __( 'Please select one of the IP Rule Types - Block or Bypass', 'wp-simple-firewall' ) );
 			}
-			if ( ( $form[ 'confirm' ] ?? '' ) !== 'Y' ) {
+			if ( $form->string( 'confirm', '' ) !== 'Y' ) {
 				throw new \Exception( __( 'Please check the box to confirm this action', 'wp-simple-firewall' ) );
 			}
-			if ( empty( $form[ 'ip' ] ) ) {
+			if ( empty( $ip ) ) {
 				throw new \Exception( __( 'Please provide an IP Address', 'wp-simple-firewall' ) );
 			}
 
-			$formIP = \preg_replace( '#[^a-f\d:./]#i', '', $form[ 'ip' ] );
+			$formIP = \preg_replace( '#[^a-f\d:./]#i', '', $ip );
 			$range = Factory::parseRangeString( $formIP );
 
 			// You can't manually block your own IP if your IP isn't whitelisted.
-			if ( $form[ 'type' ] === $dbh::T_MANUAL_BLOCK
+			if ( $type === $dbh::T_MANUAL_BLOCK
 				 && !empty( $range )
 				 && !( new IpRules\IpRuleStatus( $con->this_req->ip ) )->isBypass()
 				 && Factory::parseAddressString( $con->this_req->ip )->matches( $range ) ) {
@@ -43,7 +56,7 @@ class IpRuleAddSubmit extends BaseAction {
 			}
 
 			$ipAdder = ( new IpRules\AddRule() )->setIP( $formIP );
-			switch ( $form[ 'type' ] ) {
+			switch ( $type ) {
 				case $dbh::T_MANUAL_BYPASS:
 					$ipAdder->toManualWhitelist( $label );
 					break;

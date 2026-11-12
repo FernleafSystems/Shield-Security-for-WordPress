@@ -38,6 +38,16 @@ class PluginURLs {
 		return empty( $zone ) ? $url : URL::Build( $url, [ 'zone' => $zone ] );
 	}
 
+	/**
+	 * Configure, with the setup guide opened, even when it was finished or dismissed, optionally on one step.
+	 */
+	public function setupGuide( string $stepSlug = '' ) :string {
+		return URL::Build( $this->configureHome(), \array_filter( [
+			'setup_guide' => 'open',
+			'setup_step'  => $stepSlug,
+		] ) );
+	}
+
 	public function investigateHome() :string {
 		return $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW );
 	}
@@ -107,6 +117,31 @@ class PluginURLs {
 		);
 	}
 
+	/**
+	 * The Plugins screen narrowed to one plugin: WordPress searches plugins by their name, within one of its
+	 * views, such as Shield's Vulnerable view.
+	 */
+	public function pluginInPluginsScreen( string $pluginName, string $pluginStatus = 'all' ) :string {
+		return URL::Build( Services::WpGeneral()->getAdminUrl_Plugins(), [
+			'plugin_status' => $pluginStatus,
+			's'             => $pluginName,
+		] );
+	}
+
+	/**
+	 * The Plugins screen's own Vulnerable view, which Shield adds.
+	 */
+	public function vulnerablePlugins() :string {
+		return URL::Build( Services::WpGeneral()->getAdminUrl_Plugins(), [ 'plugin_status' => 'vulnerable' ] );
+	}
+
+	/**
+	 * The Themes screen with one theme's details open.
+	 */
+	public function themeInThemesScreen( string $stylesheet ) :string {
+		return URL::Build( Services::WpGeneral()->getAdminUrl_Themes(), [ 'theme' => $stylesheet ] );
+	}
+
 	public function scansRun() :string {
 		return $this->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN );
 	}
@@ -136,10 +171,6 @@ class PluginURLs {
 			}
 		}
 		return $url;
-	}
-
-	public function wizard( string $wizardKey ) :string {
-		return $this->adminTopNav( PluginNavs::NAV_WIZARD, $wizardKey );
 	}
 
 	public function adminIpRules() :string {
@@ -218,16 +249,12 @@ class PluginURLs {
 		] );
 	}
 
-	public function investigateByCore() :string {
-		return $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_CORE );
-	}
-
 	public function trafficLog() :string {
 		return $this->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS );
 	}
 
 	public function trafficLive() :string {
-		return URL::Build( $this->investigateHome(), [ 'subject' => 'live_traffic' ] );
+		return $this->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE );
 	}
 
 	public function cfgForZoneComponent( string $componentSlug ) :string {
@@ -316,9 +343,6 @@ class PluginURLs {
 			if ( isset( PluginNavs::reportsWorkspaceDefinitions()[ $subNav ] ) ) {
 				return [ 'nav' => 'reports', 'nav_sub' => 'overview', 'workspace' => $subNav ];
 			}
-		}
-		elseif ( $nav === PluginNavs::NAV_TRAFFIC && $subNav === PluginNavs::SUBNAV_LIVE ) {
-			return [ 'nav' => 'activity', 'nav_sub' => 'overview', 'subject' => 'live_traffic' ];
 		}
 		elseif ( $nav === PluginNavs::NAV_TOOLS && $subNav === PluginNavs::SUBNAV_TOOLS_SESSIONS ) {
 			return [ 'nav' => 'activity', 'nav_sub' => 'sessions' ];

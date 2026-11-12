@@ -11,10 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	Actions\PluginMarkTourFinished,
-	Constants
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginMarkTourFinished;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TourManager;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -94,10 +91,7 @@ class PluginMarkTourFinishedTest extends BaseUnitTest {
 
 	private function actionData( string $tourKey ) :array {
 		return [
-			'tour_key'           => $tourKey,
-			'action_overrides'   => [
-				Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
-			],
+			'tour_key' => $tourKey,
 		];
 	}
 }

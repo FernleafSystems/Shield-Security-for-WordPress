@@ -22,7 +22,6 @@ class FormCreateReport extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRo
 					'date_range'        => __( 'Date Range', 'wp-simple-firewall' ),
 					'date_start'        => __( 'Start Date', 'wp-simple-firewall' ),
 					'date_end'          => __( 'End Date', 'wp-simple-firewall' ),
-					'form_title'        => __( 'Report Options', 'wp-simple-firewall' ),
 					'report_title'      => __( 'Report Title', 'wp-simple-firewall' ),
 				],
 				'vars'    => [

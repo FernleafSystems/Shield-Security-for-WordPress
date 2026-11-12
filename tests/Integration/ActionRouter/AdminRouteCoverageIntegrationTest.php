@@ -46,7 +46,6 @@ class AdminRouteCoverageIntegrationTest extends ShieldIntegrationTestCase {
 			[ 'reports', 'list', 'reports', 'overview', [ 'workspace' => 'list' ] ],
 			[ 'reports', 'settings', 'reports', 'overview', [ 'workspace' => 'settings' ] ],
 			[ 'reports', 'charts', 'reports', 'overview', [ 'workspace' => 'charts' ] ],
-			[ 'traffic', 'live', 'activity', 'overview', [ 'subject' => 'live_traffic' ] ],
 			[ 'tools', 'sessions', 'activity', 'sessions', [] ],
 		] as [ $nav, $subNav, $targetNav, $targetSubNav, $state ] ) {
 			$url = $urls->legacyAdminRouteRedirect( $nav, $subNav );
@@ -74,8 +73,7 @@ class AdminRouteCoverageIntegrationTest extends ShieldIntegrationTestCase {
 				$route[ 'delegate_action' ]::SLUG, $route[ 'delegate_payload' ]
 			);
 			$this->assertRouteRenderOutputHealthy( $payload, $workspace );
-			$this->assertSame( 1, $payload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'active_index' ] );
-			$this->assertSame( $workspace, $payload[ 'render_data' ][ 'vars' ][ 'reports_workspace' ] );
+			$this->assertSame( $workspace, $payload[ 'render_data' ][ 'vars' ][ 'reports_current_tab' ] );
 		}
 	}
 
@@ -89,7 +87,7 @@ class AdminRouteCoverageIntegrationTest extends ShieldIntegrationTestCase {
 				\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageReportsLanding::SLUG, $input
 			);
 			$this->assertRouteRenderOutputHealthy( $payload, 'reports/overview' );
-			$this->assertSame( 0, $payload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'active_index' ] );
+			$this->assertSame( 'charts', $payload[ 'render_data' ][ 'vars' ][ 'reports_current_tab' ] );
 		}
 	}
 

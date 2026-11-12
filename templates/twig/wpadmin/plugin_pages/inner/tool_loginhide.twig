@@ -1,0 +1,52 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{#
+	Hide Login: where the login page is now, a warning in the warning colours that this is not a security
+	setting, then the new address and where the old one sends people.
+#}
+{% block inner_page_body %}
+	<div class="shield-tool-page" data-shield-loginhide="1">
+		<p class="shield-tool-page__lede">{{ strings.lede }}</p>
+
+		{% if flags.state == 'on' %}
+			<section class="shield-tool-status is-good" aria-labelledby="LoginHideStatusTitle">
+				<span class="shield-tool-status__badge"><i class="bi bi-eye-slash" aria-hidden="true"></i></span>
+				<div class="shield-tool-status__copy">
+					<h2 class="shield-tool-status__title" id="LoginHideStatusTitle">{{ strings.on_title }}</h2>
+					<p class="shield-tool-status__desc">{{ strings.on_desc|format( '<code>' ~ vars.new_address|e ~ '</code>' )|raw }}</p>
+				</div>
+				<span class="shield-tool-status__pill">{{ strings.on_pill }}</span>
+			</section>
+		{% elseif flags.state == 'blocked' %}
+			<section class="shield-tool-status" aria-labelledby="LoginHideStatusTitle">
+				<span class="shield-tool-status__badge"><i class="bi bi-exclamation-circle" aria-hidden="true"></i></span>
+				<div class="shield-tool-status__copy">
+					<h2 class="shield-tool-status__title" id="LoginHideStatusTitle">{{ strings.blocked_title }}</h2>
+					<p class="shield-tool-status__desc">{{ strings.blocked_desc }}</p>
+				</div>
+				<span class="shield-tool-status__pill">{{ strings.blocked_pill }}</span>
+			</section>
+		{% else %}
+			<section class="shield-tool-status" aria-labelledby="LoginHideStatusTitle">
+				<span class="shield-tool-status__badge"><i class="bi bi-eye" aria-hidden="true"></i></span>
+				<div class="shield-tool-status__copy">
+					<h2 class="shield-tool-status__title" id="LoginHideStatusTitle">{{ strings.off_title }}</h2>
+					<p class="shield-tool-status__desc">{{ strings.off_desc|format( '<code>' ~ vars.usual_address|e ~ '</code>' )|raw }}</p>
+				</div>
+				<span class="shield-tool-status__pill">{{ strings.off_pill }}</span>
+			</section>
+		{% endif %}
+
+		<section class="shield-tool-warning" aria-labelledby="LoginHideWarningTitle">
+			<i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+			<div>
+				<h2 class="shield-tool-warning__title" id="LoginHideWarningTitle">{{ strings.warning_title }}</h2>
+				<p>{{ strings.warning_desc }} <a href="{{ hrefs.warning_more }}" target="_blank" rel="noopener">{{ strings.warning_more }}</a></p>
+			</div>
+		</section>
+
+		<div class="shield-tool-box shield-tool-box--form">
+			{{ vars.form_html|raw }}
+		</div>
+	</div>
+{% endblock %}

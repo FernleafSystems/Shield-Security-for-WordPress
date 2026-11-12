@@ -4,13 +4,13 @@ import { Navigation } from "../../util/Navigation";
 import { ObjectOps } from "../../util/ObjectOps";
 import qs from "qs";
 import { Random } from "../../util/Random";
-import { RestService } from "./RestService";
 import { announceGlobal } from "../ui/ShieldA11y";
 
 export class AjaxService {
 
 	static authRefreshPending = false;
 	static authRefreshPendingPromise = null;
+	static sessionChangedDialogOpen = false;
 
 	bg( data ) {
 		return this.sendWithPolicy( data, {
@@ -43,6 +43,12 @@ export class AjaxService {
 			if ( !isBackground && this.isAuthRefreshResponse( respJSON ) ) {
 				this.handleAuthRefresh( respJSON );
 				return AjaxService.suspendForAuthRefresh();
+			}
+
+			// Background requests count too: every nonce on the page is dead, whichever request finds out. The
+			// dialog carries the message, so the caller gets its failure without a second notice.
+			if ( this.isSessionChangedResponse( respJSON ) && this.showSessionChangedDialog( respJSON ) ) {
+				return respJSON;
 			}
 
 			if ( !quiet
@@ -95,36 +101,26 @@ export class AjaxService {
 			throw new Error( 'Empty or null Ajax data.' );
 		}
 
-		/* const isRest = '_rest_url' in data; */
-		const isRest = false;
+		let url = typeof ajaxurl === 'undefined' ? data.ajaxurl : ajaxurl;
 
-		if ( isRest ) {
-			return ( new RestService() ).req( data );
-		}
-		else {
-			let url = typeof ajaxurl === 'undefined' ? data.ajaxurl : ajaxurl;
+		let reqData = ObjectOps.ObjClone( data );
+		reqData[ 'shield_uniq' ] = Random.Int( 1000, 9999 );
 
-			let reqData = ObjectOps.ObjClone( data );
-			reqData[ 'shield_uniq' ] = Random.Int( 1000, 9999 );
+		delete reqData.ajaxurl;
 
-			delete reqData._wpnonce;
-			delete reqData._rest_url;
-			delete reqData.ajaxurl;
-
-			return fetch( url, this.constructFetchRequestData( reqData, 'POST', isBackground ) )
-			.then( raw => raw.text().then( respTEXT => {
-				const respJSON = AjaxParseResponseService.ParseIt( respTEXT );
-				if ( respJSON === null
-					|| typeof respJSON !== 'object'
-					|| Array.isArray( respJSON )
-					|| ObjectOps.IsEmpty( respJSON ) ) {
-					throw new Error(
-						raw.ok ? 'Invalid AJAX response.' : `AJAX request failed with HTTP ${ raw.status }.`
-					);
-				}
-				return respJSON;
-			} ) );
-		}
+		return fetch( url, this.constructFetchRequestData( reqData, 'POST', isBackground ) )
+		.then( raw => raw.text().then( respTEXT => {
+			const respJSON = AjaxParseResponseService.ParseIt( respTEXT );
+			if ( respJSON === null
+				|| typeof respJSON !== 'object'
+				|| Array.isArray( respJSON )
+				|| ObjectOps.IsEmpty( respJSON ) ) {
+				throw new Error(
+					raw.ok ? 'Invalid AJAX response.' : `AJAX request failed with HTTP ${ raw.status }.`
+				);
+			}
+			return respJSON;
+		} ) );
 	}
 
 	constructFetchRequestData( core, method = 'POST', isBackground = false ) {
@@ -160,6 +156,43 @@ export class AjaxService {
 		AjaxService.authRefreshPending = true;
 		ShieldOverlay.Show();
 		Navigation.RedirectOrReload( respJSON, null );
+	}
+
+	isSessionChangedResponse( respJSON ) {
+		return !!( respJSON?.data?.session_changed );
+	}
+
+	/**
+	 * The page's nonces belong to a login session that has since changed, so nothing on it will work until it's
+	 * reloaded. Says so in a dialog and reloads when the dialog is closed. Requests aren't held back meanwhile:
+	 * the reload can be cancelled (unsaved changes), and the page must carry on if it is.
+	 *
+	 * @return {boolean} whether the dialog is showing. It isn't when the page has no dialog, or another dialog
+	 * is open; the response is then reported like any other failure.
+	 */
+	showSessionChangedDialog( respJSON ) {
+		if ( AjaxService.sessionChangedDialogOpen ) {
+			return true;
+		}
+		if ( typeof shieldServices === 'undefined' || typeof shieldServices.dialog !== 'function' ) {
+			return false;
+		}
+		const dialog = shieldServices.dialog();
+		if ( dialog.isOpen() ) {
+			return false;
+		}
+
+		AjaxService.sessionChangedDialogOpen = true;
+		dialog.message( {
+			title: respJSON.data.dialog.title,
+			message: respJSON.data.message,
+			confirmLabel: respJSON.data.dialog.confirm_label,
+			showTitle: true,
+		} ).finally( () => {
+			AjaxService.sessionChangedDialogOpen = false;
+			window.location.reload();
+		} );
+		return true;
 	}
 
 	static suspendForAuthRefresh() {

@@ -2,18 +2,27 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Passkey;
 
 class MfaPasskeyRegistrationVerify extends MfaUserConfigBase {
 
 	public const SLUG = 'mfa_passkey_registration_verify';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
+		$fields = $this->fields();
+		$wanAuth = $fields->string( 'reg', '' );
+		$label = $fields->string( 'label', '' );
+
 		$available = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var ?Passkey $provider */
 		$provider = $available[ Passkey::ProviderSlug() ] ?? null;
-
-		$wanAuth = $this->action_data[ 'reg' ] ?? '';
 
 		if ( empty( $provider ) ) {
 			$response = [
@@ -30,7 +39,7 @@ class MfaPasskeyRegistrationVerify extends MfaUserConfigBase {
 			];
 		}
 		else {
-			$result = $provider->verifyRegistrationResponse( $wanAuth, $this->action_data[ 'label' ] ?? '' );
+			$result = $provider->verifyRegistrationResponse( $wanAuth, $label );
 			$response = [
 				'success' => $result->success,
 				'message' => $result->success ? $result->msg_text : $result->error_text,

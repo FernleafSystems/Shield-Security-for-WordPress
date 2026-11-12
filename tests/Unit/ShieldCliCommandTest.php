@@ -15,6 +15,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestDockerCleanupCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageTargetedCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPluginCheckCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPopularPluginsCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestSourceCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestUpgradePublicCommand;
@@ -73,6 +74,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 				TestPackageFullCommand::NAME,
 				TestUpgradePublicCommand::NAME,
 				TestPopularPluginsCommand::NAME,
+				TestPluginCheckCommand::NAME,
 				AnalyzeToolingCommand::NAME,
 				AnalyzeSourceCommand::NAME,
 				AnalyzePackageCommand::NAME,
@@ -412,6 +414,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			'test-package-full' => [ TestPackageFullCommand::NAME ],
 			'test-upgrade-public' => [ TestUpgradePublicCommand::NAME ],
 			'test-popular-plugins' => [ TestPopularPluginsCommand::NAME ],
+			'test-plugin-check' => [ TestPluginCheckCommand::NAME ],
 			'analyze-tooling' => [ AnalyzeToolingCommand::NAME ],
 			'analyze-source' => [ AnalyzeSourceCommand::NAME ],
 			'analyze-package' => [ AnalyzePackageCommand::NAME ],

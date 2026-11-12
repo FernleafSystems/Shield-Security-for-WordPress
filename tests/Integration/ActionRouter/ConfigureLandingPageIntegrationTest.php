@@ -43,6 +43,21 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		return $payload;
 	}
 
+	/**
+	 * Configure's results are the one list in the shared results list; each opens its goal in place, so it
+	 * carries what that needs. Goals are the results labelled with a type.
+	 * @return list<array{type:string,href:string,focus_request_json:string}>
+	 */
+	private function configureSearchResults( array $payload ) :array {
+		$sections = $payload[ 'render_data' ][ 'vars' ][ 'sections' ];
+		$this->assertLessThanOrEqual( 1, \count( $sections ) );
+		return \array_map( fn( array $result ) :array => [
+			'type'               => $result[ 'type_label' ] === '' ? 'option' : 'zone',
+			'href'               => $result[ 'href' ],
+			'focus_request_json' => $result[ 'attributes' ][ 'data-configure-focus-request' ],
+		], $sections[ 0 ][ 'results' ] ?? [] );
+	}
+
 	public function test_landing_renders_shared_operator_chrome_and_two_layer_drill_shell() :void {
 		$payload = $this->renderConfigureLandingPage();
 		$this->assertIsArray( $payload[ 'render_data' ][ 'vars' ] ?? null );
@@ -97,9 +112,10 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			ConfigureSearchResults::SLUG,
 			$searchAction[ 'render_slug' ] ?? ''
 		);
+		// An older link to a zone's row lands on the topic that now holds the setting.
 		$this->assertSame(
 			[
-				'row_key'     => 'general_settings',
+				'row_key'     => 'comment_spam',
 				'config_item' => 'comments_cooldown',
 			],
 			\json_decode( (string)( $vars[ 'configure_focus_request_json' ] ?? '' ), true )
@@ -134,7 +150,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'search' => 'silentcaptcha',
 		] );
 
-		$results = (array)( $payload[ 'render_data' ][ 'vars' ][ 'results' ] ?? [] );
+		$results = $this->configureSearchResults( $payload );
 
 		$this->assertNotSame( [], $results );
 		$this->assertContains( 'zone', \array_column( $results, 'type' ) );
@@ -148,14 +164,14 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'option', $optionResult[ 'type' ] ?? '' );
 		$this->assertSame(
 			[
-				'row_key'     => 'silent_captcha',
+				'row_key'     => 'silentcaptcha',
 				'config_item' => (string)( \json_decode( (string)( $optionResult[ 'focus_request_json' ] ?? '' ), true )[ 'config_item' ] ?? '' ),
 			],
 			\json_decode( (string)( $optionResult[ 'focus_request_json' ] ?? '' ), true )
 		);
 		$this->assertHrefQueryMatches( (string)( $optionResult[ 'href' ] ?? '' ), [
-			'zone'        => 'ips',
-			'row_key'     => 'silent_captcha',
+			'zone'        => 'attacks',
+			'row_key'     => 'silentcaptcha',
 			'config_item' => (string)( \json_decode( (string)( $optionResult[ 'focus_request_json' ] ?? '' ), true )[ 'config_item' ] ?? '' ),
 		] );
 	}
@@ -182,7 +198,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			] );
 
 			$result = $this->findConfigureOptionResultByConfigItem(
-				(array)( $payload[ 'render_data' ][ 'vars' ][ 'results' ] ?? [] ),
+				$this->configureSearchResults( $payload ),
 				$case[ 'config_item' ]
 			);
 
@@ -198,17 +214,17 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$cases = [
 			[
 				'search'      => 'xml-rpc',
-				'row_key'     => 'xml_rpc_disable',
+				'row_key'     => 'apis',
 				'config_item' => 'disable_xmlrpc',
 			],
 			[
 				'search'      => 'anonymous rest',
-				'row_key'     => 'anon_rest_api_disable',
+				'row_key'     => 'apis',
 				'config_item' => 'disable_anonymous_restapi',
 			],
 			[
 				'search'      => 'rest api exclusions',
-				'row_key'     => 'anon_rest_api_disable',
+				'row_key'     => 'apis',
 				'config_item' => 'api_namespace_exclusions',
 			],
 			[
@@ -234,7 +250,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			] );
 
 			$result = $this->findConfigureOptionResultByConfigItem(
-				(array)( $payload[ 'render_data' ][ 'vars' ][ 'results' ] ?? [] ),
+				$this->configureSearchResults( $payload ),
 				$case[ 'config_item' ]
 			);
 
@@ -251,50 +267,42 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				\json_decode( (string)( $result[ 'focus_request_json' ] ?? '' ), true )
 			);
 			$this->assertHrefQueryMatches( (string)( $result[ 'href' ] ?? '' ), [
-				'zone'        => 'firewall',
+				'zone'        => 'attacks',
 				'row_key'     => $case[ 'row_key' ],
 				'config_item' => $case[ 'config_item' ],
 			] );
 		}
 	}
 
-	public function test_scans_and_spam_diagnosis_render_scoped_rows_and_general_settings() :void {
+	public function test_goal_diagnosis_rows_are_topics_that_open_their_panels() :void {
 		$diagnoses = ( new ConfigureLandingViewBuilder() )->build()[ 'diagnoses' ];
-		$scansPayload = $diagnoses[ 'scans' ] ?? [];
-		$spamPayload = $diagnoses[ 'spam' ] ?? [];
 
-		$this->assertDiagnosisRowScope( $scansPayload, 'scan_scheduling', 'scan_scheduling', [], 'scan_frequency' );
-		$this->assertDiagnosisRowScope( $spamPayload, 'trusted_commenters', 'trusted_commenters', [], 'trusted_commenter_minimum' );
-		$this->assertDiagnosisRowScope( $spamPayload, 'general_settings', 'module_spam', [ 'comments_cooldown' ] );
+		$this->assertDiagnosisRowScope( $diagnoses[ 'code' ] ?? [], 'scan_schedule', 'scan_scheduling', [ 'scan_frequency' ] );
+		// Settings few sites change are gathered into the goal's Advanced options.
+		$this->assertDiagnosisRowScope( $diagnoses[ 'spam' ] ?? [], 'advanced', 'trusted_commenters', [ 'trusted_commenter_minimum', 'trusted_user_roles' ] );
+		$this->assertDiagnosisRowScope( $diagnoses[ 'accounts' ] ?? [], 'two_factor', 'two_factor_auth', [ 'enable_email_authentication', 'enable_passkeys' ] );
+		$this->assertDiagnosisRowScope( $diagnoses[ 'accounts' ] ?? [], 'sessions', 'session_theft_protection', [ 'enable_user_login_email_notification', 'session_lock' ] );
+		$this->assertDiagnosisRowScope( $diagnoses[ 'attacks' ] ?? [], 'crowdsec', 'crowdsec_blocking', [ 'cs_block' ] );
+		$this->assertDiagnosisRowScope( $diagnoses[ 'attacks' ] ?? [], 'bot_signals', 'bot_actions', [ 'track_xmlrpc' ] );
+		$this->assertDiagnosisRowScope( $diagnoses[ 'login' ] ?? [], 'login_guards', 'bot_actions', [ 'track_loginfailed', 'block_author_discovery' ] );
+		$this->assertDiagnosisRowScope( $diagnoses[ 'shield' ] ?? [], 'general', 'plugin_general', [ 'visitor_address_source' ] );
 	}
 
-	public function test_login_and_ips_diagnosis_surface_existing_hidden_callouts() :void {
+	public function test_own_page_settings_have_no_configure_topic() :void {
 		$diagnoses = ( new ConfigureLandingViewBuilder() )->build()[ 'diagnoses' ];
-		$loginPayload = $diagnoses[ 'login' ] ?? [];
-		$ipsPayload = $diagnoses[ 'ips' ] ?? [];
-
-		$this->assertDiagnosisRowScope( $loginPayload, 'two_factor_general', 'two_factor_auth', [ 'mfa_verify_page', 'allow_backupcodes' ] );
-		$this->assertDiagnosisRowScope( $loginPayload, 'two_factor_email', 'two_factor_auth', [ 'enable_email_authentication' ] );
-		$this->assertDiagnosisRowScope( $loginPayload, 'two_factor_otp_passkeys', 'two_factor_auth', [ 'enable_google_authenticator', 'enable_passkeys' ] );
-		$this->assertDiagnosisRowScope( $loginPayload, 'login_hide', 'login_hide' );
-		$this->assertDiagnosisRowScope( $loginPayload, 'session_theft_protection', 'session_theft_protection', [ 'enable_user_login_email_notification', 'session_lock' ] );
-		$this->assertDiagnosisRowScope( $ipsPayload, 'crowdsec_blocking', 'crowdsec_blocking', [ 'cs_block', 'cs_enroll_id' ] );
-		$this->assertDiagnosisRowScope( $ipsPayload, 'auto_ip_blocking', 'auto_ip_blocking', [ 'user_auto_recover', 'request_whitelist' ] );
-		$this->assertDiagnosisRowScope( $ipsPayload, 'bot_actions', 'bot_actions', [ 'track_xmlrpc' ] );
-		$this->assertNull( $this->findDiagnosisRowByKey( $ipsPayload, 'ip_blocking_rules' ) );
+		foreach ( $diagnoses as $goalKey => $diagnosis ) {
+			foreach ( [ 'problem_rows', 'review_rows', 'healthy_rows' ] as $group ) {
+				foreach ( (array)( $diagnosis[ $group ] ?? [] ) as $row ) {
+					$optionKeys = \explode( ',', (string)( $row[ 'expand_action' ][ 'data_attributes' ][ 'option_keys' ] ?? '' ) );
+					$this->assertNotContains( 'rename_wplogin_path', $optionKeys, $goalKey );
+					$this->assertNotContains( 'whitelabel_enable', $optionKeys, $goalKey );
+					$this->assertNotContains( 'importexport_enable', $optionKeys, $goalKey );
+				}
+			}
+		}
 	}
 
-	public function test_general_diagnosis_omits_empty_request_logging_scope() :void {
-		$viewData = ( new ConfigureLandingViewBuilder() )->build();
-		$this->assertArrayHasKey( 'general', $viewData[ 'tile_lookup' ] );
-		$this->assertArrayHasKey( 'general', $viewData[ 'diagnoses' ] );
-
-		$generalPayload = $viewData[ 'diagnoses' ][ 'general' ];
-		$this->assertNull( $this->findDiagnosisRowByKey( $generalPayload, 'request_logging' ) );
-		$this->assertDiagnosisRowScope( $generalPayload, 'plugin_general', 'plugin_general', [ 'visitor_address_source' ] );
-	}
-
-	public function test_secadmin_diagnosis_header_actions_only_when_security_admin_is_enabled() :void {
+	public function test_secadmin_goal_links_to_disable_only_when_security_admin_is_enabled() :void {
 		$snapshot = $this->snapshotSelectedOptions( [
 			'admin_access_key',
 			'sec_admin_users',
@@ -308,7 +316,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				->store();
 
 			$enabledPayload = $this->renderConfigureDiagnosis( [
-				'zone' => 'secadmin',
+				'zone' => 'control',
 			] );
 
 			$con->opts
@@ -317,29 +325,22 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				->store();
 
 			$disabledPayload = $this->renderConfigureDiagnosis( [
-				'zone' => 'secadmin',
+				'zone' => 'control',
 			] );
 
-			$this->assertCount( 1, $enabledPayload[ 'header' ][ 'actions' ] ?? [] );
-			$this->assertSame( 'href', (string)( $enabledPayload[ 'header' ][ 'actions' ][ 0 ][ 'kind' ] ?? '' ) );
-			$this->assertSame( 'deactivate', (string)( $enabledPayload[ 'header' ][ 'actions' ][ 0 ][ 'type' ] ?? '' ) );
-			$this->assertNotSame( '', (string)( $enabledPayload[ 'header' ][ 'actions' ][ 0 ][ 'href' ] ?? '' ) );
-			$this->assertSame( [], $disabledPayload[ 'header' ][ 'actions' ] ?? [ 'unexpected' ] );
+			// Turning Security Admin off is a quiet link on the goal, not an action in the side rail.
+			$this->assertSame( [], $enabledPayload[ 'header' ][ 'actions' ] );
+			$this->assertStringContainsString( 'class="configure-zone-tools__link"', $enabledPayload[ 'html' ] );
+			$this->assertStringNotContainsString( 'class="configure-zone-tools__link"', $disabledPayload[ 'html' ] );
 		}
 		finally {
 			$this->restoreSelectedOptions( $snapshot );
 		}
 	}
 
-	public function test_real_tile_build_only_keeps_intentional_visible_duplicate_option_ownership() :void {
+	public function test_real_tile_build_shows_each_option_in_one_topic() :void {
 		$tiles = ( new ConfigureZoneTilesBuilder() )->build();
-		$allowedDuplicates = [
-			'enable_password_policies' => [
-				'users:password_policies',
-				'users:pwned_passwords',
-				'users:password_strength',
-			],
-		];
+		$allowedDuplicates = [];
 		$unexpectedDuplicates = [];
 		$visibleOptionRows = [];
 
@@ -392,7 +393,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 			$tiles = ( new ConfigureZoneTilesBuilder() )->build();
 			$fileScanningRow = $this->findBuiltConfigureRowByKey( $tiles, 'file_scanning' );
-			$xmlRpcRow = $this->findBuiltConfigureRowByKey( $tiles, 'xml_rpc_disable' );
+			$xmlRpcRow = $this->findBuiltConfigureRowByKey( $tiles, 'apis' );
 
 			$this->assertNotNull( $fileScanningRow );
 			$this->assertNotNull( $xmlRpcRow );
@@ -455,9 +456,14 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$row = $this->findDiagnosisRowByKey( $payload, $rowKey );
 		$this->assertNotNull( $row, 'Missing diagnosis row: '.$rowKey );
 		$this->assertTrue( (bool)( $row[ 'expand_action' ][ 'is_expandable' ] ?? false ) );
-		$this->assertSame(
+		// A topic's settings can come from several components.
+		$this->assertContains(
 			$zoneComponentSlug,
-			(string)( $row[ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' )
+			\explode( ',', (string)( $row[ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' ) )
+		);
+		$this->assertSame(
+			(string)( $payload[ 'zone_key' ] ?? '' ).':'.$rowKey,
+			(string)( $row[ 'expand_action' ][ 'data_attributes' ][ 'configure_panel' ] ?? '' )
 		);
 
 		$optionKeys = \array_filter( \array_map(

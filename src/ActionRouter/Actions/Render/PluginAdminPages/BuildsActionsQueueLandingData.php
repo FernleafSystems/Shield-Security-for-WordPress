@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginSetUiPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\UiPreferences;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -10,7 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type BucketData from ActionsQueueBucketsBuilder
- * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
+ * @phpstan-import-type HealthyRow from ActionsQueueBucketsBuilder
  * @phpstan-import-type LandingViewData from ActionsQueueLandingViewBuilder
  */
 trait BuildsActionsQueueLandingData {
@@ -98,7 +101,7 @@ trait BuildsActionsQueueLandingData {
 	}
 
 	/**
-	 * @return list<CompactSummaryRow>
+	 * @return list<HealthyRow>
 	 */
 	protected function getHealthyRowsData() :array {
 		if ( $this->actionsQueueHealthyRowsCache === null ) {
@@ -116,12 +119,58 @@ trait BuildsActionsQueueLandingData {
 		) );
 	}
 
+	/**
+	 * The landing shows each lane's groups in place, so a group opens its results directly
+	 * rather than through a separate lane page.
+	 */
 	protected function renderBucketsLayer() :string {
+		$groupsBuilder = new ActionsQueueGroupsBuilder();
+		$bucketGroups = [];
+		foreach ( $this->getBucketsData() as $bucket ) {
+			if ( $bucket[ 'is_interactive' ] ) {
+				$bucketGroups[ $bucket[ 'key' ] ] = $groupsBuilder->build(
+					$bucket[ 'key' ],
+					$this->getAttentionQuery(),
+					$this->getAssessmentRowsByZone()
+				);
+			}
+		}
+
+		$layout = ( new ActionsQueueLandingSectionsBuilder() )->build(
+			$this->getBucketsData(),
+			$bucketGroups,
+			$this->getHealthyRowsData(),
+			( new ActionsQueueGroupDefinitions() )->reviewMaintenanceAggregateGroupKeys()
+		);
+
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/actions_queue/layer_buckets.twig' )
 			->setData( [
-				'buckets'      => $this->getBucketsData(),
-				'healthy_rows' => $this->getHealthyRowsData(),
+				'sections'      => $layout[ 'sections' ],
+				'has_lanes'     => $layout[ 'has_lanes' ],
+				'view'          => ( new UiPreferences() )->get( UiPreferences::ACTIONS_QUEUE_VIEW ),
+				'set_view_action_json' => ActionData::BuildJson( PluginSetUiPreference::class ),
+				'hrefs'         => [
+					'scan_run' => self::con()->plugin_urls->scansRun(),
+				],
+				'strings'       => [
+					'run_scans_tab' => __( 'Run scans', 'wp-simple-firewall' ),
+					'view_label'    => __( 'Layout', 'wp-simple-firewall' ),
+					'view_sections' => __( 'Sections', 'wp-simple-firewall' ),
+					'view_tabs'     => __( 'Tabs', 'wp-simple-firewall' ),
+					'nothing_here'  => __( 'Nothing needs your action right now.', 'wp-simple-firewall' ),
+					'pro_pill'       => __( 'Shield Pro', 'wp-simple-firewall' ),
+					'turned_off_pill' => __( 'Turned off', 'wp-simple-firewall' ),
+					'compare_plans'  => __( 'Compare plans', 'wp-simple-firewall' ),
+					'turn_on'        => __( 'Turn on', 'wp-simple-firewall' ),
+					'review'         => __( 'Review', 'wp-simple-firewall' ),
+					'ignore_all'     => __( 'Ignore all', 'wp-simple-firewall' ),
+					'stop_ignoring_all' => __( 'Stop ignoring all', 'wp-simple-firewall' ),
+					/* translators: %s: how many of a group's items are ignored */
+					'ignored_count'  => __( '(%s ignored)', 'wp-simple-firewall' ),
+					/* translators: %s: how many items are ignored */
+					'ignored_toggle' => __( '%s ignored', 'wp-simple-firewall' ),
+				],
 			] )
 			->render();
 	}
@@ -138,7 +187,7 @@ trait BuildsActionsQueueLandingData {
 			'summary'          => $statusOverview[ 'summary_text' ],
 			'focus'            => $statusOverview[ 'subtext' ],
 			'next_step'        => $this->hasDrilldownContent()
-				? __( 'Choose Fix now or Review next to see the issues that need your attention.', 'wp-simple-firewall' )
+				? __( 'Open a group below to see its results and act on them.', 'wp-simple-firewall' )
 				: __( 'Nothing requires your action right now.', 'wp-simple-firewall' ),
 			'icon_class'       => $summary[ 'icon_class' ],
 			'badge'            => $summary[ 'has_items' ]

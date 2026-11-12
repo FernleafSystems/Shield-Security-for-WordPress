@@ -44,13 +44,6 @@ class ApplySecurityProfile extends Base {
 			'strings' => [
 				'step_title' => __( 'Apply Ready-Made Security Profile', 'wp-simple-firewall' ),
 			],
-			'imgs'    => [
-				'svgs' => [
-					'shield_x'           => $con->svgs->iconClass( 'shield-x.svg' ),
-					'shield_check'       => $con->svgs->iconClass( 'shield-check.svg' ),
-					'shield_exclamation' => $con->svgs->iconClass( 'shield-fill-exclamation.svg' ),
-				],
-			],
 			'vars'    => [
 				'profile_structure' => $secProfiles->getStructure(),
 				'profile_levels'    => [

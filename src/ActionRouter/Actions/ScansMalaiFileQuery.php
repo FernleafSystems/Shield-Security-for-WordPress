@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
@@ -12,6 +13,12 @@ use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai\Mal
 class ScansMalaiFileQuery extends ScansBase {
 
 	public const SLUG = 'scans_malai_file_query';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$success = false;
@@ -46,7 +53,7 @@ class ScansMalaiFileQuery extends ScansBase {
 	private function getMalaiStatus() :string {
 		$FS = Services::WpFs();
 
-		$item = ( new RetrieveItems() )->byID( (int)( $this->action_data[ 'rid' ] ?? -1 ) );
+		$item = ( new RetrieveItems() )->byID( $this->fields()->positiveInt( 'rid' ) );
 		if ( !$item instanceof ResultItem ) {
 			throw new \Exception( __( 'The selected scan result is not a supported file item.', 'wp-simple-firewall' ) );
 		}

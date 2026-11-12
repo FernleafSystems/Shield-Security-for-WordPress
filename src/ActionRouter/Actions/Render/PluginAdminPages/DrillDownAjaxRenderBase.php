@@ -31,7 +31,7 @@ abstract class DrillDownAjaxRenderBase extends BaseRender {
 	 */
 	protected function getAllRenderDataArrays() :array {
 		return [
-			0 => $this->action_data,
+			0  => $this->givenTemplateData(),
 			10 => $this->getRenderData(),
 		];
 	}

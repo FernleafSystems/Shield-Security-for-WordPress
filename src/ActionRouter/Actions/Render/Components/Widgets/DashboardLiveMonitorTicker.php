@@ -15,7 +15,7 @@ class DashboardLiveMonitorTicker extends OverviewBase {
 	public const TEMPLATE = '/wpadmin/components/traffic/live_logs.twig';
 
 	protected function getRenderData() :array {
-		$limit = (int)\min( 30, \max( 1, ( $this->action_data[ 'limit' ] ?? 12 ) ) );
+		$limit = \min( 30, $this->fields()->positiveInt( 'limit', 12 ) );
 		$eventSlugs = ( new HighValueEvents() )->forDashboardTicker();
 		$records = empty( $eventSlugs ) ? [] : $this->loadRecords( $eventSlugs, $limit );
 		return [

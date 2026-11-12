@@ -61,6 +61,7 @@ class BuildAttentionItems {
 		'file_locker',
 		'abandoned',
 		'hidden_plugins',
+		'report_email',
 		'default_admin_user',
 		'wp_updates',
 		'wp_plugins_updates',

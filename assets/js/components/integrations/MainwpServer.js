@@ -23,12 +23,10 @@ export class MainwpServer extends BaseComponent {
 		this.$c.on( 'click', '.site-dropdown button.site_action[data-mainwp-site-action="1"]', ( evt ) => {
 			evt.preventDefault();
 
-			const $target = $( evt.currentTarget );
-
 			this.sendReq(
 				ObjectOps.Merge( this._base_data.ajax.site_action, {
 					client_site_id: evt.currentTarget.getAttribute( 'data-mainwp-site-id' ),
-					client_site_action_data: $target.data( 'site_action' )
+					client_site_action: evt.currentTarget.getAttribute( 'data-mainwp-site-action-key' )
 				} )
 			);
 

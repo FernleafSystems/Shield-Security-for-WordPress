@@ -61,11 +61,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			( input ) => this.handleAutoSubmitChange( input ),
 			false
 		);
-		shieldEventsHandler_Main.add_Click(
-			'[data-investigate-landing="1"] [data-investigate-change-subject="1"]',
-			( changeLink, evt ) => this.handleChangeSubjectClick( changeLink, evt ),
-			false
-		);
 
 		document.addEventListener( 'shield:drill-back', ( evt ) => this.handleDrillBack( evt ) );
 		document.addEventListener( 'click', ( evt ) => this.handlePivotClick( evt ) );
@@ -127,13 +122,19 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.shellEl = this.getShell( root );
 		this.panelEl = this.getPanel( root );
 		const primaryAction = subjectTile.querySelector( '[data-investigate-primary-action="1"]' );
+		const requestData = {
+			...selection.render_action,
+		};
+		// A lookup result names what to look up for its subject.
+		const lookupValue = String( subjectTile.dataset.investigateLookupValue || '' ).trim();
+		if ( selection.lookup_key.length > 0 && lookupValue.length > 0 ) {
+			requestData[ selection.lookup_key ] = lookupValue;
+		}
 
 		this.openSubjectSelection( selection, {
-			sourceEl: primaryAction instanceof HTMLElement ? primaryAction : null,
-			requestData: {
-				...selection.render_action,
-			},
-			historyUrl: this.buildLandingUrlForSelection( selection, selection.render_action ),
+			sourceEl: primaryAction instanceof HTMLElement ? primaryAction : subjectTile,
+			requestData,
+			historyUrl: this.buildLandingUrlForSelection( selection, requestData ),
 			hash: '',
 		} ).finally();
 	}
@@ -151,11 +152,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return;
 		}
 		form.requestSubmit();
-	}
-
-	handleChangeSubjectClick( changeLink, evt ) {
-		evt.preventDefault();
-		this.resetCurrentSelection( changeLink ).finally();
 	}
 
 	handlePanelFormSubmit( form, evt ) {
@@ -619,8 +615,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 	buildEmptyHeader() {
 		return {
-			compact_back_label: '',
-			active_back_label: '',
 			breadcrumb_label: '',
 			title: '',
 			meta: '',
@@ -1156,8 +1150,11 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
+		// Only subjects that something on the page opens without a lookup are worth loading ahead: the
+		// lookup's kinds only open a subject once a result is chosen.
 		const preloadableSelections = [ ...this.subjectTiles.values() ].filter(
 			( selection ) => this.canPreloadSelection( selection )
+				&& root.querySelector( `[data-drill-target="panel"][data-investigate-subject="${selection.key}"]` ) !== null
 				&& !this.genericPanelCache.has( selection.key )
 				&& !this.genericPanelPending.has( selection.key )
 		);

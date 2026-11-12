@@ -149,7 +149,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( '', $queuePane[ 'cards' ][ 0 ][ 'body_notice_variant' ] );
 		$this->assertSame( '/wp-admin/plugins.php', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'href' ] );
 		$this->assertSame( 'bi bi-power', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'icon_class' ] );
-		$this->assertSame( 'Go to plugins', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'tooltip_attr' ] );
+		$this->assertSame( 'Go to plugin', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'tooltip_attr' ] );
 		$this->assertSame( '1', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] );
 		$this->assertSame( '0', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] );
 		$queueTableAction = $this->decodeJsonAttr( $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'table_action_attr' ] );
@@ -222,6 +222,11 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertArrayNotHasKey( 'actions-queue-asset-render-action', $pane[ 'cards' ][ 1 ][ 'panel_data' ] );
 		$this->assertSame( '/index.php', $pane[ 'cards' ][ 1 ][ 'meta_text' ] );
 		$this->assertSame( 'info', $pane[ 'cards' ][ 1 ][ 'body_notice_variant' ] );
+		// Each file's tab icon says what kind of file it is.
+		$this->assertSame(
+			[ 'bi bi-gear-fill', 'bi bi-filetype-php', 'bi bi-server' ],
+			\array_column( $pane[ 'cards' ], 'icon_class' )
+		);
 	}
 
 	public function test_file_locker_not_enabled_premium_state_renders_inactive_cards_without_configuration_action() :void {
@@ -330,10 +335,6 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$sectionLabels = \array_column( $builder->buildRailPaneData( 'vulnerabilities' )[ 'items' ] ?? [], 'section_label' );
 		$this->assertContains( $vulnerableLabel, $sectionLabels );
 		$this->assertNotContains( $abandonedLabel, $sectionLabels );
-
-		$abandonedSectionLabels = \array_column( $builder->buildRailPaneData( 'abandoned' )[ 'items' ] ?? [], 'section_label' );
-		$this->assertContains( $abandonedLabel, $abandonedSectionLabels );
-		$this->assertNotContains( $vulnerableLabel, $abandonedSectionLabels );
 	}
 
 	public function test_vulnerability_items_keep_native_and_lookup_actions() :void {

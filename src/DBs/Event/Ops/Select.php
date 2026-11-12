@@ -43,12 +43,6 @@ class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Selec
 		return $counts;
 	}
 
-	public function sumEventsLike( string $event ) :int {
-		return (int)$this->addWhereLike( 'event', $event )
-						 ->setColumnsToSelect( [ 'count' ] )
-						 ->sum();
-	}
-
 	/**
 	 * @return int[]
 	 */
@@ -56,13 +50,6 @@ class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Selec
 		$allEvents = ( clone $this )->reset()->getAllEvents();
 		\natsort( $allEvents );
 		return $this->clearWheres()->sumEventsSeparately( \array_values( $allEvents ) );
-	}
-
-	public function getLatestForEvent( string $event ) :?Record {
-		return $this->filterByEvent( $event )
-					->setOrderBy( 'created_at' )
-					->setResultsAsVo( true )
-					->first();
 	}
 
 	/**

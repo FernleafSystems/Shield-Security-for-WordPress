@@ -8,4 +8,7 @@
 	<template id="{{ vars.pro_upsell.template_id }}">
 		{% include '/wpadmin/components/pro_upsell_modal.twig' with { upsell: vars.pro_upsell } only %}
 	</template>
+	{% if vars.setup_guide.show %}
+		{% include '/wpadmin/components/setup_guide_bar.twig' with { guide: vars.setup_guide } only %}
+	{% endif %}
 {% endblock %}

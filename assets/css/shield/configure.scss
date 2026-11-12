@@ -1,6 +1,3 @@
-﻿.configure-landing__posture-section {
-	margin-bottom: 1rem;
-}
 
 .configure-landing__drilldown .drill-shell {
 	min-width: 0;
@@ -8,210 +5,198 @@
 
 @import '../mode-palette';
 
-.configure-landing__search {
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba($mode-configure-light, 0.55));
-	border: 1px solid rgba($mode-configure, 0.12);
-	border-radius: $card-border-radius;
-	box-shadow: $card-box-shadow;
-	margin-bottom: 1rem;
-	padding: 0.9rem 1rem 1rem;
-	position: relative;
+// ─── Tabs: Search, then one tab for each goal, dotted by how it stands ───
+.configure-tabs {
+	border-bottom: 1px solid #dcdcde;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.15rem;
+	margin-bottom: 1.25rem;
 }
 
-.configure-landing__search-label {
-	display: block;
-	font-size: 0.75rem;
+.configure-tabs__tab {
+	align-items: center;
+	background: none;
+	border: 0;
+	border-bottom: 3px solid transparent;
+	color: #50575e;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: $mode-tab-font-size;
+	font-weight: 500;
+	gap: 0.45rem;
+	margin-bottom: -1px;
+	padding: 0.6rem 0.55rem 0.55rem;
+	white-space: nowrap;
+
+	&:hover,
+	&:focus-visible {
+		color: #1d2327;
+	}
+
+	&:focus-visible {
+		outline: 2px solid $mode-configure;
+		outline-offset: -2px;
+	}
+
+	&.is-current {
+		border-bottom-color: $mode-configure;
+		color: #1d2327;
+		font-weight: 600;
+	}
+
+	// Nothing in this goal for the current filter. It still opens.
+	&.is-faded {
+		opacity: 0.45;
+	}
+}
+
+// Each goal's icon, coloured by how the goal stands.
+.configure-tabs__icon {
+	color: $status-color-good;
+	flex: none;
+	font-size: 14px;
+	line-height: 1;
+
+	.status-warning > & {
+		color: $status-color-warning;
+	}
+
+	.status-critical > & {
+		color: $status-color-critical;
+	}
+
+	.status-neutral > &,
+	.status-info > & {
+		color: #8c8f94;
+	}
+}
+
+// The goal's name and summary, with its filter at the end of the same line.
+.configure-diagnosis__heading {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.6rem 1.25rem;
+	margin-bottom: 0.85rem;
+}
+
+.configure-diagnosis__heading-copy {
+	display: grid;
+	flex: 1 1 14rem;
+	gap: 0.15rem;
+	min-width: 0;
+}
+
+.configure-diagnosis__title {
+	color: #1d2327;
+	font-size: 17px;
+	font-weight: 600;
+	margin: 0;
+}
+
+.configure-diagnosis__summary {
+	color: #50575e;
+	font-size: 13px;
+	margin: 0;
+}
+
+// ─── Search every setting ───
+.configure-landing__search {
+	margin-bottom: 1.25rem;
+	max-width: 880px;
+}
+
+// ─── What needs attention, under the search ───
+.configure-home {
+	max-width: 880px;
+}
+
+.configure-home__heading {
+	color: #50575e;
+	font-size: 11px;
 	font-weight: 700;
-	letter-spacing: 0.04em;
-	margin-bottom: 0.375rem;
+	letter-spacing: 0.06em;
+	margin: 0 0 0.5rem;
 	text-transform: uppercase;
 }
 
-.configure-landing__search-input-wrap {
-	position: relative;
+.configure-home__none {
+	align-items: center;
+	color: #50575e;
+	display: flex;
+	gap: 0.45rem;
+	margin: 0;
+
+	.bi {
+		color: $status-color-good;
+	}
 }
 
-.configure-landing__search-input {
+.configure-home__list {
 	background: #fff;
-	border-radius: $card-border-radius;
-	padding-right: 2.75rem;
-}
-
-.configure-landing__search[data-configure-search-state="loading"] .configure-landing__search-input,
-.configure-landing__search[data-configure-search-state="ready"] .configure-landing__search-input,
-.configure-landing__search[data-configure-search-state="error"] .configure-landing__search-input {
-	border-color: rgba($mode-configure, 0.24);
-	box-shadow: 0 0 0 0.18rem rgba($mode-configure, 0.08);
-}
-
-.configure-landing__search-results {
-	display: none;
-	left: 0;
-	position: absolute;
-	right: 0;
-	top: calc(100% + 0.4rem);
-	z-index: 20;
-}
-
-.configure-landing__search:not([data-configure-search-state="idle"]) .configure-landing__search-results {
-	display: block;
-}
-
-.configure-search-results {
-	background: #fff;
-	border: 1px solid $border-color-neutral-subtle;
-	border-radius: $card-border-radius;
-	box-shadow: 0 14px 28px rgba($mode-configure, 0.12), 0 4px 10px rgba(15, 23, 42, 0.08);
-	max-height: min(24rem, 52vh);
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
 	overflow: hidden;
 }
 
-.configure-search-results__list {
+.configure-home__row {
+	align-items: center;
+	background: none;
+	border: 0;
+	color: #1d2327;
+	cursor: pointer;
 	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: 18px minmax(0, 1fr) auto;
+	padding: 0.75rem 0.9rem;
+	text-align: left;
+	width: 100%;
+
+	& + & {
+		border-top: 1px solid #f0f0f1;
+	}
+
+	&:hover,
+	&:focus-visible {
+		background: rgba($mode-configure, 0.06);
+	}
+
+	&:focus-visible {
+		outline: 2px solid $mode-configure;
+		outline-offset: -2px;
+	}
 }
 
-.configure-search-results__item {
-	align-items: flex-start;
-	color: #1d2327;
-	display: flex;
-	gap: 0.8rem;
-	padding: 0.85rem 1rem;
-	text-decoration: none;
-	transition: background-color 0.15s ease;
-}
-
-.configure-search-results__item:hover,
-.configure-search-results__item:focus-visible {
-	background: rgba($mode-configure-light, 0.42);
-	color: #1d2327;
-}
-
-.configure-search-results__item:focus-visible {
-	@include shield-focus-ring();
-}
-
-.configure-search-results__item + .configure-search-results__item {
-	border-top: 1px solid rgba($border-color-neutral-subtle, 0.9);
-}
-
-.configure-search-results__icon {
-	align-items: center;
-	color: #5f6974;
-	display: inline-flex;
-	flex: 0 0 auto;
-	font-size: 1rem;
-	justify-content: center;
+.configure-home__icon {
+	color: $status-color-warning;
+	font-size: 16px;
 	line-height: 1;
-	margin-top: 0.05rem;
-	width: 1rem;
+	text-align: center;
+
+	.status-critical > & {
+		color: $status-color-critical;
+	}
 }
 
-.configure-search-results__copy {
-	align-items: baseline;
-	column-gap: 0.5rem;
-	display: flex;
-	flex: 1 1 auto;
-	flex-wrap: wrap;
+.configure-home__copy {
+	display: grid;
+	gap: 0.1rem;
 	min-width: 0;
-	row-gap: 0.3rem;
 }
 
-.configure-search-results__type {
-	align-items: center;
-	background: rgba($mode-configure, 0.08);
-	border: 1px solid rgba($mode-configure, 0.18);
-	border-radius: 999px;
-	display: inline-flex;
-	flex: 0 0 auto;
-	font-size: 0.64rem;
-	font-weight: 700;
-	letter-spacing: 0.04em;
-	padding: 0.15rem 0.45rem;
-	text-transform: uppercase;
-}
-
-.configure-search-results__type--option {
-	color: $mode-configure;
-}
-
-.configure-search-results__type--zone {
-	color: $status-color-info;
-}
-
-.configure-search-results__label {
-	color: #1d2327;
-	flex: 0 1 auto;
+.configure-home__title {
+	font-size: 13.5px;
 	font-weight: 600;
 }
 
-.configure-search-results__summary,
-.configure-search-results__empty {
-	color: #5f6974;
-	font-size: 0.8rem;
+.configure-home__summary {
+	color: #50575e;
+	font-size: 12.5px;
 }
 
-.configure-search-results__summary {
-	flex: 1 1 12rem;
-}
-
-.configure-search-results__empty {
-	margin: 0;
-	padding: 0.95rem 1rem;
-}
-
-.configure-search-results--status {
-	padding: 0.95rem 1rem;
-}
-
-.configure-search-results__status {
-	align-items: center;
-	color: #5f6974;
-	display: flex;
-	gap: 0.7rem;
-}
-
-.configure-search-results__status-text {
-	font-size: 0.8rem;
-}
-
-.configure-search-results__spinner {
-	align-items: center;
-	display: inline-flex;
-	flex: 0 0 auto;
-	justify-content: center;
-}
-
-.configure-search-results__spinner .spinner-border {
-	height: 1rem;
-	margin: 0;
-	width: 1rem;
-}
-
-.configure-zones {
-	display: grid;
-	gap: 1.2rem;
-}
-
-.configure-zones__section {
-	display: grid;
-	gap: 0.85rem;
-}
-
-.configure-zones__grid {
-	display: grid;
-	gap: 0.9rem;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-.reports-landing .operator-tile-card--reports {
-	--operator-card-accent-color: #{$mode-reports};
-	--operator-card-text-color: #{$mode-reports-text};
-	--operator-card-icon-bg: #{$mode-reports-light};
-	--operator-card-icon-color: #{$mode-reports};
-	--operator-card-action-border: #{rgba($mode-reports, 0.4)};
-	--operator-card-action-hover-bg: #{$mode-reports-light};
-
-	border-color: $mode-reports-border;
+.configure-home__go {
+	color: #8c8f94;
 }
 
 .configure-diagnosis {
@@ -260,12 +245,445 @@
 }
 
 @media (max-width: 640px) {
-	.configure-landing__search {
-		padding: 0.8rem 0.85rem 0.9rem;
+	// On a narrow screen the tabs stay on one line and scroll sideways.
+	.configure-tabs {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		scrollbar-width: thin;
+	}
+}
+
+// One save bar per zone page, fixed to the bottom of the viewport; JS lines it up with the zone.
+.configure-diagnosis .shield-detail-expansion__footer {
+	display: none;
+}
+
+// The save bar is the shared action bar; the goal leaves room for it at its foot.
+.configure-diagnosis.has-configure-savebar {
+	padding-bottom: 5rem;
+}
+
+// ─── Zone tools: filter, "Needs attention", layout choice ───
+.configure-zone-tools {
+	align-items: center;
+	display: flex;
+	gap: 0.6rem 0.75rem;
+	flex: 0 1 auto;
+	justify-content: flex-end;
+	margin-left: auto;
+
+	.configure-zone-tools__group {
+		flex-wrap: nowrap;
 	}
 
-	.configure-search-results__item {
-		gap: 0.65rem;
-		padding: 0.8rem 0.85rem;
+	.configure-zone-chip {
+		white-space: nowrap;
+	}
+
+	// On a narrow screen the views and the filter take a line each.
+	@media (max-width: 640px) {
+		flex-wrap: wrap;
+		margin-left: 0;
+		width: 100%;
+	}
+}
+
+.configure-zone-tools__filter {
+	align-items: center;
+	display: flex;
+	flex: 0 1 18rem;
+	gap: 0.45rem;
+	min-width: 12rem;
+	position: relative;
+
+	.bi {
+		color: #646970;
+		left: 0.6rem;
+		position: absolute;
+	}
+
+	input {
+		padding-left: 1.9rem;
+	}
+}
+
+// A link beside the goal's tools, such as turning Security Admin off: a small button in the warning colour,
+// kept on one line.
+.configure-zone-tools__link {
+	align-items: center;
+	background: #fcf9e8;
+	border: 1px solid #dba617;
+	border-radius: 999px;
+	color: #6e4e00;
+	display: inline-flex;
+	flex: none;
+	font-size: 0.8rem;
+	font-weight: 500;
+	gap: 0.35rem;
+	padding: 0.28rem 0.75rem;
+	text-decoration: none;
+	white-space: nowrap;
+
+	&:hover,
+	&:focus {
+		background: #f9efc6;
+		color: #4a3500;
+		text-decoration: none;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+}
+
+.configure-zone-tools__group {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 0.3rem;
+}
+
+.configure-zone-chip {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid #dcdcde;
+	border-radius: 999px;
+	color: #1d2327;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: 0.8rem;
+	font-weight: 500;
+	gap: 0.35rem;
+	padding: 0.28rem 0.75rem;
+
+	&[aria-pressed="true"] {
+		background: rgba($mode-configure-light, 0.6);
+		border-color: rgba($mode-configure, 0.35);
+		color: $mode-configure;
+		font-weight: 600;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+}
+
+.configure-zone-chip__count {
+	color: #646970;
+	font-variant-numeric: tabular-nums;
+}
+
+.configure-zone-tools__empty {
+	color: #646970;
+	flex-basis: 100%;
+	margin: 0;
+}
+
+.configure-diagnosis .shield-option-item.is-filtered-out {
+	display: none;
+}
+
+// ─── Components (concept): readable cards with a status edge; the whole header opens them ───
+.configure-diagnosis__components {
+	display: grid;
+	gap: 10px;
+}
+
+.configure-diagnosis .shield-detail-item--configure {
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	box-shadow: none;
+}
+
+.configure-diagnosis .shield-detail-item--configure > .shield-detail-row {
+	align-items: center;
+	cursor: pointer;
+	padding: 12px 14px 12px 18px; // clear of the status edge the shared row draws
+
+	.shield-detail-row__title {
+		font-size: 14px;
+		font-weight: 600;
+	}
+
+	.shield-detail-row__desc {
+		color: #646970;
+		font-size: 12.5px;
+		margin-top: 2px;
+	}
+
+	.shield-detail-row__explanations {
+		font-size: 12.5px;
+		margin-top: 6px;
+	}
+
+	.shield-detail-row__expl-action {
+		font-weight: 600;
+	}
+
+	// The header itself opens the component, so the "Configure" pill is not needed; the chevron says open or closed.
+	.shield-detail-row__expand-cta {
+		display: none;
+	}
+
+	.shield-detail-row__chevron {
+		font-size: 0.85rem;
+		transform: rotate(90deg);
+	}
+
+	&.is-expanded .shield-detail-row__chevron {
+		transform: rotate(-90deg);
+	}
+}
+
+// Settings sit flush in the component, one row each, rather than in a panel inside a card.
+.configure-diagnosis .shield-detail-expansion > .shield-detail-expansion__form {
+	border: 0;
+	border-radius: 0;
+	border-top: 1px solid #eef0f1;
+	box-shadow: none;
+	margin-top: 0;
+}
+
+.configure-diagnosis .options_form_for--modern {
+	.shield-options-panel {
+		background: #ffffff;
+		border-radius: 0;
+		box-shadow: none;
+	}
+
+	.shield-options-panel-body {
+		padding: 0;
+	}
+
+	.shield-option-row {
+		padding: 12px 16px 12px 18px;
+	}
+}
+
+.configure-expansion-heading {
+	display: none;
+}
+
+// Why a component is flagged. Expanded in place, the row above already says it; the component
+// list shows it at the top of the open panel.
+.configure-expansion-issues {
+	display: none;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+
+	li {
+		align-items: center;
+		background: #fef6e6;
+		border-bottom: 1px solid #f3e2bd;
+		color: #3c434a;
+		display: flex;
+		font-size: 13px;
+		gap: 10px;
+		margin: 0;
+		padding: 9px 16px;
+
+		.bi {
+			color: #946200;
+			flex: none;
+		}
+
+		span {
+			flex: 1 1 auto;
+			min-width: 0;
+		}
+	}
+
+	&--critical li {
+		background: #fdeaec;
+		border-bottom-color: #f5c6cc;
+
+		.bi {
+			color: $status-color-critical;
+		}
+	}
+}
+
+.configure-expansion-issues__show {
+	background: none;
+	border: 0;
+	color: #0a58ca;
+	cursor: pointer;
+	flex: none;
+	font-size: 12.5px;
+	font-weight: 600;
+	padding: 0;
+
+	&:hover,
+	&:focus {
+		text-decoration: underline;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+}
+
+// The settings that fix a flagged component carry the flag's colour along their edge.
+.configure-diagnosis .options_form_for--modern .shield-option-item.has-issue {
+	background: #fffbf2;
+	box-shadow: inset 3px 0 0 $status-color-warning;
+
+	&.has-issue--critical {
+		background: #fff7f8;
+		box-shadow: inset 3px 0 0 $status-color-critical;
+	}
+}
+
+// ─── Component list layout: one joined panel, components on the left, the open one on the right ───
+@media (min-width: 961px) {
+	.configure-diagnosis {
+		.configure-diagnosis__components {
+			align-items: stretch;
+			// The whole component column is one grey; the open component's settings sit on white.
+			background: #f3f4f5;
+			border: 1px solid #dcdcde;
+			border-radius: 8px;
+			display: grid;
+			gap: 0;
+			grid-auto-rows: min-content;
+			grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+			overflow: hidden;
+		}
+
+		.configure-diagnosis__settings,
+		.shield-detail-item--configure {
+			display: contents;
+		}
+
+		.shield-detail-item--configure[hidden] {
+			display: none;
+		}
+
+		.shield-detail-item--configure > .shield-detail-row {
+			background: transparent;
+			border: 0;
+			border-bottom: 1px solid #e4e6e8;
+			border-radius: 0;
+			grid-column: 1;
+			margin: 0;
+			padding: 10px 14px;
+
+			.shield-detail-row__status-icon {
+				font-size: 0.7rem;
+			}
+
+			.shield-detail-row__title {
+				font-size: 13px;
+				font-weight: 500;
+			}
+
+			// Status shows as the small icon here; the edge is kept for the open component.
+			&::before {
+				display: none;
+			}
+
+			&:hover {
+				background: #e9ebed;
+			}
+
+			// The open component is plain to see: a Configure tint, bold, with the Configure colour along its edge.
+			&.is-expanded {
+				background: #ebe4f8;
+				box-shadow: inset 3px 0 0 $mode-configure;
+
+				.shield-detail-row__title {
+					font-weight: 700;
+				}
+			}
+		}
+
+		.shield-detail-row .shield-detail-row__desc,
+		.shield-detail-row .shield-detail-row__explanations {
+			display: none;
+		}
+
+		// The whole row opens its component: its button stretches over the row, so a click anywhere and the
+		// keyboard both reach it, and it shows the focus ring on the row.
+		.shield-detail-item--configure > .shield-detail-row .shield-detail-row__end {
+			align-self: stretch;
+			inset: 0;
+			margin: 0;
+			padding: 0;
+			position: absolute;
+		}
+
+		.shield-detail-item--configure > .shield-detail-row .shield-detail-row__expand-toggle {
+			height: 100%;
+			width: 100%;
+
+			.shield-detail-row__expand-cta,
+			.shield-detail-row__chevron {
+				display: none;
+			}
+
+			&:focus-visible {
+				@include shield-focus-ring(-3px);
+			}
+		}
+
+		.shield-detail-expansion {
+			align-self: stretch;
+			background: #ffffff;
+			border: 0;
+			border-left: 1px solid #dcdcde;
+			grid-column: 2;
+			grid-row: 1 / span 200;
+		}
+
+		// Switching components swaps the panel with a quick fade rather than the slow height slide.
+		.shield-detail-expansion.collapsing {
+			height: auto !important;
+			transition: none;
+		}
+
+		.shield-detail-expansion.collapsing,
+		.shield-detail-expansion.show {
+			animation: configure-panel-swap 160ms ease-out;
+		}
+
+		// The open panel is narrower than a full zone, so give the setting's text more of the row.
+		.options_form_for--modern .shield-option-row {
+			grid-template-columns: minmax(0, 1fr) minmax(150px, 220px);
+		}
+
+		.shield-detail-expansion__form .options_form_for {
+			margin: 0;
+			padding: 0;
+		}
+
+		.configure-expansion-issues {
+			display: block;
+		}
+
+		.configure-expansion-heading {
+			border-bottom: 1px solid #dcdcde;
+			display: grid;
+			gap: 2px;
+			padding: 12px 16px;
+		}
+
+		.configure-expansion-heading__title {
+			font-size: 14px;
+			font-weight: 700;
+		}
+
+		.configure-expansion-heading__desc {
+			color: #646970;
+			font-size: 12.5px;
+		}
+	}
+}
+
+@keyframes configure-panel-swap {
+	from {
+		opacity: 0.4;
+	}
+	to {
+		opacity: 1;
 	}
 }

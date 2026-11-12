@@ -1,6 +1,20 @@
-{% macro render_rows(rows, diagnosis_id) %}
+{% macro render_rows(rows, diagnosis_id, fixes = {}, show_me_label = '') %}
 	<div class="configure-diagnosis__settings">
 		{% for row in rows %}
+			{# Each warning gets a "Show me" that opens this component and highlights the setting that fixes it. #}
+			{% set explanation_actions = [] %}
+			{% if show_me_label is not empty and row.status in [ 'warning', 'critical' ] and row.expand_action.is_expandable %}
+				{% for explanation in row.explanations %}
+					{% set explanation_actions = explanation_actions|merge( [ {
+						label: show_me_label,
+						attributes: {
+							'data-configure-show-me': '1',
+							'data-row-key': row.key,
+							'data-option-key': fixes[ explanation ]|default( '' )
+						}
+					} ] ) %}
+				{% endfor %}
+			{% endif %}
 			{% include '/wpadmin/components/configure/detail_item.twig' with { item: {
 				row: {
 					title: row.title,
@@ -9,6 +23,9 @@
 					status_icon: row.status_icon_class,
 					status_label: row.status_label,
 					explanations: row.explanations,
+					explanation_actions: explanation_actions,
+					count_badge: null,
+					actions: [],
 					attributes: {}
 				},
 				expand: {
@@ -28,19 +45,89 @@
 
 {% from _self import render_rows %}
 {% set diagnosis_id = 'configure-diagnosis-' ~ diagnosis.zone_key %}
+{# The goal's components are a list beside the one that's open. #}
 <div class="configure-diagnosis"
 	 data-configure-diagnosis="1"
 	 data-configure-zone="{{ diagnosis.zone_key }}"
 	 id="{{ diagnosis_id }}">
-	{% if diagnosis.problem_rows is not empty %}
-		{{ render_rows(diagnosis.problem_rows, diagnosis_id) }}
+	{# The tab names the goal briefly; its full name and what it's for head the page, with the goal's own filter
+	   on the same line. Embedded elsewhere, its own tab names it, and it has neither. #}
+	{% if not is_embedded %}
+		<div class="configure-diagnosis__heading">
+			<div class="configure-diagnosis__heading-copy">
+				<h2 class="configure-diagnosis__title">{{ diagnosis.zone_label }}</h2>
+				{% if goal_summary is not empty %}
+					<p class="configure-diagnosis__summary">{{ goal_summary }}</p>
+				{% endif %}
+			</div>
+			<div class="configure-zone-tools">
+				{% for link in diagnosis.goal_links %}
+					<a class="configure-zone-tools__link" href="{{ link.href }}" data-confirm-message="{{ link.confirm|e('html_attr') }}">
+						<i class="{{ link.icon_class }}" aria-hidden="true"></i>{{ link.label }}
+					</a>
+				{% endfor %}
+				<div class="configure-zone-tools__group" role="group" aria-label="{{ zone_tools.show_label }}">
+					<button type="button" class="configure-zone-chip" data-configure-zone-show="all" aria-pressed="true">{{ zone_tools.show_all }}</button>
+					{% if zone_tools.attention_count > 0 %}
+						<button type="button" class="configure-zone-chip" data-configure-zone-show="attention" aria-pressed="false">
+							{{ zone_tools.show_attention }} <span class="configure-zone-chip__count">{{ zone_tools.attention_count }}</span>
+						</button>
+					{% endif %}
+				</div>
+				<div class="configure-zone-tools__filter">
+					<label class="screen-reader-text" for="ConfigureZoneFilter-{{ diagnosis.zone_key }}">{{ zone_tools.filter_label }}</label>
+					<i class="bi bi-search" aria-hidden="true"></i>
+					<input type="search"
+						   id="ConfigureZoneFilter-{{ diagnosis.zone_key }}"
+						   class="form-control form-control-sm"
+						   data-configure-zone-filter="1"
+						   autocomplete="off"
+						   placeholder="{{ zone_tools.filter_placeholder }}">
+				</div>
+			</div>
+			<p class="configure-zone-tools__empty" data-configure-zone-empty="1" role="status" hidden>{{ zone_tools.filter_empty }}</p>
+		</div>
 	{% endif %}
 
-	{% if diagnosis.review_rows is not empty %}
-		{{ render_rows(diagnosis.review_rows, diagnosis_id) }}
-	{% endif %}
+	{# One frame for every component: a stack of cards, or in the component list, one joined panel. #}
+	{# Advanced options always comes last, whatever its state, so it's in the same place in every goal. #}
+	{% set advanced_rows = diagnosis.problem_rows|merge( diagnosis.review_rows )|merge( diagnosis.healthy_rows )|filter( r => r.key == 'advanced' ) %}
+	{% set problem_rows = diagnosis.problem_rows|filter( r => r.key != 'advanced' ) %}
+	{% set review_rows = diagnosis.review_rows|filter( r => r.key != 'advanced' ) %}
+	{% set healthy_rows = diagnosis.healthy_rows|filter( r => r.key != 'advanced' ) %}
+	<div class="configure-diagnosis__components">
+		{% if problem_rows is not empty %}
+			{{ render_rows(problem_rows, diagnosis_id, explanation_fixes, show_me_label) }}
+		{% endif %}
 
-	{% if diagnosis.healthy_rows is not empty %}
-		{{ render_rows(diagnosis.healthy_rows, diagnosis_id) }}
-	{% endif %}
+		{% if review_rows is not empty %}
+			{{ render_rows(review_rows, diagnosis_id, explanation_fixes, show_me_label) }}
+		{% endif %}
+
+		{% if healthy_rows is not empty %}
+			{{ render_rows(healthy_rows, diagnosis_id) }}
+		{% endif %}
+
+		{% if advanced_rows is not empty %}
+			{{ render_rows(advanced_rows, diagnosis_id, explanation_fixes, show_me_label) }}
+		{% endif %}
+	</div>
+
+	<div class="shield-actionbar"
+		 data-configure-savebar="1"
+		 data-count-one="{{ savebar.count_one|e('html_attr') }}"
+		 data-count-many="{{ savebar.count_many|e('html_attr') }}"
+		 data-saving-label="{{ savebar.saving|e('html_attr') }}"
+		 data-pin-mismatch="{{ savebar.pin_mismatch|e('html_attr') }}"
+		 role="region"
+		 aria-label="{{ savebar.label }}"
+		 hidden>
+		<span class="shield-actionbar__dot" aria-hidden="true"></span>
+		<span class="shield-actionbar__copy" aria-live="polite">
+			<strong data-configure-savebar-count="1"></strong>
+			<span class="shield-actionbar__where" data-configure-savebar-where="1"></span>
+		</span>
+		<button type="button" class="btn btn-sm shield-actionbar__secondary" data-configure-savebar-discard="1">{{ savebar.discard }}</button>
+		<button type="button" class="btn btn-primary btn-sm" data-configure-savebar-save="1">{{ savebar.save }}</button>
+	</div>
 </div>

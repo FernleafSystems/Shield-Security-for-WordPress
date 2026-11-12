@@ -2,19 +2,29 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\{
+	ExternalEntryGuard,
+	RequestFields
+};
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
 
 class LicenseScheduleCheck extends LicenseBase {
 
-	use Traits\NonceVerifyNotRequired;
 	use Traits\AuthNotRequired;
 
 	public const SLUG = 'license_schedule_check';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_ORDINARY => ExternalEntryGuard::PROOF_NONE,
+		];
+	}
+
 	protected function exec() {
 
-		$delay = $this->action_data[ 'delay' ] ?? null;
+		// An optional hint from the licence server: anything but a positive whole number means "no preference".
+		$delay = RequestFields::PositiveIntFrom( $this->action_data[ 'delay' ] ?? null );
 		try {
 			if ( ( new IpID( self::con()->this_req->ip ) )->run()[ 0 ] === ServiceProviders::PROVIDER_SHIELD ) {
 				$delay = 60;

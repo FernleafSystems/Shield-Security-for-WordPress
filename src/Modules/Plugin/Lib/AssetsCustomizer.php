@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\InvestigateTabs;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
@@ -71,7 +72,6 @@ class AssetsCustomizer {
 					'shield_vars_'.$handle,
 					[
 						'strings' => [
-							'select_action'        => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
 							'are_you_sure'         => __( 'Are you sure?', 'wp-simple-firewall' ),
 							'absolutely_sure'      => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
 							'cancel'               => __( 'Cancel', 'wp-simple-firewall' ),
@@ -216,11 +216,7 @@ class AssetsCustomizer {
 			],
 			'investigate_landing' => [
 				'key'      => 'investigate_landing',
-				'required' => PluginNavs::GetNav() === PluginNavs::NAV_ACTIVITY
-							  && (
-								  PluginNavs::GetSubNav() === PluginNavs::SUBNAV_ACTIVITY_OVERVIEW
-								  || PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::GetSubNav() ) !== ''
-							  ),
+				'required' => $this->isInvestigateLanding(),
 				'handles'  => [
 					'main',
 				],
@@ -312,27 +308,6 @@ class AssetsCustomizer {
 						'action' => ActionData::Build( Actions\MerlinAction::class )
 					],
 					'vars' => [
-						/** http://techlaboratory.net/jquery-smartwizard#advanced-options */
-						'smartwizard_cfg' => [
-							'selected'          => 0,
-							'theme'             => 'dots',
-							'justified'         => true,
-							'autoAdjustHeight'  => true,
-							'backButtonSupport' => true,
-							'enableUrlHash'     => true,
-							'lang'              => [
-								'next'     => __( 'Next Step', 'wp-simple-firewall' ),
-								'previous' => __( 'Previous Step', 'wp-simple-firewall' ),
-							],
-							'toolbar'           => [
-								// both, top, none
-								'position' => 'bottom',
-								//							'extraHtml'     => '<a href="https://testing.aptotechnologies.com/test1/wp-admin/admin.php?page=icwp-wpsf-insights&amp;inav=overview"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-left" viewBox="0 0 16 16">
-								//  <path fill-rule="evenodd" d="M6 12.5a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v2a.5.5 0 0 1-1 0v-2A1.5 1.5 0 0 1 6.5 2h8A1.5 1.5 0 0 1 16 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 5 12.5v-2a.5.5 0 0 1 1 0v2z"></path>
-								//  <path fill-rule="evenodd" d="M.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L1.707 7.5H10.5a.5.5 0 0 1 0 1H1.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"></path>
-								//</svg> Exit Wizard</a>',
-							],
-						]
 					]
 				],
 			],
@@ -432,13 +407,21 @@ class AssetsCustomizer {
 					],
 					'hrefs' => [
 						'actions_queue_scans' => $con->plugin_urls->actionsQueueScans(),
+						'scan_run'            => $con->plugin_urls->scansRun(),
 					],
 					'strings' => [
-						'modal_title'         => __( 'Scan Progress', 'wp-simple-firewall' ),
+						'indicator_running'   => __( 'Scans running', 'wp-simple-firewall' ),
+						'indicator_done'      => __( 'Scans finished. Refreshing...', 'wp-simple-firewall' ),
+						'indicator_failed'    => __( 'A scan failed', 'wp-simple-firewall' ),
+						'indicator_stale'     => __( "Progress couldn't be updated", 'wp-simple-firewall' ),
+						'indicator_view'      => __( 'View scan progress', 'wp-simple-firewall' ),
 						'modal_initiating'    => __( 'Preparing scans.', 'wp-simple-firewall' ),
 						'modal_wait'          => __( 'Please wait while the scan request starts.', 'wp-simple-firewall' ),
 						'modal_error_title'   => __( 'Scan failed.', 'wp-simple-firewall' ),
 						'modal_error_message' => __( 'Scan progress could not be updated.', 'wp-simple-firewall' ),
+						'modal_stale_title'   => __( "Scan progress couldn't be updated.", 'wp-simple-firewall' ),
+						'modal_stale_message' => __( 'Your scans may still be running.', 'wp-simple-firewall' ),
+						'refresh'             => __( 'Refresh', 'wp-simple-firewall' ),
 					],
 				],
 			],
@@ -450,19 +433,10 @@ class AssetsCustomizer {
 				'data'    => fn() => [
 					'ajax'    => [
 						'render_search_results' => ActionData::BuildAjaxRender( Components\SuperSearchResults::class ),
-						'select_search'         => ActionData::Build( Actions\PluginSuperSearch::class ),
 					],
 					'strings' => [
-						'enter_at_least_3_chars' => __( 'Search using whole words of at least 3 characters...', 'wp-simple-firewall' ),
-						'placeholder'            => sprintf( '%s (%s)',
-							__( 'Search for anything', 'wp-simple-firewall' ),
-							'e.g. '.\implode( ', ', [
-								__( 'IPs', 'wp-simple-firewall' ),
-								__( 'options', 'wp-simple-firewall' ),
-								__( 'tools', 'wp-simple-firewall' ),
-								__( 'help', 'wp-simple-firewall' ),
-							] )
-						),
+						'loading' => __( 'Searching...', 'wp-simple-firewall' ),
+						'error'   => __( 'The search could not be completed. Please try again.', 'wp-simple-firewall' ),
 					],
 				],
 			],
@@ -473,15 +447,13 @@ class AssetsCustomizer {
 				],
 				'data'    => function () {
 					$data = [];
-					if ( PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ) ) {
-						$data[ 'activity' ] = [
-							'ajax' => [
-								'table_action'     => ActionData::Build( Actions\ActivityLogTableAction::class ),
-								'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\SearchHelp::class ),
-							],
-							'vars' => [
-								'datatables_init' => ( new ForActivityLog() )->buildRaw(),
-							]
+					if ( $this->isInvestigateLanding() ) {
+						// Investigate holds the logs in its tabs, and starts each table when its tab first opens.
+						$data[ 'investigate_logs' ] = [
+							'activity' => $this->activityLogTableData(),
+							'requests' => $this->trafficLogTableData(),
+							'ip_rules' => $this->ipRulesTableData(),
+							'sessions' => $this->sessionsTableData(),
 						];
 					}
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT ) ) {
@@ -497,41 +469,6 @@ class AssetsCustomizer {
 							],
 							'vars' => [
 								'datatables_init' => ( new ForImportExportSites() )->buildRaw(),
-							]
-						];
-					}
-					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ) ) {
-						$data[ 'ip_rules' ] = [
-							'ajax' => [
-								'rule_delete'  => ActionData::Build( Actions\IpRuleDelete::class ),
-								'table_action' => ActionData::Build( Actions\IpRulesTableAction::class ),
-							],
-							'strings' => [
-								'are_you_sure' => __( 'Are you sure you want to delete this IP Rule?', 'wp-simple-firewall' ),
-							],
-							'vars' => [
-								'datatables_init' => ( new ForIpRules() )->buildRaw(),
-							]
-						];
-					}
-					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ) ) {
-						$data[ 'traffic' ] = [
-							'ajax' => [
-								'table_action'     => ActionData::Build( Actions\TrafficLogTableAction::class ),
-								'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\SearchHelp::class ),
-							],
-							'vars' => [
-								'datatables_init' => ( new ForTraffic() )->buildRaw(),
-							]
-						];
-					}
-					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS ) ) {
-						$data[ 'sessions' ] = [
-							'ajax' => [
-								'table_action' => ActionData::Build( Actions\SessionsTableAction::class ),
-							],
-							'vars' => [
-								'datatables_init' => ( new ForSessions() )->buildRaw(),
 							]
 						];
 					}
@@ -739,5 +676,83 @@ class AssetsCustomizer {
 
 	private function isPluginOnboardingRequired() :bool {
 		return ( ( new TourManager() )->getTour()[ 'is_available' ] ?? false ) === true;
+	}
+
+	/**
+	 * Investigate's own route, its subjects' routes, and each of its tabs' routes all show Investigate.
+	 */
+	private function isInvestigateLanding() :bool {
+		$nav = PluginNavs::GetNav();
+		$subNav = PluginNavs::GetSubNav();
+		return InvestigateTabs::forRoute( $nav, $subNav ) !== ''
+			   || ( $nav === PluginNavs::NAV_ACTIVITY && PluginNavs::investigateSubjectKeyForSubNav( $subNav ) !== '' );
+	}
+
+	private function activityLogTableData() :array {
+		return [
+			'ajax' => [
+				'table_action'     => ActionData::Build( Actions\ActivityLogTableAction::class ),
+				'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\SearchHelp::class ),
+			],
+			'vars' => [
+				'datatables_init' => ( new ForActivityLog() )->buildRaw(),
+			]
+		];
+	}
+
+	private function trafficLogTableData() :array {
+		return [
+			'ajax' => [
+				'table_action'     => ActionData::Build( Actions\TrafficLogTableAction::class ),
+				'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\SearchHelp::class ),
+			],
+			'vars' => [
+				'datatables_init' => ( new ForTraffic() )->buildRaw(),
+				'downloads'       => [
+					$this->tableDownload( __( 'Download Request Logs', 'wp-simple-firewall' ), 'traffic' ),
+				],
+			]
+		];
+	}
+
+	/**
+	 * A download a table offers among its own buttons. Downloads are a Pro feature.
+	 * @return array{label:string,href:string,is_available:bool}
+	 */
+	private function tableDownload( string $label, string $category ) :array {
+		return [
+			'label'        => $label,
+			'href'         => self::con()->plugin_urls->fileDownloadAsStream( $category ),
+			'is_available' => self::con()->isPremiumActive(),
+		];
+	}
+
+	private function ipRulesTableData() :array {
+		return [
+			'ajax'    => [
+				'rule_delete'  => ActionData::Build( Actions\IpRuleDelete::class ),
+				'table_action' => ActionData::Build( Actions\IpRulesTableAction::class ),
+			],
+			'strings' => [
+				'are_you_sure' => __( 'Are you sure you want to delete this IP Rule?', 'wp-simple-firewall' ),
+			],
+			'vars'    => [
+				'datatables_init' => ( new ForIpRules() )->buildRaw(),
+				'downloads'       => [
+					$this->tableDownload( __( 'Download IP Rules as CSV', 'wp-simple-firewall' ), 'ip_rules' ),
+				],
+			]
+		];
+	}
+
+	private function sessionsTableData() :array {
+		return [
+			'ajax' => [
+				'table_action' => ActionData::Build( Actions\SessionsTableAction::class ),
+			],
+			'vars' => [
+				'datatables_init' => ( new ForSessions() )->buildRaw(),
+			]
+		];
 	}
 }

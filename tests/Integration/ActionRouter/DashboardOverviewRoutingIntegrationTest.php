@@ -5,11 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
-	ActionResponse,
 	Actions\ScanResultsTableAction,
 	Actions\Render\ScanResultsLagWarning,
 	Actions\Render\Components\Widgets\MaintenanceIssueStateProvider,
-	Actions\Render\Components\Widgets\NeedsAttentionQueue,
 	Actions\Render\PluginAdminPages\CloakedPluginsQueueIssueProvider,
 	Actions\Render\PluginAdminPages\PageOperatorModeLanding,
 };
@@ -24,16 +22,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 	CloakedPluginFixtureTrait,
 	TestDataFactory
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	ActionRequestNonceFixture,
-	PluginAdminRouteRenderAssertions
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 
 class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ActionRequestNonceFixture;
 	use CloakedPluginFixtureTrait;
 	use PluginAdminRouteRenderAssertions;
 
@@ -83,45 +77,15 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		);
 	}
 
-	private function renderNeedsAttentionQueue() :ActionResponse {
-		return $this->processor()->processAction( NeedsAttentionQueue::SLUG );
+	private function attention() :array {
+		return self::con()->comps->site_query->attention();
 	}
 
-	private function getZoneGroupBySlug( array $renderData, string $slug ) :array {
-		$zoneGroups = $renderData[ 'vars' ][ 'zone_groups' ] ?? [];
-		$matches = \array_values( \array_filter(
-			\is_array( $zoneGroups ) ? $zoneGroups : [],
-			fn( $zone ) => \is_array( $zone ) && (string)( $zone[ 'slug' ] ?? '' ) === $slug
-		) );
-
-		$this->assertCount(
-			1,
-			$matches,
-			\sprintf( 'Expected exactly one "%s" zone group.', $slug )
-		);
-
-		return $matches[ 0 ] ?? [];
-	}
-
-	private function getZoneItemKeys( array $renderData ) :array {
-		$zoneGroups = \is_array( $renderData[ 'vars' ][ 'zone_groups' ] ?? null ) ? $renderData[ 'vars' ][ 'zone_groups' ] : [];
+	private function getZoneItemKeys( array $attention ) :array {
 		$itemKeys = [];
-
-		foreach ( $zoneGroups as $zoneGroup ) {
-			if ( !\is_array( $zoneGroup ) ) {
-				continue;
-			}
-			foreach ( $zoneGroup[ 'items' ] ?? [] as $item ) {
-				if ( !\is_array( $item ) ) {
-					continue;
-				}
-				$key = (string)( $item[ 'key' ] ?? '' );
-				if ( $key !== '' ) {
-					$itemKeys[] = $key;
-				}
-			}
+		foreach ( $attention[ 'groups' ] as $group ) {
+			$itemKeys = \array_merge( $itemKeys, \array_column( $group[ 'items' ], 'key' ) );
 		}
-
 		return $itemKeys;
 	}
 
@@ -214,37 +178,27 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			'ptg_slug'     => $pluginSlug,
 		] );
 
-		$payload = $this->renderNeedsAttentionQueue()->payload();
-		$renderData = $payload[ 'render_data' ] ?? [];
+		$attention = $this->attention();
 
-		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_items' ] ?? false ) );
-		$this->assertSame( 'critical', (string)( $renderData[ 'vars' ][ 'overall_severity' ] ?? '' ) );
-
-		$zone = $this->getZoneGroupBySlug( $renderData, 'scans' );
-		$this->assertSame( 'critical', (string)( $zone[ 'severity' ] ?? '' ) );
-		$this->assertSame( 3, (int)( $zone[ 'total_issues' ] ?? 0 ) );
-		$this->assertSame( 'critical', (string)( $renderData[ 'vars' ][ 'summary' ][ 'severity' ] ?? '' ) );
+		$this->assertFalse( $attention[ 'summary' ][ 'is_all_clear' ] );
+		$this->assertSame( 'critical', $attention[ 'summary' ][ 'severity' ] );
+		$this->assertSame( 'critical', $attention[ 'groups' ][ 'scans' ][ 'severity' ] );
+		$this->assertSame( 3, $attention[ 'groups' ][ 'scans' ][ 'total' ] );
 	}
 
 	public function test_scan_result_counts_refresh_after_memoization_reset() :void {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
 
-		$initialRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
-		$initialZone = $this->getZoneGroupBySlug( $initialRenderData, 'scans' );
-		$this->assertSame( 1, (int)( $initialZone[ 'total_issues' ] ?? 0 ) );
+		$this->assertSame( 1, $this->attention()[ 'groups' ][ 'scans' ][ 'total' ] );
 
 		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
 
-		$staleRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
-		$staleZone = $this->getZoneGroupBySlug( $staleRenderData, 'scans' );
-		$this->assertSame( 1, (int)( $staleZone[ 'total_issues' ] ?? 0 ) );
+		$this->assertSame( 1, $this->attention()[ 'groups' ][ 'scans' ][ 'total' ] );
 
 		$this->resetScanResultCountMemoization();
 
-		$refreshedRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
-		$refreshedZone = $this->getZoneGroupBySlug( $refreshedRenderData, 'scans' );
-		$this->assertSame( 2, (int)( $refreshedZone[ 'total_issues' ] ?? 0 ) );
+		$this->assertSame( 2, $this->attention()[ 'groups' ][ 'scans' ][ 'total' ] );
 	}
 
 	public function test_scan_result_counts_refresh_after_item_action_without_cleaning_unrelated_stale_rows() :void {
@@ -272,32 +226,23 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			'is_checksumfail' => 1,
 		] );
 
-		$initialRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
-		$initialZone = $this->getZoneGroupBySlug( $initialRenderData, 'scans' );
+		$initialZone = $this->attention()[ 'groups' ][ 'scans' ];
 		$initialItems = $this->getZoneItemsByKey( $initialZone );
-		$this->assertSame( 2, (int)( $initialZone[ 'total_issues' ] ?? 0 ) );
+		$this->assertSame( 2, $initialZone[ 'total' ] );
 		$this->assertSame( 2, (int)( $initialItems[ 'plugin_files' ][ 'count' ] ?? 0 ) );
 
-		$snapshot = $this->seedActionNonceContext( ScanResultsTableAction::class );
-
-		try {
-			$actionPayload = $this->processor()->processAction( ScanResultsTableAction::SLUG, ActionData::Build( ScanResultsTableAction::class, false, [
-				'sub_action' => 'ignore',
-				'rids'       => [ (int)$active[ 'result_item_id' ] ],
-			] ) )->payload();
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		$actionPayload = $this->processor()->processAction( ScanResultsTableAction::SLUG, ActionData::Build( ScanResultsTableAction::class, false, [
+			'sub_action' => 'ignore',
+			'rids'       => [ (int)$active[ 'result_item_id' ] ],
+		] ) )->payload();
 
 		$this->assertTrue( $actionPayload[ 'success' ] ?? false );
 		$this->assertTrue( $actionPayload[ 'table_reload' ] ?? false );
 		$this->assertFalse( $actionPayload[ 'page_reload' ] ?? true );
 
-		$refreshedRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
-		$refreshedZone = $this->getZoneGroupBySlug( $refreshedRenderData, 'scans' );
+		$refreshedZone = $this->attention()[ 'groups' ][ 'scans' ];
 		$refreshedItems = $this->getZoneItemsByKey( $refreshedZone );
-		$this->assertSame( 1, (int)( $refreshedZone[ 'total_issues' ] ?? -1 ) );
+		$this->assertSame( 1, $refreshedZone[ 'total' ] );
 		$this->assertSame( 1, (int)( $refreshedItems[ 'plugin_files' ][ 'count' ] ?? 0 ) );
 		$this->assertArrayNotHasKey( 'plugin_files_ignored', $refreshedItems );
 
@@ -326,57 +271,30 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$apcId = TestDataFactory::insertCompletedScan( 'apc' );
 		TestDataFactory::insertScanResultMeta( $apcId, 'is_abandoned' );
 
-		$renderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
-		$itemKeys = $this->getZoneItemKeys( $renderData );
+		$itemKeys = $this->getZoneItemKeys( $this->attention() );
 		$this->assertNotContains( 'malware', $itemKeys );
 		$this->assertNotContains( 'vulnerable_assets', $itemKeys );
 		$this->assertNotContains( 'abandoned', $itemKeys );
 	}
 
-	public function test_zone_chips_always_cover_all_security_zones() :void {
-		$payload = $this->renderNeedsAttentionQueue()->payload();
-		$renderData = $payload[ 'render_data' ] ?? [];
-		$chips = $renderData[ 'vars' ][ 'zone_chips' ] ?? [];
-		$expectedZoneSlugs = \array_keys( self::con()->comps->zones->getZones() );
-
-		$this->assertCount( \count( $expectedZoneSlugs ), $chips );
-		$this->assertSame(
-			$expectedZoneSlugs,
-			\array_column( $chips, 'slug' )
-		);
-	}
-
 	public function test_operational_issue_adds_action_item() :void {
 		$this->setPluginUpdateAvailable();
 
-		$renderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
-		$zone = $this->getZoneGroupBySlug( $renderData, 'maintenance' );
-		$itemKeys = \array_column( $zone[ 'items' ] ?? [], 'key' );
+		$attention = $this->attention();
+		$itemKeys = \array_column( $attention[ 'groups' ][ 'maintenance' ][ 'items' ], 'key' );
 
-		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_items' ] ?? false ) );
+		$this->assertFalse( $attention[ 'summary' ][ 'is_all_clear' ] );
 		$this->assertContains( 'wp_plugins_updates', $itemKeys );
-	}
-
-	public function test_last_scan_subtext_omitted_when_no_completed_scan() :void {
-		$payload = $this->renderNeedsAttentionQueue()->payload();
-		$renderData = $payload[ 'render_data' ] ?? [];
-
-		$this->assertSame( '', (string)( $renderData[ 'strings' ][ 'last_scan_subtext' ] ?? '' ) );
-		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'summary' ][ 'subtext' ] ?? '' ) );
 	}
 
 	public function test_dashboard_strip_remains_attention_group_owned_while_scans_are_in_flight() :void {
 		$this->insertUnfinishedScan( 'afs', 'queued' );
 
-		$widgetPayload = $this->renderNeedsAttentionQueue()->payload();
-		$widgetData = $widgetPayload[ 'render_data' ] ?? [];
 		$dashboardPayload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
 		$dashboardData = $dashboardPayload[ 'render_data' ] ?? [];
 		$warning = ( new ScanResultsLagWarning() )->getText();
 
 		$this->assertNotSame( '', $warning );
-		$this->assertSame( $warning, (string)( $widgetData[ 'strings' ][ 'status_strip_subtext' ] ?? '' ) );
-		$this->assertSame( $warning, (string)( $widgetData[ 'vars' ][ 'summary' ][ 'subtext' ] ?? '' ) );
 		$this->assertSame( 'warning', (string)( $dashboardData[ 'vars' ][ 'dashboard_strip' ][ 'overall' ][ 'status' ] ?? '' ) );
 		$this->assertSame( $warning, (string)( $dashboardData[ 'vars' ][ 'dashboard_strip' ][ 'overall' ][ 'summary' ] ?? '' ) );
 	}
@@ -457,7 +375,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertArrayNotHasKey( 'minimize', $liveMonitor );
 		$this->assertArrayNotHasKey( 'expand', $liveMonitor );
 		$this->assertSame(
-			[ 'dashboard_activity_chart_data_json', 'dashboard_activity_charts', 'dashboard_activity_charts_heading', 'dashboard_launchpad_heading', 'dashboard_strip', 'destination_cards', 'dashboard_task_guide', 'live_monitor' ],
+			[ 'dashboard_activity_chart_data_json', 'dashboard_activity_charts', 'dashboard_activity_charts_heading', 'dashboard_activity_charts_link', 'dashboard_activity_charts_href', 'dashboard_recent_events', 'dashboard_recent_events_heading', 'dashboard_recent_events_week_label', 'dashboard_recent_events_link', 'dashboard_recent_events_href', 'dashboard_recent_events_unrecorded_label', 'dashboard_launchpad_heading', 'dashboard_strip', 'launchpad', 'destination_cards', 'dashboard_task_guide', 'live_monitor' ],
 			\array_keys( $renderData[ 'vars' ] ?? [] )
 		);
 		$chartData = \json_decode(
@@ -600,7 +518,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			$this->assertSame( 'critical', $assessmentRow[ 'status' ] ?? null );
 			$this->assertNotSame( '', $assessmentRow[ 'description' ] ?? '' );
 			$this->assertCount( 1, $provider->attentionItems() );
-			$this->assertSame( 'critical', $provider->railPaneData()[ 'status' ] );
+			$this->assertCount( 1, $provider->queueRows()[ 'active' ] );
 		}
 		finally {
 			\remove_filter( 'all_plugins', [ $this, 'hideCloakedPluginOnlyOnPluginsPage' ], 1000 );

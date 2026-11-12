@@ -9,10 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type AttentionItem from \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems
  * @phpstan-import-type GroupData from ActionsQueueGroupsBuilder
  * @phpstan-import-type GroupSectionData from ActionsQueueGroupsBuilder
- * @phpstan-import-type GroupLink from ActionsQueueGroupsBuilder
  * @phpstan-import-type GroupManagementLink from ActionsQueueGroupsBuilder
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
- * @phpstan-import-type OperatorChromeActionInput from OperatorChromeContract
  * @phpstan-type GroupSeed array{
  *   key:string,
  *   definition_key:string,
@@ -21,9 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   status:string,
  *   narrative:string,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
- *   card_type_override?:'expandable'|'linked'|'category',
  *   icon_class_override?:string,
- *   links:list<GroupLink>,
  *   management_link:array{}|GroupManagementLink,
  *   is_interactive_override?:bool,
  *   is_pro_upsell?:bool,
@@ -35,13 +31,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   header_badge_override?:string,
  *   header_badge_status_override?:string,
  *   header_color_key_override?:string,
- *   context_actions_override?:list<OperatorChromeActionInput>,
- *   suppress_detail_render_action_if_noninteractive?:bool,
- *   detail_table:array<string,mixed>,
  *   render_action_class_override?:class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender>,
  *   render_action_data_override?:array<string,mixed>,
  *   attention_items:list<AttentionItem>,
  *   maintenance_rows:list<CompactSummaryRow>,
+ *   ignored_rows?:list<CompactSummaryRow>,
  *   summary_row:array{}|CompactSummaryRow
  * }
  * @phpstan-type ResolvedGroups array{
@@ -52,6 +46,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-type GroupSectionEntry array{
  *   section_key:string,
  *   heading_label:string,
+ *   heading_icon:string,
  *   group:GroupData
  * }
  */
@@ -63,7 +58,6 @@ class ActionsQueueGroupContractBuilder {
 	private ActionsQueueDrillDownPresentationBuilder $presentation;
 	private ActionsQueueAssetMetadataResolver $assetMetadataResolver;
 	private ScanResultsDisplayOptions $queueScanResultsOptions;
-	private ActionsQueueContextActionsBuilder $contextActionsBuilder;
 	private ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder;
 	private ActionsQueueScanResultScopeResolver $scanResultScopeResolver;
 
@@ -72,7 +66,6 @@ class ActionsQueueGroupContractBuilder {
 		ActionsQueueDrillDownPresentationBuilder $presentation,
 		?ActionsQueueAssetMetadataResolver $assetMetadataResolver = null,
 		?ScanResultsDisplayOptions $queueScanResultsOptions = null,
-		?ActionsQueueContextActionsBuilder $contextActionsBuilder = null,
 		?ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder = null,
 		?ActionsQueueScanResultScopeResolver $scanResultScopeResolver = null
 	) {
@@ -81,10 +74,6 @@ class ActionsQueueGroupContractBuilder {
 		$this->assetMetadataResolver = $assetMetadataResolver ?? new ActionsQueueAssetMetadataResolver();
 		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ScanResultsDisplayOptions();
 		$this->scanResultScopeResolver = $scanResultScopeResolver ?? new ActionsQueueScanResultScopeResolver();
-		$this->contextActionsBuilder = $contextActionsBuilder ?? new ActionsQueueContextActionsBuilder(
-			$this->queueScanResultsOptions,
-			$this->scanResultScopeResolver
-		);
 		$this->scanResultScopeStateBuilder = $scanResultScopeStateBuilder ?? new ActionsQueueScanResultScopeStateBuilder(
 			null,
 			$this->queueScanResultsOptions
@@ -141,7 +130,6 @@ class ActionsQueueGroupContractBuilder {
 				$renderActionData
 			),
 			$narrative,
-			[],
 			$headerOverrides
 		);
 
@@ -156,15 +144,14 @@ class ActionsQueueGroupContractBuilder {
 			'card_type'           => $definition[ 'card_type' ],
 			'narrative'           => $narrative,
 			'drill_hint'          => '',
-			'links'               => [],
+			'drill_icon'          => 'bi bi-search',
 			'management_link'     => [],
 			'is_interactive'      => false,
 			'is_pro_upsell'      => false,
 			'enable_dialog_json' => '',
-			'detail_table'        => [],
-			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $renderActionData,
 			'maintenance_rows'    => [],
+			'ignored_rows'        => [],
 			'summary_row'         => [],
 			'selection'           => $selection,
 		];
@@ -207,7 +194,6 @@ class ActionsQueueGroupContractBuilder {
 				$renderActionData
 			),
 			$narrative,
-			[],
 			$headerOverrides
 		);
 
@@ -222,15 +208,14 @@ class ActionsQueueGroupContractBuilder {
 			'card_type'           => 'expandable',
 			'narrative'           => $narrative,
 			'drill_hint'          => '',
-			'links'               => [],
+			'drill_icon'          => 'bi bi-search',
 			'management_link'     => [],
 			'is_interactive'      => false,
 			'is_pro_upsell'      => false,
 			'enable_dialog_json' => '',
-			'detail_table'        => [],
-			'render_action_class' => ActionsQueueAssetFileStatusDetail::class,
 			'render_action_data'  => $renderActionData,
 			'maintenance_rows'    => [],
+			'ignored_rows'        => [],
 			'summary_row'         => [],
 			'selection'           => $selection,
 		];
@@ -255,6 +240,7 @@ class ActionsQueueGroupContractBuilder {
 			$entry = [
 				'section_key'   => $this->groupDefinitions->sectionKeyForGroupKey( $seed[ 'definition_key' ] ),
 				'heading_label' => $this->groupDefinitions->sectionLabelForGroupKey( $seed[ 'definition_key' ] ),
+				'heading_icon'  => $this->groupDefinitions->sectionIconForGroupKey( $seed[ 'definition_key' ] ),
 				'group'         => $group,
 			];
 			if ( $this->isActiveStatus( $group[ 'status' ] ) ) {
@@ -290,8 +276,9 @@ class ActionsQueueGroupContractBuilder {
 		$narrative = $seed[ 'narrative' ] !== ''
 			? $seed[ 'narrative' ]
 			: $this->buildNarrative( $seed[ 'definition_key' ], $seed[ 'item_count' ] );
+		$renderActionClass = $seed[ 'render_action_class_override' ] ?? $definition[ 'render_action_class' ];
 		$isInteractive = $seed[ 'is_interactive_override' ]
-			?? $this->determineInteractivity( $seed );
+			?? ( $renderActionClass !== null && $this->determineInteractivity( $seed ) );
 		$renderActionData = $seed[ 'render_action_data_override' ]
 			?? $definition[ 'render_action_data' ];
 		$scopeCounts = $this->buildScanResultsScopeCountsForGroup( $seed[ 'definition_key' ], $renderActionData );
@@ -299,20 +286,6 @@ class ActionsQueueGroupContractBuilder {
 			$isInteractive = true;
 			$renderActionData = $definition[ 'render_action_data' ];
 		}
-		$suppressDetailRenderAction = !$isInteractive
-			&& !empty( $seed[ 'suppress_detail_render_action_if_noninteractive' ] );
-		if ( $suppressDetailRenderAction ) {
-			$renderActionData = [];
-		}
-		$contextActions = \array_key_exists( 'context_actions_override', $seed )
-			? $seed[ 'context_actions_override' ]
-			: $this->contextActionsBuilder->buildForGroup(
-				$seed[ 'definition_key' ],
-				$seed[ 'label' ],
-				$seed[ 'detail_shell' ],
-				$seed[ 'item_count' ],
-				$renderActionData
-			);
 		$seedHeaderOverrides = \array_filter( [
 			'summary'      => $seed[ 'header_summary_override' ] ?? '',
 			'focus'        => $seed[ 'header_focus_override' ] ?? '',
@@ -333,15 +306,8 @@ class ActionsQueueGroupContractBuilder {
 			$iconClass,
 			$seed[ 'item_count' ],
 			$seed[ 'detail_shell' ],
-			$suppressDetailRenderAction
-				? []
-				: $this->buildDetailRenderAction(
-					$seed[ 'render_action_class_override' ]
-						?? $definition[ 'render_action_class' ],
-					$renderActionData
-				),
+			$this->buildDetailRenderAction( $renderActionClass, $renderActionData ),
 			$narrative,
-			$contextActions,
 			$headerOverrides
 		);
 
@@ -353,7 +319,7 @@ class ActionsQueueGroupContractBuilder {
 			'status_label'        => $seed[ 'status_label_override' ] ?? $this->standardStatusLabel( $seed[ 'status' ] ),
 			'icon_class'          => $iconClass,
 			'detail_shell'        => $seed[ 'detail_shell' ],
-			'card_type'           => $seed[ 'card_type_override' ] ?? $definition[ 'card_type' ],
+			'card_type'           => $definition[ 'card_type' ],
 			'narrative'           => $narrative,
 			'drill_hint'          => $this->buildDrillHint(
 				$seed[ 'definition_key' ],
@@ -361,16 +327,16 @@ class ActionsQueueGroupContractBuilder {
 				$seed[ 'detail_shell' ],
 				$seed[ 'status' ]
 			),
-			'links'               => $seed[ 'links' ],
+			'drill_icon'          => $this->isFileLockerToManage( $seed[ 'definition_key' ], $seed[ 'item_count' ] )
+				? 'bi bi-file-lock2'
+				: 'bi bi-search',
 			'management_link'     => $seed[ 'management_link' ],
 			'is_interactive'      => $isInteractive,
 			'is_pro_upsell'      => (bool)( $seed[ 'is_pro_upsell' ] ?? false ),
 			'enable_dialog_json' => $seed[ 'enable_dialog_json' ] ?? '',
-			'detail_table'        => $seed[ 'detail_table' ],
-			'render_action_class' => $seed[ 'render_action_class_override' ]
-				?? $definition[ 'render_action_class' ],
 			'render_action_data'  => $renderActionData,
 			'maintenance_rows'    => $seed[ 'maintenance_rows' ],
+			'ignored_rows'        => $seed[ 'ignored_rows' ] ?? [],
 			'summary_row'         => $seed[ 'summary_row' ],
 			'selection'           => $selection,
 		];
@@ -435,7 +401,18 @@ class ActionsQueueGroupContractBuilder {
 		}
 	}
 
+	/**
+	 * File Locker with no changed files to look at is in the queue for files left unlocked: its row manages
+	 * the locks.
+	 */
+	private function isFileLockerToManage( string $definitionKey, int $itemCount ) :bool {
+		return $definitionKey === 'file_locker' && $itemCount < 1;
+	}
+
 	private function buildDrillHint( string $definitionKey, int $itemCount, string $detailShell, string $status ) :string {
+		if ( $this->isFileLockerToManage( $definitionKey, $itemCount ) ) {
+			return __( 'Manage', 'wp-simple-firewall' );
+		}
 		if ( $itemCount < 1 || $detailShell === 'maintenance' || $status === 'good' ) {
 			return '';
 		}
@@ -447,10 +424,6 @@ class ActionsQueueGroupContractBuilder {
 			case 'malware':
 			case 'file_locker':
 				$pattern = _n( 'View %s file', 'View %s files', $itemCount, 'wp-simple-firewall' );
-				break;
-
-			case 'hidden_plugins':
-				$pattern = _n( 'View %s cloaked plugin', 'View %s cloaked plugins', $itemCount, 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -468,6 +441,7 @@ class ActionsQueueGroupContractBuilder {
 			\usort( $section[ 'groups' ], fn( array $left, array $right ) :int => $this->compareGroups( $left, $right, false ) );
 			return [
 				'heading_label' => $section[ 'heading_label' ],
+				'heading_icon'  => $section[ 'heading_icon' ],
 				'groups'        => $section[ 'groups' ],
 			];
 		}, $sections ) );
@@ -484,6 +458,7 @@ class ActionsQueueGroupContractBuilder {
 		return \array_values( \array_map( function ( array $section ) :array {
 			return [
 				'heading_label' => $section[ 'heading_label' ],
+				'heading_icon'  => $section[ 'heading_icon' ],
 				'groups'        => $section[ 'groups' ],
 			];
 		}, $sections ) );
@@ -494,6 +469,7 @@ class ActionsQueueGroupContractBuilder {
 	 * @return list<array{
 	 *   section_key:string,
 	 *   heading_label:string,
+	 *   heading_icon:string,
 	 *   groups:list<GroupData>
 	 * }>
 	 */
@@ -505,6 +481,7 @@ class ActionsQueueGroupContractBuilder {
 				$sections[ $sectionKey ] = [
 					'section_key'    => $sectionKey,
 					'heading_label'  => $entry[ 'heading_label' ],
+					'heading_icon'   => $entry[ 'heading_icon' ],
 					'groups'        => [],
 				];
 			}
@@ -515,8 +492,8 @@ class ActionsQueueGroupContractBuilder {
 	}
 
 	/**
-	 * @param array{section_key:string,heading_label:string,groups:list<GroupData>} $left
-	 * @param array{section_key:string,heading_label:string,groups:list<GroupData>} $right
+	 * @param array{section_key:string,heading_label:string,heading_icon:string,groups:list<GroupData>} $left
+	 * @param array{section_key:string,heading_label:string,heading_icon:string,groups:list<GroupData>} $right
 	 */
 	private function compareActiveSections( array $left, array $right ) :int {
 		$statusCmp = StatusPriority::rank( StatusPriority::highest( \array_column( $right[ 'groups' ], 'status' ) ) )
@@ -606,10 +583,8 @@ class ActionsQueueGroupContractBuilder {
 	 */
 	private function determineInteractivity( array $seed ) :bool {
 		return $seed[ 'detail_shell' ] !== 'maintenance'
-			&& ( $seed[ 'card_type_override' ] ?? '' ) !== 'linked'
 			&& (
-				!empty( $seed[ 'detail_table' ] )
-				|| !empty( $seed[ 'render_action_class_override' ] )
+				!empty( $seed[ 'render_action_class_override' ] )
 				|| !empty( $seed[ 'render_action_data_override' ] )
 				|| $seed[ 'item_count' ] > 0
 			);
@@ -741,12 +716,13 @@ class ActionsQueueGroupContractBuilder {
 	}
 
 	/**
-	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender> $renderActionClass
+	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender>|null $renderActionClass
+	 *        null for a group with no detail to open
 	 * @param array<string,mixed> $renderActionData
 	 * @return array<string,mixed>
 	 */
-	private function buildDetailRenderAction( string $renderActionClass, array $renderActionData ) :array {
-		return ActionData::BuildAjaxRender( $renderActionClass, $renderActionData );
+	private function buildDetailRenderAction( ?string $renderActionClass, array $renderActionData ) :array {
+		return $renderActionClass === null ? [] : ActionData::BuildAjaxRender( $renderActionClass, $renderActionData );
 	}
 
 }

@@ -19,12 +19,4 @@ class Svgs {
 	public function iconClass( string $icon ) :string {
 		return \sprintf( 'bi bi-%s', (string)\preg_replace( '#\.svg$#i', '', \ltrim( \trim( $icon ), '/' ) ) );
 	}
-
-	public function rawImage( string $image ) :string {
-		return (string)Services::WpFs()->getFileContent( self::con()->paths->forImage( $image ) );
-	}
-
-	public function url( string $image ) :string {
-		return self::con()->urls->forImage( $image );
-	}
 }

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
+	ActionResponse,
 	Actions\AjaxRender,
 	Actions\AjaxBatchRequests,
 	Actions\BaseAction,
@@ -19,16 +20,30 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\Components\ToastPlaceholder,
 	Actions\Render\FullPage\Block\BlockTrafficRateLimitExceeded,
 	Exceptions\ActionException,
-	Exceptions\UserAuthRequiredException
+	Exceptions\UserAuthRequiredException,
+	Utility\ExternalEntryGuard
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\RegistersTestActions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
+
+	use RegistersTestActions;
 
 	public function set_up() {
 		parent::set_up();
 
 		$this->loginAsAdministrator();
+		$this->registerTestActions(
+			AjaxBatchUnexpectedThrowableAction::class,
+			AjaxBatchConstructionCountingAction::class,
+			AjaxBatchUndeclaredCountingAction::class
+		);
+	}
+
+	public function tear_down() {
+		$this->unregisterTestActions();
+		parent::tear_down();
 	}
 
 	private function processor() :ActionProcessor {
@@ -308,23 +323,24 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_batch_rejects_direct_render_class_name_subrequest_by_transport_policy() :void {
-		$subrequest = ActionData::Build( ToastPlaceholder::class );
-		$subrequest[ ActionData::FIELD_EXECUTE ] = ToastPlaceholder::class;
+	public function test_batch_subrequest_cannot_name_an_action_by_its_class() :void {
+		// A registered action that AJAX admits, named by class instead of by slug.
+		$subrequest = ActionData::Build( PluginBadgeClose::class );
+		$subrequest[ ActionData::FIELD_EXECUTE ] = PluginBadgeClose::class;
 
 		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
 			'requests' => [
 				[
-					'id'      => 'direct_render_class',
+					'id'      => 'named_by_class',
 					'request' => $subrequest,
 				],
 			],
 		] );
 
 		$this->assertBatchFailure(
-			$response->payload()[ 'results' ][ 'direct_render_class' ] ?? [],
+			$response->payload()[ 'results' ][ 'named_by_class' ] ?? [],
 			400,
-			AjaxBatchRequests::ERROR_ACTION_TRANSPORT_NOT_ALLOWED
+			AjaxBatchRequests::ERROR_ACTION_NOT_FOUND
 		);
 	}
 
@@ -390,6 +406,7 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_batch_ajax_render_subrequest_allows_policy_approved_render_target() :void {
+		$this->loginAsSecurityAdmin();
 		$subrequest = ActionData::BuildAjaxRender( Wordpress::class, [
 			'display_context' => 'actions_queue',
 		] );
@@ -479,7 +496,6 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 
 	public function test_batch_subrequest_reports_unexpected_throwable_as_machine_code() :void {
 		$subrequest = ActionData::Build( AjaxBatchUnexpectedThrowableAction::class );
-		$subrequest[ ActionData::FIELD_EXECUTE ] = AjaxBatchUnexpectedThrowableAction::class;
 
 		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
 			'requests' => [
@@ -497,6 +513,73 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_batch_requests_keyed_by_names_are_processed_as_a_list() :void {
+		$results = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				'first'  => [
+					'id'      => 'bad_nonce',
+					'request' => $this->invalidBadgeCloseRequest(),
+				],
+				'second' => [
+					'request' => $this->invalidBadgeCloseRequest(),
+				],
+			],
+		] )->payload()[ 'results' ] ?? [];
+
+		$this->assertBatchFailure( $results[ 'bad_nonce' ] ?? [], 401, AjaxBatchRequests::ERROR_INVALID_NONCE );
+		$this->assertBatchFailure( $results[ 'item_1' ] ?? [], 401, AjaxBatchRequests::ERROR_INVALID_NONCE );
+	}
+
+	public function test_batch_items_refused_at_the_boundary_are_never_built() :void {
+		AjaxBatchConstructionCountingAction::$constructed = 0;
+		AjaxBatchNotAnAction::$constructed = 0;
+
+		$badNonce = ActionData::Build( AjaxBatchConstructionCountingAction::class );
+		$badNonce[ ActionData::FIELD_NONCE ] = 'invalid_nonce';
+
+		$undeclared = ActionData::Build( AjaxBatchUndeclaredCountingAction::class );
+
+		$notAnAction = ActionData::Build( AjaxBatchConstructionCountingAction::class );
+		$notAnAction[ ActionData::FIELD_EXECUTE ] = AjaxBatchNotAnAction::class;
+
+		$results = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'bad_nonce',
+					'request' => $badNonce,
+				],
+				[
+					'id'      => 'undeclared',
+					'request' => $undeclared,
+				],
+				[
+					'id'      => 'not_an_action',
+					'request' => $notAnAction,
+				],
+			],
+		] )->payload()[ 'results' ] ?? [];
+
+		$this->assertBatchFailure( $results[ 'bad_nonce' ] ?? [], 401, AjaxBatchRequests::ERROR_INVALID_NONCE );
+		$this->assertBatchFailure( $results[ 'undeclared' ] ?? [], 400, AjaxBatchRequests::ERROR_ACTION_TRANSPORT_NOT_ALLOWED );
+		$this->assertBatchFailure( $results[ 'not_an_action' ] ?? [], 400, AjaxBatchRequests::ERROR_ACTION_NOT_FOUND );
+		$this->assertSame( 0, AjaxBatchConstructionCountingAction::$constructed );
+		$this->assertSame( 0, AjaxBatchNotAnAction::$constructed );
+
+		// The same item with a genuine nonce is built and run, so the count above is meaningful.
+		$valid = ActionData::Build( AjaxBatchConstructionCountingAction::class );
+		$results = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'valid',
+					'request' => $valid,
+				],
+			],
+		] )->payload()[ 'results' ] ?? [];
+
+		$this->assertTrue( (bool)( $results[ 'valid' ][ 'success' ] ?? false ) );
+		$this->assertSame( 1, AjaxBatchConstructionCountingAction::$constructed );
+	}
+
 	private function assertBatchFailure( array $result, int $statusCode, string $errorCode ) :void {
 		$this->assertFalse( (bool)( $result[ 'success' ] ?? true ) );
 		$this->assertSame( $statusCode, (int)( $result[ 'status_code' ] ?? 0 ) );
@@ -510,15 +593,62 @@ class AjaxBatchUnexpectedThrowableAction extends BaseAction {
 
 	public const SLUG = 'ajax_batch_unexpected_throwable_test_action';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function getMinimumUserAuthCapability() :string {
 		return '';
 	}
 
-	protected function isNonceVerifyRequired() :bool {
-		return false;
+	protected function exec() {
+		throw new \RuntimeException( 'unexpected batch throwable' );
+	}
+}
+
+class AjaxBatchConstructionCountingAction extends BaseAction {
+
+	public const SLUG = 'ajax_batch_construction_counting_test_action';
+
+	public static int $constructed = 0;
+
+	public function __construct( array $data = [], ?ActionResponse $response = null ) {
+		self::$constructed++;
+		parent::__construct( $data, $response );
+	}
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
+	protected function getMinimumUserAuthCapability() :string {
+		return '';
 	}
 
 	protected function exec() {
-		throw new \RuntimeException( 'unexpected batch throwable' );
+		$this->response()->setPayloadSuccess( true );
+	}
+}
+
+/**
+ * Declares no access of its own, and declarations are not inherited, so no entry point admits it.
+ */
+class AjaxBatchUndeclaredCountingAction extends AjaxBatchConstructionCountingAction {
+
+	public const SLUG = 'ajax_batch_undeclared_counting_test_action';
+}
+
+class AjaxBatchNotAnAction {
+
+	public const SLUG = 'ajax_batch_not_an_action';
+
+	public static int $constructed = 0;
+
+	public function __construct() {
+		self::$constructed++;
 	}
 }

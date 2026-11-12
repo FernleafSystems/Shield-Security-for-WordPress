@@ -13,12 +13,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\RunStat
  */
 abstract class ScansBase extends BaseAction {
 
-	use Traits\NonceVerifyRequired;
-
 	public const SCAN_MODAL_STATE_INITIATING = 'initiating';
 	public const SCAN_MODAL_STATE_RUNNING = 'running';
 	public const SCAN_MODAL_STATE_COMPLETED = 'completed';
 	public const SCAN_MODAL_STATE_FAILED = 'failed';
+
+	/**
+	 * The Run Manual Scan page shows progress and results in the page itself, so it asks for that markup instead.
+	 */
 
 	/**
 	 * @param list<int> $startedScanIDs
@@ -66,6 +68,7 @@ abstract class ScansBase extends BaseAction {
 				? 100
 				: $this->currentScanProgressFromRows( $scanRows ),
 			'scan_rows'       => $scanRows,
+			'scan_slugs'      => $this->scanSlugsForIDs( $startedScanIDs ),
 		] ) );
 	}
 
@@ -73,22 +76,7 @@ abstract class ScansBase extends BaseAction {
 	 * @return list<int>
 	 */
 	protected function startedScanIdsFromActionData() :array {
-		return \array_values( \array_unique( \array_filter( \array_map(
-			fn( $value ) :int => $this->positiveScanIDFromValue( $value ),
-			\is_array( $this->action_data[ 'scan_ids' ] ?? null ) ? $this->action_data[ 'scan_ids' ] : []
-		) ) ) );
-	}
-
-	/**
-	 * @param mixed $value
-	 */
-	protected function positiveScanIDFromValue( $value ) :int {
-		if ( !\is_int( $value ) && !\is_string( $value ) ) {
-			return 0;
-		}
-
-		$scanID = \filter_var( $value, \FILTER_VALIDATE_INT );
-		return \is_int( $scanID ) && $scanID > 0 ? $scanID : 0;
+		return \array_values( \array_unique( $this->fields()->positiveIntList( 'scan_ids', [] ) ) );
 	}
 
 	/**
@@ -97,7 +85,8 @@ abstract class ScansBase extends BaseAction {
 	 *   current_scan:string,
 	 *   remaining_scans:string,
 	 *   progress:int|float,
-	 *   scan_rows:list<ActiveScanProgressRow>
+	 *   scan_rows:list<ActiveScanProgressRow>,
+	 *   scan_slugs:list<string>
 	 * } $renderData
 	 * @return array{modal_state:ScanModalState,modal_html:string}
 	 */
@@ -111,6 +100,21 @@ abstract class ScansBase extends BaseAction {
 			'modal_state' => $modalState,
 			'modal_html'  => self::con()->action_router->render( ScansProgress::class, $renderData ),
 		];
+	}
+
+	/**
+	 * @param list<int> $scanIDs
+	 * @return list<string>
+	 */
+	private function scanSlugsForIDs( array $scanIDs ) :array {
+		if ( empty( $scanIDs ) ) {
+			return [];
+		}
+
+		$scans = self::con()->db_con->scans->getQuerySelector()
+					  ->filterByIDs( $scanIDs )
+					  ->queryWithResult();
+		return \array_values( \array_unique( \array_map( fn( $scan ) :string => (string)$scan->scan, \is_array( $scans ) ? $scans : [] ) ) );
 	}
 
 	/**

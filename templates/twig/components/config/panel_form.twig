@@ -1,0 +1,47 @@
+{#
+	A Configure topic laid out as its own panel. It is a normal options form underneath (same fields, same
+	save action), so saving, unsaved markers and search focus all work as they do elsewhere.
+#}
+{% import '/components/config/panel_macros.twig' as panel %}
+
+<form method="post"
+	  class="options_form_for options_form_for--modern options_form_for--panel form py-0"
+	  novalidate="novalidate"
+	  autocomplete="off"
+	  data-context="{{ vars.form_context }}"
+	  data-options-save-action="{{ vars.options_save_action }}"
+	  data-transfer-action="{{ vars.transfer_action }}"
+>
+	<input type="hidden" name="all_opts_keys" value="{{ vars.all_opts_keys|join(',') }}" />
+
+	<div class="shield-panel">
+		{# Reasons that don't belong to one particular setting. #}
+		{% if vars.panel.notices is not empty %}
+			<ul class="shield-panel-notices">
+				{% for notice in vars.panel.notices %}
+					<li class="shield-panel-issue {{ notice.severity == 'critical' ? 'shield-panel-issue--critical' : 'shield-panel-issue--warning' }}">
+						<i class="bi {{ notice.severity == 'critical' ? 'bi-x-circle-fill' : 'bi-exclamation-triangle-fill' }}" aria-hidden="true"></i>
+						<span>{{ notice.text }}</span>
+					</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+
+		{% for block in vars.panel.blocks %}
+			<div class="shield-panel-block">
+				{% if block.heading is not empty %}
+					<div class="shield-panel-heading">{{ block.heading }}</div>
+				{% endif %}
+				{% for item in block.items %}
+					{{ panel.item( item, strings, hrefs ) }}
+				{% endfor %}
+			</div>
+		{% endfor %}
+
+	</div>
+
+	{# Within Configure one save bar serves the page and this is hidden; elsewhere, such as a side panel, the panel saves itself. #}
+	<div class="shield-options-rail-save shield-detail-expansion__footer">
+		<button type="submit" class="btn btn-primary icwp-form-button w-auto" name="submit">{{ strings.save_all_settings }}</button>
+	</div>
+</form>

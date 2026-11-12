@@ -7,7 +7,29 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 
 abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\Base {
 
+	/**
+	 * Explanation text => the option key that resolves it, so Configure can link straight to the setting.
+	 * Static because component instances are created afresh by each consumer.
+	 * @var array<string,string>
+	 */
+	private static array $explanationOptionKeys = [];
+
 	protected function run() {
+	}
+
+	/**
+	 * Records which option fixes an explanation, and returns the explanation so it can be added inline.
+	 */
+	protected function explanationFixedBy( string $explanation, string $optionKey ) :string {
+		self::$explanationOptionKeys[ \trim( $explanation ) ] = $optionKey;
+		return $explanation;
+	}
+
+	/**
+	 * @return array<string,string> explanation text => option key, for explanations built so far in this request
+	 */
+	public static function explanationFixLookup() :array {
+		return self::$explanationOptionKeys;
 	}
 
 	public function title() :string {
@@ -28,10 +50,6 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 
 	public function enabledStatus() :string {
 		return $this->status()[ 'level' ];
-	}
-
-	protected function hasCapability() :bool {
-		return true;
 	}
 
 	public function getActions() :array {
@@ -128,42 +146,6 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		}
 
 		throw new \LogicException( 'Configure rows require a stable non-empty row scope slug.' );
-	}
-
-	public function getLinks() :array {
-		return [];
-	}
-
-	/**
-	 * @return array<int,array{
-	 *   slug:string,
-	 *   title:string,
-	 *   weight:int,
-	 *   score:int,
-	 *   is_protected:bool,
-	 *   severity:'good'|'warning'|'critical',
-	 *   explanation:list<string>,
-	 *   config_action:array<string,mixed>
-	 * }>
-	 */
-	public function postureSignals() :array {
-		$weight = $this->postureWeight();
-		if ( $weight <= 0 ) {
-			return [];
-		}
-
-		$severity = EnumEnabledStatus::toSeverity( $this->enabledStatus(), 'good' );
-		return [
-			$this->buildPostureSignal(
-				static::Slug(),
-				$this->title(),
-				$weight,
-				$this->scoreForSeverity( $severity, $weight ),
-				$severity,
-				$severity === 'good',
-				$this->explanation()
-			),
-		];
 	}
 
 	protected function hasConfigAction() :bool {
@@ -336,61 +318,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		];
 	}
 
-	protected function postureWeight() :int {
-		return 0;
-	}
-
 	protected function resolveBooleanMethod( object $object, string $method, bool $fallback ) :bool {
 		return \method_exists( $object, $method ) ? (bool)$object->{$method}() : $fallback;
-	}
-
-	/**
-	 * @param string[] $explanation
-	 * @param 'good'|'warning'|'critical' $severity
-	 * @return array{
-	 *   slug:string,
-	 *   title:string,
-	 *   weight:int,
-	 *   score:int,
-	 *   is_protected:bool,
-	 *   severity:'good'|'warning'|'critical',
-	 *   explanation:list<string>,
-	 *   config_action:array<string,mixed>
-	 * }
-	 */
-	protected function buildPostureSignal(
-		string $slug,
-		string $title,
-		int $weight,
-		int $score,
-		string $severity,
-		bool $isProtected,
-		array $explanation = []
-	) :array {
-		return [
-			'slug'         => sanitize_key( $slug ),
-			'title'        => $title,
-			'weight'       => max( 0, $weight ),
-			'score'        => max( 0, min( $weight, $score ) ),
-			'is_protected' => $isProtected,
-			'severity'     => \in_array( $severity, [ 'good', 'warning', 'critical' ], true ) ? $severity : 'good',
-			'explanation'  => \array_values( \array_filter( \array_map(
-				static fn( $line ) :string => trim( (string)$line ),
-				$explanation
-			) ) ),
-			'config_action' => $this->getActions()[ 'config' ] ?? [],
-		];
-	}
-
-	protected function scoreForSeverity( string $severity, int $weight ) :int {
-		switch ( $severity ) {
-			case 'critical':
-				return 0;
-			case 'warning':
-				return (int)round( $weight/2 );
-			case 'good':
-			default:
-				return $weight;
-		}
 	}
 }

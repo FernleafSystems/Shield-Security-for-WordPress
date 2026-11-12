@@ -33,6 +33,8 @@ class SecurityAdmin extends Base {
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;
 		$resp->message = __( 'Security Admin is now active', 'wp-simple-firewall' );
+		// The page reloads so that, from here on, the PIN is asked for and accepted like everywhere else.
+		$resp->addData( 'page_reload', true );
 		return $resp;
 	}
 

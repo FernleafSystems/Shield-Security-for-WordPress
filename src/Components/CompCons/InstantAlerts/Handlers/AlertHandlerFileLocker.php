@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAle
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\InstantAlerts\EmailInstantAlertFileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportEmailHold;
 
 class AlertHandlerFileLocker extends AlertHandlerBase {
 
@@ -23,6 +24,10 @@ class AlertHandlerFileLocker extends AlertHandlerBase {
 
 	public function alertTitle() :string {
 		return __( 'FileLocker Changes Detected', 'wp-simple-firewall' );
+	}
+
+	public function isSendHeld() :bool {
+		return ( new ReportEmailHold() )->isActive();
 	}
 
 	public function captureOutstandingAlerts() :void {

@@ -20,11 +20,7 @@
 			>
 				<span class="mode-icon"><i class="{{ nav_item.img }}" aria-hidden="true"></i></span>
 				<span class="mode-label">{{ nav_item.title }}</span>
-				{% if nav_item.badge is not empty %}
-					<span class="mode-badge status-{{ nav_item.badge.status }}">
-						{{ nav_item.badge.text }}
-					</span>
-				{% endif %}
+				{% include '/wpadmin/components/page/mode_badges.twig' with { badges: nav_item.badges } only %}
 			</a>
 			{% if nav_item.divider_after %}<div class="sidebar-sep"></div>{% endif %}
 		{% endfor %}
@@ -58,26 +54,6 @@
 		<div class="sidebar-sep"></div>
 	{% endif %}
 
-	{% if sidebar.home_license_item is not empty %}
-		{% set license = sidebar.home_license_item %}
-		<a href="{{ license.href }}"
-		   class="sidebar-license-item {{ license.classes|join(' ') }}"
-		   {% if license.target is not empty %}target="{{ license.target }}"{% endif %}
-		   {% for data_key,data_val in license.data %}
-			   data-{{ data_key }}="{{ data_val }}"
-		   {% endfor %}
-		>
-			<span class="sidebar-license-icon"><i class="{{ license.img }}" aria-hidden="true"></i></span>
-			<span class="sidebar-license-content">
-				<span class="sidebar-license-title">{{ license.title }}</span>
-				<span class="sidebar-license-subtitle">{{ license.subtitle }}</span>
-			</span>
-			{% if license.badge is not empty %}
-				<span class="sidebar-license-badge status-{{ license.badge.status }}">{{ license.badge.text }}</span>
-			{% endif %}
-		</a>
-	{% endif %}
-
 	{% if sidebar.tool_items is not empty %}
 		<div class="sidebar-tools">
 			{% for tool in sidebar.tool_items %}
@@ -109,6 +85,57 @@
 					</a>
 				{% endif %}
 			{% endfor %}
+		</div>
+	{% endif %}
+
+	{# While setup is unfinished, the guide can always be brought back from here, even after "Hide until next visit". #}
+	{% if vars.setup_guide.show %}
+		<div class="sidebar-setup-footer">
+			<button type="button" class="mode-item sidebar-setup-item" data-setup-guide-open="1" aria-controls="ShieldSetupGuide">
+				<span class="mode-icon"><i class="bi bi-shield-fill-check" aria-hidden="true"></i></span>
+				<span class="mode-label">{{ vars.setup_guide.strings.sidebar_label }}</span>
+				<span class="sidebar-setup-count" data-setup-guide-open-count="1">{{ vars.setup_guide.done_count }}/{{ vars.setup_guide.total }}</span>
+			</button>
+		</div>
+	{% endif %}
+
+	{# Bottom of the dashboard sidebar: the Live Monitor launcher and the licence / upgrade link. #}
+	{% if sidebar.home_live_monitor_item is not empty or sidebar.home_license_item is not empty %}
+		<div class="sidebar-home-footer">
+			{% if sidebar.home_live_monitor_item is not empty %}
+				{% set live_monitor = sidebar.home_live_monitor_item %}
+				<button type="button"
+						class="mode-item {{ live_monitor.classes|join(' ') }}"
+						aria-controls="ShieldDashboardLiveMonitor"
+						aria-expanded="false"
+						{% for data_key,data_val in live_monitor.data %}
+							data-{{ data_key }}="{{ data_val }}"
+						{% endfor %}
+				>
+					<span class="mode-icon"><i class="{{ live_monitor.img }}" aria-hidden="true"></i></span>
+					<span class="mode-label">{{ live_monitor.title }}</span>
+					<span class="sidebar-live-monitor-dot" aria-hidden="true"></span>
+				</button>
+			{% endif %}
+			{% if sidebar.home_license_item is not empty %}
+				{% set license = sidebar.home_license_item %}
+				<a href="{{ license.href }}"
+				   class="sidebar-license-item {{ license.classes|join(' ') }}"
+				   {% if license.target is not empty %}target="{{ license.target }}"{% endif %}
+				   {% for data_key,data_val in license.data %}
+					   data-{{ data_key }}="{{ data_val }}"
+				   {% endfor %}
+				>
+					<span class="sidebar-license-icon"><i class="{{ license.img }}" aria-hidden="true"></i></span>
+					<span class="sidebar-license-content">
+						<span class="sidebar-license-title">{{ license.title }}</span>
+						<span class="sidebar-license-subtitle">{{ license.subtitle }}</span>
+					</span>
+					{% if license.badge is not empty %}
+						<span class="sidebar-license-badge status-{{ license.badge.status }}">{{ license.badge.text }}</span>
+					{% endif %}
+				</a>
+			{% endif %}
 		</div>
 	{% endif %}
 

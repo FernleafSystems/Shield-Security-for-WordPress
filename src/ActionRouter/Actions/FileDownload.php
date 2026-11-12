@@ -2,18 +2,24 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility\FileDownloadHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Export;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\DbTableExport;
 use FernleafSystems\Wordpress\Services\Utilities\File\Download\IssueFileDownloadResponse;
 
 class FileDownload extends BaseAction {
 
 	public const SLUG = 'file_download';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_ORDINARY => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
 		try {
-			$cat = $this->action_data[ 'download_category' ] ?? '';
+			$cat = $this->fields()->string( 'download_category', '' );
 			if ( empty( $cat ) ) {
 				throw new \Exception( __( 'Invalid download request.', 'wp-simple-firewall' ) );
 			}
@@ -23,9 +29,7 @@ class FileDownload extends BaseAction {
 				->fromString( $contents[ 'content' ], [ 'Set-cookie' => 'fileDownload=true; path=/' ] );
 		}
 		catch ( \Exception $e ) {
-			$resp = $this->response();
-			$resp->message = $e->getMessage();
-			$resp->mergePayload( [
+			$this->response()->mergePayload( [
 				'message' => $e->getMessage(),
 			] )->setPayloadSuccess( false );
 		}
@@ -41,17 +45,14 @@ class FileDownload extends BaseAction {
 		switch ( $downloadID ) {
 
 			case 'filelocker':
-				$fileDetails = $con->comps->file_locker->handleFileDownloadRequest();
+				$fileDetails = $con->comps->file_locker->handleFileDownloadRequest(
+					$this->fields()->positiveInt( 'rid' ),
+					$this->fields()->string( 'type', '' )
+				);
 				break;
 
 			case 'scan_file':
-				$fileDetails = ( new FileDownloadHandler() )->downloadByItemId( (int)( $this->action_data[ 'rid' ] ?? -1 ) );
-				break;
-
-			case 'db_ip':
-				$fileDetails = ( new DbTableExport() )
-					->setDbH( $con->db_con->ip_rules )
-					->toCSV();
+				$fileDetails = ( new FileDownloadHandler() )->downloadByItemId( $this->fields()->positiveInt( 'rid' ) );
 				break;
 
 			case 'plugin_export':
@@ -61,7 +62,7 @@ class FileDownload extends BaseAction {
 			case 'report_download_pdf':
 				$fileDetails = [
 					'name'    => wp_rand().'.pdf',
-					'content' => self::con()->comps->reports->convertToPdf( (int)( $this->action_data[ 'rid' ] ?? -1 ) )
+					'content' => self::con()->comps->reports->convertToPdf( $this->fields()->positiveInt( 'rid' ) )
 				];
 				break;
 

@@ -9,34 +9,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 
 /**
- * @phpstan-type StandardTileDefinition array{
+ * @phpstan-type TileDefinition array{
  *   key:string,
  *   label:string,
  *   icon:string,
  *   summary:string,
- *   zone_slug?:string,
- *   component_slug?:string,
- *   component_slugs?:list<string>,
- *   include_in_posture?:bool,
- *   force_neutral?:false,
- *   stat_line?:string
+ *   goal:string,
+ *   include_in_posture?:bool
  * }
- * @phpstan-type ForcedNeutralTileDefinition array{
- *   key:string,
- *   label:string,
- *   icon:string,
- *   summary:string,
- *   zone_slug?:string,
- *   component_slug?:string,
- *   component_slugs?:list<string>,
- *   include_in_posture?:bool,
- *   force_neutral:true,
- *   stat_line:string
- * }
- * @phpstan-type TileDefinition StandardTileDefinition|ForcedNeutralTileDefinition
  * @phpstan-type ConfigureStatus 'good'|'warning'|'critical'|'neutral'
  * @phpstan-type RawConfigureScope array{
  *   zone_component_slugs:list<string>,
@@ -55,7 +37,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
  *   zone_component_slug:non-empty-string,
  *   option_keys:non-empty-string,
  *   form_context:'offcanvas',
- *   config_item?:non-empty-string
+ *   config_item?:non-empty-string,
+ *   configure_panel?:non-empty-string
  * }
  * @phpstan-type ConfigureActionContract array{
  *   label:string,
@@ -100,8 +83,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
  */
 class ConfigureZoneTilesBuilder {
 
-	private const GENERAL_SETTINGS_ROW_KEY = 'general_settings';
-
 	use PluginControllerConsumer;
 	use StandardStatusMapping;
 
@@ -131,11 +112,8 @@ class ConfigureZoneTilesBuilder {
 	 * @return ConfigureZoneTileContract
 	 */
 	private function buildTileFromDefinition( array $definition ) :array {
-		$forceNeutral = !empty( $definition[ 'force_neutral' ] );
-		$zone = $this->zoneForDefinition( $definition );
-		$visibleComponents = $this->componentsForDefinition( $definition, $zone );
-		$rows = $this->buildRowContracts( $zone, $visibleComponents, $forceNeutral );
-		$status = $forceNeutral ? 'neutral' : $this->aggregateTileStatus( $rows );
+		$rows = $this->buildGoalRowContracts( $definition[ 'goal' ] );
+		$status = $this->aggregateTileStatus( $rows );
 		$includeInPosture = !\array_key_exists( 'include_in_posture', $definition )
 			|| (bool)$definition[ 'include_in_posture' ];
 
@@ -151,9 +129,7 @@ class ConfigureZoneTilesBuilder {
 			'status'            => $status,
 			'status_label'      => $this->tileStatusLabel( $status ),
 			'status_icon_class' => $this->tileStatusIconClass( $status ),
-			'stat_line'         => $forceNeutral
-				? $definition[ 'stat_line' ]
-				: $this->buildTileStatLine( $rows ),
+			'stat_line'         => $this->buildTileStatLine( $rows ),
 			'panel'             => [
 				'title'        => $definition[ 'label' ],
 				'status'       => $status,
@@ -164,32 +140,53 @@ class ConfigureZoneTilesBuilder {
 	}
 
 	/**
-	 * @param list<Component\Base> $visibleComponents
+	 * One row per topic of a goal. A topic's settings can come from several components, so its status is
+	 * the most severe of those components' rows that cover its settings, and it keeps only the
+	 * explanations that its own settings fix (or that no particular setting fixes).
 	 * @return list<ConfigureRowContract>
 	 * @throws \LogicException
 	 */
-	private function buildRowContracts( ?Zone\Base $zone, array $visibleComponents, bool $forceNeutral ) :array {
-		$rowInputs = [];
-		foreach ( $visibleComponents as $component ) {
-			foreach ( $component->configureRows() as $rowInput ) {
-				$configScope = $this->normalizeDisplayableConfigScope( $rowInput[ 'config_scope' ] );
-				if ( !empty( $configScope ) ) {
-					$rowInput[ 'config_scope' ] = $configScope;
-					$rowInputs[] = $rowInput;
-				}
-			}
+	private function buildGoalRowContracts( string $goalKey ) :array {
+		$goal = ConfigureGoalPanels::goals()[ $goalKey ] ?? null;
+		if ( !\is_array( $goal ) ) {
+			return [];
 		}
+		$labels = ConfigureGoalPanels::labels()[ 'topics' ];
+		$options = self::con()->cfg->configuration->options;
 
-		$rows = \array_map(
-			fn( array $rowInput ) :array => $this->buildSingleRowContract( $rowInput, $forceNeutral ),
-			$rowInputs
-		);
-
-		if ( !$forceNeutral ) {
-			$generalSettings = $this->buildGeneralSettingsRowContract( $zone, $rows );
-			if ( $generalSettings !== [] ) {
-				$rows[] = $generalSettings;
+		$rows = [];
+		foreach ( \array_keys( $goal[ 'topics' ] ) as $topicKey ) {
+			$optionKeys = ConfigureGoalPanels::topicOptionKeys( $goalKey, $topicKey );
+			$componentSlugs = [];
+			foreach ( $optionKeys as $optionKey ) {
+				$componentSlugs = \array_merge( $componentSlugs, $options[ $optionKey ][ 'zone_comp_slugs' ] ?? [] );
 			}
+			$scope = $this->normalizeDisplayableConfigScope( [
+				'zone_component_slugs' => $componentSlugs,
+				'option_keys'          => $optionKeys,
+				'config_item'          => '',
+				'title'                => $labels[ $topicKey ][ 'label' ] ?? '',
+			] );
+			if ( empty( $scope ) ) {
+				continue;
+			}
+
+			// Advanced options gathers odd settings from across the goal, so it only speaks for problems
+			// its own settings fix, rather than taking on the state of every component they come from.
+			[ $status, $explanations ] = $this->topicStatus( $scope, $topicKey === 'advanced' );
+			$configAction = $this->buildConfigActionForScope( $scope );
+			$configAction[ 'data' ][ 'configure_panel' ] = $goalKey.':'.$topicKey;
+
+			$rows[] = [
+				'key'               => $topicKey,
+				'title'             => $labels[ $topicKey ][ 'label' ] ?? $topicKey,
+				'status'            => $status,
+				'status_label'      => $this->componentStatusLabel( $status ),
+				'status_icon_class' => $this->componentStatusIconClass( $status ),
+				'note'              => $labels[ $topicKey ][ 'summary' ] ?? '',
+				'explanations'      => $explanations,
+				'config_action'     => $configAction,
+			];
 		}
 
 		$this->assertValidUniqueRowKeys( $rows );
@@ -197,79 +194,40 @@ class ConfigureZoneTilesBuilder {
 	}
 
 	/**
-	 * @param array{
-	 *   key:string,
-	 *   title:string,
-	 *   enabled_status:string,
-	 *   note:string,
-	 *   explanations:list<string>,
-	 *   config_scope:ConfigureScope
-	 * } $rowInput
-	 * @return ConfigureRowContract
+	 * @param ConfigureScope $scope
+	 * @return array{0:ConfigureStatus,1:list<string>}
 	 */
-	private function buildSingleRowContract( array $rowInput, bool $forceNeutral = false ) :array {
-		$status = $forceNeutral ? 'neutral' : $this->componentStatusToConfigureStatus( $rowInput[ 'enabled_status' ] );
-		$configAction = $this->buildConfigActionForScope( $rowInput[ 'config_scope' ] );
-
-		return [
-			'key'               => $rowInput[ 'key' ],
-			'title'             => $rowInput[ 'title' ],
-			'status'            => $status,
-			'status_label'      => $this->componentStatusLabel( $status ),
-			'status_icon_class' => $this->componentStatusIconClass( $status ),
-			'note'              => $rowInput[ 'note' ],
-			'explanations'      => $rowInput[ 'explanations' ],
-			'config_action'     => $configAction,
-		];
-	}
-
-	/**
-	 * @param list<ConfigureRowContract> $rows
-	 * @return array{}|ConfigureRowContract
-	 */
-	private function buildGeneralSettingsRowContract( ?Zone\Base $zone, array $rows ) :array {
-		$scope = ( new ConfigureGeneralSettingsScopeResolver() )->resolve(
-			$zone,
-			$this->extractCoveredOptionKeysFromRows( $rows )
-		);
-		if ( empty( $scope ) ) {
-			return [];
-		}
-		$scope = $this->normalizeDisplayableConfigScope( [
-			'zone_component_slugs' => $scope[ 'zone_component_slugs' ],
-			'option_keys'          => $scope[ 'option_keys' ],
-			'config_item'          => '',
-			'title'                => __( 'Edit Settings', 'wp-simple-firewall' ),
-		] );
-		if ( empty( $scope ) ) {
-			return [];
-		}
-
-		return [
-			'key'               => self::GENERAL_SETTINGS_ROW_KEY,
-			'title'             => __( 'General settings', 'wp-simple-firewall' ),
-			'status'            => 'neutral',
-			'status_label'      => $this->componentStatusLabel( 'neutral' ),
-			'status_icon_class' => $this->componentStatusIconClass( 'neutral' ),
-			'note'              => __( 'Additional settings in this zone that are not covered by a dedicated callout.', 'wp-simple-firewall' ),
-			'explanations'      => [],
-			'config_action'     => $this->buildConfigActionForScope( $scope ),
-		];
-	}
-
-	/**
-	 * @param list<ConfigureRowContract> $rows
-	 * @return list<string>
-	 */
-	private function extractCoveredOptionKeysFromRows( array $rows ) :array {
-		$coveredOptionKeys = [];
-		foreach ( $rows as $row ) {
-			foreach ( \explode( ',', $row[ 'config_action' ][ 'data' ][ 'option_keys' ] ) as $optionKey ) {
-				$coveredOptionKeys[] = $optionKey;
+	private function topicStatus( array $scope, bool $ownFixesOnly = false ) :array {
+		$statuses = [];
+		$explanations = [];
+		foreach ( $scope[ 'zone_component_slugs' ] as $slug ) {
+			if ( \strpos( $slug, 'module_' ) === 0 ) {
+				continue;
+			}
+			foreach ( $this->zonesCon()->getZoneComponent( $slug )->configureRows() as $rowInput ) {
+				if ( empty( \array_intersect( $rowInput[ 'config_scope' ][ 'option_keys' ], $scope[ 'option_keys' ] ) ) ) {
+					continue;
+				}
+				// Explanations record the option that fixes them as they're built, so read the lookup afterwards.
+				$fixLookup = Component\Base::explanationFixLookup();
+				$kept = [];
+				foreach ( $rowInput[ 'explanations' ] as $explanation ) {
+					$fixedBy = $fixLookup[ \trim( $explanation ) ] ?? '';
+					if ( \in_array( $fixedBy, $scope[ 'option_keys' ], true ) || ( $fixedBy === '' && !$ownFixesOnly ) ) {
+						$kept[] = $explanation;
+					}
+				}
+				if ( !$ownFixesOnly || !empty( $kept ) ) {
+					$statuses[] = $this->componentStatusToConfigureStatus( $rowInput[ 'enabled_status' ] );
+				}
+				$explanations = \array_merge( $explanations, $kept );
 			}
 		}
 
-		return \array_values( \array_unique( $coveredOptionKeys ) );
+		$statuses = \array_values( \array_filter( $statuses, static fn( string $s ) :bool => $s !== 'neutral' ) );
+		/** @var ConfigureStatus $status */
+		$status = empty( $statuses ) ? 'neutral' : StatusPriority::highest( $statuses, 'good' );
+		return [ $status, \array_values( \array_unique( $explanations ) ) ];
 	}
 
 	/**
@@ -465,50 +423,6 @@ class ConfigureZoneTilesBuilder {
 	private function isDisplayableOptionKey( string $optionKey ) :bool {
 		$section = (string)( self::con()->cfg->configuration->options[ $optionKey ][ 'section' ] ?? '' );
 		return $section !== '' && !\in_array( $section, [ 'section_hidden', 'section_deprecated' ], true );
-	}
-
-	/**
-	 * @param TileDefinition $definition
-	 * @return Component\Base[]
-	 */
-	private function componentsForDefinition( array $definition, ?Zone\Base $zone = null ) :array {
-		if ( $zone !== null ) {
-			return $this->zonesCon()->getComponentsForZone( $zone );
-		}
-
-		$components = [];
-		foreach ( $this->definitionComponentSlugs( $definition ) as $componentSlug ) {
-			$components[] = $this->zonesCon()->getZoneComponent( $componentSlug );
-		}
-		return $components;
-	}
-
-	/**
-	 * @param TileDefinition $definition
-	 * @return list<string>
-	 */
-	private function definitionComponentSlugs( array $definition ) :array {
-		if ( !empty( $definition[ 'component_slug' ] ) ) {
-			return [ $definition[ 'component_slug' ] ];
-		}
-
-		$slugs = $definition[ 'component_slugs' ] ?? [];
-		return \array_values( \array_filter( \array_map(
-			fn( string $slug ) :string => \trim( $slug ),
-			$slugs
-		) ) );
-	}
-
-	/**
-	 * @param TileDefinition $definition
-	 * @return ?Zone\Base
-	 */
-	private function zoneForDefinition( array $definition ) :?Zone\Base {
-		if ( empty( $definition[ 'zone_slug' ] ) ) {
-			return null;
-		}
-
-		return $this->zonesCon()->getZone( $definition[ 'zone_slug' ] );
 	}
 
 	private function zonesCon() :SecurityZonesCon {

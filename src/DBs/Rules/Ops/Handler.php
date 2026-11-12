@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Uuid;
 
 class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler {
 
-	public const TYPE_SHIELD = 'S';
 	public const TYPE_CUSTOM = 'C';
 
 	/**

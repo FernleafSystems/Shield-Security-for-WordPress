@@ -29,34 +29,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *     detail_groups:list<DetailGroup>
  *   }
  * }
- * @phpstan-type ZoneCard array{
- *   key:string,
- *   label:string,
- *   icon_class:string,
- *   status:ConfigureStatus,
- *   status_label:string,
- *   summary:string,
- *   action_label:string,
- *   selection_json:string,
- *   is_disabled:bool
- * }
- * @phpstan-type ZoneSection array{
- *   key:'critical'|'warning'|'general'|'healthy',
- *   cards:list<ZoneCard>
- * }
- * @phpstan-type ConfigurePostureSummary array{
- *   status:'good'|'warning'|'critical',
- *   chip_label:string,
- *   icon_class:string,
- *   eyebrow:string,
- *   summary:string,
- *   meter:array{
- *     percentage:int,
- *     status:'good'|'warning'|'critical',
- *     aria_label:string,
- *     aria_value_text:string
- *   }
- * }
  * @phpstan-type DrillSelection array{
  *   key:string,
  *   label:string,
@@ -69,7 +41,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   zone_component_slug:non-empty-string,
  *   option_keys:non-empty-string,
  *   form_context?:string,
- *   config_item?:non-empty-string
+ *   config_item?:non-empty-string,
+ *   configure_panel?:non-empty-string
  * }
  * @phpstan-type DiagnosisCollapsedExpandAction array{
  *   id:'',
@@ -111,13 +84,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   healthy_rows:list<DiagnosisFinding>,
  *   header:DrillLayerHeader,
  *   zone_selection:DrillSelection,
- *   zone_selection_json:string
+ *   zone_selection_json:string,
+ *   goal_links:list<array{label:string,href:string,icon_class:string,confirm:string}>
  * }
  * @phpstan-type ConfigureSearchResult array{
  *   type:'zone'|'option',
  *   icon_class:string,
  *   label:string,
  *   summary:string,
+ *   path:string,
+ *   value:string,
  *   selection_json:string,
  *   focus_request_json:string,
  *   href:string
@@ -126,8 +102,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   tiles:list<ConfigureLandingTile>,
  *   tile_lookup:array<string,ConfigureLandingTile>,
  *   diagnoses:array<string,DiagnosisContract>,
- *   sections:list<ZoneSection>,
- *   posture_summary:ConfigurePostureSummary,
  *   root_step:OperatorChromeStep,
  *   root_step_json:string
  * }

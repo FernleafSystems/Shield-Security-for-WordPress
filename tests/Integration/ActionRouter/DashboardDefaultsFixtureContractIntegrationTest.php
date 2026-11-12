@@ -38,8 +38,8 @@ class DashboardDefaultsFixtureContractIntegrationTest extends ShieldIntegrationT
 				$this->assertSame( 'zones', $contract[ 'routes' ][ 'configure' ][ 'nav' ] );
 				$this->assertSame( '/wp-admin/index.php', $contract[ 'routes' ][ 'wp_dashboard' ][ 'path' ] );
 				$this->assertSame( [
-					'zone_key'    => 'general',
-					'row_key'     => 'plugin_general',
+					'zone_key'    => 'shield',
+					'row_key'     => 'general',
 					'config_item' => 'display_plugin_badge',
 				], $contract[ 'configure_focus' ] );
 				$this->assertSame( 'mod_options_save', $contract[ 'action_slugs' ][ 'module_options_save' ] );

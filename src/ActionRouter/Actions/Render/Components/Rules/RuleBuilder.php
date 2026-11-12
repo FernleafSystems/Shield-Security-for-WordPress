@@ -30,10 +30,10 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 
 		// Either we're editing a rule, or starting a new rule.
 		$record = null;
-		$maybeEditRuleID = $this->action_data[ 'edit_rule_id' ] ?? -1;
+		$maybeEditRuleID = ParseRuleBuilderForm::EditRuleIdFrom( $this->action_data );
 		if ( $maybeEditRuleID >= 0 ) {
 			foreach ( ( new RuleRecords() )->getCustom() as $maybe ) {
-				if ( $maybe->id === (int)$maybeEditRuleID ) {
+				if ( $maybe->id === $maybeEditRuleID ) {
 					$record = $maybe;
 					break;
 				}
@@ -67,7 +67,6 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 				'allow_submit'          => $parsed->ready_to_create,
 				'has_unset_condition'   => $parsed->has_unset_condition,
 				'has_unset_response'    => $parsed->has_unset_response,
-				'is_rule_edit'          => $parsed->edit_rule_id >= 0,
 				'is_early_draft'        => $isDraft,
 			],
 			'imgs'    => [
@@ -80,7 +79,6 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 						__( 'Edit Rule #%1$s (%2$s)', 'wp-simple-firewall' ), $record->id, $record->name ),
 				'create_rule'       => __( 'Create New Rule', 'wp-simple-firewall' ),
 				'update_rule'       => __( 'Update This Rule', 'wp-simple-firewall' ),
-				'creating_new_rule' => __( 'Create New Rule', 'wp-simple-firewall' ),
 				'if'                => __( 'If', 'wp-simple-firewall' ),
 				'then'              => __( 'Then', 'wp-simple-firewall' ),
 				'reset'             => __( 'Reset', 'wp-simple-firewall' ),

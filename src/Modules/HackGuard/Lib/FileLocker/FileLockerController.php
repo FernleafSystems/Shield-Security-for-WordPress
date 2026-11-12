@@ -120,11 +120,8 @@ class FileLockerController {
 	/**
 	 * @throws \Exception
 	 */
-	public function handleFileDownloadRequest(): array {
-		$req = Services::Request();
-
-		$lock = $this->getFileLock( (int)$req->query( 'rid', 0 ) );
-		$type = (string)$req->query( 'type' );
+	public function handleFileDownloadRequest( int $lockID, string $type ): array {
+		$lock = $this->getFileLock( $lockID );
 
 		// Note: Download what's on the disk if nothing is changed.
 		if ( $type == 'current' ) {

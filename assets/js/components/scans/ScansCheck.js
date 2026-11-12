@@ -1,21 +1,27 @@
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
-import { ScanProgressModal } from "./ScanProgressModal";
+import { ScanRunPage } from "./ScanRunPage";
+import { ScanIndicator } from "./ScanIndicator";
 
 export class ScansCheck extends BaseComponent {
+
+	static MISSED_UPDATES_BEFORE_NOTICE = 3;
 
 	init() {
 		this.scanState = null;
 		this.nextStepTimer = null;
 		this.requestRevision = 0;
 		this.recoveryInFlight = false;
-		this.trackedScanIds = this.normalizeScanIds( this._base_data.started_scan_ids );
+		this.trackedScanIds = [];
+		this.missedUpdates = 0;
 		this.bindRecoveryClickHandler();
 		this.exec();
 	}
 
 	canRun() {
-		return this._base_data.flags?.initial_check === true;
+		// Only the Actions Queue and Run Manual Scan have somewhere to show the progress.
+		return this._base_data.flags?.initial_check === true
+			&& ( ScanRunPage.IsActive() || ScanIndicator.IsAvailable() );
 	}
 
 	run() {
@@ -48,7 +54,7 @@ export class ScansCheck extends BaseComponent {
 
 			console.log( error );
 			this.recordScanFailure();
-			ScanProgressModal.ShowError( this._base_data.strings );
+			this.showError();
 		} )
 		.finally( () => {
 			if ( !this.isCurrentModalRequest( requestToken ) ) {
@@ -77,7 +83,7 @@ export class ScansCheck extends BaseComponent {
 		const scanId = Number( targetEl.dataset.scanId );
 		if ( !recoverAjax || !Number.isSafeInteger( scanId ) || scanId < 1 ) {
 			this.recordScanFailure();
-			ScanProgressModal.ShowError( this._base_data.strings );
+			this.showError();
 			return;
 		}
 
@@ -102,7 +108,7 @@ export class ScansCheck extends BaseComponent {
 
 			console.log( error );
 			this.recordScanFailure();
-			ScanProgressModal.ShowError( this._base_data.strings );
+			this.showError();
 		} )
 		.finally( () => {
 			const isCurrentRequest = this.isCurrentModalRequest( requestToken );
@@ -130,6 +136,7 @@ export class ScansCheck extends BaseComponent {
 
 		this.advanceRequestRevision();
 		this.scanState = 'running';
+		this.missedUpdates = 0;
 		this.setRecoveryControlsBusy( this.recoveryInFlight );
 		this.scheduleCheck( 1000 );
 	}
@@ -162,15 +169,64 @@ export class ScansCheck extends BaseComponent {
 		} );
 	}
 
+	/**
+	 * Progress shows in Run Manual Scan's page, or as the Actions Queue's indicator.
+	 */
 	handleModalResponse( resp ) {
-		if ( !ScanProgressModal.HasModalResponse( resp ) ) {
-			this.recordScanFailure();
-			ScanProgressModal.ShowError( this._base_data.strings, ScanProgressModal.ExtractErrorMessage( resp ) );
+		if ( !ScanRunPage.HasProgressResponse( resp ) ) {
+			const message = ScanRunPage.ErrorMessage( resp );
+			if ( message.length > 0 ) {
+				this.recordScanFailure();
+				this.showError( message );
+			}
+			else {
+				this.noteMissedUpdate();
+			}
 			return;
 		}
 
-		ScanProgressModal.ShowHtml( resp.data.modal_html );
+		this.missedUpdates = 0;
 		this.scanState = resp.data.modal_state;
+		if ( ScanIndicator.IsAvailable() ) {
+			const current = resp.data.scan_rows.find( ( row ) => row.is_current ) || resp.data.scan_rows[ 0 ];
+			ScanIndicator.Show(
+				this.scanState,
+				this.scanState === 'running' && current ? `${current.name} ${current.progress}%` : '',
+				this._base_data
+			);
+		}
+		else {
+			ScanRunPage.Show( resp.data.modal_html );
+		}
+	}
+
+	/**
+	 * An update can go unanswered for reasons that have nothing to do with the scans, such as leaving the page
+	 * while it's on its way, so the polling carries on. Only when updates keep going missing does the page say so,
+	 * and the next update to arrive replaces that.
+	 */
+	noteMissedUpdate() {
+		this.scanState = 'running';
+		this.missedUpdates++;
+		if ( this.missedUpdates !== ScansCheck.MISSED_UPDATES_BEFORE_NOTICE ) {
+			return;
+		}
+
+		if ( ScanIndicator.IsAvailable() ) {
+			ScanIndicator.Show( 'running', this._base_data.strings.indicator_stale, this._base_data );
+		}
+		else {
+			ScanRunPage.ShowStale( this._base_data.strings );
+		}
+	}
+
+	showError( message = '' ) {
+		if ( ScanIndicator.IsAvailable() ) {
+			ScanIndicator.Show( 'failed', '', this._base_data );
+		}
+		else {
+			ScanRunPage.ShowError( this._base_data.strings, message );
+		}
 	}
 
 	recordScanFailure() {
@@ -184,7 +240,8 @@ export class ScansCheck extends BaseComponent {
 		}
 
 		this.clearScheduledNextStep();
-		if ( this.scanState === 'completed' ) {
+		// Run Manual Scan shows the result in the page; the Actions Queue reloads with it.
+		if ( this.scanState === 'completed' && !ScanRunPage.IsActive() ) {
 			this.nextStepTimer = setTimeout( () => {
 				this.nextStepTimer = null;
 				window.location.href = this._base_data.hrefs.actions_queue_scans;

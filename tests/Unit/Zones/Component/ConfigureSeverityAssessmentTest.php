@@ -159,12 +159,9 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		);
 
 		$row = $this->firstConfigureRow( new FileScanning() );
-		$signals = $this->indexSignalsBySlug( ( new FileScanning() )->postureSignals() );
 
 		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
 		$this->assertCount( 2, $row[ 'explanations' ] ?? [] );
-		$this->assertSame( 'critical', $signals[ 'scan_enabled_afs_core' ][ 'severity' ] ?? null );
-		$this->assertSame( 'warning', $signals[ 'scan_enabled_afs_autorepair_core' ][ 'severity' ] ?? null );
 	}
 
 	public function test_vulnerability_scanning_treats_secondary_gaps_as_warning() :void {
@@ -180,12 +177,9 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		);
 
 		$row = $this->firstConfigureRow( new VulnerabilityScanning() );
-		$signals = $this->indexSignalsBySlug( ( new VulnerabilityScanning() )->postureSignals() );
 
 		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
 		$this->assertCount( 2, $row[ 'explanations' ] ?? [] );
-		$this->assertSame( 'warning', $signals[ 'scan_enabled_apc' ][ 'severity' ] ?? null );
-		$this->assertSame( 'warning', $signals[ 'scan_enabled_wpv_autoupdate' ][ 'severity' ] ?? null );
 	}
 
 	public function test_file_locker_requires_wpconfig_and_accepts_real_lock_keys() :void {
@@ -216,15 +210,13 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			]
 		);
 
-		$signals = $this->fileLockerForEnvironment()->postureSignals();
+		$row = $this->firstConfigureRow( $this->fileLockerForEnvironment() );
 
-		$this->assertSame(
-			[ 'good', 'good', 'good', 'good', 'good' ],
-			\array_column( $signals, 'severity' )
-		);
+		$this->assertSame( EnumEnabledStatus::GOOD, $row[ 'enabled_status' ] );
+		$this->assertSame( [], $row[ 'explanations' ] );
 	}
 
-	public function test_file_locker_ignores_non_applicable_webconfig_in_configure_score_and_signals() :void {
+	public function test_file_locker_ignores_non_applicable_webconfig_in_configure() :void {
 		$this->installController(
 			[],
 			[
@@ -238,15 +230,12 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 		$fileLocker = $this->fileLockerForEnvironment( false, true );
 		$row = $this->firstConfigureRow( $fileLocker );
-		$signals = $this->indexSignalsBySlug( $fileLocker->postureSignals() );
 
 		$this->assertSame( EnumEnabledStatus::GOOD, $row[ 'enabled_status' ] );
 		$this->assertSame( [], $row[ 'explanations' ] );
-		$this->assertArrayNotHasKey( 'scan_enabled_filelocker_webconfig', $signals );
-		$this->assertSame( 4, \count( $signals ) );
 	}
 
-	public function test_file_locker_ignores_non_applicable_theme_functions_in_configure_score_and_signals() :void {
+	public function test_file_locker_ignores_non_applicable_theme_functions_in_configure() :void {
 		$this->installController(
 			[],
 			[
@@ -260,12 +249,9 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 		$fileLocker = $this->fileLockerForEnvironment( true, false );
 		$row = $this->firstConfigureRow( $fileLocker );
-		$signals = $this->indexSignalsBySlug( $fileLocker->postureSignals() );
 
 		$this->assertSame( EnumEnabledStatus::GOOD, $row[ 'enabled_status' ] );
 		$this->assertSame( [], $row[ 'explanations' ] );
-		$this->assertArrayNotHasKey( 'scan_enabled_filelocker_theme_functions', $signals );
-		$this->assertSame( 4, \count( $signals ) );
 	}
 
 	public function test_file_locker_applicability_removes_only_non_applicable_known_stored_keys() :void {
@@ -371,7 +357,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->assertNull( ( new FirewallZone() )->getAction_Config() );
 	}
 
-	public function test_firewall_core_component_statuses_and_signals_follow_options() :void {
+	public function test_firewall_core_component_statuses_follow_options() :void {
 		$enabledOptions = [
 			'block_dir_traversal'    => 'Y',
 			'block_sql_queries'      => 'Y',
@@ -384,11 +370,8 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->installController( $enabledOptions );
 
 		$enabledWaf = new WebApplicationFirewall();
-		$enabledSignals = $this->indexSignalsBySlug( $enabledWaf->postureSignals() );
 
 		$this->assertSame( EnumEnabledStatus::GOOD, $enabledWaf->enabledStatus() );
-		$this->assertSame( 'good', $enabledSignals[ 'firewall_dir_traversal' ][ 'severity' ] ?? null );
-		$this->assertTrue( $enabledSignals[ 'firewall_dir_traversal' ][ 'is_protected' ] ?? null );
 		$this->assertSame( EnumEnabledStatus::GOOD, ( new FileEditingBlock() )->enabledStatus() );
 		$this->assertSame( EnumEnabledStatus::GOOD, ( new UsernameFishingBlock() )->enabledStatus() );
 
@@ -404,16 +387,13 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->installController( $disabledOptions );
 
 		$disabledWaf = new WebApplicationFirewall();
-		$disabledSignals = $this->indexSignalsBySlug( $disabledWaf->postureSignals() );
 
 		$this->assertSame( EnumEnabledStatus::BAD, $disabledWaf->enabledStatus() );
-		$this->assertSame( 'critical', $disabledSignals[ 'firewall_dir_traversal' ][ 'severity' ] ?? null );
-		$this->assertFalse( $disabledSignals[ 'firewall_dir_traversal' ][ 'is_protected' ] ?? true );
 		$this->assertSame( EnumEnabledStatus::BAD, ( new FileEditingBlock() )->enabledStatus() );
 		$this->assertSame( EnumEnabledStatus::BAD, ( new UsernameFishingBlock() )->enabledStatus() );
 	}
 
-	public function test_bot_actions_use_partial_primary_coverage_and_shared_signal_list() :void {
+	public function test_bot_actions_use_partial_primary_coverage() :void {
 		$this->installController( [
 			'track_logininvalid'   => 'disabled',
 			'track_loginfailed'    => 'block',
@@ -430,8 +410,6 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
 		$this->assertCount( 6, $row[ 'explanations' ] ?? [] );
-		$this->assertContains( 'bot_signal_track_linkcheese', \array_column( $component->postureSignals(), 'slug' ) );
-		$this->assertContains( 'bot_signal_track_useragent', \array_column( $component->postureSignals(), 'slug' ) );
 	}
 
 	public function test_silentcaptcha_uses_warning_for_low_thresholds() :void {
@@ -757,21 +735,6 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		foreach ( $optionKeys as $optionKey ) {
 			$this->assertContains( $optionKey, $row[ 'config_scope' ][ 'option_keys' ] ?? [] );
 		}
-	}
-
-	/**
-	 * @param array<int,array<string,mixed>> $signals
-	 * @return array<string,array<string,mixed>>
-	 */
-	private function indexSignalsBySlug( array $signals ) :array {
-		$indexed = [];
-		foreach ( $signals as $signal ) {
-			$slug = $signal[ 'slug' ] ?? null;
-			if ( \is_string( $slug ) && $slug !== '' ) {
-				$indexed[ $slug ] = $signal;
-			}
-		}
-		return $indexed;
 	}
 
 	private function installController(

@@ -15,8 +15,4 @@ trait Common {
 	public function filterByUserID( int $ID ) {
 		return $this->addWhereEquals( 'user_id', $ID );
 	}
-
-	public function filterByPasswordless() {
-		return $this->addWhereEquals( 'passwordless', 1 );
-	}
 }

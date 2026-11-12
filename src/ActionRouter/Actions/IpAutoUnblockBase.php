@@ -12,7 +12,7 @@ abstract class IpAutoUnblockBase extends BaseAction {
 	protected function exec() {
 		$unblockerClass = $this->getAutoUnblockerClass();
 		/** @var BaseAutoUnblock $unBlocker */
-		$unBlocker = new $unblockerClass();
+		$unBlocker = ( new $unblockerClass() )->setSubmission( $this->formParams() );
 		if ( $unBlocker->canRunAutoUnblockProcess() && $unBlocker->processAutoUnblockRequest() ) {
 			Services::Response()->redirectToHome();
 		}

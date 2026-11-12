@@ -39,10 +39,6 @@ abstract class BuildRuleBase {
 
 	abstract protected function getDescription(): string;
 
-	protected function getWpHook(): string {
-		return ''; // you need a VERY good reason to overload this method as hooks are handled dynamically
-	}
-
 	protected function getWpHookLevel(): int {
 		return WPHooksOrder::NONE;
 	}

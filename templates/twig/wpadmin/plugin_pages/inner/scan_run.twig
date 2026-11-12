@@ -1,7 +1,43 @@
 {% extends '/wpadmin/plugin_pages/inner/scan_base.twig' %}
 
+{#
+	Run Manual Scan in three steps: choose the scans, watch them run, then see what each found. The page
+	opens on the step that fits: the scans while they run (filled in by the scan polling), the result of a
+	scan that has just finished, otherwise choosing.
+#}
 {% block inner_page_body %}
+	{% set current_step = vars.opening_step %}
+	<div class="shield-tool-page shield-scan-run" data-shield-scan-run="1" data-scan-step="{{ current_step }}"
+		 data-scan-again-href="{{ hrefs.scan_again }}" data-scan-again-label="{{ strings.try_again }}">
 
-	{% include '/wpadmin_pages/insights/scans/run/scan_areas.twig' %}
+		<ol class="shield-scan-steps" aria-label="{{ strings.steps_label }}">
+			{% for step in vars.steps %}
+				<li class="shield-scan-steps__step{% if step.is_done %} is-done{% endif %}" data-scan-step-tab="{{ step.key }}"
+					{% if step.is_current %}aria-current="step"{% endif %}>
+					<span class="shield-scan-steps__num" aria-hidden="true">
+						<span class="shield-scan-steps__n">{{ step.number }}</span>
+						<i class="bi bi-check-lg shield-scan-steps__done"></i>
+					</span>
+					{{ step.label }}
+				</li>
+			{% endfor %}
+		</ol>
 
+		<div data-scan-step-panel="choose" {% if current_step != 'choose' %}hidden{% endif %}>
+			{% include '/wpadmin_pages/insights/scans/run/scan_areas.twig' %}
+		</div>
+
+		<div class="shield-scan-run__progress" data-scan-step-panel="progress" data-shield-scan-inline="1"
+			 {% if current_step == 'choose' %}hidden{% endif %}>
+			{% if current_step == 'results' %}
+				{{ vars.results_html|raw }}
+			{% elseif current_step == 'scanning' %}
+				<section class="shield-tool-box shield-scan-run__loading" aria-busy="true">
+					<span class="shield-scan-progress__spin" aria-hidden="true"></span>
+					{{ strings.checking_progress }}
+				</section>
+			{% endif %}
+		</div>
+		<div class="visually-hidden" data-shield-status-region="1" aria-live="polite" aria-atomic="true"></div>
+	</div>
 {% endblock %}

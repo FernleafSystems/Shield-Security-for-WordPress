@@ -6,6 +6,14 @@ const FAILURE_TIMEOUT = 90_000;
 const TEST_TIMEOUT = 120_000;
 const expect = baseExpect.configure( { timeout: CYCLE_TIMEOUT } );
 
+// silentCAPTCHA starts on a page without a form at the visitor's first input. Specs about
+// what happens after that start give each page that input once it loads.
+async function simulateVisitorInput( context ) {
+	await context.addInitScript( () => {
+		window.addEventListener( 'load', () => window.dispatchEvent( new Event( 'pointerdown' ) ) );
+	} );
+}
+
 async function observeRefreshTimers( page ) {
 	await page.addInitScript( () => {
 		const nativeSetTimeout = window.setTimeout;
@@ -40,4 +48,4 @@ async function waitForRefreshTimer( page, baseline, windowMs, timeout = CYCLE_TI
 	return records[ 0 ];
 }
 
-module.exports = { expect, CYCLE_TIMEOUT, COMPLEX_CHALLENGE_TIMEOUT, FAILURE_TIMEOUT, TEST_TIMEOUT, observeRefreshTimers, timerBaseline, waitForRefreshTimer };
+module.exports = { expect, CYCLE_TIMEOUT, COMPLEX_CHALLENGE_TIMEOUT, FAILURE_TIMEOUT, TEST_TIMEOUT, observeRefreshTimers, simulateVisitorInput, timerBaseline, waitForRefreshTimer };

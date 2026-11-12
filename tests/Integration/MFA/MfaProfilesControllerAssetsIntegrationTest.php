@@ -313,7 +313,7 @@ class AsyncMfaProfileTestProvider implements Provider2faInterface {
 		return true;
 	}
 
-	public function validateLoginIntent( string $hashedLoginNonce ) :bool {
+	public function validateLoginIntent( string $hashedLoginNonce, array $submitted ) :bool {
 		return true;
 	}
 

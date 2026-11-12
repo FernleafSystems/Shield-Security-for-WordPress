@@ -2,18 +2,24 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class ScansStart extends ScansBase {
 
 	public const SLUG = 'scans_start';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
 		$con = self::con();
 		$success = false;
-		$reloadPage = false;
 		$startedScanIDs = [];
+		$selectedScans = [];
 		$errorCode = '';
 		$failures = [];
 		$msg = $con->comps->scans->getStartBlockedMessage();
@@ -21,10 +27,11 @@ class ScansStart extends ScansBase {
 			$errorCode = StartScansResult::CODE_START_BLOCKED;
 		}
 
-		$params = FormParams::Retrieve();
+		$params = $this->formParams();
 		if ( $con->comps->scans->canStartScans() ) {
-			$selectedScans = \array_intersect( \array_keys( $params ), $con->comps->scans->getScanSlugs() );
-			$resetIgnore = (bool)( $params[ 'opt_clear_ignore' ] ?? false );
+			$selectedScans = \array_values( \array_intersect( \array_keys( $params ), $con->comps->scans->getScanSlugs() ) );
+			// A ticked checkbox sends "Y"; an unticked one sends nothing.
+			$resetIgnore = $this->formFields()->flag( 'opt_clear_ignore', 'Y', 'N', false );
 			$result = $con->comps->scans->startNewScans( $selectedScans, $resetIgnore );
 			$startedScanIDs = $result->getStartedScanIDs();
 			$failures = $result->getFailures();
@@ -32,7 +39,6 @@ class ScansStart extends ScansBase {
 			$errorCode = $result->getErrorCode();
 			if ( $result->hasStarted() ) {
 				$success = true;
-				$reloadPage = true;
 			}
 		}
 		elseif ( $msg === '' ) {
@@ -43,13 +49,11 @@ class ScansStart extends ScansBase {
 
 		$payload = [
 			'scans_running' => $isScanRunning,
-			'page_reload'   => $reloadPage && !$isScanRunning,
+			// Run Manual Scan, where scans start, shows the result itself.
+			'page_reload'   => false,
 			'scan_ids'      => $startedScanIDs,
 			'message'       => $msg,
 		];
-		if ( $payload[ 'page_reload' ] ) {
-			$payload[ 'redirect_url' ] = $con->plugin_urls->actionsQueueScans();
-		}
 		if ( $errorCode !== '' ) {
 			$payload[ 'error_code' ] = $errorCode;
 		}
@@ -71,6 +75,7 @@ class ScansStart extends ScansBase {
 			'remaining_scans' => $msg,
 			'progress'        => $isScanRunning ? 5 : 100,
 			'scan_rows'       => [],
+			'scan_slugs'      => $selectedScans,
 		] ) );
 
 		$this->response()->setPayload( $payload )->setPayloadSuccess( $success );

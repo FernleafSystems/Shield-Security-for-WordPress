@@ -1,7 +1,7 @@
 {% if success %}
 	{% set restore_checkbox_id = 'ConfirmFileRestore-' ~ vars.rid %}
 	{% set accept_checkbox_id = 'ConfirmFileAccept-' ~ vars.rid %}
-	<p class="h6 my-4 ps-3">{{ strings.reviewing_locked_file }}: <code>{{ vars.full_path }}</code></p>
+	{# The panel's heading already gives the file's state and path. #}
 
 	{% if flags.has_diff %}
 

@@ -123,7 +123,7 @@ class IsExcludedPhpTranslationFileIntegrationTest extends ShieldWordPressTestCas
 	}
 
 	private function validTranslationContent() :string {
-		return "<?php return ['x-generator'=>'GlotPress/4.0','translation-revision-date'=>'2026-01-01','messages'=>['Original'=>'Translated']];";
+		return "<?php return ['x-generator'=>'GlotPress/4.0','translation-revision-date'=>'2026-01-01','messages'=>['Original'=>'Translated','%d day'=>'%d day' . \"\\0\" . '%d days']];";
 	}
 
 	private function validTranslationContentWithUtf8Bom() :string {

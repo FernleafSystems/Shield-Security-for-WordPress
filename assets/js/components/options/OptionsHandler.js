@@ -1,6 +1,9 @@
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OptionsFormSubmit } from "./OptionsFormSubmit";
+import { OptionDirtyState } from "./OptionDirtyState";
+import { ConfigureSaveBar } from "./ConfigureSaveBar";
+import { ConfigurePanelControls } from "./ConfigurePanelControls";
 import { AjaxService } from "../services/AjaxService";
 import { Tooltip } from 'bootstrap';
 
@@ -8,7 +11,10 @@ export class OptionsHandler extends BaseAutoExecComponent {
 
 	run() {
 		new OptionsFormSubmit( this._base_data );
+		new ConfigureSaveBar( this._base_data );
+		new ConfigurePanelControls();
 		this.initializeProfileSearchInputs();
+		this.initializeDirtyTracking();
 
 		shieldEventsHandler_Main.add_Click(
 			'form.options_form_for .toggle-importexport-inclusion > input[type=checkbox]',
@@ -89,6 +95,17 @@ export class OptionsHandler extends BaseAutoExecComponent {
 				}
 			},
 			false
+		);
+	}
+
+	initializeDirtyTracking() {
+		const refresh = ( evt ) => OptionDirtyState.refresh( evt.target );
+		document.addEventListener( 'input', refresh );
+		document.addEventListener( 'change', refresh );
+
+		shieldEventsHandler_Main.add_Click(
+			`${OptionDirtyState.FORM_SELECTOR} [data-option-reset]`,
+			( targetEl ) => OptionDirtyState.resetToDefault( targetEl )
 		);
 	}
 

@@ -2,11 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
+
 class PluginImportExport_DisconnectMaster extends BaseAction {
 
 	use Traits\SecurityAdminRequired;
 
 	public const SLUG = 'importexport_disconnect_master';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		try {

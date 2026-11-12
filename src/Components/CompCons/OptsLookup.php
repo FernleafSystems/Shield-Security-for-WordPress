@@ -209,15 +209,22 @@ class OptsLookup {
 	}
 
 	public function getReportEmail() :string {
+		$e = $this->getChosenReportEmail();
+		return $e === '' ? Services::WpGeneral()->getSiteAdminEmail() : $e;
+	}
+
+	/**
+	 * The report email someone chose (the setting, or the shield/report_email filter), or nothing when reports
+	 * would fall back to the site admin email.
+	 */
+	public function getChosenReportEmail() :string {
 		$e = self::con()->opts->optGet( 'block_send_email_address' );
-		if ( self::con()->isPremiumActive() ) {
-			$filtered = apply_filters( 'shield/report_email', $e );
-			if ( \is_string( $filtered ) ) {
-				$e = $filtered;
-			}
+		$filtered = apply_filters( 'shield/report_email', $e );
+		if ( \is_string( $filtered ) ) {
+			$e = $filtered;
 		}
 		$e = \trim( $e );
-		return Services::Data()->validEmail( $e ) ? $e : Services::WpGeneral()->getSiteAdminEmail();
+		return Services::Data()->validEmail( $e ) ? $e : '';
 	}
 
 	public function getSecAdminPIN() :string {

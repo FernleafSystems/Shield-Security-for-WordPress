@@ -96,12 +96,12 @@ test( 'Security Admin PIN is set through configure and verified through login', 
 	await fixtureApi.withSecurityAdminFixture( 'pin-unset', async ( rawContract ) => {
 		const contract = assertSecurityAdminContract( rawContract, 'pin-unset' );
 
-		const { row, form } = await openFocusedConfigureForm( page, contract );
+		const { form } = await openFocusedConfigureForm( page, contract );
 		await form.locator( contract.selectors.pin_option ).fill( contract.pins.new );
 		await form.locator( contract.selectors.pin_option_confirm ).fill( contract.pins.new );
 
 		const saveResponse = waitForShieldAjaxAction( page, contract.action_slugs.module_options_save );
-		await row.locator( '.shield-detail-expansion__btn-save' ).click();
+		await page.locator( '[data-configure-diagnosis="1"] [data-configure-savebar-save="1"]' ).click();
 		const savePayload = await expectShieldAjaxSuccess( await saveResponse );
 		expect( savePayload.data.page_reload ).toBe( true );
 

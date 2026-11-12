@@ -197,6 +197,21 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->assertCount( 0, $this->inviteHttp->requests );
 	}
 
+	public function test_authorise_urls_submit_refuses_urls_that_are_not_text_without_mutation() :void {
+		$this->enableSync();
+
+		$payload = ( new ActionProcessor() )->processAction( ImportExportSitesAuthoriseUrlsSubmit::SLUG, [
+			'form_data' => [
+				'confirm' => 'Y',
+				'urls'    => [ self::NO_CONFIRM ],
+			],
+		] )->payload();
+
+		$this->assertFalse( (bool)( $payload[ 'success' ] ?? true ) );
+		$this->assertSame( 'Invalid request field: urls', $payload[ 'message' ] ?? '' );
+		$this->assertNoSite( self::NO_CONFIRM );
+	}
+
 	public function test_authorise_urls_submit_requires_security_admin_without_mutation() :void {
 		$this->enableSync();
 		$this->setSecurityAdminContext( false );

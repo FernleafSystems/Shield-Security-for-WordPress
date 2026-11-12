@@ -15,19 +15,88 @@ class ActionsQueuePage {
 		).first();
 	}
 
+	/**
+	 * Group cards are listed in place on the landing, one section per queue area, and open their
+	 * results directly.
+	 */
 	async drillToDetail( fixture ) {
-		const bucket = await this.waitForBucket( fixture.bucket_key );
-		await this.clickElement( bucket );
-		await expect( this.page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
-
-		const group = await this.waitForGroupWithRetry( bucket, fixture.group_key );
-
-		if ( group === null ) {
-			throw new Error( `Unable to locate Actions Queue group "${fixture.group_key}" in the groups layer.` );
-		}
-
+		const group = await this.waitForLandingGroup( fixture.bucket_key, fixture.group_key );
 		await this.clickElement( group );
 		await expect( this.page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
+	}
+
+	resultsPanel() {
+		return this.page.locator( '[data-actions-landing="1"] [data-drill-shell="1"][data-results-overlay="1"] [data-drill-layer-key="detail"]' );
+	}
+
+	/**
+	 * Results opened from the landing sit in a panel over it, closed by the panel's own button; results
+	 * reached any other way go back by the breadcrumb.
+	 */
+	async backToLanding() {
+		const close = this.page.locator( '[data-actions-landing="1"] [data-results-overlay-close="1"]:visible' );
+		if ( await close.count() > 0 ) {
+			await close.click();
+		}
+		else {
+			await this.page.locator( '[data-step-tab-drill-index="0"]' ).click();
+		}
+		await expect( this.page.locator( '[data-actions-landing="1"] [data-results-overlay="1"]' ) ).toHaveCount( 0 );
+	}
+
+	/**
+	 * The landing opens as tabs, showing only the first; the sections view lists every section at once.
+	 */
+	async showSectionsView() {
+		const sectionsView = this.page.locator( '[data-actions-queue-view="sections"]' );
+		if ( await sectionsView.getAttribute( 'aria-pressed' ) !== 'true' ) {
+			await sectionsView.click();
+		}
+		await expect( this.page.locator( '[data-actions-queue-sections="1"]' ) ).toHaveAttribute( 'data-view', 'sections' );
+	}
+
+	landingSection( bucketKey ) {
+		return this.page.locator( `[data-actions-queue-sections="1"] [data-actions-queue-section-key="${bucketKey}"]` );
+	}
+
+	async findLandingGroup( bucketKey, groupKey ) {
+		return this.findDrillTargetBySelection(
+			this.landingSection( bucketKey ).locator( '[data-drill-target="detail"]' ),
+			'data-drill-group-selection',
+			groupKey
+		);
+	}
+
+	async waitForLandingGroup( bucketKey, groupKey, timeout = 20000 ) {
+		let group = null;
+
+		await expect.poll( async () => {
+			group = await this.findLandingGroup( bucketKey, groupKey );
+			return group === null ? '' : groupKey;
+		}, { timeout } ).toBe( groupKey );
+
+		return group;
+	}
+
+	/**
+	 * A landing group row; the passing section and its boxes start collapsed, so they're opened first.
+	 */
+	async waitForLandingGroupOuter( groupKey, timeout = 20000 ) {
+		const group = this.page.locator( `[data-actions-queue-sections="1"] [data-actions-queue-group-key="${groupKey}"]` ).first();
+		await expect.poll( async () => await group.count(), { timeout } ).toBe( 1 );
+		await group.evaluate( ( element ) => {
+			const head = element.closest( '[data-actions-queue-section-key]' )
+				?.querySelector( '[data-actions-queue-section-toggle="1"]' );
+			if ( head instanceof HTMLElement && head.getAttribute( 'aria-expanded' ) === 'false' ) {
+				head.click();
+			}
+			const foldedBox = element.closest( '[hidden][id]' );
+			if ( foldedBox !== null ) {
+				document.querySelector( `[data-actions-queue-box-toggle][aria-controls="${foldedBox.id}"]` )?.click();
+			}
+		} );
+		await expect( group ).toBeVisible();
+		return group;
 	}
 
 	async openAssetPanel( panelTarget ) {
@@ -39,72 +108,6 @@ class ActionsQueuePage {
 		await expect( panel ).toHaveAttribute( 'aria-hidden', 'false' );
 
 		return panel;
-	}
-
-	async findGroup( groupKey ) {
-		return this.findDrillTargetBySelection(
-			this.page.locator( '[data-actions-queue-groups="1"] [data-drill-target="detail"]' ),
-			'data-drill-group-selection',
-			groupKey
-		);
-	}
-
-	groupOuter( groupKey ) {
-		return this.page.locator( `[data-actions-queue-group-key="${groupKey}"]` ).first();
-	}
-
-	async waitForGroupOuter( groupKey, timeout = 20000 ) {
-		const group = this.groupOuter( groupKey );
-		await expect.poll( async () => await group.count(), { timeout } ).toBe( 1 );
-		await expect( group ).toBeVisible();
-		return group;
-	}
-
-	async findBucket( bucketKey ) {
-		return this.findDrillTargetBySelection(
-			this.page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]' ),
-			'data-drill-bucket-selection',
-			bucketKey
-		);
-	}
-
-	async waitForGroup( groupKey, timeout = 20000 ) {
-		let group = null;
-
-		await expect.poll( async () => {
-			group = await this.findGroup( groupKey );
-			return group === null ? '' : groupKey;
-		}, { timeout } ).toBe( groupKey );
-
-		return group;
-	}
-
-	async waitForBucket( bucketKey, timeout = 20000 ) {
-		let bucket = null;
-
-		await expect.poll( async () => {
-			bucket = await this.findBucket( bucketKey );
-			return bucket === null ? '' : bucketKey;
-		}, { timeout } ).toBe( bucketKey );
-
-		return bucket;
-	}
-
-	async waitForGroupWithRetry( bucket, groupKey, timeout = 20000 ) {
-		for ( let attempt = 0; attempt < 2; attempt++ ) {
-			try {
-				return await this.waitForGroup( groupKey, timeout );
-			}
-			catch ( error ) {
-				if ( attempt > 0 ) {
-					break;
-				}
-				await this.clickElement( bucket );
-				await expect( this.page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
-			}
-		}
-
-		return await this.findGroup( groupKey );
 	}
 
 	async clickElement( locator ) {

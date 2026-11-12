@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueCompactSummaryRowBuilder,
 	ActionsQueueGroupDefinitions,
 	ActionsQueueGroupMaintenanceSource,
+	ActionsQueueGroupScanSource,
 	ActionsQueueMaintenanceGroupSeedBuilder,
 	ActionsQueuePassiveGroupSeedSupplementer,
 	ActionsQueueScanResultScopeStateBuilder,
@@ -42,6 +43,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 			$definitions,
 			$maintenanceSeedBuilder,
 			$maintenanceSource,
+			$this->makeScanSource(),
 			$this->makePendingFileLockDisplays( [
 				[
 					'file_key' => 'root_htaccess',
@@ -145,6 +147,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 			$definitions,
 			$maintenanceSeedBuilder,
 			$maintenanceSource,
+			$this->makeScanSource(),
 			$this->makeFailingPendingFileLockDisplays(),
 			$this->makeScanResultScopeStateBuilder(),
 			null,
@@ -200,6 +203,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 			$definitions,
 			$maintenanceSeedBuilder,
 			$maintenanceSource,
+			$this->makeScanSource(),
 			$this->makeFailingPendingFileLockDisplays(),
 			$this->makeScanResultScopeStateBuilder(),
 			null,
@@ -232,7 +236,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 		$this->assertSame( 'good', $seeds[ 0 ][ 'status' ] );
 	}
 
-	public function test_supplement_suppresses_empty_cloaked_plugin_detail() :void {
+	public function test_supplement_leaves_empty_cloaked_plugins_with_nothing_to_open_or_list() :void {
 		$seeds = $this->newSupplementer()->supplement(
 			'critical',
 			[ 'attention_items' => [], 'disabled_groups' => [] ],
@@ -245,7 +249,6 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 					'status'            => 'good',
 					'status_label'      => 'Good',
 					'status_icon_class' => 'bi bi-patch-check-fill',
-					'has_useful_detail' => false,
 				] ],
 				'maintenance' => [],
 			],
@@ -256,12 +259,12 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 		$this->assertSame( 'hidden_plugins', $seeds[ 0 ][ 'key' ] );
 		$this->assertFalse( $seeds[ 0 ][ 'is_interactive_override' ] );
 		$this->assertSame( [], $seeds[ 0 ][ 'render_action_data_override' ] );
-		$this->assertSame( [], $seeds[ 0 ][ 'context_actions_override' ] );
-		$this->assertTrue( $seeds[ 0 ][ 'suppress_detail_render_action_if_noninteractive' ] );
+		$this->assertSame( [], $seeds[ 0 ][ 'ignored_rows' ] );
 	}
 
-	public function test_supplement_keeps_ignored_cloaked_plugin_detail_and_file_locker_default_detail() :void {
-		$seeds = $this->newSupplementer( [] )->supplement(
+	public function test_supplement_lists_ignored_cloaked_plugins_and_keeps_file_locker_default_detail() :void {
+		$ignoredRow = ( new ActionsQueueCompactSummaryRowBuilder() )->build( 'bi bi-plug', 'Quiet Plugin', 'Hidden', 'Ignored', true );
+		$seeds = $this->newSupplementer( [], [ $ignoredRow ] )->supplement(
 			'critical',
 			[ 'attention_items' => [], 'disabled_groups' => [] ],
 			[
@@ -274,7 +277,6 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
-						'has_useful_detail' => true,
 					],
 					[
 						'key'               => 'file_locker',
@@ -292,8 +294,8 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 		);
 
 		$byKey = \array_column( $seeds, null, 'key' );
-		$this->assertTrue( $byKey[ 'hidden_plugins' ][ 'is_interactive_override' ] );
-		$this->assertArrayNotHasKey( 'suppress_detail_render_action_if_noninteractive', $byKey[ 'hidden_plugins' ] );
+		$this->assertFalse( $byKey[ 'hidden_plugins' ][ 'is_interactive_override' ] );
+		$this->assertSame( [ $ignoredRow ], $byKey[ 'hidden_plugins' ][ 'ignored_rows' ] );
 		$this->assertTrue( $byKey[ 'file_locker' ][ 'is_interactive_override' ] );
 		$this->assertNotSame( [], $byKey[ 'file_locker' ][ 'render_action_data_override' ] );
 	}
@@ -314,6 +316,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 			$definitions,
 			$maintenanceSeedBuilder,
 			$maintenanceSource,
+			$this->makeScanSource(),
 			$this->makeFailingPendingFileLockDisplays(),
 			$this->makeScanResultScopeStateBuilder( [
 				'malware:malware'     => [
@@ -356,7 +359,6 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 		$this->assertSame( 'good', $seeds[ 0 ][ 'status' ] );
 		$this->assertTrue( $seeds[ 0 ][ 'is_interactive_override' ] );
 		$this->assertNotSame( [], $seeds[ 0 ][ 'render_action_data_override' ] );
-		$this->assertSame( [], $seeds[ 0 ][ 'context_actions_override' ] );
 	}
 
 	public function test_supplement_marks_only_upgrade_required_protection_groups_for_pro_upsell() :void {
@@ -421,7 +423,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 		};
 	}
 
-	private function newSupplementer( ?array $pendingFileLockDisplays = null ) :ActionsQueuePassiveGroupSeedSupplementer {
+	private function newSupplementer( ?array $pendingFileLockDisplays = null, array $ignoredCloakedRows = [] ) :ActionsQueuePassiveGroupSeedSupplementer {
 		$definitions = new ActionsQueueGroupDefinitions();
 		$maintenanceSeedBuilder = new ActionsQueueMaintenanceGroupSeedBuilder(
 			$definitions,
@@ -437,6 +439,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 			$definitions,
 			$maintenanceSeedBuilder,
 			$maintenanceSource,
+			$this->makeScanSource( $ignoredCloakedRows ),
 			$pendingFileLockDisplays === null
 				? $this->makeFailingPendingFileLockDisplays()
 				: $this->makePendingFileLockDisplays( $pendingFileLockDisplays ),
@@ -444,6 +447,22 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 			null,
 			$this->makeRailTabAvailability()
 		);
+	}
+
+	private function makeScanSource( array $ignoredCloakedRows = [] ) :ActionsQueueGroupScanSource {
+		$scanSource = $this->getMockBuilder( ActionsQueueGroupScanSource::class )
+						   ->disableOriginalConstructor()
+						   ->onlyMethods( [ 'vulnerabilitySection', 'cloakedPluginRows' ] )
+						   ->getMock();
+		$scanSource->method( 'cloakedPluginRows' )->willReturn( [ 'active' => [], 'ignored' => $ignoredCloakedRows ] );
+		$scanSource->method( 'vulnerabilitySection' )->willReturn( [
+			'label'         => 'Abandoned Assets',
+			'count'         => 0,
+			'status'        => 'good',
+			'items'         => [],
+			'ignored_items' => [],
+		] );
+		return $scanSource;
 	}
 
 	private function makeFailingPendingFileLockDisplays() :GetPendingFileLockDisplays {

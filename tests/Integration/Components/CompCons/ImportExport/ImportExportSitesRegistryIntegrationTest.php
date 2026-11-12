@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableReadyCache;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ImportExportSitesTableAction;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Enable;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_SetEnabled;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Ops\LoadConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ProfilesDB;
@@ -2922,10 +2922,16 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			->store();
 		$this->repo()->ensureLegacyImported( false );
 
+		$exportParams = [
+			'url'    => $url,
+			'id'     => $importID,
+			'method' => 'json',
+		];
+		// The ambient request names a different site: the export must act only on the parameters it is given.
 		ServicesState::mergeItems( [
 			'service_request' => new ImportExportSitesExportRequestStub( [
-				'url'    => $url,
-				'id'     => $importID,
+				'url'    => 'https://ambient-other-site.example.com',
+				'id'     => 'ambient-other-id',
 				'method' => 'json',
 			] ),
 		] );
@@ -2940,7 +2946,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		\add_filter( 'wp_die_ajax_handler', $dieFilter );
 		\ob_start();
 		try {
-			( new Export() )->toJson();
+			( new Export() )->toJson( $exportParams );
 		}
 		catch ( ImportExportSitesWpDieException $e ) {
 		}
@@ -3359,7 +3365,9 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->pushOldQueueUrls( [ $url ] );
 		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 
-		$payload = ( new ActionProcessor() )->processAction( PluginImportExport_Enable::SLUG )->payload();
+		$payload = ( new ActionProcessor() )->processAction( PluginImportExport_SetEnabled::SLUG, [
+			'enabled' => 'Y',
+		] )->payload();
 
 		$this->assertArrayHasKey( 'success', $payload );
 		$this->assertArrayHasKey( 'page_reload', $payload );

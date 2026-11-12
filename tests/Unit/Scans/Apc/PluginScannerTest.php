@@ -19,6 +19,8 @@ use FernleafSystems\Wordpress\Services\Core\{
 
 class PluginScannerTest extends BaseUnitTest {
 
+	private int $openFindingLastUpdatedAt = 0;
+
 	private const NOW = 1784280000;
 
 	private const ABANDONED_LIMIT = 63072000;
@@ -321,6 +323,51 @@ class PluginScannerTest extends BaseUnitTest {
 		$this->assertSame( [], $result );
 	}
 
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideUnansweredLookups' )]
+	public function test_unanswered_lookup_keeps_an_open_finding( $apiResponse ) :void {
+		$this->expectPluginApi( $apiResponse );
+		$this->openFindingLastUpdatedAt = self::NOW - self::ABANDONED_LIMIT - 1;
+
+		$result = $this->scan( new PluginScannerTestVo( 'cornerstone', '0.8.1' ) );
+
+		$this->assertTrue( $result[ 'is_abandoned' ] ?? false );
+		$this->assertSame( 'cornerstone/cornerstone.php', $result[ 'slug' ] ?? '' );
+		$this->assertSame( $this->openFindingLastUpdatedAt, $result[ 'last_updated_at' ] ?? 0 );
+	}
+
+	public static function provideUnansweredLookups() :array {
+		return [
+			'WordPress error' => [ new \WP_Error( 'plugins_api_failed', 'API failed.' ) ],
+			'non-object response' => [ [] ],
+			'missing version' => [ (object)[
+				'slug'         => 'cornerstone',
+				'last_updated' => self::date( self::NOW - self::ABANDONED_LIMIT - 1 ),
+			] ],
+			'invalid date' => [ (object)[
+				'slug'         => 'cornerstone',
+				'version'      => '0.8.1',
+				'last_updated' => 'not-a-date',
+			] ],
+		];
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provideDefiniteAnswers' )]
+	public function test_definite_answer_resolves_an_open_finding( string $apiSlug, string $apiVersion, int $lastUpdatedAt ) :void {
+		$this->expectPluginApi( $this->apiResponse( $apiSlug, $apiVersion, $lastUpdatedAt ) );
+		$this->openFindingLastUpdatedAt = self::NOW - self::ABANDONED_LIMIT - 1;
+
+		$this->assertSame( [], $this->scan( new PluginScannerTestVo( 'cornerstone', '0.8.1' ) ) );
+	}
+
+	public static function provideDefiniteAnswers() :array {
+		$old = self::NOW - self::ABANDONED_LIMIT - 1;
+		return [
+			'a different plugin'    => [ 'unrelated-plugin', '0.8.1', $old ],
+			'installed is newer'    => [ 'cornerstone', '0.1.0', $old ],
+			'updated recently'      => [ 'cornerstone', '0.8.1', self::NOW - 60 ],
+		];
+	}
+
 	private function scan( WpPluginVo $plugin, array $pluginData = [] ) :array {
 		ServicesState::installItems( [
 			'service_request'   => new UnitTestRequest( [], '127.0.0.1', self::NOW ),
@@ -329,7 +376,18 @@ class PluginScannerTest extends BaseUnitTest {
 		$action = new ScanActionVO();
 		$action->abandoned_limit = self::ABANDONED_LIMIT;
 
-		return ( new PluginScanner() )
+		return ( new class( $this->openFindingLastUpdatedAt ) extends PluginScanner {
+
+			private int $openFindingLastUpdatedAt;
+
+			public function __construct( int $openFindingLastUpdatedAt ) {
+				$this->openFindingLastUpdatedAt = $openFindingLastUpdatedAt;
+			}
+
+			protected function getOpenFindingLastUpdatedAt( string $pluginFile ) :int {
+				return $this->openFindingLastUpdatedAt;
+			}
+		} )
 			->setScanActionVO( $action )
 			->scan( 'cornerstone/cornerstone.php' );
 	}

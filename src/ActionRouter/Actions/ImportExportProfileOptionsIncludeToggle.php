@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Record as ProfileRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Profiles\ProfileRepository;
 
@@ -9,8 +10,15 @@ class ImportExportProfileOptionsIncludeToggle extends BaseAction {
 
 	public const SLUG = 'importexport_profile_options_include_toggle';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
-		$status = (string)$this->action_data[ 'status' ];
+		$status = $this->fields()->string( 'status' );
+		$keys = $this->optionKeys();
 		$success = false;
 
 		if ( self::con()->isPluginAdmin()
@@ -18,7 +26,7 @@ class ImportExportProfileOptionsIncludeToggle extends BaseAction {
 			$repo = new ProfileRepository();
 			$profile = $repo->defaultProfile();
 			if ( $profile instanceof ProfileRecord ) {
-				$success = $repo->setOptionsIncluded( $profile, $this->optionKeys(), $status === 'include' );
+				$success = $repo->setOptionsIncluded( $profile, $keys, $status === 'include' );
 			}
 		}
 
@@ -41,13 +49,10 @@ class ImportExportProfileOptionsIncludeToggle extends BaseAction {
 	 * @return string[]
 	 */
 	private function optionKeys() :array {
-		$keys = $this->action_data[ 'keys' ];
-		if ( \is_array( $keys ) ) {
-			$keys = \array_map( '\strval', $keys );
-		}
-		else {
-			$keys = \explode( ',', (string)$keys );
-		}
+		// A list of keys, or the same keys comma-separated.
+		$keys = \is_array( $this->action_data[ 'keys' ] )
+			? $this->fields()->stringList( 'keys' )
+			: \explode( ',', $this->fields()->string( 'keys' ) );
 
 		return \array_values( \array_filter(
 			\array_map( '\trim', $keys ),

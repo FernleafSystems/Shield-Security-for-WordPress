@@ -4,15 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Respon
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ResponseAdapter\AjaxResponseAdapter;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageSecurityAdminRestricted;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class AjaxResponseAdapterContractTest extends BaseUnitTest {
 
 	public function test_adapter_builds_normalized_payload_and_hides_internal_data() :void {
 		$response = new ActionResponse();
-		$response->message = 'fallback_message';
-		$response->error = 'fallback_error';
+		$response->action_slug = 'internal_slug';
 		$response->action_data = [
 			'ex' => 'internal',
 		];
@@ -35,13 +33,17 @@ class AjaxResponseAdapterContractTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'show_toast', $payload );
 		$this->assertArrayNotHasKey( 'action_response_data', $payload );
 		$this->assertArrayNotHasKey( 'action_data', $payload );
+		$this->assertArrayNotHasKey( 'action_slug', $payload );
 	}
 
-	public function test_adapter_enforces_payload_canonical_success_when_payload_success_missing() :void {
+	/**
+	 * The payload is the whole response: properties set directly on the response object never reach the transport.
+	 */
+	public function test_adapter_builds_only_from_the_payload() :void {
 		$response = new ActionResponse();
 		$response->success = true;
-		$response->message = 'fallback_message';
-		$response->error = 'fallback_error';
+		$response->message = 'loose_message';
+		$response->error = 'loose_error';
 		$response->setPayload( [
 			'message' => 'payload_message',
 		] );
@@ -52,34 +54,11 @@ class AjaxResponseAdapterContractTest extends BaseUnitTest {
 
 		$this->assertFalse( $payload[ 'success' ] ?? true );
 		$this->assertSame( 'payload_message', $payload[ 'message' ] ?? '' );
-		$this->assertSame( 'fallback_error', $payload[ 'error' ] ?? '' );
+		$this->assertSame( '', $payload[ 'error' ] ?? null );
 		$this->assertArrayHasKey( 'html', $payload );
 		$this->assertArrayHasKey( 'page_title', $payload );
 		$this->assertArrayHasKey( 'page_url', $payload );
 		$this->assertArrayHasKey( 'show_toast', $payload );
 		$this->assertArrayNotHasKey( 'page_reload', $payload );
-	}
-
-	public function test_adapter_restricted_page_slug_maps_render_output_to_html_only() :void {
-		$response = new ActionResponse();
-		$response->action_slug = PageSecurityAdminRestricted::SLUG;
-		$response->message = 'fallback_message';
-		$response->error = 'fallback_error';
-		$response->setPayload( [
-			'render_output' => 'restricted_output',
-			'success'       => true,
-			'page_title'    => 'ignored_page_title',
-		] );
-
-		$payload = ( new AjaxResponseAdapter() )
-			->adapt( $response )
-			->payload();
-
-		$this->assertSame(
-			[
-				'html' => 'restricted_output',
-			],
-			$payload
-		);
 	}
 }

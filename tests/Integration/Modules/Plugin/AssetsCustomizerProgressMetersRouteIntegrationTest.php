@@ -154,8 +154,10 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 	}
 
 	private function assertSessionsTableLocalized( array $comps ) :void {
-		$this->assertArrayHasKey( 'sessions', $comps[ 'tables' ] ?? [] );
-		$this->assertArrayHasKey( 'table_action', $comps[ 'tables' ][ 'sessions' ][ 'ajax' ] ?? [] );
+		// Investigate holds its log tables together, and starts each one when its tab first opens.
+		$logs = $comps[ 'tables' ][ 'investigate_logs' ] ?? [];
+		$this->assertArrayHasKey( 'sessions', $logs );
+		$this->assertArrayHasKey( 'table_action', $logs[ 'sessions' ][ 'ajax' ] ?? [] );
 	}
 
 	private function assertComponentHasAjaxKey( array $comps, string $componentKey, string $ajaxKey ) :void {

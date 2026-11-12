@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base as MeterComponentBase;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\ReportEmailChoice;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -86,6 +87,13 @@ class MaintenanceIssueStateProvider {
 
 	public function isKnownMaintenanceKey( string $key ) :bool {
 		return \in_array( $key, $this->maintenanceKeys(), true );
+	}
+
+	/**
+	 * Choosing a report email is the only way to end the report email hold, so it can't be ignored.
+	 */
+	public function canBeIgnored( string $key ) :bool {
+		return $this->isKnownMaintenanceKey( $key ) && $key !== ReportEmailChoice::SLUG;
 	}
 
 	public function supportsSubItems( string $key ) :bool {

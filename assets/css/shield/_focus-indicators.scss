@@ -21,7 +21,6 @@ $shield-focus-ring-shadow: rgba(11, 87, 164, 0.22) !default;
 ul.nav.nav-tabs.shield_body-sub-nav a.nav-link:focus-visible,
 #AptoOffcanvas .offcanvas-header .btn-close:focus-visible,
 #ShieldModalContainer .btn-close:focus-visible,
-#ModalSuperSearchBox .btn-close:focus-visible,
 #SecurityAdminOverlay .btn-close:focus-visible,
 .shield-accessible-dialog__confirm:focus-visible,
 .shield-accessible-dialog__cancel:focus-visible,
@@ -29,7 +28,6 @@ ul.nav.nav-tabs.shield_body-sub-nav a.nav-link:focus-visible,
 .shield-section-datatable div.dt-search input:focus-visible,
 .shield-section-datatable .dt-buttons .dt-button:focus-visible,
 .shield-section-datatable .dt-paging button:focus-visible,
-.shield-section-datatable .paginate_button:focus-visible,
 .shield-section-datatable .scan-results-row-action:focus-visible,
 .shield-section-datatable table.dataTable a:focus-visible,
 .shield-section-datatable table.dataTable button:focus-visible,
@@ -46,7 +44,6 @@ ul.nav.nav-tabs.shield_body-sub-nav a.nav-link:focus-visible,
 	@include shield-focus-ring();
 }
 
-#ModalSuperSearchBox input.search-text:focus-visible,
 .select2-search__field:focus-visible {
 	@include shield-focus-ring();
 }

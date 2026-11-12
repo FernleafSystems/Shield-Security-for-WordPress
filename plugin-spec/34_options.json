@@ -18,6 +18,7 @@
     },
     {
         "key": "admin_access_timeout",
+        "unit": "minutes",
         "section": "section_security_admin_settings",
         "zone_comp_slugs": [
             "secadmin_enabled",
@@ -342,6 +343,7 @@
     },
     {
         "key": "update_delay",
+        "unit": "days",
         "section": "section_scan_wpv",
         "zone_comp_slugs": [
             "vulnerability_scanning",
@@ -456,6 +458,7 @@
     },
     {
         "key": "trusted_commenter_minimum",
+        "unit": "comments",
         "section": "section_bot_comment_spam_protection_filter",
         "zone_comp_slugs": [
             "trusted_commenters",
@@ -496,6 +499,7 @@
     },
     {
         "key": "comments_cooldown",
+        "unit": "seconds",
         "section": "section_bot_comment_spam_protection_filter",
         "zone_comp_slugs": [
             "module_spam"
@@ -1138,6 +1142,7 @@
     },
     {
         "key": "transgression_limit",
+        "unit": "offenses",
         "section": "section_auto_black_list",
         "zone_comp_slugs": [
             "auto_ip_blocking",
@@ -1851,6 +1856,7 @@
     },
     {
         "key": "mfa_skip",
+        "unit": "days",
         "section": "section_twofactor_auth",
         "zone_comp_slugs": [
             "two_factor_auth",
@@ -2057,6 +2063,7 @@
     },
     {
         "key": "login_limit_interval",
+        "unit": "seconds",
         "section": "section_brute_force_login_protection",
         "zone_comp_slugs": [
             "login_protection_forms",
@@ -2721,14 +2728,6 @@
             {
                 "value_key": "weekly",
                 "text": "Weekly"
-            },
-            {
-                "value_key": "biweekly",
-                "text": "Bi-Weekly"
-            },
-            {
-                "value_key": "monthly",
-                "text": "Monthly"
             }
         ],
         "link_info": "https://clk.shldscrty.com/ha",
@@ -3288,6 +3287,7 @@
     },
     {
         "key": "limit_requests",
+        "unit": "requests",
         "section": "section_traffic_limiter",
         "zone_comp_slugs": [
             "rate_limiting",
@@ -3304,6 +3304,7 @@
     },
     {
         "key": "limit_time_span",
+        "unit": "seconds",
         "section": "section_traffic_limiter",
         "zone_comp_slugs": [
             "rate_limiting",
@@ -3344,6 +3345,7 @@
     },
     {
         "key": "session_timeout_interval",
+        "unit": "days",
         "section": "section_user_session_management",
         "zone_comp_slugs": [
             "session_theft_protection",
@@ -3360,6 +3362,7 @@
     },
     {
         "key": "session_idle_timeout_interval",
+        "unit": "hours",
         "section": "section_user_session_management",
         "zone_comp_slugs": [
             "session_theft_protection",
@@ -3565,6 +3568,7 @@
     },
     {
         "key": "pass_expire",
+        "unit": "days",
         "section": "section_passwords",
         "zone_comp_slugs": [
             "password_policies",
@@ -3636,6 +3640,7 @@
     },
     {
         "key": "auto_idle_days",
+        "unit": "days",
         "section": "section_suspend",
         "zone_comp_slugs": [
             "inactive_users",

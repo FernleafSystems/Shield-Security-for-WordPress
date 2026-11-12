@@ -25,10 +25,6 @@ trait Common {
 		return $this->addWhereEquals( 'finished_at', 0 );
 	}
 
-	public function filterByNotReady() {
-		return $this->addWhereEquals( 'ready_at', 0 );
-	}
-
 	public function filterByFinished() {
 		return $this->addWhereNewerThan( 0, 'finished_at' );
 	}

@@ -14,7 +14,7 @@ abstract class TableActionBase extends BaseAction {
 
 	protected function exec() {
 		try {
-			$subAction = (string)( $this->action_data[ 'sub_action' ] ?? '' );
+			$subAction = $this->fields()->string( 'sub_action', '' );
 			$handlers = $this->getSubActionHandlers();
 			$handler = $handlers[ $subAction ] ?? null;
 

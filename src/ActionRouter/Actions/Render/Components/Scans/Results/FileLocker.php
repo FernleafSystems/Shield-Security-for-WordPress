@@ -18,9 +18,11 @@ class FileLocker extends Base {
 				'is_file_locker' => true,
 			],
 			'strings' => [
+				'mode_panel_close'  => __( 'Close', 'wp-simple-firewall' ),
 				'no_issues'         => __( 'No File Locker entries are currently available to review.', 'wp-simple-firewall' ),
 				'disabled_message'  => $pane[ 'disabled_message' ],
 				'select_asset_hint' => __( 'Select a file above to review its current status and details.', 'wp-simple-firewall' ),
+				'lock_file'         => __( 'Lock this file', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'asset_cards'      => $pane[ 'cards' ],

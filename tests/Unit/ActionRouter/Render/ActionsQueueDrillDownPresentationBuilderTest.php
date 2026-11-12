@@ -97,7 +97,7 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 		$this->assertSame( $selectionForJson, \json_decode( $selection[ 'selection_json' ], true ) );
 	}
 
-	public function test_build_group_selection_keeps_context_actions_in_header_and_selection_json() :void {
+	public function test_queue_headers_carry_no_side_rail_actions() :void {
 		$builder = new ActionsQueueDrillDownPresentationBuilder();
 
 		$selection = $builder->buildGroupSelection(
@@ -111,25 +111,11 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 			[
 				'render_slug' => 'actions_queue_asset_file_status_detail',
 			],
-			'group_focus',
-			[
-				[
-					'kind'             => 'ajax',
-					'label'            => 'ignore_all_results',
-					'type'             => 'deactivate',
-					'icon_class'       => 'bi bi-eye-slash-fill',
-					'ajax_action_json' => '{"sub_action":"ignore_all"}',
-					'confirm_text'     => 'confirm_ignore_all_results',
-				],
-			]
+			'group_focus'
 		);
 
-		$this->assertSame( 'ignore_all_results', $selection[ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' );
-		$this->assertSame( 'ajax', $selection[ 'header' ][ 'actions' ][ 0 ][ 'kind' ] ?? '' );
-		$this->assertSame(
-			$selection[ 'header' ][ 'actions' ],
-			\json_decode( $selection[ 'selection_json' ], true )[ 'header' ][ 'actions' ] ?? []
-		);
+		$this->assertSame( [], $selection[ 'header' ][ 'actions' ] );
+		$this->assertSame( [], \json_decode( $selection[ 'selection_json' ], true )[ 'header' ][ 'actions' ] );
 	}
 
 }

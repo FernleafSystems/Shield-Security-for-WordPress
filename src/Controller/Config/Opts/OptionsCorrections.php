@@ -235,7 +235,9 @@ class OptionsCorrections {
 		$opts = self::con()->opts;
 		foreach ( [ 'frequency_alert', 'frequency_info' ] as $key ) {
 			$current = $opts->optGet( $key );
-			$normalised = ReportFrequency::normaliseLegacy( $current );
+			$normalised = $key === 'frequency_info'
+				? ReportFrequency::normaliseInfo( $current )
+				: ReportFrequency::normaliseLegacy( $current );
 			if ( $normalised !== $current ) {
 				$opts->optSet( $key, $normalised );
 			}

@@ -1,90 +1,41 @@
-{% import '/components/config/macros.twig' as config_macros %}
+{% set has_help_links = option.beacon_id or option.link_info or option.vimeo_id is not empty or option.link_blog %}
+{% set has_details = option.description|length > 0 or has_help_links or option.default_label is not empty or ( option.disabled and option.unavailable ) %}
 
-<div class="shield-option-item">
+<div class="shield-option-item{{ option.is_focus ? ' shield-option-item-expanded' : '' }}"
+	 data-option-key="{{ option.key }}">
 
 	<div class="shield-option-row">
 		<div class="shield-option-label-zone">
 			<div class="shield-option-label-row">
 				<span class="option_label_name"
 					  id="Label-{{ option.key }}">{{ option.name }}</span>
-
-				<span class="shield-option-helpers">
-					{% if option.description|length > 0 %}
-						{{ config_macros.icon_action(
-							imgs.svgs.expand,
-							strings.description,
-							'',
-							['option-description-expander'],
-							{
-								'aria-controls': 'Description-'~option.key,
-								'aria-expanded': option.is_focus ? 'true' : 'false'
-							}
-						) }}
-					{% endif %}
-
-					{% if option.beacon_id|default(false) %}
-						{{ config_macros.icon_action(
-							imgs.svgs.help,
-							strings.opt_info_helpdesk,
-							'',
-							['beacon-article'],
-							{
-								'data-beacon_article_format': 'sidebar',
-								'data-beacon_article_id': option.beacon_id
-							}
-						) }}
-
-					{% elseif option.link_info %}
-						{{ config_macros.icon_action(
-							imgs.svgs.help,
-							strings.opt_info_helpdesk,
-							option.link_info,
-							[],
-							{'target': '_blank'}
-						) }}
-					{% endif %}
-
-					{% if option.vimeo_id|default('') is not empty %}
-						{{ config_macros.icon_action(
-							imgs.svgs.video,
-							strings.opt_info_video,
-							'',
-							['option-video'],
-							{'data-vimeoid': option.vimeo_id}
-						) }}
-					{% endif %}
-
-					{% if option.link_blog %}
-						{{ config_macros.icon_action(
-							imgs.svgs.blog,
-							strings.opt_info_blog,
-							option.link_blog,
-							[],
-							{'target': '_blank'}
-						) }}
-					{% endif %}
-
-					{% if option.disabled and option.unavailable %}
-						{{ config_macros.icon_action(
-							imgs.svgs.upgrade,
-							'Upgrade to Pro to unlock',
-							hrefs.go_pro,
-							['shield-config-icon-action--upgrade'],
-							{'target': '_blank'}
-						) }}
-					{% endif %}
-				</span>
+				{% if option.disabled and option.unavailable %}
+					<span class="shield-option-pill shield-option-pill--pro">{{ strings.opt_pro }}</span>
+				{% endif %}
+				<span class="shield-option-pill shield-option-pill--unsaved" data-option-unsaved="1" hidden>{{ strings.opt_unsaved }}</span>
 			</div>
 
 			<div class="options-summary">{{ option.summary }}</div>
+
+			{% if has_details %}
+				<button type="button"
+						class="option-description-expander shield-option-details-toggle"
+						aria-controls="Description-{{ option.key }}"
+						aria-expanded="{{ option.is_focus ? 'true' : 'false' }}">
+					{{ strings.opt_details }}<i class="bi bi-chevron-down" aria-hidden="true"></i>
+				</button>
+			{% endif %}
 		</div>
 
 		<div class="shield-option-control-col">
 			{% include '/components/config/option_control.twig' %}
+			{% if option.unit_label is not empty %}
+				<span class="shield-option-unit">{{ option.unit_label }}</span>
+			{% endif %}
 		</div>
 	</div>
 
-	{% if option.description|length > 0 %}
+	{% if has_details %}
 		<div id="Description-{{ option.key }}"
 			 class="option-description {{ option.is_focus ? '':'hidden' }}"
 			 aria-hidden="{{ option.is_focus ? 'false' : 'true' }}"
@@ -101,6 +52,56 @@
 								<li><code>{{ namespace }}</code></li>
 							{% endfor %}
 						</ul>
+					</div>
+				{% endif %}
+
+				{% if option.disabled and option.unavailable %}
+					<p class="shield-option-pro-note">
+						<span class="shield-option-pill shield-option-pill--pro">{{ strings.opt_pro }}</span>
+						{{ strings.opt_pro_note }}
+						<a href="{{ hrefs.go_pro }}" target="_blank">{{ strings.opt_pro_link }}</a>
+					</p>
+				{% endif %}
+
+				{% if has_help_links or option.default_label is not empty %}
+					<div class="shield-option-links">
+						{% if option.beacon_id %}
+							<button type="button"
+									class="shield-option-link beacon-article"
+									data-beacon_article_format="sidebar"
+									data-beacon_article_id="{{ option.beacon_id }}">
+								<i class="{{ imgs.svgs.help }}" aria-hidden="true"></i>{{ strings.opt_info_helpdesk }}
+							</button>
+						{% elseif option.link_info %}
+							<a href="{{ option.link_info }}" class="shield-option-link" target="_blank">
+								<i class="{{ imgs.svgs.help }}" aria-hidden="true"></i>{{ strings.opt_info_helpdesk }}
+							</a>
+						{% endif %}
+
+						{% if option.vimeo_id is not empty %}
+							<button type="button" class="shield-option-link option-video" data-vimeoid="{{ option.vimeo_id }}">
+								<i class="{{ imgs.svgs.video }}" aria-hidden="true"></i>{{ strings.opt_info_video }}
+							</button>
+						{% endif %}
+
+						{% if option.link_blog %}
+							<a href="{{ option.link_blog }}" class="shield-option-link" target="_blank">
+								<i class="{{ imgs.svgs.blog }}" aria-hidden="true"></i>{{ strings.opt_info_blog }}
+							</a>
+						{% endif %}
+
+						{% if option.default_label is not empty %}
+							<span class="shield-option-default">
+								{{ strings.opt_default }}: {{ option.default_label }}{{ option.unit_label is not empty ? ' '~option.unit_label : '' }}
+								{% if not option.disabled %}
+									<button type="button"
+											class="shield-option-link shield-option-reset"
+											data-option-reset="{{ option.key }}"
+											data-default-value="{{ option.default_value|e('html_attr') }}"
+											{% if option.is_value_default %}hidden{% endif %}>{{ strings.opt_reset_default }}</button>
+								{% endif %}
+							</span>
+						{% endif %}
 					</div>
 				{% endif %}
 			</div>

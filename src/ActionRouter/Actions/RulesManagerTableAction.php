@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\RuleRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\ReorderCustomRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SecurityRules\BuildSecurityRulesTableData;
@@ -9,6 +10,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SecurityR
 class RulesManagerTableAction extends BaseAction {
 
 	public const SLUG = 'rules_manager_table_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$con = self::con();
@@ -20,8 +27,9 @@ class RulesManagerTableAction extends BaseAction {
 		];
 
 		try {
-			$RIDs = $this->action_data[ 'rids' ] ?? [];
-			$action = $this->action_data[ 'sub_action' ] ?? '';
+			$fields = $this->fields();
+			$RIDs = $fields->positiveIntList( 'rids', [] );
+			$action = $fields->string( 'sub_action', '' );
 			switch ( $action ) {
 				case 'retrieve_table_data':
 					$response = $this->retrieveTableData();
@@ -37,7 +45,7 @@ class RulesManagerTableAction extends BaseAction {
 					break;
 				default:
 
-					$rule = \count( $RIDs ) === 1 ? ( new RuleRecords() )->byID( (int)\array_pop( $RIDs ) ) : null;
+					$rule = \count( $RIDs ) === 1 ? ( new RuleRecords() )->byID( \array_pop( $RIDs ) ) : null;
 					if ( !empty( $rule ) ) {
 						$updateData = [];
 						switch ( $action ) {
@@ -62,7 +70,7 @@ class RulesManagerTableAction extends BaseAction {
 								$msg = __( "Rule won't be exported during sync", 'wp-simple-firewall' );
 								break;
 							default:
-								throw new \Exception( 'Not a supported Sessions table sub_action: '.$this->action_data[ 'sub_action' ] );
+								throw new \Exception( 'Not a supported Sessions table sub_action: '.$action );
 						}
 
 						$response[ 'message' ] = $msg;
@@ -98,7 +106,7 @@ class RulesManagerTableAction extends BaseAction {
 
 	private function retrieveTableData() :array {
 		$builder = new BuildSecurityRulesTableData();
-		$builder->table_data = $this->action_data[ 'table_data' ];
+		$builder->table_data = $this->fields()->array( 'table_data' );
 		return [
 			'success'        => true,
 			'datatable_data' => $builder->build(),
