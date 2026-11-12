@@ -184,7 +184,10 @@ export class ConfigureSaveBar extends BaseAutoExecComponent {
 		sendEncodedOptionsSave( this._base_data.ajax[ actionKey ], formData )
 		.then( ( resp ) => {
 			if ( resp?.data?.page_reload ) {
-				window.location.reload();
+				// The AJAX service reloads the page once its message has been seen. Nothing is unsaved any more,
+				// so that reload mustn't raise the browser's unsaved-changes warning.
+				forms.forEach( ( form ) => this.markSaved( form ) );
+				this.refreshFor( forms[ 0 ] );
 				return;
 			}
 			if ( root.closest( '[data-configure-landing="1"]' ) === null ) {

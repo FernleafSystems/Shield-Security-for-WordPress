@@ -105,7 +105,11 @@ test( 'the Investigate lookup and each log tab pass axe', async ( { page } ) => 
 		await landing.locator( `[data-investigate-tab="${tab}"]` ).click();
 		const panel = landing.locator( `[data-investigate-tabpanel="${tab}"]` );
 		await expect( panel ).toBeVisible();
-		await expect( panel.locator( 'table.dataTable' ) ).toBeVisible( { timeout: 20_000 } );
+		// The log's own table (its filter panes are tables too), checked once it has finished loading.
+		const table = panel.locator( 'table.dataTable[id^="ShieldTable-"]' );
+		await expect( table ).toBeVisible( { timeout: 20_000 } );
+		await expect( table.locator( 'xpath=ancestor::div[contains(@class,"dt-container")]' ) )
+			.toHaveAttribute( 'aria-busy', 'false', { timeout: 20_000 } );
 		await expectNoAxeViolations( page, '#PageContainer-Apto' );
 	}
 } );
