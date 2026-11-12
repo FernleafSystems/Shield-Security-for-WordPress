@@ -614,6 +614,7 @@ module.exports = {
 	fillWordPressLoginForm,
 	expect: base.expect,
 	openShieldRoute,
+	submitWordPressLogin,
 	test,
 	waitForShieldPage,
 };
