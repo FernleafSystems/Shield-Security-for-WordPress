@@ -10,15 +10,7 @@ class AjaxResponseAdapter extends BaseAdapter {
 
 	public function adapt( ActionResponse $response ) :RoutedResponse {
 		$payload = $response->payload();
-		$responseData = ResponseEnvelopeNormalizer::forAjaxAdapter(
-			\array_merge( $response->getRawData(), $payload ),
-			$response->message ?? '',
-			$response->error ?? '',
-		);
-		$responseData = \array_diff_key(
-			$responseData,
-			\array_flip( [ 'action_response_data', 'action_data' ] )
-		);
+		$responseData = ResponseEnvelopeNormalizer::forAjaxAdapter( $payload );
 		$responseData[ 'success' ] = (bool)( $payload[ 'success' ] ?? false );
 
 		$response->setPayload( $responseData );

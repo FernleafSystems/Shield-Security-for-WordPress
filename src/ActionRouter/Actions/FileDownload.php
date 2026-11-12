@@ -29,9 +29,7 @@ class FileDownload extends BaseAction {
 				->fromString( $contents[ 'content' ], [ 'Set-cookie' => 'fileDownload=true; path=/' ] );
 		}
 		catch ( \Exception $e ) {
-			$resp = $this->response();
-			$resp->message = $e->getMessage();
-			$resp->mergePayload( [
+			$this->response()->mergePayload( [
 				'message' => $e->getMessage(),
 			] )->setPayloadSuccess( false );
 		}

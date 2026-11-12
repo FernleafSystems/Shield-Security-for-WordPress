@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginAdmin;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
@@ -13,9 +14,11 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 
 	public const SLUG = 'plugin_admin_page_handler';
 
+	/**
+	 * Runs only for non-AJAX admin requests; the controller decides that before calling it.
+	 */
 	protected function exec() {
-		if ( !Services::WpGeneral()->isAjax()
-		     && apply_filters( 'shield/show_admin_menu', self::con()->cfg->menu[ 'show' ] ?? true ) ) {
+		if ( apply_filters( 'shield/show_admin_menu', self::con()->cfg->menu[ 'show' ] ?? true ) ) {
 
 			add_action( 'admin_menu', function () {
 				if ( !Services::WpGeneral()->isMultisite() && is_admin() ) {
@@ -101,9 +104,9 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 			);
 		}
 
-		$currentNav = $this->action_data[ Constants::NAV_ID ] ?? '';
+		$currentNav = ActionData::TransportField( $this->action_data, Constants::NAV_ID );
 		if ( !isset( $navs[ $currentNav ] ) ) {
-			$mode = PluginNavs::modeForNav( (string)$currentNav );
+			$mode = PluginNavs::modeForNav( $currentNav );
 			$entry = PluginNavs::defaultEntryForMode( $mode );
 			$currentNav = $entry[ 'nav' ];
 		}

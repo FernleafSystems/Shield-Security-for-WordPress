@@ -5,12 +5,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
+	ActionResponse,
+	ActionRoutingController,
 	Exceptions\ActionDoesNotExistException,
 	Exceptions\ActionException,
 	Exceptions\InvalidActionNonceException,
 	Exceptions\SecurityAdminRequiredException,
 	Exceptions\UserAuthRequiredException,
-	ResponseAdapter\AjaxResponseAdapter,
+	ResponseAdapter\ResponseAdapterFactory,
 	Utility\ActionsMap,
 	Utility\AuthRefreshRequest,
 	Utility\ExternalEntryGuard,
@@ -204,23 +206,15 @@ class AjaxBatchRequests extends BaseAction {
 		}
 	}
 
-	private function adaptSubrequestResponse( \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse $response ) :array {
-		$statusCode = 200;
-		$payload = $response->payload();
-
-		// Batch item execution should not fail solely because transport adaptation fails.
-		try {
-			$routedResponse = ( new AjaxResponseAdapter() )->adapt( $response );
-			$statusCode = $routedResponse->statusCode();
-			$payload = $routedResponse->payload();
-		}
-		catch ( \Throwable $e ) {
-			// Fallback to raw action payload to preserve independent batch item execution.
-		}
+	private function adaptSubrequestResponse( ActionResponse $response ) :array {
+		// Each item is an AJAX response in its own right, adapted the same way as a direct AJAX request.
+		$routedResponse = ( new ResponseAdapterFactory() )
+			->forActionType( ActionRoutingController::ACTION_AJAX )
+			->adapt( $response );
 
 		return [
-			'status_code' => $statusCode,
-			'payload'     => $payload,
+			'status_code' => $routedResponse->statusCode(),
+			'payload'     => $routedResponse->payload(),
 		];
 	}
 

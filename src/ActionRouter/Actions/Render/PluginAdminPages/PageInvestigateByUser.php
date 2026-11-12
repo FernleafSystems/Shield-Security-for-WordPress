@@ -41,7 +41,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$lookup = $this->getTextInputFromRequestOrActionData( 'user_lookup' );
+		$lookup = $this->getTextInputFromActionData( 'user_lookup' );
 		$userLookupBuilder = $this->getUserLookupBuilder();
 		$subject = $this->resolveSubject( $lookup );
 		$hasLookup = !empty( $lookup );

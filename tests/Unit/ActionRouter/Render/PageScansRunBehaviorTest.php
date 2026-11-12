@@ -31,6 +31,7 @@ class PageScansRunBehaviorTest extends BaseUnitTest {
 		$this->servicesSnapshot = ServicesState::snapshot();
 		Functions\when( '__' )->returnArg();
 		Functions\when( 'sanitize_key' )->returnArg();
+		Functions\when( 'sanitize_text_field' )->returnArg();
 		Functions\when( 'rawurlencode_deep' )->alias( fn( $value ) => $value );
 		Functions\when( 'add_query_arg' )->alias(
 			fn( array $args, string $url ) :string => $url.'?'.\http_build_query( $args )

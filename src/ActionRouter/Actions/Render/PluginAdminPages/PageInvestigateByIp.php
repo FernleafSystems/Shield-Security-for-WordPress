@@ -8,7 +8,7 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_by_ip.twig';
 
 	protected function getRenderData() :array {
-		$lookup = $this->getTextInputFromRequestOrActionData( 'analyse_ip' );
+		$lookup = $this->getTextInputFromActionData( 'analyse_ip' );
 		$shared = ( new InvestigateByIpViewBuilder() )->build( $lookup, [
 			'change_label' => __( 'Change IP address', 'wp-simple-firewall' ),
 		] );

@@ -72,7 +72,7 @@ class PageAdminPlugin extends BaseRender {
 
 	private function resolveRouteLabel( string $nav, string $subNav ) :string {
 		if ( $nav === PluginNavs::NAV_REPORTS ) {
-			$workspace = $this->getTextInputFromRequestOrActionData( 'workspace' );
+			$workspace = $this->getTextInputFromActionData( 'workspace' );
 			if ( isset( PluginNavs::reportsWorkspaceDefinitions()[ $workspace ] ) ) {
 				return PluginNavs::reportsWorkspaceDefinitions()[ $workspace ][ 'page_title' ];
 			}

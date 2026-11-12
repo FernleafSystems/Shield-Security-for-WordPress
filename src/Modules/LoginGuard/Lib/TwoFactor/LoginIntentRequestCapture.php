@@ -122,8 +122,8 @@ class LoginIntentRequestCapture {
 		// The login form is read here, and only here: providers receive its fields rather than reading the request.
 		// A posted field takes precedence over the same field in the query.
 		$submitted = \array_merge(
-			\is_array( $req->query ) ? $req->query : [],
-			\is_array( $req->post ) ? $req->post : []
+			$req->query,
+			$req->post
 		);
 		$validatedSlug = ( new LoginIntentRequestValidate() )
 			->setWpUser( $this->user )

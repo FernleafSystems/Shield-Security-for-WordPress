@@ -37,7 +37,7 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 	private ?InvestigateAssetDataAdapter $assetDataAdapter = null;
 
 	protected function getLookupValue( string $queryKey ) :string {
-		return $this->getTextInputFromRequestOrActionData( $queryKey );
+		return $this->getTextInputFromActionData( $queryKey );
 	}
 
 	protected function resolvePluginByLookup( string $lookup ) {

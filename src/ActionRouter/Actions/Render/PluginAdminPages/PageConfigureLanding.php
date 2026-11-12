@@ -58,7 +58,7 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 
 	private function buildRequestedComponentAction() :array {
 		$con = self::con();
-		$slug = $this->getTextInputFromRequestOrActionData( 'component' );
+		$slug = $this->getTextInputFromActionData( 'component' );
 		if ( !isset( $con->comps->zones->enumZoneComponents()[ $slug ] ) ) {
 			return [];
 		}
@@ -79,7 +79,7 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 		$data = $component->getActions()[ 'config' ][ 'data' ];
 		$data[ 'option_keys' ] = \implode( ',', $options );
 		$data[ 'form_context' ] = 'offcanvas';
-		$configItem = $this->getTextInputFromRequestOrActionData( 'config_item' );
+		$configItem = $this->getTextInputFromActionData( 'config_item' );
 		if ( \in_array( $configItem, $options, true ) ) {
 			$data[ 'config_item' ] = $configItem;
 		}

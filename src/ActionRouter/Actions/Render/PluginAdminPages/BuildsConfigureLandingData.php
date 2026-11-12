@@ -19,7 +19,7 @@ trait BuildsConfigureLandingData {
 	private ?array $configureTabsCache = null;
 
 	protected function getRequestedConfigureZoneKey() :string {
-		return sanitize_key( $this->getTextInputFromRequestOrActionData( 'zone' ) );
+		return sanitize_key( $this->getTextInputFromActionData( 'zone' ) );
 	}
 
 	protected function getValidRequestedConfigureZoneKey() :string {
@@ -40,7 +40,7 @@ trait BuildsConfigureLandingData {
 	}
 
 	private function getRequestedConfigureItem() :string {
-		$configItem = sanitize_key( $this->getTextInputFromRequestOrActionData( 'config_item' ) );
+		$configItem = sanitize_key( $this->getTextInputFromActionData( 'config_item' ) );
 		return empty( self::con()->cfg->configuration->options[ $configItem ] ?? [] ) ? '' : $configItem;
 	}
 
@@ -75,7 +75,7 @@ trait BuildsConfigureLandingData {
 		$focus = [];
 		$zoneKey = $this->getValidRequestedConfigureZoneKey();
 		if ( $zoneKey !== '' ) {
-			$rowKey = sanitize_key( $this->getTextInputFromRequestOrActionData( 'row_key' ) );
+			$rowKey = sanitize_key( $this->getTextInputFromActionData( 'row_key' ) );
 			$configItem = $this->getRequestedConfigureItem();
 
 			$rowFocusLookup = $this->getConfigureDiagnosisRowFocusLookup( $zoneKey );

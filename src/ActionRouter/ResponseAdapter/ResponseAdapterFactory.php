@@ -8,8 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionTypeDo
 class ResponseAdapterFactory {
 
 	/**
+	 * The single place an adapter is chosen for a transport.
 	 * @throws ActionTypeDoesNotExistException
-	 * @todo Once routing returns only RoutedResponse consumers, drop legacy adapter instantiation paths.
 	 */
 	public function forActionType( int $type ) :ResponseAdapterInterface {
 		switch ( $type ) {

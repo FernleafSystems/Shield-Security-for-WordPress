@@ -26,6 +26,5 @@ class ShieldActionNextStepPayloadIntegrationTest extends ShieldIntegrationTestCa
 		$this->assertArrayHasKey( 'next_step', $payload );
 		$this->assertSame( 'redirect', $payload[ 'next_step' ][ 'type' ] ?? '' );
 		$this->assertNotSame( '', (string)( $payload[ 'next_step' ][ 'url' ] ?? '' ) );
-		$this->assertSame( [], $routed->actionResponse()->next_step );
 	}
 }

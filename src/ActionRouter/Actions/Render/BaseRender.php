@@ -130,7 +130,7 @@ abstract class BaseRender extends BaseAction {
 				'top_container' => \implode( ' ', \array_filter( [
 					'odp-outercontainer',
 					self::con()->isPremiumActive() ? 'is-pro' : 'is-not-pro',
-					$this->navClassFromRequest(),
+					$this->navClassFromActionData(),
 				] ) )
 			],
 			'flags'            => [
@@ -305,24 +305,22 @@ abstract class BaseRender extends BaseAction {
 		];
 	}
 
-	protected function getTextInputFromRequestOrActionData( string $key, string $default = '' ) :string {
-		$value = Services::Request()->query( $key, null );
-		if ( $value === null && \array_key_exists( $key, $this->action_data ) ) {
-			$value = $this->action_data[ $key ];
-		}
-		if ( $value === null ) {
-			$value = $default;
-		}
-		return \trim( sanitize_text_field( \is_scalar( $value ) ? (string)$value : $default ) );
+	/**
+	 * A text input this render was given: by the admin page route for a page load, or by the page's JS for a panel.
+	 * Renders don't read the request themselves; anything but text reads as the default.
+	 */
+	protected function getTextInputFromActionData( string $key, string $default = '' ) :string {
+		$actionData = $this->action_data;
+		$value = $actionData[ $key ] ?? null;
+		return \trim( sanitize_text_field( \is_string( $value ) ? $value : $default ) );
 	}
 
 	/**
-	 * The current page's nav, used as a class on the outer container. It comes from the query string, so
-	 * anything but a string is ignored.
+	 * The current page's nav, used as a class on the admin page's outer container. The admin page route passes it
+	 * in this render's data; other renders have none.
 	 */
-	private function navClassFromRequest() :string {
-		$nav = Services::Request()->query( Constants::NAV_ID, '' );
-		return \is_string( $nav ) ? $nav : '';
+	private function navClassFromActionData() :string {
+		return $this->getTextInputFromActionData( Constants::NAV_ID );
 	}
 
 	private function buildRunningVersionHtml() :string {

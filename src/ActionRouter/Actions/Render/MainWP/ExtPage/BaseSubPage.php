@@ -68,9 +68,11 @@ class BaseSubPage extends BaseMWP {
 		];
 	}
 
+	/**
+	 * The tab the extension page loader checked and passed down.
+	 */
 	protected function getCurrentTab() :string {
-		$req = Services::Request();
-		return empty( $req->query( 'tab' ) ) ? 'sites' : $req->query( 'tab' );
+		return $this->getTextInputFromActionData( 'current_tab', TabSitesListing::TAB );
 	}
 
 	protected function getJumpUrlFor( string $siteID, string $page ) :string {

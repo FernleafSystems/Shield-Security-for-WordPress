@@ -148,10 +148,10 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	 */
 	private function getCurrentTab() :string {
 		$tab = InvestigateTabs::forRoute(
-			sanitize_key( (string)( $this->action_data[ Constants::NAV_ID ] ?? '' ) ),
-			sanitize_key( (string)( $this->action_data[ Constants::NAV_SUB_ID ] ?? '' ) )
+			sanitize_key( $this->getTextInputFromActionData( Constants::NAV_ID ) ),
+			sanitize_key( $this->getTextInputFromActionData( Constants::NAV_SUB_ID ) )
 		);
-		if ( sanitize_key( $this->getTextInputFromRequestOrActionData( 'subject' ) ) === self::SUBJECT_LIVE_TRAFFIC ) {
+		if ( sanitize_key( $this->getTextInputFromActionData( 'subject' ) ) === self::SUBJECT_LIVE_TRAFFIC ) {
 			$tab = InvestigateTabs::LIVE;
 		}
 		// A subject asked for by link opens beneath the lookup.
@@ -550,7 +550,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 
 	private function getActiveSubject() :string {
 		if ( $this->activeSubjectCache === null ) {
-			$subject = sanitize_key( $this->getTextInputFromRequestOrActionData( 'subject' ) );
+			$subject = sanitize_key( $this->getTextInputFromActionData( 'subject' ) );
 			$definitions = $this->getSubjectDefinitions();
 
 			// Live traffic has its own tab.
@@ -587,7 +587,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 				if ( $lookupKey === '' ) {
 					continue;
 				}
-				$this->lookupValuesCache[ $lookupKey ] = $this->getTextInputFromRequestOrActionData( $lookupKey );
+				$this->lookupValuesCache[ $lookupKey ] = $this->getTextInputFromActionData( $lookupKey );
 			}
 		}
 

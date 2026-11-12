@@ -29,9 +29,7 @@ class FileDownloadAsStream extends BaseAction {
 			) )->fromGenerator( $this->getGenerator() );
 		}
 		catch ( \Exception $e ) {
-			$resp = $this->response();
-			$resp->message = $e->getMessage();
-			$resp->mergePayload( [
+			$this->response()->mergePayload( [
 				'message' => $e->getMessage(),
 			] )->setPayloadSuccess( false );
 		}

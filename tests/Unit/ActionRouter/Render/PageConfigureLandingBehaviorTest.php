@@ -500,6 +500,12 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 }
 
 class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
+	/**
+	 * Stands in for the admin page route, which passes the page URL's values to the page as its data.
+	 */
+	protected function getDefaults() :array {
+		return \FernleafSystems\Wordpress\Services\Services::Request()->query;
+	}
 
 	private array $configureLandingViewData;
 

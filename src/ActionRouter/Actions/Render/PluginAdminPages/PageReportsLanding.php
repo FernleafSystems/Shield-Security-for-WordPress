@@ -109,7 +109,7 @@ class PageReportsLanding extends PageModeLandingBase {
 	}
 
 	protected function getCurrentTab() :string {
-		$key = sanitize_key( $this->getTextInputFromRequestOrActionData( 'workspace' ) );
+		$key = sanitize_key( $this->getTextInputFromActionData( 'workspace' ) );
 		return isset( PluginNavs::reportsWorkspaceDefinitions()[ $key ] ) ? $key : PluginNavs::reportsDefaultWorkspaceSubNav();
 	}
 

@@ -76,7 +76,7 @@ class PageScansRun extends PageScansBase {
 	 * so a recent result never keeps you from starting another scan.
 	 */
 	private function openingStep() :string {
-		if ( Services::Request()->query( 'step' ) === 'choose' ) {
+		if ( $this->getTextInputFromActionData( 'step' ) === 'choose' ) {
 			return 'choose';
 		}
 		if ( self::con()->comps->scans_queue->hasRunningScans() ) {

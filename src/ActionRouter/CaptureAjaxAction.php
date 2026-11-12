@@ -23,8 +23,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 	}
 
 	protected function transportData() :array {
-		$post = Services::Request()->post;
-		return \is_array( $post ) ? $post : [];
+		return Services::Request()->post;
 	}
 
 	protected function guardedEntry() :string {

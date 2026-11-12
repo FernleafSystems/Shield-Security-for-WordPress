@@ -495,10 +495,9 @@ class Controller extends DynPropertiesClass {
 		try {
 			$this->action_router->execute();
 			if ( $this->this_req->wp_is_admin && !$this->this_req->wp_is_ajax ) {
-				$this->action_router->action( Actions\PluginAdmin\PluginAdminPageHandler::class, \array_merge(
-					Services::Request()->query,
-					Services::Request()->post
-				) );
+				// Admin page navigation is the page URL, so the handler is given only the query string. Its route
+				// resolver checks every value it uses.
+				$this->action_router->action( Actions\PluginAdmin\PluginAdminPageHandler::class, Services::Request()->query );
 			}
 		}
 		catch ( ActionException $e ) {

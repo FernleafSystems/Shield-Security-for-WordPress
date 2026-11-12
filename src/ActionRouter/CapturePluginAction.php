@@ -28,10 +28,9 @@ class CapturePluginAction extends CaptureActionBase {
 
 		try {
 			( new ExternalEntryGuard() )->requireProof( $slug, $this->guardedEntry(), $transport );
-			$post = Services::Request()->post;
 			$this->actionResponse = self::con()->action_router->action(
 				$slug,
-				ExternalEntryGuard::ActionDataFromTransport( $transport, \is_array( $post ) ? $post : [] )
+				ExternalEntryGuard::ActionDataFromTransport( $transport, Services::Request()->post )
 			);
 		}
 		catch ( InvalidActionNonceException $e ) {

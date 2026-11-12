@@ -24,8 +24,8 @@ class CaptureActionBase {
 	protected function transportData() :array {
 		$req = Services::Request();
 		return \array_merge(
-			\is_array( $req->query ) ? $req->query : [],
-			\is_array( $req->post ) ? $req->post : []
+			$req->query,
+			$req->post
 		);
 	}
 
