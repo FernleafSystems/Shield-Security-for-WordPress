@@ -24,6 +24,9 @@ async function logInAgainInAnotherTab( context ) {
 	const loginPage = await context.newPage();
 	try {
 		await loginPage.goto( '/wp-login.php?reauth=1', { waitUntil: 'load' } );
+		// WordPress knows who was logged in, so it fills in the username and, a moment after the page loads,
+		// empties the password field and puts the cursor in it. A password typed before then is wiped.
+		await expect( loginPage.locator( '#user_pass' ) ).toBeFocused();
 		await submitWordPressLogin( loginPage );
 	}
 	finally {
