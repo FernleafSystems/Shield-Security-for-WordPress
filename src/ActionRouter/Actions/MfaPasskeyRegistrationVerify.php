@@ -16,11 +16,13 @@ class MfaPasskeyRegistrationVerify extends MfaUserConfigBase {
 	}
 
 	protected function exec() {
+		$fields = $this->fields();
+		$wanAuth = $fields->string( 'reg', '' );
+		$label = $fields->string( 'label', '' );
+
 		$available = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var ?Passkey $provider */
 		$provider = $available[ Passkey::ProviderSlug() ] ?? null;
-
-		$wanAuth = $this->action_data[ 'reg' ] ?? '';
 
 		if ( empty( $provider ) ) {
 			$response = [
@@ -37,7 +39,7 @@ class MfaPasskeyRegistrationVerify extends MfaUserConfigBase {
 			];
 		}
 		else {
-			$result = $provider->verifyRegistrationResponse( $wanAuth, $this->action_data[ 'label' ] ?? '' );
+			$result = $provider->verifyRegistrationResponse( $wanAuth, $label );
 			$response = [
 				'success' => $result->success,
 				'message' => $result->success ? $result->msg_text : $result->error_text,

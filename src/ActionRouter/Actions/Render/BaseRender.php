@@ -16,8 +16,8 @@ abstract class BaseRender extends BaseAction {
 	public const COMPARE_FEATURES_URL = 'https://clk.shldscrty.com/gp';
 	public const RENDER_ERROR_EXCEPTION = 'render_exception';
 	/**
-	 * Set by AjaxRender on the data it gives a render, to say the data came from a request. A caller inside the
-	 * plugin can override the display data all renders share (flags, strings, links and so on); a request can't.
+	 * Set by AjaxRender on the data it gives a render, to say the data came from a request. See
+	 * givenTemplateData() for what that changes.
 	 */
 	public const DATA_FROM_REQUEST = 'shield_data_from_request';
 
@@ -93,16 +93,30 @@ abstract class BaseRender extends BaseAction {
 	 */
 	protected function getAllRenderDataArrays() :array {
 		$common = $this->getCommonDisplayData();
-		$given = $this->action_data;
-		if ( !empty( $given[ self::DATA_FROM_REQUEST ] ) ) {
-			// A request supplies this render's inputs. It doesn't get to replace what every render shares.
-			$given = \array_diff_key( $given, $common, [ self::DATA_FROM_REQUEST => true ] );
-		}
 		return [
 			0  => $common,
-			10 => $given,
+			10 => $this->givenTemplateData( $common ),
 			50 => $this->getRenderData(),
 		];
+	}
+
+	/**
+	 * The part of the data this render was given that goes to its template as it is. From a caller inside the
+	 * plugin, that's all of it. From a request, it's the simple values only: a request supplies a render's
+	 * inputs, which the render reads for itself, and never the template's own structures (its flags, strings,
+	 * vars and so on, which are all arrays) or a value every render shares.
+	 *
+	 * @param array $shared the display data all renders share, when this render's template is given it
+	 */
+	protected function givenTemplateData( array $shared = [] ) :array {
+		$given = $this->action_data;
+		if ( !empty( $given[ self::DATA_FROM_REQUEST ] ) ) {
+			$given = \array_filter(
+				\array_diff_key( $given, $shared, [ self::DATA_FROM_REQUEST => true ] ),
+				'\is_scalar'
+			);
+		}
+		return $given;
 	}
 
 	/**

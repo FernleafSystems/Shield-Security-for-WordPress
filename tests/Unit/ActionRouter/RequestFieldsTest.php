@@ -139,6 +139,55 @@ class RequestFieldsTest extends BaseUnitTest {
 		( new RequestFields( [ 'rids' => '5' ] ) )->positiveIntList( 'rids', [] );
 	}
 
+	public function test_string_list_keeps_only_text_entries() :void {
+		$fields = new RequestFields( [
+			'ok'    => [ 'a', 'b' ],
+			'mixed' => [ 'a', [ 'b' ], 3, null, true, 'c' ],
+			'keyed' => [ 'x' => 'a', 'y' => 'b' ],
+		] );
+
+		$this->assertSame( [ 'a', 'b' ], $fields->stringList( 'ok' ) );
+		$this->assertSame( [ 'a', 'c' ], $fields->stringList( 'mixed' ), 'Nothing but text is kept, and nothing is turned into text.' );
+		$this->assertSame( [ 'a', 'b' ], $fields->stringList( 'keyed' ) );
+		$this->assertSame( [], $fields->stringList( 'missing', [] ) );
+	}
+
+	public function test_string_list_refuses_a_field_that_is_not_a_list() :void {
+		$this->expectException( ActionException::class );
+		( new RequestFields( [ 'keys' => 'a,b' ] ) )->stringList( 'keys', [] );
+	}
+
+	public function test_array_returns_the_field_as_it_arrived() :void {
+		$form = [ 'label' => 'Office', 'nested' => [ 'a' => 1 ] ];
+		$fields = new RequestFields( [ 'form' => $form, 'empty' => [] ] );
+
+		$this->assertSame( $form, $fields->array( 'form' ) );
+		$this->assertSame( [], $fields->array( 'empty', [ 'default' ] ) );
+		$this->assertSame( [ 'default' ], $fields->array( 'missing', [ 'default' ] ) );
+	}
+
+	/**
+	 * @dataProvider notAnArray
+	 * @param mixed $value
+	 */
+	public function test_array_refuses_anything_but_an_array( $value ) :void {
+		$this->expectException( ActionException::class );
+		( new RequestFields( [ 'form' => $value ] ) )->array( 'form', [] );
+	}
+
+	public static function notAnArray() :array {
+		return [
+			'text'    => [ 'a=1&b=2' ],
+			'number'  => [ 5 ],
+			'boolean' => [ true ],
+		];
+	}
+
+	public function test_missing_array_without_a_default_is_refused() :void {
+		$this->expectException( ActionException::class );
+		( new RequestFields( [] ) )->array( 'form' );
+	}
+
 	public function test_flag_accepts_only_its_two_tokens() :void {
 		$fields = new RequestFields( [
 			'yes'       => 'true',

@@ -18,6 +18,7 @@ class ImportExportProfileOptionsIncludeToggle extends BaseAction {
 
 	protected function exec() {
 		$status = $this->fields()->string( 'status' );
+		$keys = $this->optionKeys();
 		$success = false;
 
 		if ( self::con()->isPluginAdmin()
@@ -25,7 +26,7 @@ class ImportExportProfileOptionsIncludeToggle extends BaseAction {
 			$repo = new ProfileRepository();
 			$profile = $repo->defaultProfile();
 			if ( $profile instanceof ProfileRecord ) {
-				$success = $repo->setOptionsIncluded( $profile, $this->optionKeys(), $status === 'include' );
+				$success = $repo->setOptionsIncluded( $profile, $keys, $status === 'include' );
 			}
 		}
 
@@ -50,7 +51,7 @@ class ImportExportProfileOptionsIncludeToggle extends BaseAction {
 	private function optionKeys() :array {
 		// A list of keys, or the same keys comma-separated.
 		$keys = \is_array( $this->action_data[ 'keys' ] )
-			? \array_filter( $this->action_data[ 'keys' ], '\is_string' )
+			? $this->fields()->stringList( 'keys' )
 			: \explode( ',', $this->fields()->string( 'keys' ) );
 
 		return \array_values( \array_filter(

@@ -96,7 +96,15 @@ abstract class BaseFullPageDisplay extends BaseAction {
 	 */
 	protected function checkAvailableData() {
 		parent::checkAvailableData();
-		if ( \array_key_exists( 'render_slug', $this->action_data ) && !$this->isAllowedRenderSlug( (string)$this->action_data[ 'render_slug' ] ) ) {
+		$this->checkRenderTarget();
+	}
+
+	/**
+	 * The page this display renders is named by the plugin's own code, and must be one this display allows.
+	 * @throws ActionException
+	 */
+	protected function checkRenderTarget() :void {
+		if ( !$this->isAllowedRenderSlug( $this->fields()->string( 'render_slug' ) ) ) {
 			throw new ActionException( __( 'Invalid full page render target.', 'wp-simple-firewall' ) );
 		}
 	}

@@ -5,9 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
+	Actions\BaseAction,
 	Actions\FileDownload,
+	Actions\FileDownloadAsStream,
 	Actions\FullPageDisplay\DisplayReport,
 	Actions\IpAnalyseAction,
+	Actions\IpRuleAddSubmit,
 	Actions\IpRuleDelete,
 	Actions\LicenseHandshakeVerifyKeyless,
 	Actions\LicenseScheduleCheck,
@@ -16,10 +19,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\MfaRemoveAll,
 	Actions\PluginMarkTourFinished,
 	Actions\PluginSetTracking,
+	Actions\RuleBuilderAction,
 	Actions\ScansFileLockerAction,
 	CaptureAjaxAction,
-	Exceptions\ActionException
+	Exceptions\ActionException,
+	Utility\ExternalEntryGuard
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\RegistersTestActions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 
@@ -30,6 +36,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentReq
 class MalformedRequestFieldsIntegrationTest extends ShieldIntegrationTestCase {
 
 	use CurrentRequestFixture;
+	use RegistersTestActions;
 
 	private array $requestSnapshot = [];
 
@@ -43,6 +50,7 @@ class MalformedRequestFieldsIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function tear_down() {
+		$this->unregisterTestActions();
 		$this->requireController()->opts->optSet( 'enable_tracking', $this->trackingSnapshot );
 		\wp_clear_scheduled_hook( $this->requireController()->prefix( 'adhoc_cron_license_check' ) );
 		$this->restoreCurrentRequestState( $this->requestSnapshot );
@@ -88,6 +96,28 @@ class MalformedRequestFieldsIntegrationTest extends ShieldIntegrationTestCase {
 			'email code resend nonce as a list'      => [ MfaEmailSendIntent::class, [ 'wp_user_id' => 1, 'login_nonce' => [ 'x' ] ], 'login_nonce' ],
 			'licence handshake nonce as a list'      => [ LicenseHandshakeVerifyKeyless::class, [ 'nonce' => [ 'x' ] ], 'nonce' ],
 			'report link ID as a list'               => [ DisplayReport::class, [ 'report_unique_id' => [ 'x' ] ], 'report_unique_id' ],
+			'tour key as a list'                     => [ PluginMarkTourFinished::class, [ 'tour_key' => [ 'not', 'text' ] ], 'tour_key' ],
+			'rule builder form sent as text'         => [ RuleBuilderAction::class, [ 'rule_form' => 'name=x' ], 'rule_form' ],
+			'rule builder step as a list'            => [ RuleBuilderAction::class, [ 'rule_form' => [ 'name' => 'x' ], 'builder_action' => [ 'reset' ] ], 'builder_action' ],
+		];
+	}
+
+	/**
+	 * These two actions report every problem with a request as their own failure message.
+	 * @dataProvider malformedRequestsReportedByTheAction
+	 */
+	public function test_malformed_field_is_reported_by_the_action( string $action, array $data, string $field ) :void {
+		$payload = $this->process( $action, $data );
+
+		$this->assertFalse( (bool)( $payload[ 'success' ] ?? true ) );
+		$this->assertSame( 'Invalid request field: '.$field, $payload[ 'message' ] ?? '' );
+	}
+
+	public function malformedRequestsReportedByTheAction() :array {
+		return [
+			'IP rule form sent as text'     => [ IpRuleAddSubmit::class, [ 'form_data' => 'ip=203.0.113.9' ], 'form_data' ],
+			'IP rule address as a list'     => [ IpRuleAddSubmit::class, [ 'form_data' => [ 'type' => 'MB', 'confirm' => 'Y', 'ip' => [ '203.0.113.9' ] ] ], 'ip' ],
+			'log download category as list' => [ FileDownloadAsStream::class, [ 'download_category' => [ 'traffic' ] ], 'download_category' ],
 		];
 	}
 
@@ -126,13 +156,10 @@ class MalformedRequestFieldsIntegrationTest extends ShieldIntegrationTestCase {
 
 	/**
 	 * A fault inside an action reached over AJAX gets a controlled response rather than a fatal error.
-	 * PluginMarkTourFinished still passes its field to a typed parameter unchecked (SHI-2721), which makes it
-	 * a real fault to send through the entry point.
 	 */
 	public function test_ajax_entry_point_contains_a_fault_in_the_action() :void {
-		$request = ActionData::Build( PluginMarkTourFinished::class );
-		$request[ 'tour_key' ] = [ 'not', 'text' ];
-		$this->applyCurrentShieldAjaxRequest( $request, true );
+		$this->registerTestActions( MalformedFieldsFaultingActionTestDouble::class );
+		$this->applyCurrentShieldAjaxRequest( ActionData::Build( MalformedFieldsFaultingActionTestDouble::class ), true );
 
 		$payload = ( new MalformedFieldsAjaxCaptureTestDouble() )->buildIssuePayloadForTest();
 
@@ -154,6 +181,21 @@ class MalformedRequestFieldsIntegrationTest extends ShieldIntegrationTestCase {
 				$this->assertSame( 'Invalid request field: '.$field, $e->getMessage(), 'Refused for another reason.' );
 			}
 		}
+	}
+}
+
+class MalformedFieldsFaultingActionTestDouble extends BaseAction {
+
+	public const SLUG = 'malformed_fields_faulting_test_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
+	protected function exec() {
+		throw new \TypeError( 'A value of the wrong type reached typed code.' );
 	}
 }
 

@@ -25,7 +25,7 @@ class FileDownloadAsStream extends BaseAction {
 	protected function exec() {
 		try {
 			( new IssueFileDownloadResponse(
-				sprintf( '%s-%s.log', $this->action_data[ 'download_category' ], Services::Request()->ts() )
+				sprintf( '%s-%s.log', $this->downloadCategory(), Services::Request()->ts() )
 			) )->fromGenerator( $this->getGenerator() );
 		}
 		catch ( \Exception $e ) {
@@ -39,7 +39,7 @@ class FileDownloadAsStream extends BaseAction {
 	 * @throws \Exception
 	 */
 	private function getGenerator() :\Generator {
-		switch ( $this->action_data[ 'download_category' ] ) {
+		switch ( $this->downloadCategory() ) {
 			case 'ip_rules':
 				$gen = $this->downloadIpRules();
 				break;
@@ -50,6 +50,13 @@ class FileDownloadAsStream extends BaseAction {
 				throw new \Exception( __( 'Invalid download request.', 'wp-simple-firewall' ) );
 		}
 		return $gen;
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function downloadCategory() :string {
+		return $this->fields()->string( 'download_category', '' );
 	}
 
 	private function downloadIpRules() :\Generator {

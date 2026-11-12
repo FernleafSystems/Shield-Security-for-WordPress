@@ -37,7 +37,7 @@ class SessionsTableAction extends TableActionBase {
 	}
 
 	protected function deleteSelectedSessions() :array {
-		( new DeleteSession() )->byShieldIDs( $this->action_data[ 'rids' ] );
+		( new DeleteSession() )->byShieldIDs( $this->fields()->stringList( 'rids' ) );
 		return [
 			'success'     => true,
 			'page_reload' => false,

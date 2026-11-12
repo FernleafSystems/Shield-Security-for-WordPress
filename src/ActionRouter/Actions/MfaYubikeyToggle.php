@@ -16,9 +16,13 @@ class MfaYubikeyToggle extends MfaUserConfigBase {
 	}
 
 	protected function exec() {
+		$fields = $this->fields();
+		$otp = $fields->string( 'otp', '' );
+		$label = $fields->string( 'label', '' );
+
 		/** @var Yubikey $provider */
 		$provider = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() )[ Yubikey::ProviderSlug() ];
-		$result = $provider->toggleRegisteredYubiID( $this->action_data[ 'otp' ] ?? '', $this->action_data[ 'label' ] ?? '' );
+		$result = $provider->toggleRegisteredYubiID( $otp, $label );
 
 		$this->response()->setPayload( [
 			'message' => $result->success ? $result->msg_text : $result->error_text,

@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	BlockdownDisableFormSubmit,
 	BlockdownFormSubmit
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteLockdown\SiteBlockdownCfg;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -94,6 +95,40 @@ class SiteLockdownActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$events = $this->getCapturedEventsByKey( 'site_blockdown_started' );
 		$this->assertCount( 1, $events );
 		$this->assertNotSame( '', (string)( $events[ 0 ][ 'meta' ][ 'audit_params' ][ 'user_login' ] ?? '' ) );
+	}
+
+	/**
+	 * @dataProvider malformedLockdownForms
+	 */
+	public function test_blockdown_form_submit_refuses_a_malformed_form_and_stays_unlocked( array $form, string $field ) :void {
+		TestDataFactory::insertBypass( '203.0.113.200' );
+		$this->resetIpCaches();
+
+		$payload = ( new ActionProcessor() )->processAction( BlockdownFormSubmit::SLUG, [
+			'form_data' => $form,
+		] )->payload();
+
+		$this->assertFalse( (bool)( $payload[ 'success' ] ?? true ) );
+		$this->assertSame( 'Invalid request field: '.$field, $payload[ 'message' ] ?? '' );
+		$this->assertFalse( $this->currentBlockdownCfg()->isLockdownActive() );
+
+		$this->resetIpCaches();
+		$this->assertFalse(
+			( new IpRuleStatus( $this->requireController()->this_req->ip ) )->isBypass(),
+			'A refused form must not leave the visitor whitelisted.'
+		);
+	}
+
+	public function malformedLockdownForms() :array {
+		$confirmed = [ 'consequences', 'authority', 'access', 'cache' ];
+		return [
+			'confirmations sent as text' => [ [ 'confirm' => 'consequences,authority,access,cache' ], 'confirm' ],
+			'whitelist choice as a list' => [ [ 'confirm' => $confirmed, 'whitelist_me' => [ 'Y' ] ], 'whitelist_me' ],
+			'exclusions sent as text'    => [
+				[ 'confirm' => $confirmed, 'whitelist_me' => 'Y', 'exclusions' => 'wp-login.php' ],
+				'exclusions',
+			],
+		];
 	}
 
 	public function test_blockdown_disable_form_submit_deactivates_lockdown_and_fires_event() :void {

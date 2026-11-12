@@ -16,11 +16,13 @@ class MfaPasskeyRemoveSource extends MfaUserConfigBase {
 	}
 
 	protected function exec() {
+		$sourceID = $this->fields()->string( 'wan_source_id', '' );
+
 		$success = false;
 		/** @var ?Passkey $provider */
 		$provider = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() )[ Passkey::ProviderSlug() ] ?? null;
 		if ( $provider ) {
-			$success = $provider->deleteSource( $this->action_data[ 'wan_source_id' ] ?? '' );
+			$success = $provider->deleteSource( $sourceID );
 		}
 
 		$this->response()->setPayload( [

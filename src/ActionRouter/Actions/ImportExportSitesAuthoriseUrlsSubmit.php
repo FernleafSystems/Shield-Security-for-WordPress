@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\{
+	ExternalEntryGuard,
+	RequestFields
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\SiteRepository;
 
@@ -21,19 +24,19 @@ class ImportExportSitesAuthoriseUrlsSubmit extends BaseAction {
 	protected function exec() {
 		$activeClientCountBefore = 0;
 		try {
-			$form = $this->action_data[ 'form_data' ] ?? [];
-			if ( empty( $form ) || !\is_array( $form ) ) {
+			$formData = $this->fields()->array( 'form_data', [] );
+			if ( empty( $formData ) ) {
 				throw new \RuntimeException( __( 'No data. Please retry', 'wp-simple-firewall' ) );
 			}
-			if ( ( $form[ 'confirm' ] ?? '' ) !== 'Y' ) {
+			$form = new RequestFields( $formData );
+			if ( $form->string( 'confirm', '' ) !== 'Y' ) {
 				throw new \RuntimeException( __( 'Please check the box to confirm this action', 'wp-simple-firewall' ) );
 			}
 
 			$activeClientCountBefore = ( new SiteRepository() )->countActiveRows();
-			$sendInvites = ( $form[ 'send_invites' ] ?? 'Y' ) === 'Y';
 			$result = self::con()->comps->import_export->authoriseUrlsForSyncSites(
-				\preg_split( '#\R#', (string)( $form[ 'urls' ] ?? '' ) ) ?: [],
-				$sendInvites
+				\preg_split( '#\R#', $form->string( 'urls', '' ) ) ?: [],
+				$form->string( 'send_invites', 'Y' ) === 'Y'
 			);
 
 			foreach ( $result[ 'authorised_urls' ] as $url ) {

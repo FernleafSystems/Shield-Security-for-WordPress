@@ -10,7 +10,7 @@ trait RequestedIdentifiers {
 	 */
 	private function requestedIdentifiers() :array {
 		return \is_array( $this->action_data[ 'identifiers' ] ?? null )
-			? \array_values( \array_unique( \array_filter( $this->action_data[ 'identifiers' ], '\is_string' ) ) )
+			? \array_values( \array_unique( $this->fields()->stringList( 'identifiers' ) ) )
 			: [ $this->fields()->string( 'identifier', '' ) ];
 	}
 }

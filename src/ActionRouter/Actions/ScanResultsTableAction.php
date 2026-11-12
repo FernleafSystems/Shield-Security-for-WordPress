@@ -245,7 +245,7 @@ class ScanResultsTableAction extends ScansBase {
 		$builder = new BuildScanTableData();
 		$options = new ScanResultsDisplayOptions();
 		$fields = $this->fields();
-		$builder->table_data = \is_array( $this->action_data[ 'table_data' ] ?? null ) ? $this->action_data[ 'table_data' ] : [];
+		$builder->table_data = $fields->array( 'table_data', [] );
 		$builder->type = $fields->string( 'type', '' );
 		$builder->file = $fields->string( 'file', '' );
 		$builder->scan_results_notice_context = $fields->string( 'scan_results_notice_context', '' );

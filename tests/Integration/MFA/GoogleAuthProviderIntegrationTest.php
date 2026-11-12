@@ -4,7 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\MFA;
 
 use Dolondro\GoogleAuthenticator\GoogleAuthenticator as OtpGenerator;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaGoogleAuthToggle;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
 	LoginIntentRequestValidate
 };
@@ -157,6 +159,21 @@ class GoogleAuthProviderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)( $removePayload[ 'success' ] ?? false ) );
 		$this->assertArrayHasKey( 'message', $removePayload );
 		$this->assertCount( 0, $this->loadRecordsForSlug( $user->ID, GoogleAuth::ProviderSlug() ) );
+	}
+
+	public function test_profile_toggle_action_refuses_a_code_that_is_not_text_and_keeps_google_auth() :void {
+		$user = \get_user_by( 'id', $this->loginAsAdministrator() );
+		$this->activateProviderAndReturnSecret( $user );
+
+		try {
+			( new ActionProcessor() )->processAction( MfaGoogleAuthToggle::class, [ 'ga_otp' => [ '123456' ] ] );
+			$this->fail( 'Expected the malformed code to be refused.' );
+		}
+		catch ( ActionException $e ) {
+			$this->assertSame( 'Invalid request field: ga_otp', $e->getMessage() );
+		}
+
+		$this->assertCount( 1, $this->loadRecordsForSlug( $user->ID, GoogleAuth::ProviderSlug() ) );
 	}
 
 	public function test_new_32_character_secret_validates_through_login_flow() :void {

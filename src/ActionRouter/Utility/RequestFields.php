@@ -97,6 +97,29 @@ class RequestFields {
 	 * @throws ActionException
 	 */
 	public function positiveIntList( string $key, ?array $default = null ) :array {
+		return ( $this->fields[ $key ] ?? null ) === null
+			? $this->defaultFor( $key, $default )
+			: \array_values( \array_filter( \array_map( [ self::class, 'PositiveIntFrom' ], $this->array( $key ) ) ) );
+	}
+
+	/**
+	 * A selection of text values, such as keys or identifiers. The field must be a list; entries that aren't text
+	 * are left out rather than coerced.
+	 * @return string[]
+	 * @throws ActionException
+	 */
+	public function stringList( string $key, ?array $default = null ) :array {
+		return ( $this->fields[ $key ] ?? null ) === null
+			? $this->defaultFor( $key, $default )
+			: \array_values( \array_filter( $this->array( $key ), '\is_string' ) );
+	}
+
+	/**
+	 * A field that is itself a set of fields, such as a table's request or a submitted form, as it arrived. Only
+	 * its being an array is checked here: what's inside it is still request input.
+	 * @throws ActionException
+	 */
+	public function array( string $key, ?array $default = null ) :array {
 		$value = $this->fields[ $key ] ?? null;
 		if ( $value === null ) {
 			return $this->defaultFor( $key, $default );
@@ -104,7 +127,7 @@ class RequestFields {
 		if ( !\is_array( $value ) ) {
 			throw $this->invalid( $key );
 		}
-		return \array_values( \array_filter( \array_map( [ self::class, 'PositiveIntFrom' ], $value ) ) );
+		return $value;
 	}
 
 	/**

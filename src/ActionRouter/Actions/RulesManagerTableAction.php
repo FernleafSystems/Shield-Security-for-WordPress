@@ -106,7 +106,7 @@ class RulesManagerTableAction extends BaseAction {
 
 	private function retrieveTableData() :array {
 		$builder = new BuildSecurityRulesTableData();
-		$builder->table_data = $this->action_data[ 'table_data' ];
+		$builder->table_data = $this->fields()->array( 'table_data' );
 		return [
 			'success'        => true,
 			'datatable_data' => $builder->build(),
