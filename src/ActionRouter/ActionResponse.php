@@ -5,21 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
 
 /**
+ * What an action produces. The payload is the whole response: every adapter builds its transport from payload()
+ * alone, so anything an action wants to send goes through setPayload()/mergePayload() and the helpers below.
+ *
  * @property string $action_slug
  * @property array  $action_data
- * @property array  $action_response_data Legacy compatibility payload field.
- *
- * @property array  $next_step            Legacy compatibility field; canonical transport is payload-native `next_step`.
- *
- * AJAX Actions:
- * @property array  $ajax_data
- *
- * Canonical payload transport paths:
- * - payload()
- * - setPayload()
- * - mergePayload()
- * - setPayloadSuccess()
- * - setPayloadRedirectNextStep()
+ * @property array  $action_response_data the payload's storage; use payload()/setPayload()
  */
 class ActionResponse extends Response {
 
@@ -29,9 +20,6 @@ class ActionResponse extends Response {
 
 			case 'action_data':
 			case 'action_response_data':
-			case 'ajax_data':
-			case 'render_data':
-			case 'next_step':
 				$value = \is_array( $value ) ? $value : [];
 				break;
 

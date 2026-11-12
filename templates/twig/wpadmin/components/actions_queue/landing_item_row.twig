@@ -1,0 +1,58 @@
+{#
+	One maintenance item, or one passing check, as a flat row: what it is, a line of detail, and its
+	actions written out ("Manage Users", "Ignore") rather than as bare icons.
+#}
+<div class="actions-queue-row actions-queue-row--item{% if is_passing %} actions-queue-row--good{% endif %}{% if row.is_ignored %} is-ignored{% endif %}">
+	<span class="actions-queue-row__icon">
+		<i class="{{ is_passing ? 'bi bi-check-lg' : ( row.icon_class is not empty ? row.icon_class : 'bi bi-dot' ) }}" aria-hidden="true"></i>
+	</span>
+	<div class="actions-queue-row__copy">
+		<span class="actions-queue-row__title">
+			{{ row.title is not empty ? row.title : row.summary }}
+			{% if row.inline_meta is not empty %}
+				<span class="actions-queue-row__meta">{{ row.inline_meta }}</span>
+			{% endif %}
+			{% if row.badge_label is not empty %}
+				<span class="actions-queue-pill">{{ row.badge_label }}</span>
+			{% endif %}
+		</span>
+		{% if row.title is not empty and row.summary is not empty %}
+			<span class="actions-queue-row__desc">{{ row.summary }}</span>
+		{% endif %}
+		{% if row.details is not empty %}
+			<details class="actions-queue-row__details">
+				<summary>{{ row.details.label }}</summary>
+				<dl>
+					{% for item in row.details.items %}
+						<dt>{{ item.label }}</dt>
+						<dd>{% if item.style == 'code' %}<code>{{ item.value }}</code>{% else %}{{ item.value }}{% endif %}</dd>
+					{% endfor %}
+				</dl>
+			</details>
+		{% endif %}
+	</div>
+	{% if row.actions is not empty and not is_passing %}
+		<span class="actions-queue-row__links">
+			{% for action in row.actions %}
+				{% if action.is_action %}
+					<button type="button"
+							class="actions-queue-row__ignore action"
+							{% if action.tooltip is not empty %}title="{{ action.tooltip|e('html_attr') }}"{% endif %}
+							data-actions-queue-maintenance-kind="{{ action.kind|e('html_attr') }}"
+							{% if action.ajax_action_json is not empty %}data-actions-queue-maintenance-action="{{ action.ajax_action_json|e('html_attr') }}"{% endif %}>
+						<i class="{{ action.icon }}" aria-hidden="true"></i>
+						{{ action.label }}
+					</button>
+				{% elseif action.href is not empty %}
+					<a href="{{ action.href }}"
+					   class="actions-queue-row__button action"
+					   {% if action.target is not empty %}target="{{ action.target }}"{% endif %}
+					   {% if action.ajax_action_json is not empty %}data-actions-queue-maintenance-action="{{ action.ajax_action_json|e('html_attr') }}"{% endif %}>
+						<i class="{{ action.icon }}" aria-hidden="true"></i>
+						{{ action.label }}
+					</a>
+				{% endif %}
+			{% endfor %}
+		</span>
+	{% endif %}
+</div>

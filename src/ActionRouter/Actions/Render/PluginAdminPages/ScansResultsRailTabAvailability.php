@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetFileLockCandidateDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
@@ -37,6 +38,47 @@ class ScansResultsRailTabAvailability {
 	 *   disabled_actions:list<DisabledPaneAction>
 	 * }
 	 */
+	/**
+	 * On Pro, File Locker is something to review (not fix now) while any critical file is left unlocked. This is
+	 * its state for that, or null when every file is locked or the plan doesn't include it.
+	 * @return array{
+	 *   is_available:bool,
+	 *   show_in_actions_queue:bool,
+	 *   show_in_fix_now:bool,
+	 *   disabled_reason:''|'not_enabled'|'upgrade_required',
+	 *   disabled_message:string,
+	 *   disabled_status:string,
+	 *   disabled_actions:list<array<string,mixed>>
+	 * }|null
+	 */
+	public function fileLockerReviewState() :?array {
+		$con = self::con();
+		if ( !$con->isPremiumActive() ) {
+			return null;
+		}
+
+		// Only the critical files this site has, and that apply to how it runs, count.
+		$state = $this->build( 'file_locker' );
+		$lockable = \array_column( ( new GetFileLockCandidateDisplays() )->run(), 'file_key' );
+		$locked = \count( \array_intersect( $con->comps->file_locker->getFilesToLock(), $lockable ) );
+		$lockable = \count( $lockable );
+		if ( $state[ 'is_available' ] && $locked >= $lockable ) {
+			return null;
+		}
+
+		return \array_replace( $state, [
+			'disabled_reason'  => 'not_enabled',
+			'disabled_message' => $state[ 'is_available' ] && $locked > 0
+				? \sprintf(
+					/* translators: %1$s: files locked, %2$s: files that can be locked */
+					__( '%1$s of %2$s critical files are locked.', 'wp-simple-firewall' ),
+					$locked,
+					$lockable
+				)
+				: __( 'None of your critical files are locked yet.', 'wp-simple-firewall' ),
+		] );
+	}
+
 	public function build( string $tabKey ) :array {
 		$tabKey = \strtolower( \trim( $tabKey ) );
 		if ( isset( $this->states[ $tabKey ] ) ) {

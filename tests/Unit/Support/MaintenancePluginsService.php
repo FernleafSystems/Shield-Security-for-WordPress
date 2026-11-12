@@ -29,10 +29,6 @@ class MaintenancePluginsService extends Plugins {
 		return $this->fixture[ 'plugin_vos' ][ $file ] ?? null;
 	}
 
-	public function getUrl_Activate( $file ) :string {
-		return (string)( $this->fixture[ 'activate_urls' ][ $file ] ?? '/wp-admin/plugins.php?action=activate&plugin='.$file );
-	}
-
 	public function getUrl_Upgrade( $file ) :string {
 		return (string)( $this->fixture[ 'upgrade_urls' ][ $file ] ?? '/wp-admin/update.php?action=upgrade-plugin&plugin='.$file );
 	}

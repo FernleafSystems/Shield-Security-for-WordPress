@@ -2,7 +2,7 @@
 title: Wiki Index
 type: index
 created: 2026-04-07
-updated: 2026-08-21
+updated: 2026-11-11
 sources: []
 tags: [index, catalog]
 ---
@@ -64,7 +64,7 @@ One entry per product or tool topic page.
 
 One entry per intended future work or execution design topic page.
 
-(Empty - will populate as source material is ingested.)
+- [[first-install-report-email-hold]] - Hold scan-driven alert and report emails for 24 hours after install until a report email is chosen, prompted first in the setup guide and top of Review next | topic | updated 2026-11-11
 
 ---
 

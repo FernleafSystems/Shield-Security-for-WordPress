@@ -13,7 +13,7 @@ class IpAnalysis extends OffCanvasBase {
 	}
 
 	protected function buildCanvasBody() :string {
-		$renderData = ( new InvestigateByIpViewBuilder() )->build( (string)$this->action_data[ 'ip' ], [
+		$renderData = ( new InvestigateByIpViewBuilder() )->build( $this->fields()->string( 'ip', '' ), [
 			'show_lookup_with_subject' => true,
 			'show_subject_header'      => false,
 		] );

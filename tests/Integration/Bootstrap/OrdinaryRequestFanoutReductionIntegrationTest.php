@@ -4,26 +4,20 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Bootstrap;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\TracksOptionWrites;
 use FernleafSystems\Wordpress\Services\Services;
 
 class OrdinaryRequestFanoutReductionIntegrationTest extends ShieldIntegrationTestCase {
 
 	use CurrentRequestFixture;
-	use TracksOptionWrites;
 
 	private array $requestSnapshot = [];
 	private array $optionSnapshots = [];
-	private string $installDateOptionKey = '';
-	private int $installDateOptionValue = 0;
 
 	public function set_up() {
 		parent::set_up();
 
 		$con = $this->requireController();
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
-		$this->installDateOptionKey = $con->prefix( 'install_date', '_' );
-		$this->installDateOptionValue = (int)Services::WpGeneral()->getOption( $this->installDateOptionKey );
 		$this->optionSnapshots = [
 			'importexport_enable'               => $con->opts->optGet( 'importexport_enable' ),
 			'importexport_secretkey'            => $con->opts->optGet( 'importexport_secretkey' ),
@@ -53,9 +47,6 @@ class OrdinaryRequestFanoutReductionIntegrationTest extends ShieldIntegrationTes
 			$con->opts->store();
 		}
 
-		Services::WpGeneral()->updateOption( $this->installDateOptionKey, $this->installDateOptionValue );
-
-		$this->stopTrackingOptionWrites();
 		$this->restoreCurrentRequestState( $this->requestSnapshot );
 
 		parent::tear_down();
@@ -140,11 +131,9 @@ class OrdinaryRequestFanoutReductionIntegrationTest extends ShieldIntegrationTes
 		$this->assertNotSame( '', $track[ 'profile_hash' ] );
 	}
 
-	public function test_store_real_install_date_is_idempotent_when_values_match() :void {
+	public function test_store_real_install_date_keeps_an_existing_date_without_changes() :void {
 		$con = $this->requireController();
 		$storedAt = Services::Request()->ts() - 600;
-
-		Services::WpGeneral()->updateOption( $this->installDateOptionKey, $storedAt );
 		$con->opts->optSet( 'installation_time', $storedAt )->store();
 
 		$this->applyCurrentRequestState( [
@@ -152,11 +141,32 @@ class OrdinaryRequestFanoutReductionIntegrationTest extends ShieldIntegrationTes
 			'REQUEST_URI'    => '/',
 		] );
 
-		$this->startTrackingOptionWrites( [ $this->installDateOptionKey ] );
-
 		$this->assertSame( $storedAt, $con->plugin->storeRealInstallDate() );
-		$this->assertOptionWasNotWritten( $this->installDateOptionKey );
 		$this->assertFalse( $con->opts->hasChanges() );
+	}
+
+	/**
+	 * Older versions also kept the install date in a separate WP option. Sites still have it, but after a reset
+	 * the install date must start again rather than come back from that option.
+	 */
+	public function test_store_real_install_date_ignores_the_retired_wp_option() :void {
+		$con = $this->requireController();
+		$retiredKey = $con->prefix( 'install_date', '_' );
+		$retiredValue = \get_option( $retiredKey, false );
+		$retiredDate = Services::Request()->ts() - \YEAR_IN_SECONDS;
+		\update_option( $retiredKey, $retiredDate );
+
+		try {
+			$con->opts->optSet( 'installation_time', 0 )->store();
+
+			$installedAt = $con->plugin->storeRealInstallDate();
+
+			$this->assertGreaterThan( $retiredDate, $installedAt );
+			$this->assertSame( $installedAt, (int)$con->opts->optGet( 'installation_time' ) );
+		}
+		finally {
+			$retiredValue === false ? \delete_option( $retiredKey ) : \update_option( $retiredKey, $retiredValue );
+		}
 	}
 
 	private function flushPendingOptionState() :void {

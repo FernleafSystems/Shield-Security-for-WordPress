@@ -5,10 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
-	CloakedPlugins,
 	Malware,
-	Maintenance,
-	Vulnerabilities,
 	Wordpress
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
@@ -50,7 +47,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertGroupDefinitionShape( $definitions[ 'hidden_plugins' ] );
 		$this->assertSame( 'direct_table', $definitions[ 'hidden_plugins' ][ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $definitions[ 'hidden_plugins' ][ 'card_type' ] );
-		$this->assertSame( CloakedPlugins::class, $definitions[ 'hidden_plugins' ][ 'render_action_class' ] );
+		$this->assertNull( $definitions[ 'hidden_plugins' ][ 'render_action_class' ] );
 		$this->assertSame( [], $definitions[ 'hidden_plugins' ][ 'render_action_data' ] );
 		$this->assertSame( Malware::class, $definitions[ 'malware' ][ 'render_action_class' ] );
 		$this->assertSame(
@@ -71,26 +68,26 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 			[ 'wordpress', 'malware' ],
 			( new ActionsQueueGroupDefinitions() )->ignoredOnlyDirectTableGroupKeys()
 		);
-		$this->assertSame( Vulnerabilities::class, $definitions[ 'vulnerabilities' ][ 'render_action_class' ] );
-		$this->assertSame( [ 'section' => 'vulnerable' ], $definitions[ 'vulnerabilities' ][ 'render_action_data' ] );
-		$this->assertSame( Vulnerabilities::class, $definitions[ 'abandoned' ][ 'render_action_class' ] );
-		$this->assertSame( [ 'section' => 'abandoned' ], $definitions[ 'abandoned' ][ 'render_action_data' ] );
+		$this->assertNull( $definitions[ 'vulnerabilities' ][ 'render_action_class' ] );
+		$this->assertSame( [], $definitions[ 'vulnerabilities' ][ 'render_action_data' ] );
+		$this->assertNull( $definitions[ 'abandoned' ][ 'render_action_class' ] );
+		$this->assertSame( [], $definitions[ 'abandoned' ][ 'render_action_data' ] );
 		$this->assertSame( 'asset_cards', $definitions[ 'file_locker' ][ 'detail_shell' ] );
 		$this->assertSame( FileLocker::class, $definitions[ 'file_locker' ][ 'render_action_class' ] );
 		$this->assertSame( 'maintenance', $definitions[ 'maintenance' ][ 'detail_shell' ] );
 		$this->assertSame( 'category', $definitions[ 'maintenance' ][ 'card_type' ] );
-		$this->assertSame( Maintenance::class, $definitions[ 'maintenance' ][ 'render_action_class' ] );
+		$this->assertNull( $definitions[ 'maintenance' ][ 'render_action_class' ] );
 		$this->assertGroupDefinitionShape( $definitions[ 'maintenance' ] );
 		$this->assertGroupDefinitionShape( $definitions[ 'maintenance_system' ] );
 		$this->assertSame( 'bi bi-shield-lock-fill', $definitions[ 'maintenance_system' ][ 'icon_class' ] );
 		$this->assertSame( 'maintenance', $definitions[ 'maintenance_system' ][ 'detail_shell' ] );
 		$this->assertSame( 'category', $definitions[ 'maintenance_system' ][ 'card_type' ] );
-		$this->assertSame( Maintenance::class, $definitions[ 'maintenance_system' ][ 'render_action_class' ] );
+		$this->assertNull( $definitions[ 'maintenance_system' ][ 'render_action_class' ] );
 		$this->assertGroupDefinitionShape( $definitions[ 'maintenance_wordpress' ] );
 		$this->assertSame( 'bi bi-wordpress', $definitions[ 'maintenance_wordpress' ][ 'icon_class' ] );
 		$this->assertSame( 'maintenance', $definitions[ 'maintenance_wordpress' ][ 'detail_shell' ] );
 		$this->assertSame( 'category', $definitions[ 'maintenance_wordpress' ][ 'card_type' ] );
-		$this->assertSame( Maintenance::class, $definitions[ 'maintenance_wordpress' ][ 'render_action_class' ] );
+		$this->assertNull( $definitions[ 'maintenance_wordpress' ][ 'render_action_class' ] );
 	}
 
 	public function test_definitions_own_group_section_metadata_for_fix_now_ordering() :void {
@@ -165,7 +162,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				'definition_key' => 'hidden_plugins',
-				'seed_strategy'  => 'attention_aggregate',
+				'seed_strategy'  => 'cloaked_plugins',
 			],
 			$definitions->summaryBehaviourForKey( 'hidden_plugins' )
 		);

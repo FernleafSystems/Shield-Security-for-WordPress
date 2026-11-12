@@ -97,9 +97,7 @@
 }
 
 /* Preserve lift and focus-ring clearance at every shared card-grid edge. */
-.investigate-landing__subject-grid,
-.configure-zones__grid,
-.actions-queue-buckets__grid {
+.investigate-landing__subject-grid {
 	padding: 0.35rem;
 }
 
@@ -178,17 +176,8 @@
 }
 
 .operator-card-surface:hover:not(:disabled):not(.is-disabled) .operator-tile-card__action--primary,
-.operator-tile-card__action--primary:focus-visible,
-.operator-tile-card__action--secondary:hover,
-.operator-tile-card__action--secondary:focus-visible {
+.operator-tile-card__action--primary:focus-visible {
 	background: var(--operator-card-action-hover-bg);
-	border-color: var(--operator-card-action-border);
-	color: var(--operator-card-text-color);
-}
-
-/* Keep a secondary action's hover state distinct from the default primary action. */
-.operator-card-surface:hover:not(:disabled):not(.is-disabled):has(.operator-tile-card__action--secondary:hover) .operator-tile-card__action--primary {
-	background: var(--operator-card-action-bg);
 	border-color: var(--operator-card-action-border);
 	color: var(--operator-card-text-color);
 }

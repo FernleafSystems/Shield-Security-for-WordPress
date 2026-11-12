@@ -99,10 +99,6 @@ class TwoFactorAuth extends Base {
 		return $status;
 	}
 
-	protected function postureWeight() :int {
-		return 5;
-	}
-
 	/**
 	 * @return array{level:string,exp:list<string>}
 	 */
@@ -112,7 +108,7 @@ class TwoFactorAuth extends Base {
 
 		if ( $emailVerificationStatus === EmailDeliveryVerification::STATUS_DISABLED ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
-			$status[ 'exp' ][] = __( 'Email-based verification is disabled.', 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Email-based verification is disabled.', 'wp-simple-firewall' ), 'enable_email_authentication' );
 		}
 		elseif ( $emailVerificationStatus !== EmailDeliveryVerification::STATUS_VERIFIED ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
@@ -120,7 +116,7 @@ class TwoFactorAuth extends Base {
 		}
 		elseif ( !$this->hasEmailAudience() ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
-			$status[ 'exp' ][] = __( 'Email-based verification is enabled, but no user audience is allowed or enforced to use it.', 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Email-based verification is enabled, but no user audience is allowed or enforced to use it.', 'wp-simple-firewall' ), 'two_factor_auth_user_roles' );
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::GOOD;
@@ -141,17 +137,17 @@ class TwoFactorAuth extends Base {
 			$usableProviders[] = GoogleAuth::ProviderName();
 		}
 		else {
-			$reasons[] = __( 'Google Authenticator is disabled.', 'wp-simple-firewall' );
+			$reasons[] = $this->explanationFixedBy( __( 'Google Authenticator is disabled.', 'wp-simple-firewall' ), 'enable_google_authenticator' );
 		}
 
 		if ( Yubikey::ProviderEnabled() ) {
 			$usableProviders[] = Yubikey::ProviderName();
 		}
 		elseif ( self::con()->opts->optIs( 'enable_yubikey', 'Y' ) ) {
-			$reasons[] = __( 'Yubikey OTP is enabled but the Yubico application credentials are incomplete.', 'wp-simple-firewall' );
+			$reasons[] = $this->explanationFixedBy( __( 'Yubikey OTP is enabled but the Yubico application credentials are incomplete.', 'wp-simple-firewall' ), 'yubikey_app_id' );
 		}
 		else {
-			$reasons[] = __( 'Yubikey OTP is disabled.', 'wp-simple-firewall' );
+			$reasons[] = $this->explanationFixedBy( __( 'Yubikey OTP is disabled.', 'wp-simple-firewall' ), 'enable_yubikey' );
 		}
 
 		if ( Passkey::ProviderEnabled() ) {
@@ -163,7 +159,7 @@ class TwoFactorAuth extends Base {
 				: __( 'Passkeys are enabled but the current server does not support them.', 'wp-simple-firewall' );
 		}
 		else {
-			$reasons[] = __( 'Passkeys are disabled.', 'wp-simple-firewall' );
+			$reasons[] = $this->explanationFixedBy( __( 'Passkeys are disabled.', 'wp-simple-firewall' ), 'enable_passkeys' );
 		}
 
 		if ( empty( $usableProviders ) ) {

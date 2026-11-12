@@ -32,25 +32,30 @@ class Export {
 	private const IMPORT_ID_EXPORT_COOLDOWN = 60;
 	private const HANDSHAKE_COOLDOWN = 300;
 
-	public function run( string $method ) {
+	/**
+	 * @param array{url?:string,id?:string,network?:string,secret?:string} $params the export request's data, already
+	 *                                                                           checked as text by the caller
+	 */
+	public function run( string $method, array $params ) {
 		try {
 			if ( $method === 'json' ) {
-				$this->toJson();
+				$this->toJson( $params );
 			}
 		}
 		catch ( \Exception $e ) {
 		}
 	}
 
-	public function toJson() :void {
+	/**
+	 * @param array{url?:string,id?:string,network?:string,secret?:string} $params
+	 */
+	public function toJson( array $params ) :void {
 		$ieCon = self::con()->comps->import_export;
 		if ( !$ieCon->isSyncEnabled() ) {
 			return;
 		}
 
 		$evt = self::con()->comps->events;
-		$req = Services::Request();
-
 		$success = false;
 		$data = [];
 
@@ -61,10 +66,10 @@ class Export {
 		catch ( \Throwable $e ) {
 		}
 
-		$url = ( new SyncSiteUrlValidator() )->canonicalize( (string)$req->query( 'url', '' ) );
-		$id = (string)$req->query( 'id', '' );
-		$networkOpt = empty( $url ) ? false : $req->query( 'network', '' );
-		$verification = $this->verifyUrl( $repo, $url, $id, (string)$req->query( 'secret', '' ) );
+		$url = ( new SyncSiteUrlValidator() )->canonicalize( $params[ 'url' ] ?? '' );
+		$id = $params[ 'id' ] ?? '';
+		$networkOpt = empty( $url ) ? '' : ( $params[ 'network' ] ?? '' );
+		$verification = $this->verifyUrl( $repo, $url, $id, $params[ 'secret' ] ?? '' );
 
 		if ( \in_array( $verification[ 'status' ], [ self::VERIFY_FAILED, self::VERIFY_COOLDOWN ], true ) ) {
 			return;

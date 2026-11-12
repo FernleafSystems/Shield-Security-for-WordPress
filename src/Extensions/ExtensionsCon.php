@@ -92,17 +92,6 @@ class ExtensionsCon {
 	}
 
 	/**
-	 * @throws \Exception
-	 */
-	public function getExtension( string $slug ) :BaseExtension {
-		$ext = $this->getAvailableExtensions()[ $slug ] ?? null;
-		if ( empty( $ext ) ) {
-			throw new \Exception( sprintf( __( '%s extension is unavailable.', 'wp-simple-firewall' ), $slug ) );
-		}
-		return $ext;
-	}
-
-	/**
 	 * @return BaseExtension[]
 	 */
 	public function getAvailableExtensions() :array {

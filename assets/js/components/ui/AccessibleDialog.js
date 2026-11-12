@@ -91,7 +91,7 @@ export class AccessibleDialog {
 
 	/** Open caller-owned content within the same accessible dialog lifecycle. */
 	content( config ) {
-		if ( this.pendingResolver !== null ) {
+		if ( this.isOpen() ) {
 			return null;
 		}
 		const closed = this.show( { ...config, type: 'content' }, undefined );
@@ -124,7 +124,7 @@ export class AccessibleDialog {
 	}
 
 	processing( config = {} ) {
-		if ( this.pendingResolver !== null ) {
+		if ( this.isOpen() ) {
 			return { close: () => null };
 		}
 
@@ -147,8 +147,15 @@ export class AccessibleDialog {
 		};
 	}
 
+	/**
+	 * Whether a dialog is showing. Another can't be shown until it closes: show() resolves at once instead.
+	 */
+	isOpen() {
+		return this.pendingResolver !== null;
+	}
+
 	show( config, cancelValue ) {
-		if ( this.pendingResolver !== null ) {
+		if ( this.isOpen() ) {
 			return Promise.resolve( cancelValue );
 		}
 

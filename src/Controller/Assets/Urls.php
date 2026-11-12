@@ -50,13 +50,4 @@ class Urls {
 	public function forThirdParty( string $slug, string $type ) :string {
 		return self::con()->cfg->includes[ 'tp' ][ $slug ][ $type ];
 	}
-
-	protected function lookupAssetUrlInSpec( string $asset, string $type ) :?string {
-		$asset = $this->lookupAssetInSpec( $asset, $type );
-		return empty( $asset[ 'url' ] ) ? null : $asset[ 'url' ];
-	}
-
-	protected function lookupAssetInSpec( string $asset, string $type ) :array {
-		return self::con()->cfg->includes[ 'register' ][ $type ][ $asset ] ?? [];
-	}
 }

@@ -19,11 +19,6 @@ abstract class BaseExtension {
 	private ExtensionConfigVO $cfg;
 
 	/**
-	 * @var UpgradeHandlersBase
-	 */
-	protected $upgradesHandler;
-
-	/**
 	 * @throws \Exception
 	 */
 	public function __construct( string $file, array $cfg ) {
@@ -113,13 +108,6 @@ abstract class BaseExtension {
 			'wp'     => [
 				'min' => '5.7',
 			],
-		];
-	}
-
-	protected function getUpgradeConfig() :array {
-		return [
-			'file' => $this->file,
-			'slug' => sprintf( 'shield-ext-%s', static::SLUG ),
 		];
 	}
 

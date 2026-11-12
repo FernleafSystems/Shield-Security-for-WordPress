@@ -43,17 +43,17 @@ test( 'super search opens a named dialog and restores focus to launcher', async 
 	await expectNoAxeViolations( page, '#ModalSuperSearchBox' );
 
 	await submitSuperSearch( page, input, 'security' );
-	await expect( modal.locator( '.modal-body h3' ).first() ).toBeVisible();
-	await expect( modal.locator( '.modal-body a' ).first() ).toBeVisible();
+	await expect( modal.locator( '[data-super-search-body="1"] h3' ).first() ).toBeVisible();
+	await expect( modal.locator( '[data-super-search-body="1"] a' ).first() ).toBeVisible();
 	await expectNoAxeViolations( page, '#ModalSuperSearchBox' );
 
 	await submitSuperSearch( page, input, 'shieldguaranteedemptyreplacement987654321' );
-	await expect( modal.locator( '.modal-body h3' ) ).toHaveCount( 0 );
-	await expect( modal.locator( '.modal-body a' ) ).toHaveCount( 0 );
-	await expect( modal.locator( '.modal-body p' ).first() ).toBeVisible();
+	await expect( modal.locator( '[data-super-search-body="1"] h3' ) ).toHaveCount( 0 );
+	await expect( modal.locator( '[data-super-search-body="1"] a' ) ).toHaveCount( 0 );
+	await expect( modal.locator( '[data-super-search-body="1"] p' ).first() ).toBeVisible();
 	await expectNoAxeViolations( page, '#ModalSuperSearchBox' );
 
-	await modal.locator( '.btn-close' ).click();
+	await modal.locator( '.shield-search-box__close' ).click();
 	await expectModalHiddenWithoutAriaModal( page, '#ModalSuperSearchBox' );
 	await expect( launcher ).toBeFocused();
 } );

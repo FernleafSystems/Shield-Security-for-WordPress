@@ -235,6 +235,11 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$scansData = \is_callable( $scansComp[ 'data' ] ?? null ) ? \call_user_func( $scansComp[ 'data' ] ) : [];
 
 		$this->assertTrue( $scansData[ 'flags' ][ 'initial_check' ] ?? false );
+		// The Actions Queue's "Scans running" indicator links to the scan progress page.
+		$this->assertSame(
+			'/wp-admin/admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=run',
+			$scansData[ 'hrefs' ][ 'scan_run' ] ?? null
+		);
 	}
 
 	public function test_tools_and_license_components_expose_stable_action_payloads() :void {
@@ -544,6 +549,14 @@ class AssetsCustomizerControllerStub extends Controller {
 		$this->plugin_urls = new class {
 			public function actionsQueueScans() :string {
 				return '/wp-admin/admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=overview';
+			}
+
+			public function scansRun() :string {
+				return '/wp-admin/admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=run';
+			}
+
+			public function fileDownloadAsStream( string $category ) :string {
+				return '/wp-admin/admin.php?download='.$category;
 			}
 		};
 	}

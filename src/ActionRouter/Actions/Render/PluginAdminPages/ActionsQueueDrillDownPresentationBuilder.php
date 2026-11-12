@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 /**
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
- * @phpstan-import-type OperatorChromeActionInput from OperatorChromeContract
  * @phpstan-type HeaderOverrides array{
  *   summary?:string,
  *   focus?:string,
@@ -50,13 +49,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 		);
 	}
 
-	public function buildBackLabel( string $label ) :string {
-		return \sprintf(
-			__( 'Back to %s', 'wp-simple-firewall' ),
-			$label
-		);
-	}
-
 	public function buildBucketFocusText( string $bucketLabel, int $itemCount ) :string {
 		return \sprintf(
 			_n(
@@ -81,7 +73,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $iconClass,
 		int $itemCount,
 		string $summary,
-		array $actions = [],
 		array $headerOverrides = []
 	) :array {
 		$header = $this->buildBucketHeader(
@@ -91,7 +82,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 			$iconClass,
 			$itemCount,
 			$summary,
-			$actions,
 			$headerOverrides
 		);
 		$selection = [
@@ -121,7 +111,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $detailShell,
 		array $detailRenderAction,
 		string $summary,
-		array $actions = [],
 		array $headerOverrides = []
 	) :array {
 		$header = $this->buildGroupHeader(
@@ -131,7 +120,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 			$iconClass,
 			$itemCount,
 			$summary,
-			$actions,
 			$headerOverrides
 		);
 		$selection = [
@@ -160,12 +148,9 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $iconClass,
 		int $itemCount,
 		string $summary,
-		array $actions = [],
 		array $overrides = []
 	) :array {
 		return OperatorChromeContract::normalizeHeader( [
-			'compact_back_label' => $this->buildBackLabel( $label ),
-			'active_back_label'  => $this->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
 			'breadcrumb_label'   => $label,
 			'title'              => $label,
 			'meta'               => $meta,
@@ -176,7 +161,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'badge'              => $overrides[ 'badge' ] ?? $this->buildItemBadge( $itemCount ),
 			'badge_status'       => $overrides[ 'badge_status' ] ?? $status,
 			'color_key'          => $overrides[ 'color_key' ] ?? $status,
-			'actions'            => $actions,
+			// The queue's actions sit with what they act on, such as a results table, never in a side rail.
+			'actions'            => [],
 		] );
 	}
 
@@ -190,12 +176,9 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $iconClass,
 		int $itemCount,
 		string $summary,
-		array $actions = [],
 		array $overrides = []
 	) :array {
 		return OperatorChromeContract::normalizeHeader( [
-			'compact_back_label' => $this->buildBackLabel( $label ),
-			'active_back_label'  => $this->buildBackLabel( $bucketLabel ),
 			'breadcrumb_label'   => $label,
 			'title'              => $label,
 			'summary'            => $overrides[ 'summary' ] ?? $summary,
@@ -205,7 +188,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'badge'              => $overrides[ 'badge' ] ?? $this->buildItemBadge( $itemCount ),
 			'badge_status'       => $overrides[ 'badge_status' ] ?? $status,
 			'color_key'          => $overrides[ 'color_key' ] ?? $status,
-			'actions'            => $actions,
+			'actions'            => [],
 		] );
 	}
 }

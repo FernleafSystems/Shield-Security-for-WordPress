@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
 	RetrieveItems,
@@ -16,9 +17,16 @@ class ScanResultsTableAction extends ScansBase {
 
 	public const SLUG = 'scanresults_action';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
 		try {
-			switch ( $this->action_data[ 'sub_action' ] ?? '' ) {
+			$subAction = $this->fields()->string( 'sub_action', '' );
+			switch ( $subAction ) {
 				case 'refresh_malware_assessments':
 					$response = $this->refreshMalwareAssessments();
 					break;
@@ -30,13 +38,13 @@ class ScanResultsTableAction extends ScansBase {
 				case 'unignore':
 				case 'repair':
 				case 'repair-delete':
-					$response = $this->doAction( $this->action_data[ 'sub_action' ], $this->getItemIDs() );
+					$response = $this->doAction( $subAction, $this->getItemIDs() );
 					break;
 				case 'ignore_all':
 					$response = $this->doScopedAction( 'ignore', ( new ScanResultsDisplayOptions() )->activeOnly() );
 					break;
 				default:
-					throw new \Exception( 'Not a supported scan tables sub_action: '.$this->action_data[ 'sub_action' ] );
+					throw new \Exception( 'Not a supported scan tables sub_action: '.$subAction );
 			}
 		}
 		catch ( \Exception $e ) {
@@ -143,8 +151,8 @@ class ScanResultsTableAction extends ScansBase {
 	 * @throws \Exception
 	 */
 	private function getScopedItemIDs( array $resultsDisplayOptions ) :array {
-		$type = \trim( (string)( $this->action_data[ 'type' ] ?? '' ) );
-		$file = \trim( (string)( $this->action_data[ 'file' ] ?? '' ) );
+		$type = \trim( $this->fields()->string( 'type', '' ) );
+		$file = \trim( $this->fields()->string( 'file', '' ) );
 		if ( $type === '' || $file === '' ) {
 			throw new \Exception( __( 'No scan results scope was provided.', 'wp-simple-firewall' ) );
 		}
@@ -223,21 +231,11 @@ class ScanResultsTableAction extends ScansBase {
 	 * @throws \Exception
 	 */
 	private function getItemIDs() :array {
-		$items = $this->action_data[ 'rids' ] ?? '';
-		if ( empty( $items ) || !\is_array( $items ) ) {
+		$itemIDs = $this->fields()->positiveIntList( 'rids', [] );
+		if ( empty( $itemIDs ) ) {
 			throw new \Exception( __( 'No items selected.', 'wp-simple-firewall' ) );
 		}
-		return \array_filter(
-			\array_map(
-				function ( $rid ) {
-					return \is_numeric( $rid ) ? \intval( $rid ) : null;
-				},
-				$items
-			),
-			function ( $rid ) {
-				return !\is_null( $rid );
-			}
-		);
+		return $itemIDs;
 	}
 
 	/**
@@ -246,10 +244,11 @@ class ScanResultsTableAction extends ScansBase {
 	private function retrieveTableData() :array {
 		$builder = new BuildScanTableData();
 		$options = new ScanResultsDisplayOptions();
-		$builder->table_data = $this->action_data[ 'table_data' ] ?? [];
-		$builder->type = $this->action_data[ 'type' ] ?? '';
-		$builder->file = $this->action_data[ 'file' ] ?? '';
-		$builder->scan_results_notice_context = $this->action_data[ 'scan_results_notice_context' ] ?? '';
+		$fields = $this->fields();
+		$builder->table_data = $fields->array( 'table_data', [] );
+		$builder->type = $fields->string( 'type', '' );
+		$builder->file = $fields->string( 'file', '' );
+		$builder->scan_results_notice_context = $fields->string( 'scan_results_notice_context', '' );
 		$explicitOptions = $options->explicitOptionsFromActionData( $this->action_data );
 		if ( $explicitOptions !== null ) {
 			$builder->results_display_options = $explicitOptions;

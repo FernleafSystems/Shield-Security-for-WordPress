@@ -21,7 +21,7 @@ class AutoUnblockShield extends Base {
 				'home' => Services::WpGeneral()->getHomeUrl( '/' )
 			],
 			'vars'    => [
-				'unblock_nonce' => ActionData::Build( $this->getAutoUnblockActionClass() ),
+				'unblock_nonce' => ActionData::Build( $this->getAutoUnblockActionClass(), false ),
 			],
 			'strings' => [
 				'title'              => __( 'Auto-Unblock Your IP', 'wp-simple-firewall' ),

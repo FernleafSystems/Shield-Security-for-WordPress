@@ -39,7 +39,35 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 			false
 		);
 
+		shieldEventsHandler_Main.add_Click(
+			'[data-configure-show-me="1"]',
+			( button ) => this.handleShowMe( button ),
+			false
+		);
+
 		this.initializeCurrentRoot();
+	}
+
+	/**
+	 * Opens the component behind a warning and highlights the setting that fixes it. When the
+	 * warning doesn't name a setting but the component has only one, that one is highlighted.
+	 */
+	handleShowMe( button ) {
+		const rowKey = button.dataset.rowKey || '';
+		let optionKey = button.dataset.optionKey || '';
+		if ( optionKey.length < 1 ) {
+			const wrapper = this.getConfigureRoot()?.querySelector( `[data-configure-row-key="${rowKey}"]` );
+			const keysField = wrapper?.querySelector( 'input[name="all_opts_keys"]' );
+			const placeholder = wrapper?.querySelector( '[data-configure-expand-ajax="1"]' );
+			const keys = String( keysField instanceof HTMLInputElement ? keysField.value : ( placeholder?.getAttribute( 'data-option_keys' ) || '' ) )
+			.split( ',' )
+			.filter( ( key ) => key.length > 0 );
+			optionKey = keys.length === 1 ? keys[ 0 ] : '';
+		}
+		this.applyFocusRequest( {
+			row_key: rowKey,
+			config_item: optionKey,
+		} );
 	}
 
 	initializeCurrentRoot() {
@@ -50,8 +78,11 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		}
 	}
 
+	/**
+	 * Configure itself, or a page that shows some of Configure's settings (such as Reports).
+	 */
 	getConfigureRoot() {
-		const root = document.querySelector( '[data-configure-landing="1"]' );
+		const root = document.querySelector( '[data-configure-landing="1"], [data-configure-embed="1"]' );
 		return root instanceof HTMLElement ? root : null;
 	}
 
@@ -98,11 +129,29 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		}
 
 		placeholder.replaceWith( form );
+		this.markIssueOptions( form, expansion );
+		form.dispatchEvent( new CustomEvent( 'shield:configure-panel-loaded', { bubbles: true } ) );
 		this.setSaveButtonDisabled( expansion, false );
 		if ( expansion?.classList.contains( 'show' ) ) {
 			UiContentActivator.activateCurrentSubtree( expansion );
 			this.maybeFocusRequestedConfigItem( expansion );
 		}
+	}
+
+	/**
+	 * Marks the settings behind a component's warnings, so it's clear which ones need changing.
+	 */
+	markIssueOptions( form, expansion ) {
+		const issues = expansion?.querySelector( '[data-configure-issue-options]' );
+		if ( !( issues instanceof HTMLElement ) ) {
+			return;
+		}
+		const tone = issues.classList.contains( 'configure-expansion-issues--critical' ) ? 'critical' : 'warning';
+		// Option keys are plain identifiers; anything else is ignored rather than put in a selector.
+		String( issues.dataset.configureIssueOptions || '' ).split( ',' ).filter( ( key ) => /^[A-Za-z0-9_-]+$/.test( key ) ).forEach( ( key ) => {
+			form.querySelector( `.shield-option-item[data-option-key="${key}"]` )
+				?.classList.add( 'has-issue', `has-issue--${tone}` );
+		} );
 	}
 
 	preloadExpansionForms() {
@@ -434,16 +483,26 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 			return;
 		}
 
-		const field = expansion.querySelector( `[name="${focus.config_item}"]` ) || null;
+		// The visible control comes first (a panel slider's named field is hidden); multi-selects submit as "key[]".
+		const field = expansion.querySelector( `[id="Opt-${focus.config_item}"]` )
+					  || expansion.querySelector( `[name="${focus.config_item}"], [name="${focus.config_item}[]"]` )
+					  || null;
 		if ( !( field instanceof HTMLElement ) ) {
 			this.clearPendingRequestedFocus();
 			return;
 		}
 
-		field.scrollIntoView( {
+		field.closest( 'details' )?.setAttribute( 'open', '' );
+
+		const item = field.closest( '.shield-option-item' );
+		( item instanceof HTMLElement ? item : field ).scrollIntoView( {
 			block: 'center',
 			behavior: 'auto',
 		} );
+		if ( item instanceof HTMLElement ) {
+			item.classList.add( 'is-highlighted' );
+			window.setTimeout( () => item.classList.remove( 'is-highlighted' ), 2500 );
+		}
 
 		if ( typeof field.focus === 'function' ) {
 			field.focus( {

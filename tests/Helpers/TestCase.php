@@ -18,20 +18,4 @@ abstract class TestCase extends PHPUnitTestCase {
 		$this->logger->info( sprintf( 'Completed test: %s::%s', static::class, $this->getName() ) );
 		parent::tearDown();
 	}
-
-	protected function assertArrayHasKeys( array $keys, array $array, string $message = '' ) :void {
-		foreach ( $keys as $key ) {
-			$this->assertArrayHasKey( $key, $array, $message );
-		}
-	}
-
-	protected function assertStringContainsStrings( array $needles, string $haystack, string $message = '' ) :void {
-		foreach ( $needles as $needle ) {
-			$this->assertStringContainsString( $needle, $haystack, $message );
-		}
-	}
-
-	protected function logDebug( string $message ) :void {
-		$this->logger->debug( $message );
-	}
 }

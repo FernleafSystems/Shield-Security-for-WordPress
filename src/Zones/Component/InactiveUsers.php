@@ -37,24 +37,23 @@ class InactiveUsers extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
-			$status[ 'exp' ][] = $hasManualSuspend
-				? __( 'Only manual user suspension is available; users are not suspended automatically.', 'wp-simple-firewall' )
-				: __( 'No effective automatic user suspension rule is configured.', 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy(
+				$hasManualSuspend
+					? __( 'Only manual user suspension is available; users are not suspended automatically.', 'wp-simple-firewall' )
+					: __( 'No effective automatic user suspension rule is configured.', 'wp-simple-firewall' ),
+				'auto_idle_days'
+			);
 		}
 
 		if ( $autoPasswordEnabled && !$hasAutoPasswordSuspend ) {
 			if ( !$optsLookup->isPassPoliciesEnabled() ) {
-				$status[ 'exp' ][] = __( 'Expired-password suspension is enabled but password policies are turned off.', 'wp-simple-firewall' );
+				$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Expired-password suspension is enabled but password policies are turned off.', 'wp-simple-firewall' ), 'enable_password_policies' );
 			}
 			if ( $optsLookup->getPassExpireTimeout() <= 0 ) {
-				$status[ 'exp' ][] = __( 'Expired-password suspension is enabled but password expiration is not configured.', 'wp-simple-firewall' );
+				$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Expired-password suspension is enabled but password expiration is not configured.', 'wp-simple-firewall' ), 'pass_expire' );
 			}
 		}
 
 		return $status;
-	}
-
-	protected function postureWeight() :int {
-		return 2;
 	}
 }

@@ -9,12 +9,10 @@ assets/css/
   plugin-login2fa.scss        Two-factor authentication login form
   plugin-userprofile.scss     User profile MFA section
   plugin-mainwp-server.scss   MainWP server extension
-  plugin-main-modern.scss     Future @use/@forward version (not active)
 
   shield/
     _status-colors.scss       Shared status, neutral surface, and accent color tokens
-    progress.scss             Security analysis meter cards and progress bars
-    zones.scss                Security zone component cards
+    progress.scss             Progress bars
     merlin.scss               Merlin setup wizard
     meters.scss               Meter gauge styling
     security-admin.scss       Security admin pane-scoped overlay/dialog
@@ -24,7 +22,6 @@ assets/css/
     charts.scss               Chart styling
     dashboard-widget.scss     WP dashboard widget
     datatables.css            DataTables customisations
-    dialog.css                Dialog/modal styling
     third-party-overrides.scss  Third-party library fixes
     wpadmin-toast.scss        Shared wp-admin toast notifications
     video_modal.scss          Video modal
@@ -149,7 +146,7 @@ Rule of thumb:
 
 ## Card Component Pattern
 
-Both meter cards (`progress.scss`) and zone cards (`zones.scss`) follow the same visual pattern:
+Status cards follow the same visual pattern:
 
 ```
 +--[accent bar: 4px coloured div]--+
@@ -174,14 +171,6 @@ When building a new card component that needs a status accent:
 5. Apply `$card-bg-*` variables for subtle card body background tints per status
 6. Set `overflow: hidden` on the card so the accent respects border-radius
 
-## Landing Status Strip Pattern
-
-Mode landing status strips reuse the shared card primitives and the shared
-`shield-mode-strip*` classes for the left-edge accent, chip, copy layout, and
-optional inline meter. The canonical reference implementation is the Actions
-Queue landing strip; Configure maps its posture payload into the same shared
-markup rather than owning a second strip design.
-
 ## Status Naming Conventions
 
 Different components use different status vocabulary. Map them to the shared colour variables:
@@ -189,7 +178,6 @@ Different components use different status vocabulary. Map them to the shared col
 | Component | Statuses | Colour mapping |
 |-----------|----------|----------------|
 | Meter cards | `good`, `warning`, `critical` | Direct match to `$status-color-*` |
-| Zone cards | `good`, `okay`, `bad`, `neutral`, `neutral_enabled` | `okay`=warning, `bad`=critical, `neutral`/`neutral_enabled`=info |
 
 ## SCSS Conventions
 
@@ -200,7 +188,7 @@ Use **2 spaces** for SCSS indentation. This is distinct from the PHP convention 
 ### Selectors
 
 - Use class selectors, avoid IDs where possible for component styles
-- Scope component styles to a parent class (e.g., `.zone-component-card .status-badge`)
+- Scope component styles to a parent class (e.g., `.shield-card .shield-badge`)
 - Use `&.modifier` for BEM-like status variants (e.g., `&.status-good`)
 
 ### Colours
@@ -228,14 +216,13 @@ Each SCSS file owns specific components. Do not style another file's components:
 
 | File | Owns |
 |------|------|
-| `progress.scss` | `.meter-hero-card`, `.meter-card`, `.meter-card-accent`, `.status-badge` (meter context), `.progress-bar` |
-| `zones.scss` | `.zone-component-card`, `.zone-card-accent`, `.status-badge` (zone context), `.configure-link`, `.explanations-block` |
+| `progress.scss` | `.progress-bar` |
 | `options.scss` | `.options_form_for--modern`, `.shield-options-layout`, `.shield-options-rail`, `.shield-options-panel`, `.shield-option-row` |
 | `ip_analyse.scss` | `#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse*` and IP-analysis-specific content styling inside the shared options-style rail/panel layout |
 | `reports.scss` (ref) | `.report-section`, `.scan-card`, `.stat-card`, `.change-card`, `.status-pill`, `.category-header`, `.repair-item`, `.scan-item` |
 | `merlin.scss` | `#MerlinOverlay`, `.merlin-modal-dialog`, `.stepper*`, `.wizard-card*`, `.wizard-step-pane`, `.profile-card*`, `.feature-list`, `.section-header`, `.feature-item`, `.merlin-form-footer` |
 | `security-admin.scss` | Security admin pane-scoped overlay/dialog and PIN form |
-| `dashboard.scss` | shared reusable primitives including `.shield-card`, `.shield-card-accent`, `.shield-badge`, `.shield-stack`, `.shield-mode-strip*`, plus dashboard-specific components |
+| `dashboard.scss` | shared reusable primitives including `.shield-card`, `.shield-card-accent`, `.shield-badge`, plus dashboard-specific components |
 
 ## Inline CSS Pattern (Reports)
 

@@ -96,7 +96,7 @@ abstract class BaseSiteMwpAction extends MainwpBase {
 	}
 
 	protected function getMwpSite() :MWPSiteVO {
-		return MWPSiteVO::LoadByID( (int)$this->action_data[ 'client_site_id' ] );
+		return MWPSiteVO::LoadByID( $this->fields()->positiveInt( 'client_site_id' ) );
 	}
 
 	protected function getRequiredDataKeys() :array {

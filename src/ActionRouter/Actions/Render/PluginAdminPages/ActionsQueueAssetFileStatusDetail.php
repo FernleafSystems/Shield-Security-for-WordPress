@@ -18,8 +18,8 @@ class ActionsQueueAssetFileStatusDetail extends BaseRender {
 
 	protected function getRenderData() :array {
 		$options = new ScanResultsDisplayOptions();
-		$subjectType = \strtolower( \trim( (string)$this->action_data[ 'subject_type' ] ) );
-		$subjectId = \trim( (string)$this->action_data[ 'subject_id' ] );
+		$subjectType = \strtolower( \trim( $this->fields()->string( 'subject_type' ) ) );
+		$subjectId = \trim( $this->fields()->string( 'subject_id' ) );
 		$resultsDisplayOptions = $options->currentOptionsFromActionData( $this->action_data );
 
 		return $this->buildScansResultsViewBuilder()->buildActionsQueueSubjectTablePane(

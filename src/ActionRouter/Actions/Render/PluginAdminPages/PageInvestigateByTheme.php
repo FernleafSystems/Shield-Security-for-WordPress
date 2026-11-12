@@ -75,10 +75,6 @@ class PageInvestigateByTheme extends BaseInvestigateByAssetSubject {
 		return 'theme';
 	}
 
-	protected function getSubjectAvatarIcon() :string {
-		return 'palette-fill';
-	}
-
 	protected function getAssetIdentifierLabel() :string {
 		return __( 'Stylesheet', 'wp-simple-firewall' );
 	}
@@ -91,7 +87,6 @@ class PageInvestigateByTheme extends BaseInvestigateByAssetSubject {
 			'lookup_placeholder'  => __( 'Search for a theme...', 'wp-simple-firewall' ),
 			'lookup_submit'       => __( 'Load Theme Context', 'wp-simple-firewall' ),
 			'lookup_helper'       => __( 'Type at least 2 characters to search installed themes.', 'wp-simple-firewall' ),
-			'change_subject'      => __( 'Change theme', 'wp-simple-firewall' ),
 			'not_found_title'     => __( 'Theme Not Found', 'wp-simple-firewall' ),
 			'not_found_text'      => __( 'The selected theme isn\'t currently installed on this site.', 'wp-simple-firewall' ),
 			'overview_title'      => __( 'Theme Overview', 'wp-simple-firewall' ),

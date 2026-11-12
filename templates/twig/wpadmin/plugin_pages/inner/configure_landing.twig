@@ -1,8 +1,15 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
+{#
+	Configure is one place with tabs, like Investigate: Search first, then one tab for each goal, coloured
+	by how it stands. Search holds the search for every setting and what needs attention; a goal's tab
+	opens its topics in place. Each goal tab carries what opens it, so the landing's own handler loads it.
+#}
 {% block inner_page_body %}
+	{% set current_tab = vars.configure_current_tab %}
 	<div class="configure-landing"
 		 data-configure-landing="1"
+		 data-configure-current-tab="{{ current_tab }}"
 		 data-configure-diagnosis-loading="{{ strings.diagnosis_loading }}"
 		 data-configure-settings-loading="{{ strings.settings_loading|e('html_attr') }}"
 		 data-configure-layer-error="{{ strings.layer_load_error }}"
@@ -13,23 +20,50 @@
 		 data-configure-search-min-chars="3"
 		 data-configure-component-action="{{ vars.configure_component_action_json|e('html_attr') }}"
 		 data-configure-focus-request="{{ vars.configure_focus_request_json|e('html_attr') }}">
-		<div class="configure-landing__search"
+
+		<nav class="configure-tabs" aria-label="{{ strings.tabs_label }}" data-configure-tabs="1">
+			<button type="button"
+					class="configure-tabs__tab configure-tabs__tab--search{{ current_tab == 'search' ? ' is-current' : '' }}"
+					data-configure-tab="search"
+					{% if current_tab == 'search' %}aria-current="page"{% endif %}>
+				<i class="bi bi-search" aria-hidden="true"></i>{{ strings.search_tab }}
+			</button>
+			{% for tab in vars.configure_tabs %}
+				<button type="button"
+						class="configure-tabs__tab status-{{ tab.status }}{{ current_tab == tab.key ? ' is-current' : '' }}"
+						data-configure-tab="{{ tab.key }}"
+						data-configure-tab-attention="{{ tab.needs_attention ? '1' : '0' }}"
+						data-configure-tab-words="{{ tab.search_text|e('html_attr') }}"
+						data-drill-target="diagnosis"
+						data-drill-zone-selection="{{ tab.selection_json|e('html_attr') }}"
+						title="{{ tab.title }}"
+						{% if current_tab == tab.key %}aria-current="page"{% endif %}>
+					<i class="configure-tabs__icon {{ tab.icon_class }}" aria-hidden="true"></i>{{ tab.label }}
+				</button>
+			{% endfor %}
+		</nav>
+
+		<div class="configure-landing__search shield-search"
 			 data-configure-search-dock="1"
-			 data-configure-search-state="idle"
-			 data-configure-section="search">
-			<label class="configure-landing__search-label" for="ConfigureLandingSearchInput">{{ strings.search_label }}</label>
-			<div class="configure-landing__search-input-wrap">
+			 data-search-state="idle"
+			 data-configure-section="search"
+			 data-configure-tabpanel="search"
+			 {% if current_tab != 'search' %}hidden{% endif %}>
+			<label class="screen-reader-text" for="ConfigureLandingSearchInput">{{ strings.search_label }}</label>
+			<div class="shield-search-box">
+				<i class="bi bi-search" aria-hidden="true"></i>
 				<input type="search"
 					   id="ConfigureLandingSearchInput"
-					   class="form-control configure-landing__search-input"
+					   class="shield-search-box__input"
 					   data-configure-search-input="1"
 					   autocomplete="off"
+					   spellcheck="false"
 					   placeholder="{{ strings.search_placeholder }}">
-				<div class="configure-landing__search-results"
-					 data-configure-search-body="1"
-					 aria-live="polite"
-					 aria-busy="false"></div>
 			</div>
+			<div class="shield-search__results"
+				 data-configure-search-body="1"
+				 aria-live="polite"
+				 aria-busy="false"></div>
 		</div>
 		<div class="configure-landing__drilldown"
 			 data-configure-section="drilldown">

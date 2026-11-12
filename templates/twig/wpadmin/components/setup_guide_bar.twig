@@ -1,0 +1,84 @@
+{#
+	Setup guide along the bottom of Shield admin pages. Collapsed it is a single bar with progress, and
+	the whole bar opens it; expanded it shows the steps on the left and the selected step on the right,
+	in a panel of fixed height so switching steps never moves it.
+#}
+<section class="shield-setup-guide"
+		 id="ShieldSetupGuide"
+		 data-setup-guide="1"
+		 data-merlin-action="{{ guide.merlin_action_json|e('html_attr') }}"
+		 data-update-action="{{ guide.update_action_json|e('html_attr') }}"
+		 data-progress-template="{{ guide.strings.progress|e('html_attr') }}"
+		 data-next-template="{{ guide.strings.next|e('html_attr') }}"
+		 data-done-label="{{ guide.strings.done|e('html_attr') }}"
+		 {% if guide.open_now %}data-open-now="1"{% endif %}
+		 aria-labelledby="ShieldSetupGuideTitle">
+
+	<div class="shield-setup-guide__bar" data-setup-guide-bar="1">
+		<span class="shield-setup-guide__title" id="ShieldSetupGuideTitle">
+			<i class="bi bi-shield-fill-check" aria-hidden="true"></i>{{ guide.strings.title }}
+		</span>
+		<span class="shield-setup-guide__progress" aria-hidden="true">
+			<span class="shield-setup-guide__progress-fill" style="width: {{ ( 100 * guide.done_count / guide.total )|round }}%"></span>
+		</span>
+		<span class="shield-setup-guide__count" data-setup-guide-count="1">{{ guide.strings.progress|format( guide.done_count, guide.total ) }}</span>
+		<span class="shield-setup-guide__next" data-setup-guide-next="1">{{ guide.next_name is not empty ? guide.strings.next|format( guide.next_name ) : '' }}</span>
+		<span class="shield-setup-guide__spacer"></span>
+		<button type="button" class="shield-setup-guide__link" data-setup-guide-hide="1">{{ guide.strings.hide_for_now }}</button>
+		<button type="button" class="shield-setup-guide__link" data-setup-guide-dismiss="1">{{ guide.strings.dismiss }}</button>
+		<button type="button" class="shield-setup-guide__continue" data-setup-guide-toggle="1"
+				data-label-closed="{{ guide.strings.continue|e('html_attr') }}"
+				data-label-open="{{ guide.strings.collapse|e('html_attr') }}"
+				aria-expanded="false" aria-controls="ShieldSetupGuideSheet">
+			<span data-setup-guide-toggle-label="1">{{ guide.strings.continue }}</span>
+			<i class="bi bi-chevron-up" aria-hidden="true"></i>
+		</button>
+	</div>
+
+	<div class="shield-setup-guide__sheet" id="ShieldSetupGuideSheet" hidden>
+		<ol class="shield-setup-guide__steps" aria-label="{{ guide.strings.steps_label }}">
+			{% for step in guide.steps %}
+				<li>
+					<button type="button"
+							class="shield-setup-guide__step{{ step.is_done ? ' is-done' : '' }}"
+							data-setup-guide-step="{{ step.slug }}"
+							aria-current="{{ step.slug == guide.open_step ? 'step' : 'false' }}">
+						<span class="shield-setup-guide__check" aria-hidden="true"><i class="bi bi-check-lg"></i></span>
+						<span class="shield-setup-guide__step-copy">
+							<span class="shield-setup-guide__step-name">{{ step.name }}</span>
+							<span class="shield-setup-guide__step-hint" data-setup-guide-step-hint="1">{{ step.is_done ? guide.strings.done : step.hint }}</span>
+						</span>
+					</button>
+				</li>
+			{% endfor %}
+		</ol>
+
+		<div class="shield-setup-guide__panes">
+			{% for step in guide.steps %}
+				<div class="shield-setup-guide__pane"
+					 data-setup-guide-pane="{{ step.slug }}"
+					 {% if step.slug != guide.open_step %}hidden{% endif %}>
+					<h3 class="shield-setup-guide__pane-title">{{ step.name }}</h3>
+					{% if step.is_done %}
+						<p class="shield-setup-guide__done-note"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> {{ guide.strings.done }}</p>
+					{% endif %}
+					{% if step.body is not empty %}
+						<div class="shield-setup-guide__step-body">{{ step.body|raw }}</div>
+					{% endif %}
+					{% if not step.is_done %}
+						<p class="shield-setup-guide__skip">
+							<button type="button" class="shield-setup-guide__link" data-setup-guide-skip="{{ step.slug }}">{{ guide.strings.skip }}</button>
+						</p>
+					{% endif %}
+				</div>
+			{% endfor %}
+			<div class="shield-setup-guide__pane" data-setup-guide-pane="all_done" {% if guide.open_step != 'all_done' %}hidden{% endif %}>
+				<p class="shield-setup-guide__done-note"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> {{ guide.strings.all_done }}</p>
+			</div>
+		</div>
+	</div>
+</section>
+<button type="button" class="shield-setup-guide-reopen" data-setup-guide-reopen="1" hidden>
+	<i class="bi bi-shield-fill-check" aria-hidden="true"></i>{{ guide.strings.reopen }}
+	<span data-setup-guide-reopen-count="1">{{ guide.done_count }}/{{ guide.total }}</span>
+</button>

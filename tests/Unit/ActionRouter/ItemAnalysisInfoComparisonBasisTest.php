@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Services\Core\CoreFileHashes;
+use FernleafSystems\Wordpress\Services\Core\Fs;
 use FernleafSystems\Wordpress\Services\Core\General;
 use FernleafSystems\Wordpress\Services\Utilities\DataManipulation;
 
@@ -32,10 +33,25 @@ class ItemAnalysisInfoComparisonBasisTest extends BaseUnitTest {
 				return false;
 			}
 		};
+		$controller->plugin_urls = new class {
+			public function fileDownload( string $category, array $params ) :string {
+				return '/download/'.$category.'/'.$params[ 'rid' ];
+			}
+		};
+		$controller->svgs = new class {
+			public function iconClass( string $icon ) :string {
+				return 'icon-'.$icon;
+			}
+		};
 		PluginControllerInstaller::install( $controller );
 		$this->servicesSnapshot = ServicesState::snapshot();
 		ServicesState::installItems( [
 			'service_datamanipulation' => new DataManipulation(),
+			'service_wpfs' => new class extends Fs {
+				public function isAccessibleFile( string $path ) :bool {
+					return $path === 'C:/tmp/example.php';
+				}
+			},
 			'service_corefilehashes' => new class extends CoreFileHashes {
 				public function isCoreFile( $file ) :bool {
 					unset( $file );
@@ -153,12 +169,45 @@ class ItemAnalysisInfoComparisonBasisTest extends BaseUnitTest {
 			'comparison_basis' => HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE,
 		] )->setMalwareRecord( $record );
 		$data = ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $item ] ) )->renderDataForTest();
-		$this->assertTrue( $data[ 'flags' ][ 'show_malai_status' ] );
-		$this->assertSame( ( new MalwareAssessmentPresenter() )->present( $record, false ), $data[ 'vars' ][ 'malware_assessment' ] );
+		$assessment = ( new MalwareAssessmentPresenter() )->present( $record, false );
+		$this->assertSame( [ $assessment[ 'explanation' ], $assessment[ 'guidance' ] ], $data[ 'vars' ][ 'verdict_why' ] );
 		$this->assertCount( 2, $data[ 'vars' ][ 'file_description' ] );
 		$item->is_mal = false;
 		$withoutMalware = ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $item ] ) )->renderDataForTest();
 		$this->assertSame( $withoutMalware[ 'vars' ][ 'file_description' ], $data[ 'vars' ][ 'file_description' ] );
+		$this->assertSame( [], $withoutMalware[ 'vars' ][ 'verdict_why' ] );
+	}
+
+	public function test_a_settled_outcome_is_all_in_its_headline_and_an_unsettled_one_says_where_it_stands() :void {
+		$settled = new Record();
+		$settled->malai_status = 'malware';
+		$settled->malai_status_context = '';
+		$this->assertSame( '', ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $this->pluginItem( [
+			'is_mal' => true,
+		] )->setMalwareRecord( $settled ) ] ) )->renderDataForTest()[ 'vars' ][ 'verdict_note' ] );
+
+		$unsettled = new Record();
+		$unsettled->malai_status = '';
+		$unsettled->malai_status_context = 'inconclusive';
+		$this->assertSame(
+			( new MalwareAssessmentPresenter() )->present( $unsettled, false )[ 'summary' ],
+			( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $this->pluginItem( [
+				'is_mal' => true,
+			] )->setMalwareRecord( $unsettled ) ] ) )->renderDataForTest()[ 'vars' ][ 'verdict_note' ]
+		);
+	}
+
+	public function test_the_file_can_be_downloaded_from_the_overview_only_when_it_is_accessible() :void {
+		$data = ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $this->pluginItem( [
+			'is_checksumfail' => true,
+		] ) ] ) )->renderDataForTest();
+		$this->assertTrue( $data[ 'flags' ][ 'can_download' ] );
+		$this->assertSame( '/download/scan_file/7', $data[ 'hrefs' ][ 'file_download' ] );
+
+		$this->assertFalse( ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $this->pluginItem( [
+			'is_checksumfail' => true,
+			'path_full'       => 'C:/tmp/gone.php',
+		] ) ] ) )->renderDataForTest()[ 'flags' ][ 'can_download' ] );
 	}
 
 	public function test_overview_leads_with_the_malware_verdict_and_lists_every_status() :void {
@@ -170,9 +219,32 @@ class ItemAnalysisInfoComparisonBasisTest extends BaseUnitTest {
 		$this->assertSame( 'danger', $data[ 'vars' ][ 'verdict_tone' ] );
 		$this->assertStringContainsString( 'malware', $data[ 'vars' ][ 'verdict_title' ] );
 		$this->assertSame( [
-			[ 'label' => 'Malware pattern detected', 'tone' => 'danger' ],
+			[ 'label' => 'Malware pattern match', 'tone' => 'danger' ],
 			[ 'label' => 'Modified', 'tone' => 'warning' ],
 		], $data[ 'vars' ][ 'file_statuses' ] );
+	}
+
+	public function test_overview_does_not_call_a_likely_clean_pattern_match_malware() :void {
+		$record = new Record();
+		$record->malai_status = 'predicted_clean';
+		$record->malai_status_context = '';
+
+		$malwareOnly = ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $this->pluginItem( [
+			'is_mal' => true,
+		] )->setMalwareRecord( $record ) ] ) )->renderDataForTest();
+		$this->assertSame( 'warning', $malwareOnly[ 'vars' ][ 'verdict_tone' ] );
+		$this->assertStringContainsString( 'likely clean', $malwareOnly[ 'vars' ][ 'verdict_title' ] );
+		$this->assertSame( [
+			[ 'label' => 'Pattern match: likely clean', 'tone' => 'secondary' ],
+		], $malwareOnly[ 'vars' ][ 'file_statuses' ] );
+
+		$alsoModified = ( new ItemAnalysisInfoComparisonBasisTestDouble( [ 'scan_item' => $this->pluginItem( [
+			'is_mal'          => true,
+			'is_checksumfail' => true,
+		] )->setMalwareRecord( $record ) ] ) )->renderDataForTest();
+		$this->assertSame( 'warning', $alsoModified[ 'vars' ][ 'verdict_tone' ] );
+		$this->assertStringContainsString( 'modified', $alsoModified[ 'vars' ][ 'verdict_title' ] );
+		$this->assertStringContainsString( 'likely clean', $alsoModified[ 'vars' ][ 'verdict_note' ] );
 	}
 
 	public function test_overview_without_malware_uses_the_finding_as_its_verdict() :void {
@@ -211,6 +283,7 @@ class ItemAnalysisInfoComparisonBasisTest extends BaseUnitTest {
 		$item = new ResultItem();
 		$item->path_fragment = 'wp-content/plugins/example/example.php';
 		$item->path_full = 'C:/tmp/example.php';
+		$item->VO = (object)[ 'resultitem_id' => 7 ];
 		foreach ( $properties as $key => $value ) {
 			$item->{$key} = $value;
 		}

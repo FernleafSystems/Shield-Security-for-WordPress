@@ -13,8 +13,6 @@ class PageRulesManage extends PageRulesBase {
 	protected function getRenderData() :array {
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 			'strings' => [
-				'create_custom_rule' => __( 'Create Custom Rule', 'wp-simple-firewall' ),
-				'disable_all_rules'  => __( 'Disable All Rules', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'datatables_init' => ( new ForSecurityRules() )->build(),

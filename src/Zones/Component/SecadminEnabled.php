@@ -29,13 +29,9 @@ class SecadminEnabled extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "A PIN needs to be set to enable the Security Admin.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( "A PIN needs to be set to enable the Security Admin.", 'wp-simple-firewall' ), 'admin_access_key' );
 		}
 
 		return $status;
-	}
-
-	protected function postureWeight() :int {
-		return 5;
 	}
 }

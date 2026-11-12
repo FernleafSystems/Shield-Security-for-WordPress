@@ -5,12 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
-	CloakedPlugins,
-	Maintenance,
 	Malware,
 	Plugins,
 	Themes,
-	Vulnerabilities,
 	Wordpress
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
@@ -26,10 +23,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   section_label:string,
  *   icon_class:string,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
- *   card_type:'expandable'|'linked'|'category',
+ *   card_type:'expandable'|'category',
  *   summary_keys:list<string>,
  *   healthy_interaction_mode:'none'|'default_detail',
- *   render_action_class:class-string<BaseRender>,
+ *   render_action_class:class-string<BaseRender>|null,
  *   render_action_data:array<string,mixed>
  * }
  * @phpstan-type GroupMetadata array{
@@ -37,14 +34,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   section_key:string,
  *   section_order:int,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
- *   card_type:'expandable'|'linked'|'category',
+ *   card_type:'expandable'|'category',
  *   healthy_interaction_mode:'none'|'default_detail',
- *   render_action_class:class-string<BaseRender>,
- *   render_action_data:'none'|'scan_results'|array<string,mixed>
+ *   render_action_class:class-string<BaseRender>|null,
+ *   render_action_data:'scan_results'|array<string,mixed>
  * }
  * @phpstan-type SummaryBehaviour array{
  *   definition_key:string,
- *   seed_strategy:'attention_aggregate'|'asset_cards'|'vulnerability_section'|'maintenance',
+ *   seed_strategy:'attention_aggregate'|'asset_cards'|'vulnerability_section'|'cloaked_plugins'|'maintenance',
  *   asset_source?:'plugins'|'themes',
  *   vulnerability_section?:'vulnerable'|'abandoned'
  * }
@@ -55,6 +52,7 @@ class ActionsQueueGroupDefinitions {
 	 * @var array<string,GroupMetadata>
 	 */
 	private const GROUP_METADATA = [
+		// A null render action is a group listed in the queue itself, with no separate detail to open.
 		'wordpress' => [
 			'sort_order'               => 2,
 			'section_key'              => 'wordpress',
@@ -92,10 +90,8 @@ class ActionsQueueGroupDefinitions {
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'none',
-			'render_action_class'      => Vulnerabilities::class,
-			'render_action_data'       => [
-				'section' => 'vulnerable',
-			],
+			'render_action_class'      => null,
+			'render_action_data'       => [],
 		],
 		'abandoned' => [
 			'sort_order'               => 1,
@@ -104,10 +100,8 @@ class ActionsQueueGroupDefinitions {
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'none',
-			'render_action_class'      => Vulnerabilities::class,
-			'render_action_data'       => [
-				'section' => 'abandoned',
-			],
+			'render_action_class'      => null,
+			'render_action_data'       => [],
 		],
 		'hidden_plugins' => [
 			'sort_order'               => 2,
@@ -115,8 +109,8 @@ class ActionsQueueGroupDefinitions {
 			'section_order'            => 1,
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'expandable',
-			'healthy_interaction_mode' => 'default_detail',
-			'render_action_class'      => CloakedPlugins::class,
+			'healthy_interaction_mode' => 'none',
+			'render_action_class'      => null,
 			'render_action_data'       => [],
 		],
 		'malware' => [
@@ -147,8 +141,8 @@ class ActionsQueueGroupDefinitions {
 			'detail_shell'             => 'maintenance',
 			'card_type'                => 'category',
 			'healthy_interaction_mode' => 'none',
-			'render_action_class'      => Maintenance::class,
-			'render_action_data'       => 'none',
+			'render_action_class'      => null,
+			'render_action_data'       => [],
 		],
 	];
 
@@ -172,6 +166,10 @@ class ActionsQueueGroupDefinitions {
 			'definition_key'        => 'abandoned',
 			'seed_strategy'         => 'vulnerability_section',
 			'vulnerability_section' => 'abandoned',
+		],
+		'hidden_plugins' => [
+			'definition_key' => 'hidden_plugins',
+			'seed_strategy'  => 'cloaked_plugins',
 		],
 	];
 
@@ -343,6 +341,22 @@ class ActionsQueueGroupDefinitions {
 	}
 
 	/**
+	 * The icon beside a section's heading, so it reads like the group headings around it.
+	 */
+	public function sectionIconForGroupKey( string $groupKey ) :string {
+		switch ( $this->sectionKeyForGroupKey( $groupKey ) ) {
+			case 'wordpress':
+				return 'bi bi-file-earmark-check';
+
+			case 'vulnerabilities':
+				return 'bi bi-shield-exclamation';
+
+			default:
+				return '';
+		}
+	}
+
+	/**
 	 * @return SummaryBehaviour
 	 */
 	public function summaryBehaviourForKey( string $summaryKey ) :array {
@@ -376,6 +390,14 @@ class ActionsQueueGroupDefinitions {
 		}
 
 		return $itemKey;
+	}
+
+	/**
+	 * The groups that each gather several maintenance items under one heading.
+	 * @return list<string>
+	 */
+	public function reviewMaintenanceAggregateGroupKeys() :array {
+		return \array_keys( self::REVIEW_MAINTENANCE_GROUPS );
 	}
 
 	public function isReviewMaintenanceAggregateGroupKey( string $groupKey ) :bool {

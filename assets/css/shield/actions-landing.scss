@@ -1,134 +1,7 @@
+// The queue takes the page's width: a long lane heading is cut short rather than widening everything else.
 .actions-landing__drilldown .drill-shell {
+	grid-template-columns: minmax(0, 1fr);
 	min-width: 0;
-}
-
-.actions-queue-buckets__heading {
-	color: #5f6974;
-	font-size: 13px;
-	font-weight: 500;
-	letter-spacing: 0.06em;
-	margin-bottom: 12px;
-	text-transform: uppercase;
-}
-
-.actions-queue-buckets__grid {
-	display: grid;
-	gap: 0.9rem;
-	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-}
-
-.actions-queue-bucket-card__severity {
-	align-items: center;
-	display: flex;
-	gap: 0.5rem;
-	font-size: 0.72rem;
-	font-weight: 700;
-	letter-spacing: 0.05em;
-	text-transform: uppercase;
-}
-
-.actions-queue-bucket-card__severity-label {
-	display: inline-flex;
-	line-height: 1;
-}
-
-.actions-queue-bucket-card__count {
-	align-items: center;
-	border-radius: 999px;
-	display: inline-flex;
-	font-size: 0.75rem;
-	font-weight: 700;
-	height: 22px;
-	justify-content: center;
-	min-width: 22px;
-	padding: 0 0.4rem;
-}
-
-.actions-queue-bucket-card.status-critical .actions-queue-bucket-card__count {
-	background: $badge-critical-bg;
-	color: $badge-critical-color;
-}
-
-.actions-queue-bucket-card.status-warning .actions-queue-bucket-card__count {
-	background: $badge-warning-bg;
-	color: $badge-warning-color;
-}
-
-.actions-queue-bucket-card.status-good .actions-queue-bucket-card__count {
-	background: $status-bg-good-light;
-	color: $status-color-good;
-}
-
-.actions-queue-bucket-card.status-neutral .actions-queue-bucket-card__count,
-.actions-queue-bucket-card.status-info .actions-queue-bucket-card__count {
-	background: $status-bg-info-light;
-	color: $status-color-info;
-}
-
-.actions-queue-groups__findings {
-	display: grid;
-	gap: 1.2rem;
-}
-
-.actions-queue-groups--review .configure-zones__grid {
-	grid-template-columns: 1fr;
-}
-
-.actions-queue-groups--review .configure-zones__grid > .item-box,
-.actions-queue-buckets > .item-box {
-	background: none;
-	border: 0;
-	padding: 0;
-}
-
-.finding-group__heading {
-	border-bottom: 1px solid $border-color-neutral-subtle;
-	color: #5f6974;
-	font-size: 0.75rem;
-	font-weight: 600;
-	letter-spacing: 0.05em;
-	margin: 1.25rem 0 0.625rem;
-	padding-bottom: 0.375rem;
-	text-transform: uppercase;
-}
-
-.finding-group__heading:first-child {
-	margin-top: 0;
-}
-
-.actions-queue-groups__healthy-stack .operator-card-surface.status-good {
-	--operator-card-surface-bg: #edf5ef;
-}
-
-.actions-queue-groups__healthy-stack {
-	display: grid;
-	gap: 1rem;
-}
-
-.actions-queue-groups__healthy-stack > .configure-zones__section {
-	margin: 0;
-}
-
-.actions-queue-groups .actions-queue-group-card--static {
-	cursor: default;
-}
-
-.actions-queue-groups .actions-queue-group-card--static .operator-tile-card__footer-link {
-	cursor: pointer;
-}
-
-.actions-queue-groups__healthy-stack .operator-card-surface.status-good .operator-tile-card__icon {
-	color: $status-color-good;
-}
-
-.actions-queue-groups__healthy-stack .operator-card-surface.status-good .operator-tile-card__title,
-.actions-queue-groups__healthy-stack .operator-card-surface.status-good .operator-tile-card__status,
-.actions-queue-groups__healthy-stack .operator-card-surface.status-good .operator-tile-card__footer-link {
-	color: var(--operator-card-text-color);
-}
-
-.actions-queue-groups__healthy-stack .operator-card-surface.status-good .operator-tile-card__summary {
-	color: #49604f;
 }
 
 .actions-queue-detail {
@@ -152,10 +25,6 @@
 	padding: 0.8rem 0.9rem;
 }
 
-.actions-landing__maintenance-detail-groups .shield-stack-detail-group + .shield-stack-detail-group {
-	margin-top: 0.9rem;
-}
-
 .actions-landing__table-icon-action {
 	align-items: center;
 	display: inline-flex;
@@ -163,73 +32,6 @@
 	justify-content: center;
 	padding: 0;
 	width: 2rem;
-}
-
-.actions-landing__maintenance-table {
-	color: #1d2327;
-}
-
-.actions-landing__maintenance-title {
-	align-items: center;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.45rem;
-}
-
-.actions-landing__maintenance-ignored-badge {
-	background-color: #eef0f1;
-	border: 1px solid #dcdcde;
-	color: #50575e;
-	font-size: 0.68rem;
-	font-weight: 600;
-}
-
-.actions-landing__maintenance-table thead th {
-	color: #50575e;
-	font-size: 0.74rem;
-	font-weight: 700;
-}
-
-.actions-landing__maintenance-table tbody td {
-	color: #1d2327;
-}
-
-.actions-landing__maintenance-table .small.text-muted,
-.actions-landing__maintenance-table code {
-	color: #646970;
-}
-
-.actions-landing__maintenance-row {
-	transition: background-color 0.15s ease-in-out, opacity 0.15s ease-in-out;
-}
-
-.actions-landing__maintenance-row.is-ignored {
-	background-color: #f3f4f5;
-	opacity: 0.3;
-}
-
-.actions-landing__maintenance-row.is-ignored td {
-	color: #2c3338;
-}
-
-.actions-landing__maintenance-row.is-ignored .fw-semibold {
-	color: #1d2327;
-}
-
-.actions-landing__maintenance-row.is-ignored .small.text-muted,
-.actions-landing__maintenance-row.is-ignored code {
-	color: #50575e;
-}
-
-.actions-landing__maintenance-row.is-ignored .actions-landing__table-icon-action {
-	background-color: #fff;
-	color: #50575e;
-}
-
-.actions-landing__maintenance-row.is-ignored:hover,
-.actions-landing__maintenance-row.is-ignored:focus-within {
-	background-color: #eceef0;
-	opacity: 1;
 }
 
 .actions-queue-asset-cards {
@@ -268,10 +70,12 @@
 .actions-queue-asset-cards--files .actions-queue-asset-cards__grid {
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+
 .actions-queue-asset-cards--files .actions-queue-asset-card {
 	min-height: 0;
 	padding: 0.875rem;
 }
+
 @media (max-width: 800px) {
 	.actions-queue-asset-cards--files .actions-queue-asset-cards__grid {
 		grid-template-columns: minmax(0, 1fr);
@@ -321,4 +125,1239 @@
 
 .actions-queue-asset-panel__body:empty {
 	display: none;
+}
+
+/// ─── Landing sections (concept): one card per lane, a tinted header, a flat list of rows ───
+$aq-line: #dcdcde;
+$aq-soft-line: #eef0f1;
+$aq-muted: #646970;
+$aq-crit: #c62f3e;
+$aq-crit-bg: #fdeaec;
+$aq-warn-text: #946200;
+$aq-warn-bg: #fef6e6;
+$aq-neutral: #50575e;
+$aq-neutral-bg: #eef0f2;
+$aq-good: #008000;
+$aq-good-bg: #e6f5e6;
+$aq-pro: #7a4cc2;
+$aq-pro-bg: #f2ebfc;
+
+.actions-queue-sections {
+	display: grid;
+	font-size: 13px;
+	gap: 14px;
+	grid-template-columns: minmax(0, 1fr);
+}
+
+.actions-queue-sections__bar {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.6rem 1rem;
+	justify-content: space-between;
+}
+
+.actions-queue-sections__tabs {
+	display: none;
+	flex-wrap: wrap;
+	gap: 2px;
+}
+
+.actions-queue-sections__tabline {
+	display: none;
+}
+
+.actions-queue-sections--tabs .actions-queue-sections__tabline {
+	align-items: flex-end;
+	border-bottom: 1px solid $aq-line;
+	display: flex;
+	flex: 1 1 auto;
+	flex-wrap: wrap;
+}
+
+.actions-queue-sections--tabs .actions-queue-sections__tabs {
+	display: flex;
+	flex: 0 1 auto;
+}
+
+.actions-queue-sections__tab {
+	align-items: center;
+	background: none;
+	border: 0;
+	border-bottom: 3px solid transparent;
+	color: $aq-muted;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: $mode-tab-font-size;
+	font-weight: 600;
+	gap: 0.45rem;
+	margin-bottom: -1px;
+	padding: 9px 14px;
+
+	&[aria-selected="true"] {
+		border-bottom-color: currentColor;
+		color: #1d2327;
+	}
+
+	&.status-critical[aria-selected="true"] { color: $aq-crit; }
+	&.status-warning[aria-selected="true"] { color: $aq-warn-text; }
+	&.status-good[aria-selected="true"] { color: $aq-good; }
+	&.status-pro[aria-selected="true"] { color: $aq-pro; }
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+
+	// Run scans sits at the end of the tabs, set apart as the way to fill the queue rather than a part of it.
+	&--run {
+		color: $aq-good;
+		margin-left: auto;
+		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			border-bottom-color: currentColor;
+			color: $aq-good;
+		}
+	}
+}
+
+.actions-queue-sections__count,
+.actions-queue-section__count {
+	background: rgba(255, 255, 255, 0.75);
+	border-radius: 999px;
+	font-size: 11.5px;
+	font-variant-numeric: tabular-nums;
+	font-weight: 700;
+	padding: 1px 8px;
+}
+
+.actions-queue-sections__count {
+	background: $aq-neutral-bg;
+}
+
+.actions-queue-sections__view {
+	display: inline-flex;
+	gap: 4px;
+	margin-left: auto;
+}
+
+// While scans run, the breadcrumb line says so: a link to their progress, ahead of the Sections / Tabs choice.
+.shield-scan-indicator {
+	align-items: center;
+	background: #e8f0fb;
+	border: 1px solid #b6cdf0;
+	border-radius: 999px;
+	color: #0a4b8f;
+	display: inline-flex;
+	flex: none;
+	font-size: 13px;
+	font-weight: 600;
+	gap: 0.45rem;
+	margin-left: auto;
+	padding: 4px 12px;
+	text-decoration: none;
+
+	+ .actions-queue-sections__view {
+		margin-left: 0.6rem;
+	}
+
+	&:hover,
+	&:focus {
+		background: #dbe7f8;
+		color: #083d75;
+		text-decoration: none;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+
+	.spinner-border {
+		height: 0.85rem;
+		width: 0.85rem;
+	}
+
+	.shield-scan-indicator__detail {
+		font-weight: 400;
+	}
+
+	.shield-scan-indicator__done,
+	.shield-scan-indicator__failed {
+		display: none;
+	}
+
+	&[data-state="completed"] {
+		background: #e7f4ea;
+		border-color: #b7dcc0;
+		color: #1e6b33;
+
+		.spinner-border { display: none; }
+		.shield-scan-indicator__done { display: inline; }
+	}
+
+	&[data-state="failed"] {
+		background: #fcf0f1;
+		border-color: #f0b6bb;
+		color: #a3222d;
+
+		.spinner-border { display: none; }
+		.shield-scan-indicator__failed { display: inline; }
+	}
+}
+
+// The Sections / Tabs choice is moved up to the end of the breadcrumb line. Without tabs to show, the bar
+// it came from then holds nothing.
+.operator-step-tabs > .actions-queue-sections__view {
+	flex: none;
+}
+
+.actions-queue-sections--sections .actions-queue-sections__bar {
+	display: contents;
+}
+
+.actions-queue-sections__view-btn {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid $aq-line;
+	border-radius: 999px;
+	color: #1d2327;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: 12px;
+	gap: 0.35rem;
+	padding: 3px 11px;
+
+	&[aria-pressed="true"] {
+		background: #1d2327;
+		border-color: #1d2327;
+		color: #ffffff;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+}
+
+.actions-queue-sections__clear {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid $aq-line;
+	border-radius: 8px;
+	color: $aq-good;
+	display: flex;
+	font-weight: 600;
+	gap: 0.5rem;
+	padding: 14px;
+}
+
+// A section is only its header bar and the group boxes beneath it, with no panel around them.
+.actions-queue-section__head {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid $aq-line;
+	border-radius: 8px;
+	color: #1d2327;
+	cursor: pointer;
+	display: flex;
+	font-size: 13px;
+	font-weight: 600;
+	gap: 9px;
+	padding: 11px 14px;
+	text-align: left;
+	width: 100%;
+
+	&:focus-visible {
+		@include shield-focus-ring(-3px);
+	}
+
+	.status-critical > & { background: $aq-crit-bg; border-color: #f3c5ca; color: $aq-crit; }
+	.status-warning > & { background: $aq-warn-bg; border-color: #f2dfb5; color: $aq-warn-text; }
+	.status-neutral > &,
+	.status-info > & { background: $aq-neutral-bg; color: $aq-neutral; }
+	.status-good > & { color: $aq-good; }
+	.status-pro > & { color: $aq-pro; }
+}
+
+.actions-queue-section__icon {
+	display: inline-flex;
+}
+
+.actions-queue-section__label {
+	font-size: 13px;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.actions-queue-section__summary {
+	color: $aq-muted;
+	flex: 1 1 auto;
+	font-size: 12px;
+	font-weight: 400;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+
+	&::before {
+		content: "·";
+		margin-right: 0.45rem;
+	}
+}
+
+// A collapsed lane names what's in it ("Inactive plugins 2 · Inactive themes 2"); open, it shows its summary.
+.actions-queue-section__breakdown {
+	color: $aq-muted;
+	display: flex;
+	flex: 1 1 auto;
+	font-size: 12px;
+	font-weight: 400;
+	gap: 0 12px;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+
+	[aria-expanded="true"] > & {
+		display: none;
+	}
+
+	&::before {
+		content: "·";
+	}
+}
+
+.actions-queue-section__part b {
+	color: #1d2327;
+	font-weight: 700;
+	margin-left: 2px;
+}
+
+.actions-queue-section__summary.has-breakdown {
+	[aria-expanded="false"] > & {
+		display: none;
+	}
+}
+
+.actions-queue-section__count {
+	margin-left: auto;
+
+	.actions-queue-section__summary + &,
+	.actions-queue-section__breakdown + & {
+		margin-left: 0;
+	}
+}
+
+.actions-queue-section__chevron {
+	color: currentColor;
+	transition: transform 0.15s ease;
+
+	[aria-expanded="true"] > & {
+		transform: rotate(180deg);
+	}
+
+	.actions-queue-section__label + & {
+		margin-left: auto;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.actions-queue-section__chevron {
+		transition: none;
+	}
+}
+
+// A section's groups each sit in a box of their own, a little apart, as Investigate lists what it finds.
+.actions-queue-section__body {
+	display: grid;
+	gap: 10px;
+	grid-template-columns: minmax(0, 1fr);
+	padding-top: 10px;
+
+	&[hidden] {
+		display: none;
+	}
+
+	// Under its section's bar, a section's groups sit indented, so they read as belonging to it.
+	.actions-queue-sections--sections & {
+		padding-left: 22px;
+	}
+}
+
+.actions-queue-box {
+	background: #ffffff;
+	border: 1px solid $aq-line;
+	border-radius: 8px;
+	overflow: hidden;
+
+	> .actions-queue-row:first-child,
+	> .actions-queue-box__head + .actions-queue-row,
+	> .actions-queue-row-group {
+		border-top: 0;
+	}
+}
+
+// Working in a group, its heading and box edge darken a touch, so in a long list it's plain which group a row
+// belongs to.
+.actions-queue-box {
+	transition: border-color 0.12s ease;
+
+	// Keyboard focus counts as working in it too; a click's leftover focus doesn't.
+	&:hover,
+	&:has(:focus-visible) {
+		border-color: #a7aaad;
+	}
+
+	> .actions-queue-box__head,
+	.actions-queue-row-group__head {
+		transition: background-color 0.12s ease, color 0.12s ease;
+	}
+
+	&:hover > .actions-queue-box__head,
+	&:has(:focus-visible) > .actions-queue-box__head,
+	.actions-queue-row-group:hover > .actions-queue-row-group__head,
+	.actions-queue-row-group:has(:focus-visible) > .actions-queue-row-group__head {
+		background: #eceef0;
+		color: #1d2327;
+	}
+}
+
+.actions-queue-box__head,
+.actions-queue-row-group__head {
+	align-items: center;
+	background: #f6f7f7;
+	border-bottom: 1px solid $aq-line;
+	color: #50575e;
+	display: flex;
+	font-size: 12px;
+	font-weight: 700;
+	gap: 8px;
+	letter-spacing: 0.06em;
+	padding: 8px 14px;
+	text-transform: uppercase;
+}
+
+.actions-queue-row-group__icon {
+	font-size: 14px;
+	line-height: 1;
+}
+
+// One row per issue group or item: icon, what it is, a line of detail, and the action.
+.actions-queue-row {
+	align-items: center;
+	background: #ffffff;
+	border: 0;
+	border-top: 1px solid $aq-soft-line;
+	color: #1d2327;
+	display: grid;
+	font-size: 14px;
+	gap: 4px 12px;
+	grid-template-columns: 30px minmax(0, 1fr) auto;
+	cursor: default;
+	padding: 10px 14px;
+	text-align: left;
+	width: 100%;
+
+	.actions-queue-row-group__head + & {
+		border-top: 0;
+	}
+
+	// Every row answers the pointer: faintly when it only holds its own buttons, more when the row opens.
+	&:hover {
+		background: #fafafb;
+	}
+
+	&.is-actionable {
+		cursor: pointer;
+
+		&:hover {
+			background: #f3f4f6;
+			box-shadow: inset 3px 0 0 #c3c4c7;
+		}
+
+		&:focus-visible {
+			@include shield-focus-ring(-3px);
+		}
+	}
+
+	// An ignored row is set well back: faint, though still legible, until you point at it or move into it.
+	&.is-ignored {
+		background: #fafafb;
+		opacity: 0.45;
+		transition: opacity 0.12s ease;
+
+		&:hover,
+		&:focus-within {
+			background: #ffffff;
+			opacity: 1;
+		}
+	}
+}
+
+.actions-queue-row__icon {
+	align-items: center;
+	background: $aq-neutral-bg;
+	border-radius: 6px;
+	color: $aq-neutral;
+	display: inline-flex;
+	font-size: 15px;
+	height: 30px;
+	justify-content: center;
+	width: 30px;
+
+	.actions-queue-row--critical > & { background: $aq-crit-bg; color: $aq-crit; }
+	.actions-queue-row--warning > & { background: $aq-warn-bg; color: $aq-warn-text; }
+	.actions-queue-row--good > & { background: $aq-good-bg; color: $aq-good; }
+	.actions-queue-row--pro > & { background: $aq-pro-bg; color: $aq-pro; }
+	.status-warning .actions-queue-row--item > & { background: $aq-warn-bg; color: $aq-warn-text; }
+	.status-critical .actions-queue-row--item > & { background: $aq-crit-bg; color: $aq-crit; }
+}
+
+.actions-queue-row__copy {
+	display: grid;
+	gap: 1px;
+	min-width: 0;
+}
+
+.actions-queue-row__title {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	font-weight: 600;
+	gap: 8px;
+}
+
+.actions-queue-row__meta {
+	color: $aq-muted;
+	font-size: 13px;
+	font-weight: 400;
+}
+
+.actions-queue-row__desc {
+	color: $aq-muted;
+	font-size: 13px;
+}
+
+.actions-queue-row__details {
+	color: $aq-muted;
+	font-size: 13px;
+
+	summary {
+		cursor: pointer;
+		width: fit-content;
+
+		&:focus-visible {
+			@include shield-focus-ring(1px);
+		}
+	}
+
+	dl {
+		column-gap: 12px;
+		display: grid;
+		grid-template-columns: max-content minmax(0, 1fr);
+		margin: 6px 0 2px;
+		row-gap: 3px;
+	}
+
+	dt {
+		font-weight: 600;
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+}
+
+.actions-queue-pill {
+	background: $aq-neutral-bg;
+	border-radius: 999px;
+	color: $aq-neutral;
+	font-size: 10.5px;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	padding: 1px 7px;
+
+	&--pro { background: $aq-pro-bg; color: $aq-pro; }
+}
+
+// Every action in a row is a button of one style, with an icon leading its label. A row that opens its
+// results is itself the control, so its button brightens with the row. The icon carries the colour: the
+// row's status, Pro's purple, or green to turn something on. Ignore, below, is the quieter kind.
+.actions-queue-row__action,
+.actions-queue-row__button {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid #8c8f94;
+	border-radius: 5px;
+	color: #1d2327;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: 12.5px;
+	font-weight: 600;
+	gap: 6px;
+	line-height: 1.3;
+	padding: 5px 11px;
+	text-decoration: none;
+	white-space: nowrap;
+
+	> .bi {
+		font-size: 13px;
+		line-height: 1;
+	}
+
+	&:hover,
+	&:focus {
+		background: #f6f7f7;
+		border-color: #50575e;
+		color: #1d2327;
+		text-decoration: none;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+
+	.is-actionable:hover > &,
+	.is-actionable:focus-visible > & {
+		background: #f6f7f7;
+		border-color: #50575e;
+	}
+}
+
+.actions-queue-row__action {
+	&--critical > .bi { color: $aq-crit; }
+	&--warning > .bi { color: $aq-warn-text; }
+	&--good > .bi { color: $aq-good; }
+	&--pro > .bi { color: $aq-pro; }
+	&--enable > .bi { color: $aq-good; }
+}
+
+.actions-queue-row__links {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	justify-content: flex-end;
+}
+
+// Ignore is a small quiet button with its icon, so it's plain to see without competing with the main action.
+.actions-queue-row__ignore {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid #dcdcde;
+	border-radius: 5px;
+	color: #50575e;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: 12px;
+	font-weight: 600;
+	gap: 5px;
+	padding: 4px 9px;
+	white-space: nowrap;
+
+	&:hover,
+	&:focus {
+		border-color: #8c8f94;
+		color: #1d2327;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+
+	&:disabled,
+	&[aria-busy="true"] {
+		cursor: progress;
+		opacity: 0.55;
+	}
+}
+
+// While an ignore is being saved, its row (or its whole group, for Ignore all) dims.
+.actions-queue-row.is-busy,
+.actions-queue-row-group.is-busy {
+	opacity: 0.55;
+	pointer-events: none;
+	transition: opacity 0.15s ease;
+}
+
+// The foot of a group, with "Ignore all" or "Stop ignoring all", answers the pointer as the rows above it do.
+.actions-queue-row-group__foot {
+	border-top: 1px solid $aq-soft-line;
+	display: flex;
+	justify-content: flex-end;
+	padding: 8px 14px;
+
+	&:hover {
+		background: #fafafb;
+	}
+}
+
+// A group of maintenance items: a small heading row (styled with the box headings above), then one row per item.
+
+// A folded box's heading is the button that opens it, with how many it holds and a chevron.
+.actions-queue-box-toggle {
+	align-items: center;
+	background: none;
+	border: 0;
+	color: inherit;
+	cursor: pointer;
+	display: inline-flex;
+	flex: 1 1 auto;
+	font: inherit;
+	gap: 8px;
+	letter-spacing: inherit;
+	margin: -7px -14px;
+	padding: 7px 14px;
+	text-align: left;
+	text-transform: inherit;
+
+	&:hover {
+		color: #1d2327;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring(-3px);
+	}
+
+	&__count {
+		background: #dcdcde;
+		border-radius: 999px;
+		color: #1d2327;
+		font-size: 10.5px;
+		letter-spacing: 0;
+		padding: 0 7px;
+	}
+
+	&__ignored {
+		color: #646970;
+		font-weight: 500;
+		letter-spacing: 0;
+		text-transform: none;
+	}
+
+	&__chevron {
+		margin-left: auto;
+		transition: transform 0.15s ease;
+	}
+
+	&[aria-expanded="true"] &__chevron {
+		transform: rotate(180deg);
+	}
+
+	// Folded, the heading is all there is, so it doesn't need its bottom rule.
+	.actions-queue-box__head:has(&[aria-expanded="false"]),
+	.actions-queue-row-group__head:has(&[aria-expanded="false"]) {
+		border-bottom-color: transparent;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.actions-queue-box-toggle__chevron {
+		transition: none;
+	}
+}
+
+// A group's own link (Manage Plugins) is a quiet button like Ignore, at the end of its heading. Only the first of
+// them takes the spare room, or they'd share it and land wherever the heading's length left them.
+.actions-queue-row-group__link {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid #dcdcde;
+	border-radius: 5px;
+	color: #50575e;
+	display: inline-flex;
+	font-size: 12px;
+	font-weight: 600;
+	gap: 5px;
+	letter-spacing: 0;
+	margin-left: auto;
+	padding: 3px 9px;
+	text-decoration: none;
+	text-transform: none;
+	white-space: nowrap;
+
+	&:hover,
+	&:focus {
+		border-color: #8c8f94;
+		color: #1d2327;
+		text-decoration: none;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+
+	& + & {
+		margin-left: 0;
+	}
+
+	// The same width whichever it is, so the "N ignored" beside each lines up from one group to the next.
+	@at-root a#{&} {
+		justify-content: center;
+		min-width: 132px;
+	}
+
+	.actions-queue-box-toggle:hover > & {
+		border-color: #8c8f94;
+		color: #1d2327;
+	}
+}
+
+// "2 ignored" is the same quiet button, and opens the group's ignored rows beneath its active ones.
+button.actions-queue-row-group__link {
+	cursor: pointer;
+	font-family: inherit;
+}
+
+.actions-queue-row-group__link-chevron {
+	font-size: 10px;
+	transition: transform 0.15s ease;
+
+	[aria-expanded="true"] & {
+		transform: rotate(180deg);
+	}
+}
+
+// A group whose items are all ignored stays in its lane, quieter, so the items can be restored from it.
+.actions-queue-row-group.is-all-ignored > .actions-queue-row-group__head {
+	background: #fbfbfc;
+	color: #646970;
+
+	.actions-queue-row-group__icon {
+		opacity: 0.7;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.actions-queue-row-group__link-chevron {
+		transition: none;
+	}
+}
+
+@media (max-width: 600px) {
+	.actions-queue-row {
+		grid-template-columns: 26px minmax(0, 1fr);
+	}
+
+	.actions-queue-row__action,
+	.actions-queue-row__links {
+		grid-column: 2;
+		justify-self: start;
+	}
+
+	// A long button label wraps, rather than running out of its box.
+	.actions-queue-row__action,
+	.actions-queue-row__button,
+	.actions-queue-row__ignore {
+		white-space: normal;
+	}
+
+	.actions-queue-section__summary {
+		display: none;
+	}
+
+	// There's no width to spare for indenting a section's groups.
+	.actions-queue-sections--sections .actions-queue-section__body {
+		padding-left: 0;
+	}
+
+	// A heading's own link drops beneath it on a phone, rather than being pushed out of its box.
+	.actions-queue-row-group__head {
+		flex-wrap: wrap;
+
+		> .actions-queue-box-toggle {
+			flex-basis: 100%;
+			min-width: 0;
+		}
+	}
+}
+
+// On the narrowest phones a row's buttons take its full width, and headings wrap rather than run out of their box.
+@media (max-width: 360px) {
+	.actions-queue-row__action,
+	.actions-queue-row__links {
+		grid-column: 1 / -1;
+	}
+
+	.actions-queue-section__label,
+	.actions-queue-row-group__link {
+		white-space: normal;
+	}
+
+	.actions-queue-section__breakdown {
+		display: none;
+	}
+
+	.actions-queue-row-group__head > .actions-queue-box-toggle {
+		flex-wrap: wrap;
+	}
+}
+
+// Tabs view: only the selected section shows, always open, with no section header.
+.actions-queue-sections--tabs {
+	.actions-queue-section[data-tab-selected="0"] {
+		display: none;
+	}
+
+	.actions-queue-section__head {
+		display: none;
+	}
+
+	.actions-queue-section__body {
+		padding-top: 0;
+	}
+}
+
+// Short rows list two to a line where there's room: passing checks, and the housekeeping on plugins and themes,
+// whose items are each a name and a button or two. Anything else in the list, such as a group's foot or its
+// ignored items, takes the whole width.
+.actions-queue-passing-grid,
+.actions-queue-row-group--columns > .actions-queue-row-group__body,
+.actions-queue-row-group--columns .actions-queue-row-group__ignored {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+
+	&[hidden] {
+		display: none;
+	}
+
+	> :not(.actions-queue-row) {
+		grid-column: 1 / -1;
+	}
+
+	> .actions-queue-row {
+		border-right: 1px solid $aq-soft-line;
+
+		&:nth-child(2n) {
+			border-right: 0;
+		}
+	}
+}
+
+// Passing checks need no detail: one line each, in a block per kind of check.
+.actions-queue-passing-grid {
+	// A passing group with ignored items has rows to open, so it comes after the plain rows.
+	> .actions-queue-row-group {
+		border-top: 1px solid $aq-soft-line;
+		order: 1;
+	}
+
+	> .actions-queue-row {
+		padding-block: 8px;
+
+		&:nth-child(2) {
+			border-top: 0;
+		}
+	}
+
+	> .actions-queue-row .actions-queue-row__desc {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}
+
+// Before two to a line would squeeze a row's name against its buttons, they go one to a line. This follows the
+// page's width rather than the window's, which also holds the admin menus.
+@container operator-chrome (max-width: 800px) {
+	.actions-queue-passing-grid,
+	.actions-queue-row-group--columns > .actions-queue-row-group__body,
+	.actions-queue-row-group--columns .actions-queue-row-group__ignored {
+		grid-template-columns: minmax(0, 1fr);
+
+		> .actions-queue-row {
+			border-right: 0;
+		}
+	}
+
+	.actions-queue-passing-grid > .actions-queue-row:nth-child(2) {
+		border-top: 1px solid $aq-soft-line;
+	}
+}
+
+// ─── Results over the queue ───
+// A group opened from the queue shows its results in a large panel from the right, over a dimmed queue,
+// rather than replacing the page. The queue stays as it was underneath, ready when the panel closes.
+html.shield-results-overlay-open {
+	overflow: hidden;
+
+	// The page body is a size container, which would hold the panel inside the page instead of over it.
+	// While the panel is open the panel's own body takes that role, so layouts in it fit the panel.
+	.inner-page-body-shell[data-operator-chrome="1"] {
+		container: none;
+	}
+
+	// Likewise the page's own stacking level would keep the panel under the page's notices.
+	#PageMain-Shield {
+		z-index: auto;
+	}
+
+	// The setup bar would sit across the bottom of the panel.
+	.shield-setup-guide,
+	.shield-setup-guide-reopen {
+		display: none;
+	}
+}
+
+.actions-landing .drill-shell[data-results-overlay="1"] {
+	> [data-drill-layer="0"].drill-layer--compact {
+		display: block;
+	}
+
+	// The backdrop belongs to the shell, so a click on it reaches the shell and closes the panel.
+	&::after {
+		background: rgba(16, 24, 40, 0.45);
+		content: "";
+		inset: 0;
+		position: fixed;
+		z-index: 1035;
+	}
+
+	> [data-drill-layer-key="detail"]:not(.drill-layer--hidden) {
+		animation: shield-results-overlay-in 0.18s ease-out;
+		background: #fff;
+		bottom: 0;
+		box-shadow: -12px 0 40px rgba(16, 24, 40, 0.22);
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 264px auto;
+		grid-template-rows: auto minmax(0, 1fr);
+		position: fixed;
+		right: 0;
+		top: var(--wp-admin--admin-bar--height, 32px);
+		width: min(1320px, calc(100vw - 200px));
+		// Just under Bootstrap's modal layer, so dialogs, menus and tooltips opened from the results show
+		// over the panel. The admin menu stays above it, but the panel's width keeps clear of it.
+		z-index: 1040;
+
+		&:focus {
+			outline: none;
+		}
+
+		// The layer's title, normally for screen readers only, heads the panel.
+		> [data-drill-layer-title="1"] {
+			border-bottom: 1px solid #e2e4e7;
+			clip: auto;
+			clip-path: none;
+			color: #1d2327;
+			font-size: 17px;
+			font-weight: 600;
+			grid-column: 1 / 3;
+			grid-row: 1;
+			height: auto;
+			line-height: 1.3;
+			margin: 0;
+			overflow: visible;
+			padding: 1rem 1.5rem;
+			position: static !important;
+			width: auto;
+			word-wrap: break-word !important;
+		}
+
+		> .drill-layer__overlay-close {
+			align-items: center;
+			align-self: stretch;
+			background: none;
+			border: 0;
+			border-bottom: 1px solid #e2e4e7;
+			color: #50575e;
+			cursor: pointer;
+			display: flex;
+			font-size: 18px;
+			grid-column: 3;
+			grid-row: 1;
+			justify-content: center;
+			padding: 0 1.25rem;
+
+			&:hover,
+			&:focus-visible {
+				background: #f0f0f1;
+				color: #1d2327;
+			}
+
+			&:focus-visible {
+				outline: 2px solid #2271b1;
+				outline-offset: -2px;
+			}
+		}
+
+		> .drill-layer__body {
+			container: operator-chrome / inline-size;
+			grid-column: 1 / -1;
+			grid-row: 2;
+			overflow: auto;
+			overscroll-behavior: contain;
+			padding: 1.25rem 1.5rem 2rem;
+		}
+
+		// The actions for these results, moved in from beside the page while the panel is open.
+		> [data-operator-context-rail="1"] {
+			align-self: start;
+			grid-column: 2 / -1;
+			grid-row: 2;
+			margin: 1.25rem 1.5rem 0 0;
+			max-height: calc(100% - 2.5rem);
+			overflow: auto;
+			position: static;
+		}
+
+		&:has(> [data-operator-context-rail="1"]:not([hidden])) > .drill-layer__body {
+			grid-column: 1;
+		}
+
+		// The panel is already the frame, so the results sit straight on it rather than in a box of their own.
+		.actions-queue-detail {
+			background: none;
+			border: 0;
+			border-radius: 0;
+			box-shadow: none;
+			padding: 0;
+		}
+	}
+}
+
+.drill-layer__overlay-close {
+	display: none;
+}
+
+@keyframes shield-results-overlay-in {
+	from {
+		opacity: 0;
+		transform: translateX(32px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.actions-landing .drill-shell[data-results-overlay="1"] > [data-drill-layer-key="detail"] {
+		animation: none;
+	}
+}
+
+@media (max-width: 782px) {
+	.actions-landing .drill-shell[data-results-overlay="1"] > [data-drill-layer-key="detail"]:not(.drill-layer--hidden) {
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-rows: auto auto minmax(0, 1fr);
+		overflow: auto;
+		width: 100vw;
+
+		> [data-drill-layer-title="1"] {
+			grid-column: 1;
+		}
+
+		> .drill-layer__overlay-close {
+			grid-column: 2;
+		}
+
+		// On a phone the actions come first, then the results, in one scrolling column.
+		> [data-operator-context-rail="1"] {
+			grid-column: 1 / -1;
+			margin: 1rem 1rem 0;
+			max-height: none;
+		}
+
+		> .drill-layer__body,
+		&:has(> [data-operator-context-rail="1"]:not([hidden])) > .drill-layer__body {
+			grid-column: 1 / -1;
+			grid-row: 3;
+			overflow: visible;
+			padding: 1rem;
+		}
+	}
+}
+
+// ─── File Locker: one tab per critical file ───
+.actions-queue-file-tabs {
+	--shield-tabs-accent: #2271b1;
+	margin-bottom: 1rem;
+
+	.actions-queue-file-tab {
+		background: none;
+		border-left: 0;
+		border-right: 0;
+		border-top: 0;
+		cursor: pointer;
+
+		&.is-active {
+			border-bottom-color: var(--shield-tabs-accent);
+			color: #1d2327;
+			font-weight: 600;
+		}
+	}
+}
+
+// Each file's tab has an icon for its kind of file, coloured by the file's state.
+.actions-queue-file-tab__icon {
+	color: #8c8f94;
+
+	.status-good > & {
+		color: #008a20;
+	}
+
+	.status-warning > & {
+		color: #996800;
+	}
+
+	.status-critical > & {
+		color: #d63638;
+	}
+}
+
+// The tab says which file this is, so its panel needs no card, title or close button.
+.actions-queue-file-panel.card[data-mode-panel="1"] {
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	margin: 0;
+
+	> .shield-card-accent {
+		display: none;
+	}
+
+	> .card-body {
+		padding: 0;
+
+		// The title stays for screen readers, keeping the headings in order; the close button goes.
+		> .d-flex:first-child {
+			clip-path: inset(50%);
+			height: 1px;
+			margin: 0 !important;
+			overflow: hidden;
+			position: absolute;
+			white-space: nowrap;
+			width: 1px;
+
+			.mode-panel-close-btn {
+				display: none;
+			}
+		}
+	}
+}
+
+.actions-queue-file-panel__head {
+	align-items: baseline;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem 1rem;
+	margin-bottom: 0.9rem;
+}
+
+.actions-queue-file-panel__state {
+	color: #1d2327;
+	font-weight: 500;
+
+	&.status-warning {
+		color: #996800;
+	}
+
+	&.status-good {
+		color: #007017;
+	}
+}
+
+.actions-queue-file-panel__path {
+	background: none;
+	color: #646970;
+	font-size: 12px;
+	overflow-wrap: anywhere;
+	padding: 0;
 }

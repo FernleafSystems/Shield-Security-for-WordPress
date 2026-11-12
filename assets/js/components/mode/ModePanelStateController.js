@@ -39,7 +39,10 @@ export class ModePanelStateController extends BaseAutoExecComponent {
 
 		const activePanelTarget = ( shell.dataset.modeActivePanel || '' ).trim();
 		if ( activePanelTarget === panelTarget ) {
-			this.closePanel( shell, panelTarget, trigger );
+			// A tab stays open when chosen again; a tile toggles its panel.
+			if ( tile.dataset.modeTileKeepOpen !== '1' ) {
+				this.closePanel( shell, panelTarget, trigger );
+			}
 			return;
 		}
 

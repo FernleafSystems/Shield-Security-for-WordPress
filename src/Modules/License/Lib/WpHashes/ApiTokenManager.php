@@ -115,10 +115,6 @@ class ApiTokenManager {
 		return Services::Request()->ts() > $this->getExpiresAt();
 	}
 
-	public function isNearlyExpired() :bool {
-		return Services::Request()->carbon()->addHours( 2 )->timestamp > $this->getExpiresAt();
-	}
-
 	private function storeToken( array $token, bool $persist = false ) :void {
 		self::con()->opts->optSet( 'wphashes_api_token', $token );
 		if ( $persist ) {

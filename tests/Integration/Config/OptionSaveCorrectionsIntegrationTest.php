@@ -159,11 +159,19 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$con = $this->requireController();
 		$con->opts
 			->optSet( 'frequency_alert', 'weekly' )
-			->optSet( 'frequency_info', 'monthly' )
+			->optSet( 'frequency_info', 'daily' )
 			->store();
 
 		$this->assertSame( 'weekly', $con->opts->optGet( 'frequency_alert' ) );
-		$this->assertSame( 'monthly', $con->opts->optGet( 'frequency_info' ) );
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_info' ) );
+	}
+
+	public function test_longer_info_report_frequencies_become_weekly() :void {
+		$con = $this->requireController();
+		foreach ( [ 'biweekly', 'monthly' ] as $legacy ) {
+			$con->opts->optSet( 'frequency_info', $legacy )->store();
+			$this->assertSame( 'weekly', $con->opts->optGet( 'frequency_info' ), $legacy );
+		}
 	}
 
 	public function test_request_logger_cannot_be_set_off_directly() :void {

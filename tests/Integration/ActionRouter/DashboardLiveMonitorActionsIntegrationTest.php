@@ -2,24 +2,25 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
 	Actions\DashboardLiveMonitorSetState,
 	Actions\Render\Components\Traffic\TrafficLiveLogs,
-	Actions\Render\Components\Widgets\DashboardLiveMonitorTicker,
-	Exceptions\InvalidActionNonceException
+	Actions\Render\Components\Widgets\DashboardLiveMonitorTicker
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\HighValueEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ActionRequestNonceFixture;
+	use CurrentRequestFixture;
+	use ExternalEntryRefusalAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -132,24 +133,13 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 		$this->assertCount( 1, $vars[ 'rows' ] );
 	}
 
-	public function test_set_state_non_ajax_action_requires_valid_nonce_before_mutation() :void {
+	public function test_set_state_action_requires_valid_nonce_before_mutation() :void {
 		$pref = new DashboardLiveMonitorPreference();
 		$pref->setCollapsed( false );
-		$snapshot = $this->seedActionNonceContext( DashboardLiveMonitorSetState::class );
-		$this->mergeCurrentRequestTransport( [
-			ActionData::FIELD_NONCE => '',
+		$this->assertAjaxRequestRefused( DashboardLiveMonitorSetState::class, [
+			'is_collapsed' => 1,
 		] );
-
-		try {
-			$this->expectException( InvalidActionNonceException::class );
-			$this->processor()->processAction( DashboardLiveMonitorSetState::SLUG, [
-				'is_collapsed' => 1,
-			] );
-		}
-		finally {
-			$this->assertFalse( $pref->isCollapsed() );
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		$this->assertFalse( $pref->isCollapsed() );
 	}
 
 	public function test_set_state_action_persists_collapsed_preference() :void {

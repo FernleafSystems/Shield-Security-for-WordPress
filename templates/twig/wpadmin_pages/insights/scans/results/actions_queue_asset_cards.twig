@@ -10,13 +10,86 @@
 		<i class="bi bi-check-circle fs-3 d-block mb-2"></i>
 		{{ strings.no_issues }}
 	</div>
+{% elseif flags.is_file_locker %}
+	{#
+		File Locker: one tab per critical file, opening on the first. A locked file's tab loads its details; a
+		file that isn't locked offers to lock it.
+	#}
+	<div class="actions-queue-asset-cards actions-queue-asset-cards--files"
+		 data-actions-queue-asset-cards="1"
+		 data-mode-shell="1"
+		 data-mode="actions_queue_assets"
+		 data-mode-interactive="1"
+		 data-mode-open-first="1">
+		<div class="shield-tabs actions-queue-file-tabs" role="tablist">
+			<div class="shield-tabs__list">
+				{% for item in vars.asset_cards %}
+					{% set target = item.panel_target %}
+					<button type="button"
+							class="shield-tabs__tab actions-queue-file-tab status-{{ item.status }}"
+							role="tab"
+							data-mode-tile="1"
+							data-mode-tile-keep-open="1"
+							data-mode-tile-key="{{ item.key|e('html_attr') }}"
+							data-mode-panel-target="{{ target|e('html_attr') }}"
+							aria-controls="{{ item.panel_id|e('html_attr') }}"
+							aria-expanded="false">
+						<i class="{{ item.icon_class }} actions-queue-file-tab__icon" aria-hidden="true"></i>
+						{{ item.title }}
+					</button>
+				{% endfor %}
+			</div>
+		</div>
+
+		<div class="actions-queue-asset-cards__panels">
+			{% for item in vars.asset_cards %}
+				{% set target = item.panel_target %}
+				{% set panel_body %}
+					<div class="actions-queue-file-panel__head">
+						<span class="actions-queue-file-panel__state status-{{ item.status }}">{{ item.stat_text }}</span>
+						<code class="actions-queue-file-panel__path">{{ item.meta_text }}</code>
+					</div>
+					<div class="actions-queue-asset-panel__body" data-actions-queue-asset-panel-content="1">
+						{% if item.enable_dialog_json is not empty %}
+							<button type="button" class="btn btn-sm btn-primary"
+									data-enable-protection="{{ item.enable_dialog_json|e('html_attr') }}" aria-haspopup="dialog">
+								<i class="bi bi-lock-fill" aria-hidden="true"></i> {{ strings.lock_file }}
+							</button>
+						{% elseif item.body_notice is not empty %}
+							<p class="text-muted mb-0">{{ item.body_notice }}</p>
+						{% elseif item.table is not empty %}
+							{% include '/wpadmin/components/scans/scan_results_table.twig' with {
+								table: item.table
+							} only %}
+						{% endif %}
+					</div>
+				{% endset %}
+				{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
+					panel: {
+						id: item.panel_id,
+						class: 'actions-queue-asset-panel actions-queue-file-panel',
+						spacing_top: 'none',
+						is_open: false,
+						target: target,
+						target_default: target,
+						static_target: true,
+						status: item.status,
+						title: item.title,
+						body: panel_body,
+						data: item.panel_data
+					},
+					strings: strings
+				} only %}
+			{% endfor %}
+		</div>
+	</div>
 {% else %}
 	<div class="actions-queue-asset-cards{% if flags.is_file_locker %} actions-queue-asset-cards--files{% endif %}"
 		 data-actions-queue-asset-cards="1"
 		 data-mode-shell="1"
 		 data-mode="actions_queue_assets"
 		 data-mode-interactive="1">
-		<div class="investigate-landing__subject-grid actions-queue-asset-cards__grid" data-mode-tiles="1">
+		<div class="investigate-landing__subject-grid actions-queue-asset-cards__grid">
 			{% for item in vars.asset_cards %}
 				<button type="button"
 						class="investigate-landing__subject-card actions-queue-asset-card operator-card-surface operator-tile-card status-{{ item.status }}{% if item.is_inactive %} is-inactive{% endif %}"
@@ -37,7 +110,6 @@
 		</div>
 
 		<div class="actions-queue-asset-cards__hint"
-			 data-actions-queue-asset-hint="1"
 			 data-mode-landing-hint="1"
 			 aria-hidden="false">
 			<i class="bi bi-arrow-up investigate-landing__hint-icon" aria-hidden="true"></i>
@@ -96,6 +168,7 @@
 					panel: {
 						id: item.panel_id,
 						class: 'actions-queue-asset-panel',
+						spacing_top: 'md',
 						is_open: false,
 						target: item.panel_target,
 						target_default: item.panel_target,

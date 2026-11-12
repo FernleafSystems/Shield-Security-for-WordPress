@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\{
+	ExternalEntryGuard,
+	RequestFields
+};
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteLockdown\SiteBlockdownCfg;
@@ -11,30 +15,39 @@ class BlockdownFormSubmit extends BaseAction {
 
 	public const SLUG = 'blockdown_form_submit';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
 		$con = self::con();
 
-		$form = $this->action_data[ 'form_data' ];
 		try {
 			if ( !$con->caps->canSiteBlockdown() ) {
 				throw new \Exception( sprintf( __( 'Please upgrade your %s plan to make use of this feature.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 			}
 
-			if ( empty( $form ) || !\is_array( $form ) ) {
+			$formData = $this->fields()->array( 'form_data', [] );
+			if ( empty( $formData ) ) {
 				throw new \Exception( __( 'Please complete the form.', 'wp-simple-firewall' ) );
 			}
+			// The whole form is read before anything is changed, so a form that's refused changes nothing.
+			$form = new RequestFields( $formData );
+			$confirmed = $form->stringList( 'confirm', [] );
+			$whitelistMe = $form->string( 'whitelist_me', 'N' ) === 'Y';
+			$exclusions = $form->stringList( 'exclusions', [] );
 
 			$cfg = ( new SiteBlockdownCfg() )->applyFromArray( $con->comps->opts_lookup->getBlockdownCfg() );
 			if ( $cfg->isLockdownActive() ) {
 				throw new \Exception( __( 'Invalid request - lockdown is already active.', 'wp-simple-firewall' ) );
 			}
 
-			$confirm = $form[ 'confirm' ] ?? [];
-			if ( !empty( \array_diff( [ 'consequences', 'authority', 'access', 'cache' ], $confirm ) ) ) {
+			if ( !empty( \array_diff( [ 'consequences', 'authority', 'access', 'cache' ], $confirmed ) ) ) {
 				throw new \Exception( __( 'Please check all confirmation boxes.', 'wp-simple-firewall' ) );
 			}
 
-			$whitelistMe = ( $form[ 'whitelist_me' ] ?? 'N' ) === 'Y';
 			$alreadyWhitelisted = ( new IpRules\IpRuleStatus( $con->this_req->ip ) )->isBypass();
 			if ( $whitelistMe && !$alreadyWhitelisted ) {
 				( new IpRules\AddRule() )
@@ -52,7 +65,7 @@ class BlockdownFormSubmit extends BaseAction {
 
 			$cfg->activated_at = Services::Request()->ts();
 			$cfg->activated_by = Services::WpUsers()->getCurrentWpUsername();
-			$cfg->exclusions = $form[ 'exclusions' ] ?? [];
+			$cfg->exclusions = $exclusions;
 			$cfg->whitelist_me = ( $whitelistMe && !$alreadyWhitelisted ) ? $con->this_req->ip : '';
 
 			$con->opts->optSet( 'blockdown_cfg', $cfg->getRawData() );

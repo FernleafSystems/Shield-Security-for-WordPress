@@ -72,13 +72,6 @@ abstract class BaseApi extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return string[]
-	 */
-	protected function getRequestParamKeys(): array {
-		return [];
-	}
-
-	/**
 	 * @return mixed
 	 */
 	public function __get( string $key ) {

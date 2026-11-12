@@ -1,5 +1,6 @@
 import { AppBase } from "./AppBase";
 import { Blockdown } from "../components/general/Blockdown";
+import { WhitelabelPreview } from "../components/general/WhitelabelPreview";
 import { BootstrapTooltips } from "../components/ui/BootstrapTooltips";
 import { ReportsTrendsController } from "../components/charts/ReportsTrendsController";
 import { DashboardActivityCharts } from "../components/charts/DashboardActivityCharts";
@@ -16,6 +17,7 @@ import { IpRules } from "../components/ips/IpRules";
 import { IpAnalyse } from "../components/ips/IpAnalyse";
 import { LicenseHandler } from "../components/general/LicenseHandler";
 import { Merlin } from "../components/general/Merlin";
+import { SetupGuideBar } from "../components/general/SetupGuideBar";
 import { MiscHooks } from "../components/general/MiscHooks";
 import { OffCanvasService } from "../components/ui/OffCanvasService";
 import { OptionsHandler } from "../components/options/OptionsHandler";
@@ -29,22 +31,20 @@ import { ModePanelStateController } from "../components/mode/ModePanelStateContr
 import { DrillDownController } from "../components/mode/DrillDownController";
 import { StepTabsController } from "../components/mode/StepTabsController";
 import { InvestigateLandingController } from "../components/mode/InvestigateLandingController";
+import { InvestigateLookup } from "../components/mode/InvestigateLookup";
+import { ConfigureTabs } from "../components/mode/ConfigureTabs";
 import { ConfigureLandingController } from "../components/mode/ConfigureLandingController";
 import { ActionsQueueLandingController } from "../components/mode/ActionsQueueLandingController";
-import { ReportsLandingController } from "../components/mode/ReportsLandingController";
+import { ReportsTabs } from "../components/mode/ReportsTabs";
 import { DetailRowExpandController } from "../components/mode/DetailRowExpandController";
-import { RailSidebarController } from "../components/mode/RailSidebarController";
 import { ConfigureExpandLoader } from "../components/mode/ConfigureExpandLoader";
-import { HealthyDisclosureController } from "../components/ui/HealthyDisclosureController";
+import { ConfigureZoneTools } from "../components/mode/ConfigureZoneTools";
+import { ActionsQueueSections } from "../components/mode/ActionsQueueSections";
 import { SecurityAdmin } from "../components/general/SecurityAdmin";
 import { ShieldServicesPlugin } from "../services/ShieldServicesPlugin";
-import { ShieldTableActivityLog } from "../components/tables/ShieldTableActivityLog";
 import { ShieldTableImportExportSites } from "../components/tables/ShieldTableImportExportSites";
-import { ShieldTableIpRules } from "../components/tables/ShieldTableIpRules";
 import { ShieldTableReports } from "../components/tables/ShieldTableReports";
 import { ShieldTableSecurityRules } from "../components/tables/ShieldTableSecurityRules";
-import { ShieldTableTrafficLog } from "../components/tables/ShieldTableTrafficLog";
-import { ShieldTableSessions } from "../components/tables/ShieldTableSessions";
 import { ShieldStrings } from "../services/ShieldStrings";
 import { ShieldEventsHandler } from "../services/ShieldEventsHandler";
 import { SuperSearchService } from "../components/search/SuperSearchService";
@@ -82,6 +82,7 @@ export class AppMain extends AppBase {
 		this.components.dashboard_live_monitor = ( 'dashboard_live_monitor' in comps ) ? new DashboardLiveMonitor( comps.dashboard_live_monitor ) : null;
 		this.components.dashboard_activity_charts = new DashboardActivityCharts();
 		this.components.dashboard_task_guide = new DashboardTaskGuide();
+		this.components.whitelabel_preview = new WhitelabelPreview();
 		this.components.pro_upsell = new ProUpsell();
 		this.components.div_printer = new DivPrinter();
 		this.components.dynamic_buttons = new DynamicActionButtons();
@@ -92,23 +93,26 @@ export class AppMain extends AppBase {
 		this.components.ip_rules = ( 'ip_rules' in comps ) ? new IpRules( comps.ip_rules ) : null;
 		this.components.license = ( 'license' in comps ) ? new LicenseHandler( comps.license ) : null;
 		this.components.merlin = ( 'merlin' in comps ) ? new Merlin( comps.merlin ) : null;
+		this.components.setup_guide_bar = new SetupGuideBar();
 		this.components.misc_hooks = ( 'misc_hooks' in comps ) ? new MiscHooks( comps.misc_hooks ) : null;
 		this.components.mod_options = ( 'mod_options' in comps ) ? new OptionsHandler( comps.mod_options ) : null;
 		this.components.mode_panel_state = new ModePanelStateController();
 		this.components.drill_down = new DrillDownController();
 		this.components.step_tabs = new StepTabsController();
-		this.components.healthy_disclosure = new HealthyDisclosureController();
 		this.components.investigate_landing = new InvestigateLandingController(
 			'investigate_landing' in comps ? comps.investigate_landing : {}
 		);
+		this.components.investigate_lookup = new InvestigateLookup( comps.tables.investigate_logs || {} );
 		this.components.configure_landing = new ConfigureLandingController(
 			'zones_manager' in comps ? comps.zones_manager : {}
 		);
+		this.components.configure_tabs = new ConfigureTabs();
 		this.components.actions_queue_landing = new ActionsQueueLandingController();
-		this.components.reports_landing = new ReportsLandingController();
+		this.components.actions_queue_sections = new ActionsQueueSections();
 		this.components.detail_row_expand = new DetailRowExpandController();
-		this.components.rail_sidebar = new RailSidebarController();
 		this.components.configure_expand_loader = ( 'zones_manager' in comps ) ? new ConfigureExpandLoader( comps.zones_manager ) : null;
+		this.components.configure_zone_tools = ( 'zones_manager' in comps ) ? new ConfigureZoneTools( comps.zones_manager ) : null;
+		this.components.reports_tabs = new ReportsTabs();
 		this.components.notices = ( 'notices' in comps ) ? new NoticeHandler( comps.notices ) : null;
 		this.components.reports = ( 'reports' in comps ) ? new ReportingHandler( comps.reports ) : null;
 		this.components.rule_builder = ( 'rule_builder' in comps ) ? new RuleBuilder( comps.rule_builder ) : null;
@@ -119,12 +123,8 @@ export class AppMain extends AppBase {
 		this.components.testrest = ( 'testrest' in comps ) ? new TestRest( comps.testrest ) : null;
 		this.components.traffic = ( 'traffic' in comps ) ? new TrafficLiveLogs( comps.traffic ) : null;
 
-		this.components.tables_activity = ( 'activity' in comps.tables ) ? new ShieldTableActivityLog( comps.tables.activity ) : null;
 		this.components.tables_import_export_sites = ( 'import_export_sites' in comps.tables ) ? new ShieldTableImportExportSites( comps.tables.import_export_sites ) : null;
-		this.components.tables_ip_rules = ( 'ip_rules' in comps.tables ) ? new ShieldTableIpRules( comps.tables.ip_rules ) : null;
 		this.components.tables_reports = ( 'reports' in comps.tables ) ? new ShieldTableReports( comps.tables.reports ) : null;
-		this.components.tables_sessions = ( 'sessions' in comps.tables ) ? new ShieldTableSessions( comps.tables.sessions ) : null;
-		this.components.tables_traffic = ( 'traffic' in comps.tables ) ? new ShieldTableTrafficLog( comps.tables.traffic ) : null;
 		this.components.tables_security_rules = ( 'security_rules' in comps.tables ) ? new ShieldTableSecurityRules( comps.tables.security_rules ) : null;
 		this.components.navi = ( 'navi' in comps ) ? new Navigation( comps.navi ) : null;
 

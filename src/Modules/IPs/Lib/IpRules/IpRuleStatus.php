@@ -153,13 +153,6 @@ class IpRuleStatus {
 	/**
 	 * @return IpRuleRecord[]
 	 */
-	public function getRulesForShieldBlock() :array {
-		return \array_merge( $this->getRulesForAutoBlock(), $this->getRulesForManualBlock() );
-	}
-
-	/**
-	 * @return IpRuleRecord[]
-	 */
 	public function getRulesForBlock() :array {
 		return \array_merge( $this->getRulesForManualBlock(), $this->getRulesForCrowdsec(), $this->getRulesForAutoBlock() );
 	}

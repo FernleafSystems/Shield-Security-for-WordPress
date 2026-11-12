@@ -1,7 +1,5 @@
 <section id="{{ network_sync.section_id }}"
-		 class="import-export-network-sync"
-		 data-import-export-network-sync="1"
-		 data-import-export-sync-state="{{ network_sync.sync_state }}">
+		 class="import-export-network-sync">
 	<div class="import-export-sync-topbar{% if network_sync.is_enabled %} is-enabled{% endif %}">
 		<div class="import-export-sync-topbar__state">
 			<span class="import-export-sync-topbar__dot" aria-hidden="true"></span>
@@ -186,7 +184,7 @@
 									</div>
 								</fieldset>
 
-								<fieldset class="import-export-choice-group" data-import-export-verification-box="1">
+								<fieldset class="import-export-choice-group">
 									<legend>{{ network_sync.connect.form.verification_label }}</legend>
 									<div class="import-export-choice-group__options">
 										{% for option in network_sync.connect.form.verification_options %}

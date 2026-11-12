@@ -1,0 +1,144 @@
+{#
+	One issue group as a flat row on the Actions Queue landing. A group with results is a button that
+	opens them; a group of maintenance items lists each item as its own row under a small heading;
+	upgrade and turn-on rows open their dialogs.
+#}
+{% set is_pro = group.is_pro_upsell %}
+{% set is_enable = group.enable_dialog_json is not empty %}
+{% set is_passing = not is_pro and not is_enable and group.status == 'good' %}
+{# A passing group can still have results to open, such as ignored items that can be restored. #}
+{% set can_drill = not is_pro and not is_enable
+	and group.is_interactive and group.card_type != 'category' %}
+{% set kind = is_pro ? 'pro' : ( is_enable ? 'enable' : ( is_passing ? 'good' : group.status ) ) %}
+
+{#
+	A group that lists its items (maintenance, or each vulnerable, abandoned or cloaked asset) shows them in place. Where
+	asked (Review next, the longest lane), it starts folded to its heading and a count, and its heading opens it.
+	Items that are ignored count for nothing, so a passing group can still list them, behind "2 ignored" in its heading.
+	Where asked (housekeeping on plugins and themes), its items list two to a line when there's room.
+#}
+{% set ignored_rows = group.ignored_rows %}
+{% if ( ( group.card_type == 'category' or group.maintenance_rows is not empty ) and not is_passing ) or ignored_rows is not empty %}
+	{# A passing group listed only for its ignored items shows just those. #}
+	{% set group_rows = is_passing ? [] : ( group.maintenance_rows is not empty ? group.maintenance_rows : ( group.summary_row is not empty ? [ group.summary_row ] : [] ) ) %}
+	{# With everything ignored there's nothing to fold: the group shows faded, its items behind "N ignored". #}
+	{% set is_all_ignored = group_rows is empty and ignored_rows is not empty %}
+	{% set is_collapsible = collapsible and not is_all_ignored %}
+	{# The heading counts what still needs doing; ignored rows listed among them are counted apart. #}
+	{% set ignored_in_rows = group_rows|filter( r => r.is_ignored )|length %}
+	{% set body_id = 'AqGroupBody-' ~ random() %}
+	{% set ignored_id = 'AqGroupIgnored-' ~ random() %}
+	{% set ignored_label %}
+		<i class="bi bi-eye-slash-fill" aria-hidden="true"></i>{{ strings.ignored_toggle|format( ignored_rows|length ) }}
+		<i class="bi bi-chevron-down actions-queue-row-group__link-chevron" aria-hidden="true"></i>
+	{% endset %}
+	<div class="actions-queue-row-group{% if two_columns %} actions-queue-row-group--columns{% endif %}{% if is_all_ignored %} is-all-ignored{% endif %}" data-actions-queue-group-key="{{ group.key|e('html_attr') }}"
+		 {% if bucket_selection.selection_json is defined and bucket_selection.selection_json is not empty %}data-actions-queue-bucket-selection="{{ bucket_selection.selection_json|e('html_attr') }}"{% endif %}>
+		<div class="actions-queue-row-group__head status-{{ group.status }}">
+			{% if is_collapsible or is_all_ignored %}
+				{# With everything ignored, the whole heading opens the ignored items. #}
+				<button type="button" class="actions-queue-box-toggle"
+						data-actions-queue-box-toggle="{{ ( is_all_ignored ? 'ignored:' ~ group.key : group.key )|e('html_attr') }}"
+						aria-expanded="false" aria-controls="{{ is_all_ignored ? ignored_id : body_id }}">
+					<span class="actions-queue-row-group__icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
+					<span class="actions-queue-row-group__label">{{ group.label }}</span>
+					{% if is_all_ignored %}
+						<span class="actions-queue-row-group__link">{{ ignored_label }}</span>
+					{% else %}
+						<span class="actions-queue-box-toggle__count">{{ group_rows|length - ignored_in_rows }}</span>
+						{% if ignored_in_rows > 0 %}
+							<span class="actions-queue-box-toggle__ignored">{{ strings.ignored_count|format( ignored_in_rows ) }}</span>
+						{% endif %}
+						<i class="bi bi-chevron-down actions-queue-box-toggle__chevron" aria-hidden="true"></i>
+					{% endif %}
+				</button>
+			{% else %}
+				<span class="actions-queue-row-group__icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
+				<span class="actions-queue-row-group__label">{{ group.label }}</span>
+			{% endif %}
+			{% if ignored_rows is not empty and not is_all_ignored %}
+				<button type="button" class="actions-queue-row-group__link"
+						data-actions-queue-box-toggle="ignored:{{ group.key|e('html_attr') }}"
+						aria-expanded="false" aria-controls="{{ ignored_id }}">{{ ignored_label }}</button>
+			{% endif %}
+			{% if group.management_link is not empty %}
+				<a class="actions-queue-row-group__link"
+				   href="{{ group.management_link.href }}"
+				   {% if group.management_link.target is not empty %}target="{{ group.management_link.target }}"{% endif %}
+				   {% if group.management_link.rel is not empty %}rel="{{ group.management_link.rel }}"{% endif %}>
+					<i class="bi {{ group.management_link.icon_class }}" aria-hidden="true"></i>{{ group.management_link.label }}
+				</a>
+			{% endif %}
+		</div>
+		<div class="actions-queue-row-group__body" id="{{ body_id }}" {% if is_collapsible %}hidden{% endif %}>
+		{% for row in group_rows %}
+			{% include '/wpadmin/components/actions_queue/landing_item_row.twig' with {
+				row: row,
+				is_passing: false
+			} only %}
+		{% endfor %}
+		{# Several items of one kind, such as inactive plugins, can be ignored together. #}
+		{% include '/wpadmin/components/actions_queue/landing_group_bulk_action.twig' with {
+			rows: group_rows,
+			kind: 'ignore',
+			label: strings.ignore_all
+		} only %}
+		{% if ignored_rows is not empty %}
+			<div class="actions-queue-row-group__ignored" id="{{ ignored_id }}" hidden>
+				{% for row in ignored_rows %}
+					{% include '/wpadmin/components/actions_queue/landing_item_row.twig' with {
+						row: row,
+						is_passing: false
+					} only %}
+				{% endfor %}
+				{# With them all ignored, they can all be brought back together. #}
+				{% if is_all_ignored %}
+					{% include '/wpadmin/components/actions_queue/landing_group_bulk_action.twig' with {
+						rows: ignored_rows,
+						kind: 'unignore',
+						label: strings.stop_ignoring_all
+					} only %}
+				{% endif %}
+			</div>
+		{% endif %}
+		</div>
+	</div>
+{% else %}
+	{% set tag = ( can_drill or is_pro or is_enable ) ? 'button' : 'div' %}
+	{% set summary = group.narrative is not empty ? group.narrative : ( group.summary_row.summary|default('') ) %}
+	<{{ tag }} {% if tag == 'button' %}type="button"{% endif %}
+		class="actions-queue-row actions-queue-row--{{ kind }}{% if tag == 'button' %} is-actionable{% endif %}"
+		data-actions-queue-group-key="{{ group.key|e('html_attr') }}"
+		{% if bucket_selection.selection_json is defined and bucket_selection.selection_json is not empty %}data-actions-queue-bucket-selection="{{ bucket_selection.selection_json|e('html_attr') }}"{% endif %}
+		{% if can_drill %}
+			data-drill-target="detail"
+			data-drill-bucket-selection="{{ bucket_selection.selection_json|e('html_attr') }}"
+			data-drill-group-selection="{{ group.selection.selection_json|e('html_attr') }}"
+		{% endif %}
+		{% if is_pro %}data-pro-upsell="1" aria-haspopup="dialog" aria-controls="ShieldModalContainer"{% endif %}
+		{% if is_enable %}data-enable-protection="{{ group.enable_dialog_json|e('html_attr') }}" aria-haspopup="dialog"{% endif %}>
+		<span class="actions-queue-row__icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
+		<span class="actions-queue-row__copy">
+			<span class="actions-queue-row__title">
+				{{ group.label }}
+				{% if is_pro %}
+					<span class="actions-queue-pill actions-queue-pill--pro">{{ strings.pro_pill }}</span>
+				{% elseif is_enable %}
+					<span class="actions-queue-pill actions-queue-pill--off">{{ group.status_label is not empty ? group.status_label : strings.turned_off_pill }}</span>
+				{% endif %}
+			</span>
+			{% if summary is not empty %}
+				<span class="actions-queue-row__desc">{{ summary }}</span>
+			{% endif %}
+		</span>
+		{% if is_pro %}
+			<span class="actions-queue-row__action actions-queue-row__action--pro"><i class="bi bi-stars" aria-hidden="true"></i>{{ strings.compare_plans }}</span>
+		{% elseif is_enable %}
+			<span class="actions-queue-row__action actions-queue-row__action--enable"><i class="bi bi-toggle-on" aria-hidden="true"></i>{{ strings.turn_on }}</span>
+		{% elseif can_drill %}
+			<span class="actions-queue-row__action actions-queue-row__action--{{ group.status }}">
+				<i class="{{ group.drill_icon }}" aria-hidden="true"></i>{{ group.drill_hint is not empty ? group.drill_hint : strings.review }}
+			</span>
+		{% endif %}
+	</{{ tag }}>
+{% endif %}

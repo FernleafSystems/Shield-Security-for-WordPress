@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ActivityLog\BuildActivityLogTableData;
 
 class ActivityLogTableAction extends TableActionBase {
@@ -9,6 +10,12 @@ class ActivityLogTableAction extends TableActionBase {
 	use HandlesRequestMetaTableAction;
 
 	public const SLUG = 'logtable_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 	private const SUB_ACTION_GET_REQUEST_META = 'get_request_meta';
 
 	protected function getSubActionHandlers() :array {

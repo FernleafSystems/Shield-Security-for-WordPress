@@ -1,9 +1,9 @@
 {% import "/common/macros.twig" as icwp_macros %}
-{% set mode_shell = vars.mode_shell|default({}) %}
-{% set mode_panel = vars.mode_panel|default({}) %}
-{% set is_mode_landing = mode_shell.is_mode_landing|default(false) %}
-{% set use_operator_chrome = is_mode_landing and mode_shell.use_operator_chrome|default(false) %}
-{% set mode_active_panel = mode_panel.active_target|default('') %}
+{% set mode_shell = vars.mode_shell %}
+{% set mode_panel = vars.mode_panel %}
+{% set is_mode_landing = mode_shell.is_mode_landing %}
+{% set use_operator_chrome = is_mode_landing and mode_shell.use_operator_chrome %}
+{% set mode_active_panel = mode_panel.active_target %}
 
 {% block inner_page_header %}{% endblock %}
 
@@ -31,7 +31,7 @@
 		 {% endif %}>
 		{% set inner_page_body_html %}
 			{% block inner_page_body %}
-				{% for element in content|default([]) %}
+				{% for element in content %}
 					{{ element|raw }}
 				{% endfor %}
 			{% endblock %}

@@ -24,21 +24,4 @@ class OperatorModePreferenceTest extends BaseUnitTest {
 		$service = new OperatorModePreference();
 		$this->assertSame( '', $service->getCurrent() );
 	}
-
-	public function test_valid_mode_persists_and_reads_back() :void {
-		Functions\when( 'get_current_user_id' )->justReturn( 23 );
-		Functions\expect( 'update_user_meta' )
-			->once()
-			->with(
-				23,
-				OperatorModePreference::META_KEY_DEFAULT_MODE,
-				PluginNavs::MODE_CONFIGURE
-			)->andReturn( true );
-		Functions\when( 'get_user_meta' )->justReturn( PluginNavs::MODE_CONFIGURE );
-
-		$service = new OperatorModePreference();
-		$service->setCurrent( PluginNavs::MODE_CONFIGURE );
-
-		$this->assertSame( PluginNavs::MODE_CONFIGURE, $service->getCurrent() );
-	}
 }

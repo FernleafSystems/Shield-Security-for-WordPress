@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Import;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Diagnostics\ObservationPresenter;
@@ -14,12 +15,18 @@ class ImportExportNetworkInviteAccept extends BaseAction {
 
 	public const SLUG = 'importexport_network_invite_accept';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
 		$repo = new NetworkInviteRepository();
 		$import = null;
 		$importCompleted = false;
 		try {
-			$form = $this->formData();
+			$form = $this->formParams();
 			if ( ( $form[ 'confirm' ] ?? '' ) !== 'Y' ) {
 				throw new \RuntimeException( __( 'Please check the box to confirm this action.', 'wp-simple-firewall' ) );
 			}
@@ -54,11 +61,6 @@ class ImportExportNetworkInviteAccept extends BaseAction {
 			'page_reload'  => $success,
 			'redirect_url' => $success ? $this->importExportUrl() : '',
 		] )->setPayloadSuccess( $success );
-	}
-
-	private function formData() :array {
-		$form = $this->action_data[ 'form_params' ] ?? [];
-		return \is_array( $form ) ? $form : [];
 	}
 
 	private function importExportUrl() :string {

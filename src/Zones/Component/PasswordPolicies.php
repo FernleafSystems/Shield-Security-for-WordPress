@@ -18,10 +18,6 @@ class PasswordPolicies extends Base {
 		return 'enable_password_policies';
 	}
 
-	protected function postureWeight() :int {
-		return 3;
-	}
-
 	protected function status() :array {
 		$status = parent::status();
 		if ( self::con()->comps->opts_lookup->isPassPoliciesEnabled() ) {
@@ -30,7 +26,7 @@ class PasswordPolicies extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "Password policies aren't enabled which may lead to poor password hygiene.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( "Password policies aren't enabled which may lead to poor password hygiene.", 'wp-simple-firewall' ), 'enable_password_policies' );
 		}
 		return $status;
 	}

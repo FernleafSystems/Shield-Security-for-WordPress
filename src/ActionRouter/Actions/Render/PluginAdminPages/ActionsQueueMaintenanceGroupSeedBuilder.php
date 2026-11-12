@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type MaintenanceExpansionRow from MaintenanceQueueItemDisplayNormalizer
  * @phpstan-import-type MaintenanceItemCta from MaintenanceQueueItemDisplayNormalizer
  * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
- * @phpstan-import-type MaintenanceUiAction from MaintenanceQueueItemDisplayNormalizer
  */
 class ActionsQueueMaintenanceGroupSeedBuilder {
 
@@ -39,9 +38,34 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 		bool $isHealthy = false,
 		bool $useHealthyCompanionKey = false
 	) :array {
-		return $this->groupDefinitions->isReviewMaintenanceAggregateGroupKey( $groupKey )
+		$seed = $this->groupDefinitions->isReviewMaintenanceAggregateGroupKey( $groupKey )
 			? $this->buildAggregateSeed( $groupKey, $maintenanceItems, $isHealthy, $useHealthyCompanionKey )
 			: $this->buildSingleItemSeed( $maintenanceItems[ 0 ], $isHealthy );
+		return $isHealthy ? $this->withIgnoredRowsApart( $seed ) : $seed;
+	}
+
+	/**
+	 * Items that are only passing because they're ignored keep their way back: they're listed apart, behind the
+	 * group's "N ignored", rather than as rows that would read as needing action.
+	 * @phpstan-param GroupSeed $seed
+	 * @phpstan-return GroupSeed
+	 */
+	private function withIgnoredRowsApart( array $seed ) :array {
+		$rows = empty( $seed[ 'maintenance_rows' ] )
+			? ( empty( $seed[ 'summary_row' ] ) ? [] : [ $seed[ 'summary_row' ] ] )
+			: $seed[ 'maintenance_rows' ];
+		$ignored = \array_values( \array_filter( $rows, static fn( array $row ) :bool => $row[ 'is_ignored' ] ) );
+		if ( !empty( $ignored ) ) {
+			$seed[ 'ignored_rows' ] = $ignored;
+			$seed[ 'maintenance_rows' ] = \array_values( \array_filter(
+				$seed[ 'maintenance_rows' ],
+				static fn( array $row ) :bool => !$row[ 'is_ignored' ]
+			) );
+			if ( !empty( $seed[ 'summary_row' ] ) && $seed[ 'summary_row' ][ 'is_ignored' ] ) {
+				$seed[ 'summary_row' ] = [];
+			}
+		}
+		return $seed;
 	}
 
 	/**
@@ -62,9 +86,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			'narrative'           => $maintenanceItem[ 'description' ],
 			'detail_shell'        => 'maintenance',
 			'icon_class_override' => $maintenanceItem[ 'icon_class' ],
-			'links'               => [],
 			'management_link'     => $this->buildManagementLink( $maintenanceItem ),
-			'detail_table'        => [],
 			'attention_items'     => [],
 			'maintenance_rows'    => $maintenanceRows,
 			'summary_row'         => empty( $maintenanceRows )
@@ -94,9 +116,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			'status'           => $this->aggregateStatus( $maintenanceItems ),
 			'narrative'        => $this->buildAggregateNarrative( $groupKey, $itemCount, $isHealthy ),
 			'detail_shell'     => 'maintenance',
-			'links'            => [],
 			'management_link'  => [],
-			'detail_table'     => [],
 			'attention_items'  => [],
 			'maintenance_rows' => $this->projectAggregateRows( $maintenanceItems ),
 			'summary_row'      => [],
@@ -254,7 +274,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 				'',
 				$row[ 'ignored_label' ],
 				$row[ 'is_ignored' ],
-				$this->normalizeToggleActions( $row[ 'secondary_actions' ] ),
+				$row[ 'secondary_actions' ],
 				$row[ 'inline_meta' ]
 			),
 			$this->extractRows( $maintenanceItem )
@@ -286,7 +306,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 	 * @return array{}|CompactSummaryRow
 	 */
 	private function buildSummaryRow( array $maintenanceItem ) :array {
-		$toggleAction = $this->normalizeToggleAction( $maintenanceItem[ 'toggle_action' ] );
+		$toggleAction = $maintenanceItem[ 'toggle_action' ];
 		if ( $maintenanceItem[ 'description' ] === '' && empty( $toggleAction ) ) {
 			return [];
 		}
@@ -329,7 +349,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			$actions[] = $navigationAction;
 		}
 
-		$toggleAction = $this->normalizeToggleAction( $maintenanceItem[ 'toggle_action' ] );
+		$toggleAction = $maintenanceItem[ 'toggle_action' ];
 		if ( !empty( $toggleAction ) ) {
 			$actions[] = $toggleAction;
 		}
@@ -355,45 +375,8 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			'tooltip'          => $cta[ 'label' ],
 			'target'           => $cta[ 'target' ],
 			'ajax_action_json' => '',
-		];
-	}
-
-	/**
-	 * @param list<MaintenanceUiAction> $toggleActions
-	 * @return list<CompactSummaryAction>
-	 */
-	private function normalizeToggleActions( array $toggleActions ) :array {
-		return \array_values( \array_filter( \array_map(
-			fn( array $toggleAction ) :array => $this->normalizeToggleAction( $toggleAction ),
-			$toggleActions
-		) ) );
-	}
-
-	/**
-	 * @param array{}|MaintenanceUiAction $toggleAction
-	 * @return array{}|CompactSummaryAction
-	 */
-	private function normalizeToggleAction( array $toggleAction ) :array {
-		if ( empty( $toggleAction ) ) {
-			return [];
-		}
-
-		$href = \trim( $toggleAction[ 'href' ] );
-		$label = \trim( $toggleAction[ 'label' ] );
-		$icon = \trim( $toggleAction[ 'icon' ] );
-		if ( $label === '' || $icon === '' ) {
-			return [];
-		}
-		$isAction = $toggleAction[ 'is_action' ];
-
-		return [
-			'href'             => $isAction ? '' : $href,
-			'is_action'        => $isAction,
-			'label'            => $label,
-			'icon'             => $icon,
-			'tooltip'          => \trim( $toggleAction[ 'tooltip' ] ),
-			'target'           => $isAction ? '' : \trim( $toggleAction[ 'target' ] ),
-			'ajax_action_json' => \trim( $toggleAction[ 'ajax_action_json' ] ),
+			'kind'             => '',
+			'maintenance_key'  => '',
 		];
 	}
 

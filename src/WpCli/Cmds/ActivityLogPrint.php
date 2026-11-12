@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 
 class ActivityLogPrint extends ActivityLogBase {
 
-	public function cmdDisplay( array $null, array $a ) {
-		( new Tables\Render\WpCliTable\ActivityLog() )->render();
-	}
-
 	protected function cmdShortDescription() :string {
 		return 'Print the activity log';
 	}

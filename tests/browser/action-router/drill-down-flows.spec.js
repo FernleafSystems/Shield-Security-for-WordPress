@@ -1,7 +1,7 @@
 const { openShieldRoute, test, expect } = require( './support/shield-test' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 const { expectNoAxeViolations } = require( './support/accessibility' );
-const { expectCardFocusRingWithinGrid } = require( './support/operator-landing-cards' );
+const { expectShieldAjaxSuccess, waitForShieldAjaxAction } = require( './support/security-assertions' );
 const {
 	expectFocusWithin,
 	expectModalHiddenWithoutAriaModal,
@@ -118,16 +118,9 @@ function isIgnoreAllRequest( request ) {
 function isActionsQueueGroupsRefreshRequest( request, fixture ) {
 	const params = actionRouterParams( request );
 	return isAdminAjaxPost( request )
-		&& params.get( 'render_slug' ) === 'actions_queue_drill_down_groups'
+		&& params.get( 'ex' ) === 'actions_queue_refresh'
 		&& params.get( 'bucket' ) === fixture.bucket_key
-		&& params.get( 'group' ) === fixture.group_key
-		&& params.get( 'include_landing_refresh' ) === '1';
-}
-
-function isCloakedPluginsDetailRenderRequest( request ) {
-	const params = actionRouterParams( request );
-	return isAdminAjaxPost( request )
-		&& params.get( 'render_slug' ) === 'scanresults_cloakedplugins';
+		&& params.get( 'group' ) === fixture.group_key;
 }
 
 function isScanResultsTableReloadRequest( request ) {
@@ -171,34 +164,6 @@ function isFileLockerActionRequest( request, expectedPayload ) {
 		&& Object.entries( expectedPayload ).every( ( [ key, value ] ) => params.get( key ) === String( value ) );
 }
 
-async function operatorContextAjaxAction( rail, matcher ) {
-	const actions = rail.locator( '[data-operator-context-action-ajax="1"]' );
-	const count = await actions.count();
-
-	for ( let index = 0; index < count; index++ ) {
-		const candidate = actions.nth( index );
-		const actionJson = await candidate.getAttribute( 'data-operator-context-action-json' );
-		if ( !actionJson ) {
-			continue;
-		}
-
-		try {
-			const action = JSON.parse( actionJson );
-			if ( matcher( action ) ) {
-				return candidate;
-			}
-		}
-		catch ( error ) {
-		}
-	}
-
-	return null;
-}
-
-async function hasOperatorContextAjaxAction( rail, matcher ) {
-	return ( await operatorContextAjaxAction( rail, matcher ) ) !== null;
-}
-
 test( 'actions queue drills into groups and back out, opening details when available', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
@@ -207,109 +172,122 @@ test( 'actions queue drills into groups and back out, opening details when avail
 			nav_sub: 'overview',
 		} );
 
-		const bucket = await actionsQueuePage.waitForBucket( fixture.bucket_key );
-		await expect( bucket ).toBeVisible();
-
+		await expect( actionsQueuePage.landingSection( fixture.bucket_key ) ).toBeVisible();
 		await expect( page.locator( '[data-actions-landing="1"] [data-healthy-disclosure-toggle="1"]' ) ).toHaveCount( 0 );
 		await expect( page.locator( '[data-actions-landing="1"] [data-healthy-disclosure-body="1"]' ) ).toHaveCount( 0 );
+		// No lane-page launcher: groups open straight from the landing.
+		await expect( page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]' ) ).toHaveCount( 0 );
 
-		await actionsQueuePage.clickElement( bucket );
-		await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
-		await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
-		const actionTabs = page.locator( '[data-operator-step-tab="1"]' );
 		const rail = page.locator( '[data-operator-context-rail="1"]' );
-		await expect( actionTabs ).toHaveCount( 3 );
-		await expect( actionTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
 		await expect( rail ).toBeHidden();
-
-		const group = await actionsQueuePage.waitForGroupWithRetry( bucket, fixture.group_key );
-		if ( group === null ) {
-			throw new Error( `Unable to locate Actions Queue group "${fixture.group_key}" in the groups layer.` );
-		}
+		const group = await actionsQueuePage.waitForLandingGroup( fixture.bucket_key, fixture.group_key );
 		await actionsQueuePage.clickElement( group );
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-		await expect( page.locator( '[data-drill-layer="1"]' ) ).toHaveClass( /drill-layer--compact/ );
-		await expect( rail ).toBeVisible();
+		await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
+		const actionTabs = page.locator( '[data-operator-step-tab="1"]' );
+		await expect( actionTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
+		// What acts on the results sits in the table's own actions, so the queue has no side rail.
+		await expect( rail ).toBeHidden();
 		await waitForScanResultsTableRows( page.locator( '[data-scan-results-table="1"]' ).first() );
 
-		await page.locator( '[data-step-tab-drill-index="1"]' ).click();
-		await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
-		await expect( page.locator( '[data-drill-layer="2"]' ) ).toHaveClass( /drill-layer--hidden/ );
-
-		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
-		await expect( page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]' ).first() ).toBeVisible();
+		// The breadcrumb leads straight back to the landing, which already lists the lane.
+		await expect( page.locator( '[data-step-tab-drill-index="1"]' ) ).toHaveCount( 0 );
+		await actionsQueuePage.backToLanding();
+		await expect( actionsQueuePage.landingSection( fixture.bucket_key ) ).toBeVisible();
+		await expect( page.locator( '[data-drill-layer-key="detail"]' ) ).toHaveClass( /drill-layer--hidden/ );
 	} );
 } );
 
-test( 'actions queue keeps clear risks together with clickable vulnerability findings', async ( { page, fixtureApi } ) => {
+test( 'actions queue landing lists lanes in place and opens a group directly', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
+
+		const actionsQueuePage = new ActionsQueuePage( page );
+		const section = page.locator( `[data-actions-queue-section-key="${fixture.bucket_key}"]` );
+		await expect( section ).toBeVisible();
+		const group = await actionsQueuePage.findDrillTargetBySelection(
+			section.locator( '[data-drill-target="detail"]' ),
+			'data-drill-group-selection',
+			fixture.group_key
+		);
+		expect( group ).not.toBeNull();
+		await actionsQueuePage.clickElement( group );
+		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
+
+		await actionsQueuePage.backToLanding();
+		await expect( section ).toBeVisible();
+
+		// The queue opens as tabs; switching to sections and back saves the choice each time.
+		const sections = page.locator( '[data-actions-queue-sections="1"]' );
+		await expect( sections ).toHaveAttribute( 'data-view', 'tabs' );
+		await actionsQueuePage.showSectionsView();
+		const restoreView = waitForShieldAjaxAction( page, 'set_ui_preference' );
+		await page.locator( '[data-actions-queue-view="tabs"]' ).click();
+		await expect( sections ).toHaveAttribute( 'data-view', 'tabs' );
+		await expect( page.locator( '[data-actions-queue-tab]' ).first() ).toHaveAttribute( 'aria-selected', 'true' );
+		await expectShieldAjaxSuccess( await restoreView );
+	} );
+} );
+
+test( 'actions queue opens group results in a panel over the queue', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
+		const actionsQueuePage = new ActionsQueuePage( page );
+		const section = actionsQueuePage.landingSection( fixture.bucket_key );
+		const panel = actionsQueuePage.resultsPanel();
+
+		await actionsQueuePage.drillToDetail( fixture );
+		await expect( panel ).toBeVisible();
+		await expect( panel ).toHaveAttribute( 'role', 'dialog' );
+		await expect( panel ).toHaveAttribute( 'aria-modal', 'true' );
+		// The queue stays where it was underneath, and the results' actions come with them in the panel.
+		await expect( section ).toBeVisible();
+		await expect( panel.locator( '.scan-results-actions' ).first() ).toBeVisible();
+
+		await page.keyboard.press( 'Escape' );
+		await expect( panel ).toHaveCount( 0 );
+		await expect( page.locator( '[data-drill-layer-key="detail"]' ) ).toHaveClass( /drill-layer--hidden/ );
+		await expect( page.locator( '[data-drill-layer-key="detail"] [data-operator-context-rail="1"]' ) ).toHaveCount( 0 );
+
+		// The backdrop closes it too.
+		await actionsQueuePage.drillToDetail( fixture );
+		await expect( panel ).toBeVisible();
+		// Between the admin menu and the panel, the backdrop covers the queue.
+		await page.mouse.click( 180, 400 );
+		await expect( page.locator( '[data-actions-landing="1"]' ) ).toBeVisible();
+		await expect( panel ).toHaveCount( 0 );
+	} );
+} );
+
+test( 'actions queue landing keeps clear risks inert beside clickable vulnerability findings', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'empty_cloaked_plugins', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
-		let cloakedDetailRenderRequests = 0;
-		const countCloakedDetailRenderRequests = ( request ) => {
-			if ( isCloakedPluginsDetailRenderRequest( request ) ) {
-				cloakedDetailRenderRequests++;
-			}
-		};
-		page.on( 'request', countCloakedDetailRenderRequests );
-
-		try {
-			await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
-			const bucket = await actionsQueuePage.waitForBucket( fixture.bucket_key );
-			await actionsQueuePage.clickElement( bucket );
-			await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
-
-			const cloaked = await actionsQueuePage.waitForGroupOuter( fixture.group_key );
-			expect( await cloaked.evaluate( ( element ) => element.tagName ) ).toBe( 'DIV' );
-			await expect( cloaked ).not.toHaveAttribute( 'data-drill-target' );
-			await expect( cloaked ).not.toHaveAttribute( 'data-drill-bucket-selection' );
-			await expect( cloaked ).not.toHaveAttribute( 'data-drill-group-selection' );
-			await expect.poll( async () => await cloaked.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'default' );
-			await actionsQueuePage.clickElement( cloaked );
-			await delay( 250 );
-			await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toHaveCount( 0 );
-			expect( cloakedDetailRenderRequests ).toBe( 0 );
-
-			const abandoned = await actionsQueuePage.waitForGroupOuter( 'abandoned' );
-			await expect.poll( async () => await abandoned.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'default' );
-			const vulnerabilities = await actionsQueuePage.waitForGroupOuter( 'vulnerabilities' );
-			const risks = vulnerabilities.locator( 'xpath=ancestor::section' );
-			await expect( risks.locator( '[data-actions-queue-group-key]' ) ).toHaveCount( 3 );
-			await expect( risks.locator( '[data-actions-queue-group-key]' ).first() ).toHaveAttribute( 'data-actions-queue-group-key', 'vulnerabilities' );
-			await expect( risks.locator( '[data-actions-queue-group-key="hidden_plugins"]' ) ).toBeVisible();
-			await expect( risks.locator( '[data-actions-queue-group-key="abandoned"]' ) ).toBeVisible();
-			await expect( vulnerabilities ).toHaveAttribute( 'data-drill-target', 'detail' );
-			await actionsQueuePage.clickElement( vulnerabilities );
-			await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-			await expect( page.locator( '[data-actions-queue-detail="1"] a' ).first() ).toBeVisible();
-		}
-		finally {
-			page.off( 'request', countCloakedDetailRenderRequests );
-		}
-	} );
-} );
-
-test( 'actions queue keeps ignored Cloaked Plugins interactive with the Unignore context action', async ( { page, fixtureApi } ) => {
-	await fixtureApi.withActionsQueueFixture( 'ignored_cloaked_plugins', async ( fixture ) => {
-		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
-		const bucket = await actionsQueuePage.waitForBucket( fixture.bucket_key );
-		await actionsQueuePage.clickElement( bucket );
-		const cloaked = await actionsQueuePage.waitForGroupOuter( fixture.group_key );
-		await expect( cloaked ).toHaveAttribute( 'data-drill-target', 'detail' );
-		await expect( cloaked ).toHaveAttribute( 'data-drill-group-selection', /"key":"hidden_plugins"/ );
+		const detailLayer = page.locator( '[data-actions-landing="1"] [data-drill-layer-key="detail"]' ).first();
+		await actionsQueuePage.showSectionsView();
 
+		const cloaked = await actionsQueuePage.waitForLandingGroupOuter( fixture.group_key );
+		expect( await cloaked.evaluate( ( element ) => element.tagName ) ).toBe( 'DIV' );
+		await expect( cloaked ).not.toHaveAttribute( 'data-drill-target' );
+		await expect( cloaked ).not.toHaveAttribute( 'data-drill-bucket-selection' );
+		await expect( cloaked ).not.toHaveAttribute( 'data-drill-group-selection' );
+		await expect.poll( async () => await cloaked.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'default' );
 		await actionsQueuePage.clickElement( cloaked );
-		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-		const action = await operatorContextAjaxAction(
-			page.locator( '[data-actions-queue-detail="1"]' ),
-			( candidate ) => candidate?.ex === 'cloaked_plugin_unignore'
-		);
-		expect( action ).not.toBeNull();
-		await expect( action ).toBeVisible();
+		await delay( 250 );
+		await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
+
+		const abandoned = await actionsQueuePage.waitForLandingGroupOuter( 'abandoned' );
+		await expect.poll( async () => await abandoned.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'default' );
+		// Each vulnerable plugin or theme is listed in the queue itself, with its actions.
+		const vulnerabilities = await actionsQueuePage.waitForLandingGroupOuter( 'vulnerabilities' );
+		await expect( vulnerabilities ).not.toHaveAttribute( 'data-drill-target' );
+		const vulnerable = vulnerabilities.locator( '.actions-queue-row--item' );
+		await expect( vulnerable.first() ).toBeVisible();
+		await expect( vulnerable.first().locator( 'a.actions-queue-row__button' ).first() ).toBeVisible();
 	} );
 } );
 
-test( 'actions queue warning breadcrumb uses warning palette', async ( { page, fixtureApi } ) => {
+test( 'actions queue warning lane uses warning palette', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withDashboardDefaultsFixture( async () => {
 		await fixtureApi.prepareDashboardActionsAllClearFixture();
 		await fixtureApi.prepareDashboardMaintenanceWarningFixture();
@@ -319,18 +297,17 @@ test( 'actions queue warning breadcrumb uses warning palette', async ( { page, f
 			nav_sub: 'overview',
 		} );
 
-		const reviewBucket = await actionsQueuePage.waitForBucket( 'review' );
-		await actionsQueuePage.clickElement( reviewBucket );
-		await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
-
-		const activeBreadcrumb = page.locator( '[data-operator-step-tab="1"][aria-current="step"]' );
-		await expect( activeBreadcrumb ).toHaveAttribute( 'data-color-key', 'warning' );
+		const review = actionsQueuePage.landingSection( 'review' );
+		await expect( review ).toBeVisible();
+		await expect( review ).toHaveClass( /status-warning/ );
+		// The lane's header carries the warning tint and text colour.
+		const head = review.locator( '[data-actions-queue-section-toggle="1"]' );
 		await expect.poll(
-			async () => activeBreadcrumb.evaluate( ( el ) => window.getComputedStyle( el ).backgroundColor )
-		).toBe( 'rgb(237, 180, 29)' );
+			async () => head.evaluate( ( el ) => window.getComputedStyle( el ).backgroundColor )
+		).toBe( 'rgb(254, 246, 230)' );
 		await expect.poll(
-			async () => activeBreadcrumb.evaluate( ( el ) => window.getComputedStyle( el ).color )
-		).toBe( 'rgb(29, 35, 39)' );
+			async () => head.evaluate( ( el ) => window.getComputedStyle( el ).color )
+		).toBe( 'rgb(148, 98, 0)' );
 	} );
 } );
 
@@ -340,12 +317,10 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 		nav_sub: 'overview',
 	} );
 
-	await expect( page.locator( '[data-healthy-disclosure-toggle="1"]' ) ).toHaveCount( 0 );
-	await expect( page.locator( '[data-healthy-disclosure-body="1"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
 
 	const zone = page.locator(
-		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"secadmin\\""]'
+		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"control\\""]'
 	).first();
 	await expect( zone ).toBeVisible();
 
@@ -353,81 +328,98 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
 	await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
 	const configureTabs = page.locator( '[data-operator-step-tab="1"]' );
-	await expect( configureTabs ).toHaveCount( 3 );
+	await expect( configureTabs ).toHaveCount( 2 );
 	await expect( configureTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
-	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-configure-tab="control"]' ) ).toHaveAttribute( 'aria-current', 'page' );
 	const rail = page.locator( '[data-operator-context-rail="1"]' );
 	await expect( rail ).toBeHidden();
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-drill-target="editor"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] .zone-summary-header' ) ).toHaveCount( 0 );
-	const expandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' ).first();
+	// The goal lists its components beside the one that's open, the first to start with; opening another shows it.
+	const expandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' ).nth( 1 );
 	const expandButton = expandRow.locator( '[data-shield-expand-trigger="1"]' );
 	await expect( expandRow ).not.toHaveAttribute( 'role', 'button' );
 	await expect( expandRow ).not.toHaveAttribute( 'tabindex', '0' );
-	await expect( expandButton.locator( '.shield-detail-row__expand-cta' ) ).toBeVisible();
+	await expect( expandButton ).toBeVisible();
 	await expect( expandButton ).toHaveAttribute( 'aria-expanded', 'false' );
 	await expandButton.click();
 	await expect( expandButton ).toHaveAttribute( 'aria-expanded', 'true' );
 	await expect( page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show' ).first() ).toBeVisible();
 	const visibleExpandedForms = page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show form.options_form_for' );
 	await expect( visibleExpandedForms.first() ).toBeVisible();
-	await page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show .shield-detail-expansion__btn-save' )
-		.first()
-		.click();
-	await expect( visibleExpandedForms ).toHaveCount( 0, { timeout: 20_000 } );
+	const saveBar = page.locator( '[data-configure-diagnosis="1"] [data-configure-savebar="1"]' );
+	await expect( saveBar ).toBeHidden();
+	const firstSwitch = () => visibleExpandedForms.first().locator( '.form-switch input[type="checkbox"]:not([disabled])' ).first();
+	await firstSwitch().click();
+	await expect( saveBar ).toBeVisible();
+	await saveBar.locator( '[data-configure-savebar-save="1"]' ).click();
+	await expect( saveBar ).toBeHidden( { timeout: 20_000 } );
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
-	await expect( configureTabs ).toHaveCount( 3 );
-	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toBeVisible();
+	await expect( configureTabs ).toHaveCount( 2 );
+	await expect( page.locator( '[data-configure-tab="control"]' ) ).toHaveAttribute( 'aria-current', 'page' );
 	await expect( rail ).toBeHidden();
-	const refreshedExpandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' ).first();
-	const refreshedExpandButton = refreshedExpandRow.locator( '[data-shield-expand-trigger="1"]' );
-	await expect( refreshedExpandButton.locator( '.shield-detail-row__expand-cta' ) ).toBeVisible();
-	await refreshedExpandButton.click();
-	await expect( refreshedExpandButton ).toHaveAttribute( 'aria-expanded', 'true' );
-	await expect( visibleExpandedForms.first() ).toBeVisible();
-	await refreshedExpandRow.locator( '.shield-detail-row__title' ).click();
-	await expect( refreshedExpandButton ).toHaveAttribute( 'aria-expanded', 'false' );
-	await expect( visibleExpandedForms ).toHaveCount( 0 );
-	await refreshedExpandRow.locator( '.shield-detail-row__title' ).click();
-	await expect( refreshedExpandButton ).toHaveAttribute( 'aria-expanded', 'true' );
-	await expect( visibleExpandedForms.first() ).toBeVisible();
-	await refreshedExpandButton.press( 'Enter' );
-	await expect( refreshedExpandButton ).toHaveAttribute( 'aria-expanded', 'false' );
-	await expect( visibleExpandedForms ).toHaveCount( 0 );
-	await refreshedExpandButton.press( 'Space' );
-	await expect( refreshedExpandButton ).toHaveAttribute( 'aria-expanded', 'true' );
-	await expect( visibleExpandedForms.first() ).toBeVisible();
+	// Refreshed, the list opens its first component again and keeps exactly one open; the keyboard moves
+	// between components, and a click anywhere on a row opens it.
+	const refreshedRows = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' );
+	const firstButton = refreshedRows.nth( 0 ).locator( '[data-shield-expand-trigger="1"]' );
+	const secondButton = refreshedRows.nth( 1 ).locator( '[data-shield-expand-trigger="1"]' );
+	await expect( firstButton ).toHaveAttribute( 'aria-expanded', 'true', { timeout: 20_000 } );
+	await secondButton.press( 'Enter' );
+	await expect( secondButton ).toHaveAttribute( 'aria-expanded', 'true' );
+	await expect( firstButton ).toHaveAttribute( 'aria-expanded', 'false' );
+	await firstButton.press( 'Space' );
+	await expect( firstButton ).toHaveAttribute( 'aria-expanded', 'true' );
+	await expect( secondButton ).toHaveAttribute( 'aria-expanded', 'false' );
+	await refreshedRows.nth( 1 ).click();
+	await expect( secondButton ).toHaveAttribute( 'aria-expanded', 'true' );
+	await expect( visibleExpandedForms ).toHaveCount( 1 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-healthy-disclosure-toggle="1"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-healthy-disclosure-body="1"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] .shield-detail-row' ).first() ).toBeVisible();
 
-	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
-	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
+	await firstSwitch().click();
+	await saveBar.locator( '[data-configure-savebar-save="1"]' ).click();
+	await expect( saveBar ).toBeHidden( { timeout: 20_000 } );
+
+	await page.locator( '[data-configure-tab="search"]' ).click();
+	await expect( page.locator( '[data-configure-search-input="1"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeHidden();
 } );
 
-test( 'returning to configure keeps the focused zone card outline visible and on-palette', async ( { page } ) => {
+test( 'configure goals are tabs, and the Search tab returns to the search', async ( { page } ) => {
 	await openShieldRoute( page, {
 		nav: 'zones',
 		nav_sub: 'overview',
 	} );
 
-	const zone = page.locator(
-		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"secadmin\\""]'
-	).first();
-	await zone.click();
+	await expect( page.locator( '[data-configure-tab="search"]' ) ).toHaveAttribute( 'aria-current', 'page' );
+	await page.locator( '[data-configure-tab="control"]' ).click();
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-configure-tab="control"]' ) ).toHaveAttribute( 'aria-current', 'page' );
+	await expect( page.locator( '[data-configure-search-input="1"]' ) ).toBeHidden();
 
-	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
-	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
-	await expect( zone ).toBeFocused();
-	await expectCardFocusRingWithinGrid( zone, '.configure-zones__grid', expect );
+	// Another goal opens in place.
+	await page.locator( '[data-configure-tab="alerts"]' ).click();
+	await expect( page.locator( '[data-configure-diagnosis="1"][data-configure-zone="alerts"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-configure-tab="alerts"]' ) ).toHaveAttribute( 'aria-current', 'page' );
+
+	// A filter carries to the next goal, and fades the goals with nothing for it.
+	await page.locator( '[data-configure-diagnosis="1"] [data-configure-zone-filter="1"]' ).fill( 'email' );
+	await expect( page.locator( '[data-configure-tab="spam"]' ) ).toHaveClass( /is-faded/ );
+	await expect( page.locator( '[data-configure-tab="accounts"]' ) ).not.toHaveClass( /is-faded/ );
+	await page.locator( '[data-configure-tab="accounts"]' ).click();
+	await expect( page.locator( '[data-configure-diagnosis="1"][data-configure-zone="accounts"] [data-configure-zone-filter="1"]' ) ).toHaveValue( 'email' );
+
+	await page.locator( '[data-configure-tab="search"]' ).click();
+	await expect( page.locator( '[data-configure-search-input="1"]' ) ).toBeFocused();
+	await expect( page.locator( '[data-configure-tab="spam"]' ) ).not.toHaveClass( /is-faded/ );
 } );
 
 test( 'configure opens a prefetched diagnosis without a standalone diagnosis request', async ( { page } ) => {
 	let directDiagnosisRequestCount = 0;
 
 	await page.route( '**/admin-ajax.php*', async ( route ) => {
-		if ( isConfigureDiagnosisDirectRequest( route.request(), 'secadmin' ) ) {
+		if ( isConfigureDiagnosisDirectRequest( route.request(), 'control' ) ) {
 			directDiagnosisRequestCount++;
 		}
 
@@ -441,12 +433,12 @@ test( 'configure opens a prefetched diagnosis without a standalone diagnosis req
 	await page.waitForLoadState( 'networkidle' );
 
 	const zone = page.locator(
-		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"secadmin\\""]'
+		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"control\\""]'
 	).first();
 	await expect( zone ).toBeVisible();
 
 	await zone.click();
-	await expect( page.locator( '[data-configure-diagnosis="1"][data-configure-zone="secadmin"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-configure-diagnosis="1"][data-configure-zone="control"]' ) ).toBeVisible();
 	expect( directDiagnosisRequestCount ).toBe( 0 );
 } );
 
@@ -473,14 +465,14 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	const searchBody = page.locator( '[data-configure-search-body="1"]' );
 	const firstZoneCard = page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first();
 	await expect( searchInput ).toBeVisible();
-	await expect( searchDock ).toHaveAttribute( 'data-configure-search-state', 'idle' );
+	await expect( searchDock ).toHaveAttribute( 'data-search-state', 'idle' );
 	const zoneTopBefore = ( await firstZoneCard.boundingBox() )?.y || 0;
 
 	const firstSearchRequest = page.waitForRequest( ( request ) => isConfigureSearchRequest( request, 'scan frequency' ) );
 	const firstSearchResponse = page.waitForResponse( ( response ) => isConfigureSearchResponse( response, 'scan frequency' ) );
 	await searchInput.fill( 'scan frequency' );
 	await firstSearchRequest;
-	await expect( searchDock ).toHaveAttribute( 'data-configure-search-state', 'loading' );
+	await expect( searchDock ).toHaveAttribute( 'data-search-state', 'loading' );
 	await expect( searchBody ).toHaveAttribute( 'aria-busy', 'true' );
 
 	const secondSearchRequest = page.waitForRequest( ( request ) => isConfigureSearchRequest( request, 'comments cooldown' ) );
@@ -489,25 +481,25 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	await secondSearchRequest;
 	await Promise.all( [ firstSearchResponse, secondSearchResponse ] );
 
-	const optionResult = page.locator( '[data-configure-search-results="1"] a[href*="config_item=comments_cooldown"]' )
+	const optionResult = page.locator( '[data-search-results="1"] a[href*="config_item=comments_cooldown"]' )
 		.first();
 	await expect( optionResult ).toBeVisible( { timeout: 20_000 } );
 	await expect( optionResult ).toBeVisible();
-	await expect( searchDock ).toHaveAttribute( 'data-configure-search-state', 'ready' );
+	await expect( searchDock ).toHaveAttribute( 'data-search-state', 'ready' );
 	await expect( searchBody ).toHaveAttribute( 'aria-busy', 'false' );
 	await expect(
-		page.locator( '[data-configure-search-results="1"] a[href*="config_item=scan_frequency"]' )
+		page.locator( '[data-search-results="1"] a[href*="config_item=scan_frequency"]' )
 	).toHaveCount( 0 );
-	await expect( optionResult.locator( '.configure-search-results__icon i' ) ).toHaveClass( /bi/ );
-	await expect( optionResult.locator( '.configure-search-results__type' ) ).toHaveClass( /configure-search-results__type--option/ );
+	// Settings are the norm, so only goals carry a type label.
+	await expect( optionResult.locator( '.shield-search-results__type' ) ).toHaveCount( 0 );
 	const zoneTopAfter = ( await firstZoneCard.boundingBox() )?.y || 0;
 	expect( Math.abs( zoneTopAfter - zoneTopBefore ) ).toBeLessThan( 2 );
-	await expect( optionResult ).toHaveAttribute( 'href', /row_key=general_settings/ );
+	await expect( optionResult ).toHaveAttribute( 'href', /row_key=comment_spam/ );
 	await expect( optionResult ).toHaveAttribute( 'href', /config_item=comments_cooldown/ );
 	const optionHref = await optionResult.getAttribute( 'href' );
 	const targetUrl = new URL( optionHref, 'https://example.test' );
 	const targetRowKey = targetUrl.searchParams.get( 'row_key' ) || '';
-	expect( targetRowKey ).toBe( 'general_settings' );
+	expect( targetRowKey ).toBe( 'comment_spam' );
 	await page.evaluate( () => {
 		window.__configureSearchSentinel = 'in-place-search';
 	} );
@@ -519,11 +511,11 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	await expect( targetExpansion ).toHaveClass( /show/, { timeout: 20_000 } );
 	await expect.poll( () => new URL( page.url() ).searchParams.get( 'zone' ) || '' ).toBe( 'spam' );
 	await expect(
-		page.locator( `[data-configure-row-key="${targetRowKey}"] form.options_form_for [name="comments_cooldown"]` ).first()
+		page.locator( `[data-configure-row-key="${targetRowKey}"] form.options_form_for [id="Opt-comments_cooldown"]` ).first()
 	).toBeVisible( { timeout: 20_000 } );
 	expect( await page.evaluate( () => window.__configureSearchSentinel ) ).toBe( 'in-place-search' );
 	await expect( searchInput ).toHaveValue( '' );
-	await expect( searchDock ).toHaveAttribute( 'data-configure-search-state', 'idle' );
+	await expect( searchDock ).toHaveAttribute( 'data-search-state', 'idle' );
 	await expect.poll( () => new URL( page.url() ).searchParams.get( 'row_key' ) || '' ).toBe( '' );
 	await expect.poll( () => new URL( page.url() ).searchParams.get( 'config_item' ) || '' ).toBe( '' );
 
@@ -541,10 +533,7 @@ test( 'actions queue refreshes the same direct table after a scan-results cleanu
 		} );
 
 		await actionsQueuePage.drillToDetail( fixture );
-		const rail = page.locator( '[data-operator-context-rail="1"]' );
 		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
-		await expect( rail ).toBeVisible();
-		await expect( rail ).toHaveAccessibleName( /\S/ );
 		await expect( scanResultsTable ).toBeVisible();
 		await waitForScanResultsTableRows( scanResultsTable );
 		await scanResultsTable.evaluate( ( table ) => {
@@ -554,13 +543,12 @@ test( 'actions queue refreshes the same direct table after a scan-results cleanu
 		} );
 
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-		await expect( rail ).toBeVisible( { timeout: 20_000 } );
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
 		await expect( scanResultsTable ).toBeVisible();
 	} );
 } );
 
-test( 'actions queue ignores all results from the context rail and refreshes the direct table in place', async ( { page, fixtureApi } ) => {
+test( 'actions queue ignores all results from the table actions column and refreshes the direct table in place', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
@@ -569,19 +557,15 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 		} );
 
 		await actionsQueuePage.drillToDetail( fixture );
-		const rail = page.locator( '[data-operator-context-rail="1"]' );
-		const ignoreAllAction = await operatorContextAjaxAction(
-			rail,
-			( action ) => action?.sub_action === 'ignore_all'
-		);
 		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
+		const actionsColumn = page.locator( '[data-actions-queue-detail="1"] .scan-results-actions' ).first();
+		const ignoreAllAction = actionsColumn.locator( '.all-ignore' );
 		const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
 		const ignoredFilter = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
-		await expect( rail ).toBeVisible();
-		await expect( rail ).toHaveAccessibleName( /\S/ );
+		await expect( actionsColumn ).toHaveAccessibleName( /\S/ );
 
 		await waitForScanResultsTableRows( scanResultsTable );
-		expect( ignoreAllAction ).not.toBeNull();
+		await expect( ignoreAllAction ).toBeEnabled();
 		await expect( displayCollection ).toBeVisible();
 		await displayCollection.click();
 		await ignoredFilter.click();
@@ -614,13 +598,6 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 		await expect( ignoreAllAction ).toBeFocused();
 		await expect.poll( () => nativeDialogCount ).toBe( 0 );
 		await expect.poll( () => ignoreAllRequestCount, { timeout: 1000 } ).toBe( 0 );
-		await expect.poll(
-			async () => await hasOperatorContextAjaxAction(
-				rail,
-				( action ) => action?.sub_action === 'ignore_all'
-			),
-			{ timeout: 1000 }
-		).toBe( true );
 
 		const requestsBeforeConfirm = ignoreAllRequestCount;
 		await ignoreAllAction.evaluate( ( action ) => {
@@ -636,14 +613,6 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 		await expect.poll( () => nativeDialogCount ).toBe( 0 );
 		await expect.poll( () => ignoreAllRequestCount ).toBe( requestsBeforeConfirm + 1 );
-		await expect.poll(
-			async () => await hasOperatorContextAjaxAction(
-				rail,
-				( action ) => action?.sub_action === 'ignore_all'
-			),
-			{ timeout: 20_000 }
-		).toBe( false );
-		await expect( rail ).toBeHidden( { timeout: 20_000 } );
 		await expect( displayCollection ).toBeVisible();
 		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_ignored":true/, { timeout: 20_000 } );
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
@@ -694,14 +663,15 @@ test( 'actions queue plugin reinstall shows a blocking processing dialog', async
 			} );
 
 			await actionsQueuePage.drillToDetail( fixture );
-			const rail = page.locator( '[data-operator-context-rail="1"]' );
-			const reinstallAction = await operatorContextAjaxAction(
-				rail,
-				( action ) => action?.ex === 'plugin_reinstall'
-			);
-			expect( reinstallAction ).not.toBeNull();
-			const processingText = await reinstallAction.getAttribute( 'data-operator-context-action-processing' );
+			// Reinstalling the plugin is among the results table's own actions.
+			const scanResultsTable = page.locator( '[data-actions-queue-detail="1"] [data-scan-results-table="1"]' ).first();
+			const assetActions = JSON.parse( await scanResultsTable.getAttribute( 'data-asset-actions' ) || '{}' );
+			const reinstall = ( assetActions.actions || [] ).find( ( action ) => JSON.parse( action.ajax_action_json || '{}' ).ex === 'plugin_reinstall' );
+			expect( reinstall ).toBeTruthy();
+			const processingText = reinstall.processing_text;
 			expect( processingText || '' ).not.toHaveLength( 0 );
+			const reinstallAction = page.locator( '[data-actions-queue-detail="1"] .scan-results-actions button', { hasText: reinstall.label } ).first();
+			await expect( reinstallAction ).toBeVisible();
 
 			await reinstallAction.click();
 			const dialog = page.locator( '[data-shield-accessible-dialog="1"][aria-modal="true"]:not([aria-hidden="true"])' );
@@ -736,7 +706,7 @@ test( 'actions queue plugin reinstall shows a blocking processing dialog', async
 	} );
 } );
 
-test( 'actions queue ignores all malware results from the context rail without replacing the direct table', async ( { page, fixtureApi } ) => {
+test( 'actions queue ignores all malware results from the table actions column without replacing the direct table', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'malware_direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
@@ -745,15 +715,13 @@ test( 'actions queue ignores all malware results from the context rail without r
 		} );
 
 		await actionsQueuePage.drillToDetail( fixture );
-		const rail = page.locator( '[data-operator-context-rail="1"]' );
-		const ignoreAllAction = await operatorContextAjaxAction(
-			rail,
-			( action ) => action?.sub_action === 'ignore_all'
-		);
+		const ignoreAllAction = page.locator( '[data-actions-queue-detail="1"] .scan-results-actions .all-ignore' ).first();
 		const scanResultsTable = page.locator( '[data-actions-queue-detail="1"] [data-scan-results-table="1"]' ).first();
 
 		await waitForScanResultsTableRows( scanResultsTable );
-		expect( ignoreAllAction ).not.toBeNull();
+		await expect( ignoreAllAction ).toBeEnabled();
+		// Nothing is selected yet, so the actions on a selection wait.
+		await expect( page.locator( '[data-actions-queue-detail="1"] .scan-results-actions .repair' ).first() ).toBeDisabled();
 
 		await ignoreAllAction.click();
 		const confirmModal = page.locator( '[data-shield-accessible-dialog="1"][aria-modal="true"]:not([aria-hidden="true"])' );
@@ -767,13 +735,7 @@ test( 'actions queue ignores all malware results from the context rail without r
 		await expect( scanResultsTable ).toBeVisible();
 		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"ignored_only":false/, { timeout: 20_000 } );
 		await waitForScanResultsTableEmpty( scanResultsTable );
-		await expect.poll(
-			async () => await hasOperatorContextAjaxAction(
-				rail,
-				( action ) => action?.sub_action === 'ignore_all'
-			),
-			{ timeout: 20_000 }
-		).toBe( false );
+		await expect( page.locator( '[data-actions-queue-detail="1"] .scan-results-actions .all-ignore' ).first() ).toBeDisabled();
 	} );
 } );
 
@@ -797,10 +759,8 @@ test( 'actions queue ignores all malware results from the context rail without r
 			const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
 			const ignoredToggle = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
 
-			await expect( rail ).toBeVisible();
-			if ( scenario.name === 'plugin' ) {
-				await expect( rail ).toContainText( /ignored/i );
-			}
+			// Every action, including reinstalling a plugin or theme, is in the table's own column.
+			await expect( rail ).toBeHidden();
 			await waitForScanResultsTableRows( scanResultsTable );
 			await expect( displayCollection ).toBeVisible();
 			await expectScanResultsDisplayOptions( scanResultsTable, {

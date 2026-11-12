@@ -2,17 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\LicenseLookup;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginSetOpt;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\MainwpServerClientActionHandler as H;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\{
-	SiteActionActivate,
-	SiteActionDeactivate,
-	SiteActionInstall,
-	SiteActionSync,
-	SiteActionUpdate,
-	SiteCustomAction
-};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\{
@@ -39,30 +30,21 @@ class BaseSubPage extends BaseMWP {
 		$name = self::con()->labels->Name;
 		return [
 			'vars'    => [
-				'menu_topnav'  => $this->getMenuTopNavItems(),
-				'site_actions' => \array_map(
-					fn( $action ) => wp_json_encode( \is_array( $action ) ? $action : [ 'site_action_slug' => $action ] ),
-					$this->getSiteActions()
-				),
+				'menu_topnav' => $this->getMenuTopNavItems(),
 			],
 			'strings' => [
-				'manage'              => __( 'Manage', 'wp-simple-firewall' ),
-				'site'                => __( 'Site', 'wp-simple-firewall' ),
-				'url'                 => CommonDisplayStrings::get( 'url_label' ),
-				'issues'              => __( 'Issues', 'wp-simple-firewall' ),
-				'status'              => __( 'Status', 'wp-simple-firewall' ),
-				'last_sync'           => __( 'Last Sync', 'wp-simple-firewall' ),
-				'last_scan'           => __( 'Last Scan', 'wp-simple-firewall' ),
-				'version'             => CommonDisplayStrings::get( 'version_label' ),
-				'connected'           => __( 'Connected', 'wp-simple-firewall' ),
-				'disconnected'        => __( 'Disconnected', 'wp-simple-firewall' ),
-				'with_issues'         => __( 'With Issues', 'wp-simple-firewall' ),
-				'needs_update'        => __( 'Needs Update', 'wp-simple-firewall' ),
-				'st_inactive'         => sprintf( __( '%s plugin is installed but not activated.', 'wp-simple-firewall' ), $name ),
-				'st_notinstalled'     => sprintf( __( "%s plugin not detected in last sync.", 'wp-simple-firewall' ), $name ),
-				'st_notpro'           => sprintf( __( "%s isn't activated on this site.", 'wp-simple-firewall' ), $name ),
-				'st_mwpnoton'         => sprintf( __( "%s's MainWP integration isn't enabled for this site.", 'wp-simple-firewall' ), $name ),
-				'st_client_older'     => sprintf( '%s: %s',
+				'site'            => __( 'Site', 'wp-simple-firewall' ),
+				'url'             => CommonDisplayStrings::get( 'url_label' ),
+				'issues'          => __( 'Issues', 'wp-simple-firewall' ),
+				'status'          => __( 'Status', 'wp-simple-firewall' ),
+				'last_sync'       => __( 'Last Sync', 'wp-simple-firewall' ),
+				'version'         => CommonDisplayStrings::get( 'version_label' ),
+				'connected'       => __( 'Connected', 'wp-simple-firewall' ),
+				'st_inactive'     => sprintf( __( '%s plugin is installed but not activated.', 'wp-simple-firewall' ), $name ),
+				'st_notinstalled' => sprintf( __( "%s plugin not detected in last sync.", 'wp-simple-firewall' ), $name ),
+				'st_notpro'       => sprintf( __( "%s isn't activated on this site.", 'wp-simple-firewall' ), $name ),
+				'st_mwpnoton'     => sprintf( __( "%s's MainWP integration isn't enabled for this site.", 'wp-simple-firewall' ), $name ),
+				'st_client_older' => sprintf( '%s: %s',
 					__( "Version Mismatch", 'wp-simple-firewall' ),
 					sprintf( __( "The %s plugin version on the client site is older than this server and must be updated.", 'wp-simple-firewall' ), $name )
 				),
@@ -74,23 +56,23 @@ class BaseSubPage extends BaseMWP {
 				'st_version_mismatch' => sprintf( __( '%s plugin versions are out of sync.', 'wp-simple-firewall' ), $name ),
 				'st_unknown'          => sprintf( __( "Couldn't determine %s plugin status.", 'wp-simple-firewall' ), $name ),
 				'actions'             => [
-					'sync'       => sprintf( __( 'Sync %s', 'wp-simple-firewall' ), $name ),
-					'activate'   => sprintf( __( 'Activate %s', 'wp-simple-firewall' ), $name ),
-					'align'      => sprintf( __( 'Align %s', 'wp-simple-firewall' ), $name ),
-					'deactivate' => sprintf( __( 'Deactivate %s', 'wp-simple-firewall' ), $name ),
-					'install'    => sprintf( __( 'Install %s', 'wp-simple-firewall' ), $name ),
-					'update'     => sprintf( __( 'Update %s', 'wp-simple-firewall' ), $name ),
-					'uninstall'  => sprintf( __( 'Uninstall %s', 'wp-simple-firewall' ), $name ),
-					'license'    => sprintf( __( 'Check %s License', 'wp-simple-firewall' ), $name ),
-					'mwp_on'     => __( 'Switch-On MainWP Integration', 'wp-simple-firewall' ),
+					H::OP_SYNC       => sprintf( __( 'Sync %s', 'wp-simple-firewall' ), $name ),
+					H::OP_ACTIVATE   => sprintf( __( 'Activate %s', 'wp-simple-firewall' ), $name ),
+					H::OP_DEACTIVATE => sprintf( __( 'Deactivate %s', 'wp-simple-firewall' ), $name ),
+					H::OP_INSTALL    => sprintf( __( 'Install %s', 'wp-simple-firewall' ), $name ),
+					H::OP_UPDATE     => sprintf( __( 'Update %s', 'wp-simple-firewall' ), $name ),
+					H::OP_LICENSE    => sprintf( __( 'Check %s License', 'wp-simple-firewall' ), $name ),
+					H::OP_MWP_ON     => __( 'Switch-On MainWP Integration', 'wp-simple-firewall' ),
 				],
 			]
 		];
 	}
 
+	/**
+	 * The tab the extension page loader checked and passed down.
+	 */
 	protected function getCurrentTab() :string {
-		$req = Services::Request();
-		return empty( $req->query( 'tab' ) ) ? 'sites' : $req->query( 'tab' );
+		return $this->getTextInputFromActionData( 'current_tab', TabSitesListing::TAB );
 	}
 
 	protected function getJumpUrlFor( string $siteID, string $page ) :string {
@@ -109,32 +91,6 @@ class BaseSubPage extends BaseMWP {
 		];
 	}
 
-	protected function getSiteActions() :array {
-		return [
-			'sync'       => SiteActionSync::SLUG,
-			'activate'   => SiteActionActivate::SLUG,
-			'deactivate' => SiteActionDeactivate::SLUG,
-			'install'    => SiteActionInstall::SLUG,
-			'update'     => SiteActionUpdate::SLUG,
-			'license'    => [
-				'site_action_slug'   => SiteCustomAction::SLUG,
-				'site_action_params' => [
-					'sub_action_slug' => LicenseLookup::SLUG,
-				],
-			],
-			'mwp_on'     => [
-				'site_action_slug'   => SiteCustomAction::SLUG,
-				'site_action_params' => [
-					'sub_action_slug'   => PluginSetOpt::SLUG,
-					'sub_action_params' => [
-						'opt_key'   => 'enable_mainwp',
-						'opt_value' => 'Y',
-					],
-				],
-			],
-		];
-	}
-
 	protected function getExtensionRootUri() :string {
 		$mwp = self::con()->mwpVO->official_extension_data;
 		return URL::Build( Services::Request()->getPath(), [
@@ -144,11 +100,6 @@ class BaseSubPage extends BaseMWP {
 
 	protected function createInternalExtensionHref( array $params ) :string {
 		return URL::Build( $this->getExtensionRootUri(), $params );
-	}
-
-	protected function getSites() :string {
-		$mwp = self::con()->mwpVO;
-		return apply_filters( 'mainwp_getsites', $mwp->child_file, $mwp->child_key );
 	}
 
 	/**

@@ -2,36 +2,40 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\QueryRemainingOffenses;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\{
 	ToggleSecAdminStatus,
 	VerifyPinRequest
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class SecurityAdminLogin extends SecurityAdminBase {
 
 	public const SLUG = 'sec_admin_login';
 
-	protected function exec() {
-		$resp = $this->response();
-		$success = false;
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
+	protected function exec() {
 		if ( self::con()->comps->sec_admin->isCurrentlySecAdmin() ) {
 			$success = true;
-			$resp->message = __( "You're already a Security Admin.", 'wp-simple-firewall' )
-							 .' '.__( 'Please wait a moment', 'wp-simple-firewall' ).' ...';
+			$message = __( "You're already a Security Admin.", 'wp-simple-firewall' )
+					   .' '.__( 'Please wait a moment', 'wp-simple-firewall' ).' ...';
 		}
 		else {
-			$pin = $this->action_data[ 'sec_admin_key' ] ?? '';
-			if ( empty( $pin ) ) {
-				$pin = FormParams::Retrieve()[ 'sec_admin_key' ] ?? '';
+			// The PIN arrives either as a field of its own or inside the submitted form.
+			$pin = $this->fields()->string( 'sec_admin_key', '' );
+			if ( $pin === '' ) {
+				$pin = $this->formFields()->string( 'sec_admin_key', '' );
 			}
 			$success = ( new VerifyPinRequest() )->run( $pin );
 
 			if ( $success ) {
 				( new ToggleSecAdminStatus() )->turnOn();
-				$resp->message = \implode( ' ', [
+				$message = \implode( ' ', [
 					__( 'Security Admin PIN Accepted.', 'wp-simple-firewall' ),
 					__( 'Reloading', 'wp-simple-firewall' ),
 					'...'
@@ -41,14 +45,15 @@ class SecurityAdminLogin extends SecurityAdminBase {
 				$remaining = ( new QueryRemainingOffenses() )
 					->setIP( self::con()->this_req->ip )
 					->run();
-				$resp->message = __( 'Security Admin PIN incorrect.', 'wp-simple-firewall' ).' ';
-				$resp->message .= $remaining > 0 ?
-					sprintf( __( 'Attempts remaining: %s.', 'wp-simple-firewall' ), $remaining )
-					: __( "No attempts remaining.", 'wp-simple-firewall' );
+				$message = __( 'Security Admin PIN incorrect.', 'wp-simple-firewall' ).' '
+						   .( $remaining > 0 ?
+						sprintf( __( 'Attempts remaining: %s.', 'wp-simple-firewall' ), $remaining )
+						: __( "No attempts remaining.", 'wp-simple-firewall' ) );
 			}
 		}
 
-		$resp->setPayload( [
+		$this->response()->setPayload( [
+			'message'      => $message,
 			'html'         => '',
 			'page_reload'  => true,
 			'redirect_url' => self::con()->plugin_urls->adminRefererOrHome(),

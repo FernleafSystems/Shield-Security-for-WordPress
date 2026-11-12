@@ -30,7 +30,7 @@ class CaptureAjaxActionTransportConsistencyIntegrationTest extends ShieldIntegra
 
 	public function test_post_transport_executes_ajax_render_request() :void {
 		$request = $this->buildScanResultsRenderRequest();
-		$this->applyCurrentShieldAjaxRequest( $request, false );
+		$this->applyCurrentShieldAjaxRequest( $request, true );
 
 		$subject = new CaptureAjaxActionTransportConsistencyTestDouble();
 		$issuePayload = $subject->buildIssuePayloadForTest();
@@ -41,6 +41,17 @@ class CaptureAjaxActionTransportConsistencyIntegrationTest extends ShieldIntegra
 		$this->assertTrue( (bool)( $issuePayload[ 'data' ][ 'success' ] ?? false ) );
 		$this->assertNotSame( '', \trim( (string)( $issuePayload[ 'data' ][ 'html' ] ?? '' ) ) );
 		$this->assertArrayNotHasKey( 'action_data', $issuePayload[ 'data' ] ?? [] );
+	}
+
+	public function test_ajax_render_of_security_admin_target_is_refused_without_security_admin() :void {
+		$request = $this->buildScanResultsRenderRequest();
+		$this->applyCurrentShieldAjaxRequest( $request, false );
+
+		$issuePayload = ( new CaptureAjaxActionTransportConsistencyTestDouble() )->buildIssuePayloadForTest();
+
+		$this->assertFalse( (bool)( $issuePayload[ 'success' ] ?? true ) );
+		$this->assertSame( 401, $issuePayload[ 'status_code' ] ?? null );
+		$this->assertArrayNotHasKey( 'html', $issuePayload[ 'data' ] ?? [] );
 	}
 
 	public function test_direct_render_action_slug_does_not_make_ajax_capture_runnable() :void {
@@ -74,9 +85,9 @@ class CaptureAjaxActionTransportConsistencyIntegrationTest extends ShieldIntegra
 
 		$subject = new CaptureAjaxActionTransportConsistencyTestDouble();
 		$this->assertTrue( $subject->canRunForTest() );
-		$this->expectException( \WPDieException::class );
-		$this->expectExceptionMessage( 'Unexpected data. Please try again.' );
-		$subject->buildIssuePayloadForTest();
+		$payload = $subject->buildIssuePayloadForTest();
+		$this->assertSame( 401, $payload[ 'status_code' ] ?? 0 );
+		$this->assertFalse( (bool)( $payload[ 'success' ] ?? true ) );
 	}
 
 	public function test_query_only_action_slug_does_not_steer_post_ajax_payload() :void {

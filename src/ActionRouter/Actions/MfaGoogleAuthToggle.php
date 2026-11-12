@@ -2,18 +2,26 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\GoogleAuth;
 
 class MfaGoogleAuthToggle extends MfaUserConfigBase {
 
 	public const SLUG = 'mfa_profile_toggle_ga';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
+		$otp = $this->fields()->string( 'ga_otp', '' );
+
 		$available = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var GoogleAuth $provider */
 		$provider = $available[ GoogleAuth::ProviderSlug() ];
 
-		$otp = $this->action_data[ 'ga_otp' ] ?? '';
 		$result = empty( $otp ) ? $provider->removeGA() : $provider->activateGA( $otp );
 
 		$this->response()->setPayload( [

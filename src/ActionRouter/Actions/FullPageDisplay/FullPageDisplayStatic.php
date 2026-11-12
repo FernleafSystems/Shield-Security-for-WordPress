@@ -12,5 +12,12 @@ abstract class FullPageDisplayStatic extends BaseFullPageDisplay {
 		] )->setPayloadSuccess( true );
 	}
 
+	/**
+	 * A static display supplies its own content, so it has no render target to check. Nothing a request sends
+	 * as one is looked at.
+	 */
+	protected function checkRenderTarget() :void {
+	}
+
 	abstract protected function retrieveContent() :string;
 }

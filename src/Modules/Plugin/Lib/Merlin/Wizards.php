@@ -7,14 +7,12 @@ class Wizards {
 	public const WIZARD_WELCOME = 'welcome';
 	public const WIZARD_STEPS_WELCOME = [
 		Steps\GuidedSetupWelcome::class,
+		Steps\ReportEmail::class,
+		Steps\SecurityAdmin::class,
 		Steps\License::class,
 		Steps\NewsletterSubscribe::class,
 		Steps\ApplySecurityProfile::class,
-		Steps\SecurityAdmin::class,
 		Steps\Integrations::class,
-//		Steps\BotBlocking::class,
-//		Steps\LoginProtection::class,
-//		Steps\CommentSpam::class,
 		Steps\SecurityBadge::class,
 		Steps\ThankYou::class,
 	];

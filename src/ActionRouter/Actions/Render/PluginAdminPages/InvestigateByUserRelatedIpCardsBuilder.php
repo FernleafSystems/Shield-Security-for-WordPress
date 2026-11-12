@@ -81,7 +81,7 @@ class InvestigateByUserRelatedIpCardsBuilder {
 			'investigate_href' => self::con()->plugin_urls->investigateByIp( $ip ),
 			'last_seen_ts'     => 0,
 			'last_seen_at'     => '',
-			'last_seen_ago'    => '',
+			'last_seen_ago'    => '-',
 			'sessions_count'   => 0,
 			'activity_count'   => 0,
 			'requests_count'   => 0,

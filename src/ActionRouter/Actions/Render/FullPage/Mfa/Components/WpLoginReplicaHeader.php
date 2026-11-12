@@ -16,9 +16,7 @@ class WpLoginReplicaHeader extends Base {
 		$isInterimLogin = $data[ 'interim_login' ] === '1';
 
 		// Don't index any of these forms.
-		if ( \function_exists( 'wp_robots_sensitive_page' ) ) {
-			add_filter( 'wp_robots', 'wp_robots_sensitive_page' );
-		}
+		add_filter( 'wp_robots', 'wp_robots_sensitive_page' );
 		if ( \function_exists( 'wp_strict_cross_origin_referrer' ) ) {
 			add_action( 'login_head', 'wp_strict_cross_origin_referrer' );
 		}
@@ -186,7 +184,6 @@ class WpLoginReplicaHeader extends Base {
 				'action_login_head'            => $actionLoginHead,
 				'action_login_header'          => $actionLoginHeader,
 				'meta_content_type'            => get_bloginfo( 'html_type' ),
-				'meta_charset'                 => get_bloginfo( 'charset' ),
 				'login_errors'                 => $loginErrors,
 				'login_messages'               => $loginMessages,
 			],

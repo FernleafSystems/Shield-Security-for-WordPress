@@ -26,6 +26,10 @@ export class ShieldAdminDialogService {
 		return this.dialog.content( config );
 	}
 
+	isOpen() {
+		return this.dialog.isOpen();
+	}
+
 	message( config = {} ) {
 		return this.dialog.message( config );
 	}

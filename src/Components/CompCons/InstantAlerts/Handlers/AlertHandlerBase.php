@@ -23,4 +23,12 @@ abstract class AlertHandlerBase {
 	public function isImmediateAlert() :bool {
 		return false;
 	}
+
+	/**
+	 * Whether this alert's pending data must wait rather than be emailed now. Held data stays queued and goes out
+	 * once this is false again.
+	 */
+	public function isSendHeld() :bool {
+		return false;
+	}
 }

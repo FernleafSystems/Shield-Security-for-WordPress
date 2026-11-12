@@ -139,6 +139,29 @@
 	color: $mode-actions;
 }
 
+// The open Actions Queue is red, amber or green, after its most severe item.
+.mode-item.active[data-mode="actions"][data-queue-status="warning"] {
+	background: #fef6e6;
+	border-color: #f0c96b;
+	box-shadow: inset 3px 0 0 #dba617;
+	color: #946200;
+
+	.mode-icon > i {
+		color: #dba617;
+	}
+}
+
+.mode-item.active[data-mode="actions"][data-queue-status="good"] {
+	background: #e6f5e6;
+	border-color: #b8dfb8;
+	box-shadow: inset 3px 0 0 #008000;
+	color: #006400;
+
+	.mode-icon > i {
+		color: #008000;
+	}
+}
+
 .mode-item.active[data-mode="investigate"] {
 	background: $mode-investigate-light;
 	border-color: $mode-investigate-border;
@@ -377,7 +400,23 @@ button.tool-item {
 	margin-bottom: 0.45rem;
 }
 
-.mode-item.active[data-mode="actions"] .mode-badge.status-warning,
+// The Actions Queue shows a count per severity: critical in red, warnings in amber, side by side.
+.mode-badges {
+	display: inline-flex;
+	gap: 3px;
+	margin-left: auto;
+
+	> .mode-badge {
+		margin-left: 0;
+	}
+}
+
+.mode-item .mode-badge.status-warning {
+	background: #fef6e6;
+	border-color: #f0c96b;
+	color: #946200;
+}
+
 .mode-item.active[data-mode="actions"] .mode-badge.status-critical,
 .mode-item.active[data-mode="actions"] .mode-badge.status-danger {
 	background: $mode-actions;
@@ -385,12 +424,10 @@ button.tool-item {
 	color: #ffffff;
 }
 
-.mode-item.active[data-mode="actions"] .mode-badge.status-good,
-.mode-item.active[data-mode="actions"] .mode-badge.status-info,
-.mode-item.active[data-mode="actions"] .mode-badge.status-neutral {
-	background: $mode-actions;
-	border-color: $mode-actions;
-	color: #ffffff;
+.mode-item.active[data-mode="actions"] .mode-badge.status-warning {
+	background: #edb41d;
+	border-color: #edb41d;
+	color: #3b2a00;
 }
 
 .mode-item.active[data-mode="investigate"] .mode-badge,
@@ -460,5 +497,82 @@ button.tool-item {
 	#PageMainSide-Apto:hover #NavSideBar .sidebar-connect-grid,
 	#PageMainSide-Apto:focus-within #NavSideBar .sidebar-connect-grid {
 		display: grid !important;
+	}
+}
+
+// ─── Dashboard sidebar footer: Live Monitor launcher and licence / upgrade link ───
+// The footer takes the free space so it sits at the bottom, just above Connect.
+.sidebar-home-footer {
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+	margin-top: auto;
+	padding-top: 0.75rem;
+
+	~ .sidebar-connect {
+		margin-top: 0.75rem;
+	}
+}
+
+.sidebar-live-monitor-launch {
+	background: none;
+	cursor: pointer;
+	text-align: left;
+	width: 100%;
+
+	&.active {
+		background: #f6f7f7;
+		border-color: #dcdcde;
+		font-weight: 600;
+	}
+}
+
+.sidebar-live-monitor-dot {
+	background: #8c8f94;
+	border-radius: 50%;
+	height: 0.45rem;
+	margin-left: auto;
+	width: 0.45rem;
+
+	.sidebar-live-monitor-launch.active & {
+		background: #00a32a;
+		box-shadow: 0 0 0 3px rgba(0, 163, 42, 0.18);
+	}
+}
+
+// On the free plan the licence link is the way to Pro: a warm gradient edge and a slow,
+// soft glow make it noticeable without flashing.
+.sidebar-license-item.is-free-plan {
+	background:
+		linear-gradient(135deg, #fbf8ff, #fff7fb) padding-box,
+		linear-gradient(135deg, #7a4cc2, #c84d82, #edb41d) border-box;
+	border: 1.5px solid transparent;
+	box-shadow: 0 0 0 0 rgba(122, 76, 194, 0.28);
+	animation: shield-pro-glow 3.2s ease-in-out infinite;
+
+	.sidebar-license-icon {
+		color: #7a4cc2;
+	}
+
+	.sidebar-license-title {
+		color: #4b2a85;
+	}
+
+	&:hover,
+	&:focus-visible {
+		box-shadow: 0 0 0 4px rgba(122, 76, 194, 0.18), 0 4px 14px rgba(122, 76, 194, 0.22);
+		animation: none;
+	}
+}
+
+@keyframes shield-pro-glow {
+	0%, 100% { box-shadow: 0 0 0 0 rgba(122, 76, 194, 0); }
+	50% { box-shadow: 0 0 14px 2px rgba(122, 76, 194, 0.38); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sidebar-license-item.is-free-plan {
+		animation: none;
+		box-shadow: 0 0 8px 0 rgba(122, 76, 194, 0.25);
 	}
 }

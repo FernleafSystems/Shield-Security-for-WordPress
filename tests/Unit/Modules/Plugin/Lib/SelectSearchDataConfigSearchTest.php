@@ -61,6 +61,10 @@ class SelectSearchDataConfigSearchTest extends BaseUnitTest {
 				return '/admin/'.$nav.'/'.$subnav;
 			}
 
+			public function setupGuide() :string {
+				return '/admin/zones/overview?setup_guide=open';
+			}
+
 			public function cfgForZoneComponent( string $componentSlug ) :string {
 				return '/zone-component/'.$componentSlug;
 			}

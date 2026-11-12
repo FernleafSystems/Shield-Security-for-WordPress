@@ -2,13 +2,14 @@ const { openShieldRoute, test, expect } = require( './support/shield-test' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 const { expectNamedDialog, expectFocusWithin } = require( './support/modal-accessibility' );
 const { expectNoAxeViolationsInDialog, parseShieldAjaxJson } = require( './support/security-assertions' );
-const groups = '[data-drill-layer-key="groups"][aria-hidden="false"]';
+// Protection tiles sit on the landing; after enabling one, focus returns to the landing layer.
+const landing = '[data-drill-layer-key="buckets"][aria-hidden="false"]';
 const detail = '[data-drill-layer-key="detail"][aria-hidden="false"]';
 
 async function openQueue( page, fixture ) {
 	const queue = new ActionsQueuePage( page );
 	await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
-	await ( await queue.waitForBucket( fixture.bucket_key ) ).click();
+	await queue.showSectionsView();
 	return queue;
 }
 async function openProtection( page, tile ) {
@@ -19,6 +20,19 @@ async function openProtection( page, tile ) {
 	return { dialog, config, toggle: dialog.getByRole( 'switch' ),
 		save: dialog.getByRole( 'button', { name: config.save_label, exact: true } ),
 		cancel: dialog.getByRole( 'button', { name: config.cancel_label, exact: true } ) };
+}
+// Each critical file has its own tab; open the first one whose file isn't locked yet.
+async function firstUnlockedFile( files ) {
+	const tabs = files.locator( '[role="tab"]' );
+	await expect( tabs.first() ).toBeVisible();
+	for ( let index = 0; index < await tabs.count(); index++ ) {
+		await tabs.nth( index ).click();
+		const lock = files.locator( '[data-enable-protection]:visible' ).first();
+		if ( await lock.waitFor( { state: 'visible', timeout: 2000 } ).then( () => true, () => false ) ) {
+			return lock;
+		}
+	}
+	throw new Error( 'No critical file is left to lock.' );
 }
 function isEnableRequest( request ) {
 	const p = new URLSearchParams( request.postData() || '' );
@@ -32,7 +46,7 @@ test( 'premium protection tiles enable individual scans and files with accessibl
 	await fixtureApi.withActionsQueueFixture( 'scan_enablement', async fixture => {
 		const queue = await openQueue( page, fixture );
 		for ( const key of [ 'malware', 'plugins', 'themes', 'wordpress', 'vulnerabilities', 'abandoned' ] ) {
-			const tile = await queue.waitForGroupOuter( key );
+			const tile = await queue.waitForLandingGroupOuter( key );
 			let c = await openProtection( page, tile );
 			await expect( c.save ).toBeDisabled();
 			if ( key === 'malware' ) {
@@ -43,12 +57,12 @@ test( 'premium protection tiles enable individual scans and files with accessibl
 			}
 			await c.toggle.check(); await c.save.click(); await expect( c.dialog ).not.toBeVisible();
 			await expect( page.locator( '[data-actions-queue-group-key="' + key + '"][data-enable-protection]' ) ).toHaveCount( 0 );
-			await expect( page.locator( groups ) ).toBeFocused();
+			await expect( page.locator( landing ) ).toBeFocused();
 		}
-		await ( await queue.waitForGroupOuter( 'file_locker' ) ).click();
+		await ( await queue.waitForLandingGroupOuter( 'file_locker' ) ).click();
 		const files = page.locator( '[data-actions-queue-asset-cards="1"]' );
 		for ( let index = 0; index < 2; index++ ) {
-			const c = await openProtection( page, files.locator( '[data-enable-protection]' ).first() );
+			const c = await openProtection( page, await firstUnlockedFile( files ) );
 			await c.toggle.check(); await c.save.click(); await expect( c.dialog ).not.toBeVisible();
 			await expect.poll( () => files.locator( '[data-enable-protection]' ).evaluateAll(
 				( tiles, key ) => tiles.some( el => JSON.parse( el.dataset.enableProtection ).action.file_key === key ), c.config.action.file_key
@@ -62,7 +76,7 @@ for ( const failure of [ 'rejected', 'network' ] ) {
 	test( 'protection save retains busy/error focus and permits retry: ' + failure, async ( { page, fixtureApi } ) => {
 		await fixtureApi.withActionsQueueFixture( 'scan_enablement', async fixture => {
 			const queue = await openQueue( page, fixture );
-			const c = await openProtection( page, await queue.waitForGroupOuter( 'malware' ) );
+			const c = await openProtection( page, await queue.waitForLandingGroupOuter( 'malware' ) );
 			let release;
 			const held = new Promise( resolve => { release = resolve; } );
 			let requests = 0;
@@ -91,7 +105,7 @@ for ( const failure of [ 'rejected', 'network' ] ) {
 				for ( const el of [ c.save, c.cancel, c.toggle ] ) await expect( el ).toBeEnabled();
 				await expect( c.save ).toBeFocused();
 				await c.save.click(); await expect( c.dialog ).not.toBeVisible();
-				await expect( page.locator( groups ) ).toBeFocused();
+				await expect( page.locator( landing ) ).toBeFocused();
 				await expect.poll( () => requests ).toBe( 2 );
 			} finally { release(); await pending; await page.unroute( '**/admin-ajax.php*', handler ); }
 		} );
@@ -102,7 +116,7 @@ for ( const outcome of [ 'removed', 'refresh_failure', 'focus_moved' ] ) {
 	test( 'protection refresh preserves a connected focus destination: ' + outcome, async ( { page, fixtureApi } ) => {
 		await fixtureApi.withActionsQueueFixture( 'scan_enablement', async fixture => {
 			const queue = await openQueue( page, fixture );
-			const c = await openProtection( page, await queue.waitForGroupOuter( 'malware' ) );
+			const c = await openProtection( page, await queue.waitForLandingGroupOuter( 'malware' ) );
 			let release;
 			const held = new Promise( resolve => { release = resolve; } );
 			let started = false;
@@ -110,7 +124,7 @@ for ( const outcome of [ 'removed', 'refresh_failure', 'focus_moved' ] ) {
 			let pending = Promise.resolve();
 			const handler = async route => {
 				const params = new URLSearchParams( route.request().postData() || '' );
-				if ( !started && params.get( 'render_slug' ) === 'actions_queue_drill_down_groups' ) {
+				if ( !started && params.get( 'ex' ) === 'actions_queue_refresh' ) {
 					started = true;
 					pending = ( async () => {
 					await held;
@@ -134,9 +148,8 @@ for ( const outcome of [ 'removed', 'refresh_failure', 'focus_moved' ] ) {
 				release(); await expect.poll( () => finished ).toBe( true );
 				if ( outcome === 'removed' ) await expect( page.locator( '#PageContainer-Apto' ) ).toBeFocused();
 				else {
-					await expect( page.locator( groups ) ).toHaveAttribute( 'aria-busy', 'false' );
 					if ( outcome === 'focus_moved' ) await expect( other ).toBeFocused();
-					else await expect( page.locator( groups ) ).toBeFocused();
+					else await expect( page.locator( landing ) ).toBeFocused();
 				}
 			} finally { release(); await pending; await page.unroute( '**/admin-ajax.php*', handler ); }
 		} );

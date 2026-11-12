@@ -2,21 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemUnignore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\InvalidActionNonceException;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueRefresh;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\SecurityAdminRequiredException;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ActionRequestNonceFixture;
+	use CurrentRequestFixture;
+	use ExternalEntryRefusalAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	private array $optionsSnapshot = [];
@@ -134,55 +135,38 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_ignore_action_requires_valid_nonce() :void {
 		$pluginFiles = $this->requireAtLeastInstalledPlugins( 1 );
 		$this->setPluginUpdatesAvailable( $pluginFiles );
-		$snapshot = $this->seedActionNonceContext( MaintenanceItemIgnore::class );
-		$this->mergeCurrentRequestTransport( [ 'exnonce' => '' ] );
+		$before = $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY );
 
-		try {
-			$this->expectException( InvalidActionNonceException::class );
-			( new ActionProcessor() )->processAction( MaintenanceItemIgnore::SLUG, [
-				'maintenance_key' => 'wp_plugins_updates',
-				'identifier'      => $pluginFiles[ 0 ],
-			] );
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		$this->assertAjaxRequestRefused( MaintenanceItemIgnore::class, [
+			'maintenance_key' => 'wp_plugins_updates',
+			'identifier'      => $pluginFiles[ 0 ],
+		] );
+
+		$this->assertSame( $before, $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ) );
 	}
 
 	public function test_ignore_action_rejects_invalid_nonce() :void {
 		$pluginFiles = $this->requireAtLeastInstalledPlugins( 1 );
 		$this->setPluginUpdatesAvailable( $pluginFiles );
-		$snapshot = $this->seedActionNonceContext( MaintenanceItemIgnore::class );
-		$this->mergeCurrentRequestTransport( [ 'exnonce' => 'invalid_nonce' ] );
+		$before = $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY );
 
-		try {
-			$this->expectException( InvalidActionNonceException::class );
-			( new ActionProcessor() )->processAction( MaintenanceItemIgnore::SLUG, [
-				'maintenance_key' => 'wp_plugins_updates',
-				'identifier'      => $pluginFiles[ 0 ],
-			] );
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		$this->assertAjaxRequestRefused( MaintenanceItemIgnore::class, [
+			'maintenance_key' => 'wp_plugins_updates',
+			'identifier'      => $pluginFiles[ 0 ],
+		], 'invalid_nonce' );
+
+		$this->assertSame( $before, $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ) );
 	}
 
 	public function test_ignore_action_requires_security_admin_even_with_valid_nonce() :void {
 		$pluginFiles = $this->requireAtLeastInstalledPlugins( 1 );
 		$this->setPluginUpdatesAvailable( $pluginFiles );
 		$this->loginAsAdministrator();
-		$snapshot = $this->seedActionNonceContext( MaintenanceItemIgnore::class );
-
-		try {
-			$this->expectException( SecurityAdminRequiredException::class );
-			( new ActionProcessor() )->processAction( MaintenanceItemIgnore::SLUG, [
-				'maintenance_key' => 'wp_plugins_updates',
-				'identifier'      => $pluginFiles[ 0 ],
-			] );
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		$this->expectException( SecurityAdminRequiredException::class );
+		( new ActionProcessor() )->processAction( MaintenanceItemIgnore::SLUG, [
+			'maintenance_key' => 'wp_plugins_updates',
+			'identifier'      => $pluginFiles[ 0 ],
+		] );
 	}
 
 	public function test_groups_refresh_keeps_selected_review_group_resolvable_after_it_becomes_healthy() :void {
@@ -199,14 +183,11 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 			$this->assertTrue( (bool)( $response[ 'success' ] ?? false ) );
 		}
 
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
-			'bucket'                  => 'review',
-			'group'                   => $selectedGroupKey,
-			'include_landing_refresh' => 1,
+		$payload = $this->processQueueRefresh( [
+			'bucket' => 'review',
+			'group'  => $selectedGroupKey,
 		] );
 
-		$this->assertArrayNotHasKey( 'render_data', $payload );
-		$this->assertArrayNotHasKey( 'render_output', $payload );
 		$this->assertSame( $selectedGroupKey, (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'maintenance', (string)( $payload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertSame(
@@ -216,21 +197,13 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( \count( $pluginFiles ), (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
 		$this->assertNotSame( '', \trim( (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) ) );
 		$this->assertArrayNotHasKey( 'queue_is_empty', $payload[ 'landing_refresh' ] ?? [] );
-		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
 	}
 
 	/**
 	 * @param class-string<MaintenanceItemIgnore|MaintenanceItemUnignore> $actionClass
 	 */
 	private function processMaintenanceAction( string $actionClass, array $data ) :array {
-		$snapshot = $this->seedActionNonceContext( $actionClass );
-
-		try {
-			return ( new ActionProcessor() )->processAction( $actionClass::SLUG, $data )->payload();
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		return ( new ActionProcessor() )->processAction( $actionClass::SLUG, $data )->payload();
 	}
 
 	/**
@@ -266,5 +239,9 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		}
 
 		\set_site_transient( 'update_plugins', $updates );
+	}
+
+	private function processQueueRefresh( array $data ) :array {
+		return $this->processActionPayloadWithAdminBypass( ActionsQueueRefresh::SLUG, $data );
 	}
 }

@@ -121,8 +121,6 @@ class BuildOptionsForDisplay {
 		$con = self::con();
 		$opts = $con->opts;
 
-		$isPremiumActive = $con->isPremiumActive();
-
 		$allOptions = [];
 
 		foreach ( $section === 'section_hidden' ? [] : $con->cfg->configuration->optsForSection( $section ) as $optDef ) {
@@ -215,7 +213,9 @@ class BuildOptionsForDisplay {
 				'value'       => \is_scalar( $value ) ? esc_attr( $value ) : $value,
 				'unavailable' => !$isOptAvailable,
 				'disabled'    => !$isOptAvailable,
-			]
+				'unit_label'  => $this->unitLabel( (string)( $option[ 'unit' ] ?? '' ) ),
+			],
+			$this->buildDefaultForUi( $option )
 		);
 
 		try {
@@ -229,6 +229,53 @@ class BuildOptionsForDisplay {
 		}
 
 		return $this->addPerOptionCustomisation( $option );
+	}
+
+	private function unitLabel( string $unit ) :string {
+		$labels = [
+			'seconds'  => __( 'seconds', 'wp-simple-firewall' ),
+			'minutes'  => __( 'minutes', 'wp-simple-firewall' ),
+			'hours'    => __( 'hours', 'wp-simple-firewall' ),
+			'days'     => __( 'days', 'wp-simple-firewall' ),
+			'comments' => __( 'comments', 'wp-simple-firewall' ),
+			'offenses' => __( 'offenses', 'wp-simple-firewall' ),
+			'requests' => __( 'requests', 'wp-simple-firewall' ),
+		];
+		return $labels[ $unit ] ?? '';
+	}
+
+	/**
+	 * Single-value options get a readable default and the raw value that "Reset to default" restores.
+	 * List-style options and passwords have no meaningful one-line default, so they get neither.
+	 * @return array{default_label:string,default_value:string}
+	 */
+	private function buildDefaultForUi( array $option ) :array {
+		$default = $option[ 'default' ] ?? null;
+		$label = '';
+
+		if ( \is_scalar( $default ) ) {
+			$default = (string)$default;
+			switch ( $option[ 'type' ] ) {
+				case 'checkbox':
+					$label = $default === 'Y' ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' );
+					break;
+				case 'select':
+					$label = wp_strip_all_tags( \html_entity_decode( (string)( $option[ 'value_options' ][ $default ][ 'name' ] ?? '' ) ) );
+					break;
+				case 'integer':
+				case 'text':
+				case 'email':
+					$label = $default === '' ? __( 'Blank', 'wp-simple-firewall' ) : $default;
+					break;
+				default:
+					break;
+			}
+		}
+
+		return [
+			'default_label' => $label,
+			'default_value' => $label === '' ? '' : $default,
+		];
 	}
 
 	private function optionValue( string $key ) {

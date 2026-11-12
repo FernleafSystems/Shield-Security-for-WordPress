@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 
@@ -13,17 +12,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
  * @phpstan-import-type BucketData from ActionsQueueBucketsBuilder
  * @phpstan-import-type BucketSource from ActionsQueueBucketsBuilder
  * @phpstan-import-type ResolvedGroups from ActionsQueueGroupContractBuilder
+ * @phpstan-import-type GroupSeed from ActionsQueueGroupContractBuilder
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
- * @phpstan-type GroupLink array{
- *   label:string,
- *   href:string,
- *   target:string,
- *   rel:string,
- *   icon_class:string
- * }
  * @phpstan-type GroupManagementLink array{
  *   label:string,
  *   href:string,
@@ -39,23 +32,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
  *   status_label:string,
  *   icon_class:string,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
- *   card_type:'expandable'|'linked'|'category',
+ *   card_type:'expandable'|'category',
  *   narrative:string,
  *   drill_hint:string,
- *   links:list<GroupLink>,
+ *   drill_icon:string,
  *   management_link:array{}|GroupManagementLink,
  *   is_interactive:bool,
  *   is_pro_upsell:bool,
  *   enable_dialog_json:string,
- *   detail_table:array<string,mixed>,
- *   render_action_class:class-string<BaseRender>,
  *   render_action_data:array<string,mixed>,
  *   maintenance_rows:list<CompactSummaryRow>,
+ *   ignored_rows:list<CompactSummaryRow>,
  *   summary_row:array{}|CompactSummaryRow,
  *   selection:GroupSelection
  * }
  * @phpstan-type GroupSectionData array{
  *   heading_label:string,
+ *   heading_icon:string,
  *   groups:list<GroupData>
  * }
  * @phpstan-type GroupsLayerData array{
@@ -103,24 +96,6 @@ class ActionsQueueGroupsBuilder {
 		$computed = $this->compute( $bucketKey, $attentionQuery, $assessmentRowsByZone );
 		return $computed[ 'groups_indexed' ][ $groupKey ]
 			?? $this->contractBuilder()->buildEmptyGroup( $groupKey, $computed[ 'layer' ][ 'bucket_selection' ][ 'label' ] );
-	}
-
-	/**
-	 * @param AttentionQuery $attentionQuery
-	 * @param AssessmentRowsByZone $assessmentRowsByZone
-	 * @return array{
-	 *   layer:GroupsLayerData,
-	 *   selected_group:GroupData
-	 * }
-	 */
-	public function buildWithSelectedGroup( string $bucketKey, string $groupKey, array $attentionQuery, array $assessmentRowsByZone ) :array {
-		$computed = $this->compute( $bucketKey, $attentionQuery, $assessmentRowsByZone );
-
-		return [
-			'layer'          => $computed[ 'layer' ],
-			'selected_group' => $computed[ 'groups_indexed' ][ $groupKey ]
-				?? $this->contractBuilder()->buildEmptyGroup( $groupKey, $computed[ 'layer' ][ 'bucket_selection' ][ 'label' ] ),
-		];
 	}
 
 	/**
@@ -177,7 +152,7 @@ class ActionsQueueGroupsBuilder {
 		array $assessmentRowsByZone
 	) :array {
 		$activeSeeds = $this->seedCollector()->collect( $bucketKey, $bucketSource );
-		$resolvedSeeds = \array_merge(
+		$resolvedSeeds = $this->withIgnoredRowsInTheirGroup(
 			$activeSeeds,
 			$this->passiveSeedSupplementer()->supplement(
 				$bucketKey,
@@ -188,6 +163,49 @@ class ActionsQueueGroupsBuilder {
 		);
 
 		return $this->contractBuilder()->buildResolvedGroups( $bucketLabel, $resolvedSeeds );
+	}
+
+	/**
+	 * A group such as WordPress or System can have items that need review and items that are passing, which come
+	 * as two seeds of the same group: the passing one is its companion, keyed apart, whose definition is the other's
+	 * key. Its ignored items belong with the items that need review, faded at the end of the same box as an
+	 * inactive plugin's are, not in a second box of the same name. A companion left with nothing else is dropped.
+	 * @phpstan-param list<GroupSeed> $activeSeeds
+	 * @phpstan-param list<GroupSeed> $passiveSeeds
+	 * @phpstan-return list<GroupSeed>
+	 */
+	private function withIgnoredRowsInTheirGroup( array $activeSeeds, array $passiveSeeds ) :array {
+		$activeIndexByKey = [];
+		foreach ( $activeSeeds as $index => $seed ) {
+			if ( $seed[ 'detail_shell' ] === 'maintenance' ) {
+				$activeIndexByKey[ $seed[ 'key' ] ] = $index;
+			}
+		}
+
+		$remainingPassive = [];
+		foreach ( $passiveSeeds as $seed ) {
+			$isCompanion = $seed[ 'detail_shell' ] === 'maintenance' && $seed[ 'key' ] !== $seed[ 'definition_key' ];
+			$activeIndex = $isCompanion ? ( $activeIndexByKey[ $seed[ 'definition_key' ] ] ?? null ) : null;
+			if ( $activeIndex === null || empty( $seed[ 'ignored_rows' ] ) ) {
+				$remainingPassive[] = $seed;
+				continue;
+			}
+
+			$activeSeeds[ $activeIndex ][ 'maintenance_rows' ] = \array_merge(
+				$activeSeeds[ $activeIndex ][ 'maintenance_rows' ],
+				$seed[ 'ignored_rows' ]
+			);
+			$seed[ 'ignored_rows' ] = [];
+			if ( !empty( $seed[ 'maintenance_rows' ] ) ) {
+				$seed[ 'item_count' ] = \count( $seed[ 'maintenance_rows' ] );
+				$remainingPassive[] = $seed;
+			}
+			elseif ( !empty( $seed[ 'summary_row' ] ) ) {
+				$remainingPassive[] = $seed;
+			}
+		}
+
+		return \array_merge( $activeSeeds, $remainingPassive );
 	}
 
 	protected function buildGroupScanSource() :ActionsQueueGroupScanSource {
@@ -221,7 +239,6 @@ class ActionsQueueGroupsBuilder {
 			$this->presentation(),
 			$this->assetMetadataResolver(),
 			$this->queueScanResultsOptions(),
-			null,
 			$this->scanResultScopeStateBuilder(),
 			$this->scanResultScopeResolver()
 		);
@@ -301,6 +318,7 @@ class ActionsQueueGroupsBuilder {
 				$this->groupDefinitions(),
 				$this->maintenanceSeedBuilder(),
 				$this->groupMaintenanceSource(),
+				$this->groupScanSource(),
 				$this->buildPendingFileLockDisplays(),
 				$this->scanResultScopeStateBuilder(),
 				$this->scanResultScopeResolver(),

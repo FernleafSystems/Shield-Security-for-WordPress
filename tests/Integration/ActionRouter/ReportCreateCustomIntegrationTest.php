@@ -2,23 +2,25 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
 use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
-	Actions\ReportCreateCustom,
-	Exceptions\InvalidActionNonceException
+	Actions\ReportCreateCustom
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CompiledReportAssetFixture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ReportCreateCustomIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ActionRequestNonceFixture;
+	use CurrentRequestFixture;
+	use ExternalEntryRefusalAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -42,19 +44,8 @@ class ReportCreateCustomIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_create_custom_report_requires_valid_nonce_before_report_creation() :void {
 		$before = $this->countReports();
-		$snapshot = $this->seedActionNonceContext( ReportCreateCustom::class );
-		$this->mergeCurrentRequestTransport( [
-			ActionData::FIELD_NONCE => '',
-		] );
-
-		try {
-			$this->expectException( InvalidActionNonceException::class );
-			$this->processor()->processAction( ReportCreateCustom::SLUG, [] );
-		}
-		finally {
-			$this->assertSame( $before, $this->countReports() );
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		$this->assertAjaxRequestRefused( ReportCreateCustom::class );
+		$this->assertSame( $before, $this->countReports() );
 	}
 
 	public function test_create_custom_report_normalizes_malformed_area_inputs_before_generation() :void {
@@ -73,7 +64,10 @@ class ReportCreateCustomIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->processor()->processAction(
 			ReportCreateCustom::SLUG,
-			ActionData::Build( ReportCreateCustom::class, true )
+			ExternalEntryGuard::ActionDataFromTransport( \array_merge(
+				\FernleafSystems\Wordpress\Services\Services::Request()->post,
+				ActionData::Build( ReportCreateCustom::class, true )
+			) )
 		)->payload();
 
 		$this->assertFalse( $payload[ 'success' ] ?? true );
@@ -108,7 +102,10 @@ class ReportCreateCustomIntegrationTest extends ShieldIntegrationTestCase {
 		CompiledReportAssetFixture::ensureReady( self::con()->getRootDir() );
 		$payload = $this->processor()->processAction(
 			ReportCreateCustom::SLUG,
-			ActionData::Build( ReportCreateCustom::class, true )
+			ExternalEntryGuard::ActionDataFromTransport( \array_merge(
+				\FernleafSystems\Wordpress\Services\Services::Request()->post,
+				ActionData::Build( ReportCreateCustom::class, true )
+			) )
 		)->payload();
 
 		$this->assertTrue( $payload[ 'success' ] );

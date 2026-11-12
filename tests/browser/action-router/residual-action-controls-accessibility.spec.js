@@ -155,7 +155,10 @@ test( 'Merlin skip-step button advances the wizard by keyboard and click', async
 		await expect( page.locator( '#MerlinOverlay' ) ).toBeVisible();
 
 		const licensePane = page.locator( '#step-license' );
-		await page.locator( '#merlin .merlin-next' ).click();
+		// Report email and Security Admin come before the licence step while they still need doing.
+		for ( let step = 0; step < 3 && !( await licensePane.isVisible() ); step++ ) {
+			await page.locator( '#merlin .merlin-next' ).click();
+		}
 		await expect( licensePane ).toBeVisible();
 		await expect.poll( () => visibleMerlinStepId( page ) ).toBe( 'step-license' );
 
@@ -171,6 +174,9 @@ test( 'Merlin skip-step button advances the wizard by keyboard and click', async
 		await expect( licensePane ).toBeVisible();
 		await skipAction.click();
 		await expect.poll( () => visibleMerlinStepId( page ) ).toBe( keyboardNextStep );
+		// The next pane can reflow a button under the pointer. Check its resting colours, not a hover fading out.
+		await page.emulateMedia( { reducedMotion: 'reduce' } );
+		await page.mouse.move( 0, 0 );
 		await expectNoAxeViolations( page, '#MerlinOverlay', [ 'heading-order' ] );
 	} );
 } );
@@ -290,8 +296,8 @@ test( 'connected master sync-now button sends existing import request', async ( 
 		await syncButton.click();
 		await syncRequest;
 		await expect( syncButton ).toBeEnabled( { timeout: 15_000 } );
-		// Bootstrap transitions the button colours for 150ms after it is re-enabled.
-		await page.waitForTimeout( 200 );
+		// The re-enabled button is under the mouse and its hover colours fade in, so contrast is measured with no fade.
+		await page.addStyleTag( { content: '* { transition: none !important; }' } );
 		await expectNoAxeViolations( page, '#PageContainer-Apto' );
 	}, [ 'connected-master' ] );
 } );

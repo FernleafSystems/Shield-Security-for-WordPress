@@ -46,26 +46,6 @@ class LoginRequestValues {
 		];
 	}
 
-	public static function positiveUserId( $value ) :?int {
-		if ( \is_int( $value ) ) {
-			return $value > 0 ? $value : null;
-		}
-		if ( !\is_string( $value ) || \preg_match( '#^\d+$#D', $value ) !== 1 ) {
-			return null;
-		}
-
-		$digits = \ltrim( $value, '0' );
-		if ( $digits === '' ) {
-			return null;
-		}
-		$max = (string)\PHP_INT_MAX;
-		if ( \strlen( $digits ) > \strlen( $max )
-			 || ( \strlen( $digits ) === \strlen( $max ) && \strcmp( $digits, $max ) > 0 ) ) {
-			return null;
-		}
-		return (int)$digits;
-	}
-
 	public static function nonEmptyString( $value ) :?string {
 		return \is_string( $value ) && $value !== '' ? $value : null;
 	}

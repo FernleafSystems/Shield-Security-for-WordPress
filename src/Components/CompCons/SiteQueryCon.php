@@ -8,7 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\{
 	BuildOverview,
 	BuildRecentActivity,
 	BuildScanFindings,
-	BuildScanRuntime
+	BuildScanRuntime,
+	SiteQueryCache
 };
 
 /**
@@ -24,6 +25,16 @@ class SiteQueryCon {
 	 * @var array<string,mixed>
 	 */
 	private array $memoized = [];
+
+	private ?SiteQueryCache $cache = null;
+
+	/**
+	 * Results kept between requests. Clearing the memoized queries leaves it alone: each entry knows when
+	 * its own input has changed.
+	 */
+	public function cache() :SiteQueryCache {
+		return $this->cache ??= new SiteQueryCache();
+	}
 
 	/**
 	 * @return AttentionQuery

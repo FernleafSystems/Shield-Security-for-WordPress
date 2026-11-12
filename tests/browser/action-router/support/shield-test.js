@@ -356,6 +356,9 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 			async inspectLiveTrafficToggleFixture() {
 				return runFixture( 'live-traffic-toggle', 'inspect' );
 			},
+			async inspectReportEmailHoldFixture() {
+				return runFixture( 'report-email-hold', 'inspect' );
+			},
 			async withLicenseClearFixture( runScenario ) {
 				let seeded = false;
 				try {
@@ -379,6 +382,19 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 				finally {
 					if ( seeded ) {
 						await runFixture( 'live-traffic-toggle', 'cleanup' );
+					}
+				}
+			},
+			async withReportEmailHoldFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'report-email-hold', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'report-email-hold', 'cleanup' );
 					}
 				}
 			},
@@ -598,6 +614,7 @@ module.exports = {
 	fillWordPressLoginForm,
 	expect: base.expect,
 	openShieldRoute,
+	submitWordPressLogin,
 	test,
 	waitForShieldPage,
 };

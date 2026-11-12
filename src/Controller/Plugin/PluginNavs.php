@@ -2,19 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
-	InstantAlerts,
-	PluginGeneral,
-	Reporting,
-	RequestLogging
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -64,13 +55,14 @@ class PluginNavs {
 	/** @deprecated 22.0. legacy redirect target only */
 	public const SUBNAV_SCANS_RESULTS = 'results';
 	public const SUBNAV_SCANS_RUN = 'run';
-	public const NAV_STATS = 'stats';
 	public const NAV_TRAFFIC = 'traffic';
 	public const SUBNAV_LIVE = 'live';
 	public const NAV_TOOLS = 'tools';
 	public const SUBNAV_TOOLS_DEBUG = 'debug';
 	public const SUBNAV_TOOLS_IMPORT = 'importexport';
 	public const SUBNAV_TOOLS_BLOCKDOWN = 'blockdown';
+	public const SUBNAV_TOOLS_WHITELABEL = 'whitelabel';
+	public const SUBNAV_TOOLS_LOGINHIDE = 'loginhide';
 	public const SUBNAV_TOOLS_SESSIONS = 'sessions';
 	public const NAV_WIZARD = 'merlin';
 	public const NAV_ZONES = 'zones';
@@ -411,89 +403,42 @@ class PluginNavs {
 	 * @return list<TileDefinition>
 	 */
 	public static function configureLandingTileDefinitions() :array {
+		// Configure is organised by protection goal; each goal's topics are laid out in ConfigureGoalPanels.
+		$labels = PluginAdminPages\ConfigureGoalPanels::labels()[ 'goals' ];
+		$tiles = [];
+		foreach ( PluginAdminPages\ConfigureGoalPanels::goals() as $goalKey => $goal ) {
+			$tile = [
+				'key'     => $goalKey,
+				'label'   => $labels[ $goalKey ][ 'label' ],
+				'icon'    => $goal[ 'icon' ],
+				'summary' => $labels[ $goalKey ][ 'summary' ],
+				'goal'    => $goalKey,
+			];
+			if ( \in_array( $goalKey, [ 'alerts', 'shield', 'integrations' ], true ) ) {
+				$tile[ 'include_in_posture' ] = false;
+			}
+			$tiles[] = $tile;
+		}
+		return $tiles;
+	}
+
+	/**
+	 * The zone keys Configure used before it was organised by goal, mapped to the goal that now holds
+	 * their settings, so older links still land somewhere sensible.
+	 * @return array<string,string>
+	 */
+	public static function configureLegacyZoneGoals() :array {
 		return [
-			[
-				'key'      => 'secadmin',
-				'label'    => __( 'Security Admin', 'wp-simple-firewall' ),
-				'icon'     => 'shield-lock',
-				'summary'  => __( 'An additional WP Admin Security Layer that further protects core WordPress settings.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Secadmin::Slug(),
-			],
-			[
-				'key'      => 'firewall',
-				'label'    => __( 'Firewall', 'wp-simple-firewall' ),
-				'icon'     => 'fire',
-				'summary'  => __( 'The Firewall is the crucial perimeter defense of your WordPress site.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Firewall::Slug(),
-			],
-			[
-				'key'      => 'ips',
-				'label'    => __( 'Bots and IPs', 'wp-simple-firewall' ),
-				'icon'     => 'robot',
-				'summary'  => __( 'Beat the bots by auto-blocking IP addresses of repeat abusers.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Ips::Slug(),
-			],
-			[
-				'key'      => 'scans',
-				'label'    => __( 'Scans', 'wp-simple-firewall' ),
-				'icon'     => 'bug',
-				'summary'  => __( 'Regular scanning quickly identifies compromise and prevents exploitation of vulnerabilities.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Scans::Slug(),
-			],
-			[
-				'key'      => 'login',
-				'label'    => __( 'Login', 'wp-simple-firewall' ),
-				'icon'     => 'person-lock',
-				'summary'  => __( 'Protect user logins with 2FA and critical session hijacking prevention.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Login::Slug(),
-			],
-			[
-				'key'      => 'users',
-				'label'    => __( 'Users', 'wp-simple-firewall' ),
-				'icon'     => 'people',
-				'summary'  => __( 'Protection for user accounts.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Users::Slug(),
-			],
-			[
-				'key'      => 'spam',
-				'label'    => __( 'SPAM', 'wp-simple-firewall' ),
-				'icon'     => 'chat-dots',
-				'summary'  => __( 'Block WordPress Comment SPAM and Contact Form SPAM.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Spam::Slug(),
-			],
-			[
-				'key'      => 'headers',
-				'label'    => __( 'HTTP Headers', 'wp-simple-firewall' ),
-				'icon'     => 'file-earmark-lock',
-				'summary'  => __( 'HTTP Headers provide protection for your site visitors.', 'wp-simple-firewall' ),
-				'zone_slug' => Zone\Headers::Slug(),
-			],
-			[
-				'key'                => 'general',
-				'label'              => __( 'General', 'wp-simple-firewall' ),
-				'icon'               => 'sliders',
-				'summary'            => __( 'Configure site-wide Shield Security controls.', 'wp-simple-firewall' ),
-				'component_slugs'    => [
-					PluginGeneral::Slug(),
-					RequestLogging::Slug(),
-				],
-				'include_in_posture' => false,
-				'force_neutral'      => true,
-				'stat_line'          => __( 'General settings', 'wp-simple-firewall' ),
-			],
-			[
-				'key'                => 'reports_alerts',
-				'label'              => __( 'Reports & Alerts', 'wp-simple-firewall' ),
-				'icon'               => 'bell',
-				'summary'            => __( 'Manage Reports and Alerts that surface security activity to administrators.', 'wp-simple-firewall' ),
-				'component_slugs'    => [
-					InstantAlerts::Slug(),
-					Reporting::Slug(),
-				],
-				'include_in_posture' => false,
-				'force_neutral'      => true,
-				'stat_line'          => __( 'Report and alert settings', 'wp-simple-firewall' ),
-			],
+			'secadmin'       => 'control',
+			'firewall'       => 'attacks',
+			'ips'            => 'attacks',
+			'scans'          => 'code',
+			'login'          => 'login',
+			'users'          => 'accounts',
+			'spam'           => 'spam',
+			'headers'        => 'harden',
+			'general'        => 'shield',
+			'reports_alerts' => 'alerts',
 		];
 	}
 
@@ -720,6 +665,13 @@ class PluginNavs {
 				'drill_bucket'          => 'critical',
 			],
 			[
+				'key'                   => 'report_email',
+				'zone'                  => 'maintenance',
+				'component_class'       => Component\ReportEmailChoice::class,
+				'availability_strategy' => 'always',
+				'drill_bucket'          => 'review',
+			],
+			[
 				'key'                   => 'default_admin_user',
 				'zone'                  => 'maintenance',
 				'component_class'       => Component\DefaultAdminUser::class,
@@ -793,14 +745,11 @@ class PluginNavs {
 	}
 
 	/**
+	 * The Reports tabs, keyed by the workspace each one's link names.
 	 * @return array<string,array{
 	 *   menu_title:string,
 	 *   page_title:string,
-	 *   page_subtitle:string,
-	 *   content_key:string,
-	 *   render_action:string,
-	 *   show_create_action:bool,
-	 *   config_zone_component_slugs:list<string>
+	 *   page_subtitle:string
 	 * }>
 	 */
 	public static function reportsWorkspaceDefinitions() :array {
@@ -809,28 +758,16 @@ class PluginNavs {
 				'menu_title'         => __( 'Security Reports', 'wp-simple-firewall' ),
 				'page_title'         => __( 'View & Create', 'wp-simple-firewall' ),
 				'page_subtitle'      => __( 'View and create new security reports.', 'wp-simple-firewall' ),
-				'content_key'        => 'create_report',
-				'render_action'      => Reports\PageReportsView::class,
-				'show_create_action' => true,
-				'config_zone_component_slugs' => [],
 			],
 			self::SUBNAV_REPORTS_SETTINGS => [
 				'menu_title'         => __( 'Reporting & Alerts Configuration', 'wp-simple-firewall' ),
 				'page_title'         => __( 'Reporting & Alerts Configuration', 'wp-simple-firewall' ),
 				'page_subtitle'      => '',
-				'content_key'        => 'reporting_alerts_configuration',
-				'render_action'      => OptionsFormFor::class,
-				'show_create_action' => false,
-				'config_zone_component_slugs' => self::reportsSettingsZoneComponentSlugs(),
 			],
 			self::SUBNAV_REPORTS_CHARTS   => [
 				'menu_title'         => __( 'Charts & Trends', 'wp-simple-firewall' ),
 				'page_title'         => __( 'Charts & Trends', 'wp-simple-firewall' ),
 				'page_subtitle'      => '',
-				'content_key'        => 'charts_trends',
-				'render_action'      => Reports\ChartsTrends::class,
-				'show_create_action' => false,
-				'config_zone_component_slugs' => [],
 			],
 		];
 	}
@@ -839,18 +776,11 @@ class PluginNavs {
 		return [ self::SUBNAV_REPORTS_OVERVIEW => PluginAdminPages\PageReportsLanding::class ];
 	}
 
+	/**
+	 * Reports opens on its charts unless a link asks for another tab.
+	 */
 	public static function reportsDefaultWorkspaceSubNav() :string {
-		$subNav = \key( self::reportsWorkspaceDefinitions() );
-		return \is_string( $subNav ) && !empty( $subNav )
-			? $subNav
-			: self::SUBNAV_REPORTS_LIST;
-	}
-
-	public static function reportsSettingsZoneComponentSlugs() :array {
-		return [
-			InstantAlerts::Slug(),
-			Reporting::Slug(),
-		];
+		return self::SUBNAV_REPORTS_CHARTS;
 	}
 
 	private static function sanitizeOperatorMode( string $mode ) :string {
@@ -879,8 +809,8 @@ class PluginNavs {
 				self::SUBNAV_ACTIVITY_BY_PLUGIN => self::routeDefinition( PluginAdminPages\PageInvestigateLanding::class, $labels[ self::SUBNAV_ACTIVITY_BY_PLUGIN ] ?? '' ),
 				self::SUBNAV_ACTIVITY_BY_THEME  => self::routeDefinition( PluginAdminPages\PageInvestigateLanding::class, $labels[ self::SUBNAV_ACTIVITY_BY_THEME ] ?? '' ),
 				self::SUBNAV_ACTIVITY_BY_CORE   => self::routeDefinition( PluginAdminPages\PageInvestigateLanding::class, $labels[ self::SUBNAV_ACTIVITY_BY_CORE ] ?? '' ),
-				self::SUBNAV_ACTIVITY_SESSIONS  => self::routeDefinition( PluginAdminPages\PageUserSessions::class, $labels[ self::SUBNAV_ACTIVITY_SESSIONS ] ?? '' ),
-				self::SUBNAV_LOGS               => self::routeDefinition( PluginAdminPages\PageActivityLogTable::class, $labels[ self::SUBNAV_LOGS ] ?? '' ),
+				self::SUBNAV_ACTIVITY_SESSIONS  => self::routeDefinition( PluginAdminPages\PageInvestigateLanding::class, $labels[ self::SUBNAV_ACTIVITY_SESSIONS ] ?? '' ),
+				self::SUBNAV_LOGS               => self::routeDefinition( PluginAdminPages\PageInvestigateLanding::class, $labels[ self::SUBNAV_LOGS ] ?? '' ),
 			],
 		];
 	}
@@ -898,7 +828,7 @@ class PluginNavs {
 		return [
 			'name'     => __( 'IPs', 'wp-simple-firewall' ),
 			'sub_navs' => [
-				self::SUBNAV_IPS_RULES => self::routeDefinition( PluginAdminPages\PageIpRulesTable::class, __( 'Bots & IP Rules', 'wp-simple-firewall' ) ),
+				self::SUBNAV_IPS_RULES => self::routeDefinition( PluginAdminPages\PageInvestigateLanding::class,__( 'Bots & IP Rules', 'wp-simple-firewall' ) ),
 			],
 		];
 	}
@@ -953,7 +883,9 @@ class PluginNavs {
 		return [
 			'name'     => __( 'Tools', 'wp-simple-firewall' ),
 			'sub_navs' => [
-				self::SUBNAV_TOOLS_BLOCKDOWN => self::routeDefinition( PluginAdminPages\PageToolLockdown::class ),
+				self::SUBNAV_TOOLS_BLOCKDOWN  => self::routeDefinition( PluginAdminPages\PageToolLockdown::class ),
+				self::SUBNAV_TOOLS_WHITELABEL => self::routeDefinition( PluginAdminPages\PageToolWhitelabel::class ),
+				self::SUBNAV_TOOLS_LOGINHIDE  => self::routeDefinition( PluginAdminPages\PageToolLoginHide::class ),
 				self::SUBNAV_TOOLS_DEBUG     => self::routeDefinition( PluginAdminPages\PageDebug::class, __( 'Debug Info', 'wp-simple-firewall' ) ),
 				self::SUBNAV_TOOLS_IMPORT    => self::routeDefinition( PluginAdminPages\PageImportExport::class ),
 			],
@@ -964,7 +896,8 @@ class PluginNavs {
 		return [
 			'name'     => __( 'Traffic', 'wp-simple-firewall' ),
 			'sub_navs' => [
-				self::SUBNAV_LOGS => self::routeDefinition( PluginAdminPages\PageTrafficLogTable::class, CommonDisplayStrings::get( 'web_request_log_label' ) ),
+				self::SUBNAV_LOGS => self::routeDefinition( PluginAdminPages\PageInvestigateLanding::class, CommonDisplayStrings::get( 'web_request_log_label' ) ),
+				self::SUBNAV_LIVE => self::routeDefinition( PluginAdminPages\PageInvestigateLanding::class, __( 'Live Traffic', 'wp-simple-firewall' ) ),
 			],
 		];
 	}

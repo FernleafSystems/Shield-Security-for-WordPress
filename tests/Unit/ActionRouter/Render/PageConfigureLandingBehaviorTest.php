@@ -156,7 +156,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [ 'zones', 'diagnosis' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
 		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] ?? '' );
 		$this->assertSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? 'missing' );
-		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'compact_back_label' ] ?? '' );
+		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'breadcrumb_label' ] ?? '' );
 		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
 		$this->assertSame( 'configure', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
@@ -208,23 +208,20 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
 		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
 		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'breadcrumb_label' ] ?? '' );
-		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'active_back_label' ] ?? '' );
+		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'breadcrumb_label' ] ?? '' );
 	}
 
-	public function test_secadmin_diagnosis_header_exposes_disable_context_action_when_enabled() :void {
+	public function test_secadmin_diagnosis_header_has_no_side_rail_actions() :void {
 		ServicesState::installItems( [
-			'service_request'   => new UnitTestRequest( [ 'zone' => 'secadmin' ] ),
+			'service_request'   => new UnitTestRequest( [ 'zone' => 'control' ] ),
 			'service_wpgeneral' => new UnitTestGeneral(),
 			'service_wpusers'   => new UnitTestUsers( 1 ),
 		] );
 		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
 
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
-		$actions = $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'actions' ] ?? [];
-
-		$this->assertCount( 1, $actions );
-		$this->assertSame( 'deactivate', $actions[ 0 ][ 'type' ] ?? '' );
-		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] ?? '' );
+		// Disabling Security Admin is a link on the goal, so the goal's header has no side-rail actions.
+		$this->assertSame( [], $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'actions' ] );
 	}
 
 	public function test_invalid_zone_deep_link_falls_back_to_zone_layer() :void {
@@ -238,7 +235,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
-		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'compact_back_label' ] ?? '' );
+		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'breadcrumb_label' ] ?? '' );
 		$this->assertSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? 'missing' );
 	}
 
@@ -301,31 +298,20 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		], $focus );
 	}
 
-	public function test_zone_sections_split_critical_warning_general_and_healthy() :void {
+	public function test_goal_tabs_take_each_goal_state_and_how_to_open_it() :void {
 		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
 
-		$sections = $this->invokeNonPublicMethod( $page, 'getConfigureZoneSections' );
-
-		$this->assertSame(
-			[ 'critical', 'warning', 'general', 'healthy' ],
-			\array_column( $sections, 'key' )
-		);
-		$this->assertSame(
-			[ 'secadmin' ],
-			\array_column( $sections[ 0 ][ 'cards' ] ?? [], 'key' )
-		);
-		$this->assertSame(
-			[ 'login' ],
-			\array_column( $sections[ 1 ][ 'cards' ] ?? [], 'key' )
-		);
-		$this->assertSame(
-			[ 'general' ],
-			\array_column( $sections[ 2 ][ 'cards' ] ?? [], 'key' )
-		);
-		$this->assertSame(
-			[ 'firewall' ],
-			\array_column( $sections[ 3 ][ 'cards' ] ?? [], 'key' )
-		);
+		$tabs = $this->invokeNonPublicMethod( $page, 'buildConfigureTabs' );
+		$this->assertNotEmpty( $tabs );
+		$tilesByKey = \array_column( $this->zoneTileFixtures(), null, 'key' );
+		foreach ( $tabs as $tab ) {
+			$tile = $tilesByKey[ $tab[ 'key' ] ];
+			$this->assertSame( $tile[ 'status' ], $tab[ 'status' ] );
+			$this->assertSame( \in_array( $tile[ 'status' ], [ 'warning', 'critical' ], true ), $tab[ 'needs_attention' ] );
+			$this->assertNotSame( '', $tab[ 'selection_json' ] );
+		}
+		// Built once per request: the home layer and the tabs share it.
+		$this->assertSame( $tabs, $this->invokeNonPublicMethod( $page, 'buildConfigureTabs' ) );
 	}
 
 	public function test_landing_refresh_reuses_the_configure_root_step_contract() :void {
@@ -344,7 +330,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	private function zoneTileFixtures() :array {
 		return [
 			$this->buildZoneTileFixture(
-				'secadmin',
+				'control',
 				'Security Admin',
 				'critical',
 				'Critical',
@@ -514,6 +500,12 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 }
 
 class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
+	/**
+	 * Stands in for the admin page route, which passes the page URL's values to the page as its data.
+	 */
+	protected function getDefaults() :array {
+		return \FernleafSystems\Wordpress\Services\Services::Request()->query;
+	}
 
 	private array $configureLandingViewData;
 
@@ -568,65 +560,8 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 			'tiles'           => $zoneTileFixtures,
 			'tile_lookup'     => $tileLookup,
 			'diagnoses'       => $diagnoses,
-			'sections'        => [
-				[
-					'key'   => 'critical',
-					'cards' => [
-						$this->buildZoneCardFixture( $zoneTileFixtures[ 0 ], $diagnoses[ 'secadmin' ] ),
-					],
-				],
-				[
-					'key'   => 'warning',
-					'cards' => [
-						$this->buildZoneCardFixture( $zoneTileFixtures[ 2 ], $diagnoses[ 'login' ] ),
-					],
-				],
-				[
-					'key'   => 'general',
-					'cards' => [
-						$this->buildZoneCardFixture( $zoneTileFixtures[ 3 ], $diagnoses[ 'general' ] ),
-					],
-				],
-				[
-					'key'   => 'healthy',
-					'cards' => [
-						$this->buildZoneCardFixture( $zoneTileFixtures[ 1 ], $diagnoses[ 'firewall' ] ),
-					],
-				],
-			],
-			'posture_summary' => [
-				'status'     => 'warning',
-				'chip_label' => 'Warning',
-				'icon_class' => 'bi bi-exclamation-circle-fill',
-				'eyebrow'    => 'Configuration Coverage',
-				'summary'    => $postureSummary,
-				'meter'      => [
-					'percentage'      => $percentage,
-					'status'          => 'warning',
-					'aria_label'      => 'Configuration Coverage',
-					'aria_value_text' => sprintf( '%d%%', $percentage ),
-				],
-			],
 			'root_step'       => $rootStep,
 			'root_step_json'  => OperatorChromeContract::encodeJson( $rootStep ),
-		];
-	}
-
-	private function buildZoneCardFixture( array $zoneTile, array $diagnosis ) :array {
-		return [
-			'key'            => $zoneTile[ 'key' ],
-			'label'          => $zoneTile[ 'label' ],
-			'icon_class'     => $zoneTile[ 'icon_class' ],
-			'status'         => $zoneTile[ 'status' ],
-			'status_label'   => $zoneTile[ 'status_label' ],
-			'summary'        => $zoneTile[ 'summary' ],
-			'action_label'   => $zoneTile[ 'is_disabled' ]
-				? ''
-				: ( $zoneTile[ 'key' ] === 'general'
-					? 'Configure General Settings'
-					: 'Configure '.$zoneTile[ 'label' ] ),
-			'selection_json' => $diagnosis[ 'zone_selection_json' ],
-			'is_disabled'    => $zoneTile[ 'is_disabled' ],
 		];
 	}
 }

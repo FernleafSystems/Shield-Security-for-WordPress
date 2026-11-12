@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\{
 	ResultItem,
 	ResultsSet
 };
-use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base {
 
@@ -243,13 +242,6 @@ abstract class Base {
 			$ns = __NAMESPACE__;
 		}
 		return \rtrim( $ns, '\\' ).'\\';
-	}
-
-	protected function scheduleOnDemandScan() {
-		$hook = self::con()->prefix( 'ondemand_scan_'.$this->getSlug() );
-		if ( !wp_next_scheduled( $hook ) ) {
-			wp_schedule_single_event( Services::Request()->ts() + 10, $hook );
-		}
 	}
 
 	/**

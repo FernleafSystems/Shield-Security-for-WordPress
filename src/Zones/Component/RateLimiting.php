@@ -19,10 +19,6 @@ class RateLimiting extends Base {
 		return __( 'Edit rate limit settings for abusive visitors', 'wp-simple-firewall' );
 	}
 
-	protected function hasCapability() :bool {
-		return self::con()->caps->canTrafficRateLimit();
-	}
-
 	/**
 	 * @inheritDoc
 	 */
@@ -45,10 +41,6 @@ class RateLimiting extends Base {
 		}
 
 		return $status;
-	}
-
-	protected function postureWeight() :int {
-		return 2;
 	}
 
 	protected function configureTreatsBadStatusAsWarning() :bool {

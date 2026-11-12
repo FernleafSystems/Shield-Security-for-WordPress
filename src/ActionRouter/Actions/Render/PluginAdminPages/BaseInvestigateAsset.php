@@ -33,12 +33,11 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 	use InvestigateAssetOptionsBuilder;
 	use InvestigateCountCache;
 	use InvestigateRenderContracts;
-	use InvestigateStatusMapping;
 
 	private ?InvestigateAssetDataAdapter $assetDataAdapter = null;
 
 	protected function getLookupValue( string $queryKey ) :string {
-		return $this->getTextInputFromRequestOrActionData( $queryKey );
+		return $this->getTextInputFromActionData( $queryKey );
 	}
 
 	protected function resolvePluginByLookup( string $lookup ) {

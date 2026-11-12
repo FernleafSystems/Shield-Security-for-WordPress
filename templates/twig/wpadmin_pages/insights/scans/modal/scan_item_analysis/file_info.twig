@@ -1,16 +1,5 @@
+{% import '/common/macros.twig' as icwp_macros %}
 <div class="scan-item-overview">
-
-	<div class="scan-item-overview__verdict scan-item-overview__verdict--{{ vars.verdict_tone }}">
-		<div class="d-flex flex-wrap gap-1 mb-2">
-			{% for status in vars.file_statuses %}
-				<span class="badge text-bg-{{ status.tone }}">{{ status.label }}</span>
-			{% endfor %}
-		</div>
-		<h3 class="h6 mb-1">{{ vars.verdict_title }}</h3>
-		{% for line in vars.file_description %}
-			<p class="mb-1">{{ line }}</p>
-		{% endfor %}
-	</div>
 
 	<dl class="scan-item-overview__facts">
 		{% if vars.belongs_to is not empty %}
@@ -21,21 +10,31 @@
 		<dd><code>{{ vars.file_full_path }}</code></dd>
 	</dl>
 
-	{% if flags.show_malai_status %}
-		<section class="scan-item-overview__card">
-			<h4 class="scan-item-overview__card-title">{{ strings.heading_malai_status }}</h4>
-			<p class="mb-1"><span class="badge text-bg-{{ vars.malware_assessment.tone }}"><i class="bi {{ vars.malware_assessment.icon }}" aria-hidden="true"></i> {{ vars.malware_assessment.label }}</span></p>
-			<p class="mb-1">{{ vars.malware_assessment.summary }}</p>
-			<details>
+	<div class="scan-item-overview__verdict scan-item-overview__verdict--{{ vars.verdict_tone }}">
+		<div class="d-flex flex-wrap gap-1 mb-2">
+			{% for status in vars.file_statuses %}
+				<span class="badge text-bg-{{ status.tone }}">{{ status.label }}</span>
+			{% endfor %}
+		</div>
+		<h3 class="h6 mb-1">{{ vars.verdict_title }}</h3>
+		{% if vars.verdict_note is not empty %}
+			<p class="mb-1">{{ vars.verdict_note }}</p>
+		{% endif %}
+		{% for line in vars.file_description %}
+			<p class="mb-1">{{ line }}</p>
+		{% endfor %}
+		{% if vars.verdict_why is not empty %}
+			<details class="mt-2">
 				<summary>{{ strings.malai_more }}</summary>
-				<p class="mt-2 mb-1">{{ vars.malware_assessment.explanation }}</p>
-				<p class="mb-0">{{ vars.malware_assessment.guidance }}</p>
+				{% for line in vars.verdict_why %}
+					<p class="mt-2 mb-0">{{ line }}</p>
+				{% endfor %}
 			</details>
-		</section>
-	{% endif %}
+		{% endif %}
+	</div>
 
-	<section class="scan-item-overview__card">
-		<h4 class="scan-item-overview__card-title">{{ strings.next_steps }}</h4>
+	<section class="scan-item-overview__actions">
+		<h4 class="scan-item-overview__actions-title">{{ strings.next_steps }}</h4>
 		{% if vars.recommendations_lines is not empty %}
 			<ul class="mb-2">
 				{% for line in vars.recommendations_lines %}
@@ -46,6 +45,11 @@
 		<div class="d-flex flex-wrap gap-2">
 			<button type="button" class="btn btn-primary btn-sm" data-scan-item-show-tab="tabDiff-tab">{{ strings.review_changes }}</button>
 			<button type="button" class="btn btn-outline-primary btn-sm" data-scan-item-show-tab="tabContents-tab">{{ strings.view_contents }}</button>
+			{% set download_label %}
+				<i class="{{ imgs.svgs.file_download }}" aria-hidden="true"></i>
+				{{ strings.file_download }}
+			{% endset %}
+			{{ icwp_macros.tagAnchor(hrefs.file_download, download_label, '', ['btn', 'btn-outline-primary', 'btn-sm', 'href-download'], false, [], not flags.can_download) }}
 		</div>
 	</section>
 

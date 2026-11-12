@@ -17,9 +17,6 @@ class GuidedSetupWelcome extends Base {
 			'strings' => [
 				'step_title' => __( "Get Started In Under 3 Minutes", 'wp-simple-firewall' ),
 			],
-			'vars'    => [
-				'video_id' => '269191603'
-			],
 		];
 	}
 }

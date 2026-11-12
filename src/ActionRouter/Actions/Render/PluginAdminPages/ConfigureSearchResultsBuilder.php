@@ -18,6 +18,8 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   icon_class:string,
  *   label:string,
  *   summary:string,
+ *   path:string,
+ *   value:string,
  *   selection_json:string,
  *   focus_request_json:string,
  *   href:string,
@@ -27,6 +29,15 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 class ConfigureSearchResultsBuilder {
 
 	use PluginControllerConsumer;
+
+	/**
+	 * Name matches outrank summary matches, which outrank matches found only in descriptions
+	 * or section text, so "email" lists "Report Email" ahead of options that only mention email.
+	 */
+	private const WEIGHT_NAME = 10;
+	private const WEIGHT_SUMMARY = 4;
+	private const WEIGHT_ANY = 1;
+	private const BONUS_NAME_PHRASE = 20;
 
 	private ConfigureLandingViewBuilder $landingViewBuilder;
 	private SearchTextTokenBuilder $searchTextTokenBuilder;
@@ -44,14 +55,15 @@ class ConfigureSearchResultsBuilder {
 	 * @return list<ConfigureSearchResult>
 	 */
 	public function build( string $search ) :array {
-		$terms = $this->searchTextTokenBuilder->extractTerms( sanitize_text_field( $search ) );
+		$search = sanitize_text_field( $search );
+		$terms = $this->searchTextTokenBuilder->extractTerms( $search );
 		if ( empty( $terms ) ) {
 			return [];
 		}
 
 		$results = \array_merge(
-			$this->buildOptionResults( $terms ),
-			$this->buildZoneResults( $terms )
+			$this->buildOptionResults( $terms, $search ),
+			$this->buildZoneResults( $terms, $search )
 		);
 
 		\usort( $results, function ( array $a, array $b ) :int {
@@ -64,6 +76,12 @@ class ConfigureSearchResultsBuilder {
 				<=> $this->typePriority( $b[ 'type' ] );
 			if ( $typeCompare !== 0 ) {
 				return $typeCompare;
+			}
+
+			// Among equal scores a shorter name is the more specific match: "Report Email" before "Allow Email Override".
+			$lengthCompare = \strlen( $a[ 'label' ] ) <=> \strlen( $b[ 'label' ] );
+			if ( $lengthCompare !== 0 ) {
+				return $lengthCompare;
 			}
 
 			return \strcasecmp( $a[ 'label' ], $b[ 'label' ] );
@@ -88,14 +106,19 @@ class ConfigureSearchResultsBuilder {
 	/**
 	 * @return list<ScoredConfigureSearchResult>
 	 */
-	private function buildZoneResults( array $terms ) :array {
+	private function buildZoneResults( array $terms, string $search ) :array {
 		$results = [];
 		$landingViewData = $this->getConfigureLandingViewData();
 
 		foreach ( $landingViewData[ 'diagnoses' ] as $diagnosis ) {
 			$zoneSummary = $this->requireZoneSummary( $diagnosis[ 'zone_key' ] );
-			$tokens = $this->buildZoneTokens( $diagnosis, $zoneSummary );
-			$score = $this->searchTextTokenBuilder->countMatches( $tokens, $terms );
+			$score = $this->weightedScore(
+				$terms,
+				$search,
+				$diagnosis[ 'zone_label' ],
+				$zoneSummary,
+				$this->buildZoneTokens( $diagnosis, $zoneSummary )
+			);
 			if ( $score < 1 ) {
 				continue;
 			}
@@ -105,6 +128,8 @@ class ConfigureSearchResultsBuilder {
 				'icon_class' => $diagnosis[ 'zone_icon_class' ],
 				'label'      => $diagnosis[ 'zone_label' ],
 				'summary'    => $zoneSummary,
+				'path'       => '',
+				'value'      => '',
 				'selection_json'     => $diagnosis[ 'zone_selection_json' ],
 				'focus_request_json' => '',
 				'href'       => self::con()->plugin_urls->configureHome( $diagnosis[ 'zone_key' ] ),
@@ -153,7 +178,7 @@ class ConfigureSearchResultsBuilder {
 	/**
 	 * @return list<ScoredConfigureSearchResult>
 	 */
-	private function buildOptionResults( array $terms ) :array {
+	private function buildOptionResults( array $terms, string $search ) :array {
 		$results = [];
 		$stringsOptions = new StringsOptions();
 
@@ -165,9 +190,12 @@ class ConfigureSearchResultsBuilder {
 				continue;
 			}
 
-			$score = $this->searchTextTokenBuilder->countMatches(
-				$this->buildOptionTokens( $optionKey ),
-				$terms
+			$score = $this->weightedScore(
+				$terms,
+				$search,
+				(string)$optionStrings[ 'name' ],
+				(string)( $optionStrings[ 'summary' ] ?? '' ),
+				$this->buildOptionTokens( $optionKey )
 			);
 			if ( $score < 1 ) {
 				continue;
@@ -178,6 +206,8 @@ class ConfigureSearchResultsBuilder {
 				'icon_class' => self::con()->svgs->iconClass( 'sliders' ),
 				'label'      => $optionStrings[ 'name' ],
 				'summary'    => $this->buildOptionSummary( $focusTarget[ 'row_title' ], $optionStrings ),
+				'path'       => \implode( ' › ', \array_filter( [ $focusTarget[ 'zone_label' ], \trim( $focusTarget[ 'row_title' ] ) ] ) ),
+				'value'      => $this->currentValueLabel( $optionKey ),
 				'selection_json'     => $focusTarget[ 'selection_json' ],
 				'focus_request_json' => $this->buildFocusRequestJson( $optionKey, $focusTarget ),
 				'href'       => URL::Build(
@@ -189,6 +219,29 @@ class ConfigureSearchResultsBuilder {
 		}
 
 		return $results;
+	}
+
+	/**
+	 * Returns 0 when no term appears anywhere, so callers keep dropping non-matches with "score < 1".
+	 * @param list<string> $terms
+	 */
+	private function weightedScore( array $terms, string $search, string $name, string $summary, string $allTokens ) :int {
+		$tokens = $this->searchTextTokenBuilder;
+		$any = $tokens->countMatches( $allTokens, $terms );
+		if ( $any < 1 ) {
+			return 0;
+		}
+
+		$score = $any*self::WEIGHT_ANY
+				 + $tokens->countMatches( $tokens->build( [ $name ] ), $terms )*self::WEIGHT_NAME
+				 + $tokens->countMatches( $tokens->build( [ $summary ] ), $terms )*self::WEIGHT_SUMMARY;
+
+		$phrase = \strtolower( $search );
+		if ( $phrase !== '' && \str_contains( \strtolower( $name ), $phrase ) ) {
+			$score += self::BONUS_NAME_PHRASE;
+		}
+
+		return $score;
 	}
 
 	private function buildOptionTokens( string $optionKey ) :string {
@@ -226,6 +279,39 @@ class ConfigureSearchResultsBuilder {
 			: \trim( $rowTitle );
 	}
 
+	/**
+	 * A short reading of the option's current setting, shown beside the result so the user can see
+	 * where it stands before opening it. Secrets and long values are left out.
+	 */
+	private function currentValueLabel( string $optionKey ) :string {
+		$def = self::con()->opts->optDef( $optionKey );
+		$value = self::con()->opts->optGet( $optionKey );
+		switch ( (string)( $def[ 'type' ] ?? '' ) ) {
+			case 'checkbox':
+				return $value === 'Y' ? __( 'On', 'wp-simple-firewall' ) : __( 'Off', 'wp-simple-firewall' );
+			case 'select':
+				foreach ( $def[ 'value_options' ] ?? [] as $valueOption ) {
+					if ( (string)( $valueOption[ 'value_key' ] ?? '' ) === (string)$value ) {
+						return (string)( $valueOption[ 'text' ] ?? '' );
+					}
+				}
+				return '';
+			case 'multiple_select':
+			case 'array':
+				return \is_array( $value ) && !empty( $value )
+					/* translators: %s: number of selected items */
+					? \sprintf( _n( '%s selected', '%s selected', \count( $value ), 'wp-simple-firewall' ), \count( $value ) )
+					: '';
+			case 'text':
+			case 'email':
+			case 'integer':
+				$text = \is_scalar( $value ) ? \trim( (string)$value ) : '';
+				return \strlen( $text ) > 32 ? \substr( $text, 0, 31 ).'…' : $text;
+			default:
+				return '';
+		}
+	}
+
 	private function buildFocusQueryArgs( string $optionKey, array $focusTarget ) :array {
 		return [
 			'row_key'     => $focusTarget[ 'row_key' ],
@@ -243,6 +329,7 @@ class ConfigureSearchResultsBuilder {
 	 * @return array<string,array{
 	 *   zone_key:string,
 	 *   row_key:string,
+	 *   zone_label:string,
 	 *   row_title:string,
 	 *   selection_json:string,
 	 *   priority:int
@@ -330,6 +417,7 @@ class ConfigureSearchResultsBuilder {
 
 			$lookup[ $optionKey ] = [
 				'zone_key'   => $diagnosis[ 'zone_key' ],
+				'zone_label' => $diagnosis[ 'zone_label' ],
 				'row_key'    => $rowKey,
 				'row_title'  => $row[ 'title' ],
 				'selection_json' => $diagnosis[ 'zone_selection_json' ],

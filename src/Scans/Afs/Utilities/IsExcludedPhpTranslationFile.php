@@ -212,11 +212,10 @@ class IsExcludedPhpTranslationFile {
 			}
 
 			if ( $token[ 0 ] === T_CONSTANT_ENCAPSED_STRING ) {
-				$decoded = $this->decodePhpString( (string)$token[ 1 ] );
+				$decoded = $this->parseStringLiterals( $tokens, $index );
 				if ( $decoded === null ) {
 					return null;
 				}
-				$index++;
 				return [
 					'kind'  => 'scalar',
 					'type'  => 'string',
@@ -238,6 +237,31 @@ class IsExcludedPhpTranslationFile {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Plural forms are written as string literals joined by a NUL separator: 'One' . "\0" . 'Many'
+	 */
+	protected function parseStringLiterals( array $tokens, int &$index ) :?string {
+		$decoded = '';
+
+		while ( true ) {
+			if ( !$this->matchTokenType( $tokens, $index, T_CONSTANT_ENCAPSED_STRING ) ) {
+				return null;
+			}
+
+			$part = $this->decodePhpString( (string)$tokens[ $index ][ 1 ] );
+			if ( $part === null ) {
+				return null;
+			}
+			$decoded .= $part;
+			$index++;
+
+			if ( !$this->matchLiteralToken( $tokens, $index, '.' ) ) {
+				return $decoded;
+			}
+			$index++;
+		}
 	}
 
 	protected function decodePhpString( string $literal ) :?string {
@@ -321,6 +345,7 @@ class IsExcludedPhpTranslationFile {
 			')',
 			',',
 			';',
+			'.',
 		], true );
 	}
 

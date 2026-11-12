@@ -142,13 +142,13 @@ class BackupCodesProviderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->seedLoginIntent( $user, 'backup-code-login' );
 		RuntimeTestState::resetMfaProviderCache();
 
-		$this->mergeCurrentRequestTransport( [
+		$submitted = [
 			( new BackupCodes( $user ) )->getLoginIntentFormParameter() => 'ABC123- DEF456',
-		] );
+		];
 
 		$validatedSlug = ( new LoginIntentRequestValidate() )
 			->setWpUser( $user )
-			->run( 'backup-code-login' );
+			->run( 'backup-code-login', $submitted );
 
 		$this->assertSame( BackupCodes::ProviderSlug(), $validatedSlug );
 		$this->assertCount( 0, $this->loadRecordsForSlug( $user->ID, BackupCodes::ProviderSlug() ) );
@@ -164,7 +164,7 @@ class BackupCodesProviderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->expectException( CouldNotValidate2FA::class );
 		( new LoginIntentRequestValidate() )
 			->setWpUser( $user )
-			->run( 'backup-code-login-reuse' );
+			->run( 'backup-code-login-reuse', $submitted );
 	}
 
 	private function createBackupCodeOnlyUser() :\WP_User {

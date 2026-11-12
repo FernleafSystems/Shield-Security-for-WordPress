@@ -20,6 +20,12 @@ class SiteHealthController {
 	private const SITE_HEALTH_REST_NAMESPACE = 'wp-site-health/v1';
 	private const FILTER_SHOW_SITE_HEALTH = 'shield/show_site_health';
 
+	/**
+	 * Shield's checks and Security tab in WordPress's Site Health are switched off for now; the filter above
+	 * can still turn them on. Security Admin's hold on who may view Site Health applies either way.
+	 */
+	private const SHOW_IN_SITE_HEALTH = false;
+
 	protected function canRun() :bool {
 		$WP = Services::WpGeneral();
 		return $WP->getWordpressIsAtLeastVersion( '5.8' )
@@ -88,7 +94,7 @@ class SiteHealthController {
 	}
 
 	private function isSiteHealthDisplayEnabled() :bool {
-		return (bool)apply_filters( self::FILTER_SHOW_SITE_HEALTH, true );
+		return (bool)apply_filters( self::FILTER_SHOW_SITE_HEALTH, self::SHOW_IN_SITE_HEALTH );
 	}
 
 	private function isSiteHealthAdminPageContext() :bool {

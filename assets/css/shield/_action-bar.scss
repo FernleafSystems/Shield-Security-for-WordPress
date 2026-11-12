@@ -1,0 +1,70 @@
+// ─── Action bar: a dark bar along the bottom of the screen for what's pending (unsaved changes, a
+// selection), lined up with the area it belongs to. Configure's save bar and the Reports selection use it. ───
+.shield-actionbar {
+	align-items: center;
+	background: #1d2327;
+	border-radius: 10px;
+	bottom: 0.75rem;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+	color: #ffffff;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.6rem 0.9rem;
+	// The right padding keeps the buttons clear of the floating help-desk button in that corner.
+	padding: 0.7rem 5.5rem 0.7rem 1rem;
+	position: fixed;
+	z-index: 9990;
+
+	&[hidden] {
+		display: none;
+	}
+
+	.btn {
+		margin: 0;
+	}
+}
+
+.shield-actionbar__dot {
+	background: #f0b849;
+	border-radius: 50%;
+	box-shadow: 0 0 0 3px rgba(240, 184, 73, 0.25);
+	flex: 0 0 auto;
+	height: 10px;
+	width: 10px;
+}
+
+.shield-actionbar__copy {
+	display: flex;
+	flex: 1 1 14rem;
+	flex-wrap: wrap;
+	gap: 0.2rem 0.6rem;
+	min-width: 0;
+}
+
+.shield-actionbar__where {
+	color: #c3c4c7;
+	font-size: 0.82rem;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+// The quieter choice, light on the dark bar.
+.shield-actionbar__secondary {
+	background: transparent;
+	border: 1px solid rgba(255, 255, 255, 0.45);
+	color: #ffffff;
+
+	&:hover,
+	&:focus {
+		background: rgba(255, 255, 255, 0.12);
+		border-color: #ffffff;
+		color: #ffffff;
+	}
+}
+
+.shield-actionbar .btn:focus-visible {
+	outline: 2px solid #ffffff;
+	outline-offset: 2px;
+}

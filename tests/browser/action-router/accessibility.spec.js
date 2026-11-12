@@ -21,8 +21,13 @@ async function exerciseReportsChart( page ) {
 	const event = form.locator( 'input[name="event_keys[]"]' ).first();
 	const submit = form.locator( '[data-reports-chart-submit="1"]' );
 
+	// The chart opens drawn, with every event selected; unticking and reticking one works by keyboard.
 	await expect( event ).toBeVisible();
+	await expect( event ).toBeChecked();
+	await expect( page.locator( '[data-reports-chart-results="1"]' ) ).toBeVisible( { timeout: 20_000 } );
 	await event.focus();
+	await event.press( 'Space' );
+	await expect( event ).not.toBeChecked();
 	await event.press( 'Space' );
 	await expect( event ).toBeChecked();
 	await expect( submit ).toBeEnabled();
@@ -60,18 +65,18 @@ const routeAccessibilitySmokeScenarios = [
 	{
 		id: 'reports-list',
 		route: { nav: 'reports', nav_sub: 'overview', workspace: 'list' },
-		rootSelector: '[data-reports-workspace="list"]',
+		rootSelector: '[data-reports-tabpanel="list"]',
 	},
 	{
 		id: 'reports-charts',
 		route: { nav: 'reports', nav_sub: 'overview', workspace: 'charts' },
-		rootSelector: '[data-reports-workspace="charts"]',
+		rootSelector: '[data-reports-tabpanel="charts"]',
 		exercise: exerciseReportsChart,
 	},
 	{
 		id: 'activity-log',
 		route: { nav: 'activity', nav_sub: 'logs' },
-		rootSelector: '#SectionAuditTable',
+		rootSelector: '[data-investigate-tabpanel="activity"]',
 	},
 	{
 		id: 'web-request-log',
@@ -95,13 +100,13 @@ const routeAccessibilitySmokeScenarios = [
 	},
 	{
 		id: 'traffic-live',
-		route: { nav: 'activity', nav_sub: 'overview', subject: 'live_traffic' },
+		route: { nav: 'traffic', nav_sub: 'live' },
 		rootSelector: '#SectionTrafficLiveLogs',
 	},
 	{
 		id: 'ip-rules',
 		route: { nav: 'ips', nav_sub: 'rules' },
-		rootSelector: '#SectionIpRulesTable',
+		rootSelector: '[data-investigate-tabpanel="ip_rules"]',
 	},
 ];
 
@@ -119,23 +124,10 @@ test( 'dashboard overview passes axe smoke', async ( { page } ) => {
 	await expect( recentEventItems.first() ).toHaveRole( 'listitem' );
 	await expect( recentEventItems.first() ).toHaveAccessibleName( /\S/ );
 
+	// Each event row shows what happened and when, side by side.
 	const firstEvent = recentEventItems.first();
-	const eventLabel = firstEvent.locator( '.dashboard-recent-events__label' );
-	const eventTime = firstEvent.locator( '.dashboard-recent-events__time' );
-	await expect( eventLabel ).toBeVisible();
-	await expect( eventTime ).toBeHidden();
-	await firstEvent.scrollIntoViewIfNeeded();
-	const bounds = await firstEvent.boundingBox();
-	await firstEvent.hover();
-	await expect( eventLabel ).toBeHidden();
-	await expect( eventTime ).toBeVisible();
-	expect( await firstEvent.boundingBox() ).toEqual( bounds );
-	await page.mouse.move( 0, 0 );
-	await expect( eventLabel ).toBeVisible();
-	await firstEvent.focus();
-	await expect( firstEvent ).toBeFocused();
-	await expect( eventLabel ).toBeHidden();
-	await expect( eventTime ).toBeVisible();
+	await expect( firstEvent.locator( '.dashboard-recent-events__label' ) ).toBeVisible();
+	await expect( firstEvent.locator( '.dashboard-recent-events__time' ) ).toBeVisible();
 	await expectNoAxeViolations( page, '#PageContainer-Apto' );
 } );
 

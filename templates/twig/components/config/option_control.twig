@@ -96,19 +96,24 @@
 		   aria-labelledby="Label-{{ option.key }}"
 		   value="{{ option.value }}"
 		   placeholder="{{ option.value }}"
+		   inputmode="numeric"
 		   {% if option.disabled %}disabled="disabled"{% endif %}
-		   class="form-control" />
+		   class="form-control shield-option-number" />
 
 {% else %}
 	ERROR: Should never reach this point.
 {% endif %}
 
 {% macro password_control(option, strings) %}
+	{# The Security Admin PIN says what it is; other secrets keep the general wording. #}
+	{% set is_pin = option.key == 'admin_access_key' %}
+	{% set supply_text = is_pin and strings.supply_pin is defined ? strings.supply_pin : strings.supply_password %}
+	{% set confirm_text = is_pin and strings.confirm_pin is defined ? strings.confirm_pin : strings.confirm_password %}
 	<div class="shield-option-stacked-control">
 		<input type="password" name="{{ option.key }}"
 			   id="Opt-{{ option.key }}"
 			   value="{{ option.value|raw }}"
-			   placeholder="{{ strings.supply_password }}"
+			   placeholder="{{ supply_text }}"
 			   autocomplete="new-password"
 			   {% if option.disabled %}disabled="disabled"{% endif %}
 			   class="form-control" />
@@ -116,7 +121,8 @@
 		<input type="password" name="{{ option.key }}_confirm"
 			   id="Opt-{{ option.key }}_confirm"
 			   value="{{ option.value|raw }}"
-			   placeholder="{{ strings.confirm_password }}"
+			   placeholder="{{ confirm_text }}"
+			   aria-label="{{ confirm_text }}"
 			   autocomplete="new-password"
 			   {% if option.disabled %}disabled="disabled"{% endif %}
 			   class="form-control" />
@@ -124,8 +130,66 @@
 {% endmacro %}
 
 {% macro multiple_select_control(option, strings) %}
-	<div class="shield-option-multiple-list">
+	{% import _self as option_control_macros %}
+	{% set choice_count = option.value_options|length %}
+	{% if choice_count <= 6 %}
+		{{ option_control_macros.multiple_select_chips( option, strings ) }}
+	{% elseif choice_count > 8 %}
+		{{ option_control_macros.multiple_select_long_list( option, strings ) }}
+	{% else %}
+		{{ option_control_macros.multiple_select_list( option, strings ) }}
+	{% endif %}
+{% endmacro %}
+
+{# A handful of choices reads best as a row of toggle chips; each chip is still a native checkbox. #}
+{% macro multiple_select_chips(option, strings) %}
+	<div class="shield-option-chipset" role="group" aria-labelledby="Label-{{ option.key }}">
 		{% for option_value, option_value_settings in option.value_options %}
+			<label class="shield-option-chip{% if not option_value_settings.is_available or option.disabled %} is-disabled{% endif %}"
+				   for="Opt-{{ option.key }}_{{ option_value }}">
+				<input type="checkbox"
+					   class="shield-option-chip__input"
+					   id="Opt-{{ option.key }}_{{ option_value }}"
+					   name="{{ option.key }}[]"
+					   value="{{ option_value }}"
+					   {% if not option_value_settings.is_available or option.disabled %}disabled="disabled"{% endif %}
+					   {% if option_value in option.value %}checked="checked"{% endif %} />
+				<span class="shield-option-chip__text">{{ option_value_settings.name|raw }}</span>
+			</label>
+		{% endfor %}
+	</div>
+{% endmacro %}
+
+{# Long lists stay collapsed behind a summary of what's selected, with selected choices listed first. #}
+{% macro multiple_select_long_list(option, strings) %}
+	{% import _self as option_control_macros %}
+	{% set selected_names = [] %}
+	{% for option_value, option_value_settings in option.value_options %}
+		{% if option_value in option.value %}
+			{% set selected_names = selected_names|merge( [ option_value_settings.name|striptags ] ) %}
+		{% endif %}
+	{% endfor %}
+	<details class="shield-option-long-list">
+		<summary class="shield-option-long-list__summary">
+			<span class="shield-option-long-list__selected">
+				{{ selected_names is empty ? strings.opt_none_selected : selected_names|slice( 0, 3 )|join( ', ' ) ~ ( selected_names|length > 3 ? ' +' ~ ( selected_names|length - 3 ) : '' ) }}
+			</span>
+			<span class="shield-option-long-list__edit">{{ strings.opt_edit }} ({{ selected_names|length }}/{{ option.value_options|length }})</span>
+		</summary>
+		<div class="shield-option-long-list__body">
+			{{ option_control_macros.multiple_select_list( option, strings, true ) }}
+		</div>
+	</details>
+{% endmacro %}
+
+{% macro multiple_select_list(option, strings, selected_first = false) %}
+	{% set ordered = option.value_options %}
+	{% if selected_first %}
+		{% set ordered = option.value_options|filter( ( settings, value ) => value in option.value )
+			|merge( option.value_options|filter( ( settings, value ) => value not in option.value ) ) %}
+	{% endif %}
+	<div class="shield-option-multiple-list{% if selected_first %} shield-option-multiple-list--grid{% endif %}">
+		{% for option_value, option_value_settings in ordered %}
 			<div class="form-check shield-option-multiple-item">
 				<input type="checkbox"
 					   class="form-check-input"

@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\S
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansStart;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
@@ -61,7 +62,7 @@ class ScansStartGuardsTest extends BaseUnitTest {
 			StartScansResult::fromRequested( [] )
 		);
 
-		$action = new ScansStart();
+		$action = new ScansStart( ExternalEntryGuard::ActionDataFromTransport( $request->post ) );
 		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
 		$method->setAccessible( true );
 		$method->invoke( $action );
@@ -92,7 +93,7 @@ class ScansStartGuardsTest extends BaseUnitTest {
 										->addFailure( 'afs', StartScansResult::REASON_CREATE_FAILED )
 		);
 
-		$action = new ScansStart();
+		$action = new ScansStart( ExternalEntryGuard::ActionDataFromTransport( $request->post ) );
 		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
 		$method->setAccessible( true );
 		$method->invoke( $action );
@@ -124,7 +125,7 @@ class ScansStartGuardsTest extends BaseUnitTest {
 										->addResumed( 'afs', 44 )
 		);
 
-		$action = new ScansStart();
+		$action = new ScansStart( ExternalEntryGuard::ActionDataFromTransport( $request->post ) );
 		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
 		$method->setAccessible( true );
 		$method->invoke( $action );
@@ -157,7 +158,7 @@ class ScansStartGuardsTest extends BaseUnitTest {
 										->addFailure( 'wpv', StartScansResult::REASON_CREATE_FAILED )
 		);
 
-		$action = new ScansStart();
+		$action = new ScansStart( ExternalEntryGuard::ActionDataFromTransport( $request->post ) );
 		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
 		$method->setAccessible( true );
 		$method->invoke( $action );
@@ -170,8 +171,8 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		$this->assertSame( [ StartScansResult::REASON_CREATE_FAILED ], \array_column( $payload[ 'start_failures' ], 'reason' ) );
 		$this->assertSame( [ [ 'afs', 'wpv' ] ], $controller->comps->scans->startCalls );
 		$this->assertSame( [ false ], $controller->comps->scans->resetIgnoreCalls );
-		$this->assertTrue( $payload[ 'page_reload' ] );
-		$this->assertSame( '/actions-queue-scans/', $payload[ 'redirect_url' ] );
+		$this->assertFalse( $payload[ 'page_reload' ] );
+		$this->assertArrayNotHasKey( 'redirect_url', $payload );
 		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $payload[ 'modal_state' ] );
 		$this->assertNotSame( '', $payload[ 'modal_html' ] );
 		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $controller->action_router->renderData[ 'modal_state' ] );
@@ -192,7 +193,7 @@ class ScansStartGuardsTest extends BaseUnitTest {
 			StartScansResult::fromRequested( [ 'afs' ] )->addStarted( 'afs', 31 )
 		);
 
-		$action = new ScansStart();
+		$action = new ScansStart( ExternalEntryGuard::ActionDataFromTransport( $request->post ) );
 		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
 		$method->setAccessible( true );
 		$method->invoke( $action );

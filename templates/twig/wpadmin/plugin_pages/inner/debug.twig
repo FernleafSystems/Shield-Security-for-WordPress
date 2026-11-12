@@ -1,19 +1,6 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	{% if flags.display_tests %}
-		<div class="row">
-			<div class="col">
-				<h2 class="h6">{{ strings.debug_tests_heading }}{{ strings.translated_colon }}</h2>
-				<ul>
-					{% for test in vars.available_tests %}
-						<li><code>{{ test|raw }}</code></li>
-					{% endfor %}
-				</ul>
-			</div>
-		</div>
-	{% endif %}
-
 	<div class="row">
 		<div class="col">
 			{{ content.recent_events|raw }}

@@ -1,18 +1,20 @@
 const { test, fillWordPressLoginForm } = require( './support/shield-test' );
-const { expect, CYCLE_TIMEOUT, COMPLEX_CHALLENGE_TIMEOUT, FAILURE_TIMEOUT, TEST_TIMEOUT, observeRefreshTimers, timerBaseline, waitForRefreshTimer } = require( './support/silentcaptcha' );
+const { expect, CYCLE_TIMEOUT, COMPLEX_CHALLENGE_TIMEOUT, FAILURE_TIMEOUT, TEST_TIMEOUT, observeRefreshTimers, simulateVisitorInput, timerBaseline, waitForRefreshTimer } = require( './support/silentcaptcha' );
 const { requestActionSlug, collectRuntimeErrors, expectNoRuntimeErrors, expectShieldAjaxSuccess, waitForShieldAjaxAction, parseShieldAjaxJson } = require( './support/security-assertions' );
 const { dismissBlockingDialogs, openShieldRoute } = require( './support/shield-browser' );
 const IP = '93.184.216.84';
 const keyFor = base => 'icwp-wpsf-notbot-freshness:v1:' + base.replace( /\/$/, '' ) + '/';
+const REAL_FORM = '<form action="/" method="get"><input name="ref" value="test"><button>Send</button></form>';
+const SEARCH_FORM = '<form action="/" method="get"><input name="s" value="test"><button>Search</button></form>';
 
 test.setTimeout( TEST_TIMEOUT );
 
 async function insertForm( page ) {
-	await page.evaluate( () => {
+	await page.evaluate( form => {
 		const section = document.createElement( 'section' );
-		section.innerHTML = '<form action="/" method="get"><input name="s" value="test"><button>Search</button></form>';
+		section.innerHTML = form;
 		document.body.append( section );
-	} );
+	}, REAL_FORM );
 }
 
 for ( const contextKind of [ 'ordinary', 'form', 'login' ] ) {
@@ -88,12 +90,13 @@ test( 'cookie-free setting saves through the existing configuration form', async
 	} );
 } );
 
-async function scenario( browser, lane, fixtureApi, run, { allowCookies = false, mode = 'cookie_free', ip = IP } = {} ) {
+async function scenario( browser, lane, fixtureApi, run, { allowCookies = false, mode = 'cookie_free', ip = IP, visitorInput = true } = {} ) {
 	await fixtureApi.withNotBotAltchaFixture( ip, async () => {
 		await fixtureApi.setNotBotMode( mode );
 		const context = await browser.newContext( { baseURL: lane.baseUrl, extraHTTPHeaders: { 'X-Forwarded-For': ip } } );
 		context.setDefaultTimeout( CYCLE_TIMEOUT );
 		try {
+			if ( visitorInput ) await simulateVisitorInput( context );
 			await context.addInitScript( allowCookies => {
 				// Preserve real navigation entries: WordPress interactivity consumes them,
 				// while Playwright's fake Performance object returns an empty list.
@@ -929,6 +932,7 @@ test( 'cookie-free identical cached HTML serves separate IPs and stored freshnes
 		// adaptive medium challenge, including its greater WebKit CPU work.
 		other.setDefaultTimeout( COMPLEX_CHALLENGE_TIMEOUT );
 		try {
+			await simulateVisitorInput( other );
 			const visitor = await other.newPage();
 			await visitor.addInitScript( key => localStorage.setItem( key, JSON.stringify( { completed_at: Date.now() } ) ), key );
 			await visitor.route( lane.baseUrl + '/', route => route.fulfill( { response: original, body: html } ) );
@@ -1075,7 +1079,7 @@ for ( const contextKind of [ 'form', 'parser-late-form', 'native-login', 'rename
 			await page.goto( isForm ? '/' : contextKind === 'native-login' ? '/wp-login.php' : '/shield-browser-login' );
 			if ( !isForm ) await loginReady( page );
 			await success( page, key );
-			if ( contextKind === 'parser-late-form' ) expect( await page.evaluate( () => window.beforeLateForm ) ).toEqual( { forms: 0, requests: 1 } );
+			if ( contextKind === 'parser-late-form' ) expect( await page.evaluate( () => window.beforeLateForm ) ).toEqual( { forms: 0, requests: 0 } );
 			expect( await page.evaluate( () => window.shield_vars_silentcaptcha.comps.silentcaptcha.config.is_login ) ).toBe( !isForm );
 			const first = await completion( page, key );
 			await page.reload();
@@ -1195,9 +1199,129 @@ test( 'adaptive forms submit while silentCAPTCHA remains pending', async ( { bro
 			await page.goto( '/' );
 			await expect.poll( () => counts.basic ).toBe( 1 );
 			await insertForm( page );
-			await Promise.all( [ page.waitForURL( '**/?s=test' ), page.getByRole( 'button', { name: 'Search', exact: true } ).click() ] );
-			expect( new URL( page.url() ).searchParams.get( 's' ) ).toBe( 'test' );
+			await Promise.all( [ page.waitForURL( '**/?ref=test' ), page.getByRole( 'button', { name: 'Send', exact: true } ).click() ] );
+			expect( new URL( page.url() ).searchParams.get( 'ref' ) ).toBe( 'test' );
 		}
 		finally { release(); }
 	} );
 } );
+
+for ( const mode of [ 'cookie', 'cookie_free' ] ) {
+	const options = { mode, allowCookies: mode === 'cookie', visitorInput: false };
+
+	test( `${mode} page without a form starts at the fallback when the visitor gives no input`, async ( { browser, lane, fixtureApi } ) => {
+		await scenario( browser, lane, fixtureApi, async ( { page, counts } ) => {
+			await page.goto( '/' );
+			await settled( page );
+			await page.clock.runFor( 9999 );
+			await settled( page );
+			expect( counts.basic ).toBe( 0 );
+			await page.clock.runFor( 1 );
+			await expect.poll( () => counts.basic ).toBe( 1 );
+		}, options );
+	} );
+
+	test( `${mode} page without a form starts at the visitor's first input`, async ( { browser, lane, fixtureApi } ) => {
+		await scenario( browser, lane, fixtureApi, async ( { page, counts } ) => {
+			await page.goto( '/' );
+			await settled( page );
+			expect( counts.basic ).toBe( 0 );
+			await page.mouse.move( 5, 5 );
+			await expect.poll( () => counts.basic ).toBe( 1 );
+			await page.mouse.move( 50, 50 );
+			await page.clock.runFor( 10000 );
+			await settled( page );
+			expect( counts.basic ).toBe( 1 );
+		}, options );
+	} );
+
+	for ( const [ kind, form, immediate ] of [ [ 'real', REAL_FORM, true ], [ 'search', SEARCH_FORM, false ] ] ) {
+		test( `${mode} page loaded with a ${kind} form ${immediate ? 'starts at once' : 'waits'}`, async ( { browser, lane, fixtureApi } ) => {
+			await scenario( browser, lane, fixtureApi, async ( { page, counts } ) => {
+				await page.route( url => new URL( url ).pathname === '/', async route => {
+					const response = await route.fetch();
+					const html = ( await response.text() ).replace( /<body[^>]*>/, body => body + form );
+					await route.fulfill( { response, body: html } );
+				} );
+				await page.goto( '/' );
+				if ( immediate ) {
+					await expect.poll( () => counts.basic ).toBe( 1 );
+				}
+				else {
+					await settled( page );
+					expect( counts.basic ).toBe( 0 );
+				}
+			}, options );
+		} );
+	}
+
+	test( `${mode} form added after load starts at once`, async ( { browser, lane, fixtureApi } ) => {
+		await scenario( browser, lane, fixtureApi, async ( { page, counts } ) => {
+			await page.goto( '/' );
+			await settled( page );
+			expect( counts.basic ).toBe( 0 );
+			await insertForm( page );
+			await expect.poll( () => counts.basic ).toBe( 1 );
+		}, options );
+	} );
+
+	test( `${mode} login page starts at once`, async ( { browser, lane, fixtureApi } ) => {
+		await scenario( browser, lane, fixtureApi, async ( { page, counts } ) => {
+			await page.goto( '/wp-login.php' );
+			await expect.poll( () => counts.basic ).toBe( 1 );
+		}, options );
+	} );
+
+	test( `${mode} page without a form keeps waiting when its window gains focus`, async ( { browser, lane, fixtureApi } ) => {
+		await scenario( browser, lane, fixtureApi, async ( { page, counts } ) => {
+			await page.goto( '/' );
+			await settled( page );
+			await page.evaluate( () => window.dispatchEvent( new Event( 'focus' ) ) );
+			await settled( page );
+			expect( counts.basic ).toBe( 0 );
+		}, options );
+	} );
+}
+
+for ( const [ visitor, returned ] of [ [ 'stays away', false ], [ 'comes back', true ] ] ) {
+	test( `cookie refresh after a visitor leaves the window before the checks start and ${visitor}`, async ( { browser, lane, fixtureApi } ) => {
+		await scenario( browser, lane, fixtureApi, async ( { page, counts } ) => {
+			const refreshDelaysSince = baseline => page.evaluate( baseline => window.silentCaptchaTimerObservation.records
+				.filter( record => record.sequence > baseline && [ 2500, 15000 ].includes( record.delay ) )
+				.map( record => record.delay ), baseline );
+			await observeRefreshTimers( page );
+			await page.goto( '/' );
+			await settled( page );
+			await page.clock.runFor( 1000 );
+			await page.evaluate( () => window.dispatchEvent( new Event( 'blur' ) ) );
+			if ( returned ) {
+				await page.clock.runFor( 1000 );
+				await page.evaluate( () => window.dispatchEvent( new Event( 'focus' ) ) );
+			}
+			expect( counts.basic ).toBe( 0 );
+
+			const baseline = await timerBaseline( page );
+			const altchaResponse = waitForShieldAjaxAction( page, 'capture_not_bot_altcha' );
+			await page.mouse.move( 5, 5 );
+			// Cookie mode starts its solver through a zero-delay timer on the paused clock.
+			await expect.poll( async () => {
+				if ( counts.altcha === 0 ) await page.clock.runFor( 1 );
+				return counts.altcha;
+			} ).toBe( 1 );
+			await expectShieldAjaxSuccess( await altchaResponse );
+			await waitForRefreshTimer( page, baseline, 15000 );
+
+			const firstRefresh = await timerBaseline( page );
+			await page.clock.runFor( 15000 );
+			expect( await refreshDelaysSince( firstRefresh ) ).toEqual( [ returned ? 15000 : 2500 ] );
+
+			if ( !returned ) {
+				const paused = await timerBaseline( page );
+				await page.evaluate( () => window.dispatchEvent( new Event( 'focus' ) ) );
+				await page.clock.runFor( 2500 );
+				expect( await refreshDelaysSince( paused ) ).toEqual( [ 15000 ] );
+			}
+			expect( counts ).toEqual( { basic: 1, altcha: 1 } );
+		}, { mode: 'cookie', allowCookies: true, visitorInput: false } );
+	} );
+}

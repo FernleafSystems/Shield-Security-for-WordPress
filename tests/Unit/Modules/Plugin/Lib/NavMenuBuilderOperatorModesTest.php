@@ -14,7 +14,6 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Whitelabel;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState,
@@ -34,6 +33,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( '_n' )->alias( static fn( string $one, string $many, int $count ) :string => $count === 1 ? $one : $many );
 		Functions\when( 'apply_filters' )->alias( static fn( string $tag, $value ) => $value );
 		$this->servicesSnapshot = ServicesState::snapshot();
 	}
@@ -76,6 +76,8 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertIsArray( $sidebar[ 'home_license_item' ] );
 		$this->assertSame( PluginNavs::NAV_LICENSE, $sidebar[ 'home_license_item' ][ 'slug' ] );
 		$this->assertSame( [], $sidebar[ 'home_license_item' ][ 'badge' ] );
+		// On the free plan the licence link is the upgrade prompt and is styled to stand out.
+		$this->assertContains( 'is-free-plan', $sidebar[ 'home_license_item' ][ 'classes' ] );
 		$this->assertNotSame( '', $sidebar[ 'home_connect_title' ] );
 		$this->assertCount( 4, $sidebar[ 'home_connect_items' ] );
 		$this->assertNotNull( $this->findItemBySlug( $sidebar[ 'home_connect_items' ], 'connect-helpdesk' ) );
@@ -91,6 +93,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( PluginNavs::NAV_LICENSE, $sidebar[ 'home_license_item' ][ 'slug' ] );
 		$this->assertSame( 'PRO', $sidebar[ 'home_license_item' ][ 'badge' ][ 'text' ] );
 		$this->assertSame( 'good', $sidebar[ 'home_license_item' ][ 'badge' ][ 'status' ] );
+		$this->assertNotContains( 'is-free-plan', $sidebar[ 'home_license_item' ][ 'classes' ] );
 	}
 
 	public function test_actions_route_marks_current_mode_and_tool_and_shows_summary_badge() :void {
@@ -101,22 +104,26 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		] );
 
 		$sidebar = $this->createBuilder( [
-			'has_items'   => true,
-			'total_items' => 7,
-			'severity'    => 'critical',
+			'total_items'    => 7,
+			'severity'       => 'critical',
+			'critical_items' => 3,
+			'warning_items'  => 4,
 		] )->build();
 
 		$this->assertSame( '/admin/home', $sidebar[ 'navigation_links' ][ 0 ][ 'href' ] );
 		$this->assertTrue( $sidebar[ 'navigation_links' ][ 1 ][ 'divider_after' ] );
 		$this->assertSame( [ false, true, false, false, false ], \array_column( $sidebar[ 'navigation_links' ], 'divider_after' ) );
 		$this->assertSame( '', $sidebar[ 'home_connect_title' ] );
-		$this->assertNull( $sidebar[ 'home_license_item' ] );
+		// On the free plan the way to Pro shows on every main page.
+		$this->assertContains( 'is-free-plan', $sidebar[ 'home_license_item' ][ 'classes' ] );
 
 		$actionsMode = $this->findItemBySlug( $sidebar[ 'navigation_links' ], 'mode-actions' );
 		$this->assertIsArray( $actionsMode );
 		$this->assertTrue( $actionsMode[ 'active' ] );
-		$this->assertSame( '7', $actionsMode[ 'badge' ][ 'text' ] );
-		$this->assertSame( 'critical', $actionsMode[ 'badge' ][ 'status' ] );
+		// Critical items and warnings are counted apart, each in its own colour.
+		$this->assertSame( [ '3', '4' ], \array_column( $actionsMode[ 'badges' ], 'text' ) );
+		$this->assertSame( [ 'critical', 'warning' ], \array_column( $actionsMode[ 'badges' ], 'status' ) );
+		$this->assertSame( '3 critical items', $actionsMode[ 'badges' ][ 0 ][ 'label' ] );
 
 		$scanTool = $this->findItemBySlug( $sidebar[ 'tool_items' ], PluginNavs::NAV_SCANS.'-'.PluginNavs::SUBNAV_SCANS_RUN );
 		$this->assertIsArray( $scanTool );
@@ -192,19 +199,21 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertIsArray( $wizardTool );
 		$this->assertFalse( $wizardTool[ 'active' ] );
 		$this->assertFalse( $wizardTool[ 'is_action' ] );
-		$this->assertNotSame( '', $wizardTool[ 'href' ] );
+		// Guided Setup opens the setup guide, not the old wizard.
+		$this->assertSame( '/admin/zones/overview?setup_guide=open', $wizardTool[ 'href' ] );
+		$this->assertSame( [ 'setup-guide-open' => '1' ], $wizardTool[ 'data' ] ?? [] );
 
-		$whitelabelTool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-whitelabel' );
-		$this->assertIsArray( $whitelabelTool );
-		$this->assertTrue( $whitelabelTool[ 'is_action' ] );
-		$this->assertSame( '', $whitelabelTool[ 'href' ] );
-		$this->assertSame( '', $whitelabelTool[ 'target' ] );
-		$this->assertContains( 'zone_component_action', $whitelabelTool[ 'classes' ] );
-		$this->assertSame(
-			'offcanvas_zone_component_config',
-			$whitelabelTool[ 'data' ][ 'zone_component_action' ]
-		);
-		$this->assertSame( Whitelabel::Slug(), $whitelabelTool[ 'data' ][ 'zone_component_slug' ] );
+		// White Label and Hide Login are pages of their own; Integrations still opens its side panel.
+		foreach ( [ 'whitelabel', 'loginhide' ] as $page ) {
+			$tool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-'.$page );
+			$this->assertIsArray( $tool );
+			$this->assertFalse( $tool[ 'is_action' ] );
+			$this->assertNotSame( '', $tool[ 'href' ] );
+		}
+		$integrationsTool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-integrations' );
+		$this->assertIsArray( $integrationsTool );
+		$this->assertTrue( $integrationsTool[ 'is_action' ] );
+		$this->assertSame( 'integrations:integrations', $integrationsTool[ 'data' ][ 'configure_panel' ] ?? '' );
 	}
 
 	public function test_whitelabel_hides_home_connect_items() :void {
@@ -254,9 +263,10 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 	private function createBuilder( array $summary = [] ) :NavMenuBuilder {
 		return new NavMenuBuilderTestDouble(
 			\array_merge( [
-				'has_items'   => false,
-				'total_items' => 0,
-				'severity'    => 'good',
+				'total_items'    => 0,
+				'severity'       => 'good',
+				'critical_items' => 0,
+				'warning_items'  => 0,
 			], $summary )
 		);
 	}

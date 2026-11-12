@@ -146,9 +146,12 @@ export class DrillDownController extends BaseAutoExecComponent {
 	}
 
 	rememberLayerActivator( shellEl, targetIndex, sourceEl ) {
+		// A launcher inside another shell isn't this shell's to return to; one outside any shell, such as
+		// a tab above it, is.
+		const sourceShell = sourceEl instanceof HTMLElement ? sourceEl.closest( '[data-drill-shell="1"]' ) : null;
 		if ( !( sourceEl instanceof HTMLElement )
 			|| !sourceEl.isConnected
-			|| sourceEl.closest( '[data-drill-shell="1"]' ) !== shellEl ) {
+			|| ( sourceShell !== null && sourceShell !== shellEl ) ) {
 			return;
 		}
 

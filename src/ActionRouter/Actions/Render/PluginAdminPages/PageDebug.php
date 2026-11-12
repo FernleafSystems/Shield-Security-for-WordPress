@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CrowdsecResetEnrollment;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug\SimplePluginTests;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Debug\DebugRecentEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -47,36 +46,12 @@ class PageDebug extends PageModeLandingBase {
 	protected function getRenderData() :array {
 		$con = self::con();
 
-		$availableTests = [];
-		if ( $con->this_req->is_security_admin && ( $this->action_data[ 'show' ] ?? false ) ) {
-			$availableTests = \array_map(
-				fn( $method ) => sprintf(
-					'<a href="%s" target="_blank">%s</a>',
-					$con->plugin_urls->noncedPluginAction( SimplePluginTests::class, null, [
-						'test' => $method->getName()
-					] ),
-					\str_replace( 'dbg_', '', $method->getName() )
-				),
-				\array_filter(
-					( new \ReflectionClass( SimplePluginTests::class ) )->getMethods(),
-					fn( $method ) => \strpos( $method->getName(), 'dbg_' ) === 0
-				)
-			);
-		}
-
 		return \array_replace_recursive( parent::getRenderData(), [
 			'content' => [
 				'recent_events' => $con->action_router->render( DebugRecentEvents::class ),
 			],
-			'flags'   => [
-				'display_tests' => !empty( $availableTests ),
-			],
-			'strings' => [
-				'debug_tests_heading' => __( 'Debug Tests', 'wp-simple-firewall' ),
-			],
 			'vars'    => [
-				'debug_data'      => ( new Collate() )->run(),
-				'available_tests' => $availableTests,
+				'debug_data' => ( new Collate() )->run(),
 			],
 		] );
 	}

@@ -15,37 +15,17 @@ const lookupFieldIds = ( subject, inputName ) => {
 	};
 };
 
+// A subject's own panel, with its picker, opens by link, as pivots and older links do.
 const openInvestigatePanel = async ( page, subject ) => {
 	await openShieldRoute( page, {
 		nav: 'activity',
 		nav_sub: 'overview',
+		subject,
 	} );
-
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'nav' ) === 'activity'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& url.searchParams.get( 'subject' ) === subject,
-			{ timeout: 20_000 }
-		),
-		page.locator( `[data-drill-target="panel"][data-investigate-subject="${subject}"]` ).click(),
-	] );
 
 	const panel = page.locator( `${panelSelector}[data-investigate-panel-subject="${subject}"]` ).first();
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '1' );
 	return panel;
-};
-
-const returnToInvestigateLanding = async ( page ) => {
-	await Promise.all( [
-		page.waitForURL(
-			( url ) => url.searchParams.get( 'nav' ) === 'activity'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& !url.searchParams.get( 'subject' ),
-			{ timeout: 20_000 }
-		),
-		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
-	] );
 };
 
 const expectConnectedIdReferences = async ( page, locator, attribute ) => {
@@ -96,6 +76,5 @@ test( 'investigate lookup fields connect producer labels and descriptions to Sel
 	for ( const scenario of scenarios ) {
 		const panel = await openInvestigatePanel( page, scenario.subject );
 		await expectLookupAccessibilityContract( page, panel, scenario );
-		await returnToInvestigateLanding( page );
 	}
 } );

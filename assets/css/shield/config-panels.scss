@@ -1,0 +1,401 @@
+// ─── Configure panels ───
+// Follows common admin settings practice: each setting is a row with its name and description on the left
+// and its control on the right, and a readable maximum width so the eye doesn't travel across a wide screen
+// to find a control. Space, not rules or coloured edges, separates settings, and the one under the pointer
+// is lightly shaded so it's clear which name goes with which control. Settings that only apply when the one
+// above is on are indented beneath it. Nothing is faded. A setting that needs attention says why, right under
+// its name.
+
+$panel-text: #1d2327;
+$panel-muted: #50575e;
+$panel-good: #008000;
+$panel-good-dark: #005c00;
+$panel-link: #2271b1;
+$panel-warn: #996800;
+$panel-crit: #b32d2e;
+$panel-hover: #f3f5f6;
+$panel-unsaved: #f0f6fc;
+
+.options_form_for--panel {
+	.shield-panel {
+		display: grid;
+		max-width: 920px;
+		padding: 0 1.25rem 0.75rem;
+	}
+
+	.shield-panel-block {
+		display: grid;
+		gap: 2px;
+		padding-top: 0.5rem;
+
+		& + .shield-panel-block {
+			margin-top: 0.75rem;
+		}
+	}
+
+	.shield-panel-heading {
+		color: $panel-muted;
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		padding: 0.6rem 0 0.1rem;
+		text-transform: uppercase;
+	}
+
+	// One setting: name, help and description on the left; its control on the right, close by.
+	.shield-option-item.shield-panel-item {
+		align-items: center;
+		border: 0;
+		border-radius: 6px;
+		display: grid;
+		gap: 0.6rem 1.75rem;
+		grid-template-columns: minmax(0, 1fr) minmax(220px, 340px);
+		margin: 0 -0.75rem;
+		padding: 0.8rem 0.75rem;
+		transition: background-color 0.12s ease;
+
+		&:hover,
+		&:focus-within {
+			background: $panel-hover;
+		}
+
+		&.is-stacked {
+			align-items: start;
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		// An unsaved change is tinted, beside its "Unsaved" label, rather than marked with an edge.
+		&.is-dirty {
+			background: $panel-unsaved;
+		}
+
+		&.is-dirty::before {
+			display: none;
+		}
+	}
+
+	.shield-panel-item__text {
+		display: grid;
+		gap: 0.2rem;
+		min-width: 0;
+	}
+
+	.shield-panel-item__name {
+		align-items: center;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.45rem;
+
+		.option_label_name {
+			color: $panel-text;
+			font-size: 13.5px;
+			white-space: normal;
+		}
+	}
+
+	.options-summary {
+		color: $panel-muted;
+		font-size: 12.5px;
+		line-height: 1.5;
+	}
+
+	.shield-panel-help {
+		align-items: center;
+		background: transparent;
+		border: 1px solid #8c8f94;
+		border-radius: 50%;
+		color: $panel-muted;
+		cursor: pointer;
+		display: inline-flex;
+		flex: none;
+		font-size: 10.5px;
+		font-weight: 700;
+		height: 16px;
+		justify-content: center;
+		line-height: 1;
+		padding: 0;
+		text-decoration: none;
+		width: 16px;
+
+		&:hover,
+		&:focus-visible {
+			border-color: $panel-link;
+			color: $panel-link;
+		}
+	}
+
+	// ─── Why a setting needs attention, shown with it ───
+	.shield-panel-issues,
+	.shield-panel-notices {
+		display: grid;
+		gap: 0.25rem;
+		list-style: none;
+		margin: 0.2rem 0 0;
+		padding: 0;
+	}
+
+	.shield-panel-notices {
+		margin: 0;
+		padding: 0.85rem 0 0.25rem;
+	}
+
+	.shield-panel-issue {
+		align-items: baseline;
+		display: flex;
+		font-size: 12.5px;
+		font-weight: 500;
+		gap: 0.4rem;
+		margin: 0;
+
+		.bi {
+			flex: none;
+			font-size: 11px;
+		}
+
+		&--warning {
+			color: $panel-warn;
+		}
+
+		&--critical {
+			color: $panel-crit;
+		}
+	}
+
+
+	// ─── Controls ───
+	.shield-panel-item__control {
+		min-width: 0;
+
+		.form-switch {
+			margin: 0;
+		}
+
+		// The switch speaks for itself; an "Enabled" / "Disabled" caption beside it is noise.
+		.shield-option-switch-state {
+			display: none;
+		}
+
+		.form-control,
+		.form-select,
+		input[type="text"],
+		input[type="password"],
+		textarea {
+			background-color: #fff;
+			border: 1px solid #8c8f94;
+			color: $panel-text;
+		}
+
+		.form-select {
+			padding-right: 2rem;
+			width: 100%;
+		}
+
+		textarea.form-control {
+			max-width: 560px;
+			width: 100%;
+		}
+	}
+
+	// A list of choices sits under the setting's name, starting at the same edge.
+	.is-stacked .shield-panel-item__control {
+		display: block;
+	}
+
+	.is-inline .shield-panel-item__control {
+		align-items: center;
+		display: flex;
+		gap: 0.5rem;
+		justify-content: flex-start;
+	}
+
+	// A list of choices sits beside its name too, starting level with it.
+	.shield-option-item.shield-panel-item.shield-panel-item--radios {
+		align-items: start;
+	}
+
+	// Settings that only apply when the one above is on, indented beneath it.
+	.shield-panel-children {
+		display: grid;
+		gap: 2px;
+		margin: 0 0 0.5rem;
+		padding-left: 1.5rem;
+	}
+
+	// ─── Slider: a native range input of a fixed width, with the chosen step named above it ───
+	// The name sits above the track rather than beside it, so a long step name never squeezes the track.
+	.shield-range {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+		max-width: 100%;
+		width: 280px;
+	}
+
+	.shield-range__track {
+		display: grid;
+		gap: 2px;
+		width: 100%;
+	}
+
+	.shield-range__input {
+		accent-color: $panel-good;
+		cursor: pointer;
+		margin: 0;
+		width: 100%;
+
+		&:disabled {
+			accent-color: #8c8f94;
+			cursor: not-allowed;
+		}
+	}
+
+	// Ticks line up with where the thumb's centre sits at each step: the thumb is about 16px wide.
+	.shield-range__ticks {
+		display: flex;
+		justify-content: space-between;
+		padding: 0 7px;
+
+		span {
+			background: #8c8f94;
+			height: 5px;
+			width: 1px;
+		}
+	}
+
+	.shield-range__ends {
+		color: $panel-muted;
+		display: flex;
+		font-size: 11px;
+		gap: 0.5rem;
+		justify-content: space-between;
+		line-height: 1.3;
+
+		span:last-child {
+			text-align: right;
+		}
+	}
+
+	.shield-range__value {
+		color: $panel-good-dark;
+		font-size: 13px;
+		font-weight: 600;
+		line-height: 1.3;
+		order: -1;
+
+		&.is-off {
+			color: $panel-muted;
+		}
+	}
+
+	// ─── Segmented choice ───
+	.shield-seg {
+		border: 1px solid #8c8f94;
+		border-radius: 6px;
+		display: inline-flex;
+		flex-wrap: wrap;
+		overflow: hidden;
+	}
+
+	.shield-seg__opt {
+		cursor: pointer;
+		margin: 0;
+		position: relative;
+
+		// WordPress gives disabled radios their own opacity, so keep these hidden in that state too.
+		input,
+		input:disabled {
+			height: 1px;
+			opacity: 0;
+			position: absolute;
+			width: 1px;
+		}
+
+		span {
+			border-left: 1px solid #c3c4c7;
+			display: block;
+			font-size: 12.5px;
+			padding: 0.4rem 0.75rem;
+			white-space: nowrap;
+		}
+
+		&:first-child span {
+			border-left: 0;
+		}
+
+		input:checked + span {
+			background: $panel-good;
+			color: #fff;
+			font-weight: 600;
+		}
+
+		input:focus-visible + span {
+			outline: 2px solid #0b57a4;
+			outline-offset: -2px;
+		}
+
+		input:disabled + span {
+			background: #f6f7f7;
+			color: #8c8f94;
+			cursor: not-allowed;
+		}
+
+		input:disabled:checked + span {
+			background: #a7aaad;
+			color: #fff;
+		}
+	}
+
+	// ─── Single choice as a plain list ───
+	.shield-radio-list {
+		display: grid;
+		gap: 0.5rem;
+	}
+
+	.shield-radio-list__opt {
+		align-items: center;
+		cursor: pointer;
+		display: flex;
+		font-size: 13px;
+		gap: 0.55rem;
+		margin: 0;
+
+		input {
+			margin: 0;
+		}
+	}
+
+	// Choices in an even grid with the same look everywhere: ticked chips turn green.
+	.shield-panel-chips {
+		display: grid;
+		gap: 8px;
+		grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+		max-width: 760px;
+	}
+}
+
+// "Needs attention" leaves only the settings that need it, and their reasons. A topic whose reasons
+// aren't tied to one setting keeps all its settings, beneath those reasons.
+.configure-diagnosis[data-attention-only] .options_form_for--panel:has(.has-panel-issue) {
+	.shield-option-item.shield-panel-item:not(.has-panel-issue),
+	.shield-panel-block:not(:has(.has-panel-issue)),
+	.shield-panel-children:not(:has(.has-panel-issue)) {
+		display: none;
+	}
+}
+
+// While filtering, groups with no matching settings go, along with their rules and headings, and the
+// reasons that head a topic step aside.
+.configure-diagnosis[data-filtering] .options_form_for--panel {
+	.shield-panel-block:not(:has(.shield-option-item:not(.is-filtered-out))),
+	.shield-panel-children:not(:has(.shield-option-item:not(.is-filtered-out))),
+	.shield-panel-notices {
+		display: none;
+	}
+}
+
+// Narrow panels put each control under its name.
+@container (max-width: 600px) {
+	.options_form_for--panel .shield-option-item.shield-panel-item {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}

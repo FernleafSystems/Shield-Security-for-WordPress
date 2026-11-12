@@ -3,19 +3,18 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueRefresh;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @phpstan-import-type RawDrillLayer from PageDrillDownLandingBase
  * @phpstan-import-type QueueSummary from ActionsQueueLandingViewBuilder
- * @phpstan-import-type ZoneGroup from ActionsQueueLandingViewBuilder
  */
 class PageActionsQueueLanding extends PageDrillDownLandingBase {
 
 	use BuildsActionsQueueLandingData;
 
-	private ?ActionsQueueDrillDownPresentationBuilder $drillDownPresentation = null;
 
 	public const SLUG = 'plugin_admin_page_actions_queue_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/actions_queue_landing.twig';
@@ -52,17 +51,13 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 	}
 
 	protected function getLandingStrings() :array {
-		$zones = $this->getZonesIndexed();
-
 		return [
-			'zone_scans'             => $zones[ 'scans' ][ 'label' ],
-			'zone_maintenance'       => $zones[ 'maintenance' ][ 'label' ],
 			'pane_loading'           => __( 'Loading scan details...', 'wp-simple-firewall' ),
-			'groups_loading'         => __( 'Loading issue groups...', 'wp-simple-firewall' ),
 			'detail_loading'         => __( 'Loading results...', 'wp-simple-firewall' ),
 			'pane_load_error'        => __( 'Unable to load these scan details. Please try again.', 'wp-simple-firewall' ),
 			'layer_load_error'       => __( 'Unable to load this step. Please try again.', 'wp-simple-firewall' ),
 			'layer_retry'            => __( 'Retry', 'wp-simple-firewall' ),
+			'results_close'          => __( 'Back to the Actions Queue', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -74,13 +69,10 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 	}
 
 	protected function getLandingVars() :array {
-		$viewData = $this->getLandingViewData();
-		$groupsRenderAction = ActionData::BuildAjaxRender( ActionsQueueDrillDownGroups::class );
-
 		return \array_merge( parent::getLandingVars(), [
-			'zone_tiles'         => $viewData[ 'zone_tiles' ],
 			'actions_queue_ajax' => [
-				'groups_render_action_json' => OperatorChromeContract::encodeJson( $groupsRenderAction ),
+				// The queue refreshes in place after a change, through this action.
+				'refresh_action_json' => ActionData::BuildJson( ActionsQueueRefresh::class ),
 			],
 		] );
 	}
@@ -90,45 +82,25 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 	 */
 	protected function getLayers() :array {
 		$summary = $this->getQueueSummary();
-		$presentation = $this->drillDownPresentation();
 
 		return [
 			[
 				'key'    => 'buckets',
 				'body'   => $this->renderBucketsLayer(),
 				'header' => [
-					'compact_back_label' => $presentation->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
 					'breadcrumb_label'   => __( 'Queue areas', 'wp-simple-firewall' ),
 					'title'              => __( 'Queue areas', 'wp-simple-firewall' ),
-					'summary'            => __( 'Choose the queue area that needs attention first.', 'wp-simple-firewall' ),
-					'next_step'          => __( 'Choose Fix now or Review next to continue.', 'wp-simple-firewall' ),
+					'summary'            => __( 'Each queue area lists its issue groups; open one to see its results.', 'wp-simple-firewall' ),
+					'next_step'          => __( 'Open an issue group to continue.', 'wp-simple-firewall' ),
 					'icon_class'         => 'bi bi-inboxes',
 					'badge_status'       => $summary[ 'severity' ],
 					'color_key'          => $summary[ 'severity' ],
 				],
 			],
 			[
-				'key'    => 'groups',
-				'body'   => '',
-				'header' => [
-					'compact_back_label' => $presentation->buildBackLabel( __( 'Issue Groups', 'wp-simple-firewall' ) ),
-					'active_back_label'  => $presentation->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
-					'breadcrumb_label'   => __( 'Issue groups', 'wp-simple-firewall' ),
-					'title'              => __( 'Issue groups', 'wp-simple-firewall' ),
-					'summary'            => __( 'Choose Fix now or Review next to start.', 'wp-simple-firewall' ),
-					'next_step'          => __( 'Choose one issue group to review matching results.', 'wp-simple-firewall' ),
-					'icon_class'         => 'bi bi-list-ul',
-					'badge'              => __( 'Select', 'wp-simple-firewall' ),
-					'badge_status'       => 'neutral',
-					'color_key'          => 'neutral',
-				],
-			],
-			[
 				'key'    => 'detail',
 				'body'   => '',
 				'header' => [
-					'compact_back_label' => $presentation->buildBackLabel( __( 'Results', 'wp-simple-firewall' ) ),
-					'active_back_label'  => $presentation->buildBackLabel( __( 'Issue Groups', 'wp-simple-firewall' ) ),
 					'breadcrumb_label'   => __( 'Results', 'wp-simple-firewall' ),
 					'title'              => __( 'Results', 'wp-simple-firewall' ),
 					'summary'            => __( 'Choose an issue group to review matching results.', 'wp-simple-firewall' ),
@@ -152,20 +124,4 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 	private function getQueueSummary() :array {
 		return $this->getLandingViewData()[ 'summary' ];
 	}
-
-	/**
-	 * @return array<string,ZoneGroup>
-	 */
-	private function getZonesIndexed() :array {
-		return $this->getLandingViewData()[ 'zones_indexed' ];
-	}
-
-	private function drillDownPresentation() :ActionsQueueDrillDownPresentationBuilder {
-		if ( $this->drillDownPresentation === null ) {
-			$this->drillDownPresentation = new ActionsQueueDrillDownPresentationBuilder();
-		}
-
-		return $this->drillDownPresentation;
-	}
-
 }

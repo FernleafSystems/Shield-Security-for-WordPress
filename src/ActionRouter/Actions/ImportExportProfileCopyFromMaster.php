@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Profiles\ProfileRepository;
 
 class ImportExportProfileCopyFromMaster extends BaseAction {
@@ -9,6 +10,12 @@ class ImportExportProfileCopyFromMaster extends BaseAction {
 	use Traits\SecurityAdminRequired;
 
 	public const SLUG = 'importexport_profile_copy_from_master';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$success = false;

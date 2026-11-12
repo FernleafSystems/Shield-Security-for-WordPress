@@ -1,0 +1,20 @@
+// With reduced motion asked for, Shield's screens change state without animating: panels, bars, hovers and
+// the live capture pulse all settle at once. Scoped to Shield's own admin areas, so WordPress's are untouched.
+@media (prefers-reduced-motion: reduce) {
+	#PageContainer-Apto,
+	#ShieldSetupGuide,
+	.shield-actionbar,
+	.shield-search-modal,
+	#ShieldModalContainer,
+	#AptoOffcanvas {
+		&,
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			scroll-behavior: auto !important;
+			transition-duration: 0.01ms !important;
+		}
+	}
+}

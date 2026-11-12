@@ -187,6 +187,11 @@
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:browser"
     ],
+    "test:browser:screenshots": [
+      "Composer\\Config::disableProcessTimeout",
+      "@putenv SHIELD_UI_SCREENSHOTS_DIR=test-results/ui-screenshots",
+      "@php bin/shield test:browser -- tests/browser/action-router/ui-screenshots.spec.js"
+    ],
     "test:browser:cleanup": [
       "@php bin/shield test:browser:cleanup"
     ],
@@ -205,6 +210,10 @@
     "test:popular-plugins": [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:popular-plugins"
+    ],
+    "test:plugin-check":    [
+      "Composer\\Config::disableProcessTimeout",
+      "@php bin/shield test:plugin-check"
     ],
     "analyze":              "@php bin/shield analyze:source",
     "package-plugin":       [

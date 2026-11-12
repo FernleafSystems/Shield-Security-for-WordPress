@@ -4,10 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
+	Actions\InvestigateLookup,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\StaticToolDefinitions;
 
 /**
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
@@ -47,13 +47,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\StaticToolDefinit
  *   render_action_json:string,
  *   header:DrillLayerHeader,
  *   header_json:string
- * }
- * @phpstan-type ActivityReviewTile array{
- *   title:string,
- *   stat_text:string,
- *   action_label:string,
- *   icon_class:string,
- *   href:string
  * }
  * @phpstan-type PanelLayerData array{
  *   subject_key:string,
@@ -108,14 +101,127 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		return PluginNavs::MODE_INVESTIGATE;
 	}
 
+	protected function getLandingVars() :array {
+		$vars = parent::getLandingVars();
+		$vars[ 'investigate_current_tab' ] = $this->getCurrentTab();
+		$vars[ 'investigate_tabs' ] = ( new InvestigateTabs() )->build( $this->getCurrentTab() );
+		$vars[ 'investigate_lookup' ] = $this->renderLookup();
+		$vars[ 'investigate_logs' ] = $this->buildLogTabs();
+		$vars[ 'investigate_live' ] = $this->renderLiveTab();
+		return $vars;
+	}
+
+	protected function renderLiveTab() :string {
+		return self::con()->action_router->render( TrafficLogLivePanelBody::class, [
+			Constants::NAV_ID     => PluginNavs::NAV_TRAFFIC,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_LIVE,
+		] );
+	}
+
+	/**
+	 * The log and IP rules tabs. Each table carries its own buttons, downloads among them.
+	 * @return list<array{key:string,table_id:string}>
+	 */
+	protected function buildLogTabs() :array {
+		return [
+			[
+				'key'      => InvestigateTabs::ACTIVITY,
+				'table_id' => 'ShieldTable-ActivityLog',
+			],
+			[
+				'key'      => InvestigateTabs::REQUESTS,
+				'table_id' => 'ShieldTable-TrafficViewer',
+			],
+			[
+				'key'      => InvestigateTabs::IP_RULES,
+				'table_id' => 'ShieldTable-IpRules',
+			],
+			[
+				'key'      => InvestigateTabs::SESSIONS,
+				'table_id' => 'ShieldTable-SessionsViewer',
+			],
+		];
+	}
+
+	/**
+	 * The tab to open with: the one whose link brought us here, or the lookup.
+	 */
+	private function getCurrentTab() :string {
+		$tab = InvestigateTabs::forRoute(
+			sanitize_key( $this->getTextInputFromActionData( Constants::NAV_ID ) ),
+			sanitize_key( $this->getTextInputFromActionData( Constants::NAV_SUB_ID ) )
+		);
+		if ( sanitize_key( $this->getTextInputFromActionData( 'subject' ) ) === self::SUBJECT_LIVE_TRAFFIC ) {
+			$tab = InvestigateTabs::LIVE;
+		}
+		// A subject asked for by link opens beneath the lookup.
+		return $tab === '' || $this->getActiveSubject() !== '' ? InvestigateTabs::LOOKUP : $tab;
+	}
+
+	/**
+	 * @param SubjectTile $tile
+	 * @return array<string,string>
+	 */
+	private function subjectAttributes( array $tile ) :array {
+		return [
+			'data-investigate-subject'       => $tile[ 'key' ],
+			'data-investigate-header'        => $tile[ 'header_json' ],
+			'data-investigate-render-action' => $tile[ 'render_action_json' ],
+			'data-investigate-lookup-key'    => $tile[ 'lookup_key' ],
+			'data-investigate-is-live'       => $tile[ 'is_live_attr' ],
+		];
+	}
+
+	/**
+	 * The kinds the lookup can narrow to, each carrying its subject so results open its panel.
+	 * @return list<array{key:string,label:string,attributes:array<string,string>}>
+	 */
+	private function buildLookupKinds() :array {
+		$labels = [
+			'user'   => __( 'Users', 'wp-simple-firewall' ),
+			'ip'     => __( 'IP addresses', 'wp-simple-firewall' ),
+			'plugin' => __( 'Plugins', 'wp-simple-firewall' ),
+			'theme'  => __( 'Themes', 'wp-simple-firewall' ),
+			'core'   => __( 'WordPress core', 'wp-simple-firewall' ),
+		];
+		$kinds = [];
+		foreach ( $labels as $key => $label ) {
+			$tile = $this->getSubjectTileLookup()[ $key ] ?? null;
+			if ( $tile !== null && $tile[ 'is_enabled' ] ) {
+				$attributes = $this->subjectAttributes( $tile );
+				if ( $key === 'core' ) {
+					// WordPress core is one thing, so choosing it opens it straight away.
+					$attributes[ 'data-drill-target' ] = 'panel';
+				}
+				elseif ( $key === 'ip' ) {
+					// There are too many addresses to list, so they wait for something to search for.
+					$attributes[ 'data-lookup-prompt' ] = __( 'Type to search for IP addresses.', 'wp-simple-firewall' );
+				}
+				$kinds[] = [
+					'key'        => $key,
+					'label'      => $label,
+					'attributes' => $attributes,
+				];
+			}
+		}
+		return $kinds;
+	}
+
 	protected function getLandingStrings() :array {
 		return [
-			'label_pro'               => __( 'PRO', 'wp-simple-firewall' ),
-			'explore_heading'         => __( 'Explore', 'wp-simple-firewall' ),
-			'manage_ip_rules'         => __( 'Manage IP rules and access', 'wp-simple-firewall' ),
+			'lookup_label'            => __( 'Look up a user, IP address, plugin or theme', 'wp-simple-firewall' ),
+			'lookup_placeholder'      => __( 'Search for a user, IP address, plugin or theme', 'wp-simple-firewall' ),
+			'lookup_kinds_label'      => __( 'Looking up', 'wp-simple-firewall' ),
+			'lookup_kind_any'         => __( 'Anything', 'wp-simple-firewall' ),
+			'lookup_intro'            => __( 'Type a username, email address, IP address, or part of a plugin or theme name. Or choose what you are looking up to browse it.', 'wp-simple-firewall' ),
+			'lookup_searching'        => __( 'Searching…', 'wp-simple-firewall' ),
+			'lookup_none'             => __( 'Nothing matches "%s".', 'wp-simple-firewall' ),
+			'lookup_none_kind'        => __( 'There is nothing to list here.', 'wp-simple-firewall' ),
+			'lookup_count'            => __( '%s results', 'wp-simple-firewall' ),
+			'lookup_count_one'        => __( '1 result', 'wp-simple-firewall' ),
+			'lookup_failed'           => __( 'The lookup failed. Please try again.', 'wp-simple-firewall' ),
 			'panel_loading'           => $this->getPanelLoadingMessage(),
 			'panel_load_error'        => $this->getPanelLoadErrorMessage(),
-			'review_activity_heading' => __( 'Review Activity', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -139,9 +245,8 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		return [
 			[
 				'key'    => 'subjects',
-				'body'   => $this->renderSubjectsLayer(),
+				'body'   => '',
 				'header' => [
-					'compact_back_label' => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
 					'breadcrumb_label'   => __( 'Subjects', 'wp-simple-firewall' ),
 					'title'              => __( 'Subjects', 'wp-simple-firewall' ),
 					'summary'            => __( 'Choose a subject to investigate.', 'wp-simple-firewall' ),
@@ -174,13 +279,16 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		return ActionData::BuildAjaxRender( $renderAction, $auxData );
 	}
 
-	protected function renderSubjectsLayer() :string {
+	/**
+	 * The lookup sits above the subject it opens, so it stays in place while a subject is shown.
+	 */
+	protected function renderLookup() :string {
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/investigate/layer_subjects.twig' )
 			->setData( [
-				'subjects'         => $this->getSubjectTiles(),
-				'activity_reviews' => $this->getActivityReviewTiles(),
-				'strings'          => $this->getLandingStrings(),
+				'kinds'              => $this->buildLookupKinds(),
+				'lookup_action_json' => ActionData::BuildJson( InvestigateLookup::class ),
+				'strings'            => $this->getLandingStrings(),
 			] )
 			->render();
 	}
@@ -290,34 +398,6 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	}
 
 	/**
-	 * @return list<ActivityReviewTile>
-	 */
-	private function getActivityReviewTiles() :array {
-		$pluginURLs = self::con()->plugin_urls;
-		$reviewMeta = [
-			'tool_activity_log' => __( 'Review recorded security events', 'wp-simple-firewall' ),
-			'tool_traffic_log'  => __( 'Review recorded web requests', 'wp-simple-firewall' ),
-			'tool_sessions'     => __( 'Review active and recent sessions', 'wp-simple-firewall' ),
-		];
-		$reviewTiles = [];
-		foreach ( StaticToolDefinitions::forMode( PluginNavs::MODE_INVESTIGATE ) as $tool ) {
-			$statText = $reviewMeta[ $tool[ 'id' ] ] ?? null;
-			if ( $statText === null ) {
-				continue;
-			}
-
-			$reviewTiles[] = [
-				'title'        => $tool[ 'title' ],
-				'stat_text'    => $statText,
-				'action_label' => sprintf( __( 'Review %s', 'wp-simple-firewall' ), $tool[ 'title' ] ),
-				'icon_class'   => 'bi bi-'.$tool[ 'icon' ],
-				'href'         => $pluginURLs->adminTopNav( $tool[ 'nav' ], $tool[ 'subnav' ] ),
-			];
-		}
-		return $reviewTiles;
-	}
-
-	/**
 	 * @return array<string,SubjectTile>
 	 */
 	protected function getSubjectTileLookup() :array {
@@ -378,8 +458,6 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	 */
 	private function buildSubjectHeader( array $subject ) :array {
 		return OperatorChromeContract::normalizeHeader( [
-			'compact_back_label' => $this->buildBackLabel( $subject[ 'label' ] ),
-			'active_back_label'  => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
 			'breadcrumb_label'   => $subject[ 'label' ],
 			'title'              => $subject[ 'label' ],
 			'summary'            => $subject[ 'context_summary' ],
@@ -397,8 +475,6 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	 */
 	private function buildIdlePanelHeader() :array {
 		return OperatorChromeContract::normalizeHeader( [
-			'compact_back_label' => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
-			'active_back_label'  => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
 			'breadcrumb_label'   => __( 'Investigation', 'wp-simple-firewall' ),
 			'title'              => __( 'Investigation', 'wp-simple-firewall' ),
 			'summary'            => __( 'Select a subject from the grid.', 'wp-simple-firewall' ),
@@ -471,19 +547,15 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		return __( 'Unable to load this investigation panel. Please try again.', 'wp-simple-firewall' );
 	}
 
-	private function buildBackLabel( string $label ) :string {
-		return sprintf(
-			__( 'Back to %s', 'wp-simple-firewall' ),
-			$label
-		);
-	}
 
 	private function getActiveSubject() :string {
 		if ( $this->activeSubjectCache === null ) {
-			$subject = sanitize_key( $this->getTextInputFromRequestOrActionData( 'subject' ) );
+			$subject = sanitize_key( $this->getTextInputFromActionData( 'subject' ) );
 			$definitions = $this->getSubjectDefinitions();
 
-			if ( !isset( $definitions[ $subject ] ) || !$definitions[ $subject ][ 'is_enabled' ] ) {
+			// Live traffic has its own tab.
+			if ( $subject === self::SUBJECT_LIVE_TRAFFIC
+				 || !isset( $definitions[ $subject ] ) || !$definitions[ $subject ][ 'is_enabled' ] ) {
 				$subject = '';
 			}
 
@@ -515,7 +587,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 				if ( $lookupKey === '' ) {
 					continue;
 				}
-				$this->lookupValuesCache[ $lookupKey ] = $this->getTextInputFromRequestOrActionData( $lookupKey );
+				$this->lookupValuesCache[ $lookupKey ] = $this->getTextInputFromActionData( $lookupKey );
 			}
 		}
 

@@ -198,7 +198,6 @@ class CaptureRedirectsTest extends BaseUnitTest {
 	public static function providerOldPageSlugs() :array {
 		return [
 			'reports charts' => [ 'reports', 'charts', 'nav=reports&nav_sub=overview&workspace=charts' ],
-			'live traffic' => [ 'traffic', 'live', 'nav=activity&nav_sub=overview&subject=live_traffic' ],
 			'sessions alias' => [ 'tools', 'sessions', 'nav=activity&nav_sub=sessions' ],
 			'retired component' => [ 'zone_components', 'whitelabel', 'nav=zones&nav_sub=overview&component=whitelabel' ],
 			'scan history' => [ 'scans', 'history', 'nav=scans&nav_sub=overview&zone=scans' ],

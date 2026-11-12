@@ -11,7 +11,6 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\DetailExpansionType;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueLandingViewBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -49,6 +48,10 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		Functions\when( 'wp_hash' )->alias(
 			static fn( string $data, string $scheme = 'auth' ) :string => 'hash-'.$scheme.'-'.$data
 		);
+		// The site query cache starts empty, so maintenance checks are worked out for real.
+		Functions\when( 'wp_salt' )->justReturn( 'test-salt' );
+		Functions\when( 'get_transient' )->justReturn( false );
+		Functions\when( 'set_transient' )->justReturn( true );
 		Functions\when( 'get_rest_url' )->alias(
 			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
 		);
@@ -106,7 +109,6 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 			'scans'       => [],
 			'maintenance' => [],
 		], 'last_scan_marker' );
-		$zonesIndexed = $view[ 'zones_indexed' ] ?? [];
 		$zoneTiles = $view[ 'zone_tiles' ] ?? [];
 		$statusOverview = $view[ 'status_overview' ] ?? [];
 
@@ -117,10 +119,9 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( 1, $statusOverview[ 'warning_count' ] ?? 0 );
 		$this->assertSame( 'last_scan_marker', $statusOverview[ 'subtext' ] ?? '' );
 
-		$this->assertSame( [ 'scans', 'maintenance' ], \array_keys( $zonesIndexed ) );
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $zoneTiles, 'key' ) );
-		$this->assertArrayHasKey( 'label', $zonesIndexed[ 'scans' ] );
-		$this->assertArrayHasKey( 'label', $zonesIndexed[ 'maintenance' ] );
+		$this->assertArrayHasKey( 'label', $zoneTiles[ 0 ] );
+		$this->assertArrayHasKey( 'label', $zoneTiles[ 1 ] );
 	}
 
 	public function test_assessment_rows_keep_clear_zones_interactive_without_creating_issue_counts() :void {
@@ -228,7 +229,6 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 			static fn( array $tile ) :bool => $tile[ 'key' ] === 'maintenance'
 		) )[ 0 ];
 
-		$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $maintenance[ 'items' ][ 0 ][ 'expansion' ][ 'type' ] );
 		$this->assertSame( 'wp_plugins_updates', $maintenance[ 'maintenance_detail_groups' ][ 0 ][ 'rows' ][ 0 ][ 'key' ] );
 		$this->assertSame( [ 'warning', 'good' ], \array_column( $maintenance[ 'maintenance_detail_groups' ], 'status' ) );
 	}
@@ -262,7 +262,7 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 								'is_action'   => true,
 								'icon'        => 'bi bi-eye-fill',
 								'tooltip'     => 'Stop ignoring this maintenance item',
-								'ajax_action' => [ 'ex' => 'maintenance_item_unignore' ],
+								'ajax_action_json' => '{"ex":"maintenance_item_unignore"}',
 							],
 							'expansion'     => [],
 						],

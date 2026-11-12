@@ -18,7 +18,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Uuid;
  * @property string   $ga_secret
  * @property bool     $ga_validated
  * @property string   $ga_temp_secret
- * @property array    $sms_registration
  * @property string   $u2f_secret
  * @property bool     $u2f_validated
  * @property string[] $u2f_regrequests
@@ -32,6 +31,8 @@ use FernleafSystems\Wordpress\Services\Utilities\Uuid;
  * @property bool     $wc_social_login_valid
  * @property array    $passkeys
  * @property array    $tours
+ * @property array    $ui_prefs
+ * @property array    $setup_guide
  * @property array    $flags
  * /*** VIRTUAL ***
  * @property int      $most_recent_activity_at
@@ -61,6 +62,8 @@ class ShieldUserMeta extends UserMeta {
 			case 'flags':
 			case 'login_intents':
 			case 'tours':
+			case 'ui_prefs':
+			case 'setup_guide':
 			case 'passkeys':
 				if ( !\is_array( $value ) ) {
 					$value = [];
