@@ -12,7 +12,7 @@ abstract class ConfigureDrillDownRenderBase extends DrillDownAjaxRenderBase {
 	 * @throws ActionException
 	 */
 	protected function getSelectedConfigureZoneKey() :string {
-		$zoneKey = sanitize_key( (string)( $this->action_data[ 'zone' ] ?? '' ) );
+		$zoneKey = sanitize_key( $this->fields()->string( 'zone', '' ) );
 		if ( $zoneKey === '' || !isset( $this->getConfigureLandingTileLookup()[ $zoneKey ] ) ) {
 			throw new ActionException( 'Invalid Configure zone key.' );
 		}

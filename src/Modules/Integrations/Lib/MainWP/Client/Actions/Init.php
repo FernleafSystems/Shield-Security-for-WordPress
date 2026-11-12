@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\{
 	Client\Auth\ReproduceClientAuthByKey,
@@ -50,17 +51,25 @@ class Init {
 				$information = \is_array( $information ) ? $information : [];
 				$post = \is_array( $post ) ? $post : [];
 				$con = self::con();
-				$actionSlug = $post[ $con->prefix( 'mwp-action' ) ] ?? '';
+				$actionSlug = ActionData::TransportField( $post, $con->prefix( 'mwp-action' ) );
 
-				if ( \is_scalar( $actionSlug ) && $actionSlug !== '' ) {
+				if ( $actionSlug !== '' ) {
 					$params = $post[ $con->prefix( 'mwp-params' ) ] ?? [];
 					try {
-						$response = ( new ClientActionRunner() )->run( (string)$actionSlug, \is_array( $params ) ? $params : [] );
+						$response = ( new ClientActionRunner() )->run( $actionSlug, \is_array( $params ) ? $params : [] );
 					}
 					catch ( ActionException $ae ) {
 						$response = [
 							'success' => false,
 							'message' => sprintf( 'Client site action failed: %s', $ae->getMessage() ),
+						];
+					}
+					catch ( \Throwable $e ) {
+						// A fault in the action, not a refusal. The dashboard still gets a controlled response.
+						\error_log( \sprintf( 'Shield MainWP action %s failed: %s', $actionSlug, $e->getMessage() ) );
+						$response = [
+							'success' => false,
+							'message' => 'Client site action failed.',
 						];
 					}
 					$information[ $con->prefix( 'mwp-action-response' ) ] = wp_json_encode( $response );

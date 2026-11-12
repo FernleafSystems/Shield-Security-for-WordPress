@@ -22,9 +22,9 @@ class SetupGuideUpdate extends BaseAction {
 
 	protected function exec() {
 		$state = new SetupGuideState();
-		switch ( sanitize_key( (string)( $this->action_data[ 'op' ] ?? '' ) ) ) {
+		switch ( sanitize_key( $this->fields()->string( 'op', '' ) ) ) {
 			case 'skip':
-				$saved = $state->markDone( (string)( $this->action_data[ 'step_slug' ] ?? '' ) );
+				$saved = $state->markDone( $this->fields()->string( 'step_slug', '' ) );
 				break;
 			case 'dismiss':
 				$saved = $state->dismiss();

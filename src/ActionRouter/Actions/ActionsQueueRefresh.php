@@ -31,10 +31,11 @@ class ActionsQueueRefresh extends BaseAction {
 			'landing_refresh' => $this->buildLandingRefresh(),
 		];
 
-		$groupKey = \trim( (string)( $this->action_data[ 'group' ] ?? '' ) );
+		$fields = $this->fields();
+		$groupKey = \trim( $fields->string( 'group', '' ) );
 		if ( $groupKey !== '' ) {
 			$payload[ 'selected_group' ] = ( new ActionsQueueGroupsBuilder() )->buildGroup(
-				(string)$this->action_data[ 'bucket' ],
+				$fields->string( 'bucket' ),
 				$groupKey,
 				$this->getAttentionQuery(),
 				$this->getAssessmentRowsByZone()

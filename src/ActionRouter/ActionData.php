@@ -44,19 +44,23 @@ class ActionData {
 
 	/**
 	 * The request data a page or link sends to reach an action from outside. It carries what the action's
-	 * ExternalAccess() declaration requires: an action nonce only when an entry demands one, and REST
-	 * details only when the action is reachable over REST.
+	 * ExternalAccess() declaration requires: an action nonce only when an entry demands one, of the kind it
+	 * demands, and REST details only when the action is reachable over REST.
 	 * @param class-string<Actions\BaseAction> $actionClass
 	 */
 	public static function Build( string $actionClass, bool $isAjax = true, array $aux = [], bool $uniq = false ) :array {
 		$access = ExternalEntryGuard::DeclaredAccess( $actionClass );
+		$nonceProof = ExternalEntryGuard::DeclaredNonceProof( $actionClass );
 
 		$data = [
 			self::FIELD_ACTION  => self::FIELD_SHIELD,
 			self::FIELD_EXECUTE => $actionClass::SLUG,
 		];
-		if ( \in_array( ExternalEntryGuard::PROOF_NONCE, $access, true ) ) {
-			$data[ self::FIELD_NONCE ] = ActionNonce::Create( $actionClass );
+		if ( $nonceProof !== '' ) {
+			$data[ self::FIELD_NONCE ] = ActionNonce::Create(
+				$actionClass,
+				$nonceProof === ExternalEntryGuard::PROOF_NONCE
+			);
 		}
 		$data = \array_merge( $data, $aux );
 

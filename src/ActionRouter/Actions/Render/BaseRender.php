@@ -15,6 +15,11 @@ abstract class BaseRender extends BaseAction {
 	public const GO_PRO_URL = 'https://clk.shldscrty.com/shieldgoprofeature';
 	public const COMPARE_FEATURES_URL = 'https://clk.shldscrty.com/gp';
 	public const RENDER_ERROR_EXCEPTION = 'render_exception';
+	/**
+	 * Set by AjaxRender on the data it gives a render, to say the data came from a request. A caller inside the
+	 * plugin can override the display data all renders share (flags, strings, links and so on); a request can't.
+	 */
+	public const DATA_FROM_REQUEST = 'shield_data_from_request';
 
 	private string $renderErrorCode = '';
 
@@ -87,9 +92,15 @@ abstract class BaseRender extends BaseAction {
 	 * @throws ActionException
 	 */
 	protected function getAllRenderDataArrays() :array {
+		$common = $this->getCommonDisplayData();
+		$given = $this->action_data;
+		if ( !empty( $given[ self::DATA_FROM_REQUEST ] ) ) {
+			// A request supplies this render's inputs. It doesn't get to replace what every render shares.
+			$given = \array_diff_key( $given, $common, [ self::DATA_FROM_REQUEST => true ] );
+		}
 		return [
-			0  => $this->getCommonDisplayData(),
-			10 => $this->action_data,
+			0  => $common,
+			10 => $given,
 			50 => $this->getRenderData(),
 		];
 	}

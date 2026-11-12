@@ -50,8 +50,8 @@ class ConfigForm extends UserMfaBase {
 				'logged_in'     => $user instanceof \WP_User,
 			],
 			'strings' => [
-				'title'         => (string)( $this->action_data[ 'title' ] ?? 'MFA' ),
-				'subtitle'      => (string)( $this->action_data[ 'subtitle' ] ?? '' ),
+				'title'         => $this->fields()->string( 'title' ),
+				'subtitle'      => $this->fields()->string( 'subtitle' ),
 				'not_logged_in' => __( 'Not currently logged-in.', 'wp-simple-firewall' ),
 				'no_providers'  => __( 'There are currently no 2FA providers available on your account.', 'wp-simple-firewall' ),
 			],

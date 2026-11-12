@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	ActionException,
 	InvalidActionNonceException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ResponseAdapter\ResponseAdapterFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -24,14 +25,18 @@ class CapturePluginAction extends CaptureActionBase {
 
 	protected function theRun() {
 		$transport = $this->transportData();
-		$slug = $this->extractActionSlugFromTransport( $transport );
+		$slug = $this->requestedSlug( $transport );
 
 		try {
-			( new ExternalEntryGuard() )->requireProof( $slug, $this->guardedEntry(), $transport );
-			$this->actionResponse = self::con()->action_router->action(
-				$slug,
-				ExternalEntryGuard::ActionDataFromTransport( $transport, Services::Request()->post )
-			);
+			// The ordinary route merges query and POST for routing, but a form is the POST body.
+			$this->actionResponse = ( new ResponseAdapterFactory() )
+				->forActionType( ActionRoutingController::ACTION_SHIELD )
+				->adapt( ( new ExternalEntryGuard() )->dispatch(
+					$this->guardedEntry(),
+					$slug,
+					$transport,
+					Services::Request()->post
+				) );
 		}
 		catch ( InvalidActionNonceException $e ) {
 			$this->dieInvalidNonce();

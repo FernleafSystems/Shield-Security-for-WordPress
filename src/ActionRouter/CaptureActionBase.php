@@ -30,12 +30,8 @@ class CaptureActionBase {
 	}
 
 	protected function isRunnableShieldTransport( array $transport ) :bool {
-		$action = ActionData::TransportField( $transport, ActionData::FIELD_ACTION );
-		$slug = ActionData::TransportField( $transport, ActionData::FIELD_EXECUTE );
-
-		return $action === ActionData::FIELD_SHIELD
-			   && ActionData::isValidActionSlug( $slug )
-			   && ( new ExternalEntryGuard() )->admit( $slug, $this->guardedEntry() );
+		return ActionData::TransportField( $transport, ActionData::FIELD_ACTION ) === ActionData::FIELD_SHIELD
+			   && ( new ExternalEntryGuard() )->admit( $this->requestedSlug( $transport ), $this->guardedEntry() );
 	}
 
 	/**
@@ -45,8 +41,11 @@ class CaptureActionBase {
 		return '';
 	}
 
-	protected function extractActionSlugFromTransport( array $transport ) :string {
-		return ActionData::extractActionSlug( ActionData::TransportField( $transport, ActionData::FIELD_EXECUTE ) );
+	/**
+	 * The slug of the action the request names, as the request gave it. The guard decides what it means.
+	 */
+	protected function requestedSlug( array $transport ) :string {
+		return ActionData::TransportField( $transport, ActionData::FIELD_EXECUTE );
 	}
 
 	protected function run() {

@@ -11,7 +11,7 @@ trait HandlesRequestMetaTableAction {
 	 */
 	protected function getRequestMeta() :array {
 		$requestMeta = new GetRequestMeta();
-		$rid = (string)( $this->action_data[ 'rid' ] ?? '' );
+		$rid = $this->fields()->string( 'rid', '' );
 
 		return [
 			'success'      => true,

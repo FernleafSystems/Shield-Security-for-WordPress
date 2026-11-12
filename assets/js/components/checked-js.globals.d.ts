@@ -26,6 +26,7 @@ type AccessibleDialogService = {
 		setTitle( title: string ): void;
 	}|null;
 	confirm( config?: AccessibleDialogConfig ) :Promise<boolean>;
+	isOpen() :boolean;
 	message( config?: AccessibleDialogConfig ) :Promise<void>;
 	prompt( config?: AccessibleDialogConfig ) :Promise<string|null>;
 	processing( config?: AccessibleDialogConfig ) :AccessibleDialogProcessingHandle;

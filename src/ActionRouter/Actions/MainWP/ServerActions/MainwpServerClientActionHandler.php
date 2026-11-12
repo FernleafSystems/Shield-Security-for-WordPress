@@ -67,7 +67,8 @@ class MainwpServerClientActionHandler extends MainwpBase {
 			self::OP_MWP_ON     => [
 				'site_action_slug'   => SiteCustomAction::SLUG,
 				'site_action_params' => [
-					// Sent in its legacy form so that child sites older than MainwpEnable also understand it.
+					// @deprecated 22.4.0 Sent in its legacy form so that child sites before 22.4.0 also understand it.
+					// See ClientActionRunner::LEGACY_ENABLE_SLUG for when this becomes MainwpEnable::SLUG.
 					'sub_action_slug'   => ClientActionRunner::LEGACY_ENABLE_SLUG,
 					'sub_action_params' => [
 						'opt_key'   => 'enable_mainwp',

@@ -17,8 +17,8 @@ class ImportExportProfileOptionIncludeToggle extends BaseAction {
 	}
 
 	protected function exec() {
-		$key = (string)$this->action_data[ 'key' ];
-		$status = (string)$this->action_data[ 'status' ];
+		$key = $this->fields()->string( 'key' );
+		$status = $this->fields()->string( 'status' );
 		$success = false;
 
 		if ( self::con()->isPluginAdmin()

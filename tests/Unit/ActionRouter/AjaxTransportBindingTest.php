@@ -15,9 +15,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\BaseAction,
 	CaptureAjaxAction,
-	Utility\ActionsMap,
 	Utility\ExternalEntryGuard
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\RegistersTestActions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -28,6 +28,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 use FernleafSystems\Wordpress\Services\Core\Request;
 
 class AjaxTransportBindingTest extends BaseUnitTest {
+
+	use RegistersTestActions;
 
 	private array $servicesSnapshot = [];
 
@@ -47,13 +49,14 @@ class AjaxTransportBindingTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
+		$this->unregisterTestActions();
 		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 
 	public function test_ajax_capture_runnable_check_uses_post_transport_only() :void {
-		ActionsMap::ActionFromSlug( AjaxTransportBindingNonceActionTestDouble::class );
+		$this->registerTestActions( AjaxTransportBindingNonceActionTestDouble::class );
 		$transport = [
 			ActionData::FIELD_ACTION  => ActionData::FIELD_SHIELD,
 			ActionData::FIELD_EXECUTE => AjaxTransportBindingNonceActionTestDouble::SLUG,

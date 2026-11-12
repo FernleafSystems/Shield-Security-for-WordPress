@@ -17,7 +17,7 @@ class ImportExportProfileOptionsIncludeToggle extends BaseAction {
 	}
 
 	protected function exec() {
-		$status = (string)$this->action_data[ 'status' ];
+		$status = $this->fields()->string( 'status' );
 		$success = false;
 
 		if ( self::con()->isPluginAdmin()
@@ -48,13 +48,10 @@ class ImportExportProfileOptionsIncludeToggle extends BaseAction {
 	 * @return string[]
 	 */
 	private function optionKeys() :array {
-		$keys = $this->action_data[ 'keys' ];
-		if ( \is_array( $keys ) ) {
-			$keys = \array_map( '\strval', $keys );
-		}
-		else {
-			$keys = \explode( ',', (string)$keys );
-		}
+		// A list of keys, or the same keys comma-separated.
+		$keys = \is_array( $this->action_data[ 'keys' ] )
+			? \array_filter( $this->action_data[ 'keys' ], '\is_string' )
+			: \explode( ',', $this->fields()->string( 'keys' ) );
 
 		return \array_values( \array_filter(
 			\array_map( '\trim', $keys ),

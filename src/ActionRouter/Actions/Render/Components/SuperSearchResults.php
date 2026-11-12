@@ -21,7 +21,7 @@ class SuperSearchResults extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 	private const MAX_SETTINGS = 10;
 
 	protected function getRenderData() :array {
-		$search = (string)( $this->action_data[ 'search' ] ?? '' );
+		$search = $this->fields()->string( 'search', '' );
 
 		$sections = [
 			[

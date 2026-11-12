@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client\Actions\ClientActionRunner;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\StartsLoginSessions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 
@@ -25,6 +26,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentReq
 class AjaxEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 
 	use CurrentRequestFixture;
+	use StartsLoginSessions;
 
 	/**
 	 * Written only by MainwpEnable, which is declared for the MainWP entry alone.
@@ -84,6 +86,8 @@ class AjaxEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 		$payload = $capture->buildIssuePayloadForTest();
 
 		$this->assertSame( 401, $payload[ 'status_code' ] ?? 0 );
+		// A logged-in user's page holds nonces that no longer work, so it's told to reload.
+		$this->assertTrue( (bool)( $payload[ 'data' ][ 'session_changed' ] ?? false ) );
 		$this->assertFalse( ( new DashboardLiveMonitorPreference() )->isCollapsed() );
 		$this->assertRejectionRecorded( DashboardLiveMonitorSetState::SLUG, 'ajax' );
 	}
@@ -115,6 +119,40 @@ class AjaxEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 		\wp_set_current_user( $adminId );
 		$this->assertFalse( ( new DashboardLiveMonitorPreference() )->isCollapsed() );
 		$this->assertSame( [], \array_filter( $this->events, fn( array $e ) :bool => $e[ 0 ] === 'action_request_rejected' ) );
+	}
+
+	public function test_page_from_an_earlier_login_session_is_told_to_reload_and_its_action_does_not_run() :void {
+		$adminId = $this->loginAsSecurityAdmin();
+		$this->rememberLoginCookie();
+
+		try {
+			( new DashboardLiveMonitorPreference() )->setCollapsed( false );
+			$this->startLoginSession( $adminId );
+			$request = ActionData::Build( DashboardLiveMonitorSetState::class, true, [
+				'is_collapsed' => true,
+			] );
+
+			// The same user logs in again; the page loaded in the earlier session then sends its request.
+			$this->startLoginSession( $adminId );
+			$this->applyCurrentShieldAjaxRequest( $request, true );
+			$payload = ( new AjaxEntryGuardCaptureTestDouble() )->buildIssuePayloadForTest();
+
+			$this->assertSame( 401, $payload[ 'status_code' ] ?? 0 );
+			$this->assertTrue( (bool)( $payload[ 'data' ][ 'session_changed' ] ?? false ) );
+			$this->assertFalse( ( new DashboardLiveMonitorPreference() )->isCollapsed() );
+
+			// A page loaded in the current session works.
+			$this->applyCurrentShieldAjaxRequest( ActionData::Build( DashboardLiveMonitorSetState::class, true, [
+				'is_collapsed' => true,
+			] ), true );
+			$payload = ( new AjaxEntryGuardCaptureTestDouble() )->buildIssuePayloadForTest();
+
+			$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+			$this->assertTrue( ( new DashboardLiveMonitorPreference() )->isCollapsed() );
+		}
+		finally {
+			$this->restoreLoginCookie();
+		}
 	}
 
 	public function test_declared_action_with_its_valid_nonce_runs_over_ajax() :void {

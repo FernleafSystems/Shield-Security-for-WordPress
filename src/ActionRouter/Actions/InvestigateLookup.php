@@ -39,11 +39,12 @@ class InvestigateLookup extends BaseAction {
 	}
 
 	protected function exec() {
-		$kind = sanitize_key( (string)$this->action_data[ 'kind' ] );
+		$fields = $this->fields();
+		$kind = sanitize_key( $fields->string( 'kind' ) );
 		if ( !\in_array( $kind, self::KINDS, true ) ) {
 			$kind = 'any';
 		}
-		$search = \trim( sanitize_text_field( (string)$this->action_data[ 'search' ] ) );
+		$search = \trim( sanitize_text_field( $fields->string( 'search' ) ) );
 
 		$groups = [];
 		foreach ( $kind === 'any' ? self::KINDS : [ $kind ] as $groupKind ) {

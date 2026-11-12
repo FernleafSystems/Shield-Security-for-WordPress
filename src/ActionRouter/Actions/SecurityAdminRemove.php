@@ -10,9 +10,12 @@ class SecurityAdminRemove extends SecurityAdminBase {
 
 	public const SLUG = 'secadmin_remove_confirm';
 
+	/**
+	 * The confirmation link is emailed, and the admin may have logged in again by the time they open it.
+	 */
 	public static function ExternalAccess() :array {
 		return [
-			ExternalEntryGuard::ENTRY_ORDINARY => ExternalEntryGuard::PROOF_NONCE,
+			ExternalEntryGuard::ENTRY_ORDINARY => ExternalEntryGuard::PROOF_NONCE_ANY_SESSION,
 		];
 	}
 

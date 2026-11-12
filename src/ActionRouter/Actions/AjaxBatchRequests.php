@@ -4,16 +4,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	ActionProcessor,
 	ActionResponse,
 	ActionRoutingController,
 	Exceptions\ActionDoesNotExistException,
 	Exceptions\ActionException,
+	Exceptions\ActionNotAdmittedException,
 	Exceptions\InvalidActionNonceException,
 	Exceptions\SecurityAdminRequiredException,
 	Exceptions\UserAuthRequiredException,
 	ResponseAdapter\ResponseAdapterFactory,
-	Utility\ActionsMap,
 	Utility\AuthRefreshRequest,
 	Utility\ExternalEntryGuard,
 	Utility\ResponseEnvelopeNormalizer
@@ -133,11 +132,7 @@ class AjaxBatchRequests extends BaseAction {
 				throw new ActionException( __( 'Missing action slug in batched request.', 'wp-simple-firewall' ) );
 			}
 
-			$actionClass = ActionsMap::ActionFromSlug( $actionSlug );
-			if ( empty( $actionClass ) ) {
-				throw new ActionDoesNotExistException( 'There was no action handler available for '.esc_html( $actionSlug ) );
-			}
-			if ( $actionClass::SLUG === self::SLUG ) {
+			if ( $actionSlug === self::SLUG ) {
 				return $this->buildFailureResult(
 					__( 'Nested batch requests are not allowed.', 'wp-simple-firewall' ),
 					400,
@@ -145,31 +140,20 @@ class AjaxBatchRequests extends BaseAction {
 				);
 			}
 
-			// Each item is an AJAX request in its own right, so it passes the same boundary as a direct
-			// request, and does so before the action is built from the request.
-			$guard = new ExternalEntryGuard();
-			if ( !$guard->admit( $actionClass, ExternalEntryGuard::ENTRY_AJAX ) ) {
-				return $this->buildFailureResult(
-					__( 'Action transport is not allowed.', 'wp-simple-firewall' ),
-					400,
-					self::ERROR_ACTION_TRANSPORT_NOT_ALLOWED
-				);
-			}
-			$guard->requireProof( $actionClass, ExternalEntryGuard::ENTRY_AJAX, $actionRequestData );
-
-			$action = ( new ActionProcessor() )->getAction(
-				$actionClass,
-				ExternalEntryGuard::ActionDataFromTransport( $this->stripTransportFields( $actionRequestData ) )
+			// Each item is an AJAX request in its own right, so it passes the same boundary as a direct request.
+			$adapted = $this->adaptSubrequestResponse(
+				( new ExternalEntryGuard() )->dispatch( ExternalEntryGuard::ENTRY_AJAX, $actionSlug, $actionRequestData )
 			);
-			$action->process();
-			$adapted = $this->adaptSubrequestResponse( $action->response() );
-			$payload = $this->normaliseAjaxPayload( $this->sanitizeSubrequestPayload( $adapted[ 'payload' ] ) );
+			$payload = $this->normaliseAjaxPayload( $adapted[ 'payload' ] );
 
 			return [
 				'success'     => (bool)( $payload[ 'success' ] ?? false ),
 				'status_code' => $adapted[ 'status_code' ],
 				'data'        => $payload,
 			];
+		}
+		catch ( ActionNotAdmittedException $e ) {
+			return $this->buildFailureResult( $e->getMessage(), 400, self::ERROR_ACTION_TRANSPORT_NOT_ALLOWED );
 		}
 		catch ( InvalidActionNonceException $e ) {
 			return $this->buildFailureResult( ResponseEnvelopeNormalizer::nonceFailedMessage(), 401, self::ERROR_INVALID_NONCE );
@@ -222,12 +206,6 @@ class AjaxBatchRequests extends BaseAction {
 		return ResponseEnvelopeNormalizer::forBatchSubresponse( $payload );
 	}
 
-	private function sanitizeSubrequestPayload( array $payload ) :array {
-		return \array_diff_key( $payload, \array_flip( [
-			'action_data',
-		] ) );
-	}
-
 	private function buildFailureResult( string $message, int $statusCode, string $errorCode ) :array {
 		return [
 			'success'     => false,
@@ -241,21 +219,5 @@ class AjaxBatchRequests extends BaseAction {
 				'message'    => $message,
 			] ),
 		];
-	}
-
-	private function stripTransportFields( array $requestData ) :array {
-		return \array_diff_key(
-			$requestData,
-			\array_flip( [
-				ActionData::FIELD_ACTION,
-				ActionData::FIELD_EXECUTE,
-				ActionData::FIELD_NONCE,
-				ActionData::FIELD_WRAP_RESPONSE,
-				ActionData::FIELD_AJAXURL,
-				ActionData::FIELD_REST_NONCE,
-				ActionData::FIELD_REST_URL,
-				'shield_uniq',
-			] )
-		);
 	}
 }

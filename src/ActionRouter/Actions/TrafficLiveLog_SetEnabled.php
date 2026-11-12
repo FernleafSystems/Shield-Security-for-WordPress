@@ -18,7 +18,7 @@ class TrafficLiveLog_SetEnabled extends BaseAction {
 	}
 
 	protected function exec() {
-		$enabled = (string)( $this->action_data[ 'enabled' ] ?? '' );
+		$enabled = $this->fields()->string( 'enabled', '' );
 		if ( !\in_array( $enabled, [ 'Y', 'N' ], true ) ) {
 			$this->respond(
 				false,

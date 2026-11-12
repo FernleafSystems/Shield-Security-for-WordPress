@@ -81,6 +81,20 @@ class ResponseEnvelopeNormalizerTest extends BaseUnitTest {
 		$this->assertFalse( $payload[ 'show_toast' ] ?? true );
 	}
 
+	public function test_for_ajax_session_changed_builds_the_reload_dialog_contract() :void {
+		$payload = ResponseEnvelopeNormalizer::forAjaxSessionChanged();
+
+		$this->assertFalse( $payload[ 'success' ] ?? true );
+		$this->assertTrue( $payload[ 'session_changed' ] ?? false );
+		// The page reloads when its dialog is closed, not on a timer.
+		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
+		$this->assertSame( 'session_changed', $payload[ 'error_code' ] ?? '' );
+		$this->assertNotSame( '', $payload[ 'message' ] ?? '' );
+		$this->assertSame( $payload[ 'message' ] ?? '', $payload[ 'error' ] ?? '' );
+		$this->assertNotSame( '', $payload[ 'dialog' ][ 'title' ] ?? '' );
+		$this->assertNotSame( '', $payload[ 'dialog' ][ 'confirm_label' ] ?? '' );
+	}
+
 	public function test_for_ajax_auth_refresh_builds_reload_contract() :void {
 		$payload = ResponseEnvelopeNormalizer::forAjaxAuthRefresh();
 

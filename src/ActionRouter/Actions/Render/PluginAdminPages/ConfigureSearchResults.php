@@ -16,7 +16,7 @@ class ConfigureSearchResults extends \FernleafSystems\Wordpress\Plugin\Shield\Ac
 	public const TEMPLATE = SearchResultsList::TEMPLATE;
 
 	protected function getRenderData() :array {
-		$results = ( new ConfigureSearchResultsBuilder() )->build( (string)( $this->action_data[ 'search' ] ?? '' ) );
+		$results = ( new ConfigureSearchResultsBuilder() )->build( $this->fields()->string( 'search', '' ) );
 		return SearchResultsList::renderData(
 			[
 				[

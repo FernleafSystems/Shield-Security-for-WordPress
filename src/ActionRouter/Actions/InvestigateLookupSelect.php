@@ -27,8 +27,9 @@ class InvestigateLookupSelect extends BaseAction {
 	}
 
 	protected function exec() {
-		$subject = sanitize_key( (string)$this->action_data[ 'subject' ] );
-		$search = \strtolower( \trim( sanitize_text_field( (string)$this->action_data[ 'search' ] ) ) );
+		$fields = $this->fields();
+		$subject = sanitize_key( $fields->string( 'subject' ) );
+		$search = \strtolower( \trim( sanitize_text_field( $fields->string( 'search' ) ) ) );
 		$minimumLength = [
 							 'user'   => 1,
 							 'ip'     => 3,

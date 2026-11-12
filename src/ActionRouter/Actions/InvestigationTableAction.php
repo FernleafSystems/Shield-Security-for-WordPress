@@ -73,8 +73,8 @@ class InvestigationTableAction extends TableActionBase {
 	 */
 	protected function retrieveTableData() :array {
 		$subjectContext = $this->normalizeSubjectContext(
-			(string)$this->action_data[ InvestigationTableContract::REQ_KEY_TABLE_TYPE ],
-			(string)$this->action_data[ InvestigationTableContract::REQ_KEY_SUBJECT_TYPE ],
+			$this->fields()->string( InvestigationTableContract::REQ_KEY_TABLE_TYPE, '' ),
+			$this->fields()->string( InvestigationTableContract::REQ_KEY_SUBJECT_TYPE, '' ),
 			$this->action_data[ InvestigationTableContract::REQ_KEY_SUBJECT_ID ]
 		);
 

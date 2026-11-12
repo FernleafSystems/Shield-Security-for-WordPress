@@ -23,14 +23,27 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Exceptions\UserAuthRequiredException,
 	Utility\ExternalEntryGuard
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\RegistersTestActions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
+
+	use RegistersTestActions;
 
 	public function set_up() {
 		parent::set_up();
 
 		$this->loginAsAdministrator();
+		$this->registerTestActions(
+			AjaxBatchUnexpectedThrowableAction::class,
+			AjaxBatchConstructionCountingAction::class,
+			AjaxBatchUndeclaredCountingAction::class
+		);
+	}
+
+	public function tear_down() {
+		$this->unregisterTestActions();
+		parent::tear_down();
 	}
 
 	private function processor() :ActionProcessor {
@@ -310,23 +323,24 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_batch_rejects_direct_render_class_name_subrequest_by_transport_policy() :void {
-		$subrequest = ActionData::Build( ToastPlaceholder::class );
-		$subrequest[ ActionData::FIELD_EXECUTE ] = ToastPlaceholder::class;
+	public function test_batch_subrequest_cannot_name_an_action_by_its_class() :void {
+		// A registered action that AJAX admits, named by class instead of by slug.
+		$subrequest = ActionData::Build( PluginBadgeClose::class );
+		$subrequest[ ActionData::FIELD_EXECUTE ] = PluginBadgeClose::class;
 
 		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
 			'requests' => [
 				[
-					'id'      => 'direct_render_class',
+					'id'      => 'named_by_class',
 					'request' => $subrequest,
 				],
 			],
 		] );
 
 		$this->assertBatchFailure(
-			$response->payload()[ 'results' ][ 'direct_render_class' ] ?? [],
+			$response->payload()[ 'results' ][ 'named_by_class' ] ?? [],
 			400,
-			AjaxBatchRequests::ERROR_ACTION_TRANSPORT_NOT_ALLOWED
+			AjaxBatchRequests::ERROR_ACTION_NOT_FOUND
 		);
 	}
 
@@ -482,7 +496,6 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 
 	public function test_batch_subrequest_reports_unexpected_throwable_as_machine_code() :void {
 		$subrequest = ActionData::Build( AjaxBatchUnexpectedThrowableAction::class );
-		$subrequest[ ActionData::FIELD_EXECUTE ] = AjaxBatchUnexpectedThrowableAction::class;
 
 		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
 			'requests' => [
@@ -522,11 +535,9 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 		AjaxBatchNotAnAction::$constructed = 0;
 
 		$badNonce = ActionData::Build( AjaxBatchConstructionCountingAction::class );
-		$badNonce[ ActionData::FIELD_EXECUTE ] = AjaxBatchConstructionCountingAction::class;
 		$badNonce[ ActionData::FIELD_NONCE ] = 'invalid_nonce';
 
 		$undeclared = ActionData::Build( AjaxBatchUndeclaredCountingAction::class );
-		$undeclared[ ActionData::FIELD_EXECUTE ] = AjaxBatchUndeclaredCountingAction::class;
 
 		$notAnAction = ActionData::Build( AjaxBatchConstructionCountingAction::class );
 		$notAnAction[ ActionData::FIELD_EXECUTE ] = AjaxBatchNotAnAction::class;
@@ -556,7 +567,6 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 
 		// The same item with a genuine nonce is built and run, so the count above is meaningful.
 		$valid = ActionData::Build( AjaxBatchConstructionCountingAction::class );
-		$valid[ ActionData::FIELD_EXECUTE ] = AjaxBatchConstructionCountingAction::class;
 		$results = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
 			'requests' => [
 				[

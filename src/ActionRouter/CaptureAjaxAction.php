@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	SecurityAdminRequiredException,
 	UserAuthRequiredException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ResponseAdapter\ResponseAdapterFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\{
 	AuthRefreshRequest,
 	ExternalEntryGuard,
@@ -53,30 +54,31 @@ class CaptureAjaxAction extends CaptureActionBase {
 	}
 
 	protected function buildAjaxIssuePayload() :array {
-		$con = self::con();
 		$transport = $this->transportData();
-		$slug = $this->extractActionSlugFromTransport( $transport );
+		$slug = $this->requestedSlug( $transport );
 		$guard = new ExternalEntryGuard();
 
 		try {
 			\ob_start();
-			$guard->verifyProof( $slug, $this->guardedEntry(), $transport );
-			$routedResponse = $con->action_router->action(
-				$slug,
-				ExternalEntryGuard::ActionDataFromTransport( $transport ),
-				ActionRoutingController::ACTION_AJAX
-			);
-			$response = $this->normaliseAjaxResponse( $routedResponse->payload() );
-			$statusCode = $routedResponse->statusCode();
-		}
-		catch ( InvalidActionNonceException $e ) {
-			$statusCode = 401;
-			if ( AuthRefreshRequest::isRequested() && !Services::WpUsers()->isUserLoggedIn() ) {
-				// The page's nonce was issued to a session that has since expired: ask for a fresh login.
+			if ( $this->isFromExpiredSession( $guard, $slug, $transport ) ) {
+				$statusCode = 401;
 				$response = ResponseEnvelopeNormalizer::forAjaxAuthRefresh();
 			}
 			else {
-				$guard->recordRejection( $slug, $this->guardedEntry() );
+				$routedResponse = ( new ResponseAdapterFactory() )
+					->forActionType( ActionRoutingController::ACTION_AJAX )
+					->adapt( $guard->dispatch( $this->guardedEntry(), $slug, $transport ) );
+				$response = $this->normaliseAjaxResponse( $routedResponse->payload() );
+				$statusCode = $routedResponse->statusCode();
+			}
+		}
+		catch ( InvalidActionNonceException $e ) {
+			$statusCode = 401;
+			if ( Services::WpUsers()->isUserLoggedIn() ) {
+				// The page's nonce was issued to a different login session of this user: ask for a reload.
+				$response = ResponseEnvelopeNormalizer::forAjaxSessionChanged();
+			}
+			else {
 				$msg = ResponseEnvelopeNormalizer::nonceFailedMessage();
 				$response = [
 					'success' => false,
@@ -131,13 +133,27 @@ class CaptureAjaxAction extends CaptureActionBase {
 			? []
 			: [
 				'success'     => (bool)( $response[ 'success' ] ?? false ),
-				'data'        => \array_diff_key( $response, \array_flip( [
-					'action_data',
-					/** TODO: refine action process to ensure that excess data isn't included */
-				] ) ),
+				'data'        => $response,
 				'noise'       => $noise,
 				'status_code' => $statusCode
 			];
+	}
+
+	/**
+	 * A request from a page that was loaded while logged in, whose login session has since expired: it arrives
+	 * logged out, with a nonce that no longer verifies. It's told to log in again and isn't recorded as a refusal.
+	 */
+	private function isFromExpiredSession( ExternalEntryGuard $guard, string $slug, array $transport ) :bool {
+		$expired = false;
+		if ( AuthRefreshRequest::isRequested() && !Services::WpUsers()->isUserLoggedIn() ) {
+			try {
+				$guard->verifyProof( $slug, $this->guardedEntry(), $transport );
+			}
+			catch ( InvalidActionNonceException $e ) {
+				$expired = true;
+			}
+		}
+		return $expired;
 	}
 
 	protected function issueAjaxResponse( array $issuePayload ) :void {

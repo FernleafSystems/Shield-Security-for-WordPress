@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionRoutingController,
 	Exceptions,
+	ResponseAdapter\ResponseAdapterFactory,
 	Utility\ExternalEntryGuard,
 	Utility\ResponseEnvelopeNormalizer
 };
@@ -17,20 +18,19 @@ class ShieldPluginAction extends Base {
 		$params = $req->get_params();
 		$actionSlug = ActionData::TransportField( $params, ActionData::FIELD_EXECUTE );
 		$payload = \is_array( $params[ 'payload' ] ?? null ) ? $params[ 'payload' ] : [];
-		$guard = new ExternalEntryGuard();
 
 		try {
-			if ( !$guard->admit( $actionSlug, ExternalEntryGuard::ENTRY_REST ) ) {
-				throw new Exceptions\ActionException( __( 'Action transport is not allowed.', 'wp-simple-firewall' ) );
-			}
-			// The action nonce travels in the REST URL query, outside the payload.
-			$guard->requireProof( $actionSlug, ExternalEntryGuard::ENTRY_REST, [
-				ActionData::FIELD_NONCE => ActionData::TransportField( $params, ActionData::FIELD_NONCE ),
-			] );
-			$routed = self::con()
-				->action_router
-				->action( $actionSlug, ExternalEntryGuard::ActionDataFromTransport( $payload ), ActionRoutingController::ACTION_REST );
-			$data = $routed->payload();
+			$data = ( new ResponseAdapterFactory() )
+				->forActionType( ActionRoutingController::ACTION_REST )
+				->adapt( ( new ExternalEntryGuard() )->dispatch(
+					ExternalEntryGuard::ENTRY_REST,
+					$actionSlug,
+					// The action nonce travels in the REST URL query, outside the payload.
+					\array_merge( $payload, [
+						ActionData::FIELD_NONCE => ActionData::TransportField( $params, ActionData::FIELD_NONCE ),
+					] )
+				) )
+				->payload();
 		}
 		catch ( Exceptions\ActionException $e ) {
 			$data = [
