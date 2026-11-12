@@ -519,9 +519,11 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	await expect.poll( () => new URL( page.url() ).searchParams.get( 'row_key' ) || '' ).toBe( '' );
 	await expect.poll( () => new URL( page.url() ).searchParams.get( 'config_item' ) || '' ).toBe( '' );
 
+	// The link's target has been used up, so a reload opens the goal as any visit does: on its first component.
 	await page.reload();
-	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
-	await expect( page.locator( `[data-configure-row-key="${targetRowKey}"] [data-shield-expand-body="1"].show` ) ).toHaveCount( 0 );
+	const panels = page.locator( '[data-configure-diagnosis="1"] .shield-detail-item--configure [data-shield-expand-body="1"]' );
+	await expect( panels.first() ).toHaveClass( /show/, { timeout: 20_000 } );
+	await expect( panels.and( page.locator( '.show' ) ) ).toHaveCount( 1 );
 } );
 
 test( 'actions queue refreshes the same direct table after a scan-results cleanup signal', async ( { page, fixtureApi } ) => {
