@@ -22,6 +22,15 @@ class FileScanning extends Base {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
 			$status[ 'exp' ][] = __( 'Automatic file scanning is disabled.', 'wp-simple-firewall' );
 		}
+		elseif ( !self::con()->cache_dir_handler->exists() ) {
+			// Plugin and theme files are compared using copies kept in a temporary folder. The fix is a setting in
+			// another topic, so this is said about the file scanning panel as a whole.
+			$status[ 'exp' ][] = sprintf(
+				/* translators: %s: plugin name */
+				__( "Plugin and theme files can't be scanned because %s couldn't create a temporary folder.", 'wp-simple-firewall' ),
+				self::con()->labels->Name
+			);
+		}
 		if ( $states[ 'afs_enabled' ] && empty( \array_filter( \array_intersect_key(
 			$states[ 'scan_controls' ],
 			\array_filter(

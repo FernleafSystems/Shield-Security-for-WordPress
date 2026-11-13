@@ -188,6 +188,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 					public function getFilesToLock() :array {
 						return [ 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ];
 					}
+
+					public function canEncrypt() :bool {
+						return true;
+					}
 				},
 			]
 		);
@@ -203,6 +207,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				'file_locker' => new class {
 					public function getFilesToLock() :array {
 						return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ];
+					}
+
+					public function canEncrypt() :bool {
+						return true;
 					}
 				},
 			]
@@ -222,6 +230,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 					public function getFilesToLock() :array {
 						return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index' ];
 					}
+
+					public function canEncrypt() :bool {
+						return true;
+					}
 				},
 			]
 		);
@@ -240,6 +252,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				'file_locker' => new class {
 					public function getFilesToLock() :array {
 						return [ 'wpconfig', 'root_htaccess', 'root_index', 'root_webconfig' ];
+					}
+
+					public function canEncrypt() :bool {
+						return true;
 					}
 				},
 			]
@@ -387,6 +403,82 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
 		$this->assertCount( 6, $row[ 'explanations' ] ?? [] );
+	}
+
+	public function test_bot_actions_say_offenses_do_nothing_while_the_offense_limit_is_zero() :void {
+		$signals = [
+			'track_logininvalid'   => 'block',
+			'track_loginfailed'    => 'block',
+			'track_xmlrpc'         => 'block',
+			'track_fakewebcrawler' => 'block',
+			'track_404'            => 'block',
+			'track_linkcheese'     => 'block',
+			'track_invalidscript'  => 'block',
+			'track_useragent'      => 'block',
+		];
+		$this->installController( $signals );
+		$this->assertSame( EnumEnabledStatus::GOOD, $this->firstConfigureRow( new BotActions() )[ 'enabled_status' ] );
+
+		$this->installController( $signals, [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'enabledIpAutoBlock' => false ] ) ] );
+		$row = $this->firstConfigureRow( new BotActions() );
+
+		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] );
+		$this->assertSame( [ 'Responses that record an offense have no effect while the offense limit is 0.' ], $row[ 'explanations' ] );
+	}
+
+	public function test_contact_form_protection_needs_silentcaptcha_on() :void {
+		$this->installController( [], [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'enabledSilentCaptcha' => false ] ) ] );
+		$row = $this->firstConfigureRow( new ContactFormSpamBlockBot() );
+
+		$this->assertContains(
+			"Contact forms aren't protected from bots because silentCAPTCHA is off: its minimum score is 0.",
+			$row[ 'explanations' ]
+		);
+		// Configure shows a form integration that isn't working as a warning.
+		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] );
+	}
+
+	public function test_file_scanning_says_plugin_and_theme_scans_need_a_temporary_folder() :void {
+		$this->installController( [], [
+			'scans' => $this->buildScansComponent( [ 'afsEnabled' => true ] ),
+		], null, false );
+		$row = $this->firstConfigureRow( new FileScanning() );
+
+		$this->assertContains(
+			"Plugin and theme files can't be scanned because Shield couldn't create a temporary folder.",
+			$row[ 'explanations' ]
+		);
+	}
+
+	public function test_file_locker_says_why_it_cannot_work_on_this_site() :void {
+		$this->installController( [], [
+			'file_locker' => new class {
+				public function getFilesToLock() :array {
+					return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ];
+				}
+
+				public function canEncrypt() :bool {
+					return false;
+				}
+			},
+			'license'     => new class {
+				public function hasValidWorkingLicense() :bool {
+					return true;
+				}
+			},
+			'shieldnet'   => new class {
+				public function canHandshake() :bool {
+					return false;
+				}
+			},
+		] );
+		$row = $this->firstConfigureRow( $this->fileLockerForEnvironment() );
+
+		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] );
+		$this->assertSame( [
+			"File Locker can't work because this server can't encrypt files: it needs the PHP OpenSSL extension and a cipher it supports.",
+			"File Locker can't work because this site can't connect to shieldnet API.",
+		], $row[ 'explanations' ] );
 	}
 
 	public function test_silentcaptcha_uses_warning_for_low_thresholds() :void {
@@ -717,7 +809,8 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 	private function installController(
 		array $optValues = [],
 		array $componentOverrides = [],
-		?array $configOptions = null
+		?array $configOptions = null,
+		bool $cacheDirExists = true
 	) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -765,6 +858,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				'file_locker' => new class {
 					public function getFilesToLock() :array {
 						return [];
+					}
+
+					public function canEncrypt() :bool {
+						return true;
 					}
 				},
 				'altcha'      => new class {
@@ -816,9 +913,30 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 					}
 				},
 				'zones' => new SecurityZonesCon(),
+				'license' => new class {
+					public function hasValidWorkingLicense() :bool {
+						return false;
+					}
+				},
+				'shieldnet' => new class {
+					public function canHandshake() :bool {
+						return true;
+					}
+				},
 			],
 			$componentOverrides
 		);
+		$controller->cache_dir_handler = new class( $cacheDirExists ) {
+			private bool $exists;
+
+			public function __construct( bool $exists ) {
+				$this->exists = $exists;
+			}
+
+			public function exists() :bool {
+				return $this->exists;
+			}
+		};
 
 		PluginControllerInstaller::install( $controller );
 	}
@@ -853,6 +971,14 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 			public function enabledSilentCaptchaCommentSpam() :bool {
 				return $this->overrides[ 'enabledSilentCaptchaCommentSpam' ] ?? true;
+			}
+
+			public function enabledSilentCaptcha() :bool {
+				return $this->overrides[ 'enabledSilentCaptcha' ] ?? true;
+			}
+
+			public function enabledIpAutoBlock() :bool {
+				return $this->overrides[ 'enabledIpAutoBlock' ] ?? true;
 			}
 
 			public function enabledHumanCommentSpam() :bool {

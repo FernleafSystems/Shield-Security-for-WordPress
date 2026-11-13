@@ -31,6 +31,17 @@ class ContactFormSpamBlockBot extends Base {
 			$status[ 'exp' ][] = sprintf( __( "It looks like you're using a WP forms plugin for which we have an integration: %s.", 'wp-simple-firewall' ), implode( ', ', $unprotected ) );
 		}
 
+		// Form integrations block bots with silentCAPTCHA, so they do nothing while it's off. Its minimum score is
+		// set in another topic, so this isn't tied to that setting.
+		if ( !self::con()->comps->opts_lookup->enabledSilentCaptcha() ) {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = sprintf(
+				/* translators: %s: bot detection product name */
+				__( "Contact forms aren't protected from bots because %s is off: its minimum score is 0.", 'wp-simple-firewall' ),
+				self::con()->labels->getBrandName( 'silentcaptcha' )
+			);
+		}
+
 		return $status;
 	}
 

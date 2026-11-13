@@ -37,6 +37,12 @@ class BotActions extends Base {
 			), $signalKey );
 		}
 
+		// Offenses only lead to a block once they reach the limit, so a limit of 0 leaves them doing nothing. The
+		// limit is set in another topic, so this is said about these settings as a whole.
+		if ( !self::con()->comps->opts_lookup->enabledIpAutoBlock() ) {
+			$status[ 'exp' ][] = __( "Responses that record an offense have no effect while the offense limit is 0.", 'wp-simple-firewall' );
+		}
+
 		if ( $status[ 'level' ] !== EnumEnabledStatus::BAD ) {
 			$status[ 'level' ] = empty( $status[ 'exp' ] ) ? EnumEnabledStatus::GOOD : EnumEnabledStatus::OKAY;
 		}

@@ -52,11 +52,7 @@ class BuildOptionsForDisplay {
 						$section[ 'options' ][ $optKey ] = $this->buildOptionForUi( $opt );
 					}
 
-					$notices = new SectionNotices();
 					$section = \array_merge( $section, ( new StringsSections() )->getFor( $section[ 'slug' ] ) );
-					$section[ 'notices' ] = $notices->notices( $section[ 'slug' ] );
-					$section[ 'warnings' ] = $notices->warnings( $section[ 'slug' ] );
-					$section[ 'critical_warnings' ] = $notices->critical( $section[ 'slug' ] );
 				}
 
 				return $section;

@@ -40,6 +40,12 @@ class FileLocker extends Base {
 			}
 		}
 
+		// Whatever files are chosen, File Locker can't work without these.
+		foreach ( $this->unmetRequirements() as $requirement ) {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = $requirement;
+		}
+
 		if ( $status[ 'level' ] !== EnumEnabledStatus::BAD ) {
 			$status[ 'level' ] = empty( $status[ 'exp' ] ) ? EnumEnabledStatus::GOOD : EnumEnabledStatus::OKAY;
 		}
@@ -107,5 +113,30 @@ class FileLocker extends Base {
 	 */
 	private function selectedLockedFiles() :array {
 		return self::con()->comps->file_locker->getFilesToLock();
+	}
+
+	/**
+	 * Why File Locker can't work on this site, if it can't: it encrypts each file's copy, and on Pro it also
+	 * needs ShieldNet.
+	 * @return list<string>
+	 */
+	private function unmetRequirements() :array {
+		$con = self::con();
+		$unmet = [];
+		if ( !$con->comps->file_locker->canEncrypt() ) {
+			$unmet[] = sprintf(
+				/* translators: %s: PHP extension name */
+				__( "File Locker can't work because this server can't encrypt files: it needs the PHP %s extension and a cipher it supports.", 'wp-simple-firewall' ),
+				'OpenSSL'
+			);
+		}
+		if ( $con->isPremiumActive() && !$con->comps->shieldnet->canHandshake() ) {
+			$unmet[] = sprintf(
+				/* translators: %s: name of the plugin's API service */
+				__( "File Locker can't work because this site can't connect to %s.", 'wp-simple-firewall' ),
+				$con->labels->getBrandName( 'shieldnet' ).' API'
+			);
+		}
+		return $unmet;
 	}
 }
