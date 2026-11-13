@@ -33,7 +33,6 @@
 			{% if tile.data_drill_group_selection is not empty %}data-drill-group-selection="{{ tile.data_drill_group_selection|e('html_attr') }}"{% endif %}
 			{% if tile.data_actions_queue_group_key is defined and tile.data_actions_queue_group_key is not empty %}data-actions-queue-group-key="{{ tile.data_actions_queue_group_key|e('html_attr') }}"{% endif %}
 			{% if tile.data_pro_upsell is defined and tile.data_pro_upsell == '1' %}data-pro-upsell="1" aria-haspopup="dialog" aria-controls="ShieldModalContainer"{% endif %}
-			{% if tile.data_enable_protection is defined and tile.data_enable_protection is not empty %}data-enable-protection="{{ tile.data_enable_protection|e('html_attr') }}" aria-haspopup="dialog"{% endif %}
 			{% if tile.is_disabled %}disabled{% endif %}>
 		{{ tile_body }}
 	</button>

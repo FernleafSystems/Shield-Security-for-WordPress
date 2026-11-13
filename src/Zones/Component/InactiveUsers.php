@@ -14,10 +14,6 @@ class InactiveUsers extends Base {
 		return __( 'Manually or automatically suspend user accounts to prevent login.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Edit settings on user suspension', 'wp-simple-firewall' );
-	}
-
 	/**
 	 * @inheritDoc
 	 */

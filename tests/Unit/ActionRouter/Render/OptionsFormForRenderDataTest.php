@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\OptsLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\BuildOptionsForDisplay;
@@ -38,47 +39,6 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_config_item_focus_marks_target_option_and_section() :void {
-		$action = new OptionsFormFor( [
-			'options'     => [
-				'unit_security_admin_flag',
-				'unit_headers_flag',
-			],
-			'config_item' => 'unit_headers_flag',
-		] );
-
-		$renderData = $this->invokeNonPublicMethod( $action, 'getRenderData' );
-		$sections = $renderData[ 'vars' ][ 'all_options' ] ?? [];
-
-		$this->assertCount( 2, $sections );
-		$this->assertTrue( $renderData[ 'flags' ][ 'show_section_navigation' ] );
-		$this->assertSame(
-			[ 'section_security_headers' ],
-			\array_values( \array_map(
-				static fn( array $section ) :string => $section[ 'slug' ],
-				\array_filter( $sections, static fn( array $section ) :bool => (bool)( $section[ 'is_focus' ] ?? false ) )
-			) )
-		);
-
-		$sectionsBySlug = [];
-		foreach ( $sections as $section ) {
-			$sectionsBySlug[ $section[ 'slug' ] ] = $section;
-		}
-
-		$this->assertTrue( (bool)( $sectionsBySlug[ 'section_security_headers' ][ 'is_focus' ] ?? false ) );
-		$this->assertFalse( (bool)( $sectionsBySlug[ 'section_security_admin_settings' ][ 'is_focus' ] ?? true ) );
-		$this->assertTrue( $this->isFocusedOptionPresent( $sectionsBySlug[ 'section_security_headers' ][ 'options' ] ?? [], 'unit_headers_flag' ) );
-		$this->assertFalse( $this->isFocusedOptionPresent( $sectionsBySlug[ 'section_security_admin_settings' ][ 'options' ] ?? [], 'unit_security_admin_flag' ) );
-	}
-
-	public function test_single_section_uses_footer_without_section_navigation() :void {
-		$action = new OptionsFormFor( [ 'options' => [ 'unit_headers_flag' ] ] );
-		$data = $this->invokeNonPublicMethod( $action, 'getRenderData' );
-		$this->assertCount( 1, $data[ 'vars' ][ 'all_options' ] );
-		$this->assertFalse( $data[ 'flags' ][ 'show_section_navigation' ] );
-		$this->assertTrue( \array_values( $data[ 'vars' ][ 'all_options' ] )[ 0 ][ 'is_focus' ] );
-	}
-
 	/**
 	 * @dataProvider filteredNamespaceProvider
 	 */
@@ -93,12 +53,10 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 			->with( 'shield/anonymous_rest_api_exclusions', $configured )
 			->andReturn( $filtered );
 
-		$action = new OptionsFormFor( [ 'options' => [ 'api_namespace_exclusions' ] ] );
-		$data = $this->invokeNonPublicMethod( $action, 'getRenderData' );
-		$options = \array_values( $data[ 'vars' ][ 'all_options' ] )[ 0 ][ 'options' ];
+		$options = $this->displayOptions( [ 'api_namespace_exclusions' ] );
 
-		$this->assertSame( $expected, $data[ 'vars' ][ 'filtered_api_namespace_exclusions' ] );
-		$this->assertSame( \implode( "\n", $configured ), $options[ 0 ][ 'value' ] );
+		$this->assertSame( $expected, $options[ 'api_namespace_exclusions' ][ 'added_by_filter' ] );
+		$this->assertSame( \implode( "\n", $configured ), $options[ 'api_namespace_exclusions' ][ 'value' ] );
 	}
 
 	public function filteredNamespaceProvider() :array {
@@ -129,11 +87,8 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 
 	public function test_unrelated_settings_do_not_evaluate_the_namespace_filter() :void {
 		Functions\expect( 'apply_filters' )->never();
-		$data = $this->invokeNonPublicMethod(
-			new OptionsFormFor( [ 'options' => [ 'unit_headers_flag' ] ] ),
-			'getRenderData'
-		);
-		$this->assertSame( [], $data[ 'vars' ][ 'filtered_api_namespace_exclusions' ] );
+		$options = $this->displayOptions( [ 'unit_headers_flag' ] );
+		$this->assertSame( [], $options[ 'unit_headers_flag' ][ 'added_by_filter' ] );
 	}
 
 	public function test_shared_option_builder_used_by_import_export_does_not_evaluate_the_namespace_filter() :void {
@@ -145,13 +100,16 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 		$this->assertSame( 'profile-api', \array_values( $sections )[ 0 ][ 'options' ][ 0 ][ 'value' ] );
 	}
 
-	private function isFocusedOptionPresent( array $options, string $key ) :bool {
-		foreach ( $options as $option ) {
-			if ( ( $option[ 'key' ] ?? '' ) === $key ) {
-				return (bool)( $option[ 'is_focus' ] ?? false );
-			}
-		}
-		return false;
+	public function test_a_form_without_a_configure_panel_is_refused() :void {
+		$this->expectException( ActionException::class );
+		$this->invokeNonPublicMethod(
+			new OptionsFormFor( [ 'options' => [ 'unit_headers_flag' ], 'configure_panel' => '' ] ),
+			'getRenderData'
+		);
+	}
+
+	private function displayOptions( array $keys ) :array {
+		return $this->invokeNonPublicMethod( new OptionsFormFor( [ 'options' => $keys ] ), 'buildDisplayOptions', [ $keys ] );
 	}
 
 	private function installControllerStub( array $namespaceExclusions = [ 'shield', 'woocommerce' ] ) :void {

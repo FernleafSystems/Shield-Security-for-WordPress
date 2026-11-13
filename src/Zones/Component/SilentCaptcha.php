@@ -15,10 +15,6 @@ class SilentCaptcha extends Base {
 		return sprintf( __( '%s is our WordPress Bad Bot Detection technology.', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
 	}
 
-	protected function tooltip() :string {
-		return sprintf( __( 'Edit settings that control how %s detects bots', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
-	}
-
 	protected function configureStatus() :array {
 		$state = $this->silentCaptchaState();
 		$status = parent::status();

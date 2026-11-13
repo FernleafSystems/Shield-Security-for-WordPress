@@ -65,10 +65,6 @@ class SelectSearchDataConfigSearchTest extends BaseUnitTest {
 				return '/admin/zones/overview?setup_guide=open';
 			}
 
-			public function cfgForZoneComponent( string $componentSlug ) :string {
-				return '/zone-component/'.$componentSlug;
-			}
-
 			public function cfgForOpt( string $optKey ) :string {
 				return '/config/'.$optKey;
 			}

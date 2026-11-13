@@ -291,6 +291,7 @@ function shield_browser_fixture_allowed_actions() :array {
 		'merlin-welcome' => [ 'seed', 'cleanup' ],
 		'mfa-profile' => [ 'seed', 'cleanup', 'inspect' ],
 		'notbot-altcha' => [ 'seed', 'cleanup', 'inspect', 'mode', 'add-ip', 'timing' ],
+		'plugin-disabled' => [ 'seed', 'cleanup', 'inspect' ],
 		'public-block-recovery' => [ 'seed', 'cleanup' ],
 		'report-email-hold' => [ 'seed', 'cleanup', 'inspect' ],
 		'security-admin' => [ 'seed', 'cleanup', 'inspect' ],

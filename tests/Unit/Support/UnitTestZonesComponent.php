@@ -28,8 +28,4 @@ class UnitTestZonesComponent {
 	public function enumZoneComponents() :array {
 		return $this->zoneComponents;
 	}
-
-	public function getZoneComponent( string $slug ) :object {
-		return new UnitTestZoneActionComponent( $slug );
-	}
 }

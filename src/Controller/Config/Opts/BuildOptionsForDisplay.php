@@ -14,10 +14,6 @@ class BuildOptionsForDisplay {
 
 	use PluginControllerConsumer;
 
-	private string $focusOption = '';
-
-	private string $focusSection = '';
-
 	private array $options;
 
 	private array $sections;
@@ -31,16 +27,6 @@ class BuildOptionsForDisplay {
 
 	public function setValues( array $values ) :self {
 		$this->values = $values;
-		return $this;
-	}
-
-	public function setFocusOption( string $optKey ) :self {
-		$this->focusOption = $optKey;
-		return $this;
-	}
-
-	public function setFocusSection( string $sectionKey ) :self {
-		$this->focusSection = $sectionKey;
 		return $this;
 	}
 
@@ -64,12 +50,10 @@ class BuildOptionsForDisplay {
 					foreach ( $section[ 'options' ] as $optKey => $opt ) {
 						$opt[ 'is_value_default' ] = $opt[ 'value' ] === $opt[ 'default' ];
 						$section[ 'options' ][ $optKey ] = $this->buildOptionForUi( $opt );
-						$section[ 'options' ][ $optKey ][ 'is_focus' ] = $opt[ 'key' ] === $this->focusOption;
 					}
 
 					$notices = new SectionNotices();
 					$section = \array_merge( $section, ( new StringsSections() )->getFor( $section[ 'slug' ] ) );
-					$section[ 'is_focus' ] = $section[ 'slug' ] === $this->focusSection;
 					$section[ 'notices' ] = $notices->notices( $section[ 'slug' ] );
 					$section[ 'warnings' ] = $notices->warnings( $section[ 'slug' ] );
 					$section[ 'critical_warnings' ] = $notices->critical( $section[ 'slug' ] );
@@ -79,11 +63,6 @@ class BuildOptionsForDisplay {
 			},
 			$this->buildAvailableSections()
 		) );
-
-		$hasFocus = \count( \array_filter( $sections, fn( array $section ) => $section[ 'is_focus' ] ) ) > 0;
-		if ( !$hasFocus ) {
-			$sections[ \key( $sections ) ][ 'is_focus' ] = true;
-		}
 
 		return $sections;
 	}
@@ -149,7 +128,7 @@ class BuildOptionsForDisplay {
 
 					$converted[ $valueOpt[ 'value_key' ] ] = [
 						'name'         => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
-						'is_available' => $opts->optHasAccess( $optDef[ 'key' ] ),
+						'is_available' => $opts->optValueHasAccess( $optDef[ 'key' ], (string)$valueOpt[ 'value_key' ] ),
 					];
 
 					if ( $converted[ $valueOpt[ 'value_key' ] ][ 'is_available' ] ) {

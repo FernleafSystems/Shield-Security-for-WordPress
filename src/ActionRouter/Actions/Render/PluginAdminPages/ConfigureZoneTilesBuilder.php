@@ -38,7 +38,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
  *   option_keys:non-empty-string,
  *   form_context:'offcanvas',
  *   config_item?:non-empty-string,
- *   configure_panel?:non-empty-string
+ *   configure_panel:non-empty-string
  * }
  * @phpstan-type ConfigureActionContract array{
  *   label:string,
@@ -174,8 +174,7 @@ class ConfigureZoneTilesBuilder {
 			// Advanced options gathers odd settings from across the goal, so it only speaks for problems
 			// its own settings fix, rather than taking on the state of every component they come from.
 			[ $status, $explanations ] = $this->topicStatus( $scope, $topicKey === 'advanced' );
-			$configAction = $this->buildConfigActionForScope( $scope );
-			$configAction[ 'data' ][ 'configure_panel' ] = $goalKey.':'.$topicKey;
+			$configAction = $this->buildConfigActionForScope( $scope, $goalKey.':'.$topicKey );
 
 			$rows[] = [
 				'key'               => $topicKey,
@@ -358,14 +357,16 @@ class ConfigureZoneTilesBuilder {
 
 	/**
 	 * @param ConfigureScope $scope
+	 * @param non-empty-string $configurePanel the goal:topic panel that lays the settings out
 	 * @return ConfigureActionContract
 	 */
-	private function buildConfigActionForScope( array $scope ) :array {
+	private function buildConfigActionForScope( array $scope, string $configurePanel ) :array {
 		$data = [
 			'zone_component_action' => ZoneComponentConfig::SLUG,
 			'zone_component_slug'   => \implode( ',', $scope[ 'zone_component_slugs' ] ),
 			'option_keys'           => \implode( ',', $scope[ 'option_keys' ] ),
 			'form_context'          => 'offcanvas',
+			'configure_panel'       => $configurePanel,
 		];
 		if ( !empty( $scope[ 'config_item' ] ) ) {
 			$data[ 'config_item' ] = $scope[ 'config_item' ];

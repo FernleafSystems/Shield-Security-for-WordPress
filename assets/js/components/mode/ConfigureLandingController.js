@@ -1,7 +1,6 @@
 import { ObjectOps } from "../../util/ObjectOps";
 import { AjaxBatchService } from "../services/AjaxBatchService";
 import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
-import { OffCanvasService } from "../ui/OffCanvasService";
 import { SearchBox } from "../search/SearchBox";
 
 export class ConfigureLandingController extends DrillDownAsyncControllerBase {
@@ -15,7 +14,6 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		this.diagnosisCache = new Map();
 		this.preloadGeneration = 0;
 		this.lastConfigureRoot = null;
-		this.componentActionRoot = null;
 		this.layerRequests = {};
 		this.selectedZone = null;
 		this.searchBox = null;
@@ -39,20 +37,6 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 
 		this.seedDiagnosisCacheFromCurrentLayer();
 		this.preloadDiagnosisLayers();
-		this.openInitialComponent();
-	}
-
-	openInitialComponent() {
-		const root = this.rootEl;
-		if ( root === null || root === this.componentActionRoot ) {
-			return;
-		}
-		const action = this.parseJsonDataset( root.dataset.configureComponentAction );
-		if ( ObjectOps.IsEmpty( action ) ) {
-			return;
-		}
-		this.componentActionRoot = root;
-		OffCanvasService.RenderCanvas( action, { launcher: this.getSearchInput( root ) } ).finally();
 	}
 
 	bindDrillDownHandlers() {

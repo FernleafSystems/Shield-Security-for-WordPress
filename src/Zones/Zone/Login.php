@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 class Login extends Base {
 
-	public function tooltip() :string {
-		return 'Edit settings for the entire Login Security Zone';
-	}
-
 	public function components() :array {
 		return [
 			Component\LoginProtectionForms::class,
@@ -21,9 +17,5 @@ class Login extends Base {
 
 	public function title() :string {
 		return __( 'Login', 'wp-simple-firewall' );
-	}
-
-	protected function getUnderlyingModuleZone() :?string {
-		return Component\Modules\ModuleLogin::class;
 	}
 }

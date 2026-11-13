@@ -14,10 +14,6 @@ class FileScanning extends Base {
 		return __( 'Regularly scan the WordPress filesystem for infections, suspicious code, or unexpected changes.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Edit automatic file scanning settings', 'wp-simple-firewall' );
-	}
-
 	protected function configureStatus() :array {
 		$states = $this->fileScanningStates();
 		$status = parent::status();
@@ -81,7 +77,7 @@ class FileScanning extends Base {
 	 */
 	private function fileScanningStates() :array {
 		$afs = self::con()->comps->scans->AFS();
-		$scanAreas = $this->selectedScanAreas();
+		$scanAreas = $afs->getFileScanAreas();
 		$afsEnabled = $this->resolveBooleanMethod( $afs, 'isEnabled', false );
 
 		$scanControls = [];
@@ -177,14 +173,6 @@ class FileScanning extends Base {
 				'disabled_message' => __( "Theme file auto-repair isn't enabled.", 'wp-simple-firewall' ),
 			],
 		];
-	}
-
-	/**
-	 * @return list<string>
-	 */
-	private function selectedScanAreas() :array {
-		$areas = self::con()->opts->optGet( 'file_scan_areas' );
-		return \is_array( $areas ) ? \array_values( \array_filter( $areas, 'is_string' ) ) : [];
 	}
 
 	/**

@@ -27,6 +27,12 @@
 			{% if option.summary is not empty %}
 				<div class="options-summary">{{ option.summary }}</div>
 			{% endif %}
+			{% if option.added_by_filter is not empty %}
+				<div class="options-summary">
+					{{ strings.namespaces_added_by_filter }}:
+					{% for namespace in option.added_by_filter %}<code>{{ namespace }}</code>{% if not loop.last %}, {% endif %}{% endfor %}
+				</div>
+			{% endif %}
 			{% if item.issues is not empty %}
 				<ul class="shield-panel-issues" id="Issues-{{ option.key }}">
 					{% for issue in item.issues %}

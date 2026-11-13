@@ -27,7 +27,7 @@ class ScansEnable extends ScansBase {
 	protected function exec() {
 		$key = $this->action_data[ 'scan' ];
 		$scan = \is_string( $key ) ? ( self::SCANS[ $key ] ?? null ) : null;
-		$success = $scan !== null && self::con()->isPremiumActive();
+		$success = $scan !== null;
 		if ( $success ) {
 			switch ( $key ) {
 				case 'malware':

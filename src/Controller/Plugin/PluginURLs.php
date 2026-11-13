@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\FullPageDisplay\DisplayReportAdmin,
 	Actions\FileDownload,
 	Actions\FileDownloadAsStream,
+	Actions\Render\PluginAdminPages,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\PluginPageView;
@@ -261,18 +262,72 @@ class PluginURLs {
 		return $this->legacyAdminRouteRedirect( PluginNavs::NAV_ZONE_COMPONENTS, $componentSlug ) ?? $this->configureHome();
 	}
 
+	/**
+	 * Where a setting is changed: its topic's panel in Configure, or the page that manages it.
+	 */
 	public function cfgForOpt( string $optKey ) :string {
-		$def = self::con()->opts->optDef( $optKey );
-		if ( $def[ 'section' ] === 'section_importexport' ) {
-			$url = $this->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT );
-		}
-		else {
-			if ( empty( $def ) || empty( $def[ 'zone_comp_slugs' ] ) ) {
-				$def = self::con()->opts->optDef( 'visitor_address_source' );
+		$route = self::optionRouteParams( $optKey, true );
+		return $route === null ? $this->configureHome() : URL::Build( $this->rootAdminPage(), $route );
+	}
+
+	/**
+	 * @return array<string,string>|null
+	 */
+	private static function optionRouteParams( string $optKey, bool $focusOption ) :?array {
+		$ownPages = [
+			'import_export' => PluginNavs::SUBNAV_TOOLS_IMPORT,
+			'login_hide'    => PluginNavs::SUBNAV_TOOLS_LOGINHIDE,
+			'whitelabel'    => PluginNavs::SUBNAV_TOOLS_WHITELABEL,
+		];
+		foreach ( PluginAdminPages\ConfigureGoalPanels::ownPageOptions() as $page => $optKeys ) {
+			if ( isset( $ownPages[ $page ] ) && \in_array( $optKey, $optKeys, true ) ) {
+				return [ 'nav' => PluginNavs::NAV_TOOLS, 'nav_sub' => $ownPages[ $page ] ];
 			}
-			$url = $this->cfgForZoneComponent( \current( $def[ 'zone_comp_slugs' ] ) );
 		}
-		return $url;
+
+		$topic = PluginAdminPages\ConfigureGoalPanels::topicForOption( $optKey );
+		if ( $topic === null ) {
+			return null;
+		}
+		$route = [
+			'nav'     => PluginNavs::NAV_ZONES,
+			'nav_sub' => PluginNavs::SUBNAV_ZONES_OVERVIEW,
+			'zone'    => $topic[ 'goal' ],
+			'row_key' => $topic[ 'topic' ],
+		];
+		if ( $focusOption ) {
+			$route[ 'config_item' ] = $optKey;
+		}
+		return $route;
+	}
+
+	/**
+	 * A component's settings are laid out in Configure topics; it opens on the topic holding the setting
+	 * asked for, or else the place that holds most of its settings.
+	 * @return array<string,string>|null
+	 */
+	private static function componentRouteParams( string $componentSlug, string $configItem ) :?array {
+		// Hidden settings have no place to open, so they never produce a route.
+		$options = self::con()->comps->zones->getZoneComponent( $componentSlug )->getOptions();
+		if ( \in_array( $configItem, $options, true ) ) {
+			$route = self::optionRouteParams( $configItem, true );
+			if ( $route !== null ) {
+				return $route;
+			}
+		}
+		$routes = [];
+		$counts = [];
+		foreach ( $options as $optKey ) {
+			$route = self::optionRouteParams( $optKey, false );
+			if ( $route !== null ) {
+				$id = \implode( '|', $route );
+				$routes[ $id ] = $route;
+				$counts[ $id ] = ( $counts[ $id ] ?? 0 ) + 1;
+			}
+		}
+		// The first place wins a tie, as \arsort() keeps equal counts in order.
+		\arsort( $counts );
+		return empty( $counts ) ? null : $routes[ \array_key_first( $counts ) ];
 	}
 
 	/**
@@ -313,18 +368,32 @@ class PluginURLs {
 		return $this->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE );
 	}
 
-	public function legacyAdminRouteRedirect( string $nav, string $subNav ) :?string {
-		$route = self::legacyAdminRouteParams( $nav, $subNav );
+	/**
+	 * @param array<string,mixed> $query the rest of the old URL's query, for links that name a component
+	 */
+	public function legacyAdminRouteRedirect( string $nav, string $subNav, array $query = [] ) :?string {
+		$route = self::legacyAdminRouteParams( $nav, $subNav, $query );
 		if ( isset( $route[ 'wp_admin' ] ) ) {
 			return Services::WpGeneral()->getAdminUrl( $route[ 'wp_admin' ], (bool)self::con()->cfg->properties[ 'wpms_network_admin_only' ] );
 		}
 		return $route === null ? null : URL::Build( $this->rootAdminPage(), $route );
 	}
 
-	/** @return array<string,string>|null */
-	public static function legacyAdminRouteParams( string $nav, string $subNav ) :?array {
+	/**
+	 * @param array<string,mixed> $query the rest of the old URL's query, for links that name a component
+	 * @return array<string,string>|null
+	 */
+	public static function legacyAdminRouteParams( string $nav, string $subNav, array $query = [] ) :?array {
 		$nav = sanitize_key( $nav );
 		$subNav = sanitize_key( $subNav );
+		$configItem = \is_string( $query[ 'config_item' ] ?? null ) ? sanitize_key( $query[ 'config_item' ] ) : '';
+
+		// Configure once opened a component's settings by name; they now live in topics.
+		$component = \is_string( $query[ 'component' ] ?? null ) ? sanitize_key( $query[ 'component' ] ) : '';
+		if ( $nav === PluginNavs::NAV_ZONES && $component !== '' ) {
+			$nav = PluginNavs::NAV_ZONE_COMPONENTS;
+			$subNav = $component;
+		}
 
 		if ( $nav === PluginNavs::NAV_SCANS ) {
 			switch ( $subNav ) {
@@ -363,7 +432,8 @@ class PluginURLs {
 				case 'wordpress_updates':
 					return [ 'wp_admin' => 'update-core.php' ];
 				default:
-					return [ 'nav' => 'zones', 'nav_sub' => 'overview', 'component' => $subNav ];
+					return self::componentRouteParams( $subNav, $configItem )
+						   ?? [ 'nav' => PluginNavs::NAV_ZONES, 'nav_sub' => PluginNavs::SUBNAV_ZONES_OVERVIEW ];
 			}
 		}
 

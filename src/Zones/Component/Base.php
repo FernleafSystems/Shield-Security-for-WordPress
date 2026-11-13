@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 
 abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\Base {
@@ -40,56 +39,12 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		return __( 'No Subtitle Yet', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return '';
-	}
-
 	public function explanation() :array {
 		return $this->status()[ 'exp' ];
 	}
 
 	public function enabledStatus() :string {
 		return $this->status()[ 'level' ];
-	}
-
-	public function getActions() :array {
-		$actions = [];
-		if ( $this->hasConfigAction() ) {
-			$optionKeys = $this->getOptions();
-			if ( empty( $optionKeys ) ) {
-				return $actions;
-			}
-
-			$configData = [
-				'zone_component_action' => ZoneComponentConfig::SLUG,
-				'zone_component_slug'   => \implode( ',', $this->configZoneComponentSlugs() ),
-				'option_keys'           => \implode( ',', $optionKeys ),
-			];
-			$configItem = $this->configItem();
-			if ( $configItem !== '' ) {
-				$configData[ 'config_item' ] = $configItem;
-			}
-
-			$actions[ 'config' ] = [
-				'title'   => __( 'Edit Settings', 'wp-simple-firewall' ),
-				'href'    => '',
-				'data'    => \array_merge(
-					$configData,
-					empty( $this->tooltip() ) ? [] : [
-						'bs-toggle'    => 'tooltip',
-						'bs-trigger'   => 'hover',
-						'bs-placement' => 'right',
-						'bs-title'     => $this->tooltip(),
-					]
-				),
-				'icon'      => self::con()->svgs->iconClass( 'gear' ),
-				'is_action' => true,
-				'classes'   => [
-					'zone_component_action',
-				],
-			];
-		}
-		return $actions;
 	}
 
 	public function getOptions() :array {
@@ -146,10 +101,6 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		}
 
 		throw new \LogicException( 'Configure rows require a stable non-empty row scope slug.' );
-	}
-
-	protected function hasConfigAction() :bool {
-		return \count( $this->getOptions() ) > 0;
 	}
 
 	/**

@@ -29,9 +29,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	InactiveUsers,
 	LoginHide,
 	LoginProtectionForms,
-	Modules\ModuleFirewall,
-	Modules\ModuleLogin,
-	Modules\ModuleUsers,
 	PasswordPolicies,
 	PasswordStrength,
 	PwnedPasswords,
@@ -145,6 +142,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			[
 				'scans' => $this->buildScansComponent( [
 					'afsEnabled'     => true,
+					'fileScanAreas'  => [ 'malware_php', 'plugins', 'themes', 'wpcontent', 'wproot' ],
 					'malwareEnabled' => true,
 					'wpCoreEnabled'  => false,
 					'pluginsEnabled' => true,
@@ -299,44 +297,33 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->assertCount( 1, $row[ 'explanations' ] );
 	}
 
-	public function test_firewall_zone_owns_core_rule_components_and_module_config_scope() :void {
+	public function test_firewall_zone_owns_core_rule_components() :void {
 		$this->installController();
 
 		$zone = new FirewallZone();
 		$components = $zone->components();
-		$configAction = $zone->getAction_Config();
 
 		$this->assertContains( WebApplicationFirewall::class, $components );
 		$this->assertContains( UsernameFishingBlock::class, $components );
 		$this->assertContains( FileEditingBlock::class, $components );
-		$this->assertSame( [ ModuleFirewall::Slug() ], $zone->getConfigZoneComponentSlugs() );
-		$this->assertSame( ModuleFirewall::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertNotSame( '', $configAction[ 'data' ][ 'option_keys' ] );
-		$this->assertContains( 'clean_wp_rubbish', \explode( ',', $configAction[ 'data' ][ 'option_keys' ] ) );
 	}
 
-	public function test_login_zone_owns_login_guard_components_and_module_config_scope() :void {
+	public function test_login_zone_owns_login_guard_components() :void {
 		$this->installController();
 
 		$zone = new LoginZone();
 		$components = $zone->components();
-		$configAction = $zone->getAction_Config();
 
 		$this->assertContains( LoginProtectionForms::class, $components );
 		$this->assertContains( LoginHide::class, $components );
 		$this->assertContains( TwoFactorAuth::class, $components );
 		$this->assertContains( SessionTheftProtection::class, $components );
-		$this->assertSame( [ ModuleLogin::Slug() ], $zone->getConfigZoneComponentSlugs() );
-		$this->assertSame( ModuleLogin::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertNotSame( '', $configAction[ 'data' ][ 'option_keys' ] );
-		$this->assertContains( 'rename_wplogin_path', \explode( ',', $configAction[ 'data' ][ 'option_keys' ] ) );
 	}
 
-	public function test_users_zone_owns_user_management_components_and_module_config_scope() :void {
+	public function test_users_zone_owns_user_management_components() :void {
 		$this->installController();
 
 		$zone = new UsersZone();
-		$configAction = $zone->getAction_Config();
 
 		$this->assertSame( [
 			PasswordPolicies::class,
@@ -345,16 +332,6 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			InactiveUsers::class,
 			SpamUserRegisterBlock::class,
 		], $zone->components() );
-		$this->assertSame( [ ModuleUsers::Slug() ], $zone->getConfigZoneComponentSlugs() );
-		$this->assertSame( ModuleUsers::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertNotSame( '', $configAction[ 'data' ][ 'option_keys' ] );
-		$this->assertContains( 'manual_suspend', \explode( ',', $configAction[ 'data' ][ 'option_keys' ] ) );
-	}
-
-	public function test_zone_config_action_is_absent_without_module_options() :void {
-		$this->installController( [], [], [] );
-
-		$this->assertNull( ( new FirewallZone() )->getAction_Config() );
 	}
 
 	public function test_firewall_core_component_statuses_follow_options() :void {
@@ -947,6 +924,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$settings = \array_merge(
 			[
 				'afsEnabled'             => false,
+				'fileScanAreas'          => [],
 				'malwareEnabled'         => false,
 				'wpCoreEnabled'          => false,
 				'pluginsEnabled'         => false,
@@ -980,6 +958,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 					public function isEnabled() :bool {
 						return $this->settings[ 'afsEnabled' ];
+					}
+
+					public function getFileScanAreas() :array {
+						return $this->settings[ 'fileScanAreas' ];
 					}
 
 					public function isEnabledMalwareScanPHP() :bool {
