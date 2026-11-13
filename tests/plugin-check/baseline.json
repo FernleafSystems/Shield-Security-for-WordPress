@@ -3798,13 +3798,6 @@
         },
         {
             "type": "ERROR",
-            "code": "hidden_files",
-            "file": "src/Components/CompCons/MU/.mu-template.txt",
-            "message": "Hidden files are not permitted.",
-            "count": 1
-        },
-        {
-            "type": "ERROR",
             "code": "missing_direct_file_access_protection",
             "file": "icwp-wpsf.php",
             "message": "PHP file should prevent direct access. Add a check like: if ( ! defined( 'ABSPATH' ) ) exit;",

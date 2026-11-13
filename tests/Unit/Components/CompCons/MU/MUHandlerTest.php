@@ -237,9 +237,6 @@ class MUHandlerFsStub extends Fs {
 
 	public function getFileContent( $path, $uncompress = false ) {
 		unset( $uncompress );
-		if ( \basename( $path ) === '.mu-template.txt' ) {
-			return 'SHIELD_ROOT_FILE SHIELD_PLUGIN_NAME SHIELD_PLUGIN_URL SHIELD_PLUGIN_AUTHOR';
-		}
 		return $this->files[ $path ] ?? null;
 	}
 
