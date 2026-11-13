@@ -29,7 +29,8 @@ class MerlinAction extends BaseAction {
 
 		// The setup guide and the wizard share these steps, so a completed step counts in both.
 		if ( $success ) {
-			( new SetupGuideState() )->markDone( (string)( $form[ 'step_slug' ] ?? '' ) );
+			$stepSlug = $form[ 'step_slug' ] ?? '';
+			( new SetupGuideState() )->markDone( \is_string( $stepSlug ) ? $stepSlug : '' );
 		}
 
 		$this->response()->setPayload( [

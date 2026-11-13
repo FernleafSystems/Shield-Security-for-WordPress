@@ -146,6 +146,39 @@ class WhitelabelContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertStringNotContainsString( '<img', $panel );
 	}
 
+	public function test_saving_hostile_white_label_values_leaves_the_public_badge_text_only() :void {
+		$this->enablePremiumCapabilities( [ 'whitelabel' ] );
+		$this->configureWhitelabelOptions();
+		$opts = $this->requireController()->opts;
+		$opts->optSet( 'wl_pluginnamemain', 'Acme <img src=x onerror=alert(1)>Guard' )
+			 ->optSet( 'wl_homeurl', 'javascript:alert(document.domain)' )
+			 ->store();
+		$this->resetWhitelabelRuntime();
+
+		// Saving a home URL that isn't a web address puts the setting back to its default.
+		$this->assertSame( $opts->optDefault( 'wl_homeurl' ), $opts->optGet( 'wl_homeurl' ) );
+
+		$badge = $this->renderDataFor( RenderPluginBadge::class, [ 'is_floating' => false ] );
+		$this->assertSame( 'Acme Guard', $badge[ 'strings' ][ 'name' ] ?? '' );
+		$this->assertStringNotContainsString( '<img', $badge[ 'strings' ][ 'protected' ] ?? '' );
+	}
+
+	public function test_a_home_url_that_is_not_a_web_address_is_never_used_as_a_link() :void {
+		$this->enablePremiumCapabilities( [ 'whitelabel' ] );
+		$this->configureWhitelabelOptions();
+		// Set without saving, as a value stored before saving was validated would be.
+		$this->requireController()->opts->optSet( 'wl_homeurl', 'javascript:alert(1)' );
+		$this->resetWhitelabelRuntime();
+
+		$this->assertSame( '', $this->requireController()->comps->whitelabel->homeUrl() );
+		$labels = $this->requireController()->labels;
+		foreach ( [ $labels->PluginURI, $labels->AuthorURI, $labels->url_secadmin_forgotten_key ] as $url ) {
+			$this->assertStringNotContainsString( 'javascript:', (string)$url );
+		}
+		$badge = $this->renderDataFor( RenderPluginBadge::class, [ 'is_floating' => false ] );
+		$this->assertSame( '', $badge[ 'hrefs' ][ 'badge' ] ?? null );
+	}
+
 	/**
 	 * @param class-string $renderClass
 	 */

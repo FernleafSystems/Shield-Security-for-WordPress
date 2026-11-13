@@ -35,6 +35,13 @@ class SetupGuideDataBuilder {
 		Steps\SecurityBadge::class,
 	];
 
+	/**
+	 * @return list<string> the slugs of the guide's steps
+	 */
+	public static function StepSlugs() :array {
+		return \array_map( static fn( string $handlerClass ) :string => $handlerClass::SLUG, self::STEP_HANDLERS );
+	}
+
 	public function build() :array {
 		$con = self::con();
 		$state = new SetupGuideState();

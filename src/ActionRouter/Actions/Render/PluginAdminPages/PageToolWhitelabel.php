@@ -37,7 +37,7 @@ class PageToolWhitelabel extends PageModeLandingBase {
 					'menu'        => $text( 'wl_namemenu' ),
 					'company'     => $text( 'wl_companyname' ),
 					'description' => $text( 'wl_description' ),
-					'home'        => $text( 'wl_homeurl' ),
+					'home'        => $con->comps->whitelabel->homeUrl(),
 					'icon'        => $this->imageUrl( 'wl_menuiconurl' ),
 					'banner'      => $this->imageUrl( 'wl_login2fa_logourl' ),
 				],
