@@ -89,12 +89,11 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 	}
 
 	public function test_every_description_arrives_as_a_list_of_lines() :void {
-		Functions\when( 'apply_filters' )->returnArg( 2 );
-		$options = $this->displayOptions( [ 'unit_headers_flag', 'unit_one_line_flag', 'api_namespace_exclusions' ] );
+		$options = $this->displayOptions( [ 'unit_headers_flag', 'unit_one_line_flag', 'unit_no_description_flag' ] );
 
 		$this->assertSame( [ 'Unit headers description.' ], $options[ 'unit_headers_flag' ][ 'description' ] );
 		$this->assertSame( [ 'Unit one line description.' ], $options[ 'unit_one_line_flag' ][ 'description' ] );
-		$this->assertSame( [], $options[ 'api_namespace_exclusions' ][ 'description' ] );
+		$this->assertSame( [], $options[ 'unit_no_description_flag' ][ 'description' ] );
 	}
 
 	public function test_unrelated_settings_do_not_evaluate_the_namespace_filter() :void {
@@ -177,6 +176,14 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 				'name'        => 'Unit One Line Flag',
 				'summary'     => 'Unit one line summary',
 				'description' => 'Unit one line description.',
+			],
+			'unit_no_description_flag' => [
+				'key'     => 'unit_no_description_flag',
+				'section' => 'section_security_headers',
+				'type'    => 'checkbox',
+				'default' => 'N',
+				'name'    => 'Unit No Description Flag',
+				'summary' => 'Unit no description summary',
 			],
 		];
 
