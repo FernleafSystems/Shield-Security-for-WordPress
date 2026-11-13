@@ -294,7 +294,7 @@ class StringsOptions {
 					__( 'Directories should be provided with a trailing slash (/).', 'wp-simple-firewall' ),
 					__( "If a path matches any core WordPress directories, it'll be removed automatically.", 'wp-simple-firewall' ),
 					__( "These aren't regular expression, but you can use asterisk (*) as a wildcard.", 'wp-simple-firewall' ),
-					sprintf( '%s: <code>%s</code>', __( 'WordPress Installation Directory', 'wp-simple-firewall' ), ABSPATH ),
+					sprintf( '%s: <code>%s</code>', __( 'WordPress Installation Directory', 'wp-simple-firewall' ), esc_html( ABSPATH ) ),
 				];
 				break;
 			case 'enabled_scan_apc':
@@ -484,7 +484,7 @@ class StringsOptions {
 					__( "Care should be taken to ensure that your website doesn't generate 404 errors for normal visitors.", 'wp-simple-firewall' ),
 					sprintf( '%s: <br/><strong>%s</strong>',
 						__( "404 errors generated for the following file types won't trigger an offense", 'wp-simple-firewall' ),
-						\implode( ', ', $con->comps->bot_signals->getAllowableExt404s() )
+						esc_html( \implode( ', ', $con->comps->bot_signals->getAllowableExt404s() ) )
 					),
 					$con->caps->canBotsAdvancedBlocking() ? '' : $this->getNoteForBots()
 				];
@@ -518,7 +518,7 @@ class StringsOptions {
 					sprintf( '%s: %s',
 						__( "Currently permitted scripts", 'wp-simple-firewall' ),
 						sprintf( '<ul><li><code>%s</code></li></ul>',
-							\implode( '</code></li><li><code>', $con->comps->bot_signals->getAllowableScripts() ) )
+							\implode( '</code></li><li><code>', \array_map( 'esc_html', $con->comps->bot_signals->getAllowableScripts() ) ) )
 					),
 					$con->caps->canBotsAdvancedBlocking() ? '' : $this->getNoteForBots()
 				];
@@ -707,7 +707,7 @@ class StringsOptions {
 						/* translators: %1$s: example path, %2$s: example URL */
 							__( 'Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s).', 'wp-simple-firewall' ),
 							'<code>/</code>',
-							sprintf( '<code>%s</code>', Services::WpGeneral()->getHomeUrl() )
+							sprintf( '<code>%s</code>', esc_html( Services::WpGeneral()->getHomeUrl() ) )
 						)
 					),
 				];
@@ -984,7 +984,7 @@ class StringsOptions {
 						.' '.sprintf( __( "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available.", 'wp-simple-firewall' ), $pluginName ),
 						sprintf( __( "If you use the %s directive, this automatic process may fail and you'll need to use this option to specify a directory that WordPress can write to.", 'wp-simple-firewall' ),
 							sprintf( '<code>%s</code>', 'open_basedir' ) ),
-						sprintf( '<code>%s</code>: <code>%s</code>', __( 'ABSPATH', 'wp-simple-firewall' ), ABSPATH ),
+						sprintf( '<code>%s</code>: <code>%s</code>', __( 'ABSPATH', 'wp-simple-firewall' ), esc_html( ABSPATH ) ),
 					];
 				}
 				else {
@@ -994,7 +994,7 @@ class StringsOptions {
 						sprintf(
 						/* translators: %1$s: plugin name, %2$s: directory path */
 							__( '%1$s has successfully chosen the following location to create its temporary directory: %2$s', 'wp-simple-firewall' ), $pluginName,
-							sprintf( '<code>%s</code>', \dirname( $tmpDir ) ) ),
+							sprintf( '<code>%s</code>', esc_html( \dirname( $tmpDir ) ) ) ),
 						sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( 'You should only provide a value for this configuration option if you experience any trouble.', 'wp-simple-firewall' ) ),
 					];
 				}

@@ -485,6 +485,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 						'zone_component_slug'   => $key,
 						'option_keys'           => $key.'_option',
 						'form_context'          => 'offcanvas',
+						'configure_panel'       => 'code:file_scanning',
 					],
 					$actionData
 				),

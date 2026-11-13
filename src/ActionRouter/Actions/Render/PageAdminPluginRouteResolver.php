@@ -62,7 +62,8 @@ class PageAdminPluginRouteResolver {
 	private function canonicalActionData( array $data ) :array {
 		$route = PluginURLs::legacyAdminRouteParams(
 			ActionData::TransportField( $data, Constants::NAV_ID ),
-			ActionData::TransportField( $data, Constants::NAV_SUB_ID )
+			ActionData::TransportField( $data, Constants::NAV_SUB_ID ),
+			$data
 		);
 		if ( isset( $route[ 'wp_admin' ] ) ) {
 			throw new ActionException( 'This destination is a WordPress admin screen, not a Shield render action.' );
@@ -120,7 +121,7 @@ class PageAdminPluginRouteResolver {
 			}
 		}
 		if ( $nav === PluginNavs::NAV_ZONES ) {
-			foreach ( [ 'zone', 'row_key', 'config_item', 'component' ] as $key ) {
+			foreach ( [ 'zone', 'row_key', 'config_item' ] as $key ) {
 				if ( isset( $actionData[ $key ] ) && \is_string( $actionData[ $key ] ) ) {
 					$data[ $key ] = sanitize_key( $actionData[ $key ] );
 				}

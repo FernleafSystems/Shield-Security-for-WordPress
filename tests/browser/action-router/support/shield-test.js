@@ -372,6 +372,22 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 					}
 				}
 			},
+			async inspectPluginDisabledFixture() {
+				return runFixture( 'plugin-disabled', 'inspect' );
+			},
+			async withPluginDisabledFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'plugin-disabled', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'plugin-disabled', 'cleanup' );
+					}
+				}
+			},
 			async withLiveTrafficToggleFixture( runScenario ) {
 				let seeded = false;
 				try {

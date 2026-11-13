@@ -9,8 +9,7 @@
 	  novalidate="novalidate"
 	  autocomplete="off"
 	  data-context="{{ vars.form_context }}"
-	  data-options-save-action="{{ vars.options_save_action }}"
-	  data-transfer-action="{{ vars.transfer_action }}"
+	  data-options-save-action="form_save"
 >
 	<input type="hidden" name="all_opts_keys" value="{{ vars.all_opts_keys|join(',') }}" />
 

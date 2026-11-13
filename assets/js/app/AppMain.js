@@ -27,6 +27,7 @@ import { ReportingHandler } from "../components/reporting/ReportingHandler";
 import { RuleBuilder } from "../components/rules/RuleBuilder";
 import { RulesManager } from "../components/rules/RulesManager";
 import { ScansHandler } from "../components/scans/ScansHandler";
+import { ProtectionEnableLaunchers } from "../components/scans/ProtectionEnableDialog";
 import { ModePanelStateController } from "../components/mode/ModePanelStateController";
 import { DrillDownController } from "../components/mode/DrillDownController";
 import { StepTabsController } from "../components/mode/StepTabsController";
@@ -107,6 +108,7 @@ export class AppMain extends AppBase {
 			'zones_manager' in comps ? comps.zones_manager : {}
 		);
 		this.components.configure_tabs = new ConfigureTabs();
+		this.components.protection_enable = new ProtectionEnableLaunchers();
 		this.components.actions_queue_landing = new ActionsQueueLandingController();
 		this.components.actions_queue_sections = new ActionsQueueSections();
 		this.components.detail_row_expand = new DetailRowExpandController();

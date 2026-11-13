@@ -83,6 +83,7 @@ class Constants {
 		Actions\PluginDeleteForceOff::class,
 		Actions\TranslationsForceDownload::class,
 		Actions\PluginDumpTelemetry::class,
+		Actions\PluginFeaturesEnable::class,
 		Actions\PluginImportExport_DisconnectMaster::class,
 		Actions\PluginImportExport_SetEnabled::class,
 		Actions\PluginImportExport_UpdateNotified::class,

@@ -15,10 +15,6 @@ class BotActions extends Base {
 			self::con()->labels->Name );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Control the response to specific bot requests', 'wp-simple-firewall' );
-	}
-
 	protected function configureStatus() :array {
 		$signalStates = $this->botSignalStates();
 		$status = parent::status();
@@ -39,6 +35,12 @@ class BotActions extends Base {
 				__( "Visitors that repeatedly trigger the signal '%s' aren't penalised.", 'wp-simple-firewall' ),
 				$this->botSignalName( $signalKey )
 			), $signalKey );
+		}
+
+		// Offenses only lead to a block once they reach the limit, so a limit of 0 leaves them doing nothing. The
+		// limit is set in another topic, so this is said about these settings as a whole.
+		if ( !self::con()->comps->opts_lookup->enabledIpAutoBlock() ) {
+			$status[ 'exp' ][] = __( "Responses that record an offense have no effect while the offense limit is 0.", 'wp-simple-firewall' );
 		}
 
 		if ( $status[ 'level' ] !== EnumEnabledStatus::BAD ) {

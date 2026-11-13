@@ -62,7 +62,9 @@ class PageScansRun extends PageScansBase {
 				'scan_areas_action'   => [
 					'zone_component_action' => ZoneComponentConfig::SLUG,
 					'zone_component_slug'   => FileScanning::Slug(),
-					'option_keys'           => 'file_scan_areas',
+					// File areas only apply while file scanning is on, so the panel shows that switch above them.
+					'option_keys'           => 'enable_core_file_integrity_scan,file_scan_areas',
+					'configure_panel'       => 'code:file_scanning',
 					// Not "offcanvas", so saving reloads the page and the areas listed here follow.
 					'form_context'          => 'scan_run',
 				],
@@ -150,8 +152,9 @@ class PageScansRun extends PageScansBase {
 
 			$subItems = [];
 			if ( $slug === $con->comps->scans->AFS()->getSlug() ) {
+				$areas = $con->comps->scans->AFS()->getFileScanAreas();
 				foreach ( $con->opts->optDef( 'file_scan_areas' )[ 'value_options' ] as $opt ) {
-					$subItems[ $opt[ 'text' ] ] = \in_array( $opt[ 'value_key' ], $con->opts->optGet( 'file_scan_areas' ) );
+					$subItems[ $opt[ 'text' ] ] = \in_array( $opt[ 'value_key' ], $areas, true );
 				}
 			}
 

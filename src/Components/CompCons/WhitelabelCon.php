@@ -28,24 +28,27 @@ class WhitelabelCon {
 
 	public function applyWhiteLabels( Labels $labels ): Labels {
 		$opts = self::con()->opts;
+		// Names and descriptions are plain text, and they're placed into HTML all over the plugin, so any
+		// markup saved in them is removed here, once, before anything uses them.
+		$text = static fn( string $key ) :string => sanitize_text_field( (string)$opts->optGet( $key ) );
 
 		// these are the old white labelling keys which will be replaced upon final release of white labelling.
-		$name = $opts->optGet( 'wl_pluginnamemain' );
+		$name = $text( 'wl_pluginnamemain' );
 		if ( !empty( $name ) ) {
 			$labels->Name = $name;
 			$labels->Title = $name;
 		}
 
-		$companyName = $opts->optGet( 'wl_companyname' );
+		$companyName = $text( 'wl_companyname' );
 		if ( !empty( $companyName ) ) {
 			$labels->Author = $companyName;
 			$labels->AuthorName = $companyName;
 		}
 
-		$labels->MenuTitle = empty( $opts->optGet( 'wl_namemenu' ) ) ? $labels->Name : $opts->optGet( 'wl_namemenu' );
+		$labels->MenuTitle = empty( $text( 'wl_namemenu' ) ) ? $labels->Name : $text( 'wl_namemenu' );
 
-		if ( !empty( $opts->optGet( 'wl_description' ) ) ) {
-			$labels->Description = $opts->optGet( 'wl_description' );
+		if ( !empty( $text( 'wl_description' ) ) ) {
+			$labels->Description = $text( 'wl_description' );
 		}
 
 		$homeURL = $opts->optGet( 'wl_homeurl' );

@@ -221,6 +221,7 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 					'zone_component_slug'   => \strtolower( \str_replace( ' ', '_', $title ) ),
 					'option_keys'           => \strtolower( \str_replace( ' ', '_', $title ) ).'_option',
 					'form_context'          => 'offcanvas',
+					'configure_panel'       => 'code:file_scanning',
 				],
 			],
 		];

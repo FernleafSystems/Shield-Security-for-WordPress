@@ -17,33 +17,6 @@ export class OptionsHandler extends BaseAutoExecComponent {
 		this.initializeDirtyTracking();
 
 		shieldEventsHandler_Main.add_Click(
-			'form.options_form_for .toggle-importexport-inclusion > input[type=checkbox]',
-			( targetEl ) => {
-				const form = targetEl.closest( 'form.options_form_for' );
-				if ( !form ) {
-					return;
-				}
-				const actionKey = form.dataset.transferAction;
-				if ( !actionKey || !( actionKey in this._base_data.ajax ) ) {
-					return;
-				}
-				( new AjaxService() )
-				.bg(
-					ObjectOps.Merge( this._base_data.ajax[ actionKey ], {
-						key: targetEl.dataset.key,
-						status: targetEl.checked ? 'include' : 'exclude'
-					} )
-				)
-				.then( respJSON => {
-					shieldServices.notification().showMessage( respJSON.data.message, respJSON.success );
-					return respJSON;
-				} )
-				.finally();
-			},
-			false
-		);
-
-		shieldEventsHandler_Main.add_Click(
 			'form.import-export-profile-options-form [data-import-export-profile-sync-toggle]',
 			( targetEl ) => {
 				this.toggleProfileOptionSync( targetEl );
@@ -55,32 +28,6 @@ export class OptionsHandler extends BaseAutoExecComponent {
 			'form.import-export-profile-options-form [data-import-export-profile-group-sync-toggle]',
 			( targetEl ) => {
 				this.toggleProfileGroupSync( targetEl );
-			},
-			false
-		);
-
-		shieldEventsHandler_Main.add_Click(
-			'form.options_form_for .option-description-expander',
-			( targetEl ) => {
-				const descriptionTarget = ( targetEl.getAttribute( 'aria-controls' ) || '' ).trim();
-				const toToggle = descriptionTarget.length > 0
-					? document.getElementById( descriptionTarget )
-					: null;
-				if ( toToggle ) {
-					const isHidden = toToggle.classList.toggle( 'hidden' );
-					targetEl.setAttribute( 'aria-expanded', isHidden ? 'false' : 'true' );
-					toToggle.setAttribute( 'aria-hidden', isHidden ? 'true' : 'false' );
-
-					const item = targetEl.closest( '.shield-option-item' );
-					if ( item ) {
-						item.classList.toggle( 'shield-option-item-expanded', !isHidden );
-					}
-
-					const tip = Tooltip.getInstance( targetEl );
-					if ( tip ) {
-						tip.hide();
-					}
-				}
 			},
 			false
 		);
@@ -102,11 +49,6 @@ export class OptionsHandler extends BaseAutoExecComponent {
 		const refresh = ( evt ) => OptionDirtyState.refresh( evt.target );
 		document.addEventListener( 'input', refresh );
 		document.addEventListener( 'change', refresh );
-
-		shieldEventsHandler_Main.add_Click(
-			`${OptionDirtyState.FORM_SELECTOR} [data-option-reset]`,
-			( targetEl ) => OptionDirtyState.resetToDefault( targetEl )
-		);
 	}
 
 	initializeProfileSearchInputs() {

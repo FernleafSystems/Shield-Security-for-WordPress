@@ -98,10 +98,18 @@ class CaptureRedirectsTest extends BaseUnitTest {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->cfg = (object)[
-			'properties' => [
+			'properties'    => [
 				'wpms_network_admin_only' => false,
 				'slug_parent'             => 'icwp',
 				'slug_plugin'             => 'wpsf',
+			],
+			'configuration' => (object)[
+				'options' => [
+					'whitelabel_enable' => [
+						'section'         => 'section_whitelabel',
+						'zone_comp_slugs' => [ 'whitelabel' ],
+					],
+				],
 			],
 		];
 		$controller->plugin_urls = new PluginURLs();
@@ -195,7 +203,7 @@ class CaptureRedirectsTest extends BaseUnitTest {
 		return [
 			'reports charts' => [ 'reports', 'charts', 'nav=reports&nav_sub=overview&workspace=charts' ],
 			'sessions alias' => [ 'tools', 'sessions', 'nav=activity&nav_sub=sessions' ],
-			'retired component' => [ 'zone_components', 'whitelabel', 'nav=zones&nav_sub=overview&component=whitelabel' ],
+			'retired component' => [ 'zone_components', 'whitelabel', 'nav=tools&nav_sub=whitelabel' ],
 			'scan history' => [ 'scans', 'history', 'nav=scans&nav_sub=overview&zone=scans' ],
 			'retained leaf' => [ 'rules', 'build', 'nav=rules&nav_sub=build' ],
 			'missing subnav' => [ 'reports', null, 'nav=reports&nav_sub=overview' ],

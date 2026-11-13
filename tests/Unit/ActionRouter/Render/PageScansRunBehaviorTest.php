@@ -199,4 +199,7 @@ class PageScansRunTestScanController {
 		return true;
 	}
 
+	public function getFileScanAreas() :array {
+		return [ 'core' ];
+	}
 }

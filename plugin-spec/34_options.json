@@ -629,8 +629,6 @@
             "file_scanning",
             "module_scans"
         ],
-        "premium": true,
-        "cap": "scan_file_areas",
         "type": "multiple_select",
         "default": [
             "wp"
@@ -638,8 +636,7 @@
         "value_options": [
             {
                 "value_key": "wp",
-                "text": "WP core files (excludes /wp-content/)",
-                "premium": true
+                "text": "WP core files (excludes /wp-content/)"
             },
             {
                 "value_key": "malware_php",

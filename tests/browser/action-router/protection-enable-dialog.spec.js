@@ -72,6 +72,19 @@ test( 'premium protection tiles enable individual scans and files with accessibl
 	} );
 } );
 
+// Free sites switch scans on with the same dialog; only scans their plan includes are offered it.
+test( 'free plan protection tiles enable the scans it includes from the same dialog', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'pro_upsell', async fixture => {
+		const queue = await openQueue( page, fixture );
+		for ( const key of [ 'wordpress', 'abandoned' ] ) {
+			const tile = await queue.waitForLandingGroupOuter( key );
+			const c = await openProtection( page, tile );
+			await c.toggle.check(); await c.save.click(); await expect( c.dialog ).not.toBeVisible();
+			await expect( page.locator( '[data-actions-queue-group-key="' + key + '"][data-enable-protection]' ) ).toHaveCount( 0 );
+		}
+	} );
+} );
+
 for ( const failure of [ 'rejected', 'network' ] ) {
 	test( 'protection save retains busy/error focus and permits retry: ' + failure, async ( { page, fixtureApi } ) => {
 		await fixtureApi.withActionsQueueFixture( 'scan_enablement', async fixture => {

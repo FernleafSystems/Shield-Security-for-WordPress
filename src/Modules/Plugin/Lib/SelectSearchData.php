@@ -7,9 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\{
 	StringsSections
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\ContactFormSpamBlockBot;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\LoginProtectionForms;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModuleIntegrations;
 
 class SelectSearchData {
 
@@ -278,7 +275,7 @@ class SelectSearchData {
 				'id'     => 'integration_mainwp',
 				'text'   => 'Integration with MainWP',
 				'link'   => [
-					'href' => $con->plugin_urls->cfgForZoneComponent( ModuleIntegrations::Slug() ),
+					'href' => $con->plugin_urls->cfgForOpt( 'enable_mainwp' ),
 				],
 				'tokens' => 'integration main mainwp',
 				'icon'   => $con->svgs->iconClass( 'sliders.svg' ),
@@ -290,7 +287,7 @@ class SelectSearchData {
 				'id'     => 'integration_'.$item[ 'value_key' ],
 				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
 				'link'   => [
-					'href' => $con->plugin_urls->cfgForZoneComponent( LoginProtectionForms::Slug() ),
+					'href' => $con->plugin_urls->cfgForOpt( 'user_form_providers' ),
 				],
 				'tokens' => 'integration login form bots '.$item[ 'text' ],
 				'icon'   => $con->svgs->iconClass( 'sliders.svg' ),
@@ -302,7 +299,7 @@ class SelectSearchData {
 				'id'     => 'integration_'.$item[ 'value_key' ],
 				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
 				'link'   => [
-					'href' => $con->plugin_urls->cfgForZoneComponent( ContactFormSpamBlockBot::Slug() ),
+					'href' => $con->plugin_urls->cfgForOpt( 'form_spam_providers' ),
 				],
 				'tokens' => 'contact integration form forms spam '.$item[ 'text' ],
 				'icon'   => $con->svgs->iconClass( 'sliders.svg' ),

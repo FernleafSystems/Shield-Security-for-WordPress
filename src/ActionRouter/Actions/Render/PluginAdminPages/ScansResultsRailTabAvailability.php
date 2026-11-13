@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetFileLockCandidateDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -123,12 +122,7 @@ class ScansResultsRailTabAvailability {
 						'not_enabled',
 						__( 'Detect changes to WordPress core files', 'wp-simple-firewall' ),
 						[
-							$this->buildZoneComponentAction(
-								__( 'Turn On Scanning', 'wp-simple-firewall' ),
-								'file_scanning',
-								[ 'enable_core_file_integrity_scan', 'file_scan_areas' ],
-								'enable_core_file_integrity_scan'
-							),
+							$this->buildEnableAction( __( 'Turn On Scanning', 'wp-simple-firewall' ), 'wordpress' ),
 						]
 					) );
 				}
@@ -151,12 +145,7 @@ class ScansResultsRailTabAvailability {
 							'not_enabled',
 							__( 'Detect changes to plugin files', 'wp-simple-firewall' ),
 							[
-								$this->buildZoneComponentAction(
-									__( 'Turn On Scanning', 'wp-simple-firewall' ),
-									'file_scanning',
-									[ 'enable_core_file_integrity_scan', 'file_scan_areas' ],
-									'file_scan_areas'
-								),
+								$this->buildEnableAction( __( 'Turn On Scanning', 'wp-simple-firewall' ), 'plugins' ),
 							]
 						) );
 				}
@@ -179,12 +168,7 @@ class ScansResultsRailTabAvailability {
 							'not_enabled',
 							__( 'Detect changes to theme files', 'wp-simple-firewall' ),
 							[
-								$this->buildZoneComponentAction(
-									__( 'Turn On Scanning', 'wp-simple-firewall' ),
-									'file_scanning',
-									[ 'enable_core_file_integrity_scan', 'file_scan_areas' ],
-									'file_scan_areas'
-								),
+								$this->buildEnableAction( __( 'Turn On Scanning', 'wp-simple-firewall' ), 'themes' ),
 							]
 						) );
 				}
@@ -207,12 +191,7 @@ class ScansResultsRailTabAvailability {
 							'not_enabled',
 							__( 'Detect vulnerabilities in plugins and themes', 'wp-simple-firewall' ),
 							[
-								$this->buildZoneComponentAction(
-									__( 'Turn On Scanning', 'wp-simple-firewall' ),
-									'vulnerability_scanning',
-									[ 'enable_wpvuln_scan' ],
-									'enable_wpvuln_scan'
-								),
+								$this->buildEnableAction( __( 'Turn On Scanning', 'wp-simple-firewall' ), 'vulnerabilities' ),
 							]
 						) );
 				}
@@ -227,12 +206,7 @@ class ScansResultsRailTabAvailability {
 						'not_enabled',
 						__( 'Identify abandoned plugins and themes', 'wp-simple-firewall' ),
 						[
-							$this->buildZoneComponentAction(
-								__( 'Turn On Checks', 'wp-simple-firewall' ),
-								'vulnerability_scanning',
-								[ 'enabled_scan_apc' ],
-								'enabled_scan_apc'
-							),
+							$this->buildEnableAction( __( 'Turn On Checks', 'wp-simple-firewall' ), 'abandoned' ),
 						]
 					) );
 				}
@@ -255,12 +229,7 @@ class ScansResultsRailTabAvailability {
 							'not_enabled',
 							__( 'Detect malicious code in PHP files', 'wp-simple-firewall' ),
 							[
-								$this->buildZoneComponentAction(
-									__( 'Turn On Scanning', 'wp-simple-firewall' ),
-									'file_scanning',
-									[ 'enable_core_file_integrity_scan', 'file_scan_areas' ],
-									'file_scan_areas'
-								),
+								$this->buildEnableAction( __( 'Turn On Scanning', 'wp-simple-firewall' ), 'malware' ),
 							]
 						) );
 				}
@@ -332,42 +301,28 @@ class ScansResultsRailTabAvailability {
 	}
 
 	private function isPluginThemeScanRestricted() :bool {
-		return !self::con()->isPremiumActive() || !self::con()->caps->canScanPluginsThemesLocal();
+		return !self::con()->caps->canScanPluginsThemesLocal();
 	}
 
 	/**
-	 * @param list<string> $optionKeys
+	 * Switching a scan on opens the same one-switch dialog wherever it's offered.
 	 * @return DisabledPaneAction
 	 */
-	private function buildZoneComponentAction(
-		string $label,
-		string $zoneComponentSlug,
-		array $optionKeys = [],
-		string $configItem = ''
-	) :array {
-		$attributes = [
-			'data-zone_component_action' => ZoneComponentConfig::SLUG,
-			'data-zone_component_slug'   => $zoneComponentSlug,
-			'data-form_context'          => 'offcanvas',
-		];
-		if ( !empty( $optionKeys ) ) {
-			$attributes[ 'data-option_keys' ] = \implode( ',', $optionKeys );
-		}
-		if ( $configItem !== '' ) {
-			$attributes[ 'data-config_item' ] = $configItem;
-		}
-
+	private function buildEnableAction( string $label, string $scanKey ) :array {
 		return [
 			'type'         => 'navigate',
 			'label'        => $label,
 			'href'         => '',
 			'is_action'    => true,
-			'icon_class'   => 'bi bi-gear-fill',
+			'icon_class'   => 'bi bi-toggle-on',
 			'tooltip_attr' => '',
-			'class_name'   => 'zone_component_action',
+			'class_name'   => '',
 			'target'       => '',
 			'rel'          => '',
-			'attributes'   => $attributes,
+			'attributes'   => [
+				'data-enable-protection' => ( new ProtectionEnableDialogBuilder() )->forScan( $scanKey, 'bi bi-shield-check' ),
+				'aria-haspopup'          => 'dialog',
+			],
 		];
 	}
 

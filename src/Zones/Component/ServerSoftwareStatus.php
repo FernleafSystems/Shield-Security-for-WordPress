@@ -20,10 +20,6 @@ class ServerSoftwareStatus extends Base {
 		return __( 'A high-level overview of your WordPress hosting server software.', 'wp-simple-firewall' );
 	}
 
-	protected function hasConfigAction() :bool {
-		return false;
-	}
-
 	/**
 	 * @inheritDoc
 	 */

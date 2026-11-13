@@ -399,13 +399,8 @@ a[target="_blank"]:not(.shield-footer-version):not(.option_link_info):not(.card-
   display: none;
 }
 
-.beacon-article,
-.section_title_info {
+.beacon-article {
   cursor: pointer;
-}
-
-.section_title_info .dashicons {
-  color: rgba(0, 128, 0, 1);
 }
 
 .shield-button-link {

@@ -1336,8 +1336,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( ScansFileLockerEnableFile::SLUG, $file[ 'action' ][ 'ex' ] );
 		$this->assertSame( 'wpconfig', $file[ 'action' ][ 'file_key' ] );
 		$this->assertSame( '', $builder->forScan( 'unknown', '' ) );
+		// The same dialog is offered on every plan; whether the scan can be switched on is the action's call.
 		$this->disablePremiumCapabilities();
-		$this->assertSame( '', $builder->forScan( 'wordpress', '' ) );
+		$this->assertProtectionDialogContract( \json_decode( $builder->forScan( 'wordpress', 'bi bi-shield' ), true, 512, \JSON_THROW_ON_ERROR ) );
 	}
 
 	private function assertProtectionDialogContract( array $dialog ) :void {
@@ -1390,12 +1391,15 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $expected, $payload[ 'success' ] );
 		$expectedValues = $before;
 		if ( $expected ) {
-			if ( $scan === 'vulnerabilities' ) {
-				$expectedValues[ 'enable_wpvuln_scan' ] = 'Y';
+			$enables = ScansEnable::SCANS[ $scan ];
+			if ( $enables[ 'option' ] === 'file_scan_areas' ) {
+				$expectedValues[ 'file_scan_areas' ] = \array_values( \array_unique(
+					\array_merge( $expectedValues[ 'file_scan_areas' ], [ $enables[ 'value' ] ] )
+				) );
+				$expectedValues[ 'enable_core_file_integrity_scan' ] = 'Y';
 			}
 			else {
-				$expectedValues[ 'file_scan_areas' ][] = $scan === 'malware' ? 'malware_php' : $scan;
-				$expectedValues[ 'enable_core_file_integrity_scan' ] = 'Y';
+				$expectedValues[ $enables[ 'option' ] ] = $enables[ 'value' ];
 			}
 		}
 		$this->assertSame( $expectedValues, $opts->values() );
@@ -1415,8 +1419,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'no theme capability' => [ 'themes', [], true, false ],
 			'no vulnerability capability' => [ 'vulnerabilities', [], true, false ],
 			'free malware' => [ 'malware', [], false, false ],
-			'free wordpress' => [ 'wordpress', [], false, false ],
-			'free abandoned' => [ 'abandoned', [], false, false ],
+			'free wordpress' => [ 'wordpress', [], false, true ],
+			'free abandoned' => [ 'abandoned', [], false, true ],
 		];
 	}
 

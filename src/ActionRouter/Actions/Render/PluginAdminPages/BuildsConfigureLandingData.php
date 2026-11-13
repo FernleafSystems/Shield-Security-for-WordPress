@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 /**
  * @phpstan-import-type ConfigureLandingTile from ConfigureLandingRenderContracts
@@ -228,9 +227,6 @@ trait BuildsConfigureLandingData {
 			'goal_summary'   => ConfigureGoalPanels::labels()[ 'goals' ][ $zoneKey ][ 'summary' ] ?? '',
 			'header'         => $diagnosis[ 'header' ],
 			'zone_selection' => $diagnosis[ 'zone_selection' ],
-			// Built after the diagnosis above, so every component has recorded which option fixes each explanation.
-			'explanation_fixes' => Component\Base::explanationFixLookup(),
-			'show_me_label'  => __( 'Show me', 'wp-simple-firewall' ),
 			'is_embedded'    => false,
 			'zone_tools'     => [
 				'attention_count'    => \count( \array_filter(

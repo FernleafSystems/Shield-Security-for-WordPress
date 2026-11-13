@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 class Firewall extends Base {
 
-	public function tooltip() :string {
-		return 'Edit settings for the entire Firewall Zone';
-	}
-
 	public function components() :array {
 		return [
 			Component\WebApplicationFirewall::class,
@@ -23,9 +19,5 @@ class Firewall extends Base {
 
 	public function title() :string {
 		return __( 'Firewall', 'wp-simple-firewall' );
-	}
-
-	protected function getUnderlyingModuleZone() :?string {
-		return Component\Modules\ModuleFirewall::class;
 	}
 }
