@@ -35,9 +35,11 @@ class SetupGuideState {
 		return \is_array( $done ) ? \array_values( \array_filter( $done, 'is_string' ) ) : [];
 	}
 
+	/**
+	 * Only the guide's own steps are recorded. The wizard's other steps, and anything else a request names, are not.
+	 */
 	public function markDone( string $stepSlug ) :bool {
-		$stepSlug = sanitize_key( $stepSlug );
-		if ( $stepSlug === '' ) {
+		if ( !\in_array( $stepSlug, SetupGuideDataBuilder::StepSlugs(), true ) ) {
 			return false;
 		}
 		$state = $this->stored();

@@ -297,6 +297,7 @@ class ConfigurePanelBuilder {
 
 	/**
 	 * Editable WordPress roles, plus any saved role no longer registered so saving keeps it.
+	 * Labels are escaped here: the chips template prints a label as HTML, as it does for choices from the spec.
 	 * @return list<array{value:string,label:string,is_on:bool}>
 	 */
 	private function roleChoices( string $optionKey ) :array {
@@ -306,14 +307,14 @@ class ConfigurePanelBuilder {
 		foreach ( $names as $role => $name ) {
 			$choices[] = [
 				'value' => (string)$role,
-				'label' => translate_user_role( $name ),
+				'label' => esc_html( translate_user_role( $name ) ),
 				'is_on' => \in_array( (string)$role, $selected, true ),
 			];
 		}
 		foreach ( \array_diff( $selected, \array_keys( $names ) ) as $role ) {
 			$choices[] = [
 				'value' => $role,
-				'label' => $role,
+				'label' => esc_html( $role ),
 				'is_on' => true,
 			];
 		}

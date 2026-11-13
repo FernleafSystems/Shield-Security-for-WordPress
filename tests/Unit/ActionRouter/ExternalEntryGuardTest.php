@@ -6,16 +6,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions,
 	Actions\BaseAction,
-	Constants,
 	Utility\ActionsMap,
 	Utility\ExternalEntryGuard
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\RegistersTestActions;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\{
+	ListsRegisteredActions,
+	RegistersTestActions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class ExternalEntryGuardTest extends BaseUnitTest {
 
+	use ListsRegisteredActions;
 	use RegistersTestActions;
 
 	protected function tearDown() :void {
@@ -306,16 +309,6 @@ class ExternalEntryGuardTest extends BaseUnitTest {
 				$action.': MainWP authenticates its requests and sends no Shield nonce.'
 			);
 		}
-	}
-
-	/**
-	 * @return list<class-string<BaseAction>>
-	 */
-	private function registeredActions() :array {
-		return \array_values( \array_filter(
-			\array_unique( Constants::ACTIONS ),
-			static fn( string $action ) :bool => \class_exists( $action ) && !( new \ReflectionClass( $action ) )->isAbstract()
-		) );
 	}
 }
 

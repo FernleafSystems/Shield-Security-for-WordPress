@@ -26,32 +26,64 @@ class WhitelabelCon {
 		add_filter( 'plugin_row_meta', [ $this, 'removePluginMetaLinks' ], 200, 2 );
 	}
 
-	public function applyWhiteLabels( Labels $labels ): Labels {
-		$opts = self::con()->opts;
-		// Names and descriptions are plain text, and they're placed into HTML all over the plugin, so any
-		// markup saved in them is removed here, once, before anything uses them.
-		$text = static fn( string $key ) :string => sanitize_text_field( (string)$opts->optGet( $key ) );
+	/**
+	 * The white-label plugin name as plain text.
+	 */
+	public function pluginName() :string {
+		return $this->text( 'wl_pluginnamemain' );
+	}
 
+	/**
+	 * The white-label home URL, only when it's a web address. Anything else, such as a javascript: URL, gives an
+	 * empty string, whether it was saved before validation existed or arrived some other way.
+	 */
+	public function homeUrl() :string {
+		$url = $this->savedHomeUrl();
+		return Services::Data()->isValidWebUrl( $url ) ? $url : '';
+	}
+
+	/**
+	 * The white-label dashboard logo, resolved to an address the same way the plugin's own labels use it.
+	 */
+	public function dashboardLogoUrl() :string {
+		return $this->constructImageURL( 'wl_dashboardlogourl' );
+	}
+
+	private function savedHomeUrl() :string {
+		return \trim( (string)self::con()->opts->optGet( 'wl_homeurl' ) );
+	}
+
+	/**
+	 * A white-label name or description as plain text. These are placed into HTML all over the plugin, so any
+	 * markup saved in them is removed before anything uses them.
+	 */
+	private function text( string $key ) :string {
+		return sanitize_text_field( (string)self::con()->opts->optGet( $key ) );
+	}
+
+	public function applyWhiteLabels( Labels $labels ): Labels {
 		// these are the old white labelling keys which will be replaced upon final release of white labelling.
-		$name = $text( 'wl_pluginnamemain' );
+		$name = $this->pluginName();
 		if ( !empty( $name ) ) {
 			$labels->Name = $name;
 			$labels->Title = $name;
 		}
 
-		$companyName = $text( 'wl_companyname' );
+		$companyName = $this->text( 'wl_companyname' );
 		if ( !empty( $companyName ) ) {
 			$labels->Author = $companyName;
 			$labels->AuthorName = $companyName;
 		}
 
-		$labels->MenuTitle = empty( $text( 'wl_namemenu' ) ) ? $labels->Name : $text( 'wl_namemenu' );
+		$menuName = $this->text( 'wl_namemenu' );
+		$labels->MenuTitle = empty( $menuName ) ? $labels->Name : $menuName;
 
-		if ( !empty( $text( 'wl_description' ) ) ) {
-			$labels->Description = $text( 'wl_description' );
+		$description = $this->text( 'wl_description' );
+		if ( !empty( $description ) ) {
+			$labels->Description = $description;
 		}
 
-		$homeURL = $opts->optGet( 'wl_homeurl' );
+		$homeURL = $this->homeUrl();
 		if ( !empty( $homeURL ) ) {
 			$labels->PluginURI = $homeURL;
 			$labels->AuthorURI = $homeURL;
@@ -65,7 +97,7 @@ class WhitelabelCon {
 			$labels->icon_url_32x32 = $urlIcon;
 		}
 
-		$urlDashboardLogo = $this->constructImageURL( 'wl_dashboardlogourl' );
+		$urlDashboardLogo = $this->dashboardLogoUrl();
 		if ( !empty( $urlDashboardLogo ) ) {
 			$labels->icon_url_128x128 = $urlDashboardLogo;
 		}
@@ -83,7 +115,7 @@ class WhitelabelCon {
 	}
 
 	/**
-	 * Verify whitelabel images
+	 * Verify the white-label images and home URL when they're saved.
 	 */
 	public function verifyUrls() {
 		$opts = self::con()->opts;
@@ -92,6 +124,10 @@ class WhitelabelCon {
 			if ( $opts->optChanged( $key ) && !$DP->isValidWebUrl( $this->constructImageURL( $key ) ) ) {
 				$opts->optReset( $key );
 			}
+		}
+		// The home URL is used as a link, so it must be a web address or nothing.
+		if ( $opts->optChanged( 'wl_homeurl' ) && $this->savedHomeUrl() !== '' && $this->homeUrl() === '' ) {
+			$opts->optReset( 'wl_homeurl' );
 		}
 	}
 
@@ -111,25 +147,30 @@ class WhitelabelCon {
 	}
 
 	/**
-	 * We cater for 3 options:
-	 * Full URL
-	 * Relative path URL: i.e. starts with /
-	 * Or Plugin image URL i.e. doesn't start with HTTP or /
+	 * The address of a logo setting's value. A logo setting holds one of 3 things:
+	 * a full URL, a site-relative path (starting with /), or the name of one of the plugin's own images.
+	 */
+	public function imageUrlFor( string $value ) :string {
+		return $value === '' || Services::Data()->isValidWebUrl( $value ) || \strpos( $value, '/' ) === 0
+			? $value
+			: self::con()->urls->forImage( $value );
+	}
+
+	/**
+	 * The address of a logo setting, putting the setting back to its default when it's empty or resolves to nothing.
 	 */
 	private function constructImageURL( string $key ): string {
 		$opts = self::con()->opts;
 
-		$url = $opts->optGet( $key );
-		if ( empty( $url ) ) {
+		$value = (string)$opts->optGet( $key );
+		if ( $value === '' ) {
 			$opts->optReset( $key );
-			$url = $opts->optGet( $key );
+			$value = (string)$opts->optGet( $key );
 		}
-		if ( !empty( $url ) && !Services::Data()->isValidWebUrl( $url ) && \strpos( $url, '/' ) !== 0 ) {
-			$url = self::con()->urls->forImage( $url );
-			if ( empty( $url ) ) {
-				$opts->optReset( $key );
-				$url = self::con()->urls->forImage( $opts->optGet( $key ) );
-			}
+		$url = $this->imageUrlFor( $value );
+		if ( $url === '' && $value !== '' ) {
+			$opts->optReset( $key );
+			$url = $this->imageUrlFor( (string)$opts->optGet( $key ) );
 		}
 
 		return $url;
