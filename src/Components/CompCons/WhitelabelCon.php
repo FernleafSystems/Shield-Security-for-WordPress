@@ -147,25 +147,30 @@ class WhitelabelCon {
 	}
 
 	/**
-	 * We cater for 3 options:
-	 * Full URL
-	 * Relative path URL: i.e. starts with /
-	 * Or Plugin image URL i.e. doesn't start with HTTP or /
+	 * The address of a logo setting's value. A logo setting holds one of 3 things:
+	 * a full URL, a site-relative path (starting with /), or the name of one of the plugin's own images.
+	 */
+	public function imageUrlFor( string $value ) :string {
+		return $value === '' || Services::Data()->isValidWebUrl( $value ) || \strpos( $value, '/' ) === 0
+			? $value
+			: self::con()->urls->forImage( $value );
+	}
+
+	/**
+	 * The address of a logo setting, putting the setting back to its default when it's empty or resolves to nothing.
 	 */
 	private function constructImageURL( string $key ): string {
 		$opts = self::con()->opts;
 
-		$url = $opts->optGet( $key );
-		if ( empty( $url ) ) {
+		$value = (string)$opts->optGet( $key );
+		if ( $value === '' ) {
 			$opts->optReset( $key );
-			$url = $opts->optGet( $key );
+			$value = (string)$opts->optGet( $key );
 		}
-		if ( !empty( $url ) && !Services::Data()->isValidWebUrl( $url ) && \strpos( $url, '/' ) !== 0 ) {
-			$url = self::con()->urls->forImage( $url );
-			if ( empty( $url ) ) {
-				$opts->optReset( $key );
-				$url = self::con()->urls->forImage( $opts->optGet( $key ) );
-			}
+		$url = $this->imageUrlFor( $value );
+		if ( $url === '' && $value !== '' ) {
+			$opts->optReset( $key );
+			$url = $this->imageUrlFor( (string)$opts->optGet( $key ) );
 		}
 
 		return $url;

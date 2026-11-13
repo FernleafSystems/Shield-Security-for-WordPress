@@ -13,10 +13,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions,
 	Actions\BaseAction,
-	Constants,
 	Utility\ExternalEntryGuard
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ListsRegisteredActions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 
@@ -26,6 +26,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerI
  * or check a credential of its own. Adding to this list is a security review decision: give the reason.
  */
 class LoggedOutReachableActionsTest extends BaseUnitTest {
+
+	use ListsRegisteredActions;
 
 	private const REVIEWED_LOGGED_OUT = [
 		Actions\CaptureNotBot::class                           => 'silentCAPTCHA registration; records bot signals for the requesting IP only.',
@@ -84,16 +86,6 @@ class LoggedOutReachableActionsTest extends BaseUnitTest {
 		$method = new \ReflectionMethod( $action, 'isUserAuthRequired' );
 		$method->setAccessible( true );
 		return (bool)$method->invoke( ( new \ReflectionClass( $action ) )->newInstanceWithoutConstructor() );
-	}
-
-	/**
-	 * @return list<class-string<BaseAction>>
-	 */
-	private function registeredActions() :array {
-		return \array_values( \array_filter(
-			\array_unique( Constants::ACTIONS ),
-			static fn( string $action ) :bool => \class_exists( $action ) && !( new \ReflectionClass( $action ) )->isAbstract()
-		) );
 	}
 }
 

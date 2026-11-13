@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * White Label as a page of its own: its settings laid out as a Configure panel, beside a preview of the
@@ -38,8 +37,9 @@ class PageToolWhitelabel extends PageModeLandingBase {
 					'company'     => $text( 'wl_companyname' ),
 					'description' => $text( 'wl_description' ),
 					'home'        => $con->comps->whitelabel->homeUrl(),
-					'icon'        => $this->imageUrl( 'wl_menuiconurl' ),
-					'banner'      => $this->imageUrl( 'wl_login2fa_logourl' ),
+					// The saved values as they are, without the defaults the labels fall back to.
+					'icon'        => $con->comps->whitelabel->imageUrlFor( $text( 'wl_menuiconurl' ) ),
+					'banner'      => $con->comps->whitelabel->imageUrlFor( $text( 'wl_login2fa_logourl' ) ),
 				],
 				'form_html' => $con->action_router->render( OptionsFormFor::class, [
 					'options'         => ConfigureGoalPanels::ownPageOptions()[ 'whitelabel' ],
@@ -48,17 +48,6 @@ class PageToolWhitelabel extends PageModeLandingBase {
 				] ),
 			],
 		] );
-	}
-
-	/**
-	 * A logo setting holds a full address, a site-relative path, or the name of one of Shield's own images.
-	 */
-	private function imageUrl( string $key ) :string {
-		$value = (string)self::con()->opts->optGet( $key );
-		if ( $value === '' || Services::Data()->isValidWebUrl( $value ) || \strpos( $value, '/' ) === 0 ) {
-			return $value;
-		}
-		return (string)self::con()->urls->forImage( $value );
 	}
 
 	protected function getLandingTitle() :string {
