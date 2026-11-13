@@ -123,10 +123,11 @@ class FileLocker extends Base {
 	private function unmetRequirements() :array {
 		$con = self::con();
 		$unmet = [];
-		if ( !$con->comps->file_locker->canEncrypt() ) {
+		// Only what the last check found: checking again here would hold up the page on a remote request.
+		if ( $con->comps->file_locker->lastCipherCheckFoundNone() ) {
 			$unmet[] = sprintf(
 				/* translators: %s: PHP extension name */
-				__( "File Locker can't work because this server can't encrypt files: it needs the PHP %s extension and a cipher it supports.", 'wp-simple-firewall' ),
+				__( "File Locker can't work because the last check found no encryption cipher it can use. It needs the PHP %s extension and a cipher it supports.", 'wp-simple-firewall' ),
 				'OpenSSL'
 			);
 		}

@@ -189,8 +189,8 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 						return [ 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ];
 					}
 
-					public function canEncrypt() :bool {
-						return true;
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
 					}
 				},
 			]
@@ -209,8 +209,8 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 						return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ];
 					}
 
-					public function canEncrypt() :bool {
-						return true;
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
 					}
 				},
 			]
@@ -231,8 +231,8 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 						return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index' ];
 					}
 
-					public function canEncrypt() :bool {
-						return true;
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
 					}
 				},
 			]
@@ -254,8 +254,8 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 						return [ 'wpconfig', 'root_htaccess', 'root_index', 'root_webconfig' ];
 					}
 
-					public function canEncrypt() :bool {
-						return true;
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
 					}
 				},
 			]
@@ -457,8 +457,8 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 					return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ];
 				}
 
-				public function canEncrypt() :bool {
-					return false;
+				public function lastCipherCheckFoundNone() :bool {
+					return true;
 				}
 			},
 			'license'     => new class {
@@ -476,7 +476,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] );
 		$this->assertSame( [
-			"File Locker can't work because this server can't encrypt files: it needs the PHP OpenSSL extension and a cipher it supports.",
+			"File Locker can't work because the last check found no encryption cipher it can use. It needs the PHP OpenSSL extension and a cipher it supports.",
 			"File Locker can't work because this site can't connect to shieldnet API.",
 		], $row[ 'explanations' ] );
 	}
@@ -860,8 +860,8 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 						return [];
 					}
 
-					public function canEncrypt() :bool {
-						return true;
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
 					}
 				},
 				'altcha'      => new class {

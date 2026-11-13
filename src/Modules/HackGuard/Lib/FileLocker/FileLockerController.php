@@ -276,6 +276,15 @@ class FileLockerController {
 		return !empty( $state[ 'cipher' ] );
 	}
 
+	/**
+	 * Whether the last cipher check found none, without checking again, so it's safe to ask while rendering a
+	 * page. Before any check has run there's nothing to report.
+	 */
+	public function lastCipherCheckFoundNone(): bool {
+		$state = $this->getState();
+		return $state[ 'cipher_last_checked_at' ] > 0 && empty( $state[ 'cipher' ] );
+	}
+
 	public function runDailyCron() {
 		( new Ops\UpgradeLocks() )->run();
 	}

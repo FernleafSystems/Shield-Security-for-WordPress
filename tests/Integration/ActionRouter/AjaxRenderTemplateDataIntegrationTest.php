@@ -184,7 +184,7 @@ class AjaxRenderTemplateDataIntegrationTest extends ShieldIntegrationTestCase {
 			Components\Rules\RulesManager::class                       => [],
 			Components\SuperSearchResults::class                       => [ 'search' => 'login' ],
 			Components\OffCanvas\SearchHelp::class                     => [],
-			Components\OffCanvas\ZoneComponentConfig::class            => [ 'zone_component_slug' => PluginGeneral::Slug() ],
+			Components\OffCanvas\ZoneComponentConfig::class            => [ 'zone_component_slug' => PluginGeneral::Slug(), 'configure_panel' => 'shield:general' ],
 			Components\OffCanvas\FormReportCreate::class               => [],
 			Components\UserMfa\ConfigForm::class                       => [],
 			PluginAdminPages\ActionsQueueAssetFileStatusDetail::class  => $scanOptions->buildSubjectActionData( 'plugin', $pluginFile ),
