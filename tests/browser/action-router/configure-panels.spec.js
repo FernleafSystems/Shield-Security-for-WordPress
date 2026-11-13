@@ -173,3 +173,23 @@ test( 'settings few sites change are gathered under Advanced options, headed by 
 	await expect( trusted ).toBeVisible();
 	await expect( advanced.locator( '.shield-panel-block', { has: page.locator( '[data-option-key="trusted_commenter_minimum"]' ) } ) ).toContainText( 'Comment spam' );
 } );
+
+test( 'a setting with more to say opens its description from the chevron beside its help mark', async ( { page } ) => {
+	await openGoal( page, 'shield' );
+	const advanced = await openTopic( page, 'advanced' );
+	const toggle = advanced.locator( '[data-option-key="preferred_temp_dir"] .shield-panel-details-toggle' );
+	const details = advanced.locator( '#Details-preferred_temp_dir' );
+
+	await expect( toggle ).toHaveAttribute( 'aria-expanded', 'false' );
+	await expect( toggle ).toHaveAttribute( 'data-bs-title', /\S/ );
+	await expect( details ).toBeHidden();
+
+	await toggle.click();
+	await expect( toggle ).toHaveAttribute( 'aria-expanded', 'true' );
+	await expect( details ).toBeVisible();
+	await expect( details.locator( 'p' ).first() ).toHaveText( /\S/ );
+
+	await toggle.press( 'Enter' );
+	await expect( toggle ).toHaveAttribute( 'aria-expanded', 'false' );
+	await expect( details ).toBeHidden();
+} );

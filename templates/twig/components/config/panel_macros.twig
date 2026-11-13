@@ -1,6 +1,6 @@
 {#
-	One setting in a Configure panel: its name, help link and summary from the plugin, any reason it needs
-	attention, and a control chosen for it in the panel layout. Every control is a plain form field named
+	One setting in a Configure panel: its name, help link and summary from the plugin, its fuller description
+	on request, any reason it needs attention, and a control chosen for it in the panel layout. Every control is a plain form field named
 	after its option, inside .shield-option-control-col, so unsaved tracking and saving treat it like any
 	other option. Settings that only apply when this one is on follow it, indented.
 #}
@@ -22,16 +22,19 @@
 					<span class="shield-option-pill shield-option-pill--pro">{{ strings.opt_pro }}</span>
 				{% endif %}
 				{{ panel.help( option, strings ) }}
+				{% if item.details is not empty %}
+					<button type="button"
+							class="shield-panel-details-toggle"
+							aria-expanded="false"
+							aria-controls="Details-{{ option.key }}"
+							aria-label="{{ strings.opt_details }}: {{ option.name }}"
+							data-bs-toggle="tooltip"
+							data-bs-title="{{ strings.opt_details }}"><i class="bi bi-chevron-down" aria-hidden="true"></i></button>
+				{% endif %}
 				<span class="shield-option-pill shield-option-pill--unsaved" data-option-unsaved="1" hidden>{{ strings.opt_unsaved }}</span>
 			</div>
 			{% if option.summary is not empty %}
 				<div class="options-summary">{{ option.summary }}</div>
-			{% endif %}
-			{% if option.added_by_filter is not empty %}
-				<div class="options-summary">
-					{{ strings.namespaces_added_by_filter }}:
-					{% for namespace in option.added_by_filter %}<code>{{ namespace }}</code>{% if not loop.last %}, {% endif %}{% endfor %}
-				</div>
 			{% endif %}
 			{% if item.issues is not empty %}
 				<ul class="shield-panel-issues" id="Issues-{{ option.key }}">
@@ -47,6 +50,12 @@
 		<div class="shield-option-control-col shield-panel-item__control">
 			{{ panel.control( item, strings ) }}
 		</div>
+		{% if item.details is not empty %}
+			{# Spans the whole row beneath the setting, so the control stays level with its name. #}
+			<div class="shield-panel-details" id="Details-{{ option.key }}" hidden>
+				{% for line in item.details %}<p>{{ line|raw }}</p>{% endfor %}
+			</div>
+		{% endif %}
 	</div>
 	{% if item.children is not empty %}
 		<div class="shield-panel-children">

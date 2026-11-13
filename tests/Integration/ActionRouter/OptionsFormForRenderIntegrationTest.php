@@ -45,6 +45,17 @@ class OptionsFormForRenderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [], \array_diff( $saved, $topicKeys ) );
 	}
 
+	public function test_a_setting_with_more_to_say_offers_its_description_closed() :void {
+		$payload = $this->renderPanel( [ 'preferred_temp_dir' ], 'shield:advanced' );
+		$output = (string)$payload[ 'render_output' ];
+
+		$this->assertMatchesRegularExpression(
+			'#<button[^>]+class="shield-panel-details-toggle"[^>]+aria-expanded="false"[^>]+aria-controls="Details-preferred_temp_dir"#s',
+			$output
+		);
+		$this->assertMatchesRegularExpression( '#<div class="shield-panel-details" id="Details-preferred_temp_dir" hidden>\s*<p>#', $output );
+	}
+
 	public function test_panel_form_posts_to_the_standard_save_action() :void {
 		$payload = $this->renderPanel( [ 'enable_core_file_integrity_scan' ], 'code:file_scanning' );
 		$this->assertStringContainsString( 'data-options-save-action="form_save"', (string)$payload[ 'render_output' ] );

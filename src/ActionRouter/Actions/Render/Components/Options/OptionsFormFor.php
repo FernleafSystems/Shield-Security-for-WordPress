@@ -42,7 +42,7 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 				'opt_edit'                  => __( 'Edit', 'wp-simple-firewall' ),
 				'opt_none_selected'         => __( 'None selected', 'wp-simple-firewall' ),
 				'opt_help'                  => __( 'Help', 'wp-simple-firewall' ),
-				'namespaces_added_by_filter' => __( 'Namespaces added by the filter', 'wp-simple-firewall' ),
+				'opt_details'               => __( 'View more details about this setting', 'wp-simple-firewall' ),
 				'supply_password'           => __( 'Enter a new value', 'wp-simple-firewall' ),
 				'confirm_password'          => __( 'Confirm the new value', 'wp-simple-firewall' ),
 				'supply_pin'                => __( 'Enter a new PIN', 'wp-simple-firewall' ),
@@ -58,7 +58,7 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 
 	/**
 	 * Display data for each requested setting, by key. The REST namespaces that other plugins add through the
-	 * filter aren't part of the saved setting, so they're listed alongside it rather than in it.
+	 * filter aren't part of the saved setting, so they're described with it rather than listed in it.
 	 * @param list<string> $optionKeys
 	 * @return array<string,array<string,mixed>>
 	 */
@@ -68,17 +68,22 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 		if ( !empty( $optionKeys ) ) {
 			foreach ( ( new BuildOptionsForDisplay( $optionKeys, [] ) )->standard() as $section ) {
 				foreach ( $section[ 'options' ] as $option ) {
-					$option[ 'added_by_filter' ] = [];
 					$displayOptions[ $option[ 'key' ] ] = $option;
 				}
 			}
 		}
 		if ( isset( $displayOptions[ 'api_namespace_exclusions' ] ) ) {
 			$lookup = self::con()->comps->opts_lookup;
-			$displayOptions[ 'api_namespace_exclusions' ][ 'added_by_filter' ] = \array_values( \array_diff(
+			$added = \array_values( \array_diff(
 				$lookup->getAnonymousRestApiExclusions(),
 				$lookup->getAnonymousRestApiExclusions( false )
 			) );
+			if ( !empty( $added ) ) {
+				$displayOptions[ 'api_namespace_exclusions' ][ 'description' ][] = sprintf( '%s: %s',
+					__( 'Namespaces added by the filter', 'wp-simple-firewall' ),
+					\implode( ', ', \array_map( static fn( string $ns ) :string => '<code>'.esc_html( $ns ).'</code>', $added ) )
+				);
+			}
 		}
 		return $displayOptions;
 	}

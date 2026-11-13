@@ -55,7 +55,10 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 
 		$options = $this->displayOptions( [ 'api_namespace_exclusions' ] );
 
-		$this->assertSame( $expected, $options[ 'api_namespace_exclusions' ][ 'added_by_filter' ] );
+		$this->assertSame(
+			empty( $expected ) ? null : 'Namespaces added by the filter: <code>'.\implode( '</code>, <code>', $expected ).'</code>',
+			$this->filterLine( $options[ 'api_namespace_exclusions' ] )
+		);
 		$this->assertSame( \implode( "\n", $configured ), $options[ 'api_namespace_exclusions' ][ 'value' ] );
 	}
 
@@ -88,7 +91,7 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 	public function test_unrelated_settings_do_not_evaluate_the_namespace_filter() :void {
 		Functions\expect( 'apply_filters' )->never();
 		$options = $this->displayOptions( [ 'unit_headers_flag' ] );
-		$this->assertSame( [], $options[ 'unit_headers_flag' ][ 'added_by_filter' ] );
+		$this->assertNull( $this->filterLine( $options[ 'unit_headers_flag' ] ) );
 	}
 
 	public function test_shared_option_builder_used_by_import_export_does_not_evaluate_the_namespace_filter() :void {
@@ -106,6 +109,18 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 			new OptionsFormFor( [ 'options' => [ 'unit_headers_flag' ], 'configure_panel' => '' ] ),
 			'getRenderData'
 		);
+	}
+
+	/**
+	 * The description line that lists namespaces added through the filter, if there is one.
+	 */
+	private function filterLine( array $option ) :?string {
+		foreach ( (array)( $option[ 'description' ] ?? [] ) as $line ) {
+			if ( \strpos( (string)$line, 'Namespaces added by the filter' ) === 0 ) {
+				return (string)$line;
+			}
+		}
+		return null;
 	}
 
 	private function displayOptions( array $keys ) :array {
