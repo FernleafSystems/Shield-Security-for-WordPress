@@ -88,6 +88,15 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 		];
 	}
 
+	public function test_every_description_arrives_as_a_list_of_lines() :void {
+		Functions\when( 'apply_filters' )->returnArg( 2 );
+		$options = $this->displayOptions( [ 'unit_headers_flag', 'unit_one_line_flag', 'api_namespace_exclusions' ] );
+
+		$this->assertSame( [ 'Unit headers description.' ], $options[ 'unit_headers_flag' ][ 'description' ] );
+		$this->assertSame( [ 'Unit one line description.' ], $options[ 'unit_one_line_flag' ][ 'description' ] );
+		$this->assertSame( [], $options[ 'api_namespace_exclusions' ][ 'description' ] );
+	}
+
 	public function test_unrelated_settings_do_not_evaluate_the_namespace_filter() :void {
 		Functions\expect( 'apply_filters' )->never();
 		$options = $this->displayOptions( [ 'unit_headers_flag' ] );
@@ -159,6 +168,15 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 				'section'     => 'section_security_headers',
 				'type'        => 'array',
 				'default'     => [ 'shield' ],
+			],
+			'unit_one_line_flag' => [
+				'key'         => 'unit_one_line_flag',
+				'section'     => 'section_security_headers',
+				'type'        => 'checkbox',
+				'default'     => 'N',
+				'name'        => 'Unit One Line Flag',
+				'summary'     => 'Unit one line summary',
+				'description' => 'Unit one line description.',
 			],
 		];
 

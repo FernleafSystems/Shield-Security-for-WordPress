@@ -119,6 +119,33 @@ class WhitelabelContractsIntegrationTest extends ShieldIntegrationTestCase {
 			->store();
 	}
 
+	public function test_markup_saved_in_whitelabel_names_is_removed_before_anything_shows_them() :void {
+		$this->enablePremiumCapabilities( [ 'whitelabel' ] );
+		$this->configureWhitelabelOptions();
+		$this->requireController()->opts
+			->optSet( 'wl_pluginnamemain', 'Acme <img src=x onerror=alert(1)>Guard' )
+			->optSet( 'wl_companyname', '<script>alert(2)</script>Acme Co' )
+			->optSet( 'wl_namemenu', 'Acme <b>Menu</b>' )
+			->optSet( 'wl_description', 'Managed <a href="https://evil.example">here</a>' )
+			->store();
+		$this->resetWhitelabelRuntime();
+
+		$labels = $this->requireController()->labels;
+		foreach ( [ $labels->Name, $labels->Title, $labels->Author, $labels->AuthorName, $labels->MenuTitle, $labels->Description ] as $text ) {
+			$this->assertStringNotContainsString( '<', $text );
+		}
+		$this->assertSame( 'Acme Guard', $labels->Name );
+
+		// The plugin name reaches settings descriptions, which are shown as HTML.
+		$panel = $this->requireController()->action_router->render(
+			\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor::class,
+			[ 'options' => [ 'autoupdate_plugin_self' ], 'configure_panel' => 'shield:advanced', 'form_context' => 'offcanvas' ]
+		);
+		$this->assertStringContainsString( 'Details-autoupdate_plugin_self', $panel );
+		$this->assertStringNotContainsString( 'onerror', $panel );
+		$this->assertStringNotContainsString( '<img', $panel );
+	}
+
 	/**
 	 * @param class-string $renderClass
 	 */
