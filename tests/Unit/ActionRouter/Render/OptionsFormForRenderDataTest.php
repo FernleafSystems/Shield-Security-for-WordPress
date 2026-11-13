@@ -92,6 +92,9 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 		Functions\expect( 'apply_filters' )->never();
 		$options = $this->displayOptions( [ 'unit_headers_flag' ] );
 		$this->assertNull( $this->filterLine( $options[ 'unit_headers_flag' ] ) );
+		// Every setting's description arrives as a list of lines, even one with none.
+		$description = $options[ 'unit_headers_flag' ][ 'description' ];
+		$this->assertSame( \array_values( $description ), $description );
 	}
 
 	public function test_shared_option_builder_used_by_import_export_does_not_evaluate_the_namespace_filter() :void {
@@ -115,7 +118,7 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 	 * The description line that lists namespaces added through the filter, if there is one.
 	 */
 	private function filterLine( array $option ) :?string {
-		foreach ( (array)( $option[ 'description' ] ?? [] ) as $line ) {
+		foreach ( $option[ 'description' ] as $line ) {
 			if ( \strpos( (string)$line, 'Namespaces added by the filter' ) === 0 ) {
 				return (string)$line;
 			}

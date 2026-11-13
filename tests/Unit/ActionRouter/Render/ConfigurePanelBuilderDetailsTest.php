@@ -36,18 +36,8 @@ class ConfigurePanelBuilderDetailsTest extends BaseUnitTest {
 		] ) );
 	}
 
-	public function test_a_single_line_description_from_the_spec_is_offered() :void {
-		$this->assertSame(
-			[ 'Uncheck this option to disable all Shield features' ],
-			$this->details( [
-				'summary'     => 'Global Plugin On/Off Switch',
-				'description' => 'Uncheck this option to disable all Shield features',
-			] )
-		);
-	}
-
 	public function test_a_setting_without_a_description_offers_nothing() :void {
-		$this->assertSame( [], $this->details( [ 'summary' => 'Anything' ] ) );
+		$this->assertSame( [], $this->details( [ 'summary' => 'Anything', 'description' => [] ] ) );
 		$this->assertSame( [], $this->details( [ 'summary' => 'Anything', 'description' => [ '', '  ' ] ] ) );
 	}
 

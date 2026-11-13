@@ -194,14 +194,14 @@ class BuildOptionsForDisplay {
 		);
 
 		try {
-			$optStrings = ( new StringsOptions() )->getFor( $option[ 'key' ] );
-			if ( !\is_array( $optStrings[ 'description' ] ) ) {
-				$optStrings[ 'description' ] = [ $optStrings[ 'description' ] ];
-			}
-			$option = Services::DataManipulation()->mergeArraysRecursive( $option, $optStrings );
+			$option = Services::DataManipulation()->mergeArraysRecursive( $option, ( new StringsOptions() )->getFor( $option[ 'key' ] ) );
 		}
 		catch ( \Exception $e ) {
 		}
+		// A description is lines of text, whether the plugin's strings or the spec supplied it, or none at all.
+		$option[ 'description' ] = \is_array( $option[ 'description' ] ?? null )
+			? \array_values( $option[ 'description' ] )
+			: \array_filter( [ (string)( $option[ 'description' ] ?? '' ) ] );
 
 		return $this->addPerOptionCustomisation( $option );
 	}

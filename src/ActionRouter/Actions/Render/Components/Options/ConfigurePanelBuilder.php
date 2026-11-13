@@ -192,9 +192,8 @@ class ConfigurePanelBuilder {
 	 * @return list<string>
 	 */
 	private function details( array $option ) :array {
-		// A setting the plugin has no strings for keeps the spec's description, which may be absent.
 		$lines = \array_values( \array_filter(
-			\array_map( static fn( $line ) :string => \trim( (string)$line ), (array)( $option[ 'description' ] ?? [] ) ),
+			\array_map( static fn( $line ) :string => \trim( (string)$line ), $option[ 'description' ] ),
 			static fn( string $line ) :bool => $line !== ''
 		) );
 		$plain = static fn( string $text ) :string => \strtolower( \trim( \wp_strip_all_tags( $text ), " .\t\n\r" ) );
