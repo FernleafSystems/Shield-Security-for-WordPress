@@ -24,11 +24,12 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 							'label'      => 'Turn On Scanning',
 							'href'       => '',
 							'is_action'  => true,
-							'class_name' => 'zone_component_action',
+							'class_name' => '',
 							'target'     => '',
 							'rel'        => '',
 							'attributes' => [
-								'data-zone_component_action' => 'offcanvas_zone_component_config',
+								'data-enable-protection' => '{"title":"dialog-sentinel"}',
+								'aria-haspopup'          => 'dialog',
 							],
 						],
 					],
@@ -48,7 +49,7 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 		$this->assertTrue( $pane[ 'disabled_actions' ][ 0 ][ 'is_action' ] ?? false );
 		$this->assertSame( '', $pane[ 'disabled_actions' ][ 0 ][ 'target' ] ?? 'unexpected' );
 		$this->assertSame( '', $pane[ 'disabled_actions' ][ 0 ][ 'rel' ] ?? 'unexpected' );
-		$this->assertSame( 'zone_component_action', $pane[ 'disabled_actions' ][ 0 ][ 'class_name' ] ?? '' );
+		$this->assertSame( '{"title":"dialog-sentinel"}', $pane[ 'disabled_actions' ][ 0 ][ 'attributes' ][ 'data-enable-protection' ] ?? '' );
 	}
 
 	public function test_theme_pane_data_returns_disabled_state_when_scan_is_unavailable() :void {

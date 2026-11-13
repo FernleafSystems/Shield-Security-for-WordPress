@@ -14,10 +14,6 @@ class PasswordStrength extends Base {
 		return __( 'Enforce strong passwords for all users.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Edit settings to apply minimum password strength', 'wp-simple-firewall' );
-	}
-
 	protected function configItem() :string {
 		return 'pass_min_strength';
 	}

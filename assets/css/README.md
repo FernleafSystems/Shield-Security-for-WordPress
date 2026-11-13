@@ -217,7 +217,7 @@ Each SCSS file owns specific components. Do not style another file's components:
 | File | Owns |
 |------|------|
 | `progress.scss` | `.progress-bar` |
-| `options.scss` | `.options_form_for--modern`, `.shield-options-layout`, `.shield-options-rail`, `.shield-options-panel`, `.shield-option-row` |
+| `options.scss` | `.options_form_for--modern`, `.shield-options-layout`, `.shield-options-rail`, `.shield-options-panel`, `.shield-option-item` |
 | `ip_analyse.scss` | `#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse*` and IP-analysis-specific content styling inside the shared options-style rail/panel layout |
 | `reports.scss` (ref) | `.report-section`, `.scan-card`, `.stat-card`, `.change-card`, `.status-pill`, `.category-header`, `.repair-item`, `.scan-item` |
 | `merlin.scss` | `#MerlinOverlay`, `.merlin-modal-dialog`, `.stepper*`, `.wizard-card*`, `.wizard-step-pane`, `.profile-card*`, `.feature-list`, `.section-header`, `.feature-item`, `.merlin-form-footer` |

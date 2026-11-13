@@ -19,17 +19,29 @@ for ( const workspace of [ 'list', 'settings', 'charts' ] ) {
 	} );
 }
 
-for ( const component of [ 'whitelabel', 'module_integrations', 'two_factor_auth' ] ) {
-	test( `legacy configuration ${component} opens the existing settings form`, async ( { page } ) => {
-		const errors = collectRuntimeErrors( page );
-		await openShieldRoute( page, { nav: 'zone_components', nav_sub: component } );
-		const url = new URL( page.url() );
-		expect( url.searchParams.get( 'nav' ) ).toBe( 'zones' );
-		expect( url.searchParams.get( 'component' ) ).toBe( component );
-		const dialog = page.locator( '.offcanvas.show' );
-		await expect( dialog ).toBeVisible();
-		await expect( dialog.locator( 'form' ) ).toBeVisible();
-		await expect( dialog.locator( 'button[type="submit"]' ) ).toBeVisible();
-		expectNoRuntimeErrors( errors );
-	} );
+// Old links that named a component open its settings where they live now: a Configure topic's panel,
+// or the page that manages them.
+for ( const [ component, nav, navSub, rowKey ] of [
+	[ 'whitelabel', 'tools', 'whitelabel', null ],
+	[ 'module_integrations', 'zones', 'overview', 'integrations' ],
+	[ 'two_factor_auth', 'zones', 'overview', 'two_factor' ],
+] ) {
+	for ( const route of [
+		{ nav: 'zone_components', nav_sub: component },
+		{ nav: 'zones', nav_sub: 'overview', component },
+	] ) {
+		test( `legacy configuration ${component} via ${route.nav} opens its settings panel`, async ( { page } ) => {
+			const errors = collectRuntimeErrors( page );
+			await openShieldRoute( page, route );
+			await dismissBlockingDialogs( page );
+			const url = new URL( page.url() );
+			expect( url.searchParams.get( 'nav' ) ).toBe( nav );
+			expect( url.searchParams.get( 'nav_sub' ) ).toBe( navSub );
+			expect( url.searchParams.get( 'component' ) ).toBeNull();
+			expect( url.searchParams.get( 'row_key' ) ).toBe( rowKey );
+			await expect( page.locator( 'form.options_form_for--panel:visible' ).first() ).toBeVisible();
+			await expect( page.locator( '.offcanvas.show' ) ).toHaveCount( 0 );
+			expectNoRuntimeErrors( errors );
+		} );
+	}
 }

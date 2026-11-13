@@ -1,7 +1,6 @@
 {% set row = item.row %}
 {% set expand = item.expand %}
-{# A Configure topic shows why it needs attention on the settings themselves, inside its panel. #}
-{% set is_panel = expand.data_attributes.configure_panel|default('') is not empty %}
+{# An expandable topic shows why it needs attention on the settings themselves, inside its panel. #}
 
 <div class="shield-detail-item shield-detail-item--configure"{% if expand.is_expandable %} data-configure-row-key="{{ expand.row_key|e('html_attr') }}"{% endif %}>
 	{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: row|merge( {
@@ -11,7 +10,7 @@
 		expand_accessible_label: expand.accessible_label,
 		expand_title: expand.title,
 		attributes: row.attributes
-	}|merge( is_panel ? { explanations: [], explanation_actions: [] } : {} ) ) } only %}
+	}|merge( expand.is_expandable ? { explanations: [] } : {} ) ) } only %}
 
 	{% if expand.is_expandable %}
 		{% set expansion_body %}
@@ -22,24 +21,6 @@
 					<span class="configure-expansion-heading__desc">{{ row.description }}</span>
 				{% endif %}
 			</div>
-			{# Why the component is flagged, in both layouts, with the settings that fix it marked once they load. #}
-			{% set issue_options = row.explanation_actions|map( a => a.attributes['data-option-key'] )|filter( k => k is not empty ) %}
-			{% if not is_panel and row.status in [ 'warning', 'critical' ] and row.explanations is not empty %}
-				<ul class="configure-expansion-issues configure-expansion-issues--{{ row.status }}"
-					data-configure-issue-options="{{ issue_options|join(',') }}">
-					{% for explanation in row.explanations %}
-						{% set explanation_action = row.explanation_actions[ loop.index0 ]|default( null ) %}
-						<li>
-							<i class="bi {{ row.status == 'critical' ? 'bi-x-circle-fill' : 'bi-exclamation-triangle-fill' }}" aria-hidden="true"></i>
-							<span>{{ explanation }}</span>
-							{% if explanation_action is not null %}
-								<button type="button" class="configure-expansion-issues__show"
-										{% for attr_key, attr_value in explanation_action.attributes %}{{ attr_key }}="{{ attr_value|e('html_attr') }}" {% endfor %}>{{ explanation_action.label }}</button>
-							{% endif %}
-						</li>
-					{% endfor %}
-				</ul>
-			{% endif %}
 			<div data-configure-expand-ajax="1"
 				 {% for key, value in expand.data_attributes %}data-{{ key }}="{{ value|e('html_attr') }}"{% endfor %}></div>
 		{% endset %}

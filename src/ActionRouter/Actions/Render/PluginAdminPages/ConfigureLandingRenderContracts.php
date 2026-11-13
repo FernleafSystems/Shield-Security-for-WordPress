@@ -42,7 +42,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   option_keys:non-empty-string,
  *   form_context?:string,
  *   config_item?:non-empty-string,
- *   configure_panel?:non-empty-string
+ *   configure_panel:non-empty-string
  * }
  * @phpstan-type DiagnosisCollapsedExpandAction array{
  *   id:'',

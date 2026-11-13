@@ -14,10 +14,6 @@ class SpamUserRegisterBlock extends Base {
 		return __( 'Attempt to identify SPAM users and prevent their successful account creation.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Edit settings for SPAM user registrations', 'wp-simple-firewall' );
-	}
-
 	/**
 	 * @inheritDoc
 	 */

@@ -14,10 +14,6 @@ class FileScanning extends Base {
 		return __( 'Regularly scan the WordPress filesystem for infections, suspicious code, or unexpected changes.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Edit automatic file scanning settings', 'wp-simple-firewall' );
-	}
-
 	protected function configureStatus() :array {
 		$states = $this->fileScanningStates();
 		$status = parent::status();
@@ -25,6 +21,15 @@ class FileScanning extends Base {
 		if ( !$states[ 'afs_enabled' ] ) {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
 			$status[ 'exp' ][] = __( 'Automatic file scanning is disabled.', 'wp-simple-firewall' );
+		}
+		elseif ( !self::con()->cache_dir_handler->exists() ) {
+			// Plugin and theme files are compared using copies kept in a temporary folder. The fix is a setting in
+			// another topic, so this is said about the file scanning panel as a whole.
+			$status[ 'exp' ][] = sprintf(
+				/* translators: %s: plugin name */
+				__( "Plugin and theme files can't be scanned because %s couldn't create a temporary folder.", 'wp-simple-firewall' ),
+				self::con()->labels->Name
+			);
 		}
 		if ( $states[ 'afs_enabled' ] && empty( \array_filter( \array_intersect_key(
 			$states[ 'scan_controls' ],
@@ -81,7 +86,7 @@ class FileScanning extends Base {
 	 */
 	private function fileScanningStates() :array {
 		$afs = self::con()->comps->scans->AFS();
-		$scanAreas = $this->selectedScanAreas();
+		$scanAreas = $afs->getFileScanAreas();
 		$afsEnabled = $this->resolveBooleanMethod( $afs, 'isEnabled', false );
 
 		$scanControls = [];
@@ -177,14 +182,6 @@ class FileScanning extends Base {
 				'disabled_message' => __( "Theme file auto-repair isn't enabled.", 'wp-simple-firewall' ),
 			],
 		];
-	}
-
-	/**
-	 * @return list<string>
-	 */
-	private function selectedScanAreas() :array {
-		$areas = self::con()->opts->optGet( 'file_scan_areas' );
-		return \is_array( $areas ) ? \array_values( \array_filter( $areas, 'is_string' ) ) : [];
 	}
 
 	/**

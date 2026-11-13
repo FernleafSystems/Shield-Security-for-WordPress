@@ -443,95 +443,8 @@
 	margin-top: 0;
 }
 
-.configure-diagnosis .options_form_for--modern {
-	.shield-options-panel {
-		background: #ffffff;
-		border-radius: 0;
-		box-shadow: none;
-	}
-
-	.shield-options-panel-body {
-		padding: 0;
-	}
-
-	.shield-option-row {
-		padding: 12px 16px 12px 18px;
-	}
-}
-
 .configure-expansion-heading {
 	display: none;
-}
-
-// Why a component is flagged. Expanded in place, the row above already says it; the component
-// list shows it at the top of the open panel.
-.configure-expansion-issues {
-	display: none;
-	list-style: none;
-	margin: 0;
-	padding: 0;
-
-	li {
-		align-items: center;
-		background: #fef6e6;
-		border-bottom: 1px solid #f3e2bd;
-		color: #3c434a;
-		display: flex;
-		font-size: 13px;
-		gap: 10px;
-		margin: 0;
-		padding: 9px 16px;
-
-		.bi {
-			color: #946200;
-			flex: none;
-		}
-
-		span {
-			flex: 1 1 auto;
-			min-width: 0;
-		}
-	}
-
-	&--critical li {
-		background: #fdeaec;
-		border-bottom-color: #f5c6cc;
-
-		.bi {
-			color: $status-color-critical;
-		}
-	}
-}
-
-.configure-expansion-issues__show {
-	background: none;
-	border: 0;
-	color: #0a58ca;
-	cursor: pointer;
-	flex: none;
-	font-size: 12.5px;
-	font-weight: 600;
-	padding: 0;
-
-	&:hover,
-	&:focus {
-		text-decoration: underline;
-	}
-
-	&:focus-visible {
-		@include shield-focus-ring();
-	}
-}
-
-// The settings that fix a flagged component carry the flag's colour along their edge.
-.configure-diagnosis .options_form_for--modern .shield-option-item.has-issue {
-	background: #fffbf2;
-	box-shadow: inset 3px 0 0 $status-color-warning;
-
-	&.has-issue--critical {
-		background: #fff7f8;
-		box-shadow: inset 3px 0 0 $status-color-critical;
-	}
 }
 
 // ─── Component list layout: one joined panel, components on the left, the open one on the right ───
@@ -646,18 +559,9 @@
 			animation: configure-panel-swap 160ms ease-out;
 		}
 
-		// The open panel is narrower than a full zone, so give the setting's text more of the row.
-		.options_form_for--modern .shield-option-row {
-			grid-template-columns: minmax(0, 1fr) minmax(150px, 220px);
-		}
-
 		.shield-detail-expansion__form .options_form_for {
 			margin: 0;
 			padding: 0;
-		}
-
-		.configure-expansion-issues {
-			display: block;
 		}
 
 		.configure-expansion-heading {

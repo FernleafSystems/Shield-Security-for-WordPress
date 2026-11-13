@@ -17,12 +17,30 @@ import { focusElement } from '../ui/ShieldA11y';
  */
 
 /**
+ * Any element carrying a dialog payload in data-enable-protection opens the dialog, wherever it sits. Once
+ * the protection is on, the launcher raises 'shield:protection-enabled' so whatever holds it can refresh;
+ * a change that affects the whole page reloads it from the action's own response.
+ */
+export class ProtectionEnableLaunchers {
+
+	static EVENT = 'shield:protection-enabled';
+
+	constructor() {
+		shieldEventsHandler_Main.add_Click( '[data-enable-protection]', async ( launcher ) => {
+			if ( launcher instanceof HTMLElement
+				&& await openProtectionEnableDialog( JSON.parse( launcher.dataset.enableProtection ), launcher ) ) {
+				launcher.dispatchEvent( new CustomEvent( ProtectionEnableLaunchers.EVENT, { bubbles: true } ) );
+			}
+		}, false );
+	}
+}
+
+/**
  * @param {ProtectionEnableDialogConfig} config
  * @param {HTMLElement} launcher
  * @returns {Promise<boolean>}
  */
-
-export async function openProtectionEnableDialog( config, launcher ) {
+async function openProtectionEnableDialog( config, launcher ) {
 	const content = document.createElement( 'div' );
 	if ( config.path !== '' ) {
 		const path = document.createElement( 'p' );

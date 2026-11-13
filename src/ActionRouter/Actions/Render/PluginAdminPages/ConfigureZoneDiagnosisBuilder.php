@@ -243,7 +243,7 @@ class ConfigureZoneDiagnosisBuilder {
 	 * @phpstan-assert ConfigureExpandActionData $dataAttributes
 	 */
 	private function assertConfigureExpandActionData( array $dataAttributes ) :void {
-		foreach ( [ 'zone_component_action', 'zone_component_slug', 'option_keys' ] as $attribute ) {
+		foreach ( [ 'zone_component_action', 'zone_component_slug', 'option_keys', 'configure_panel' ] as $attribute ) {
 			if ( empty( $dataAttributes[ $attribute ] ) ) {
 				throw new \LogicException(
 					\sprintf( 'Expandable configure diagnosis rows require action data %s.', $attribute )

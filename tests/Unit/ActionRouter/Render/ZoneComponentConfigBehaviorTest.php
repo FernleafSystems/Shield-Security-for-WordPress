@@ -39,10 +39,10 @@ class ZoneComponentConfigBehaviorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_build_canvas_body_passes_config_item_through_to_options_form() :void {
+	public function test_build_canvas_body_passes_panel_and_context_through_to_options_form() :void {
 		$action = new ZoneComponentConfig( [
 			'zone_component_slug' => ModuleScans::Slug().','.ModuleSpam::Slug(),
-			'config_item'         => 'scan_frequency',
+			'configure_panel'     => 'code:scan_schedule',
 			'form_context'        => 'expansion',
 		] );
 
@@ -58,7 +58,7 @@ class ZoneComponentConfigBehaviorTest extends BaseUnitTest {
 			],
 			$this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ] ?? []
 		);
-		$this->assertSame( 'scan_frequency', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'config_item' ] ?? '' );
+		$this->assertSame( 'code:scan_schedule', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'configure_panel' ] ?? '' );
 		$this->assertSame( 'expansion', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'form_context' ] ?? '' );
 		$this->assertArrayNotHasKey( 'focus_option', $this->renderCapture->calls[ 0 ][ 'action_data' ] ?? [] );
 	}
@@ -78,7 +78,7 @@ class ZoneComponentConfigBehaviorTest extends BaseUnitTest {
 			],
 			$this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ] ?? []
 		);
-		$this->assertSame( '', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'config_item' ] ?? 'unexpected' );
+		$this->assertSame( '', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'configure_panel' ] ?? 'unexpected' );
 		$this->assertSame( 'offcanvas', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'form_context' ] ?? '' );
 	}
 

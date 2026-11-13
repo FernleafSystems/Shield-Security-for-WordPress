@@ -69,10 +69,6 @@ class TwoFactorAuth extends Base {
 		];
 	}
 
-	protected function tooltip() :string {
-		return __( 'Edit settings for the most common 2FA factors', 'wp-simple-firewall' );
-	}
-
 	/**
 	 * @inheritDoc
 	 */

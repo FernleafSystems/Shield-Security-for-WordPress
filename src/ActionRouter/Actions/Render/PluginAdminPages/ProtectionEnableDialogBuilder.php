@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginFeaturesEnable;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansEnable;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansFileLockerEnableFile;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -19,7 +20,7 @@ class ProtectionEnableDialogBuilder {
 	use PluginControllerConsumer;
 
 	public function forScan( string $key, string $iconClass ) :string {
-		if ( !self::con()->isPremiumActive() || !isset( ScansEnable::SCANS[ $key ] ) ) {
+		if ( !isset( ScansEnable::SCANS[ $key ] ) ) {
 			return '';
 		}
 		$copy = [
@@ -40,6 +41,37 @@ class ProtectionEnableDialogBuilder {
 			__( 'This file is not currently protected.', 'wp-simple-firewall' ),
 			__( 'Enable Protection', 'wp-simple-firewall' ), 'bi bi-file-lock2-fill',
 			ActionData::Build( ScansFileLockerEnableFile::class, true, [ 'file_key' => $key ] ), $path
+		);
+	}
+
+	/**
+	 * What turning all protection back on is called, both on the dialog and on whatever opens it.
+	 */
+	public function pluginTitle() :string {
+		return sprintf(
+			/* translators: %s: plugin name */
+			__( 'Turn %s protection back on', 'wp-simple-firewall' ),
+			self::con()->labels->Name
+		);
+	}
+
+	public function forPlugin() :string {
+		$name = self::con()->labels->Name;
+		return $this->encode(
+			$this->pluginTitle(),
+			sprintf(
+				/* translators: %s: plugin name */
+				__( 'All protection offered by %s is switched off.', 'wp-simple-firewall' ),
+				$name
+			),
+			sprintf(
+				/* translators: %s: plugin name */
+				__( 'Enable %s Protection', 'wp-simple-firewall' ),
+				$name
+			),
+			'bi bi-shield-check',
+			ActionData::Build( PluginFeaturesEnable::class, true ),
+			''
 		);
 	}
 

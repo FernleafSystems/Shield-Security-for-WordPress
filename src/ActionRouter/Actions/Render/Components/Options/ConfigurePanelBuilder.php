@@ -164,6 +164,7 @@ class ConfigurePanelBuilder {
 				'prefix'   => ( $layoutItem[ 'prefix' ] ?? '' ) === 'home' ? \trailingslashit( \home_url() ) : '',
 				'is_on'    => $this->isOn( $control, $option ),
 				'issues'   => $this->issuesByOption[ $layoutItem[ 'key' ] ] ?? [],
+				'details'  => $this->details( $option ),
 			];
 
 			switch ( $control ) {
@@ -183,6 +184,20 @@ class ConfigurePanelBuilder {
 			$items[] = $item;
 		}
 		return $items;
+	}
+
+	/**
+	 * More about a setting, shown when asked for: its description, unless that only repeats the summary beside
+	 * it. The lines are the plugin's own strings and may hold links or code.
+	 * @return list<string>
+	 */
+	private function details( array $option ) :array {
+		$lines = \array_values( \array_filter(
+			\array_map( static fn( $line ) :string => \trim( (string)$line ), $option[ 'description' ] ),
+			static fn( string $line ) :bool => $line !== ''
+		) );
+		$plain = static fn( string $text ) :string => \strtolower( \trim( \wp_strip_all_tags( $text ), " .\t\n\r" ) );
+		return $plain( \implode( ' ', $lines ) ) === $plain( (string)$option[ 'summary' ] ) ? [] : $lines;
 	}
 
 	/**

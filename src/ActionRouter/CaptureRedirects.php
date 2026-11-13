@@ -32,7 +32,7 @@ class CaptureRedirects {
 
 				$nav = ActionData::TransportField( $query, Constants::NAV_ID );
 				$subNav = ActionData::TransportField( $query, Constants::NAV_SUB_ID );
-				$redirectTo = $urls->legacyAdminRouteRedirect( $nav, $subNav );
+				$redirectTo = $urls->legacyAdminRouteRedirect( $nav, $subNav, $query );
 
 				if ( empty( $redirectTo )
 					 && ( !PluginNavs::NavExists( $nav )

@@ -29,9 +29,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	InactiveUsers,
 	LoginHide,
 	LoginProtectionForms,
-	Modules\ModuleFirewall,
-	Modules\ModuleLogin,
-	Modules\ModuleUsers,
 	PasswordPolicies,
 	PasswordStrength,
 	PwnedPasswords,
@@ -145,6 +142,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			[
 				'scans' => $this->buildScansComponent( [
 					'afsEnabled'     => true,
+					'fileScanAreas'  => [ 'malware_php', 'plugins', 'themes', 'wpcontent', 'wproot' ],
 					'malwareEnabled' => true,
 					'wpCoreEnabled'  => false,
 					'pluginsEnabled' => true,
@@ -190,6 +188,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 					public function getFilesToLock() :array {
 						return [ 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ];
 					}
+
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
+					}
 				},
 			]
 		);
@@ -205,6 +207,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				'file_locker' => new class {
 					public function getFilesToLock() :array {
 						return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ];
+					}
+
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
 					}
 				},
 			]
@@ -224,6 +230,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 					public function getFilesToLock() :array {
 						return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index' ];
 					}
+
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
+					}
 				},
 			]
 		);
@@ -242,6 +252,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				'file_locker' => new class {
 					public function getFilesToLock() :array {
 						return [ 'wpconfig', 'root_htaccess', 'root_index', 'root_webconfig' ];
+					}
+
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
 					}
 				},
 			]
@@ -299,44 +313,33 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->assertCount( 1, $row[ 'explanations' ] );
 	}
 
-	public function test_firewall_zone_owns_core_rule_components_and_module_config_scope() :void {
+	public function test_firewall_zone_owns_core_rule_components() :void {
 		$this->installController();
 
 		$zone = new FirewallZone();
 		$components = $zone->components();
-		$configAction = $zone->getAction_Config();
 
 		$this->assertContains( WebApplicationFirewall::class, $components );
 		$this->assertContains( UsernameFishingBlock::class, $components );
 		$this->assertContains( FileEditingBlock::class, $components );
-		$this->assertSame( [ ModuleFirewall::Slug() ], $zone->getConfigZoneComponentSlugs() );
-		$this->assertSame( ModuleFirewall::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertNotSame( '', $configAction[ 'data' ][ 'option_keys' ] );
-		$this->assertContains( 'clean_wp_rubbish', \explode( ',', $configAction[ 'data' ][ 'option_keys' ] ) );
 	}
 
-	public function test_login_zone_owns_login_guard_components_and_module_config_scope() :void {
+	public function test_login_zone_owns_login_guard_components() :void {
 		$this->installController();
 
 		$zone = new LoginZone();
 		$components = $zone->components();
-		$configAction = $zone->getAction_Config();
 
 		$this->assertContains( LoginProtectionForms::class, $components );
 		$this->assertContains( LoginHide::class, $components );
 		$this->assertContains( TwoFactorAuth::class, $components );
 		$this->assertContains( SessionTheftProtection::class, $components );
-		$this->assertSame( [ ModuleLogin::Slug() ], $zone->getConfigZoneComponentSlugs() );
-		$this->assertSame( ModuleLogin::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertNotSame( '', $configAction[ 'data' ][ 'option_keys' ] );
-		$this->assertContains( 'rename_wplogin_path', \explode( ',', $configAction[ 'data' ][ 'option_keys' ] ) );
 	}
 
-	public function test_users_zone_owns_user_management_components_and_module_config_scope() :void {
+	public function test_users_zone_owns_user_management_components() :void {
 		$this->installController();
 
 		$zone = new UsersZone();
-		$configAction = $zone->getAction_Config();
 
 		$this->assertSame( [
 			PasswordPolicies::class,
@@ -345,16 +348,6 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			InactiveUsers::class,
 			SpamUserRegisterBlock::class,
 		], $zone->components() );
-		$this->assertSame( [ ModuleUsers::Slug() ], $zone->getConfigZoneComponentSlugs() );
-		$this->assertSame( ModuleUsers::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertNotSame( '', $configAction[ 'data' ][ 'option_keys' ] );
-		$this->assertContains( 'manual_suspend', \explode( ',', $configAction[ 'data' ][ 'option_keys' ] ) );
-	}
-
-	public function test_zone_config_action_is_absent_without_module_options() :void {
-		$this->installController( [], [], [] );
-
-		$this->assertNull( ( new FirewallZone() )->getAction_Config() );
 	}
 
 	public function test_firewall_core_component_statuses_follow_options() :void {
@@ -410,6 +403,82 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
 		$this->assertCount( 6, $row[ 'explanations' ] ?? [] );
+	}
+
+	public function test_bot_actions_say_offenses_do_nothing_while_the_offense_limit_is_zero() :void {
+		$signals = [
+			'track_logininvalid'   => 'block',
+			'track_loginfailed'    => 'block',
+			'track_xmlrpc'         => 'block',
+			'track_fakewebcrawler' => 'block',
+			'track_404'            => 'block',
+			'track_linkcheese'     => 'block',
+			'track_invalidscript'  => 'block',
+			'track_useragent'      => 'block',
+		];
+		$this->installController( $signals );
+		$this->assertSame( EnumEnabledStatus::GOOD, $this->firstConfigureRow( new BotActions() )[ 'enabled_status' ] );
+
+		$this->installController( $signals, [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'enabledIpAutoBlock' => false ] ) ] );
+		$row = $this->firstConfigureRow( new BotActions() );
+
+		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] );
+		$this->assertSame( [ 'Responses that record an offense have no effect while the offense limit is 0.' ], $row[ 'explanations' ] );
+	}
+
+	public function test_contact_form_protection_needs_silentcaptcha_on() :void {
+		$this->installController( [], [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'enabledSilentCaptcha' => false ] ) ] );
+		$row = $this->firstConfigureRow( new ContactFormSpamBlockBot() );
+
+		$this->assertContains(
+			"Contact forms aren't protected from bots because silentCAPTCHA is off: its minimum score is 0.",
+			$row[ 'explanations' ]
+		);
+		// Configure shows a form integration that isn't working as a warning.
+		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] );
+	}
+
+	public function test_file_scanning_says_plugin_and_theme_scans_need_a_temporary_folder() :void {
+		$this->installController( [], [
+			'scans' => $this->buildScansComponent( [ 'afsEnabled' => true ] ),
+		], null, false );
+		$row = $this->firstConfigureRow( new FileScanning() );
+
+		$this->assertContains(
+			"Plugin and theme files can't be scanned because Shield couldn't create a temporary folder.",
+			$row[ 'explanations' ]
+		);
+	}
+
+	public function test_file_locker_says_why_it_cannot_work_on_this_site() :void {
+		$this->installController( [], [
+			'file_locker' => new class {
+				public function getFilesToLock() :array {
+					return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ];
+				}
+
+				public function lastCipherCheckFoundNone() :bool {
+					return true;
+				}
+			},
+			'license'     => new class {
+				public function hasValidWorkingLicense() :bool {
+					return true;
+				}
+			},
+			'shieldnet'   => new class {
+				public function canHandshake() :bool {
+					return false;
+				}
+			},
+		] );
+		$row = $this->firstConfigureRow( $this->fileLockerForEnvironment() );
+
+		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] );
+		$this->assertSame( [
+			"File Locker can't work because the last check found no encryption cipher it can use. It needs the PHP OpenSSL extension and a cipher it supports.",
+			"File Locker can't work because this site can't connect to shieldnet API.",
+		], $row[ 'explanations' ] );
 	}
 
 	public function test_silentcaptcha_uses_warning_for_low_thresholds() :void {
@@ -740,7 +809,8 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 	private function installController(
 		array $optValues = [],
 		array $componentOverrides = [],
-		?array $configOptions = null
+		?array $configOptions = null,
+		bool $cacheDirExists = true
 	) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -788,6 +858,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				'file_locker' => new class {
 					public function getFilesToLock() :array {
 						return [];
+					}
+
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
 					}
 				},
 				'altcha'      => new class {
@@ -839,9 +913,30 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 					}
 				},
 				'zones' => new SecurityZonesCon(),
+				'license' => new class {
+					public function hasValidWorkingLicense() :bool {
+						return false;
+					}
+				},
+				'shieldnet' => new class {
+					public function canHandshake() :bool {
+						return true;
+					}
+				},
 			],
 			$componentOverrides
 		);
+		$controller->cache_dir_handler = new class( $cacheDirExists ) {
+			private bool $exists;
+
+			public function __construct( bool $exists ) {
+				$this->exists = $exists;
+			}
+
+			public function exists() :bool {
+				return $this->exists;
+			}
+		};
 
 		PluginControllerInstaller::install( $controller );
 	}
@@ -876,6 +971,14 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 			public function enabledSilentCaptchaCommentSpam() :bool {
 				return $this->overrides[ 'enabledSilentCaptchaCommentSpam' ] ?? true;
+			}
+
+			public function enabledSilentCaptcha() :bool {
+				return $this->overrides[ 'enabledSilentCaptcha' ] ?? true;
+			}
+
+			public function enabledIpAutoBlock() :bool {
+				return $this->overrides[ 'enabledIpAutoBlock' ] ?? true;
 			}
 
 			public function enabledHumanCommentSpam() :bool {
@@ -947,6 +1050,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$settings = \array_merge(
 			[
 				'afsEnabled'             => false,
+				'fileScanAreas'          => [],
 				'malwareEnabled'         => false,
 				'wpCoreEnabled'          => false,
 				'pluginsEnabled'         => false,
@@ -980,6 +1084,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 					public function isEnabled() :bool {
 						return $this->settings[ 'afsEnabled' ];
+					}
+
+					public function getFileScanAreas() :array {
+						return $this->settings[ 'fileScanAreas' ];
 					}
 
 					public function isEnabledMalwareScanPHP() :bool {

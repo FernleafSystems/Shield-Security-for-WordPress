@@ -18,6 +18,14 @@ export class ConfigurePanelControls {
 		document.addEventListener( 'input', onRange );
 		document.addEventListener( 'change', onRange );
 
+		// The chevron beside a setting's help mark opens or closes its description beneath it.
+		document.addEventListener( 'click', ( evt ) => {
+			const toggle = evt.target instanceof Element ? evt.target.closest( '.shield-panel-details-toggle' ) : null;
+			if ( toggle instanceof HTMLButtonElement ) {
+				ConfigurePanelControls.toggleDetails( toggle );
+			}
+		} );
+
 		// Discarding changes resets the form, which fires no input events.
 		document.addEventListener( 'reset', ( evt ) => {
 			const form = evt.target;
@@ -27,6 +35,18 @@ export class ConfigurePanelControls {
 				) );
 			}
 		} );
+	}
+
+	/**
+	 * @param {HTMLButtonElement} toggle
+	 */
+	static toggleDetails( toggle ) {
+		const details = document.getElementById( toggle.getAttribute( 'aria-controls' ) || '' );
+		if ( details instanceof HTMLElement ) {
+			const open = toggle.getAttribute( 'aria-expanded' ) !== 'true';
+			toggle.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+			details.hidden = !open;
+		}
 	}
 
 	/**

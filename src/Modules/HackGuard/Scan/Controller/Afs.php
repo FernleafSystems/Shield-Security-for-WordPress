@@ -217,18 +217,16 @@ class Afs extends Base {
 		return $this;
 	}
 
+	/**
+	 * The areas chosen that this plan can scan; areas kept from a Pro plan are left out on Free.
+	 * @return list<string>
+	 */
 	public function getFileScanAreas() :array {
-		$areas = self::con()->opts->optGet( 'file_scan_areas' );
-		if ( !self::con()->isPremiumActive() ) {
-			$available = [];
-			foreach ( self::con()->opts->optDef( 'file_scan_areas' )[ 'value_options' ] as $valueOption ) {
-				if ( empty( $valueOption[ 'premium' ] ) ) {
-					$available[] = $valueOption[ 'value_key' ];
-				}
-			}
-			$areas = \array_diff( $areas, $available );
-		}
-		return $areas;
+		$opts = self::con()->opts;
+		return \array_values( \array_filter(
+			$opts->optGet( 'file_scan_areas' ),
+			static fn( $area ) :bool => \is_string( $area ) && $opts->optValueHasAccess( 'file_scan_areas', $area )
+		) );
 	}
 
 	public function isRepairFilePlugin() :bool {

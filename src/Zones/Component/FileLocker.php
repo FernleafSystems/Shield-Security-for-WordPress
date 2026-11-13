@@ -21,10 +21,6 @@ class FileLocker extends Base {
 		return __( "Protect key WP core files that can't normally be protected.", 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Edit which key files to protect', 'wp-simple-firewall' );
-	}
-
 	protected function configureStatus() :array {
 		$toLock = $this->selectedLockedFiles();
 		$status = parent::status();
@@ -42,6 +38,12 @@ class FileLocker extends Base {
 			if ( $fileKey !== 'wpconfig' && !\in_array( $fileKey, $toLock, true ) ) {
 				$status[ 'exp' ][] = $this->explanationFixedBy( $definition[ 'disabled_message' ], 'file_locker' );
 			}
+		}
+
+		// Whatever files are chosen, File Locker can't work without these.
+		foreach ( $this->unmetRequirements() as $requirement ) {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = $requirement;
 		}
 
 		if ( $status[ 'level' ] !== EnumEnabledStatus::BAD ) {
@@ -111,5 +113,31 @@ class FileLocker extends Base {
 	 */
 	private function selectedLockedFiles() :array {
 		return self::con()->comps->file_locker->getFilesToLock();
+	}
+
+	/**
+	 * Why File Locker can't work on this site, if it can't: it encrypts each file's copy, and on Pro it also
+	 * needs ShieldNet.
+	 * @return list<string>
+	 */
+	private function unmetRequirements() :array {
+		$con = self::con();
+		$unmet = [];
+		// Only what the last check found: checking again here would hold up the page on a remote request.
+		if ( $con->comps->file_locker->lastCipherCheckFoundNone() ) {
+			$unmet[] = sprintf(
+				/* translators: %s: PHP extension name */
+				__( "File Locker can't work because the last check found no encryption cipher it can use. It needs the PHP %s extension and a cipher it supports.", 'wp-simple-firewall' ),
+				'OpenSSL'
+			);
+		}
+		if ( $con->isPremiumActive() && !$con->comps->shieldnet->canHandshake() ) {
+			$unmet[] = sprintf(
+				/* translators: %s: name of the plugin's API service */
+				__( "File Locker can't work because this site can't connect to %s.", 'wp-simple-firewall' ),
+				$con->labels->getBrandName( 'shieldnet' ).' API'
+			);
+		}
+		return $unmet;
 	}
 }

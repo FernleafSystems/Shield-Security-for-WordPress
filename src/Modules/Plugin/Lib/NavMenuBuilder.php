@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -235,14 +236,19 @@ class NavMenuBuilder {
 			$toolItemsById[ $definition[ 'id' ] ] = $this->buildToolItemFromDefinition( $definition );
 		}
 
-		$toolItemsById[ 'tool_integrations' ] = $this->buildConfigureZoneToolItem(
-			ModuleIntegrations::Slug(),
-			PluginNavs::NAV_TOOLS.'-integrations',
-			__( 'Integrations', 'wp-simple-firewall' ),
-			'puzzle'
-		);
-		// Integrations has a Configure topic of its own, so its panel lays its settings out the same way.
-		$toolItemsById[ 'tool_integrations' ][ 'data' ][ 'configure_panel' ] = 'integrations:integrations';
+		// Integrations has a Configure topic of its own, which opens in a side panel.
+		$toolItemsById[ 'tool_integrations' ] = [
+			'slug'      => PluginNavs::NAV_TOOLS.'-integrations',
+			'title'     => __( 'Integrations', 'wp-simple-firewall' ),
+			'img'       => self::con()->svgs->iconClass( 'puzzle' ),
+			'classes'   => [ 'zone_component_action' ],
+			'data'      => [
+				'zone_component_action' => ZoneComponentConfig::SLUG,
+				'zone_component_slug'   => ModuleIntegrations::Slug(),
+				'configure_panel'       => 'integrations:integrations',
+			],
+			'is_action' => true,
+		];
 
 		// Guided Setup opens the setup guide: in place when it's on the page, or by its link.
 		$toolItemsById[ 'tool_guidedsetup' ][ 'href' ] = self::con()->plugin_urls->setupGuide();
@@ -275,18 +281,6 @@ class NavMenuBuilder {
 			'tool_integrations',
 			'tool_guidedsetup',
 			'tool_debug',
-		];
-	}
-
-	private function buildConfigureZoneToolItem( string $componentSlug, string $slug, string $title, string $icon ) :array {
-		$action = self::con()->comps->zones->getZoneComponent( $componentSlug )->getActions()[ 'config' ];
-		return [
-			'slug'      => $slug,
-			'title'     => $title,
-			'img'       => self::con()->svgs->iconClass( $icon ),
-			'classes'   => $action[ 'classes' ],
-			'data'      => $action[ 'data' ],
-			'is_action' => true,
 		];
 	}
 

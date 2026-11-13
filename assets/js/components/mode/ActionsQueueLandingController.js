@@ -6,7 +6,7 @@ import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
 import { announceStatus, focusElement } from "../ui/ShieldA11y";
 import { getActiveLayerIndex, getLayerForShell, getLayersForShell } from "./DrillDownShared";
 
-import { openProtectionEnableDialog } from '../scans/ProtectionEnableDialog';
+import { ProtectionEnableLaunchers } from '../scans/ProtectionEnableDialog';
 
 export class ActionsQueueLandingController extends DrillDownAsyncControllerBase {
 
@@ -32,16 +32,15 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			return;
 		}
 		this.hasBoundDrillDownHandlers = true;
-		shieldEventsHandler_Main.add_Click(
-			'[data-actions-landing="1"] [data-enable-protection]',
-			async ( item ) => {
-				if ( !( item instanceof HTMLElement ) ) return;
-				const isFile = item.closest( '[data-actions-queue-asset-cards="1"]' ) !== null;
-				if ( await openProtectionEnableDialog( JSON.parse( item.dataset.enableProtection ), item ) ) {
-					await this.refreshAfterProtectionEnabled( item, isFile );
-				}
-			}, false
-		);
+		// The dialog itself opens from any launcher; a protection switched on here refreshes the queue.
+		document.addEventListener( ProtectionEnableLaunchers.EVENT, ( evt ) => {
+			const item = evt.target;
+			if ( item instanceof HTMLElement && item.closest( '[data-actions-landing="1"]' ) !== null ) {
+				// Switched on from inside a group's detail, so the detail is reloaded along with the queue.
+				const inDetail = item.closest( '[data-actions-queue-detail="1"]' ) !== null;
+				this.refreshAfterProtectionEnabled( item, inDetail ).finally();
+			}
+		} );
 
 		shieldEventsHandler_Main.add_Click(
 			'[data-actions-landing="1"] [data-drill-target]',
@@ -127,9 +126,9 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		}
 	}
 
-	async refreshAfterProtectionEnabled( launcher, isFile ) {
+	async refreshAfterProtectionEnabled( launcher, reloadDetail ) {
 		this.adoptLandingBucket( launcher );
-		await ( isFile
+		await ( reloadDetail
 			? this.refreshAfterNestedAction( true )
 			: this.refreshQueue() );
 
