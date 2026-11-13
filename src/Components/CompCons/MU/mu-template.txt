@@ -8,7 +8,7 @@
  */
 
 call_user_func( function () {
-	$shieldFile = 'SHIELD_ROOT_FILE';
+	$shieldFile = 'SHIELD_ROOT_FILE_PHP_STRING';
 	if ( file_exists( $shieldFile ) ) {
 		require_once( $shieldFile );
 	}
@@ -16,7 +16,7 @@ call_user_func( function () {
 		add_action( 'admin_notices', function () {
 			echo sprintf(
 				'<div id="message" class="error">'.
-				'<p>The SHIELD_PLUGIN_NAME plugin appears to have been removed. Please also remove the MU-Plugin file: <code>%s</code>.</p></div>',
+				'<p>The SHIELD_PLUGIN_NAME_IN_NOTICE plugin appears to have been removed. Please also remove the MU-Plugin file: <code>%s</code>.</p></div>',
 				esc_html( __FILE__ )
 			);
 		} );

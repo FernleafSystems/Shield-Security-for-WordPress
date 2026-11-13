@@ -59,6 +59,17 @@ class SetupGuideUpdateTest extends BaseUnitTest {
 		$this->assertSame( 1700001234, $meta->setup_guide[ 'dismissed_at' ] ?? 0 );
 	}
 
+	public function test_skip_records_only_the_guides_own_steps() :void {
+		$meta = $this->installEnvironment();
+
+		foreach ( [ 'not_a_step', 'welcome', 'REPORT_EMAIL', '' ] as $slug ) {
+			$action = new SetupGuideUpdate( [ 'op' => 'skip', 'step_slug' => $slug ] );
+			$action->process();
+			$this->assertFalse( (bool)( $action->response()->payload()[ 'saved' ] ?? true ), $slug );
+		}
+		$this->assertSame( [], $meta->setup_guide );
+	}
+
 	public function test_unknown_operation_changes_nothing() :void {
 		$meta = $this->installEnvironment();
 

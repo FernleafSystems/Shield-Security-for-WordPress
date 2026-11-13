@@ -15,14 +15,13 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$opts = $con->opts;
 		$isFloating = (bool)$this->action_data[ 'is_floating' ];
 		$mode = PluginBadgeMode::renderMode( $con->comps->opts_lookup->getPluginBadgeMode() );
 
 		if ( $con->comps->whitelabel->isEnabled() ) {
-			$badgeUrl = $opts->optGet( 'wl_homeurl' );
-			$name = $opts->optGet( 'wl_pluginnamemain' );
-			$logo = $opts->optGet( 'wl_dashboardlogourl' );
+			$badgeUrl = $con->comps->whitelabel->homeUrl();
+			$name = $con->comps->whitelabel->pluginName();
+			$logo = $con->comps->whitelabel->dashboardLogoUrl();
 		}
 		else {
 			$badgeUrl = 'https://clk.shldscrty.com/wpsecurityfirewall';
@@ -35,8 +34,9 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 			}
 		}
 
+		// The template prints this as HTML, so the name in it is escaped.
 		$protectedBy = sprintf( __( 'Protected By %s', 'wp-simple-firewall' ),
-			'<br/><span class="plugin-badge-name">'.$name.'</span>' );
+			'<br/><span class="plugin-badge-name">'.esc_html( $name ).'</span>' );
 
 		$badgeAttrs = [
 			'name'         => $name,
@@ -67,8 +67,9 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 				'mode'        => $mode,
 			],
 			'hrefs'   => [
-				'badge' => $this->stringAttr( $badgeAttrs[ 'url' ] ),
-				'logo'  => $this->stringAttr( $badgeAttrs[ 'logo' ] ),
+				// Only web addresses: a javascript: URL from a setting or a filter is dropped.
+				'badge' => esc_url_raw( $this->stringAttr( $badgeAttrs[ 'url' ] ), [ 'http', 'https' ] ),
+				'logo'  => esc_url_raw( $this->stringAttr( $badgeAttrs[ 'logo' ] ) ),
 			],
 			'strings' => [
 				'badge_label' => sprintf( __( '%s security badge', 'wp-simple-firewall' ), $this->stringAttr( $badgeAttrs[ 'name' ] ) ),
