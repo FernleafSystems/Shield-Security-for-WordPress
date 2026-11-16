@@ -31,9 +31,7 @@ class PasswordStrength extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			if ( !$opts->optIs( 'enable_password_policies', 'Y' ) ) {
-				$status[ 'exp' ][] = $this->explanationFixedBy( __( 'All password policies are disabled.', 'wp-simple-firewall' ), 'enable_password_policies' );
-			}
+			// Password policies being off is said once, by the Password Policies component.
 			$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Users are allowed to set weak passwords.', 'wp-simple-firewall' ), 'pass_min_strength' );
 		}
 

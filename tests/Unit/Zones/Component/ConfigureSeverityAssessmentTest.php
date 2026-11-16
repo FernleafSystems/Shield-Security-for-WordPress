@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
+	AnonRestApiDisable,
 	Base as ComponentBase,
 	BotActions,
 	CommentSpamBlockBot,
@@ -296,6 +297,11 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] ?? null );
 		$this->assertCount( 4, $row[ 'explanations' ] ?? [] );
+		// Each rule is its own setting, so its reason is shown there; only the summary is left for the panel's top.
+		$this->assertSame(
+			[ '', 'block_dir_traversal', 'block_sql_queries', 'block_php_code' ],
+			\array_map( fn( string $text ) :string => $this->fixedBy( $text ), $row[ 'explanations' ] )
+		);
 	}
 
 	public function test_waf_aggressive_rule_disabled_is_warning_when_primary_rules_are_enabled() :void {
@@ -384,6 +390,45 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->assertSame( EnumEnabledStatus::BAD, $disabledWaf->enabledStatus() );
 		$this->assertSame( EnumEnabledStatus::BAD, ( new FileEditingBlock() )->enabledStatus() );
 		$this->assertSame( EnumEnabledStatus::BAD, ( new UsernameFishingBlock() )->enabledStatus() );
+	}
+
+	public function test_anonymous_rest_api_reason_is_shown_on_its_switch() :void {
+		$this->installController( [ 'disable_anonymous_restapi' => 'N' ] );
+
+		$row = $this->firstConfigureRow( new AnonRestApiDisable() );
+
+		$this->assertCount( 1, $row[ 'explanations' ] );
+		$this->assertSame( 'disable_anonymous_restapi', $this->fixedBy( $row[ 'explanations' ][ 0 ] ) );
+	}
+
+	public function test_spam_registration_reason_is_shown_on_the_setting_that_turns_the_checks_on() :void {
+		$noChecks = [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'getEmailValidateChecks' => [] ] ) ];
+
+		$this->installController( [ 'reg_email_validate' => 'disabled' ], $noChecks );
+		$row = $this->firstConfigureRow( new SpamUserRegisterBlock() );
+		$this->assertSame( 'reg_email_validate', $this->fixedBy( $row[ 'explanations' ][ 0 ] ) );
+
+		$this->installController( [ 'reg_email_validate' => 'block' ], $noChecks );
+		$row = $this->firstConfigureRow( new SpamUserRegisterBlock() );
+		$this->assertSame( 'email_checks', $this->fixedBy( $row[ 'explanations' ][ 0 ] ) );
+	}
+
+	public function test_password_policies_being_off_is_said_once() :void {
+		$this->installController(
+			[ 'enable_password_policies' => 'N', 'pass_prevent_pwned' => 'N', 'pass_min_strength' => 2 ],
+			[ 'opts_lookup' => $this->buildOptsLookupStub( [ 'isPassPoliciesEnabled' => false ] ) ]
+		);
+
+		$fixedByPolicies = [];
+		foreach ( [ new PasswordPolicies(), new PwnedPasswords(), new PasswordStrength() ] as $component ) {
+			foreach ( $this->firstConfigureRow( $component )[ 'explanations' ] as $text ) {
+				if ( $this->fixedBy( $text ) === 'enable_password_policies' ) {
+					$fixedByPolicies[] = $text;
+				}
+			}
+		}
+
+		$this->assertCount( 1, $fixedByPolicies );
 	}
 
 	public function test_bot_actions_use_partial_primary_coverage() :void {
@@ -766,7 +811,18 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$row = $this->firstConfigureRow( new InactiveUsers() );
 
 		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
-		$this->assertCount( 3, $row[ 'explanations' ] ?? [] );
+		$this->assertCount( 2, $row[ 'explanations' ] ?? [] );
+		$this->assertSame(
+			[ 'auto_idle_days', 'auto_password' ],
+			\array_map( fn( string $text ) :string => $this->fixedBy( $text ), $row[ 'explanations' ] )
+		);
+	}
+
+	/**
+	 * The setting an explanation is shown on in a Configure panel, or '' when it is shown at the panel's top.
+	 */
+	private function fixedBy( string $explanation ) :string {
+		return ComponentBase::explanationFixLookup()[ \trim( $explanation ) ] ?? '';
 	}
 
 	/**

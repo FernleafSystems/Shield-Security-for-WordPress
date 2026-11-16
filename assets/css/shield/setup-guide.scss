@@ -576,7 +576,7 @@ body.has-shield-setup-guide #PageMainBody_Inner-Apto {
 	padding: 1px 7px;
 }
 
-body.has-shield-setup-guide .shield-actionbar {
+body.has-shield-setup-guide .shield-actionbar:not(.shield-actionbar--top) {
 	bottom: 4.4rem;
 }
 

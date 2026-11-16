@@ -25,7 +25,11 @@ class SpamUserRegisterBlock extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( 'There are no checks for SPAM user email addresses during user registration.', 'wp-simple-firewall' );
+			// Checks only run when registration email validation is on, so that is the setting to change first.
+			$status[ 'exp' ][] = $this->explanationFixedBy(
+				__( 'There are no checks for SPAM user email addresses during user registration.', 'wp-simple-firewall' ),
+				self::con()->opts->optGet( 'reg_email_validate' ) === 'disabled' ? 'reg_email_validate' : 'email_checks'
+			);
 		}
 
 		return $status;

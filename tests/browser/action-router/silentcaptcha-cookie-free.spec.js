@@ -69,7 +69,7 @@ test( 'cookie mode ignores configured free timings and removes populated feature
 	}, { allowCookies: true, mode: 'cookie' } );
 } );
 
-test( 'cookie-free setting saves through the existing configuration form', async ( { page, fixtureApi }, testInfo ) => {
+test( 'cookie-free setting saves through the Configure save bar', async ( { page, fixtureApi }, testInfo ) => {
 	await fixtureApi.withNotBotAltchaFixture( IP, async () => {
 		await openShieldRoute( page, { nav: 'zones', nav_sub: 'overview', component: 'silent_captcha', config_item: 'silentcaptcha_cookie_free' } );
 		await dismissBlockingDialogs( page );
@@ -78,9 +78,11 @@ test( 'cookie-free setting saves through the existing configuration form', async
 		await expect( checkbox ).not.toBeChecked();
 		await page.screenshot( { path: testInfo.outputPath( 'cookie-free-off.png' ) } );
 		await checkbox.check();
+		const saveBar = page.locator( '[data-configure-savebar="1"]:visible' );
 		const response = waitForShieldAjaxAction( page, 'mod_options_save' );
-		await checkbox.locator( 'xpath=ancestor::form' ).locator( 'button[type="submit"]' ).last().click();
+		await saveBar.locator( '[data-configure-savebar-save="1"]' ).click();
 		await expectShieldAjaxSuccess( await response );
+		await expect( saveBar ).toHaveCount( 0, { timeout: 20_000 } );
 		await page.reload();
 		await dismissBlockingDialogs( page );
 		await expect( checkbox ).toBeChecked();

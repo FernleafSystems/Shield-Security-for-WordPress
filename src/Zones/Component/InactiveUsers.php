@@ -41,11 +41,13 @@ class InactiveUsers extends Base {
 			);
 		}
 
+		// Said once, beside the expired-password setting: the Password Policies component already warns that
+		// policies are off, so this mustn't be shown against the policies switch as well.
 		if ( $autoPasswordEnabled && !$hasAutoPasswordSuspend ) {
 			if ( !$optsLookup->isPassPoliciesEnabled() ) {
-				$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Expired-password suspension is enabled but password policies are turned off.', 'wp-simple-firewall' ), 'enable_password_policies' );
+				$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Expired-password suspension is enabled but password policies are turned off.', 'wp-simple-firewall' ), 'auto_password' );
 			}
-			if ( $optsLookup->getPassExpireTimeout() <= 0 ) {
+			elseif ( $optsLookup->getPassExpireTimeout() <= 0 ) {
 				$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Expired-password suspension is enabled but password expiration is not configured.', 'wp-simple-firewall' ), 'pass_expire' );
 			}
 		}
