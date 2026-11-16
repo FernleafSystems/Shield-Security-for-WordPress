@@ -2,15 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansBase as ScanActionBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
+ * Run Manual Scan's progress, in whichever state the scans are in. The server reports scans as running, completed
+ * or failed. The page shows some states itself: scans being prepared while the start request is on its way, a
+ * failure when a request breaks without the server saying why, and stale when it can't get an update. Those are
+ * rendered once with the page and shown from there.
+ *
+ * ScanProgressBuilder decides what's shown: the active scans, and the scans (in scan order) to show as finished
+ * while others run, or whose results to show once they've all finished.
+ *
  * @phpstan-import-type ActiveScanProgressRow from \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Controller
- * @phpstan-import-type ScanModalState from ScanActionBase
+ * @phpstan-type ScanProgressState 'initiating'|'running'|'completed'|'failed'|'stale'
  * @phpstan-type PageRow array{
  *   id:int,
  *   name:string,
@@ -26,235 +32,233 @@ class ScansProgress extends BaseScans {
 
 	public const SLUG = 'render_scans_progress';
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/run/progress_page.twig';
-	public const RECENT_RESULT_WINDOW = 600;
 	/**
 	 * The order the scans are listed in on Run Manual Scan, from choosing them to their results.
 	 */
 	public const SCAN_ORDER = [ 'afs', 'wpv', 'apc' ];
 
+	public const STATE_INITIATING = 'initiating';
+	public const STATE_RUNNING = 'running';
+	public const STATE_COMPLETED = 'completed';
+	public const STATE_FAILED = 'failed';
+	public const STATE_STALE = 'stale';
+
 	protected function getRenderData() :array {
-		$data = $this->buildProgressRenderData();
-		return \array_replace_recursive( $data, $this->buildPageRenderData( $data ) );
+		/** @var ScanProgressState $state */
+		$state = $this->action_data[ 'state' ];
+		switch ( $state ) {
+			case self::STATE_INITIATING:
+				$data = $this->initiatingData();
+				break;
+			case self::STATE_RUNNING:
+				$data = $this->runningData();
+				break;
+			case self::STATE_COMPLETED:
+				$data = $this->completedData();
+				break;
+			case self::STATE_FAILED:
+				$data = $this->failedData();
+				break;
+			case self::STATE_STALE:
+				$data = $this->staleData();
+				break;
+			default:
+				throw new \UnexpectedValueException( 'Unsupported scan progress state.' );
+		}
+		$data[ 'vars' ][ 'state' ] = $state;
+		$data[ 'vars' ][ 'is_busy' ] = \in_array( $state, [ self::STATE_INITIATING, self::STATE_RUNNING ], true );
+		return $data;
 	}
 
-	protected function buildProgressRenderData() :array {
-		/** @var array{modal_state:ScanModalState,current_scan:string,remaining_scans:string,progress:int,scan_rows:list<ActiveScanProgressRow>} $data */
-		$data = $this->action_data;
-		$modalState = $data[ 'modal_state' ];
-		$isInitiating = $modalState === ScanActionBase::SCAN_MODAL_STATE_INITIATING;
-		$isFailed = $modalState === ScanActionBase::SCAN_MODAL_STATE_FAILED;
-		$isComplete = $modalState === ScanActionBase::SCAN_MODAL_STATE_COMPLETED;
-		$isRunning = $isInitiating || $modalState === ScanActionBase::SCAN_MODAL_STATE_RUNNING;
-		$currentScan = $data[ 'current_scan' ];
-		$remainingScans = $data[ 'remaining_scans' ];
-		$progress = $data[ 'progress' ];
-		$scanRows = $this->buildScanRows( $data[ 'scan_rows' ] );
-
-		$failedText = __( 'Scan failed.', 'wp-simple-firewall' );
-		$completeText = __( 'Scans completed.', 'wp-simple-firewall' );
-		$initiatingText = __( 'Preparing scans.', 'wp-simple-firewall' );
-		$currentScanText = \sprintf( __( 'Current Scan: %s', 'wp-simple-firewall' ), $currentScan );
-		$statusText = $isFailed ? $failedText
-			: ( $isComplete ? $completeText
-				: ( $isInitiating ? $initiatingText : $currentScanText ) );
-		$announcement = $isFailed
-			? \trim( $statusText.' '.$remainingScans )
-			: \sprintf( '%s %d%%', $statusText, $progress );
-		$heading = $isComplete
-			? $completeText.' '.__( 'Reloading page', 'wp-simple-firewall' ).'...'
-			: $statusText;
-
+	private function initiatingData() :array {
+		$heading = __( 'Preparing scans.', 'wp-simple-firewall' );
 		return [
 			'strings' => [
-				'patience_1'         => __( 'File scanning is an intensive operation and takes time.', 'wp-simple-firewall' ),
-				'progress_label'     => __( 'Scan progress', 'wp-simple-firewall' ),
-				'attempt_resume_now' => __( 'Attempt resume now', 'wp-simple-firewall' ),
+				'wait' => __( 'Please wait while the scan request starts.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'modal_state'     => $modalState,
-				'heading'         => $heading,
-				'remaining_scans' => $remainingScans,
-				'progress'        => $progress,
-				'announcement'    => $announcement,
-				'is_busy'         => $isRunning,
-				'scan_rows'       => $scanRows,
+				'heading'      => $heading,
+				'announcement' => $heading,
 			],
 		];
 	}
 
 	/**
-	 * The page shows every scan that was asked for: while they run, the ones already done show as finished;
-	 * once they're all done, what each one found and the way on to the Actions Queue.
-	 * @param array<string,mixed> $progressData
+	 * The current scan is always the first active row.
 	 */
-	private function buildPageRenderData( array $progressData ) :array {
+	private function runningData() :array {
+		/** @var list<ActiveScanProgressRow> $activeRows */
+		$activeRows = $this->action_data[ 'scan_rows' ];
+		$current = $activeRows[ 0 ];
+		/* translators: %s: the scan running now */
+		$heading = \sprintf( __( 'Current Scan: %s', 'wp-simple-firewall' ), self::ScanLabel( $current ) );
+
+		$pageRows = $this->buildPageRows( $activeRows );
+		$finished = \count( \array_filter( $pageRows, fn( array $row ) :bool => $row[ 'status' ] === 'finished' ) );
+		return [
+			'strings' => [
+				'scanning_title'     => __( 'Scanning your site', 'wp-simple-firewall' ),
+				'progress_label'     => __( 'Scan progress', 'wp-simple-firewall' ),
+				/* translators: %1$s: scans finished so far, %2$s: scans in all */
+				'overall_progress'   => \sprintf( _n( '%1$s of %2$s scan finished', '%1$s of %2$s scans finished', \count( $pageRows ), 'wp-simple-firewall' ),
+					$finished, \count( $pageRows ) ),
+				'attempt_resume_now' => __( 'Attempt resume now', 'wp-simple-firewall' ),
+				'patience'           => __( 'File scanning is an intensive operation and takes time.', 'wp-simple-firewall' ),
+				'leave_note'         => __( 'You can leave this page: the results land in the Actions Queue.', 'wp-simple-firewall' ),
+			],
+			'vars'    => [
+				'heading'          => $heading,
+				'announcement'     => \sprintf( '%s %d%%', $heading, $current[ 'progress' ] ),
+				'page_rows'        => $pageRows,
+				'overall_progress' => (int)\round( 100*$finished/\count( $pageRows ) ),
+			],
+		];
+	}
+
+	/**
+	 * What each scan asked for found, and the way on to the Actions Queue.
+	 */
+	private function completedData() :array {
 		$con = self::con();
-		$state = $progressData[ 'vars' ][ 'modal_state' ];
-
-		$slugs = \array_values( \array_intersect( self::SCAN_ORDER, $this->pageScanSlugs() ) );
-
 		$results = [];
 		$total = 0;
-		if ( $state === ScanActionBase::SCAN_MODAL_STATE_COMPLETED ) {
-			foreach ( $slugs as $slug ) {
-				$scanCon = $con->comps->scans->getScanCon( $slug );
-				$count = $this->countIssues( $scanCon );
-				$total += $count;
-				$results[] = [
-					'name'    => $scanCon->getStrings()[ 'name' ],
-					'count'   => $count,
-					'summary' => $this->resultSummary( $slug, $count ),
-				];
-			}
+		foreach ( $this->action_data[ 'scan_slugs' ] as $slug ) {
+			$scanCon = $con->comps->scans->getScanCon( $slug );
+			$count = $this->countIssues( $scanCon );
+			$total += $count;
+			$results[] = [
+				'name'    => $scanCon->getStrings()[ 'name' ],
+				'count'   => $count,
+				'summary' => $this->resultSummary( $slug, $count ),
+			];
 		}
 
-		$headingFinished = $total > 0
+		$heading = $total > 0
+			/* translators: %s: how many issues the scans found */
 			? \sprintf( _n( 'Scan finished: %s issue found', 'Scan finished: %s issues found', $total, 'wp-simple-firewall' ), $total )
 			: __( 'Scan finished: nothing found', 'wp-simple-firewall' );
-
-		$pageRows = $this->buildPageRows( $slugs );
-		$finishedRows = \count( \array_filter( $pageRows, fn( array $row ) :bool => $row[ 'status' ] === 'finished' ) );
-
-		$page = [
+		return [
 			'strings' => [
-				'scanning_title'   => __( 'Scanning your site', 'wp-simple-firewall' ),
-				'leave_note'       => __( 'You can leave this page: the results land in the Actions Queue.', 'wp-simple-firewall' ),
-				'finished_title'   => $headingFinished,
-				'finished_desc'    => $total > 0
+				'finished_title' => $heading,
+				'finished_desc'  => $total > 0
 					? __( 'Each one is waiting in the Actions Queue, with what to do about it.', 'wp-simple-firewall' )
 					: __( 'The scans you ran found nothing that needs you.', 'wp-simple-firewall' ),
-				'review_queue'     => __( 'Review in the Actions Queue', 'wp-simple-firewall' ),
-				'open_queue'       => __( 'Open the Actions Queue', 'wp-simple-firewall' ),
-				'scan_again'       => __( 'Scan again', 'wp-simple-firewall' ),
-				'try_again'        => __( 'Try again', 'wp-simple-firewall' ),
-				/* translators: %1$s: scans finished so far, %2$s: scans in all */
-				'overall_progress' => \sprintf( _n( '%1$s of %2$s scan finished', '%1$s of %2$s scans finished', \count( $pageRows ), 'wp-simple-firewall' ),
-					$finishedRows, \count( $pageRows ) ),
+				'review_queue'   => __( 'Review in the Actions Queue', 'wp-simple-firewall' ),
+				'open_queue'     => __( 'Open the Actions Queue', 'wp-simple-firewall' ),
+				'scan_again'     => __( 'Scan again', 'wp-simple-firewall' ),
 			],
 			'hrefs'   => [
 				'actions_queue' => $con->plugin_urls->actionsQueueScans(),
-				// Back to choosing, even straight after a scan, when the page would otherwise open on its result.
-				'scan_run'      => URL::Build( $con->plugin_urls->scansRun(), [ 'step' => 'choose' ] ),
+				'scan_again'    => $this->chooseScansHref(),
 			],
 			'vars'    => [
-				'page_rows'        => $pageRows,
-				'overall_progress' => empty( $pageRows ) ? 0 : (int)\round( 100*$finishedRows/\count( $pageRows ) ),
-				'results'          => $results,
-				'total_issues'     => $total,
+				'announcement' => $heading,
+				'results'      => $results,
+				'total_issues' => $total,
 			],
 		];
-		if ( $state === ScanActionBase::SCAN_MODAL_STATE_COMPLETED ) {
-			$page[ 'vars' ][ 'heading' ] = $headingFinished;
-			$page[ 'vars' ][ 'announcement' ] = $headingFinished;
-		}
-		return $page;
 	}
 
-	/**
-	 * @return list<string>
-	 */
-	private function pageScanSlugs() :array {
-		$slugs = $this->action_data[ 'scan_slugs' ];
-		if ( empty( $slugs ) ) {
-			// Picked up after a reload, without the started scans to go on: the ones running and the ones just finished.
-			$slugs = \array_unique( \array_merge(
-				\array_column( $this->action_data[ 'scan_rows' ], 'scan' ),
-				self::RecentlyFinishedScanSlugs()
-			) );
-		}
-		if ( empty( $slugs ) ) {
-			$slugs = \array_keys( \array_filter(
-				self::con()->comps->scans->getAllScanCons(),
-				fn( $scanCon ) :bool => $scanCon->isReady()
-			) );
-		}
-		return $slugs;
-	}
-
-	/**
-	 * Scans someone ran by hand that finished a full run in the last few minutes, so Run Manual Scan can open on
-	 * their result. Scheduled scans don't count: otherwise one that finished in the background would open the page
-	 * on a result nobody asked for, in place of choosing scans.
-	 * @return list<string>
-	 */
-	public static function RecentlyFinishedScanSlugs( int $withinSeconds = self::RECENT_RESULT_WINDOW ) :array {
-		try {
-			$records = self::con()->db_con->scans->getQuerySelector()
-				->filterByScans( self::SCAN_ORDER )
-				->filterByStatus( 'completed' )
-				->addWhereEquals( 'scope_type', 'full' )
-				->addWhereEquals( 'run_trigger', 'manual' )
-				->addWhereNewerThan( Services::Request()->ts() - $withinSeconds, 'finished_at' )
-				->queryWithResult();
-		}
-		catch ( \Exception $e ) {
-			$records = [];
-		}
-		$finished = \array_map( fn( $record ) :string => (string)$record->scan, \is_array( $records ) ? $records : [] );
-		return \array_values( \array_intersect( self::SCAN_ORDER, $finished ) );
-	}
-
-	/**
-	 * When each scan last finished a full run, or 0 if it never has.
-	 * @return array<string,int>
-	 */
-	public static function LastFinishedBySlug() :array {
-		$latest = self::con()->comps->site_query->latestCompletedScanTimestamps();
+	private function failedData() :array {
+		$heading = __( 'Scan failed.', 'wp-simple-firewall' );
+		$message = $this->action_data[ 'failure_message' ];
 		return [
-			'afs' => (int)$latest[ 'malware' ],
-			'wpv' => (int)$latest[ 'vulnerabilities' ],
-			'apc' => (int)$latest[ 'abandoned' ],
+			'vars' => [
+				'announcement' => \trim( $heading.' '.$message ),
+				'notice'       => [
+					'tone'       => 'is-critical',
+					'icon'       => 'bi-x-lg',
+					'title'      => $heading,
+					'message'    => $message,
+					'href'       => $this->chooseScansHref(),
+					'link_label' => __( 'Try again', 'wp-simple-firewall' ),
+				],
+			],
 		];
 	}
 
 	/**
-	 * One row for each scan asked for. Scans not in the active rows have finished, unless nothing is active yet
-	 * because the scans are still being set up.
-	 * @param list<string> $slugs
+	 * The scans may be fine: it's only their progress that can't be reached at the moment.
+	 */
+	private function staleData() :array {
+		$heading = __( "Scan progress couldn't be updated.", 'wp-simple-firewall' );
+		$message = __( 'Your scans may still be running.', 'wp-simple-firewall' );
+		return [
+			'vars' => [
+				'announcement' => $heading.' '.$message,
+				'notice'       => [
+					'tone'       => 'is-warning',
+					'icon'       => 'bi-exclamation-triangle',
+					'title'      => $heading,
+					'message'    => $message,
+					'href'       => self::con()->plugin_urls->scansRun(),
+					'link_label' => __( 'Refresh', 'wp-simple-firewall' ),
+				],
+			],
+		];
+	}
+
+	/**
+	 * Back to choosing, even straight after a scan, when the page would otherwise open on its result.
+	 */
+	private function chooseScansHref() :string {
+		return URL::Build( self::con()->plugin_urls->scansRun(), [ 'step' => 'choose' ] );
+	}
+
+	/**
+	 * A scan's name, with what it's limited to when it doesn't cover the whole site, so that scans of one kind
+	 * running for different scopes can be told apart.
+	 * @param ActiveScanProgressRow $row
+	 */
+	public static function ScanLabel( array $row ) :string {
+		$scope = self::scopeLabel( $row[ 'scope_type' ], $row[ 'scope_key' ] );
+		/* translators: %1$s: a scan's name, %2$s: what the scan is limited to, such as one plugin */
+		return $scope === '' ? $row[ 'name' ] : \sprintf( __( '%1$s (%2$s)', 'wp-simple-firewall' ), $row[ 'name' ], $scope );
+	}
+
+	/**
+	 * In scan order: every active scan, each with its own row since one kind can be running for several scopes at
+	 * once, and a finished row for each scan given that's no longer active.
+	 * @param list<ActiveScanProgressRow> $activeRows
 	 * @return list<PageRow>
 	 */
-	private function buildPageRows( array $slugs ) :array {
-		$con = self::con();
-		$activeBySlug = [];
-		foreach ( $this->action_data[ 'scan_rows' ] as $row ) {
-			$activeBySlug[ $row[ 'scan' ] ] ??= [
-				'id'                   => $row[ 'id' ],
-				'name'                 => $row[ 'name' ],
-				'scope_label'          => $this->scopeLabel( $row[ 'scope_type' ], $row[ 'scope_key' ] ),
-				'status'               => $row[ 'display_status' ],
-				'status_label'         => $this->statusPresentation( $row[ 'display_status' ] )[ 'label' ],
-				'can_attempt_recovery' => $row[ 'can_attempt_recovery' ],
-				'progress'             => $row[ 'progress' ],
-				'aria_label'           => $this->progressLabel( $row[ 'name' ] ),
-			];
-		}
-		$nothingActiveYet = empty( $activeBySlug );
-
+	private function buildPageRows( array $activeRows ) :array {
+		$finishedSlugs = $this->action_data[ 'scan_slugs' ];
 		$rows = [];
-		foreach ( $slugs as $slug ) {
-			if ( isset( $activeBySlug[ $slug ] ) ) {
-				$rows[] = $activeBySlug[ $slug ];
-				continue;
+		foreach ( self::SCAN_ORDER as $slug ) {
+			$active = \array_filter( $activeRows, fn( array $row ) :bool => $row[ 'scan' ] === $slug );
+			foreach ( $active as $row ) {
+				$rows[] = [
+					'id'                   => $row[ 'id' ],
+					'name'                 => $row[ 'name' ],
+					'scope_label'          => self::scopeLabel( $row[ 'scope_type' ], $row[ 'scope_key' ] ),
+					'status'               => $row[ 'display_status' ],
+					'status_label'         => $this->statusLabel( $row[ 'display_status' ] ),
+					'can_attempt_recovery' => $row[ 'can_attempt_recovery' ],
+					'progress'             => $row[ 'progress' ],
+					'aria_label'           => $this->progressLabel( self::ScanLabel( $row ) ),
+				];
 			}
-			$name = $con->comps->scans->getScanCon( $slug )->getStrings()[ 'name' ];
-			$rows[] = [
-				'id'                   => 0,
-				'name'                 => $name,
-				'scope_label'          => '',
-				'status'               => $nothingActiveYet ? 'waiting' : 'finished',
-				'status_label'         => $nothingActiveYet
-					? $this->statusPresentation( 'waiting' )[ 'label' ]
-					: __( 'finished', 'wp-simple-firewall' ),
-				'can_attempt_recovery' => false,
-				'progress'             => $nothingActiveYet ? 0 : 100,
-				'aria_label'           => $this->progressLabel( $name ),
-			];
+			if ( empty( $active ) && \in_array( $slug, $finishedSlugs, true ) ) {
+				$name = self::con()->comps->scans->getScanCon( $slug )->getStrings()[ 'name' ];
+				$rows[] = [
+					'id'                   => 0,
+					'name'                 => $name,
+					'scope_label'          => '',
+					'status'               => 'finished',
+					'status_label'         => $this->statusLabel( 'finished' ),
+					'can_attempt_recovery' => false,
+					'progress'             => 100,
+					'aria_label'           => $this->progressLabel( $name ),
+				];
+			}
 		}
 		return $rows;
 	}
 
-	private function progressLabel( string $scanName ) :string {
-		return \sprintf( __( '%s progress', 'wp-simple-firewall' ), $scanName );
+	private function progressLabel( string $scanLabel ) :string {
+		/* translators: %s: a scan, such as its name */
+		return \sprintf( __( '%s progress', 'wp-simple-firewall' ), $scanLabel );
 	}
 
 	/**
@@ -278,46 +282,26 @@ class ScansProgress extends BaseScans {
 		}
 		switch ( $slug ) {
 			case 'afs':
+				/* translators: %s: how many files the scan found */
 				$text = _n( '%s file to review', '%s files to review', $count, 'wp-simple-firewall' );
 				break;
 			case 'wpv':
+				/* translators: %s: how many plugins and themes the scan found */
 				$text = _n( '%s vulnerable plugin or theme', '%s vulnerable plugins or themes', $count, 'wp-simple-firewall' );
 				break;
 			case 'apc':
+				/* translators: %s: how many plugins the scan found */
 				$text = _n( '%s abandoned plugin', '%s abandoned plugins', $count, 'wp-simple-firewall' );
 				break;
 			default:
+				/* translators: %s: how many issues the scan found */
 				$text = _n( '%s issue', '%s issues', $count, 'wp-simple-firewall' );
 				break;
 		}
 		return \sprintf( $text, $count );
 	}
 
-	/**
-	 * @param list<ActiveScanProgressRow> $rows
-	 * @return list<array{id:int,name:string,scope_label:string,status_label:string,status_icon_class:string,status_class:string,progress_bar_class:string,can_attempt_recovery:bool,progress:int,aria_label:string}>
-	 */
-	private function buildScanRows( array $rows ) :array {
-		$renderRows = [];
-		foreach ( $rows as $row ) {
-			$statusPresentation = $this->statusPresentation( $row[ 'display_status' ] );
-			$renderRows[] = [
-				'id'                   => $row[ 'id' ],
-				'name'                 => $row[ 'name' ],
-				'scope_label'          => $this->scopeLabel( $row[ 'scope_type' ], $row[ 'scope_key' ] ),
-				'status_label'         => $statusPresentation[ 'label' ],
-				'status_icon_class'    => $statusPresentation[ 'icon_class' ],
-				'status_class'         => $statusPresentation[ 'status_class' ],
-				'progress_bar_class'   => $statusPresentation[ 'progress_bar_class' ],
-				'can_attempt_recovery' => $row[ 'can_attempt_recovery' ],
-				'progress'             => $row[ 'progress' ],
-				'aria_label'           => $this->progressLabel( $row[ 'name' ] ),
-			];
-		}
-		return $renderRows;
-	}
-
-	private function scopeLabel( string $scopeType, string $scopeKey ) :string {
+	private static function scopeLabel( string $scopeType, string $scopeKey ) :string {
 		if ( $scopeType === 'full' || $scopeType === '' ) {
 			return '';
 		}
@@ -327,46 +311,31 @@ class ScansProgress extends BaseScans {
 		}
 
 		if ( $scopeType === 'plugin' ) {
-			return sprintf( __( 'Plugin: %s', 'wp-simple-firewall' ), $scopeKey );
+			/* translators: %s: the plugin a scan is limited to */
+			return \sprintf( __( 'Plugin: %s', 'wp-simple-firewall' ), $scopeKey );
 		}
 
 		if ( $scopeType === 'theme' ) {
-			return sprintf( __( 'Theme: %s', 'wp-simple-firewall' ), $scopeKey );
+			/* translators: %s: the theme a scan is limited to */
+			return \sprintf( __( 'Theme: %s', 'wp-simple-firewall' ), $scopeKey );
 		}
 
-		return $scopeKey === '' ? $scopeType : sprintf( '%s: %s', $scopeType, $scopeKey );
+		return $scopeKey === '' ? $scopeType : \sprintf( '%s: %s', $scopeType, $scopeKey );
 	}
 
 	/**
-	 * @param 'running'|'waiting'|'stalled' $status
-	 * @return array{label:string,icon_class:string,status_class:string,progress_bar_class:string}
+	 * @param 'running'|'waiting'|'stalled'|'finished' $status
 	 */
-	private function statusPresentation( string $status ) :array {
+	private function statusLabel( string $status ) :string {
 		switch ( $status ) {
 			case 'running':
-				return [
-					'label'              => __( 'running', 'wp-simple-firewall' ),
-					'icon_class'         => 'bi bi-arrow-repeat',
-					'status_class'       => 'shield-scan-progress__status--running',
-					'progress_bar_class' => 'bg-success progress-bar-striped progress-bar-animated',
-				];
-
+				return __( 'running', 'wp-simple-firewall' );
 			case 'waiting':
-				return [
-					'label'              => __( 'waiting', 'wp-simple-firewall' ),
-					'icon_class'         => 'bi bi-hourglass-split',
-					'status_class'       => 'shield-scan-progress__status--waiting',
-					'progress_bar_class' => 'bg-secondary',
-				];
-
+				return __( 'waiting', 'wp-simple-firewall' );
 			case 'stalled':
-				return [
-					'label'              => __( 'appears stalled', 'wp-simple-firewall' ),
-					'icon_class'         => 'bi bi-exclamation-triangle-fill',
-					'status_class'       => 'shield-scan-progress__status--stalled',
-					'progress_bar_class' => 'bg-warning progress-bar-striped',
-				];
-
+				return __( 'appears stalled', 'wp-simple-firewall' );
+			case 'finished':
+				return __( 'finished', 'wp-simple-firewall' );
 			default:
 				throw new \UnexpectedValueException( 'Unsupported scan progress status.' );
 		}
@@ -374,12 +343,10 @@ class ScansProgress extends BaseScans {
 
 	protected function getRequiredDataKeys() :array {
 		return [
-			'modal_state',
-			'current_scan',
-			'remaining_scans',
-			'progress',
+			'state',
 			'scan_rows',
 			'scan_slugs',
+			'failure_message',
 		];
 	}
 }

@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\RetrieveMalware
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
-class ScanResultsTableAction extends ScansBase {
+class ScanResultsTableAction extends BaseAction {
 
 	public const SLUG = 'scanresults_action';
 
