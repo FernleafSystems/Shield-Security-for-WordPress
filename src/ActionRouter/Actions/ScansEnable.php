@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 
-class ScansEnable extends ScansBase {
+class ScansEnable extends BaseAction {
 
 	public const SLUG = 'scans_enable';
 

@@ -4,11 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansProgress;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansBase;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\{
+	ScanProgressBuilder,
+	ScansProgress
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\FileScanning;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class PageScansRun extends PageScansBase {
 
@@ -31,14 +32,11 @@ class PageScansRun extends PageScansBase {
 
 		// Can Scan Checks:
 		$reasonsCantScan = $con->comps->scans->getReasonsScansCantExecute();
-		$step = $this->openingStep();
+		$progress = new ScanProgressBuilder();
+		[ $step, $progressHtml ] = $this->opening( $progress );
 		return \array_replace_recursive( parent::getRenderData(), [
 			'flags'   => [
 				'can_scan' => \count( $reasonsCantScan ) === 0,
-			],
-			'hrefs'   => [
-				// Back to choosing, even straight after a scan, when the page would otherwise open on its result.
-				'scan_again' => URL::Build( $con->plugin_urls->scansRun(), [ 'step' => 'choose' ] ),
 			],
 			'strings' => [
 				'scanselect'            => __( 'Select Scans To Run', 'wp-simple-firewall' ),
@@ -49,16 +47,15 @@ class PageScansRun extends PageScansBase {
 				'scans_disabled_prefix' => __( 'Scans are currently disabled because:', 'wp-simple-firewall' ),
 				'steps_label'           => __( 'Scan steps', 'wp-simple-firewall' ),
 				'configure_areas'       => __( 'Configure which file areas are scanned', 'wp-simple-firewall' ),
-				'checking_progress'     => __( 'Checking on your scans', 'wp-simple-firewall' ),
 				'select_a_scan'         => __( 'Select at least one scan to run.', 'wp-simple-firewall' ),
-				'try_again'             => __( 'Try again', 'wp-simple-firewall' ),
 			],
 			'scans'   => $this->buildScansVars(),
 			'vars'    => [
 				'cannot_scan_reasons' => $reasonsCantScan,
 				'opening_step'        => $step,
 				'steps'               => $this->buildSteps( $step ),
-				'results_html'        => $step === 'results' ? $this->renderRecentResults() : '',
+				'progress_html'       => $progressHtml,
+				'page_states'         => $progress->renderPageStates(),
 				'scan_areas_action'   => [
 					'zone_component_action' => ZoneComponentConfig::SLUG,
 					'zone_component_slug'   => FileScanning::Slug(),
@@ -73,18 +70,17 @@ class PageScansRun extends PageScansBase {
 	}
 
 	/**
-	 * The page opens where things stand: on the scans while they run, on the result of a scan that
-	 * finished in the last few minutes, otherwise on choosing. "Scan again" asks for the choosing step,
-	 * so a recent result never keeps you from starting another scan.
+	 * The page opens where things stand, with the progress to show there: on the scans while they run, on the
+	 * result of a scan that finished in the last few minutes, otherwise on choosing. "Scan again" asks for the
+	 * choosing step, so a recent result never keeps you from starting another scan.
+	 * @return array{0:'choose'|'scanning'|'results',1:string}
 	 */
-	private function openingStep() :string {
-		if ( $this->getTextInputFromActionData( 'step' ) === 'choose' ) {
-			return 'choose';
+	private function opening( ScanProgressBuilder $progress ) :array {
+		$now = $this->getTextInputFromActionData( 'step' ) === 'choose' ? null : $progress->forOpeningPage();
+		if ( $now === null ) {
+			return [ 'choose', '' ];
 		}
-		if ( self::con()->comps->scans_queue->hasRunningScans() ) {
-			return 'scanning';
-		}
-		return empty( ScansProgress::RecentlyFinishedScanSlugs() ) ? 'choose' : 'results';
+		return [ $now[ 'progress_state' ] === ScansProgress::STATE_COMPLETED ? 'results' : 'scanning', $now[ 'progress_html' ] ];
 	}
 
 	/**
@@ -111,17 +107,6 @@ class PageScansRun extends PageScansBase {
 		);
 	}
 
-	private function renderRecentResults() :string {
-		return self::con()->action_router->render( ScansProgress::class, [
-			'modal_state'     => ScansBase::SCAN_MODAL_STATE_COMPLETED,
-			'current_scan'    => '',
-			'remaining_scans' => '',
-			'progress'        => 100,
-			'scan_rows'       => [],
-			'scan_slugs'      => ScansProgress::RecentlyFinishedScanSlugs(),
-		] );
-	}
-
 	protected function getLandingTitle() :string {
 		return __( 'Run Manual Scan', 'wp-simple-firewall' );
 	}
@@ -144,7 +129,7 @@ class PageScansRun extends PageScansBase {
 	 */
 	private function buildScansVars() :array {
 		$con = self::con();
-		$lastRanBySlug = ScansProgress::LastFinishedBySlug();
+		$lastRanBySlug = $this->lastFinishedBySlug();
 
 		$scans = [];
 		foreach ( ScansProgress::SCAN_ORDER as $slug ) {
@@ -178,5 +163,18 @@ class PageScansRun extends PageScansBase {
 		}
 
 		return $scans;
+	}
+
+	/**
+	 * When each scan last finished a full run, or 0 if it never has.
+	 * @return array<string,int>
+	 */
+	private function lastFinishedBySlug() :array {
+		$latest = self::con()->comps->site_query->latestCompletedScanTimestamps();
+		return [
+			'afs' => (int)$latest[ 'malware' ],
+			'wpv' => (int)$latest[ 'vulnerabilities' ],
+			'apc' => (int)$latest[ 'abandoned' ],
+		];
 	}
 }

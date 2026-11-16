@@ -19,7 +19,7 @@ export class ScanIndicator {
 	}
 
 	/**
-	 * @param {'running'|'initiating'|'completed'|'failed'} state
+	 * @param {'running'|'completed'|'failed'} state
 	 * @param {string} detail what's running now, such as the current scan and how far it has got
 	 * @param {Object} base the scans component's data
 	 */
@@ -27,7 +27,6 @@ export class ScanIndicator {
 		const indicator = ScanIndicator.ensure( base );
 		const label = {
 			running: base.strings.indicator_running,
-			initiating: base.strings.indicator_running,
 			completed: base.strings.indicator_done,
 			failed: base.strings.indicator_failed,
 		}[ state ];

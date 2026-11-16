@@ -2252,20 +2252,6 @@
         {
             "type": "ERROR",
             "code": "WordPress.WP.I18n.MissingTranslatorsComment",
-            "file": "src/ActionRouter/Actions/Render/Components/Scans/ScansProgress.php",
-            "message": "A function call to __() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
-            "count": 4
-        },
-        {
-            "type": "ERROR",
-            "code": "WordPress.WP.I18n.MissingTranslatorsComment",
-            "file": "src/ActionRouter/Actions/Render/Components/Scans/ScansProgress.php",
-            "message": "A function call to _n() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
-            "count": 5
-        },
-        {
-            "type": "ERROR",
-            "code": "WordPress.WP.I18n.MissingTranslatorsComment",
             "file": "src/ActionRouter/Actions/Render/Components/UserMfa/ConfigEdit.php",
             "message": "A function call to __() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
             "count": 3
@@ -2645,13 +2631,6 @@
             "type": "ERROR",
             "code": "WordPress.WP.I18n.MissingTranslatorsComment",
             "file": "src/ActionRouter/Actions/ScanResultsTableAction.php",
-            "message": "A function call to _n() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
-            "count": 1
-        },
-        {
-            "type": "ERROR",
-            "code": "WordPress.WP.I18n.MissingTranslatorsComment",
-            "file": "src/ActionRouter/Actions/ScansBase.php",
             "message": "A function call to _n() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
             "count": 1
         },

@@ -199,12 +199,9 @@ $scan-red: #c62f3e;
 	flex: 1 1 260px;
 }
 
-.shield-scan-run__loading {
-	align-items: center;
-	color: $scan-muted;
-	display: flex;
-	gap: 10px;
-	padding: 18px;
+@keyframes shield-scan-progress-spin {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
 }
 
 .shield-scan-progress__spin {
@@ -233,7 +230,7 @@ $scan-red: #c62f3e;
 	.shield-tool-status__badge { background: #fdf0d2; color: #8a5a00; }
 }
 
-.shield-scan-progress--page {
+.shield-scan-progress {
 	.shield-scan-progress__overall {
 		display: grid;
 		gap: 10px;

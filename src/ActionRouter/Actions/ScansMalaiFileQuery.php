@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\MalaiFileQueryEl
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai\MalwareScan;
 
-class ScansMalaiFileQuery extends ScansBase {
+class ScansMalaiFileQuery extends BaseAction {
 
 	public const SLUG = 'scans_malai_file_query';
 
