@@ -38,12 +38,16 @@ export class ConfigureSaveBar extends BaseAutoExecComponent {
 			root !== null && this.discard( root );
 		} );
 
-		window.addEventListener( 'resize', () => {
-			document.querySelectorAll( '[data-configure-savebar="1"]:not([hidden])' ).forEach( ( bar ) => {
-				const root = bar.closest( ConfigureSaveBar.ROOT_SELECTOR );
-				root instanceof HTMLElement && this.alignToRoot( root, bar );
-			} );
+		// The bar keeps clear of the page head, which moves as the page scrolls (capture catches any scrolling
+		// container) and changes height as its notices are dismissed.
+		const alignVisibleBars = () => document.querySelectorAll( '[data-configure-savebar="1"]:not([hidden])' ).forEach( ( bar ) => {
+			const root = bar.closest( ConfigureSaveBar.ROOT_SELECTOR );
+			root instanceof HTMLElement && this.alignToRoot( root, bar );
 		} );
+		window.addEventListener( 'resize', alignVisibleBars );
+		document.addEventListener( 'scroll', alignVisibleBars, { capture: true, passive: true } );
+		const pageHead = document.getElementById( 'PageHead-Apto' );
+		pageHead !== null && new ResizeObserver( alignVisibleBars ).observe( pageHead );
 
 		window.addEventListener( 'beforeunload', ( evt ) => {
 			if ( document.querySelector( `${ConfigureSaveBar.ROOT_SELECTOR} .shield-option-item.is-dirty` ) !== null ) {
@@ -83,27 +87,34 @@ export class ConfigureSaveBar extends BaseAutoExecComponent {
 		);
 		const count = dirtyKeys.size;
 		bar.hidden = count === 0;
-		root.classList.toggle( 'has-configure-savebar', count > 0 );
 		if ( count === 0 ) {
 			return;
 		}
-		this.alignToRoot( root, bar );
 
 		const template = count === 1 ? bar.dataset.countOne : bar.dataset.countMany;
 		bar.querySelector( '[data-configure-savebar-count="1"]' ).textContent = String( template || '%s' ).replace( '%s', String( count ) );
 		bar.querySelector( '[data-configure-savebar-where="1"]' ).textContent = [ ...new Set( this.dirtyForms( root ).map(
 			( form ) => form.closest( '.shield-detail-item--configure' )?.querySelector( '.shield-detail-row__title' )?.textContent?.trim() || ''
 		) ) ].filter( ( title ) => title.length > 0 ).join( ', ' );
+		// Placed once its text is in, as the bar's width decides how far it can sit from the viewport's edges.
+		this.alignToRoot( root, bar );
 	}
 
 	/**
-	 * The bar is fixed to the viewport bottom (an ancestor scroll container defeats position: sticky),
-	 * so it is lined up horizontally with the zone it belongs to.
+	 * The bar is fixed to the top of the viewport (an ancestor scroll container defeats position: sticky),
+	 * so it is centred over the zone it belongs to, though never closer than the gutter to either edge of the
+	 * viewport. It sits in the page body's stacking context, beneath the page head and its notices, so it is kept
+	 * below whatever of the page head is still in view.
 	 */
 	alignToRoot( root, bar ) {
 		const rect = root.getBoundingClientRect();
-		bar.style.left = `${Math.max( 0, rect.left )}px`;
-		bar.style.width = `${rect.width}px`;
+		const gutter = 16;
+		const half = bar.offsetWidth / 2;
+		const viewportWidth = document.documentElement.clientWidth;
+		const centre = Math.min( Math.max( rect.left + ( rect.width / 2 ), half + gutter ), viewportWidth - half - gutter );
+		bar.style.left = `${centre}px`;
+		const headBottom = document.getElementById( 'PageHead-Apto' )?.getBoundingClientRect().bottom || 0;
+		bar.style.setProperty( '--shield-actionbar-clearance', `${Math.max( 0, headBottom )}px` );
 	}
 
 	/**
