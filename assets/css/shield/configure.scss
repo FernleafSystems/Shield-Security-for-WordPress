@@ -253,14 +253,9 @@
 	}
 }
 
-// One save bar per zone page, fixed to the bottom of the viewport; JS lines it up with the zone.
+// One save bar per zone page (the shared action bar, pinned to the top); JS centres it over the zone.
 .configure-diagnosis .shield-detail-expansion__footer {
 	display: none;
-}
-
-// The save bar is the shared action bar; the goal leaves room for it at its foot.
-.configure-diagnosis.has-configure-savebar {
-	padding-bottom: 5rem;
 }
 
 // ─── Zone tools: filter, "Needs attention", layout choice ───

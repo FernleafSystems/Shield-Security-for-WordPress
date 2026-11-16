@@ -5,9 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility\FileDownloadHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Export;
-use FernleafSystems\Wordpress\Services\Utilities\File\Download\IssueFileDownloadResponse;
 
 class FileDownload extends BaseAction {
+
+	use Traits\IssuesFileDownloads;
 
 	public const SLUG = 'file_download';
 
@@ -25,7 +26,7 @@ class FileDownload extends BaseAction {
 			}
 			$contents = $this->getFileDownloadContents( $cat );
 
-			( new IssueFileDownloadResponse( $contents[ 'name' ] ) )
+			$this->fileDownloadResponse( $contents[ 'name' ] )
 				->fromString( $contents[ 'content' ], [ 'Set-cookie' => 'fileDownload=true; path=/' ] );
 		}
 		catch ( \Exception $e ) {

@@ -31,10 +31,7 @@ class BotActions extends Base {
 		}
 
 		foreach ( \array_keys( \array_filter( $signalStates, static fn( bool $enabled ) :bool => !$enabled ) ) as $signalKey ) {
-			$status[ 'exp' ][] = $this->explanationFixedBy( sprintf(
-				__( "Visitors that repeatedly trigger the signal '%s' aren't penalised.", 'wp-simple-firewall' ),
-				$this->botSignalName( $signalKey )
-			), $signalKey );
+			$status[ 'exp' ][] = $this->signalNotPenalisedExplanation( $signalKey );
 		}
 
 		// Offenses only lead to a block once they reach the limit, so a limit of 0 leaves them doing nothing. The
@@ -69,10 +66,20 @@ class BotActions extends Base {
 		}
 
 		foreach ( \array_diff( \array_keys( $signals ), $enabledSignals ) as $key ) {
-			$status[ 'exp' ][] = sprintf( "Visitors that repeatedly trigger the signal '%s' aren't penalised", $this->botSignalName( $key ) );
+			$status[ 'exp' ][] = $this->signalNotPenalisedExplanation( $key );
 		}
 
 		return $status;
+	}
+
+	/**
+	 * Each signal is its own setting, so the reason is shown on that setting.
+	 */
+	private function signalNotPenalisedExplanation( string $signalKey ) :string {
+		return $this->explanationFixedBy( sprintf(
+			__( "Visitors that repeatedly trigger the signal '%s' aren't penalised.", 'wp-simple-firewall' ),
+			$this->botSignalDefinitions()[ $signalKey ][ 'name' ]
+		), $signalKey );
 	}
 
 	/**
@@ -100,10 +107,5 @@ class BotActions extends Base {
 			'track_invalidscript'  => [ 'name' => __( 'Invalid Script Load', 'wp-simple-firewall' ), 'primary' => false ],
 			'track_useragent'      => [ 'name' => __( 'Empty User Agents', 'wp-simple-firewall' ), 'primary' => false ],
 		];
-	}
-
-	private function botSignalName( string $key ): string {
-		$name = $this->botSignalDefinitions()[ $key ][ 'name' ] ?? '';
-		return empty( $name ) ? $key : $name;
 	}
 }

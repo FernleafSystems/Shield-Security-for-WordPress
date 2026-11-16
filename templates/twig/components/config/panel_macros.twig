@@ -73,10 +73,13 @@
 				data-beacon_article_format="sidebar"
 				data-beacon_article_id="{{ option.beacon_id }}"
 				aria-label="{{ strings.opt_help }}: {{ option.name }}"
-				title="{{ strings.opt_help }}">?</button>
+				data-bs-toggle="tooltip"
+				data-bs-title="{{ strings.opt_help }}">?</button>
 	{% elseif option.link_info %}
 		<a class="shield-panel-help" href="{{ option.link_info }}" target="_blank" rel="noopener"
-		   aria-label="{{ strings.opt_help }}: {{ option.name }}" title="{{ strings.opt_help }}">?</a>
+		   aria-label="{{ strings.opt_help }}: {{ option.name }}"
+		   data-bs-toggle="tooltip"
+		   data-bs-title="{{ strings.opt_help }}">?</a>
 	{% endif %}
 {% endmacro %}
 

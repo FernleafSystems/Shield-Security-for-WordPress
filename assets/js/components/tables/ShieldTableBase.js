@@ -199,7 +199,8 @@ export class ShieldTableBase extends BaseComponent {
 			} );
 		}
 
-		// Downloads come last, as links, so the browser treats them as downloads. Without Pro they show, disabled.
+		// Downloads come last, as links. Without Pro they show, disabled. DataTables Buttons cancels every click,
+		// so the action follows the link itself; the endpoint answers with an attachment, so the page stays put.
 		( this._base_data.vars?.downloads || [] ).forEach( ( download, idx ) => {
 			buttons.push( {
 				text: download.label,
@@ -208,7 +209,7 @@ export class ShieldTableBase extends BaseComponent {
 				className: 'action table-download btn-outline-secondary mb-2',
 				attr: download.is_available ? { href: download.href } : { 'aria-disabled': 'true' },
 				enabled: download.is_available,
-				action: () => {},
+				action: () => window.location.assign( download.href ),
 			} );
 		} );
 
