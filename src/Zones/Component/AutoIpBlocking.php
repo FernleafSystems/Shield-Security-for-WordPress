@@ -28,12 +28,12 @@ class AutoIpBlocking extends Base {
 			}
 			else {
 				$status[ 'level' ] = EnumEnabledStatus::OKAY;
-				$status[ 'exp' ][] = __( 'The offense limit is quite high - you may want to consider decreasing it.', 'wp-simple-firewall' );
+				$status[ 'exp' ][] = $this->explanationFixedBy( __( 'The offense limit is quite high - you may want to consider decreasing it.', 'wp-simple-firewall' ), 'transgression_limit' );
 			}
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "Set a limit to offenses allowed before visitor IP is automatically blocked.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( "Set a limit to offenses allowed before visitor IP is automatically blocked.", 'wp-simple-firewall' ), 'transgression_limit' );
 		}
 
 		return $status;

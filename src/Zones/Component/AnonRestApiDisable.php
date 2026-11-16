@@ -25,7 +25,10 @@ class AnonRestApiDisable extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
-			$status[ 'exp' ][] = __( "Anonymous (unauthenticated) requests to the WP REST API is allowed.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy(
+				__( "Anonymous (unauthenticated) requests to the WP REST API is allowed.", 'wp-simple-firewall' ),
+				'disable_anonymous_restapi'
+			);
 		}
 
 		return $status;

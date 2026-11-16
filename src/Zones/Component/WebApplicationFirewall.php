@@ -30,10 +30,7 @@ class WebApplicationFirewall extends Base {
 		}
 
 		foreach ( \array_keys( \array_filter( $ruleStates, static fn( bool $enabled ) :bool => !$enabled ) ) as $ruleKey ) {
-			$status[ 'exp' ][] = sprintf(
-				__( "Requests that trigger the firewall rule '%s' aren't intercepted.", 'wp-simple-firewall' ),
-				$this->firewallRuleName( $ruleKey )
-			);
+			$status[ 'exp' ][] = $this->ruleNotInterceptedExplanation( $ruleKey );
 		}
 
 		if ( $status[ 'level' ] !== EnumEnabledStatus::BAD ) {
@@ -62,10 +59,20 @@ class WebApplicationFirewall extends Base {
 		}
 
 		foreach ( \array_diff( \array_keys( $rules ), $enabled ) as $key ) {
-			$status[ 'exp' ][] = sprintf( "Requests that trigger the firewall rule '%s' aren't intercepted.", $this->firewallRuleName( $key ) );
+			$status[ 'exp' ][] = $this->ruleNotInterceptedExplanation( $key );
 		}
 
 		return $status;
+	}
+
+	/**
+	 * Each rule is its own setting, so the reason is shown on that setting.
+	 */
+	private function ruleNotInterceptedExplanation( string $ruleKey ) :string {
+		return $this->explanationFixedBy( sprintf(
+			__( "Requests that trigger the firewall rule '%s' aren't intercepted.", 'wp-simple-firewall' ),
+			$this->firewallRuleDefinitions()[ $ruleKey ][ 'name' ]
+		), $ruleKey );
 	}
 
 	/**
@@ -90,10 +97,5 @@ class WebApplicationFirewall extends Base {
 			'block_php_code'         => [ 'name' => __( 'PHP Code', 'wp-simple-firewall' ), 'primary' => true ],
 			'block_aggressive'       => [ 'name' => __( 'Aggressive Scan', 'wp-simple-firewall' ), 'primary' => false ],
 		];
-	}
-
-	private function firewallRuleName( string $key ) :string {
-		$name = $this->firewallRuleDefinitions()[ $key ][ 'name' ] ?? '';
-		return empty( $name ) ? $key : $name;
 	}
 }
