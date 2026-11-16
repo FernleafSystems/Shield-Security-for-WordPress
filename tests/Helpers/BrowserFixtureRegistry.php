@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansProgress;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ActionsQueueFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\DashboardDefaultsFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportFileFixtureBuilder;
@@ -131,21 +130,18 @@ class BrowserFixtureRegistry {
 
 	/** @param list<string> $args */
 	private static function renderScanProgress( string $action, array $args ) :array {
-		$progress = [ 'initiating' => 0, 'running' => 37, 'completed' => 100, 'failed' => 100 ];
 		$state = self::requireScenario( $args );
-		if ( $action !== 'render' || !isset( $progress[ $state ] ) ) {
+		if ( $action !== 'render' || !\in_array( $state, [ ScansProgress::STATE_RUNNING, ScansProgress::STATE_COMPLETED, ScansProgress::STATE_FAILED ], true ) ) {
 			throw new \RuntimeException( 'Unknown scan progress render scenario.' );
 		}
 		RuntimeTestState::loginAsSecurityAdmin();
 		return [
-			'modal_state' => $state,
-			'modal_html' => RuntimeTestState::controller()->action_router->render( ScansProgress::SLUG, [
-				'modal_state' => $state,
-				'current_scan' => 'Browser fixture scan',
-				'remaining_scans' => 'Browser fixture progress',
-				'progress' => $progress[ $state ],
-				'scan_rows' => $state === 'running' ? self::scanProgressFixtureRows() : [],
-				'scan_slugs' => [ 'afs', 'wpv', 'apc' ],
+			'progress_state' => $state,
+			'progress_html'  => RuntimeTestState::controller()->action_router->render( ScansProgress::SLUG, [
+				'state'           => $state,
+				'scan_rows'       => $state === ScansProgress::STATE_RUNNING ? self::scanProgressFixtureRows() : [],
+				'scan_slugs'      => [ 'afs', 'wpv', 'apc' ],
+				'failure_message' => $state === ScansProgress::STATE_FAILED ? 'Browser fixture failure' : '',
 			] ),
 		];
 	}

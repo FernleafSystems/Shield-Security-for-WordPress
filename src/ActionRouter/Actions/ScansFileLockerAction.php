@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
 	Restore
 };
 
-class ScansFileLockerAction extends ScansBase {
+class ScansFileLockerAction extends BaseAction {
 
 	public const SLUG = 'filelocker_fileaction';
 

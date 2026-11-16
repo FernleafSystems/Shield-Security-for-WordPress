@@ -190,12 +190,9 @@ const SCREENS = [
 					return route.fallback();
 				}
 				return route.fulfill( { status: 200, contentType: 'application/json', body: JSON.stringify( { success: true, data: {
-					running: {},
-					failed: false,
-					failure_message: '',
-					modal_state: 'running',
-					modal_html: '<div></div>',
-					scan_rows: [ { id: 1, scan: 'afs', name: 'WordPress Filesystem Scan', is_current: true, progress: 42 } ],
+					progress_state: 'running',
+					progress_html: '<div></div>',
+					progress_detail: 'WordPress Filesystem Scan 42%',
 				} } ) } );
 			} );
 			await ui.open( ACTIONS_QUEUE );
@@ -260,8 +257,8 @@ const SCREENS = [
 		capture: async ( ui ) => {
 			await ui.open( { nav: 'scans', nav_sub: 'run', step: 'choose' } );
 			await ui.shot( 'choose' );
-			const { modal_html: runningHtml } = await ui.fixtureApi.renderScanProgressFixture( 'running' );
-			const { modal_html: completedHtml } = await ui.fixtureApi.renderScanProgressFixture( 'completed' );
+			const { progress_html: runningHtml } = await ui.fixtureApi.renderScanProgressFixture( 'running' );
+			const { progress_html: completedHtml } = await ui.fixtureApi.renderScanProgressFixture( 'completed' );
 			let finished = false;
 			await ui.page.route( '**/admin-ajax.php', async ( route ) => {
 				const action = new URLSearchParams( route.request().postData() || '' ).get( 'ex' );
@@ -273,10 +270,10 @@ const SCREENS = [
 					page_reload: false,
 					message: '',
 					html: '',
-					scans_running: !completed,
-					scan_ids: [ 31, 32, 33 ],
-					modal_state: completed ? 'completed' : 'running',
-					modal_html: completed ? completedHtml : runningHtml,
+					progress_state: completed ? 'completed' : 'running',
+					progress_html: completed ? completedHtml : runningHtml,
+					progress_detail: '',
+					...( action === 'scans_start' ? { scan_ids: [ 31, 32, 33 ] } : {} ),
 				} } ) } );
 			} );
 			await ui.page.locator( '#StartScans' ).evaluate( ( form ) => form.dispatchEvent( new Event( 'submit', { bubbles: true, cancelable: true } ) ) );

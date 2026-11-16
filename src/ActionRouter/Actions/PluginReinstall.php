@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGu
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utilities\PluginReinstaller;
 
-class PluginReinstall extends ScansBase {
+class PluginReinstall extends BaseAction {
 
 	use SecurityAdminNotRequired;
 

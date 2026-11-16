@@ -1,16 +1,16 @@
 import { announceStatus } from "../ui/ShieldA11y";
-import { Html } from "../../util/Html";
 
 /**
- * Run Manual Scan shows scan progress and the result in the page. The scan polling hands its markup here whenever
- * the page's progress area exists.
+ * Run Manual Scan shows the scans' progress in the page. The server renders every state: the scan actions answer
+ * with the progress markup, and the states the page shows by itself (preparing, failed without a reason from the
+ * server, and stale) come from templates rendered with the page.
  */
 export class ScanRunPage {
 
-	static progressStates = [ 'initiating', 'running', 'completed', 'failed' ];
+	static serverStates = [ 'running', 'completed', 'failed' ];
 
 	static Host() {
-		const host = document.querySelector( '[data-shield-scan-inline="1"]' );
+		const host = document.querySelector( '[data-scan-progress-host="1"]' );
 		return host instanceof HTMLElement ? host : null;
 	}
 
@@ -18,11 +18,12 @@ export class ScanRunPage {
 		return ScanRunPage.Host() !== null;
 	}
 
-	static HasProgressResponse( resp ) {
-		return !!( resp?.data
-			&& typeof resp.data.modal_html === 'string'
-			&& resp.data.modal_html.length > 0
-			&& ScanRunPage.progressStates.includes( resp.data.modal_state ) );
+	/**
+	 * The scan actions always answer with progress; anything else is a request that broke or was refused.
+	 */
+	static HasProgress( resp ) {
+		return typeof resp?.data?.progress_html === 'string'
+			&& ScanRunPage.serverStates.includes( resp.data.progress_state );
 	}
 
 	static ErrorMessage( resp ) {
@@ -30,93 +31,40 @@ export class ScanRunPage {
 		return typeof message === 'string' && message.length > 0 ? message : '';
 	}
 
-	static ShowInitiating( strings ) {
-		return ScanRunPage.showLocal( {
-			state: 'initiating',
-			heading: strings.modal_initiating,
-			message: strings.modal_wait,
-			announcement: strings.modal_initiating,
-			busy: true
-		} );
-	}
-
-	static ShowError( strings, message = '' ) {
-		const reason = message.length > 0 ? message : strings.modal_error_message;
-		return ScanRunPage.showLocal( {
-			state: 'failed',
-			heading: strings.modal_error_title,
-			message: reason,
-			announcement: reason,
-			busy: false
-		} );
+	static Show( html ) {
+		const host = ScanRunPage.Host();
+		host.innerHTML = html;
+		ScanRunPage.shown( host );
 	}
 
 	/**
-	 * The scans may be fine: it's only their progress that can't be reached at the moment.
+	 * @param {'initiating'|'failed'|'stale'} state
+	 * @param {string} message the reason the server gave for refusing a request, if it gave one
 	 */
-	static ShowStale( strings ) {
-		return ScanRunPage.showLocal( {
-			state: 'stale',
-			heading: strings.modal_stale_title,
-			message: strings.modal_stale_message,
-			announcement: `${strings.modal_stale_title} ${strings.modal_stale_message}`,
-			busy: false,
-			refreshLabel: strings.refresh
-		} );
+	static ShowLocal( state, message = '' ) {
+		const host = ScanRunPage.Host();
+		const template = host.closest( '[data-shield-scan-run="1"]' )
+							 .querySelector( `template[data-scan-progress-template="${state}"]` );
+		host.replaceChildren( template.content.cloneNode( true ) );
+		if ( message.length > 0 ) {
+			host.querySelector( '[data-scan-progress-message="1"]' ).textContent = message;
+			host.querySelector( '[data-scan-progress-state]' ).dataset.scanProgressAnnouncement = message;
+		}
+		ScanRunPage.shown( host );
 	}
 
-	static Show( html ) {
-		const host = ScanRunPage.Host();
-		if ( host === null ) {
-			return false;
-		}
-
-		host.innerHTML = html;
+	static shown( host ) {
 		host.hidden = false;
-
 		const root = host.closest( '[data-shield-scan-run="1"]' );
 		root.querySelector( '[data-scan-step-panel="choose"]' ).hidden = true;
 
-		const stateEl = host.querySelector( '[data-shield-scan-modal-state]' );
-		const state = stateEl.dataset.shieldScanModalState;
+		const stateEl = host.querySelector( '[data-scan-progress-state]' );
+		const state = stateEl.dataset.scanProgressState;
 		ScanRunPage.setStep( root, state === 'completed' ? 'results' : 'scanning' );
-		announceStatus( host, stateEl.dataset.shieldScanModalAnnouncement, { allowRepeat: false } );
+		announceStatus( host, stateEl.dataset.scanProgressAnnouncement, { allowRepeat: false } );
 		if ( state === 'completed' ) {
-			host.querySelector( '#ScanFinishedTitle' )?.focus( { preventScroll: true } );
+			host.querySelector( '#ScanFinishedTitle' ).focus( { preventScroll: true } );
 		}
-		return true;
-	}
-
-	static showLocal( { state, heading, message, announcement, busy, refreshLabel } ) {
-		const esc = ( text ) => Html.Escape( String( text ) );
-		const notice = ( tone, icon, href, label ) => `<section class="shield-tool-status ${tone}">
-				<span class="shield-tool-status__badge"><i class="bi ${icon}" aria-hidden="true"></i></span>
-				<div class="shield-tool-status__copy">
-					<h2 class="shield-tool-status__title">${esc( heading )}</h2>
-					<p class="shield-tool-status__desc">${esc( message )}</p>
-				</div>
-				<a class="shield-tool-btn" href="${esc( href )}">
-					<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>${esc( label )}
-				</a>
-			</section>`;
-		// A failure here leaves the page without its choices, so it offers the way back, as the server's failure does.
-		const again = ScanRunPage.Host().closest( '[data-shield-scan-run="1"]' ).dataset;
-		const notices = {
-			failed: () => notice( 'is-critical', 'bi-x-lg', again.scanAgainHref, again.scanAgainLabel ),
-			stale: () => notice( 'is-warning', 'bi-exclamation-triangle', window.location.href, refreshLabel ),
-		};
-		const body = notices[ state ]?.() || `<section class="shield-tool-box">
-				<div class="shield-scan-progress__overall">
-					<h2 class="shield-scan-progress__title">${esc( heading )}</h2>
-					<div class="shield-scan-progress__bar" role="progressbar" aria-label="${esc( heading )}"
-						 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><span class="shield-scan-progress__part is-running"></span></div>
-					<p class="shield-scan-progress__current">${esc( message )}</p>
-				</div>
-			</section>`;
-
-		return ScanRunPage.Show( `<div class="shield-scan-progress shield-scan-progress--page"
-			data-shield-scan-modal-state="${esc( state )}" aria-busy="${busy ? 'true' : 'false'}"
-			data-shield-scan-modal-announcement="${esc( announcement )}">${body}</div>` );
 	}
 
 	/**

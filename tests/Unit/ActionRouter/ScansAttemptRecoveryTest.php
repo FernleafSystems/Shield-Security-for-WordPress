@@ -3,10 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
-	ScansAttemptRecovery,
-	ScansBase
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansProgress;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansAttemptRecovery;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	QueueWatchdog,
 	RunState
@@ -37,9 +35,9 @@ class ScansAttemptRecoveryTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_explicit_recovery_action_forwards_positive_ids_and_returns_payload() :void {
+	public function test_recovery_forwards_positive_ids_and_reports_progress() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
-		$this->useNonEmptyModalRenderer( $harness );
+		$this->useRecordingRenderer( $harness );
 		$scanID = $this->insertActiveScan( $harness );
 		$watchdog = $this->installWatchdogSpy( $harness );
 
@@ -48,57 +46,57 @@ class ScansAttemptRecoveryTest extends BaseUnitTest {
 				'scan_id' => $requestedScanID,
 			] )->response()->payload();
 
-			$this->assertScanProgressPayloadContract( $payload );
-			$this->assertSame( ScansBase::SCAN_MODAL_STATE_RUNNING, $payload[ 'modal_state' ] );
-			$this->assertFalse( $payload[ 'failed' ] );
+			$this->assertProgressPayload( $payload, ScansProgress::STATE_RUNNING );
 		}
 
 		$this->assertSame( [ $scanID, $scanID ], $watchdog->receivedScanIDs );
 	}
 
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'invalidScanIDProvider' )]
-	public function test_explicit_recovery_action_rejects_invalid_ids_and_returns_payload( array $actionData ) :void {
+	public function test_recovery_ignores_invalid_ids_and_still_reports_progress( array $actionData ) :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
-		$this->useNonEmptyModalRenderer( $harness );
+		$this->useRecordingRenderer( $harness );
 		$this->insertActiveScan( $harness );
 		$watchdog = $this->installWatchdogSpy( $harness );
 
 		$payload = $this->runScansAttemptRecovery( $actionData )->response()->payload();
 
-		$this->assertScanProgressPayloadContract( $payload );
+		$this->assertProgressPayload( $payload, ScansProgress::STATE_RUNNING );
 		$this->assertSame( [], $watchdog->receivedScanIDs );
 	}
 
-	public function test_explicit_recovery_action_preserves_selected_id_in_failure_payload() :void {
+	public function test_recovered_scan_that_failed_is_reported_with_its_reason() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
-		$this->useNonEmptyModalRenderer( $harness );
-		$harness->insertScan( [
-			'scan'        => 'afs',
-			'status'      => 'failed',
-			'finished_at' => 1699999900,
-			'meta'        => \base64_encode( \json_encode( [
-				RunState::META_KEY_LAST_ERROR => 'unselected_failure',
-			] ) ?: '[]' ),
-		] );
-		$selectedID = $harness->insertScan( [
-			'scan'        => 'wpv',
-			'status'      => 'failed',
-			'finished_at' => 1699999950,
-			'meta'        => \base64_encode( \json_encode( [
-				RunState::META_KEY_LAST_ERROR => 'selected_failure',
-			] ) ?: '[]' ),
-		] );
+		$renderer = $this->useRecordingRenderer( $harness );
+		$this->insertFailedScan( $harness, 'afs', 'unselected_failure' );
+		$selectedID = $this->insertFailedScan( $harness, 'wpv', 'selected_failure' );
 		$watchdog = $this->installWatchdogSpy( $harness );
 
+		// The page follows the scan it recovers.
 		$payload = $this->runScansAttemptRecovery( [
-			'scan_id' => $selectedID,
+			'scan_id'  => $selectedID,
+			'scan_ids' => [ $selectedID ],
 		] )->response()->payload();
 
-		$this->assertScanProgressPayloadContract( $payload );
+		$this->assertProgressPayload( $payload, ScansProgress::STATE_FAILED );
 		$this->assertSame( [ $selectedID ], $watchdog->receivedScanIDs );
-		$this->assertTrue( $payload[ 'failed' ] );
-		$this->assertSame( 'selected_failure', $payload[ 'failure_message' ] );
-		$this->assertSame( ScansBase::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] );
+		$this->assertSame( 'selected_failure', $renderer->renderData[ 'failure_message' ] );
+	}
+
+	public function test_recovery_reports_every_scan_the_page_is_following() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$renderer = $this->useRecordingRenderer( $harness );
+		$recoveredID = $this->insertActiveScan( $harness );
+		$trackedFailedID = $this->insertFailedScan( $harness, 'wpv', 'tracked_failure' );
+		$this->installWatchdogSpy( $harness );
+
+		$payload = $this->runScansAttemptRecovery( [
+			'scan_id'  => $recoveredID,
+			'scan_ids' => [ $trackedFailedID, $recoveredID ],
+		] )->response()->payload();
+
+		$this->assertProgressPayload( $payload, ScansProgress::STATE_FAILED );
+		$this->assertSame( 'tracked_failure', $renderer->renderData[ 'failure_message' ] );
 	}
 
 	public static function invalidScanIDProvider() :array {
@@ -133,44 +131,38 @@ class ScansAttemptRecoveryTest extends BaseUnitTest {
 		] );
 	}
 
+	private function insertFailedScan( ScanQueueLifecycleHarness $harness, string $scan, string $error ) :int {
+		return $harness->insertScan( [
+			'scan'        => $scan,
+			'status'      => 'failed',
+			'finished_at' => 1699999900,
+			'meta'        => \base64_encode( \json_encode( [
+				RunState::META_KEY_LAST_ERROR => $error,
+			] ) ?: '[]' ),
+		] );
+	}
+
 	private function installWatchdogSpy( ScanQueueLifecycleHarness $harness ) :ScansAttemptRecoveryWatchdogSpy {
 		$watchdog = new ScansAttemptRecoveryWatchdogSpy();
 		$harness->controller->comps->scans_queue->watchdog = $watchdog;
 		return $watchdog;
 	}
 
-	private function assertScanProgressPayloadContract( array $payload ) :void {
-		$this->assertEqualsCanonicalizing( [
-			'failed',
-			'failure_message',
-			'modal_html',
-			'modal_state',
-			'running',
-			'scan_rows',
-			'success',
-		], \array_keys( $payload ) );
+	private function assertProgressPayload( array $payload, string $state ) :void {
+		$this->assertEqualsCanonicalizing( [ 'progress_detail', 'progress_html', 'progress_state', 'success' ], \array_keys( $payload ) );
 		$this->assertTrue( $payload[ 'success' ] );
-		$this->assertIsArray( $payload[ 'running' ] );
-		$this->assertIsBool( $payload[ 'failed' ] );
-		$this->assertIsString( $payload[ 'failure_message' ] );
-		$this->assertIsArray( $payload[ 'scan_rows' ] );
-		$this->assertContains( $payload[ 'modal_state' ], [
-			ScansBase::SCAN_MODAL_STATE_INITIATING,
-			ScansBase::SCAN_MODAL_STATE_RUNNING,
-			ScansBase::SCAN_MODAL_STATE_COMPLETED,
-			ScansBase::SCAN_MODAL_STATE_FAILED,
-		] );
-		$this->assertArrayHasKey( 'modal_html', $payload );
-		$this->assertIsString( $payload[ 'modal_html' ] );
-		$this->assertNotSame( '', $payload[ 'modal_html' ] );
-		$this->assertArrayNotHasKey( 'vars', $payload );
+		$this->assertSame( $state, $payload[ 'progress_state' ] );
+		$this->assertSame( 'rendered-progress', $payload[ 'progress_html' ] );
 	}
 
-	private function useNonEmptyModalRenderer( ScanQueueLifecycleHarness $harness ) :void {
-		$harness->controller->action_router = new class {
+	private function useRecordingRenderer( ScanQueueLifecycleHarness $harness ) :object {
+		return $harness->controller->action_router = new class {
+			public array $renderData = [];
+
 			public function render( string $unused, array $data ) :string {
-				unset( $unused, $data );
-				return 'rendered-modal';
+				unset( $unused );
+				$this->renderData = $data;
+				return 'rendered-progress';
 			}
 		};
 	}

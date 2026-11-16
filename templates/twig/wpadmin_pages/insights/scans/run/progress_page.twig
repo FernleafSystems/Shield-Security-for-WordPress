@@ -1,13 +1,23 @@
 {#
-	Steps 2 and 3 of Run Manual Scan, drawn into the page by the scan polling. The root keeps the same state,
-	busy and announcement attributes as the progress dialog, so the polling treats both alike.
+	Steps 2 and 3 of Run Manual Scan, in whichever state the scans are in. The root carries the state, whether the
+	scans are busy, and what to announce, for the scan polling to read whenever it shows new progress.
 #}
-<div class="shield-scan-progress shield-scan-progress--page"
-	 data-shield-scan-modal-state="{{ vars.modal_state }}"
+<div class="shield-scan-progress"
+	 data-scan-progress-state="{{ vars.state }}"
 	 aria-busy="{{ vars.is_busy ? 'true' : 'false' }}"
-	 data-shield-scan-modal-announcement="{{ vars.announcement }}">
+	 data-scan-progress-announcement="{{ vars.announcement }}">
 
-{% if vars.modal_state == 'completed' %}
+{% if vars.state == 'initiating' %}
+	<section class="shield-tool-box">
+		<div class="shield-scan-progress__overall">
+			<h2 class="shield-scan-progress__title">{{ vars.heading }}</h2>
+			<div class="shield-scan-progress__bar" role="progressbar" aria-label="{{ vars.heading }}"
+				 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><span class="shield-scan-progress__part is-running"></span></div>
+			<p class="shield-scan-progress__current">{{ strings.wait }}</p>
+		</div>
+	</section>
+
+{% elseif vars.state == 'completed' %}
 	{% set has_issues = vars.total_issues > 0 %}
 	<section class="shield-tool-status {{ has_issues ? 'is-warning' : 'is-good' }}" aria-labelledby="ScanFinishedTitle">
 		<span class="shield-tool-status__badge">
@@ -33,21 +43,22 @@
 			</div>
 		{% endfor %}
 		<div class="shield-scan-run__foot">
-			<a class="shield-tool-btn" href="{{ hrefs.scan_run }}">
+			<a class="shield-tool-btn" href="{{ hrefs.scan_again }}">
 				<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>{{ strings.scan_again }}
 			</a>
 		</div>
 	</section>
 
-{% elseif vars.modal_state == 'failed' %}
-	<section class="shield-tool-status is-critical" aria-labelledby="ScanFailedTitle">
-		<span class="shield-tool-status__badge"><i class="bi bi-x-lg" aria-hidden="true"></i></span>
+{% elseif vars.state == 'failed' or vars.state == 'stale' %}
+	{# The page swaps in the reason when a request it made is refused with one. #}
+	<section class="shield-tool-status {{ vars.notice.tone }}" aria-labelledby="ScanNoticeTitle">
+		<span class="shield-tool-status__badge"><i class="bi {{ vars.notice.icon }}" aria-hidden="true"></i></span>
 		<div class="shield-tool-status__copy">
-			<h2 class="shield-tool-status__title" id="ScanFailedTitle">{{ vars.heading }}</h2>
-			<p class="shield-tool-status__desc">{{ vars.remaining_scans }}</p>
+			<h2 class="shield-tool-status__title" id="ScanNoticeTitle">{{ vars.notice.title }}</h2>
+			<p class="shield-tool-status__desc" data-scan-progress-message="1">{{ vars.notice.message }}</p>
 		</div>
-		<a class="shield-tool-btn" href="{{ hrefs.scan_run }}">
-			<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>{{ strings.try_again }}
+		<a class="shield-tool-btn" href="{{ vars.notice.href }}">
+			<i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>{{ vars.notice.link_label }}
 		</a>
 	</section>
 
@@ -93,7 +104,7 @@
 					{{ row.status_label }}
 					{% if row.can_attempt_recovery %}
 						<button type="button" class="shield-tool-btn shield-tool-btn--quiet"
-								data-shield-scan-attempt-recovery="1"
+								data-scan-attempt-recovery="1"
 								data-scan-id="{{ row.id }}">
 							<i class="bi bi-arrow-repeat" aria-hidden="true"></i>{{ strings.attempt_resume_now }}
 						</button>
@@ -103,7 +114,7 @@
 		{% endfor %}
 
 		<div class="shield-scan-run__foot">
-			<span class="shield-scan-run__foot-note">{{ strings.patience_1 }} {{ strings.leave_note }}</span>
+			<span class="shield-scan-run__foot-note">{{ strings.patience }} {{ strings.leave_note }}</span>
 		</div>
 	</section>
 {% endif %}

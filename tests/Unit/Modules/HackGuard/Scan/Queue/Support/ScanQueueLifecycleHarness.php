@@ -1010,6 +1010,10 @@ class LifecycleScansSelector {
 		return $this->addWhereEquals( 'scan', $scan );
 	}
 
+	public function filterByScans( array $scans ) :self {
+		return $this->addWhereIn( 'scan', $scans );
+	}
+
 	public function filterByScope( string $scopeType, string $scopeKey = '' ) :self {
 		return $this->addWhereEquals( 'scope_type', $scopeType )->addWhereEquals( 'scope_key', $scopeKey );
 	}

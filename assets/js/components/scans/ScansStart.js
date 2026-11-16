@@ -16,11 +16,17 @@ export class ScansStart extends BaseComponent {
 		ScanRunPage.SyncRunButton();
 	}
 
+	/**
+	 * Starting replaces any polling already under way (Run Manual Scan can be opened to choose scans while others
+	 * run); the polling only follows the scans again once the start reports them running.
+	 */
 	startScans( form ) {
 		if ( !ScanRunPage.HasChoice( form ) ) {
 			return;
 		}
-		ScanRunPage.ShowInitiating( this._base_data.strings );
+		const scansCheck = this._base_data.scansCheck;
+		scansCheck.stop();
+		ScanRunPage.ShowLocal( 'initiating' );
 
 		( new AjaxService() )
 		.send(
@@ -29,20 +35,18 @@ export class ScansStart extends BaseComponent {
 			true
 		)
 		.then( ( resp ) => {
-			if ( !ScanRunPage.HasProgressResponse( resp ) ) {
-				ScanRunPage.ShowError( this._base_data.strings, ScanRunPage.ErrorMessage( resp ) );
+			if ( !ScanRunPage.HasProgress( resp ) ) {
+				ScanRunPage.ShowLocal( 'failed', ScanRunPage.ErrorMessage( resp ) );
 				return;
 			}
-
-			ScanRunPage.Show( resp.data.modal_html );
-
-			if ( resp.data.scans_running === true ) {
-				this._base_data.scansCheck.replaceTrackedScans( resp.data.scan_ids );
+			ScanRunPage.Show( resp.data.progress_html );
+			if ( resp.data.progress_state === 'running' ) {
+				scansCheck.track( resp.data.scan_ids );
 			}
 		} )
 		.catch( ( error ) => {
 			console.log( error );
-			ScanRunPage.ShowError( this._base_data.strings );
+			ScanRunPage.ShowLocal( 'failed' );
 		} );
 	}
 }
