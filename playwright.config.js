@@ -23,5 +23,12 @@ module.exports = defineConfig( {
 		trace: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
 		screenshot: 'only-on-failure',
 		video: process.env.CI ? 'retain-on-failure' : 'off',
+		launchOptions: {
+			// Firefox fetches /favicon.ico by itself, unseen by Playwright. WordPress answers it, so the
+			// response carries the NotBot cookie as of whenever it was built and can overwrite a newer one.
+			firefoxUserPrefs: {
+				'browser.chrome.site_icons': false,
+			},
+		},
 	},
 } );
