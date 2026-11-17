@@ -709,14 +709,13 @@ class AssetsCustomizer {
 	}
 
 	/**
-	 * A download a table offers among its own buttons. Downloads are a Pro feature.
-	 * @return array{label:string,href:string,is_available:bool}
+	 * A download a table offers among its own buttons.
+	 * @return array{label:string,href:string}
 	 */
 	private function tableDownload( string $label, string $category ) :array {
 		return [
-			'label'        => $label,
-			'href'         => self::con()->plugin_urls->fileDownloadAsStream( $category ),
-			'is_available' => self::con()->isPremiumActive(),
+			'label' => $label,
+			'href'  => self::con()->plugin_urls->fileDownloadAsStream( $category ),
 		];
 	}
 
