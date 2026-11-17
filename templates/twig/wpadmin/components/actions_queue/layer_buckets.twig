@@ -1,62 +1,54 @@
 {#
-	The Actions Queue landing, following the approved concept: each lane that needs action is one card
-	with a tinted header and a flat list of rows, and a row opens its results directly. Checks that are
-	passing, and checks the plan doesn't cover or that are turned off, each get one section of their own
-	at the end. The same sections can show as tabs instead. The sections and their boxes come laid out
-	(ActionsQueueLandingSectionsBuilder); this only draws them.
+	The Actions Queue landing, following the approved concept: each lane (Fix now, Review next) is one card
+	with a tinted header and a flat list of rows, and a row opens its results directly; a lane with nothing
+	in it stays, and says so. Checks that are passing, and checks the plan doesn't cover or that are turned
+	off, each get one section of their own at the end. The same sections can show as tabs instead. The
+	sections and their boxes come laid out (ActionsQueueLandingSectionsBuilder); this only draws them.
 #}
 <div class="actions-queue-sections actions-queue-sections--{{ view }}"
 	 data-actions-queue-sections="1"
 	 data-view="{{ view }}"
 	 data-set-view-action="{{ set_view_action_json|e('html_attr') }}">
 
-	{% if sections|length > 0 %}
-		<div class="actions-queue-sections__bar">
-			<div class="actions-queue-sections__tabline">
-			<div class="actions-queue-sections__tabs" role="tablist">
-				{% for section in sections %}
-					<button type="button"
-							class="actions-queue-sections__tab status-{{ section.status }}"
-							role="tab"
-							id="ActionsQueueTab-{{ section.key }}"
-							aria-controls="ActionsQueueSection-{{ section.key }}"
-							aria-selected="{{ loop.first ? 'true' : 'false' }}"
-							data-actions-queue-tab="{{ section.key }}">
-						<i class="{{ section.icon_class }}" aria-hidden="true"></i>{{ section.tab_label }}
-						<span class="actions-queue-sections__count">{{ section.count }}</span>
-					</button>
-				{% endfor %}
-			</div>
-			{# Not a tab of the queue but the way to fill it: it opens Run Manual Scan. #}
-			<a class="actions-queue-sections__tab actions-queue-sections__tab--run" href="{{ hrefs.scan_run }}">
-				<i class="bi bi-play-circle" aria-hidden="true"></i>{{ strings.run_scans_tab }}
-			</a>
-			</div>
-			<div class="actions-queue-sections__view" role="group" aria-label="{{ strings.view_label }}">
-				<button type="button" class="actions-queue-sections__view-btn" data-actions-queue-view="sections"
-						aria-pressed="{{ view == 'sections' ? 'true' : 'false' }}">
-					<i class="bi bi-view-stacked" aria-hidden="true"></i>{{ strings.view_sections }}
+	<div class="actions-queue-sections__bar">
+		<div class="actions-queue-sections__tabline">
+		<div class="actions-queue-sections__tabs" role="tablist">
+			{% for section in sections %}
+				<button type="button"
+						class="actions-queue-sections__tab status-{{ section.status }}{% if section.empty_text is not empty %} is-empty{% endif %}"
+						role="tab"
+						id="ActionsQueueTab-{{ section.key }}"
+						aria-controls="ActionsQueueSection-{{ section.key }}"
+						aria-selected="{{ section.is_selected_tab ? 'true' : 'false' }}"
+						data-actions-queue-tab="{{ section.key }}">
+					<i class="{{ section.icon_class }}" aria-hidden="true"></i>{{ section.tab_label }}
+					<span class="actions-queue-sections__count">{{ section.count }}</span>
 				</button>
-				<button type="button" class="actions-queue-sections__view-btn" data-actions-queue-view="tabs"
-						aria-pressed="{{ view == 'tabs' ? 'true' : 'false' }}">
-					<i class="bi bi-segmented-nav" aria-hidden="true"></i>{{ strings.view_tabs }}
-				</button>
-			</div>
+			{% endfor %}
 		</div>
-	{% endif %}
-
-	{% if not has_lanes %}
-		<div class="actions-queue-sections__clear">
-			<i class="bi bi-check-circle-fill" aria-hidden="true"></i>{{ strings.nothing_here }}
+		{# Not a tab of the queue but the way to fill it: it opens Run Manual Scan. #}
+		<a class="actions-queue-sections__tab actions-queue-sections__tab--run" href="{{ hrefs.scan_run }}">
+			<i class="bi bi-play-circle" aria-hidden="true"></i>{{ strings.run_scans_tab }}
+		</a>
 		</div>
-	{% endif %}
+		<div class="actions-queue-sections__view" role="group" aria-label="{{ strings.view_label }}">
+			<button type="button" class="actions-queue-sections__view-btn" data-actions-queue-view="sections"
+					aria-pressed="{{ view == 'sections' ? 'true' : 'false' }}">
+				<i class="bi bi-view-stacked" aria-hidden="true"></i>{{ strings.view_sections }}
+			</button>
+			<button type="button" class="actions-queue-sections__view-btn" data-actions-queue-view="tabs"
+					aria-pressed="{{ view == 'tabs' ? 'true' : 'false' }}">
+				<i class="bi bi-segmented-nav" aria-hidden="true"></i>{{ strings.view_tabs }}
+			</button>
+		</div>
+	</div>
 
 	{% for section in sections %}
-		<section class="actions-queue-section status-{{ section.status }}"
+		<section class="actions-queue-section status-{{ section.status }}{% if section.empty_text is not empty %} is-empty{% endif %}"
 				 id="ActionsQueueSection-{{ section.key }}"
 				 data-actions-queue-section-key="{{ section.key }}"
 				 {% if section.selection_json is not empty %}data-actions-queue-bucket-selection="{{ section.selection_json }}"{% endif %}
-				 data-tab-selected="{{ loop.first ? '1' : '0' }}"
+				 data-tab-selected="{{ section.is_selected_tab ? '1' : '0' }}"
 				 aria-labelledby="ActionsQueueSectionHead-{{ section.key }}">
 			<button type="button"
 					class="actions-queue-section__head"
@@ -66,8 +58,16 @@
 					aria-controls="ActionsQueueSectionBody-{{ section.key }}">
 				<span class="actions-queue-section__icon"><i class="{{ section.icon_class }}" aria-hidden="true"></i></span>
 				<span class="actions-queue-section__label">{{ section.label }}</span>
+				{# The count sits beside the name, as it does on the groups inside. #}
+				{% if section.show_count %}
+					<span class="actions-queue-section__count">{{ section.count }}</span>
+				{% endif %}
 				{% if section.summary is not empty %}
 					<span class="actions-queue-section__summary{% if section.breakdown is not empty %} has-breakdown{% endif %}">{{ section.summary }}</span>
+				{% endif %}
+				{# Folded, a lane with nothing in it says so in its heading; open, its body does. #}
+				{% if section.empty_text is not empty %}
+					<span class="actions-queue-section__summary is-folded-only">{{ section.empty_text }}</span>
 				{% endif %}
 				{% if section.breakdown is not empty %}
 					<span class="actions-queue-section__breakdown">
@@ -76,15 +76,17 @@
 						{% endfor %}
 					</span>
 				{% endif %}
-				{% if section.show_count %}
-					<span class="actions-queue-section__count">{{ section.count }}</span>
-				{% endif %}
 				<i class="bi bi-chevron-down actions-queue-section__chevron" aria-hidden="true"></i>
 			</button>
 
 			<div class="actions-queue-section__body"
 				 id="ActionsQueueSectionBody-{{ section.key }}"
 				 {% if not section.is_open and view != 'tabs' %}hidden{% endif %}>
+				{% if section.empty_text is not empty %}
+					<p class="actions-queue-section__empty">
+						<i class="bi bi-check-circle-fill" aria-hidden="true"></i>{{ section.empty_text }}
+					</p>
+				{% endif %}
 				{#
 					Each group sits in a box of its own, a little apart from the next. A group that lists its items
 					brings its own heading; groups shown as single rows share a box under their kind's heading,
@@ -99,18 +101,21 @@
 									bucket_selection: entry.bucket_selection,
 									strings: strings,
 									collapsible: false,
-									two_columns: false
+									two_columns: false,
+									alert_switch: null
 								} only %}
 							{% endfor %}
 						</div>
 					{% elseif box.type == 'group' %}
+						{# Only the kinds that can be left out of the queue have an alerts switch. #}
 						<div class="actions-queue-box" data-actions-queue-kind="{{ box.kind }}">
 							{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
 								group: box.entries[0].group,
 								bucket_selection: box.entries[0].bucket_selection,
 								strings: strings,
 								collapsible: box.collapsible,
-								two_columns: box.two_columns
+								two_columns: box.two_columns,
+								alert_switch: alert_switches[box.kind] ?? null
 							} only %}
 						</div>
 					{% else %}
@@ -138,7 +143,8 @@
 										bucket_selection: entry.bucket_selection,
 										strings: strings,
 										collapsible: false,
-										two_columns: false
+										two_columns: false,
+										alert_switch: null
 									} only %}
 								{% endfor %}
 								{% for row in box.rows %}
@@ -151,6 +157,15 @@
 						</div>
 					{% endif %}
 				{% endfor %}
+				{# Which plugin and theme housekeeping this lane reports is a setting, changed without leaving the queue. #}
+				{% if section.key == 'review' %}
+					<p class="actions-queue-section__foot">
+						<button type="button" class="actions-queue-section__config zone_component_action"
+								{% for attr, value in review_config_action %}data-{{ attr }}="{{ value|e('html_attr') }}" {% endfor %}>
+							<i class="bi bi-sliders" aria-hidden="true"></i>{{ strings.review_config }}
+						</button>
+					</p>
+				{% endif %}
 			</div>
 		</section>
 	{% endfor %}

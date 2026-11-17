@@ -181,162 +181,299 @@
   text-align: center;
 }
 
-/* ── Security Profile Cards ── */
-.profile-cards-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-}
-
-.profile-card {
-  display: flex;
-  flex-direction: column;
-  border: 2px solid transparent;
-  border-radius: $card-border-radius;
-  box-shadow: $card-box-shadow;
-  overflow: hidden;
-  background: #fff;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-
-  &:hover:not(.profile-card-current) {
-    transform: translateY(-3px);
-    box-shadow: $card-box-shadow-hover;
-  }
-
-  &.selected {
-    border-color: $status-color-good;
-    border-width: 3px;
-    background: #edf7ed;
-    box-shadow: $card-box-shadow-hover, 0 0 0 2px $status-color-good;
-  }
-}
-
-// Current config column — non-selectable, distinct styling
-.profile-card-current {
-  cursor: default;
-  border-color: $border-color-neutral-subtle;
-  background: $surface-color-neutral-raised;
-
-  .profile-card-accent {
-    background: $accent-color-salt-green;
-  }
-}
-
-.profile-card-accent {
-  height: $card-accent-height;
-  width: 100%;
-
-  &.level-light {
-    background: $status-color-good;
-  }
-
-  &.level-medium {
-    background: $status-color-warning;
-  }
-
-  &.level-strong {
-    background: $status-color-critical;
-  }
-}
-
-.profile-card-header {
-  padding: 1rem 1rem 0.5rem;
-  border-bottom: 1px solid $border-color-neutral-subtle;
-
-  h5 {
-    font-size: 1rem;
-    font-weight: 700;
-    margin: 0;
-  }
-
-  small {
-    font-size: 0.78rem;
-    color: #5f6974;
-  }
-}
-
-.profile-card-body {
-  padding: 0.75rem 1rem 1rem;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ── Feature List ── */
-.feature-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.section-header {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #5f6974;
-  margin-top: 0.5rem;
-  padding-bottom: 0.15rem;
-  border-bottom: 1px solid $border-color-neutral-subtle;
-
-  &:first-child {
-    margin-top: 0;
-  }
-}
-
-.feature-item {
-  display: flex;
+/* ── Report email: save, with the site admin email as a link beside it ── */
+.merlin-report-email-actions {
   align-items: center;
-  gap: 0.3rem;
-  padding: 0.15rem 0;
-  font-size: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-top: 0.75rem;
 
-  .bi {
-    font-size: 0.8rem;
-    flex-shrink: 0;
+  .btn-link {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* ── Protection levels: pick a level, see what changes ── */
+// Three choices, then the chosen level's settings as "now" and "after". Shown in the wizard and in the setup guide.
+.protection-levels {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.protection-levels__choices {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.protection-levels__choice {
+  background: #ffffff;
+  border: 2px solid $border-color-neutral-subtle;
+  border-radius: 8px;
+  color: #1d2327;
+  align-content: start;
+  cursor: pointer;
+  display: grid;
+  gap: 3px;
+  padding: 0.7rem 0.85rem;
+  text-align: left;
+
+  &:hover {
+    border-color: #8c8f94;
   }
 
-  .fi-on {
+  &[aria-pressed="true"] {
+    background: #edf7ed;
+    border-color: $status-color-good;
+  }
+
+  &:focus-visible {
+    @include shield-focus-ring();
+  }
+}
+
+.protection-levels__name {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 15px;
+  font-weight: 700;
+  gap: 4px 8px;
+}
+
+.protection-levels__dot {
+  border: 2px solid #8c8f94;
+  border-radius: 50%;
+  flex: none;
+  height: 14px;
+  width: 14px;
+
+  [aria-pressed="true"] & {
+    background: $status-color-good;
+    border-color: $status-color-good;
+    box-shadow: inset 0 0 0 2px #edf7ed;
+  }
+}
+
+.protection-levels__closest {
+  background: #e8f0fb;
+  border-radius: 999px;
+  color: #0a4b8f;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+
+.protection-levels__subtitle {
+  color: #646970;
+  font-size: 12.5px;
+}
+
+.protection-levels__changes {
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+.protection-levels__comparison {
+  display: grid;
+  gap: 0.6rem;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.protection-levels__summary {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 13px;
+  gap: 6px 10px;
+}
+
+.protection-levels__chip {
+  background: #f0f0f1;
+  border-radius: 999px;
+  color: #646970;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 1px 9px;
+  white-space: nowrap;
+
+  &.is-stricter {
+    background: #e6f5e6;
     color: $status-color-good;
   }
 
-  .fi-off {
-    color: #ccc;
-  }
-
-  .fi-val {
-    color: $status-color-info;
-  }
-
-  .fi-label {
-    flex: 1;
-    min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .fi-value {
-    margin-left: auto;
-    font-weight: 600;
-    color: #5f6974;
-    font-size: 0.72rem;
-    white-space: nowrap;
+  &.is-looser {
+    background: #fef6e6;
+    color: #946200;
   }
 }
 
-/* ── Selected Badge (hidden — selection indicated by border/background) ── */
-.profile-card .selected-badge {
+.protection-levels__list {
+  border: 1px solid $border-color-neutral-subtle;
+  border-radius: 6px;
+  font-size: 13px;
+  overflow: hidden;
+}
+
+.protection-levels__row {
+  align-items: center;
+  border-top: 1px solid #eef0f1;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) 22px minmax(0, 1fr) 7.5rem;
+  padding: 6px 12px;
+
+  &--head {
+    background: #f6f7f7;
+    border-top: 0;
+    color: #646970;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .protection-levels__chip {
+    justify-self: start;
+  }
+
+  &.is-same,
+  &.is-unavailable {
+    color: #646970;
+
+    .protection-levels__arrow {
+      visibility: hidden;
+    }
+  }
+
+  // A change is told by colour as well as by its words: the arrow and the new value are green where the setting
+  // gets stricter and amber where it gets less strict, the new value standing out as a block of that colour.
+  &.is-stricter,
+  &.is-looser {
+    .protection-levels__after {
+      border-radius: 4px;
+      font-weight: 700;
+      justify-self: start;
+      padding: 1px 8px;
+    }
+  }
+
+  &.is-stricter {
+    .protection-levels__arrow {
+      color: $status-color-good;
+    }
+
+    .protection-levels__after {
+      background: #e6f5e6;
+      color: $status-color-good;
+    }
+  }
+
+  &.is-looser {
+    .protection-levels__arrow {
+      color: #b26f00;
+    }
+
+    .protection-levels__after {
+      background: #fef6e6;
+      color: #946200;
+    }
+  }
+}
+
+.protection-levels__setting {
+  font-weight: 600;
+}
+
+.protection-levels__now,
+.protection-levels__after {
+  font-variant-numeric: tabular-nums;
+}
+
+.protection-levels__arrow {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+}
+
+.protection-levels__group-title {
+  background: #f6f7f7;
+  border-top: 1px solid $border-color-neutral-subtle;
+  color: #646970;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 4px 12px;
+  text-transform: uppercase;
+}
+
+.protection-levels__match {
+  border-top: 1px solid #eef0f1;
+  color: #646970;
+  margin: 0;
+  padding: 8px 12px;
+}
+
+// Only what changes shows, until asked for everything.
+.protection-levels:not(.shows-everything) {
+  .protection-levels__group:not(.has-changes),
+  .protection-levels__row.is-same,
+  .protection-levels__row.is-unavailable {
+    display: none;
+  }
+}
+
+.protection-levels.shows-everything .protection-levels__match {
   display: none;
 }
 
-/* ── Responsive ── */
-@media (max-width: 992px) {
-  .profile-cards-row {
-    grid-template-columns: repeat(2, 1fr);
+.protection-levels__foot {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.25rem;
+  text-align: left;
+}
+
+.protection-levels__only-changes {
+  align-items: center;
+  color: #646970;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 12.5px;
+  gap: 6px;
+  margin: 0;
+}
+
+@media (max-width: 782px) {
+  .protection-levels__choices {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  // The same four columns for the headings and every row, so "Current" and "New" stand over their values; what a
+  // row's change is drops to a line of its own beneath.
+  .protection-levels__row {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 18px minmax(0, 1fr);
+
+    .protection-levels__chip {
+      grid-column: 1 / -1;
+    }
+
+    &--head > :last-child {
+      display: none;
+    }
   }
 }
 
+/* ── Responsive ── */
 @media (max-width: 768px) {
   .stepper {
     flex-wrap: wrap;
@@ -344,8 +481,5 @@
   }
   .stepper-step:not(:last-child)::after {
     display: none;
-  }
-  .profile-cards-row {
-    grid-template-columns: 1fr;
   }
 }

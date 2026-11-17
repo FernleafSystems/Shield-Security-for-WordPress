@@ -891,6 +891,43 @@
         "description": "Default: Once every 24hrs. To improve security, increase the number of scans per day."
     },
     {
+        "key": "maintenance_alert_items",
+        "section": "section_scan_options",
+        "zone_comp_slugs": [
+            "module_scans"
+        ],
+        "type": "multiple_select",
+        "default": [
+            "wp_plugins_updates",
+            "wp_themes_updates",
+            "wp_plugins_inactive",
+            "wp_themes_inactive"
+        ],
+        "value_options": [
+            {
+                "value_key": "wp_plugins_updates",
+                "text": "Plugins with updates"
+            },
+            {
+                "value_key": "wp_themes_updates",
+                "text": "Themes with updates"
+            },
+            {
+                "value_key": "wp_plugins_inactive",
+                "text": "Inactive plugins"
+            },
+            {
+                "value_key": "wp_themes_inactive",
+                "text": "Inactive themes"
+            }
+        ],
+        "link_info": "",
+        "link_blog": "",
+        "name": "Review Next Items",
+        "summary": "Plugin And Theme Maintenance Items To Include In Review Next",
+        "description": "Choose which plugin and theme maintenance items the Actions Queue asks you to review. Items you leave out are no longer counted or reported anywhere."
+    },
+    {
         "key": "shieldbackups_status",
         "section": "section_hidden",
         "type": "array",
@@ -1899,9 +1936,9 @@
         "link_info": "https://clk.shldscrty.com/shld7",
         "link_blog": "https://clk.shldscrty.com/shld6",
         "beacon_id": 245,
-        "name": "Enable Google Authenticator",
-        "summary": "Allow Users To Use Google Authenticator",
-        "description": "When enabled, users will have the option to add Google Authenticator to their WordPress user profile."
+        "name": "TOTP Authenticator Apps",
+        "summary": "Allow Users To Use Google Authenticator, LastPass Authenticator, Microsoft Authenticator And Other TOTP Apps",
+        "description": "When enabled, users will have the option to add an authenticator app to their WordPress user profile. Any app that generates time-based one-time passwords (TOTP) is supported."
     },
     {
         "key": "enable_yubikey",
@@ -2461,19 +2498,44 @@
         "description": "Choose whether to display the plugin badge on your site, and select the light or dark badge style. The plugin badge helps support the plugin by spreading the word about it and shows visitors that you take website security seriously."
     },
     {
-        "key": "enable_upgrade_admin_notice",
+        "key": "dashboard_display",
         "section": "section_defaults",
         "zone_comp_slugs": [
             "plugin_general",
             "module_plugin"
         ],
-        "default": "Y",
-        "type": "checkbox",
+        "type": "multiple_select",
+        "default": [
+            "notices",
+            "admin_bar",
+            "dashboard_widget"
+        ],
+        "value_options": [
+            {
+                "value_key": "notices",
+                "text": "Non-essential notices"
+            },
+            {
+                "value_key": "admin_bar",
+                "text": "Admin bar menu"
+            },
+            {
+                "value_key": "dashboard_widget",
+                "text": "Dashboard widget"
+            }
+        ],
         "link_info": "",
         "link_blog": "",
-        "name": "In-Plugin Notices",
-        "summary": "Display Plugin Specific Notices",
-        "description": "Disable this option to hide certain plugin admin notices about available updates and post-update notices."
+        "name": "Shield In Your Dashboard",
+        "summary": "Choose Where Shield Appears In The WordPress Dashboard",
+        "description": "Choose which parts of Shield appear in the WordPress dashboard: non-essential notices, the admin bar menu, and the dashboard widget. Security warnings and errors are always shown."
+    },
+    {
+        "key": "enable_upgrade_admin_notice",
+        "section": "section_hidden",
+        "default": "Y",
+        "type": "checkbox",
+        "transferable": false
     },
     {
         "key": "enable_tracking",
@@ -3130,6 +3192,13 @@
         "section": "section_hidden",
         "type": "integer",
         "default": 0
+    },
+    {
+        "key": "setup_guide_state",
+        "section": "section_hidden",
+        "type": "array",
+        "default": [],
+        "tracking_exclude": true
     },
     {
         "key": "importexport_secretkey_expires_at",

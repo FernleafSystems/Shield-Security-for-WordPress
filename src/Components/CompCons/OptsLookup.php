@@ -315,6 +315,14 @@ class OptsLookup {
 		return self::con()->opts->optIs( 'global_enable_plugin_features', 'Y' );
 	}
 
+	/**
+	 * Whether the site owner has chosen to show this part of the plugin in the WordPress dashboard.
+	 * @param string $element - notices, admin_bar, dashboard_widget
+	 */
+	public function showsInDashboard( string $element ) :bool {
+		return \in_array( $element, self::con()->opts->optGet( 'dashboard_display' ), true );
+	}
+
 	public function isPassPoliciesEnabled() :bool {
 		return self::con()->opts->optIs( 'enable_password_policies', 'Y' );
 	}

@@ -169,6 +169,54 @@ class MaintenanceIssueStateProviderTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'action', $states['system_php_version'] );
 		$this->assertSame( 'https://example.com/php', $states['system_php_version']['href'] );
 	}
+
+	public function test_the_review_next_items_setting_offers_exactly_the_kinds_that_can_be_left_out_all_on_by_default() :void {
+		$options = \json_decode( (string)\file_get_contents( \dirname( __DIR__, 4 ).'/plugin-spec/34_options.json' ), true );
+		$setting = \current( \array_filter(
+			$options,
+			static fn( array $option ) :bool => $option[ 'key' ] === MaintenanceIssueStateProvider::OPT_KEY_REPORTED_KINDS
+		) );
+
+		$this->assertSame( MaintenanceIssueStateProvider::KINDS_THAT_CAN_BE_LEFT_OUT, \array_column( $setting[ 'value_options' ], 'value_key' ) );
+		$this->assertSame( MaintenanceIssueStateProvider::KINDS_THAT_CAN_BE_LEFT_OUT, $setting[ 'default' ] );
+	}
+
+	public function test_a_kind_left_out_of_review_next_is_not_reported_and_everything_else_still_is() :void {
+		$component = [
+			'title'                  => 'Title',
+			'desc_protected'         => 'Fine.',
+			'desc_unprotected'       => 'Not fine.',
+			'is_protected'           => false,
+			'is_critical'            => false,
+			'is_applicable'          => true,
+			'href_full'              => '/wp-admin/plugins.php',
+			'href_full_target_blank' => false,
+			'fix'                    => 'Fix',
+		];
+		$provider = new MaintenanceIssueStateProviderTestDouble(
+			[
+				[ 'key' => 'wp_plugins_updates', 'zone' => 'maintenance', 'component_class' => 'any', 'availability_strategy' => 'always', 'drill_bucket' => 'review' ],
+				[ 'key' => 'wp_plugins_inactive', 'zone' => 'maintenance', 'component_class' => 'any', 'availability_strategy' => 'always', 'drill_bucket' => 'review' ],
+				[ 'key' => 'system_php_version', 'zone' => 'maintenance', 'component_class' => 'any', 'availability_strategy' => 'always', 'drill_bucket' => 'review' ],
+			],
+			[ 'any' => $component ],
+			[
+				'wp_plugins_updates'  => [ 'plugin-one/plugin.php' ],
+				'wp_plugins_inactive' => [ 'plugin-two/plugin.php' ],
+				'system_php_version'  => [ MaintenanceIssueStateProvider::SINGLETON_TOKEN ],
+			],
+			[],
+			// Plugin updates were left out. PHP's version isn't a kind that can be, whatever the setting holds.
+			[ 'wp_plugins_inactive' ]
+		);
+
+		$this->assertSame( [ 'wp_plugins_inactive', 'system_php_version' ], \array_keys( $provider->buildStates() ) );
+		$this->assertSame(
+			[ 'plugin-one/plugin.php' ],
+			$provider->currentIssueIdentifiersByKey()[ 'wp_plugins_updates' ],
+			"A left-out kind's items are still known, so what was ignored among them is kept for when it's reported again."
+		);
+	}
 }
 
 class MaintenanceIssueStateProviderTestDouble extends MaintenanceIssueStateProvider {
@@ -177,17 +225,24 @@ class MaintenanceIssueStateProviderTestDouble extends MaintenanceIssueStateProvi
 	private array $components;
 	private array $issueIdentifiersByKey;
 	private array $ignoredItems;
+	private array $reportedOptionalKinds;
 
 	public function __construct(
 		array $definitions,
 		array $components,
 		array $issueIdentifiersByKey,
-		array $ignoredItems
+		array $ignoredItems,
+		array $reportedOptionalKinds = self::KINDS_THAT_CAN_BE_LEFT_OUT
 	) {
 		$this->definitions = $definitions;
 		$this->components = $components;
 		$this->issueIdentifiersByKey = $issueIdentifiersByKey;
 		$this->ignoredItems = $ignoredItems;
+		$this->reportedOptionalKinds = $reportedOptionalKinds;
+	}
+
+	protected function getReportedOptionalKinds() :array {
+		return $this->reportedOptionalKinds;
 	}
 
 	protected function getDefinitions() :array {

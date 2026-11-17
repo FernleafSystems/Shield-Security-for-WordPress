@@ -15,7 +15,13 @@ class DashboardWidget {
 		$con = self::con();
 		return $con->isValidAdminArea() &&
 			   Services::WpUsers()->isUserAdmin() &&
-			   apply_filters( 'shield/show_dashboard_widget', $con->cfg->properties[ 'show_dashboard_widget' ] ?? true );
+			   // Shown by default only when the plugin property and the site's "dashboard_display" setting both allow it;
+			   // the filter has the final say either way.
+			   apply_filters(
+				   'shield/show_dashboard_widget',
+				   ( $con->cfg->properties[ 'show_dashboard_widget' ] ?? true )
+				   && $con->comps->opts_lookup->showsInDashboard( 'dashboard_widget' )
+			   );
 	}
 
 	protected function run() {

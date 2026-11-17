@@ -60,6 +60,7 @@ class ActionsQueueFixtureBuilder {
 		'license_activated_at',
 		'license_deactivated_at',
 		'ignored_maintenance_items',
+		'maintenance_alert_items',
 	];
 
 	private const REQUIRED_DB_KEYS = [
@@ -216,6 +217,8 @@ class ActionsQueueFixtureBuilder {
 				return $this->seedIgnoredCloakedPlugins( $state );
 			case 'abandoned_plugins':
 				return $this->seedAbandonedPlugins( $state );
+			case 'inactive_plugins':
+				return $this->seedInactivePlugins( $state );
 			case 'scan_enablement':
 				$definition = $this->seedProUpsell( $state );
 				RuntimeTestState::applyPremiumCapabilities( [ 'scan_file_areas', 'scan_malware_local', 'scan_pluginsthemes_local', 'scan_vulnerabilities', 'scan_file_locker' ] );
@@ -860,6 +863,36 @@ class ActionsQueueFixtureBuilder {
 			'scenario'                    => 'abandoned_plugins',
 			'target_group_key'            => 'abandoned',
 			'expected_detail_shell'       => 'direct_table',
+			'expected_lazy_panel'         => false,
+			'expected_interactivity'      => false,
+			'require_scan_results_table'  => false,
+			'require_populated_scan_results_table' => false,
+		];
+	}
+
+	/**
+	 * A plugin that's installed and not active, so Review next always has plugin housekeeping to report, with
+	 * every kind of housekeeping reported and none of it ignored.
+	 * @phpstan-param FixtureState $state
+	 * @return ScenarioDefinition
+	 */
+	private function seedInactivePlugins( array &$state ) :array {
+		$this->createCloakedPluginFixture( $state, 'shield-browser-inactive-fixture', 'Shield Browser Inactive Fixture' );
+
+		$opts = RuntimeTestState::controller()->opts;
+		$reported = $opts->optDefault( 'maintenance_alert_items' );
+		$opts->optSet( 'maintenance_alert_items', $reported )
+			 ->optSet( 'ignored_maintenance_items', [] )
+			 ->store();
+		RuntimeTestState::forcePersistOptions( [
+			'maintenance_alert_items'   => $reported,
+			'ignored_maintenance_items' => [],
+		] );
+
+		return [
+			'scenario'                    => 'inactive_plugins',
+			'target_group_key'            => 'wp_plugins_inactive',
+			'expected_detail_shell'       => 'maintenance',
 			'expected_lazy_panel'         => false,
 			'expected_interactivity'      => false,
 			'require_scan_results_table'  => false,

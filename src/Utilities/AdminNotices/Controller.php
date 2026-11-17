@@ -189,7 +189,7 @@ class Controller {
 			if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
 				$notice->non_display_reason = 'plugin_page_only';
 			}
-			elseif ( $notice->type == 'promo' && !self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' ) ) {
+			elseif ( $notice->type == 'promo' && !$con->comps->opts_lookup->showsInDashboard( 'notices' ) ) {
 				$notice->non_display_reason = 'promo_hidden';
 			}
 			elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {

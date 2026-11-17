@@ -6,7 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\MaintenanceQueueItemDisplayNormalizer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Steps\ReportEmail;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportEmailHold;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SetupGuideDataBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\{
+	SetupGuideDataBuilder,
+	SetupGuideState
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Reporting;
@@ -23,6 +26,7 @@ class ReportEmailHoldIntegrationTest extends ShieldIntegrationTestCase {
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			'installation_time',
 			'block_send_email_address',
+			SetupGuideState::OPT_KEY,
 		] );
 		$this->originalQuery = Services::Request()->query;
 		$this->startHold();
@@ -127,6 +131,22 @@ class ReportEmailHoldIntegrationTest extends ShieldIntegrationTestCase {
 
 		Services::Request()->query = [ 'setup_guide' => 'open', 'setup_step' => 'not_a_step' ];
 		$this->assertSame( 'report_email', ( new SetupGuideDataBuilder() )->build()[ 'open_step' ] );
+	}
+
+	public function test_asking_for_a_dismissed_setup_guide_shows_it_without_bringing_it_back_for_the_site() :void {
+		$this->loginAsAdministrator();
+		\add_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
+		( new SetupGuideState() )->dismiss();
+
+		Services::Request()->query = [];
+		$this->assertFalse( ( new SetupGuideDataBuilder() )->build()[ 'show' ] );
+
+		Services::Request()->query = [ 'setup_guide' => 'open' ];
+		$this->assertTrue( ( new SetupGuideDataBuilder() )->build()[ 'show' ] );
+		$this->assertTrue( ( new SetupGuideState() )->isDismissed(), 'Loading a page changes nothing for the site.' );
+
+		Services::Request()->query = [];
+		$this->assertFalse( ( new SetupGuideDataBuilder() )->build()[ 'show' ] );
 	}
 
 	private function startHold() :void {

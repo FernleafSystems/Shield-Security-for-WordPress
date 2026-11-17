@@ -8,6 +8,7 @@
 		 data-setup-guide="1"
 		 data-merlin-action="{{ guide.merlin_action_json|e('html_attr') }}"
 		 data-update-action="{{ guide.update_action_json|e('html_attr') }}"
+		 data-refresh-action="{{ guide.refresh_action_json|e('html_attr') }}"
 		 data-progress-template="{{ guide.strings.progress|e('html_attr') }}"
 		 data-next-template="{{ guide.strings.next|e('html_attr') }}"
 		 data-done-label="{{ guide.strings.done|e('html_attr') }}"
@@ -24,7 +25,6 @@
 		<span class="shield-setup-guide__count" data-setup-guide-count="1">{{ guide.strings.progress|format( guide.done_count, guide.total ) }}</span>
 		<span class="shield-setup-guide__next" data-setup-guide-next="1">{{ guide.next_name is not empty ? guide.strings.next|format( guide.next_name ) : '' }}</span>
 		<span class="shield-setup-guide__spacer"></span>
-		<button type="button" class="shield-setup-guide__link" data-setup-guide-hide="1">{{ guide.strings.hide_for_now }}</button>
 		<button type="button" class="shield-setup-guide__link" data-setup-guide-dismiss="1">{{ guide.strings.dismiss }}</button>
 		<button type="button" class="shield-setup-guide__continue" data-setup-guide-toggle="1"
 				data-label-closed="{{ guide.strings.continue|e('html_attr') }}"
@@ -57,6 +57,7 @@
 			{% for step in guide.steps %}
 				<div class="shield-setup-guide__pane"
 					 data-setup-guide-pane="{{ step.slug }}"
+					 data-setup-guide-pane-version="{{ step.version }}"
 					 {% if step.slug != guide.open_step %}hidden{% endif %}>
 					<h3 class="shield-setup-guide__pane-title">{{ step.name }}</h3>
 					{% if step.is_done %}
@@ -74,11 +75,10 @@
 			{% endfor %}
 			<div class="shield-setup-guide__pane" data-setup-guide-pane="all_done" {% if guide.open_step != 'all_done' %}hidden{% endif %}>
 				<p class="shield-setup-guide__done-note"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> {{ guide.strings.all_done }}</p>
+				<p>
+					<button type="button" class="shield-setup-guide__close" data-setup-guide-close="1">{{ guide.strings.close }}</button>
+				</p>
 			</div>
 		</div>
 	</div>
 </section>
-<button type="button" class="shield-setup-guide-reopen" data-setup-guide-reopen="1" hidden>
-	<i class="bi bi-shield-fill-check" aria-hidden="true"></i>{{ guide.strings.reopen }}
-	<span data-setup-guide-reopen-count="1">{{ guide.done_count }}/{{ guide.total }}</span>
-</button>

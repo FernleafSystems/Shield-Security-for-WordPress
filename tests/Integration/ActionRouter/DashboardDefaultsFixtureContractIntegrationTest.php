@@ -31,7 +31,6 @@ class DashboardDefaultsFixtureContractIntegrationTest extends ShieldIntegrationT
 					'visitor_address_source',
 					'autoupdate_plugin_self',
 					'enable_tracking',
-					'enable_upgrade_admin_notice',
 					'language_override',
 				], $contract[ 'option_keys' ] );
 				$this->assertSame( 'dashboard', $contract[ 'routes' ][ 'dashboard' ][ 'nav' ] );
@@ -56,12 +55,11 @@ class DashboardDefaultsFixtureContractIntegrationTest extends ShieldIntegrationT
 				$this->assertSame( 'Opt-language_override', $contract[ 'options' ][ 'language_override' ][ 'control_id' ] );
 
 				$this->assertSame( [
-					'display_plugin_badge'        => 'light',
-					'visitor_address_source'      => 'REMOTE_ADDR',
-					'autoupdate_plugin_self'      => 'disabled',
-					'enable_tracking'             => 'Y',
-					'enable_upgrade_admin_notice' => 'N',
-					'language_override'           => 'en',
+					'display_plugin_badge'   => 'light',
+					'visitor_address_source' => 'REMOTE_ADDR',
+					'autoupdate_plugin_self' => 'disabled',
+					'enable_tracking'        => 'Y',
+					'language_override'      => 'en',
 				], $contract[ 'mutated_options' ] );
 				$this->assertNotSame( $contract[ 'original_options' ], $contract[ 'mutated_options' ] );
 			}
@@ -96,12 +94,11 @@ class DashboardDefaultsFixtureContractIntegrationTest extends ShieldIntegrationT
 
 				$this->assertSame( $result[ 'contract' ][ 'mutated_options' ], $reset[ 'before_reset_options' ] );
 				$this->assertSame( [
-					'display_plugin_badge'        => 'disabled',
-					'visitor_address_source'      => 'AUTO_DETECT_IP',
-					'autoupdate_plugin_self'      => 'auto',
-					'enable_tracking'             => 'N',
-					'enable_upgrade_admin_notice' => 'Y',
-					'language_override'           => '',
+					'display_plugin_badge'   => 'disabled',
+					'visitor_address_source' => 'AUTO_DETECT_IP',
+					'autoupdate_plugin_self' => 'auto',
+					'enable_tracking'        => 'N',
+					'language_override'      => '',
 				], $reset[ 'defaults' ] );
 				$this->assertSame( $reset[ 'defaults' ], $reset[ 'after_reset_options' ] );
 				$this->assertSame( $reset[ 'defaults' ], RuntimeTestState::snapshotOptions( $reset[ 'option_keys' ] ) );

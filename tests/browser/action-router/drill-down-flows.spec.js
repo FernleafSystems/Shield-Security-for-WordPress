@@ -224,7 +224,7 @@ test( 'actions queue landing lists lanes in place and opens a group directly', a
 		const restoreView = waitForShieldAjaxAction( page, 'set_ui_preference' );
 		await page.locator( '[data-actions-queue-view="tabs"]' ).click();
 		await expect( sections ).toHaveAttribute( 'data-view', 'tabs' );
-		await expect( page.locator( '[data-actions-queue-tab]' ).first() ).toHaveAttribute( 'aria-selected', 'true' );
+		await expect( page.locator( '[data-actions-queue-tab][aria-selected="true"]' ) ).toHaveCount( 1 );
 		await expectShieldAjaxSuccess( await restoreView );
 	} );
 } );

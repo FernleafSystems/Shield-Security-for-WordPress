@@ -60,6 +60,43 @@ test( 'the report email item leads Review next, cannot be ignored, and keeping t
 	} );
 } );
 
+test( 'a report email saved in Configure completes the setup guide step on the same page', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withReportEmailHoldFixture( async () => {
+		await openShieldRoute( page, { nav: 'zones', nav_sub: 'overview', zone: 'alerts' } );
+		const guide = page.locator( '#ShieldSetupGuide' );
+		const step = guide.locator( '[data-setup-guide-step="report_email"]' );
+		await expect( step ).not.toHaveClass( /is-done/ );
+
+		// A protection level picked in the guide, and not yet applied, is a choice still being made.
+		const toggle = guide.locator( '[data-setup-guide-toggle="1"]' );
+		await toggle.click();
+		await guide.locator( '[data-setup-guide-step="apply_security_profile"]' ).click();
+		const level = guide.locator( '[data-protection-level][aria-pressed="false"]' ).first();
+		const levelKey = await level.getAttribute( 'data-protection-level' );
+		await level.click();
+		await expect( guide.locator( `[data-protection-level="${levelKey}"]` ) ).toHaveAttribute( 'aria-pressed', 'true' );
+		await toggle.click();
+
+		const navigations = [];
+		page.on( 'framenavigated', ( frame ) => frame === page.mainFrame() && navigations.push( frame.url() ) );
+
+		const diagnosis = page.locator( '[data-configure-diagnosis="1"]' );
+		const trigger = diagnosis.locator( '[data-configure-row-key="reports"] [data-shield-expand-trigger="1"]' );
+		if ( await trigger.getAttribute( 'aria-expanded' ) !== 'true' ) {
+			await trigger.click();
+		}
+		await diagnosis.locator( '[data-configure-row-key="reports"] [name="block_send_email_address"]' ).fill( 'agency@example.test' );
+		await diagnosis.locator( '[data-configure-savebar-save="1"]' ).click();
+		await expectReportEmail( fixtureApi, 'agency@example.test' );
+
+		// The guide is the same element, brought up to date, rather than a page reload. The step the save didn't
+		// touch is left as it was, level picked and all.
+		await expect( step ).toHaveClass( /is-done/, { timeout: 20_000 } );
+		expect( navigations ).toEqual( [] );
+		await expect( guide.locator( `[data-protection-level="${levelKey}"]` ) ).toHaveAttribute( 'aria-pressed', 'true' );
+	} );
+} );
+
 test( 'a typed report email saved from the queue link ends the hold', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withReportEmailHoldFixture( async () => {
 		await openReviewSection( page );

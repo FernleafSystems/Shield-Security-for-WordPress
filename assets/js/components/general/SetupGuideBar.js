@@ -5,12 +5,11 @@ import { Forms } from "../../util/Forms";
 
 /**
  * The setup guide bar along the bottom of Shield admin pages. Step forms are the welcome wizard's
- * own forms and save through the same wizard action. "Hide until next visit" lasts for this
- * browser session; "Don't show again" is stored for the user.
+ * own forms and save through the same wizard action. "Don't show again" is stored for the site.
+ * When settings are saved elsewhere on the page, the guide is fetched again so its steps reflect
+ * them.
  */
 export class SetupGuideBar extends BaseAutoExecComponent {
-
-	static HIDDEN_KEY = 'shield-setup-guide-hidden';
 
 	canRun() {
 		this.root = document.getElementById( 'ShieldSetupGuide' );
@@ -18,17 +17,19 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 	}
 
 	run() {
-		this.reopen = document.querySelector( '[data-setup-guide-reopen="1"]' );
 		this.sidebarItem = document.querySelector( '.sidebar-setup-item[data-setup-guide-open="1"]' );
-		this.setHidden( this.readSessionHidden() );
+		this.isBusy = false;
+		this.isRefreshWanted = false;
+		document.body.classList.add( 'has-shield-setup-guide' );
+		this.syncScrollPadding();
 		this.fillShellToViewport();
 		window.addEventListener( 'resize', () => this.fillShellToViewport() );
 
-		// Any link to the guide (the sidebar's, Configure's "Guided Setup") brings it back, open, whether it was
-		// hidden or only collapsed, rather than leaving the page.
+		// Any link to the guide (the sidebar's, Configure's "Guided Setup") opens it here rather than leaving
+		// the page. Once the guide has been closed or dismissed, those links go where they point again.
 		document.addEventListener( 'click', ( evt ) => {
 			const opener = evt.target instanceof Element ? evt.target.closest( '[data-setup-guide-open="1"]' ) : null;
-			if ( opener !== null && !evt.metaKey && !evt.ctrlKey && !evt.shiftKey ) {
+			if ( opener !== null && this.root.isConnected && !evt.metaKey && !evt.ctrlKey && !evt.shiftKey ) {
 				evt.preventDefault();
 				this.openNow();
 			}
@@ -48,7 +49,7 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 			if ( target === null ) {
 				return;
 			}
-			// While a step is saving, the step area is covered and nothing in it responds.
+			// While a step is saving or the guide is refreshing, the step area is covered and nothing in it responds.
 			if ( this.isBusy && target.closest( '.shield-setup-guide__sheet' ) ) {
 				evt.preventDefault();
 				return;
@@ -68,26 +69,15 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 			}
 			else if ( skip ) {
 				const slug = skip.dataset.setupGuideSkip;
-				this.whileBusy( this.sendUpdate( { op: 'skip', step_slug: slug } ) ).then( () => this.completeStep( slug ) );
-			}
-			else if ( target.closest( '[data-setup-guide-hide="1"]' ) ) {
-				this.writeSessionHidden( true );
-				this.setHidden( true );
+				this.whileBusy( this.sendUpdate( { op: 'skip', step_slug: slug } ) )
+				.then( ( resp ) => resp?.success && this.completeStep( slug ) );
 			}
 			else if ( target.closest( '[data-setup-guide-dismiss="1"]' ) ) {
-				this.sendUpdate( { op: 'dismiss' } ).then( () => {
-					this.root.remove();
-					this.reopen?.remove();
-					this.sidebarItem?.closest( '.sidebar-setup-footer' )?.remove();
-					document.body.classList.remove( 'has-shield-setup-guide' );
-				} );
+				this.sendUpdate( { op: 'dismiss' } ).then( ( resp ) => resp?.success && this.removeGuide() );
 			}
-			else {
-				// The protection level step picks a profile by clicking its card.
-				const card = target.closest( '.profile-card:not(.profile-card-current)' );
-				if ( card ) {
-					this.selectProfile( card );
-				}
+			else if ( target.closest( '[data-setup-guide-close="1"]' ) ) {
+				// Setup is complete, so the guide won't be back on the next page either.
+				this.removeGuide();
 			}
 		} );
 
@@ -103,16 +93,74 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 			}
 		}, true );
 
-		this.reopen?.addEventListener( 'click', () => {
-			this.writeSessionHidden( false );
-			this.setHidden( false );
-			this.setExpanded( true );
-		} );
+		document.addEventListener( 'shield:options-saved', () => this.refresh() );
+	}
+
+	removeGuide() {
+		this.root.remove();
+		this.sidebarItem?.closest( '.sidebar-setup-footer' )?.remove();
+		document.body.classList.remove( 'has-shield-setup-guide' );
+		this.syncScrollPadding();
+		this.fillShellToViewport();
+	}
+
+	/**
+	 * Settings were saved elsewhere on the page, and any of them may be one a step looks at: fetch the guide
+	 * again. The guide does one thing at a time, so the refresh waits for a step that's saving, and nothing in
+	 * the guide can be sent while it's refreshing: a step is only ever saved from what the site's settings are.
+	 * The guide stays as it is when the answer arrives (open or closed, on the same step) unless the save
+	 * completed the step showing, and a step that's no different keeps anything typed into it.
+	 */
+	refresh() {
+		if ( !this.root.isConnected ) {
+			return;
+		}
+		if ( this.isBusy ) {
+			this.isRefreshWanted = true;
+			return;
+		}
+
+		this.whileBusy(
+			( new AjaxService() )
+			.bg( ObjectOps.Merge( JSON.parse( this.root.dataset.refreshAction ), {
+				with_every_form: this.root.dataset.openNow === '1' ? '1' : '0',
+			} ) )
+			.then( ( resp ) => {
+				const fresh = resp?.success
+					? ( new DOMParser() ).parseFromString( resp.data?.html || '', 'text/html' ).getElementById( 'ShieldSetupGuide' )
+					: null;
+				if ( fresh === null || !this.root.isConnected ) {
+					return;
+				}
+				const shown = this.root.querySelector( '[data-setup-guide-step][aria-current="step"]' );
+				const shownSlug = shown?.dataset.setupGuideStep || '';
+				const shownWasDone = shown?.classList.contains( 'is-done' ) === true;
+				const wasExpanded = this.root.classList.contains( 'is-expanded' );
+
+				fresh.querySelectorAll( '[data-setup-guide-pane-version]' ).forEach( ( freshPane ) => {
+					const pane = this.root.querySelector( `[data-setup-guide-pane="${freshPane.dataset.setupGuidePane}"]` );
+					if ( pane?.dataset.setupGuidePaneVersion === freshPane.dataset.setupGuidePaneVersion ) {
+						freshPane.replaceWith( pane );
+					}
+				} );
+				this.root.replaceChildren( ...fresh.childNodes );
+				this.setExpanded( wasExpanded );
+				// A step kept from before is shown or hidden as it was, so the step to show is always set again:
+				// the one that was showing, or the one the answer opens on when that step has just been completed.
+				const step = shownSlug.length > 0 ? this.root.querySelector( `[data-setup-guide-step="${shownSlug}"]` ) : null;
+				const opensOn = this.root.querySelector( '[data-setup-guide-step][aria-current="step"]' );
+				this.showStep(
+					step !== null && ( shownWasDone || !step.classList.contains( 'is-done' ) )
+						? shownSlug
+						: ( opensOn?.dataset.setupGuideStep || 'all_done' )
+				);
+				this.syncProgress();
+			} )
+			.catch( () => null )
+		);
 	}
 
 	openNow() {
-		this.writeSessionHidden( false );
-		this.setHidden( false );
 		this.setExpanded( true );
 		this.root.querySelector( '[data-setup-guide-toggle="1"]' )?.focus();
 	}
@@ -134,25 +182,15 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 		this.syncScrollPadding();
 	}
 
-	setHidden( isHidden ) {
-		this.root.hidden = isHidden;
-		if ( this.reopen ) {
-			this.reopen.hidden = !isHidden;
-		}
-		document.body.classList.toggle( 'has-shield-setup-guide', !isHidden );
-		this.syncScrollPadding();
-		this.fillShellToViewport();
-	}
-
 	/**
 	 * On short pages the Shield sidebar would stop part way down, leaving a gap above the fixed bar;
-	 * the admin shell is stretched to at least the bottom of the window instead.
+	 * the admin shell is stretched to at least the bottom of the window instead, for as long as the guide is there.
 	 */
 	fillShellToViewport() {
 		const shell = document.getElementById( 'PageMain-Shield' );
 		if ( shell instanceof HTMLElement ) {
 			const top = shell.getBoundingClientRect().top + window.scrollY;
-			shell.style.minHeight = this.root.hidden ? '' : `${Math.max( 0, window.innerHeight - top )}px`;
+			shell.style.minHeight = this.root.isConnected ? `${Math.max( 0, window.innerHeight - top )}px` : '';
 		}
 	}
 
@@ -160,7 +198,7 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 	 * Scrolling and keyboard focus keep content clear of the fixed bar rather than behind it.
 	 */
 	syncScrollPadding() {
-		document.documentElement.style.scrollPaddingBottom = this.root.hidden ? '' : `${this.root.offsetHeight + 16}px`;
+		document.documentElement.style.scrollPaddingBottom = this.root.isConnected ? `${this.root.offsetHeight + 16}px` : '';
 	}
 
 	showStep( slug ) {
@@ -180,6 +218,15 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 			hint.textContent = this.root.dataset.doneLabel;
 		}
 
+		const next = this.syncProgress();
+		this.showStep( next ? next.dataset.setupGuideStep || '' : 'all_done' );
+	}
+
+	/**
+	 * Brings every count, the progress bar and the "Next" label into line with the steps as they now are.
+	 * @returns {Element|undefined} the next step to do, if any
+	 */
+	syncProgress() {
 		const steps = [ ...this.root.querySelectorAll( '[data-setup-guide-step]' ) ];
 		const doneCount = steps.filter( ( s ) => s.classList.contains( 'is-done' ) ).length;
 		const total = steps.length;
@@ -190,12 +237,10 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 		if ( count ) {
 			count.textContent = label;
 		}
-		[ this.reopen?.querySelector( '[data-setup-guide-reopen-count="1"]' ), this.sidebarItem?.querySelector( '[data-setup-guide-open-count="1"]' ) ]
-		.forEach( ( countEl ) => {
-			if ( countEl ) {
-				countEl.textContent = `${doneCount}/${total}`;
-			}
-		} );
+		const sidebarCount = this.sidebarItem?.querySelector( '[data-setup-guide-open-count="1"]' );
+		if ( sidebarCount ) {
+			sidebarCount.textContent = `${doneCount}/${total}`;
+		}
 		const fill = this.root.querySelector( '.shield-setup-guide__progress-fill' );
 		if ( fill instanceof HTMLElement ) {
 			fill.style.width = `${Math.round( 100*doneCount/total )}%`;
@@ -209,20 +254,7 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 				? this.root.dataset.nextTemplate.replace( '%s', nextName )
 				: '';
 		}
-		this.showStep( next ? next.dataset.setupGuideStep || '' : 'all_done' );
-	}
-
-	selectProfile( card ) {
-		const form = card.closest( 'form' );
-		const wasSelected = card.classList.contains( 'selected' );
-		form?.querySelectorAll( '.profile-card' ).forEach( ( c ) => c.classList.remove( 'selected' ) );
-		if ( !wasSelected ) {
-			card.classList.add( 'selected' );
-		}
-		const input = form?.querySelector( '[name="security_profile"]' );
-		if ( input instanceof HTMLInputElement ) {
-			input.value = wasSelected ? '' : ( card.dataset.level || '' );
-		}
+		return next;
 	}
 
 	submitStep( form ) {
@@ -251,49 +283,30 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 
 	/**
 	 * Fades the step area under a spinner until the request settles, so a click visibly does
-	 * something and can't be repeated while it's under way.
+	 * something and can't be repeated while it's under way. A refresh asked for meanwhile follows.
 	 * @param {Promise} request
 	 * @returns {Promise}
 	 */
 	whileBusy( request ) {
-		const sheet = this.root.querySelector( '.shield-setup-guide__sheet' );
-		const panes = this.root.querySelector( '.shield-setup-guide__panes' );
-		this.isBusy = true;
-		sheet?.classList.add( 'is-busy' );
-		panes?.setAttribute( 'aria-busy', 'true' );
+		this.setBusy( true );
 		return request.finally( () => {
-			this.isBusy = false;
-			sheet?.classList.remove( 'is-busy' );
-			panes?.setAttribute( 'aria-busy', 'false' );
+			this.setBusy( false );
+			if ( this.isRefreshWanted ) {
+				this.isRefreshWanted = false;
+				this.refresh();
+			}
 		} );
+	}
+
+	setBusy( isBusy ) {
+		this.isBusy = isBusy;
+		this.root.querySelector( '.shield-setup-guide__sheet' )?.classList.toggle( 'is-busy', isBusy );
+		this.root.querySelector( '.shield-setup-guide__panes' )?.setAttribute( 'aria-busy', String( isBusy ) );
 	}
 
 	sendUpdate( data ) {
 		return ( new AjaxService() )
 		.bg( ObjectOps.Merge( JSON.parse( this.root.dataset.updateAction ), data ) )
 		.catch( () => null );
-	}
-
-	readSessionHidden() {
-		try {
-			return window.sessionStorage.getItem( SetupGuideBar.HIDDEN_KEY ) === '1';
-		}
-		catch {
-			return false;
-		}
-	}
-
-	writeSessionHidden( isHidden ) {
-		try {
-			if ( isHidden ) {
-				window.sessionStorage.setItem( SetupGuideBar.HIDDEN_KEY, '1' );
-			}
-			else {
-				window.sessionStorage.removeItem( SetupGuideBar.HIDDEN_KEY );
-			}
-		}
-		catch {
-			return;
-		}
 	}
 }

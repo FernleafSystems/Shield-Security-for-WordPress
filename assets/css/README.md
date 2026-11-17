@@ -220,7 +220,7 @@ Each SCSS file owns specific components. Do not style another file's components:
 | `options.scss` | `.options_form_for--modern`, `.shield-options-layout`, `.shield-options-rail`, `.shield-options-panel`, `.shield-option-item` |
 | `ip_analyse.scss` | `#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse*` and IP-analysis-specific content styling inside the shared options-style rail/panel layout |
 | `reports.scss` (ref) | `.report-section`, `.scan-card`, `.stat-card`, `.change-card`, `.status-pill`, `.category-header`, `.repair-item`, `.scan-item` |
-| `merlin.scss` | `#MerlinOverlay`, `.merlin-modal-dialog`, `.stepper*`, `.wizard-card*`, `.wizard-step-pane`, `.profile-card*`, `.feature-list`, `.section-header`, `.feature-item`, `.merlin-form-footer` |
+| `merlin.scss` | `#MerlinOverlay`, `.merlin-modal-dialog`, `.stepper*`, `.wizard-card*`, `.wizard-step-pane`, `.merlin-report-email-actions`, `.protection-levels*`, `.merlin-form-footer` |
 | `security-admin.scss` | Security admin pane-scoped overlay/dialog and PIN form |
 | `dashboard.scss` | shared reusable primitives including `.shield-card`, `.shield-card-accent`, `.shield-badge`, plus dashboard-specific components |
 
@@ -278,17 +278,15 @@ The stepper is built with real HTML elements (not pseudo-elements), making state
 
 Step templates extend `templates/twig/components/merlin/steps/base.twig` which provides block structure (`slide_body_title`, `slide_body_video_section_blurb`, `slide_body_video_section`, `slide_body_action_area`). Content renders directly without Bootstrap grid wrapping — the card body padding controls spacing.
 
-### Security Profile Cards
+### Protection Levels
 
-The profile selection step uses a 4-column grid of clickable cards (current config + 3 profiles):
+The protection level step (in the wizard and the setup guide) is three choices and one list of what the chosen level would change:
 
-- `.profile-cards-row` — 4-column CSS grid (`repeat(4, 1fr)`), 1rem gap
-- `.profile-card` — `$card-border-radius`, `$card-box-shadow`, transparent 2px border, hover lift
-- `.profile-card.selected` — 3px green border, `#edf7ed` background tint, double green glow ring
-- `.profile-card-current` — Non-selectable, neutral border and `$surface-color-neutral-raised` background
-- `.profile-card-accent` — Level-based colours: `.level-light` = `$status-color-good`, `.level-medium` = `$status-color-warning`, `.level-strong` = `$status-color-critical`
-- `.feature-list` — Vertical list of `.feature-item` rows with status icons (`.fi-on`, `.fi-off`, `.fi-val`)
-- `.merlin-form-footer` — Separator line + centered submit button below profile cards
+- `.protection-levels__choices` — 3-column grid of `.protection-levels__choice` buttons; the chosen one (`aria-pressed="true"`) has a green border and `#edf7ed` tint
+- `.protection-levels__comparison` — one per level, only the chosen level's shown; a `.protection-levels__summary` line of `.protection-levels__chip` counts over a `.protection-levels__list`
+- `.protection-levels__row` — setting, current value, arrow, new value, chip; `.is-stricter` colours the arrow and new value green, `.is-looser` amber, `.is-same` and `.is-unavailable` are grey with no arrow
+- `.protection-levels:not(.shows-everything)` — hides unchanged rows and groups with no changes
+- `.merlin-form-footer` — Separator line above the step's submit button
 
 ### Responsive
 

@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SetupGuideUpdate;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\SecurityAdminRequiredException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SetupGuideState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -43,7 +44,7 @@ class SetupGuideUpdateTest extends BaseUnitTest {
 	}
 
 	public function test_skip_records_the_step_once_and_dismiss_hides_the_guide() :void {
-		$meta = $this->installEnvironment();
+		$opts = $this->installEnvironment();
 
 		foreach ( [ 'report_email', 'report_email' ] as $slug ) {
 			$action = new SetupGuideUpdate( [ 'op' => 'skip', 'step_slug' => $slug ] );
@@ -56,34 +57,46 @@ class SetupGuideUpdateTest extends BaseUnitTest {
 		$action = new SetupGuideUpdate( [ 'op' => 'dismiss' ] );
 		$action->process();
 		$this->assertTrue( ( new SetupGuideState() )->isDismissed() );
-		$this->assertSame( 1700001234, $meta->setup_guide[ 'dismissed_at' ] ?? 0 );
+		$this->assertSame( 1700001234, $opts->optGet( SetupGuideState::OPT_KEY )[ 'dismissed_at' ] ?? 0 );
 	}
 
 	public function test_skip_records_only_the_guides_own_steps() :void {
-		$meta = $this->installEnvironment();
+		$opts = $this->installEnvironment();
 
 		foreach ( [ 'not_a_step', 'welcome', 'REPORT_EMAIL', '' ] as $slug ) {
 			$action = new SetupGuideUpdate( [ 'op' => 'skip', 'step_slug' => $slug ] );
 			$action->process();
 			$this->assertFalse( (bool)( $action->response()->payload()[ 'saved' ] ?? true ), $slug );
 		}
-		$this->assertSame( [], $meta->setup_guide );
+		$this->assertSame( [], $opts->optGet( SetupGuideState::OPT_KEY ) );
 	}
 
 	public function test_unknown_operation_changes_nothing() :void {
-		$meta = $this->installEnvironment();
+		$opts = $this->installEnvironment();
 
 		$action = new SetupGuideUpdate( [ 'op' => 'reset_everything' ] );
 		$action->process();
 
 		$this->assertFalse( (bool)( $action->response()->payload()[ 'saved' ] ?? true ) );
-		$this->assertSame( [], $meta->setup_guide );
+		$this->assertSame( [], $opts->optGet( SetupGuideState::OPT_KEY ) );
 	}
 
-	private function installEnvironment() :object {
-		$meta = (object)[
-			'setup_guide' => [],
-		];
+	public function test_an_admin_without_security_admin_cannot_change_the_sites_progress() :void {
+		$opts = $this->installEnvironment( false );
+
+		foreach ( [ [ 'op' => 'skip', 'step_slug' => 'report_email' ], [ 'op' => 'dismiss' ] ] as $data ) {
+			try {
+				( new SetupGuideUpdate( $data ) )->process();
+				$this->fail( 'The update went ahead without Security Admin.' );
+			}
+			catch ( SecurityAdminRequiredException $e ) {
+				$this->assertSame( [], $opts->optGet( SetupGuideState::OPT_KEY ) );
+			}
+		}
+	}
+
+	private function installEnvironment( bool $isSecurityAdmin = true ) :SetupGuideUpdateOptsStub {
+		$opts = new SetupGuideUpdateOptsStub();
 
 		ServicesState::installItems( [
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700001234 ),
@@ -97,15 +110,15 @@ class SetupGuideUpdateTest extends BaseUnitTest {
 				}
 			},
 		] );
-		PluginControllerInstaller::install( new SetupGuideUpdateControllerStub( new SetupGuideUpdateUserMetasStub( $meta ) ) );
-		return $meta;
+		PluginControllerInstaller::install( new SetupGuideUpdateControllerStub( $opts, $isSecurityAdmin ) );
+		return $opts;
 	}
 
 }
 
 class SetupGuideUpdateControllerStub extends Controller {
 
-	public function __construct( object $userMetas ) {
+	public function __construct( SetupGuideUpdateOptsStub $opts, bool $isSecurityAdmin ) {
 		$this->cfg = (object)[
 			'properties' => [
 				'base_permissions' => 'manage_options',
@@ -115,21 +128,25 @@ class SetupGuideUpdateControllerStub extends Controller {
 			'request_bypasses_all_restrictions' => false,
 			'is_ip_blocked'                     => false,
 			'wp_is_ajax'                        => true,
-			'is_security_admin'                 => false,
+			'is_security_admin'                 => $isSecurityAdmin,
 		];
-		$this->user_metas = $userMetas;
+		$this->opts = $opts;
 	}
 }
 
-class SetupGuideUpdateUserMetasStub {
+/**
+ * Site options, as the guide's progress is kept for the whole site rather than for one admin.
+ */
+class SetupGuideUpdateOptsStub {
 
-	private object $meta;
+	private array $values = [];
 
-	public function __construct( object $meta ) {
-		$this->meta = $meta;
+	public function optGet( string $key ) :array {
+		return $this->values[ $key ] ?? [];
 	}
 
-	public function current() :object {
-		return $this->meta;
+	public function optSet( string $key, array $value ) :self {
+		$this->values[ $key ] = $value;
+		return $this;
 	}
 }

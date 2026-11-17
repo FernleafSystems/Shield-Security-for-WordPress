@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceAlertsTurnOff;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemUnignore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
@@ -28,6 +29,7 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireController()->this_req->wp_is_ajax = false;
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			MaintenanceIssueStateProvider::OPT_KEY,
+			MaintenanceIssueStateProvider::OPT_KEY_REPORTED_KINDS,
 		] );
 		\delete_site_transient( 'update_plugins' );
 	}
@@ -199,8 +201,62 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'queue_is_empty', $payload[ 'landing_refresh' ] ?? [] );
 	}
 
+	public function test_turning_a_kinds_alerts_off_stops_it_being_reported_and_keeps_what_was_ignored() :void {
+		$con = $this->requireController();
+		$pluginFiles = $this->requireAtLeastInstalledPlugins( 2 );
+		$inactive = ( new MaintenanceIssueStateProvider() )->currentIssueIdentifiersByKey()[ 'wp_plugins_inactive' ];
+		if ( empty( $inactive ) ) {
+			$this->markTestSkipped( 'No inactive plugin is available for this integration fixture.' );
+		}
+		$this->setPluginUpdatesAvailable( $pluginFiles );
+		$this->processMaintenanceAction( MaintenanceItemIgnore::class, [
+			'maintenance_key' => 'wp_plugins_updates',
+			'identifier'      => $pluginFiles[ 0 ],
+		] );
+
+		$off = $this->processMaintenanceAction( MaintenanceAlertsTurnOff::class, [
+			'maintenance_key' => 'wp_plugins_updates',
+		] );
+
+		$this->assertTrue( (bool)( $off[ 'success' ] ?? false ) );
+		$this->assertArrayNotHasKey( 'wp_plugins_updates', ( new MaintenanceIssueStateProvider() )->buildStates() );
+		$this->assertNotContains(
+			'wp_plugins_updates',
+			\array_column( $con->comps->site_query->attention()[ 'items' ], 'key' )
+		);
+		// The other kinds are untouched, in the setting's own order.
+		$this->assertSame(
+			[ 'wp_themes_updates', 'wp_plugins_inactive', 'wp_themes_inactive' ],
+			$con->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY_REPORTED_KINDS )
+		);
+
+		// Ignoring something of another kind meanwhile doesn't forget what was ignored in the kind left out.
+		$this->processMaintenanceAction( MaintenanceItemIgnore::class, [
+			'maintenance_key' => 'wp_plugins_inactive',
+			'identifier'      => $inactive[ 0 ],
+		] );
+
+		// The setting is where a kind is turned back on.
+		$con->opts->optSet( MaintenanceIssueStateProvider::OPT_KEY_REPORTED_KINDS, MaintenanceIssueStateProvider::KINDS_THAT_CAN_BE_LEFT_OUT );
+
+		$state = ( new MaintenanceIssueStateProvider() )->buildStates()[ 'wp_plugins_updates' ];
+		$this->assertSame( [ $pluginFiles[ 0 ] ], $state[ 'ignored_identifiers' ] );
+		$this->assertSame( \count( $pluginFiles ) - 1, $state[ 'count' ] );
+	}
+
+	public function test_alerts_can_only_be_turned_off_for_the_kinds_that_can_be_left_out() :void {
+		$before = $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY_REPORTED_KINDS );
+
+		foreach ( [ 'system_php_version', 'not_a_kind', '' ] as $key ) {
+			$response = $this->processMaintenanceAction( MaintenanceAlertsTurnOff::class, [ 'maintenance_key' => $key ] );
+			$this->assertFalse( (bool)( $response[ 'success' ] ?? true ), $key );
+		}
+
+		$this->assertSame( $before, $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY_REPORTED_KINDS ) );
+	}
+
 	/**
-	 * @param class-string<MaintenanceItemIgnore|MaintenanceItemUnignore> $actionClass
+	 * @param class-string<MaintenanceItemIgnore|MaintenanceItemUnignore|MaintenanceAlertsTurnOff> $actionClass
 	 */
 	private function processMaintenanceAction( string $actionClass, array $data ) :array {
 		return ( new ActionProcessor() )->processAction( $actionClass::SLUG, $data )->payload();

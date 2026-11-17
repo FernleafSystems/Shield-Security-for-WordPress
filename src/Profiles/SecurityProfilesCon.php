@@ -51,10 +51,6 @@ class SecurityProfilesCon {
 
 	public function meta( string $level ) :array {
 		return [
-				   Levels::CURRENT => [
-					   'title'    => __( 'Current', 'wp-simple-firewall' ),
-					   'subtitle' => __( 'Your current security posture', 'wp-simple-firewall' ),
-				   ],
 				   Levels::LIGHT   => [
 					   'title'    => __( 'Light', 'wp-simple-firewall' ),
 					   'subtitle' => __( 'A light-touch security profile', 'wp-simple-firewall' ),

@@ -35,7 +35,6 @@ export class Merlin extends BaseComponent {
 			() => this.next()
 		);
 
-		this.slideSecurityProfiles();
 		this.goToStep( 0 );
 	}
 
@@ -79,27 +78,6 @@ export class Merlin extends BaseComponent {
 
 	next() { this.goToStep( this.currentStep + 1 ); }
 	prev() { this.goToStep( this.currentStep - 1 ); }
-
-	slideSecurityProfiles() {
-
-		shieldEventsHandler_Main.add_Click( '#ProfileCards .profile-card:not(.profile-card-current)', ( card ) => {
-			const level = card.dataset.level;
-			const wasSelected = card.classList.contains( 'selected' );
-
-			this.merlinContainer.querySelectorAll( '#ProfileCards .profile-card' ).forEach( ( c ) => {
-				c.classList.remove( 'selected' );
-			} );
-
-			if ( !wasSelected ) {
-				card.classList.add( 'selected' );
-			}
-
-			const input = document.getElementById( 'SelectedSecurityProfile' ) || false;
-			if ( input ) {
-				input.value = wasSelected ? '' : level;
-			}
-		} );
-	}
 
 	#runSettingUpdate( form ) {
 		( new AjaxService() )

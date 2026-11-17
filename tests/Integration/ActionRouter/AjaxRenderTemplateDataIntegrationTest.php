@@ -203,6 +203,7 @@ class AjaxRenderTemplateDataIntegrationTest extends ShieldIntegrationTestCase {
 			PluginAdminPages\TrafficLogLivePanelBody::class            => [],
 			Components\Scans\ItemAnalysis\Container::class             => [ 'rid' => (string)$scanItem[ 'result_item_id' ] ],
 			Components\Scans\ItemAnalysis\Diff::class                  => [ 'rid' => (string)$scanItem[ 'result_item_id' ] ],
+			Components\SetupGuideBar::class                            => [ 'with_every_form' => '1' ],
 		];
 	}
 

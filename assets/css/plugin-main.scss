@@ -629,7 +629,7 @@ $sidebar-transition-speed: 0.25s;
   }
 }
 
-body:has(.shield-setup-guide:not([hidden])) {
+body:has(.shield-setup-guide) {
   --shield-bottom-bar-height: 64px;
 }
 

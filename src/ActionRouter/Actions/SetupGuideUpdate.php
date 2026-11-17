@@ -6,11 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SetupGuideState;
 
 /**
- * Records a skipped setup step, or dismisses the setup guide for good, for the current user.
+ * Records a skipped setup step, or dismisses the setup guide for good, for the whole site. As it changes what
+ * every admin sees, it needs Security Admin like any other change to the plugin.
  */
 class SetupGuideUpdate extends BaseAction {
-
-	use Traits\SecurityAdminNotRequired;
 
 	public const SLUG = 'setup_guide_update';
 
@@ -27,7 +26,8 @@ class SetupGuideUpdate extends BaseAction {
 				$saved = $state->markDone( $this->fields()->string( 'step_slug', '' ) );
 				break;
 			case 'dismiss':
-				$saved = $state->dismiss();
+				$state->dismiss();
+				$saved = true;
 				break;
 			default:
 				$saved = false;

@@ -224,7 +224,8 @@ $aq-pro-bg: #f2ebfc;
 
 .actions-queue-sections__count,
 .actions-queue-section__count {
-	background: rgba(255, 255, 255, 0.75);
+	// A neutral tint, so the count reads as a badge whatever colour its lane's heading is.
+	background: rgba(29, 35, 39, 0.08);
 	border-radius: 999px;
 	font-size: 11.5px;
 	font-variant-numeric: tabular-nums;
@@ -339,16 +340,119 @@ $aq-pro-bg: #f2ebfc;
 	}
 }
 
-.actions-queue-sections__clear {
+// A lane with nothing in it stays: green, with its zero as a solid badge, whether or not it's the tab showing.
+// Folded, its heading says there's nothing to do; open, its body does.
+.actions-queue-sections__tab.is-empty {
+	color: $aq-good;
+
+	.actions-queue-sections__count {
+		background: $aq-good;
+		color: #ffffff;
+	}
+}
+
+.actions-queue-section.is-empty > .actions-queue-section__head {
+	background: $aq-good-bg;
+	border-color: #bfe3bf;
+
+	.actions-queue-section__count {
+		background: $aq-good;
+		color: #ffffff;
+	}
+
+	.actions-queue-section__summary {
+		color: $aq-good;
+	}
+}
+
+.actions-queue-section__summary.is-folded-only {
+	[aria-expanded="true"] > & {
+		visibility: hidden;
+	}
+}
+
+.actions-queue-section__empty {
 	align-items: center;
-	background: #ffffff;
-	border: 1px solid $aq-line;
-	border-radius: 8px;
 	color: $aq-good;
 	display: flex;
+	font-size: 13px;
 	font-weight: 600;
 	gap: 0.5rem;
-	padding: 14px;
+	margin: 0;
+	padding: 4px 2px;
+}
+
+// The way to choose what a lane reports, under whatever it holds.
+.actions-queue-section__foot {
+	display: flex;
+	justify-content: flex-end;
+	margin: 0;
+}
+
+.actions-queue-section__config {
+	align-items: center;
+	background: none;
+	border: 0;
+	color: $aq-muted;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: 12px;
+	font-weight: 600;
+	gap: 6px;
+	padding: 2px 0;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+
+	&:hover,
+	&:focus {
+		color: #1d2327;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+}
+
+// A group's alerts switch, at the end of its heading: on while the group shows.
+.actions-queue-alert-switch {
+	align-items: center;
+	color: #50575e;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: 12px;
+	font-weight: 600;
+	gap: 6px;
+	letter-spacing: 0;
+	margin: 0 0 0 auto;
+	text-transform: none;
+	white-space: nowrap;
+
+	.actions-queue-row-group__link + & {
+		margin-left: 6px;
+	}
+
+	.form-check {
+		display: inline-flex;
+		margin: 0;
+		min-height: 0;
+		padding: 0;
+	}
+
+	.form-check-input {
+		cursor: pointer;
+		float: none;
+		margin: 0;
+	}
+}
+
+.actions-queue-alert-switch__name {
+	margin-right: 2px;
+}
+
+.actions-queue-alert-switch__side {
+	color: $aq-muted;
+	font-size: 11px;
+	font-weight: 400;
 }
 
 // A section is only its header bar and the group boxes beneath it, with no panel around them.
@@ -438,25 +542,14 @@ $aq-pro-bg: #f2ebfc;
 	}
 }
 
-.actions-queue-section__count {
-	margin-left: auto;
-
-	.actions-queue-section__summary + &,
-	.actions-queue-section__breakdown + & {
-		margin-left: 0;
-	}
-}
-
+// The chevron keeps to the end of the heading, whatever comes before it.
 .actions-queue-section__chevron {
 	color: currentColor;
+	margin-left: auto;
 	transition: transform 0.15s ease;
 
 	[aria-expanded="true"] > & {
 		transform: rotate(180deg);
-	}
-
-	.actions-queue-section__label + & {
-		margin-left: auto;
 	}
 }
 
@@ -952,8 +1045,28 @@ button.actions-queue-row-group__link {
 		white-space: normal;
 	}
 
-	.actions-queue-section__summary {
+	// A lane's summary is dropped for want of room, but not the line saying a lane has nothing in it: that takes
+	// a line of its own under the lane's name, in full.
+	.actions-queue-section__summary:not(.is-folded-only) {
 		display: none;
+	}
+
+	.actions-queue-section.is-empty > .actions-queue-section__head {
+		flex-wrap: wrap;
+	}
+
+	.actions-queue-section__summary.is-folded-only {
+		flex-basis: 100%;
+		order: 1;
+		white-space: normal;
+
+		&::before {
+			content: none;
+		}
+
+		[aria-expanded="true"] > & {
+			display: none;
+		}
 	}
 
 	// There's no width to spare for indenting a section's groups.
@@ -1093,8 +1206,7 @@ html.shield-results-overlay-open {
 	}
 
 	// The setup bar would sit across the bottom of the panel.
-	.shield-setup-guide,
-	.shield-setup-guide-reopen {
+	.shield-setup-guide {
 		display: none;
 	}
 }

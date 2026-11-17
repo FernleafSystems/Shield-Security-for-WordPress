@@ -67,6 +67,26 @@ class LegacyDashboardNoticesTest extends BaseUnitTest {
 	}
 
 	/**
+	 * @dataProvider providerNoticeTypesWhenNonEssentialNoticesAreHidden
+	 */
+	public function testHidingNonEssentialNoticesOnlyHidesPromoNotices( string $type, bool $expectShown ) :void {
+		$this->installControllerForNoticeType( $type, false );
+
+		$payload = ( new LegacyDashboardNotices() )->check();
+
+		$this->assertSame( $expectShown, \is_array( $payload ) );
+	}
+
+	public static function providerNoticeTypesWhenNonEssentialNoticesAreHidden() :array {
+		return [
+			'promo is hidden' => [ 'promo', false ],
+			'error still shows' => [ 'error', true ],
+			'warning still shows' => [ 'warning', true ],
+			'info still shows' => [ 'info', true ],
+		];
+	}
+
+	/**
 	 * @dataProvider providerEmailVerificationNoticeStates
 	 */
 	public function testEmailVerificationNoticeExposesStableStatusAndActions(
@@ -98,7 +118,7 @@ class LegacyDashboardNoticesTest extends BaseUnitTest {
 		];
 	}
 
-	private function installControllerForNoticeType( string $type ) :void {
+	private function installControllerForNoticeType( string $type, bool $showNonEssentialNotices = true ) :void {
 		$notice = ( new NoticeVO() )->applyFromArray( [
 			'id'               => 'allow-tracking',
 			'type'             => $type,
@@ -110,21 +130,17 @@ class LegacyDashboardNoticesTest extends BaseUnitTest {
 		] );
 
 		PluginControllerInstaller::install(
-			new class( $notice ) extends Controller {
+			new class( $notice, $showNonEssentialNotices ) extends Controller {
 
 				private NoticeVO $notice;
 
-				public function __construct( NoticeVO $notice ) {
+				public function __construct( NoticeVO $notice, bool $showNonEssentialNotices ) {
 					$this->notice = $notice;
 					$this->labels = (object)[ 'Name' => 'Shield' ];
 					$this->plugin_urls = new UnitTestPluginUrls();
 					$this->opts = new class {
 						public function optGet( string $key ) {
 							return $key === 'tracking_permission_set_at' ? 0 : null;
-						}
-
-						public function optIs( string $key, $value ) :bool {
-							return $key === 'enable_upgrade_admin_notice' && $value === 'Y';
 						}
 					};
 					$this->admin_notices = new class( $notice ) {
@@ -143,9 +159,19 @@ class LegacyDashboardNoticesTest extends BaseUnitTest {
 						}
 					};
 					$this->comps = (object)[
-						'opts_lookup' => new class {
+						'opts_lookup' => new class( $showNonEssentialNotices ) {
+							private bool $showNonEssentialNotices;
+
+							public function __construct( bool $showNonEssentialNotices ) {
+								$this->showNonEssentialNotices = $showNonEssentialNotices;
+							}
+
 							public function getInstalledAt() :int {
 								return 1699990000;
+							}
+
+							public function showsInDashboard( string $element ) :bool {
+								return $element !== 'notices' || $this->showNonEssentialNotices;
 							}
 						},
 					];

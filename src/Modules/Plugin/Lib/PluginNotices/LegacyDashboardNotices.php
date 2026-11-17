@@ -214,7 +214,7 @@ class LegacyDashboardNotices extends Base {
 		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
 			$allowed = false;
 		}
-		elseif ( $notice->type == 'promo' && !self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' ) ) {
+		elseif ( $notice->type == 'promo' && !$con->comps->opts_lookup->showsInDashboard( 'notices' ) ) {
 			$allowed = false;
 		}
 		elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {

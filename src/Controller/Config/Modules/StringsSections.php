@@ -226,7 +226,7 @@ class StringsSections {
 				$short = sprintf( '%s :: %s', __( '2FA', 'wp-simple-firewall' ), __( 'OTP', 'wp-simple-firewall' ) );
 				$title = __( '2FA One-Time Passwords', 'wp-simple-firewall' );
 				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using one-time passwords from an authenticator app (TOTP).', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You may combine multiple authentication factors for increased security.', 'wp-simple-firewall' ) )
 				];
 				break;

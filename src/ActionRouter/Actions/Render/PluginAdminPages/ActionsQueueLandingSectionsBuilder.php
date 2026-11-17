@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 /**
- * Lays out the Actions Queue landing: a section for each lane that needs action, then one for what's passing
- * and one for what the plan doesn't cover or is turned off. Each section holds boxes, so the template only
- * draws them.
+ * Lays out the Actions Queue landing: a section for each lane (Fix now, Review next), whether or not anything in
+ * it needs action, then one for what's passing and one for what the plan doesn't cover or is turned off. Each
+ * section holds boxes, so the template only draws them.
  *
  * @phpstan-import-type BucketData from ActionsQueueBucketsBuilder
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
@@ -44,7 +44,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   breakdown:list<array{label:string,count:int}>,
  *   selection_json:string,
  *   is_open:bool,
- *   boxes:list<LandingBox>
+ *   empty_text:string,
+ *   boxes:list<LandingBox>,
+ *   is_selected_tab:bool
  * }
  */
 class ActionsQueueLandingSectionsBuilder {
@@ -63,10 +65,10 @@ class ActionsQueueLandingSectionsBuilder {
 
 	/**
 	 * @param list<BucketData>              $buckets
-	 * @param array<string,GroupsLayerData> $bucketGroups the groups of each lane that can be opened
+	 * @param array<string,GroupsLayerData> $bucketGroups the groups of each lane that has any
 	 * @param list<HealthyRow>              $healthyRows
 	 * @param list<string>                  $aggregateGroupKeys groups that gather several maintenance items
-	 * @return array{sections:list<LandingSection>,has_lanes:bool}
+	 * @return list<LandingSection>
 	 */
 	public function build( array $buckets, array $bucketGroups, array $healthyRows, array $aggregateGroupKeys ) :array {
 		$lanes = [];
@@ -74,15 +76,13 @@ class ActionsQueueLandingSectionsBuilder {
 		$notCoveredCandidates = [];
 		$activeKeys = [];
 
+		$hasOpenLane = false;
 		foreach ( $buckets as $bucket ) {
-			if ( !$bucket[ 'is_interactive' ] ) {
-				continue;
-			}
-			$layer = $bucketGroups[ $bucket[ 'key' ] ];
 			$laneEntries = [];
 			$toDoEntries = [];
 
-			$tagged = \array_merge(
+			$layer = $bucketGroups[ $bucket[ 'key' ] ] ?? null;
+			$tagged = $layer === null ? [] : \array_merge(
 				\array_map( fn( array $s ) :array => [ $s, false ], $layer[ 'active_sections' ] ),
 				\array_map( fn( array $s ) :array => [ $s, true ], $layer[ 'healthy_sections' ] )
 			);
@@ -114,24 +114,31 @@ class ActionsQueueLandingSectionsBuilder {
 				}
 			}
 
-			if ( !empty( $laneEntries ) ) {
-				// Only the lane that needs attention next starts open; the rest show a one-line breakdown.
-				$lanes[] = [
-					'key'            => $bucket[ 'key' ],
-					'status'         => $bucket[ 'status' ],
-					'label'          => $bucket[ 'label' ],
-					'tab_label'      => $bucket[ 'label' ],
-					'icon_class'     => $bucket[ 'icon_class' ],
-					'count'          => $bucket[ 'display_count' ],
-					'show_count'     => true,
-					'summary'        => $bucket[ 'summary_text' ],
-					'breakdown'      => $this->buildBreakdown( $toDoEntries ),
-					'selection_json' => $bucket[ 'selection' ][ 'selection_json' ],
-					'is_open'        => empty( $lanes ),
-					// Review next is the longest lane, so its boxes start folded to a heading and a count.
-					'boxes'          => $this->buildLaneBoxes( $laneEntries, $bucket[ 'key' ] === 'review' ),
-				];
-			}
+			// A lane with nothing to do stays, in green with a zero, and says so: a lane that came and went would
+			// leave people wondering where it had gone. It starts folded, holding at most what was ignored. Of
+			// the lanes with something to do, only the one that needs attention next starts open; the rest show a
+			// one-line breakdown.
+			$hasNothingToDo = empty( $toDoEntries );
+			$isOpen = !$hasNothingToDo && !$hasOpenLane;
+			$lanes[] = [
+				'key'            => $bucket[ 'key' ],
+				'status'         => $hasNothingToDo ? 'good' : $bucket[ 'status' ],
+				'label'          => $bucket[ 'label' ],
+				'tab_label'      => $bucket[ 'label' ],
+				'icon_class'     => $hasNothingToDo ? 'bi bi-check-circle-fill' : $bucket[ 'icon_class' ],
+				'count'          => $hasNothingToDo ? 0 : $bucket[ 'display_count' ],
+				'show_count'     => true,
+				'summary'        => $hasNothingToDo ? '' : $bucket[ 'summary_text' ],
+				'breakdown'      => $this->buildBreakdown( $toDoEntries ),
+				'selection_json' => $bucket[ 'selection' ][ 'selection_json' ],
+				'is_open'        => $isOpen,
+				'empty_text'     => $hasNothingToDo ? $this->emptyLaneText( $bucket[ 'key' ] ) : '',
+				// Review next is the longest lane, so its boxes start folded to a heading and a count.
+				'boxes'          => $this->buildLaneBoxes( $laneEntries, $bucket[ 'key' ] === 'review' ),
+				// As tabs, the lane that starts open is the one showing first.
+				'is_selected_tab' => $isOpen,
+			];
+			$hasOpenLane = $hasOpenLane || !$hasNothingToDo;
 		}
 
 		// Each lane lists every group it doesn't flag as passing, so the same passing group can arrive from
@@ -183,13 +190,23 @@ class ActionsQueueLandingSectionsBuilder {
 				'breakdown'      => [],
 				'selection_json' => '',
 				'is_open'        => false,
+				'empty_text'     => '',
 				'boxes'          => [ $this->box( 'plain', '', '', '', false, $this->entries( $notCovered ) ) ],
+				'is_selected_tab' => false,
 			];
 		}
-		return [
-			'sections'  => $sections,
-			'has_lanes' => !empty( $lanes ),
-		];
+
+		// With nothing to do in any lane, none starts open, and the first section is the tab showing.
+		if ( !$hasOpenLane ) {
+			$sections[ 0 ][ 'is_selected_tab' ] = true;
+		}
+		return $sections;
+	}
+
+	private function emptyLaneText( string $bucketKey ) :string {
+		return $bucketKey === 'critical'
+			? __( 'There are no items that require your immediate attention.', 'wp-simple-firewall' )
+			: __( 'There are no items that need to be reviewed.', 'wp-simple-firewall' );
 	}
 
 	/**
@@ -329,7 +346,9 @@ class ActionsQueueLandingSectionsBuilder {
 			'breakdown'      => [],
 			'selection_json' => '',
 			'is_open'        => false,
+			'empty_text'     => '',
 			'boxes'          => $boxes,
+			'is_selected_tab' => false,
 		];
 	}
 
