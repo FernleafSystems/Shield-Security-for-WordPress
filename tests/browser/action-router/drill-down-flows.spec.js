@@ -869,3 +869,30 @@ test( 'actions queue lazy-loads the file locker asset panel to a terminal state 
 		await expect( fileActionSubmit ).toBeEnabled( { timeout: 20_000 } );
 	} );
 } );
+
+test( 'each file locker tab opens its own file, whatever order the tabs are opened in', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'file_locker_lazy', async ( fixture ) => {
+		const actionsQueuePage = new ActionsQueuePage( page );
+		await openShieldRoute( page, {
+			nav: 'scans',
+			nav_sub: 'overview',
+		} );
+		await actionsQueuePage.drillToDetail( fixture );
+
+		const tabs = page.locator( '.actions-queue-file-tab' );
+		const total = await tabs.count();
+		expect( total ).toBeGreaterThan( 2 );
+
+		// Last tab first, then back through the rest: the panel showing is always the clicked tab's own.
+		for ( let index = total - 1; index >= 0; index-- ) {
+			const tab = tabs.nth( index );
+			await tab.click();
+			await expect( tab ).toHaveAttribute( 'aria-expanded', 'true' );
+			const openPanels = page.locator( '.actions-queue-file-panel[aria-hidden="false"]' );
+			await expect( openPanels ).toHaveCount( 1 );
+			await expect( openPanels ).toHaveAttribute( 'id', await tab.getAttribute( 'aria-controls' ) );
+			const fileName = ( await tab.innerText() ).trim();
+			expect( ( await openPanels.locator( '.actions-queue-file-panel__path' ).innerText() ).trim().endsWith( fileName ) ).toBe( true );
+		}
+	} );
+} );

@@ -149,7 +149,6 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( '', $queuePane[ 'cards' ][ 0 ][ 'body_notice_variant' ] );
 		$this->assertSame( '/wp-admin/plugins.php', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'href' ] );
 		$this->assertSame( 'bi bi-power', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'icon_class' ] );
-		$this->assertSame( 'Go to plugin', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'tooltip_attr' ] );
 		$this->assertSame( '1', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] );
 		$this->assertSame( '0', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] );
 		$queueTableAction = $this->decodeJsonAttr( $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'table_action_attr' ] );
@@ -187,7 +186,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 
 	public function test_actions_queue_file_locker_pane_uses_per_card_panels_and_orders_problem_pending_and_good_locks() :void {
 		$builder = $this->createBuilder( [
-			'problemFileLocks' => [ (object)[ 'id' => 14, 'path' => '/wp-config.php', 'detected_at' => 1000, 'hash_current' => '' ] ],
+			'problemFileLocks' => [ (object)[ 'id' => 14, 'type' => 'wpconfig', 'path' => '/wp-config.php', 'detected_at' => 1000, 'hash_current' => '' ] ],
 			'pendingFileLockDisplays' => [
 				[
 					'file_key' => 'root_index',
@@ -195,7 +194,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 					'path'     => '/index.php',
 				],
 			],
-			'goodFileLocks'    => [ (object)[ 'id' => 15, 'path' => '/.htaccess', 'detected_at' => 0, 'hash_current' => 'abc123' ] ],
+			'goodFileLocks'    => [ (object)[ 'id' => 15, 'type' => 'root_htaccess', 'path' => '/.htaccess', 'detected_at' => 0, 'hash_current' => 'abc123' ] ],
 		] );
 
 		$pane = $builder->buildActionsQueueFileLockerPane();
@@ -262,9 +261,14 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( [], $pane[ 'disabled_actions' ] );
 		$this->assertCount( 2, $pane[ 'cards' ] );
 		$this->assertSame( [ 'inactive:wpconfig', 'inactive:root_index' ], \array_column( $pane[ 'cards' ], 'key' ) );
+		// Each file's tab names a panel of its own, so opening one never shows another file's.
 		$this->assertSame(
-			[ '', '' ],
+			[ 'actions-queue-filelocker-inactive-wpconfig', 'actions-queue-filelocker-inactive-root_index' ],
 			\array_column( $pane[ 'cards' ], 'panel_target' )
+		);
+		$this->assertSame(
+			[ 'actions-queue-filelocker-card-inactive-wpconfig', 'actions-queue-filelocker-card-inactive-root_index' ],
+			\array_column( $pane[ 'cards' ], 'panel_id' )
 		);
 		$this->assertTrue( $pane[ 'cards' ][ 0 ][ 'is_inactive' ] );
 		$this->assertSame( [], $pane[ 'cards' ][ 0 ][ 'actions' ] );

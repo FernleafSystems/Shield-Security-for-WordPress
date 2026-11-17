@@ -1473,3 +1473,48 @@ html.shield-results-overlay-open {
 	overflow-wrap: anywhere;
 	padding: 0;
 }
+
+// Why the file is worth locking: a few lines, kept to a comfortable reading width.
+.actions-queue-file-panel__about {
+	color: #50575e;
+	font-size: 13px;
+	line-height: 1.5;
+	margin: 0 0 1rem;
+	max-width: 80ch;
+}
+
+// A locked file's details, and what can be done about a change, side by side with no boxes around them.
+.actions-queue-file-details {
+	display: grid;
+	gap: 1.5rem 2.5rem;
+	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.actions-queue-file-details__title {
+	color: #1d2327;
+	font-size: 15px;
+	font-weight: 600;
+	margin: 0 0 0.75rem;
+}
+
+.actions-queue-file-details__list {
+	font-size: 13px;
+	margin: 0;
+
+	dt {
+		color: #646970;
+		font-size: 12px;
+		font-weight: 600;
+	}
+
+	dd {
+		margin: 0 0 0.75rem;
+		overflow-wrap: anywhere;
+	}
+}
+
+.actions-queue-file-details__download {
+	align-items: center;
+	display: inline-flex;
+	gap: 0.4rem;
+}

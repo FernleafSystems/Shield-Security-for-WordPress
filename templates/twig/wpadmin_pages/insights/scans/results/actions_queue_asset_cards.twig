@@ -49,6 +49,10 @@
 						<span class="actions-queue-file-panel__state status-{{ item.status }}">{{ item.stat_text }}</span>
 						<code class="actions-queue-file-panel__path">{{ item.meta_text }}</code>
 					</div>
+					{# Why this file is worth locking, whether or not it's locked yet. #}
+					{% if item.explanation is not empty %}
+						<p class="actions-queue-file-panel__about">{{ item.explanation }}</p>
+					{% endif %}
 					<div class="actions-queue-asset-panel__body" data-actions-queue-asset-panel-content="1">
 						{% if item.enable_dialog_json is not empty %}
 							<button type="button" class="btn btn-sm btn-primary"

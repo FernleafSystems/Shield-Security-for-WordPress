@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetFileLockCandidateDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FileLockExplanations;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
@@ -66,7 +67,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   is_inactive:bool,
  *   enable_dialog_json:string,
  *   actions:list<QueueAssetAction>,
- *   table:array<string,mixed>
+ *   table:array<string,mixed>,
+ *   explanation:string
  * }
  * @phpstan-import-type PendingFileLockDisplay from GetPendingFileLockDisplays
  * @phpstan-import-type FileLockCandidateDisplay from GetFileLockCandidateDisplays
@@ -720,6 +722,7 @@ class ScansResultsViewBuilder {
 				: $this->describeFileLockerRecord( $lock ),
 			'meta_text'          => $path,
 			'show_meta_in_tile'  => true,
+			'explanation'        => ( new FileLockExplanations() )->forFileKey( (string)$lock->type ),
 			'render_action'      => $this->buildAjaxRenderActionData( ScansFileLockerDiff::class, [
 				'rid' => $rid,
 			] ),
@@ -760,6 +763,7 @@ class ScansResultsViewBuilder {
 			'stat_text'          => __( 'Initial lock is still being created.', 'wp-simple-firewall' ),
 			'meta_text'          => $path,
 			'show_meta_in_tile'  => true,
+			'explanation'        => ( new FileLockExplanations() )->forFileKey( $fileKey ),
 			'body_notice'        => __( 'Shield is still creating the first lock for this file. Check back in about a minute for the full lock details.', 'wp-simple-firewall' ),
 			'body_notice_variant' => 'info',
 		] );
@@ -773,8 +777,11 @@ class ScansResultsViewBuilder {
 		$fileKey = sanitize_key( $inactiveLock[ 'file_key' ] );
 		$path = $inactiveLock[ 'path' ];
 
+		// Each file's tab opens its own panel, so every file needs a panel of its own to name, locked or not.
 		return $this->normalizeQueueAssetCard( [
 			'key'                => 'inactive:'.$fileKey,
+			'panel_id'           => 'actions-queue-filelocker-card-inactive-'.$fileKey,
+			'panel_target'       => 'actions-queue-filelocker-inactive-'.$fileKey,
 			'status'             => 'neutral',
 			'icon_class'         => $this->fileLockerIconClass( $path ),
 			'title'              => $inactiveLock[ 'title' ],
@@ -782,6 +789,7 @@ class ScansResultsViewBuilder {
 			'stat_text'          => __( 'This file is not currently protected.', 'wp-simple-firewall' ),
 			'meta_text'          => $path,
 			'show_meta_in_tile'  => true,
+			'explanation'        => ( new FileLockExplanations() )->forFileKey( $fileKey ),
 			'is_inactive'        => true,
 			'enable_dialog_json' => ( new ProtectionEnableDialogBuilder() )->forFile( $fileKey, $path ),
 		] );

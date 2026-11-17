@@ -48,6 +48,7 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 				'diff_available'        => true,
 				'original_file_missing' => false,
 				'current_content_empty' => false,
+				'can_download_current'  => true,
 			],
 			'strings' => [
 				'file_content_original' => 'Original',
@@ -57,7 +58,8 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 				'locked'                => 'Locked',
 				'file_size'             => 'File Size',
 				'file_modified'         => 'File Modified',
-				'download'              => 'Download',
+				'download_original'     => 'Download Original',
+				'download_current'      => 'Download Current',
 				'modified_file'         => 'Modified File',
 				'change_detected_at'    => 'Change Detected At',
 				'file_restore'          => 'Restore File',
@@ -164,6 +166,18 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 		$this->assertSame( 1, $xpath->query( '//a[@href="/download/original"]' )->length );
 		$this->assertSame( 0, $xpath->query( '//a[@href="/download/current"]' )->length );
 		$this->assertSame( 0, $xpath->query( '//input[@data-action="restore" or @data-action="accept"]' )->length );
+	}
+
+	public function testFileLockerDiffTemplateOffersNoDownloadOfAChangedFileThatCannotBeDownloaded() :void {
+		$context = $this->buildRenderContext();
+		$context[ 'flags' ][ 'original_file_missing' ] = true;
+		$context[ 'flags' ][ 'can_download_current' ] = false;
+		$xpath = $this->renderContext( $context );
+
+		$this->assertSame( 1, $xpath->query( '//a[@href="/download/original"]' )->length );
+		$this->assertSame( 0, $xpath->query( '//a[@href="/download/current"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//input[@type="submit" and @data-action="restore" and @data-rid="14"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//input[@type="submit" and @data-action="accept" and @data-rid="14"]' )->length );
 	}
 
 	public function testFileLockerDiffTemplateKeepsWholeModalFailureBehaviour() :void {

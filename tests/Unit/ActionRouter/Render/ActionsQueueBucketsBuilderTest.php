@@ -345,7 +345,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 			'show_in_actions_queue' => true,
 			'show_in_fix_now'       => true,
 			'disabled_reason'       => 'not_enabled',
-			'disabled_message'      => '2 of 4 critical files are locked.',
+			'disabled_message'      => 'file-locker-review-sentinel',
 			'disabled_status'       => '',
 			'disabled_actions'      => [],
 		] );
@@ -353,7 +353,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$classified = $builder->classify( [ 'items' => [] ] );
 
 		$this->assertArrayNotHasKey( 'file_locker', $classified[ 'critical' ][ 'disabled_groups' ] );
-		$this->assertSame( '2 of 4 critical files are locked.', $classified[ 'review' ][ 'disabled_groups' ][ 'file_locker' ][ 'disabled_message' ] ?? '' );
+		$this->assertSame( 'file-locker-review-sentinel', $classified[ 'review' ][ 'disabled_groups' ][ 'file_locker' ][ 'disabled_message' ] ?? '' );
 		$this->assertSame( 1, $classified[ 'review' ][ 'disabled_item_count' ] );
 	}
 
