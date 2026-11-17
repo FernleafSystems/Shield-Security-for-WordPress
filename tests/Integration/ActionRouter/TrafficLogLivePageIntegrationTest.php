@@ -133,6 +133,22 @@ class TrafficLogLivePageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, $control[ 'time_remaining' ] );
 	}
 
+	public function test_live_traffic_panel_offers_request_log_download_without_premium() :void {
+		$this->disablePremiumCapabilities();
+
+		$renderData = $this->requireRenderData( $this->renderLiveTrafficPanelBody() );
+		$downloads = \array_values( \array_filter(
+			$renderData[ 'hrefs' ][ 'inner_page_contextual_hrefs' ],
+			static function ( array $href ) :bool {
+				\parse_str( (string)\wp_parse_url( $href[ 'href' ], \PHP_URL_QUERY ), $query );
+				return ( $query[ 'download_category' ] ?? '' ) === 'traffic';
+			}
+		) );
+
+		$this->assertCount( 1, $downloads );
+		$this->assertFalse( $downloads[ 0 ][ 'disabled' ] );
+	}
+
 	public function test_live_traffic_panel_contract_disables_switch_when_capability_unavailable() :void {
 		$this->requireController()->opts
 			->optSet( 'enable_live_log', 'N' )
