@@ -1097,6 +1097,7 @@
         ],
         "default": "N",
         "type": "checkbox",
+        "beacon_id": 869,
         "name": "Cookie-free silentCAPTCHA",
         "summary": "Run silentCAPTCHA without setting its visitor cookie",
         "description": "Browsers keep silentCAPTCHA check times in local storage instead of a cookie, and check in more often. Purge your page cache after changing this option."
