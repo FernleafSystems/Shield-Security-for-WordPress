@@ -143,7 +143,6 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( 'example-plugin', $queuePane[ 'cards' ][ 0 ][ 'key' ] );
 		$this->assertSame( 'actions-queue-plugin-example-plugin', $queuePane[ 'cards' ][ 0 ][ 'panel_target' ] );
 		$this->assertSame( 'example-plugin/example-plugin.php', $queuePane[ 'cards' ][ 0 ][ 'meta_text' ] );
-		$this->assertTrue( $queuePane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
 		$this->assertSame( 3, $queuePane[ 'cards' ][ 0 ][ 'count_badge' ] );
 		$this->assertSame( '', $queuePane[ 'cards' ][ 0 ][ 'body_notice' ] );
 		$this->assertSame( '', $queuePane[ 'cards' ][ 0 ][ 'body_notice_variant' ] );
@@ -206,7 +205,6 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( 'actions-queue-filelocker-card-14', $pane[ 'cards' ][ 0 ][ 'panel_id' ] );
 		$this->assertSame( 'actions-queue-filelocker-14', $pane[ 'cards' ][ 0 ][ 'panel_target' ] );
 		$this->assertSame( '/wp-config.php', $pane[ 'cards' ][ 0 ][ 'meta_text' ] );
-		$this->assertTrue( $pane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
 		$this->assertSame( '0', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] );
 		$this->assertSame( '1', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] );
 		$fileDiffRenderAction = \json_decode(
@@ -270,9 +268,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 			[ 'actions-queue-filelocker-card-inactive-wpconfig', 'actions-queue-filelocker-card-inactive-root_index' ],
 			\array_column( $pane[ 'cards' ], 'panel_id' )
 		);
-		$this->assertTrue( $pane[ 'cards' ][ 0 ][ 'is_inactive' ] );
 		$this->assertSame( [], $pane[ 'cards' ][ 0 ][ 'actions' ] );
-		$this->assertTrue( $pane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
 		$this->assertSame( [], $pane[ 'cards' ][ 0 ][ 'panel_data' ] );
 
 		$dialog = \json_decode( $pane[ 'cards' ][ 0 ][ 'enable_dialog_json' ], true, 512, \JSON_THROW_ON_ERROR );

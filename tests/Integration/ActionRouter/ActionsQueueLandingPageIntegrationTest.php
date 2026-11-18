@@ -1309,7 +1309,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotEmpty( $cards );
 		$inactiveCards = \array_values( \array_filter(
 			$cards,
-			static fn( array $card ) :bool => $card[ 'is_inactive' ]
+			static fn( array $card ) :bool => $card[ 'enable_dialog_json' ] !== ''
 		) );
 		$this->assertNotEmpty( $inactiveCards );
 		$inactiveCard = $inactiveCards[ 0 ];
@@ -1496,7 +1496,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotEmpty( $pendingCards );
 		$pendingCard = $pendingCards[ 0 ];
 		$this->assertSame( 'actions-queue-filelocker-pending-root_index', $pendingCard[ 'panel_target' ] );
-		$this->assertFalse( $pendingCard[ 'is_inactive' ] );
+		// A file whose lock is on its way isn't offered for locking again.
+		$this->assertSame( '', $pendingCard[ 'enable_dialog_json' ] );
 	}
 
 	public function test_actions_queue_scan_groups_return_exact_counts_for_enabled_sources() :void {

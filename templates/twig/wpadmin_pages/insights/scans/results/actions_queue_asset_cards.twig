@@ -15,7 +15,7 @@
 		File Locker: one tab per critical file, opening on the first. A locked file's tab loads its details; a
 		file that isn't locked offers to lock it.
 	#}
-	<div class="actions-queue-asset-cards actions-queue-asset-cards--files"
+	<div class="actions-queue-asset-cards"
 		 data-actions-queue-asset-cards="1"
 		 data-mode-shell="1"
 		 data-mode="actions_queue_assets"
@@ -88,7 +88,7 @@
 		</div>
 	</div>
 {% else %}
-	<div class="actions-queue-asset-cards{% if flags.is_file_locker %} actions-queue-asset-cards--files{% endif %}"
+	<div class="actions-queue-asset-cards"
 		 data-actions-queue-asset-cards="1"
 		 data-mode-shell="1"
 		 data-mode="actions_queue_assets"
@@ -96,18 +96,15 @@
 		<div class="investigate-landing__subject-grid actions-queue-asset-cards__grid">
 			{% for item in vars.asset_cards %}
 				<button type="button"
-						class="investigate-landing__subject-card actions-queue-asset-card operator-card-surface operator-tile-card status-{{ item.status }}{% if item.is_inactive %} is-inactive{% endif %}"
-						{% if item.enable_dialog_json is not empty %}
-						data-enable-protection="{{ item.enable_dialog_json|e('html_attr') }}" aria-haspopup="dialog"
-						{% else %}
+						class="investigate-landing__subject-card actions-queue-asset-card operator-card-surface operator-tile-card status-{{ item.status }}"
 						data-mode-tile="1"
 						data-mode-tile-key="{{ item.key|e('html_attr') }}"
 						data-mode-panel-target="{{ item.panel_target|e('html_attr') }}"
 						aria-controls="{{ item.panel_id|e('html_attr') }}"
-						aria-expanded="false"{% endif %}>
+						aria-expanded="false">
 					{% include '/wpadmin/components/operator/tile_content.twig' with { tile: {
 						icon_class: item.icon_class, title: item.title, status: item.status, count_badge: item.count_badge,
-						status_label: '', oneliner: item.stat_text, meta_text: item.show_meta_in_tile ? item.meta_text : ''
+						status_label: '', oneliner: item.stat_text, meta_text: item.meta_text
 					} } only %}
 				</button>
 			{% endfor %}
@@ -122,7 +119,6 @@
 
 		<div class="actions-queue-asset-cards__panels">
 			{% for item in vars.asset_cards %}
-				{% if item.enable_dialog_json is empty %}
 				{% set panel_body %}
 					{% if item.meta_text is not empty or item.actions is not empty %}
 						<div class="investigate-subject-header actions-queue-asset-panel__summary">
@@ -184,7 +180,6 @@
 					},
 					strings: strings
 				} only %}
-				{% endif %}
 			{% endfor %}
 		</div>
 	</div>

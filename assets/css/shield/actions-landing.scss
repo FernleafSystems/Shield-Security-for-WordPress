@@ -46,42 +46,6 @@
 	min-height: 148px;
 }
 
-.actions-queue-asset-card.is-inactive {
-	background: #f6f7f7;
-	border-color: #dcdcde;
-	color: #50575e;
-}
-
-.actions-queue-asset-card.is-inactive:hover,
-.actions-queue-asset-card.is-inactive:focus-visible {
-	background: #fff;
-	border-color: #8c8f94;
-}
-
-.actions-queue-asset-card.is-inactive .operator-tile-card__icon {
-	background: #edf0f0;
-	color: #646970;
-}
-
-.actions-queue-asset-card.is-inactive .operator-tile-card__summary {
-	color: #787c82;
-}
-
-.actions-queue-asset-cards--files .actions-queue-asset-cards__grid {
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.actions-queue-asset-cards--files .actions-queue-asset-card {
-	min-height: 0;
-	padding: 0.875rem;
-}
-
-@media (max-width: 800px) {
-	.actions-queue-asset-cards--files .actions-queue-asset-cards__grid {
-		grid-template-columns: minmax(0, 1fr);
-	}
-}
-
 .actions-queue-asset-cards__hint {
 	color: #888;
 	font-size: 0.85rem;

@@ -130,7 +130,6 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 			'rail_title'        => '',
 			'stat_text'         => $countBadge.' files need review',
 			'meta_text'         => $subjectId,
-			'show_meta_in_tile' => true,
 			'count_badge'       => $countBadge,
 			'body_notice'         => '',
 			'body_notice_variant' => '',
@@ -138,7 +137,6 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 				'actions-queue-asset-panel-loaded' => '1',
 				'actions-queue-asset-panel-lazy'   => '0',
 			],
-			'is_inactive'       => false,
 			'actions'           => [
 				[
 					'type'         => 'deactivate',
