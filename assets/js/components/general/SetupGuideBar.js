@@ -20,7 +20,6 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 		this.sidebarItem = document.querySelector( '.sidebar-setup-item[data-setup-guide-open="1"]' );
 		this.isBusy = false;
 		this.isRefreshWanted = false;
-		document.body.classList.add( 'has-shield-setup-guide' );
 		this.syncScrollPadding();
 		this.fillShellToViewport();
 		window.addEventListener( 'resize', () => this.fillShellToViewport() );
@@ -99,7 +98,6 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 	removeGuide() {
 		this.root.remove();
 		this.sidebarItem?.closest( '.sidebar-setup-footer' )?.remove();
-		document.body.classList.remove( 'has-shield-setup-guide' );
 		this.syncScrollPadding();
 		this.fillShellToViewport();
 	}

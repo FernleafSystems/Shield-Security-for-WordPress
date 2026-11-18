@@ -543,7 +543,7 @@ $setup-guide-sheet-height: 640px;
 
 // Leave room below page content inside the content column, so the sidebar runs all the way down
 // to the bar; and lift the Configure save bar above the guide.
-body.has-shield-setup-guide #PageMainBody_Inner-Apto {
+body:has(.shield-setup-guide) #PageMainBody_Inner-Apto {
 	padding-bottom: 5rem;
 }
 
@@ -577,15 +577,15 @@ body.has-shield-setup-guide #PageMainBody_Inner-Apto {
 	padding: 1px 7px;
 }
 
-body.has-shield-setup-guide .shield-actionbar:not(.shield-actionbar--top) {
+body:has(.shield-setup-guide) .shield-actionbar:not(.shield-actionbar--top) {
 	bottom: 4.4rem;
 }
 
 // The dashboard's Live Monitor dock also sits at the bottom; stack it above the collapsed guide.
-body.has-shield-setup-guide .dashboard-live-monitor {
+body:has(.shield-setup-guide) .dashboard-live-monitor {
 	bottom: 3.6rem;
 }
 
-body.has-shield-setup-guide #PageMainBody_Inner-Apto.has-live-monitor-docked {
+body:has(.shield-setup-guide) #PageMainBody_Inner-Apto.has-live-monitor-docked {
 	padding-bottom: calc(5.6rem + var(--dashboard-live-monitor-clearance, 0px));
 }
