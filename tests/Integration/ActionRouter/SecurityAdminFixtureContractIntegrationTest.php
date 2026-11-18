@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	SecurityAdminCheck,
 	SecurityAdminLogin
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\HandleOptionsSaveRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\RawOptionStoreSnapshot;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityAdminFixtureBuilder;
@@ -218,6 +219,7 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 
 	/**
 	 * A page left open from before the PIN box was replaced sends the PIN inside its form, and it still unlocks.
+	 * The request is sent as that page sends it, through the same entry as any other AJAX request.
 	 */
 	public function test_pin_sent_inside_the_form_is_accepted() :void {
 		$this->loginAsAdministrator();
@@ -225,9 +227,13 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 
 		$locked = $builder->seed( SecurityAdminFixtureBuilder::SCENARIO_LOCKED );
 		try {
-			$payload = $this->runAction( SecurityAdminLogin::SLUG, [
-				ActionData::FIELD_FORM => [ 'sec_admin_key' => $locked[ 'contract' ][ 'pins' ][ 'valid' ] ],
-			] );
+			$payload = ( new ExternalEntryGuard() )->dispatch(
+				ExternalEntryGuard::ENTRY_AJAX,
+				SecurityAdminLogin::SLUG,
+				\array_merge( ActionData::Build( SecurityAdminLogin::class ), [
+					'form_params' => [ 'sec_admin_key' => $locked[ 'contract' ][ 'pins' ][ 'valid' ] ],
+				] )
+			)->payload();
 			$this->assertTrue( $payload[ 'success' ] );
 			$this->assertTrue( $builder->inspect( $locked[ 'state' ] )[ 'current' ][ 'session_active' ] );
 		}
