@@ -12,19 +12,10 @@ class PluginPageView {
 	public const STATUS = 'cloaked';
 
 	public function addHooks() :void {
-		add_action( 'pre_current_active_plugins', [ $this, 'setCurrentStatus' ], 1000 );
 		add_filter( 'plugins_list', [ $this, 'addCloakedList' ], \PHP_INT_MAX );
 		add_filter( 'views_plugins', [ $this, 'addStatusViewLink' ], 1000 );
 		add_filter( 'plugin_action_links', [ $this, 'filterActionLinks' ], 1000, 4 );
-		add_filter( 'mu_plugin_action_links', [ $this, 'filterActionLinks' ], 1000, 4 );
 		add_filter( 'plugin_row_meta', [ $this, 'addRowMeta' ], 1000, 4 );
-	}
-
-	public function setCurrentStatus() :void {
-		if ( $this->isCloakedStatusRequest() ) {
-			global $status;
-			$status = self::STATUS;
-		}
 	}
 
 	public function addStatusViewLink( $views ) {
@@ -51,19 +42,39 @@ class PluginPageView {
 		return $views;
 	}
 
+	/**
+	 * Adds the cloaked plugins as a list of their own, and has the table show it when the page was asked for it.
+	 *
+	 * WordPress settles which list to show from the request before this runs, and up to 6.9 it takes only the
+	 * lists it knows of, so a request for this one is left showing every plugin. This is the last point before
+	 * the table's rows are chosen, so the list is chosen here, and it's the only place that reads the request:
+	 * everything drawn afterwards is told by WordPress which list it's in. The request is the page's own, or the
+	 * one the page's search box sends in the background, which posts the list it's on. A search is left as
+	 * WordPress has it, as on any other tab. With nothing cloaked there is no list to show, and WordPress shows
+	 * every plugin, as it does when asked for any list that's empty.
+	 */
 	public function addCloakedList( $plugins ) {
 		if ( !\is_array( $plugins ) ) {
 			return $plugins;
 		}
 
 		$plugins[ self::STATUS ] = $this->buildRowsByFile( $plugins );
+
+		global $status;
+		if ( $status !== 'search' && !empty( $plugins[ self::STATUS ] )
+			 && Services::Request()->request( 'plugin_status' ) === self::STATUS ) {
+			$status = self::STATUS;
+		}
 		return $plugins;
 	}
 
+	/**
+	 * @param string $context the list the row is in, as WordPress gives it
+	 */
 	public function filterActionLinks( $actions, string $pluginFile = '', $pluginData = [], string $context = '' ) {
-		unset( $pluginData, $context );
+		unset( $pluginData );
 
-		if ( !$this->isCloakedStatusRequest() || !\is_array( $actions ) ) {
+		if ( $context !== self::STATUS || !\is_array( $actions ) ) {
 			return $actions;
 		}
 
@@ -73,10 +84,13 @@ class PluginPageView {
 			: $actions;
 	}
 
+	/**
+	 * @param string $status the list the row is in, as WordPress gives it
+	 */
 	public function addRowMeta( $pluginMeta, string $pluginFile = '', $pluginData = [], string $status = '' ) {
-		unset( $pluginData, $status );
+		unset( $pluginData );
 
-		if ( !$this->isCloakedStatusRequest() || !\is_array( $pluginMeta ) ) {
+		if ( $status !== self::STATUS || !\is_array( $pluginMeta ) ) {
 			return $pluginMeta;
 		}
 
@@ -97,10 +111,6 @@ class PluginPageView {
 		);
 
 		return $pluginMeta;
-	}
-
-	private function isCloakedStatusRequest() :bool {
-		return (string)Services::Request()->query( 'plugin_status' ) === self::STATUS;
 	}
 
 	/**

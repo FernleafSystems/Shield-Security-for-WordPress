@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components\CompCons;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\PluginPageView;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPluginsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerCloakedPlugins;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Processor;
@@ -943,6 +944,25 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 
 	public static function restrictedListContexts() :array {
 		return [ 'search' => [ [ 's' => 'no matches' ] ], 'inactive' => [ [ 'plugin_status' => 'inactive' ] ], 'cloaked' => [ [ 'plugin_status' => 'cloaked' ] ] ];
+	}
+
+	/**
+	 * The Cloaked tab's table lists the cloaked plugins and nothing else.
+	 *
+	 * Up to WordPress 6.9 the table begins on every plugin when it's asked for a list it doesn't know of, and it
+	 * begins that way here too (the helper prepares the table's rows without giving WordPress the request's
+	 * list), so this fails unless the cloaked list is chosen before WordPress picks the rows.
+	 */
+	public function testCloakedTabListsTheCloakedPluginsAndNothingElse() :void {
+		$GLOBALS[ 'pagenow' ] = 'plugins.php';
+		$file = $this->createStandardCloakedPlugin( 'shi-cloaked-tab', 'Cloaked tab' );
+		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+		$this->assertCount( 1, $this->observeRealPluginsTable() );
+
+		$_GET = [ 'plugin_status' => PluginPageView::STATUS ];
+		Services::Request()->query = $_GET;
+
+		$this->assertSame( [ $file ], \array_keys( $this->prepareRealPluginsTable() ) );
 	}
 
 	public function testPluginsActionRequestDoesNotTurnAnActionOnlyFilterIntoAnAlert() :void {

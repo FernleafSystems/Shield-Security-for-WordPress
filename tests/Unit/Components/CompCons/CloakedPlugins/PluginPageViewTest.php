@@ -115,30 +115,93 @@ class PluginPageViewTest extends BaseUnitTest {
 		$this->activeFindings = [ $finding ];
 		$meta = [ 'version' => 'Version 1.0' ];
 
-		$this->assertSame( $meta, ( new PluginPageView() )->addRowMeta( $meta, $finding->entry->file ) );
+		// WordPress tells each row which list it's in.
+		$this->assertSame( $meta, ( new PluginPageView() )->addRowMeta( $meta, $finding->entry->file, [], 'all' ) );
 
-		ServicesState::mergeItems( [
-			'service_request' => new UnitTestRequest( [
-				'plugin_status' => PluginPageView::STATUS,
-			] ),
-		] );
-
-		$result = ( new PluginPageView() )->addRowMeta( $meta, $finding->entry->file );
+		$result = ( new PluginPageView() )->addRowMeta( $meta, $finding->entry->file, [], PluginPageView::STATUS );
 
 		$this->assertStringContainsString( '<code>wp-content/plugins/cloaked/cloaked.php</code>', $result[ 'shield-cloaked-path' ] );
 		$this->assertNotSame( '', $result[ 'shield-cloaked-reason' ] );
 	}
 
-	public function test_cloaked_status_request_sets_global_status() :void {
+	/**
+	 * The table's list is chosen as the cloaked list is added, which is before WordPress picks the table's rows.
+	 * Up to WordPress 6.9 the table starts on "all" for a list it doesn't know, as it does here.
+	 */
+	public function test_a_request_for_the_cloaked_list_has_the_table_show_it() :void {
+		$this->activeFindings = [ $this->standardFinding( 'cloaked/cloaked.php', 'Cloaked Plugin' ) ];
 		ServicesState::mergeItems( [
 			'service_request' => new UnitTestRequest( [
 				'plugin_status' => PluginPageView::STATUS,
 			] ),
 		] );
+		$GLOBALS[ 'status' ] = 'all';
 
-		( new PluginPageView() )->setCurrentStatus();
+		( new PluginPageView() )->addCloakedList( [ 'all' => [] ] );
 
-		$this->assertSame( PluginPageView::STATUS, $GLOBALS[ 'status' ] ?? '' );
+		$this->assertSame( PluginPageView::STATUS, $GLOBALS[ 'status' ] );
+	}
+
+	/**
+	 * When the page's search box is cleared, WordPress fetches the rows again in the background and posts the list
+	 * the page is on.
+	 */
+	public function test_a_posted_request_for_the_cloaked_list_has_the_table_show_it() :void {
+		$this->activeFindings = [ $this->standardFinding( 'cloaked/cloaked.php', 'Cloaked Plugin' ) ];
+		$request = new UnitTestRequest();
+		$request->post = [ 'plugin_status' => PluginPageView::STATUS ];
+		ServicesState::mergeItems( [ 'service_request' => $request ] );
+		$GLOBALS[ 'status' ] = 'all';
+
+		( new PluginPageView() )->addCloakedList( [ 'all' => [] ] );
+
+		$this->assertSame( PluginPageView::STATUS, $GLOBALS[ 'status' ] );
+	}
+
+	public function test_a_request_for_the_cloaked_list_changes_nothing_when_nothing_is_cloaked() :void {
+		$this->activeFindings = [];
+		ServicesState::mergeItems( [
+			'service_request' => new UnitTestRequest( [
+				'plugin_status' => PluginPageView::STATUS,
+			] ),
+		] );
+		$GLOBALS[ 'status' ] = 'all';
+
+		( new PluginPageView() )->addCloakedList( [ 'all' => [] ] );
+
+		$this->assertSame( 'all', $GLOBALS[ 'status' ] );
+	}
+
+	public function test_the_table_is_left_on_another_list_when_that_is_what_was_asked_for() :void {
+		$this->activeFindings = [ $this->standardFinding( 'cloaked/cloaked.php', 'Cloaked Plugin' ) ];
+		ServicesState::mergeItems( [
+			'service_request' => new UnitTestRequest( [
+				'plugin_status' => 'inactive',
+			] ),
+		] );
+		$GLOBALS[ 'status' ] = 'inactive';
+
+		( new PluginPageView() )->addCloakedList( [ 'all' => [] ] );
+
+		$this->assertSame( 'inactive', $GLOBALS[ 'status' ] );
+	}
+
+	/**
+	 * A search from the cloaked tab is a search, as it is from any other tab.
+	 */
+	public function test_a_search_is_left_as_wordpress_has_it() :void {
+		$this->activeFindings = [ $this->standardFinding( 'cloaked/cloaked.php', 'Cloaked Plugin' ) ];
+		ServicesState::mergeItems( [
+			'service_request' => new UnitTestRequest( [
+				'plugin_status' => PluginPageView::STATUS,
+				's'             => 'something',
+			] ),
+		] );
+		$GLOBALS[ 'status' ] = 'search';
+
+		( new PluginPageView() )->addCloakedList( [ 'all' => [], 'search' => [] ] );
+
+		$this->assertSame( 'search', $GLOBALS[ 'status' ] );
 	}
 
 	public function test_must_use_actions_are_stripped_only_on_cloaked_status() :void {
@@ -146,15 +209,8 @@ class PluginPageViewTest extends BaseUnitTest {
 		$this->activeFindings = [ $mustUse ];
 		$actions = [ 'deactivate' => '<a>Deactivate</a>' ];
 
-		$this->assertSame( $actions, ( new PluginPageView() )->filterActionLinks( $actions, $mustUse->entry->file ) );
-
-		ServicesState::mergeItems( [
-			'service_request' => new UnitTestRequest( [
-				'plugin_status' => PluginPageView::STATUS,
-			] ),
-		] );
-
-		$this->assertSame( [], ( new PluginPageView() )->filterActionLinks( $actions, $mustUse->entry->file ) );
+		$this->assertSame( $actions, ( new PluginPageView() )->filterActionLinks( $actions, $mustUse->entry->file, [], 'all' ) );
+		$this->assertSame( [], ( new PluginPageView() )->filterActionLinks( $actions, $mustUse->entry->file, [], PluginPageView::STATUS ) );
 	}
 
 	private function standardFinding( string $file, string $name ) :CloakedPluginFinding {
