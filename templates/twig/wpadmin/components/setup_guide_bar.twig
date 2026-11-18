@@ -65,6 +65,11 @@
 					{% endif %}
 					{% if step.body is not empty %}
 						<div class="shield-setup-guide__step-body">{{ step.body|raw }}</div>
+					{% elseif step.is_done %}
+						{# A finished step is drawn without its form. Its link opens the guide on it, form and all. #}
+						<p class="shield-setup-guide__skip">
+							<a class="shield-setup-guide__link" href="{{ step.redo_href }}">{{ guide.strings.redo }}</a>
+						</p>
 					{% endif %}
 					{% if not step.is_done %}
 						<p class="shield-setup-guide__skip">

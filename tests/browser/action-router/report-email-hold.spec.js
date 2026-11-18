@@ -97,6 +97,23 @@ test( 'a report email saved in Configure completes the setup guide step on the s
 	} );
 } );
 
+test( 'a finished setup guide step can be gone over again from its own link', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withReportEmailHoldFixture( async () => {
+		await skipReportEmailStep( page );
+
+		// A page that wasn't asked to show the guide draws a finished step without its form.
+		await openShieldRoute( page, { nav: 'dashboard', nav_sub: 'overview' } );
+		const guide = page.locator( '#ShieldSetupGuide' );
+		const emailField = reportEmailPane( page ).locator( '[name="ReportEmail"]' );
+		await guide.locator( '[data-setup-guide-toggle="1"]' ).click();
+		await guide.locator( '[data-setup-guide-step="report_email"]' ).click();
+		await expect( emailField ).toHaveCount( 0 );
+
+		await reportEmailPane( page ).locator( 'a[href*="setup_step=report_email"]' ).click();
+		await expect( emailField ).toBeVisible();
+	} );
+} );
+
 test( 'a typed report email saved from the queue link ends the hold', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withReportEmailHoldFixture( async () => {
 		await openReviewSection( page );
