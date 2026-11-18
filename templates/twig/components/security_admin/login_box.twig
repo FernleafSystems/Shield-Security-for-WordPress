@@ -1,9 +1,10 @@
+{% import '/common/macros.twig' as icwp_macros %}
 <div id="WpsfAdminAccessLogin" style="display:none;">
 	<div class="wpsf-admin-access-login" id="SecAdminDialog">
 		<div class="input-holder" id="SecAdminPinInputContainer">
 			<label>
 				{{ strings.access_message }}
-				<input id="SecAdminPinInput" type="password" name="sec_admin_key" />
+				<input id="SecAdminPinInput" name="sec_admin_key" {{ icwp_macros.pinEntryAttributes() }} />
 				<button type="button" class="button" style="margin-top:3px;">{{ strings.access_submit_label }}</button>
 			</label>
 		</div>
@@ -12,9 +13,6 @@
 </div>
 
 <style>
-	.input-holder label {
-		font-size: 24px;
-	}
 	.input-holder label {
 		font-size: inherit;
 		display: block;

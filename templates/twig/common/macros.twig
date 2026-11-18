@@ -10,6 +10,21 @@
 	{% for attr_name, attr_value in attributes %} {{ attr_name|e('html_attr') }}="{{ attr_value|e('html_attr') }}"{% endfor %}
 {% endmacro %}
 
+{#
+ # For a PIN typed in to unlock something (never a stored login credential), so password
+ # manager extensions shouldn't offer to fill or save it. Each opt-out is that vendor's own:
+ #   keeper-ignore class: Keeper           data-1p-ignore: 1Password
+ #   data-lpignore="true": LastPass        data-form-type="other": Dashlane
+ #   data-bwignore: Bitwarden (honoured only if the user turns on its "skip fields" setting)
+ #   data-protonpass-ignore: Proton Pass   data-spignore: Sticky Password
+ # Browsers' built-in password managers have no opt-out for password fields.
+ #}
+{% macro pinEntryAttributes(classes='') %}
+	type="password" class="keeper-ignore {{ classes }}" autocomplete="off"
+	data-1p-ignore data-lpignore="true" data-form-type="other" data-bwignore
+	data-protonpass-ignore="true" data-spignore="true"
+{% endmacro %}
+
 {% macro tagAnchor(href,text,id='',classes=[],new_window=false,datas=[],disabled=false,is_action=false) %}
 	{% set attributes = {} %}
 	{% if id is not empty %}

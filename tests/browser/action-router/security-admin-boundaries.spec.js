@@ -2,6 +2,7 @@ const { test, expect } = require( './support/shield-test' );
 const { dismissBlockingDialogs, openShieldRoute } = require( './support/shield-browser' );
 const {
 	assertSecurityAdminContract,
+	expectPinInputIgnoredByPasswordManagers,
 	expectSecurityAdminLocalisation,
 	sendSecurityAdminAjax,
 } = require( './support/security-admin-assertions' );
@@ -81,6 +82,9 @@ test( 'Security Admin restriction zones disable WP options only for non-Security
 		const blogname = page.locator( contract.selectors.wp_option_blogname );
 		await expect( blogname ).toBeVisible( { timeout: 30_000 } );
 		await expect( blogname ).toBeDisabled();
+
+		// The unlock box printed on WP admin pages.
+		await expectPinInputIgnoredByPasswordManagers( page.locator( contract.selectors.login_box_pin_input ) );
 	} );
 
 	await fixtureApi.withSecurityAdminFixture( 'restriction-zones-active-admin', async ( rawContract ) => {

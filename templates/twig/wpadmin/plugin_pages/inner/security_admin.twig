@@ -1,6 +1,7 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
+	{% import '/common/macros.twig' as icwp_macros %}
 	<div id="SecurityAdminOverlay" class="security-admin-overlay"
 		 role="dialog" tabindex="-1"
 		 aria-labelledby="SecurityAdminLabel"
@@ -21,11 +22,11 @@
 
 						<div class="mb-3">
 							<label for="sec_admin_key" class="visually-hidden">{{ strings.aar_enter_access_key }}</label>
-							<input type="password" name="sec_admin_key"
-								   class="form-control form-control-lg text-center rounded-3"
+							<input name="sec_admin_key"
 								   id="sec_admin_key"
 								   placeholder="{{ strings.aar_enter_access_key }}"
-								   value="" autocomplete="off" />
+								   value=""
+								   {{ icwp_macros.pinEntryAttributes( 'form-control form-control-lg text-center rounded-3' ) }} />
 						</div>
 
 						<div class="d-grid mb-3">

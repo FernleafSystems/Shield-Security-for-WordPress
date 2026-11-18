@@ -15,6 +15,7 @@ const {
 } = require( './support/security-assertions' );
 const {
 	assertSecurityAdminContract,
+	expectPinInputIgnoredByPasswordManagers,
 	expectSecurityAdminLocalisation,
 	sendSecurityAdminAjax,
 } = require( './support/security-admin-assertions' );
@@ -32,7 +33,9 @@ async function expectRestrictedOverlay( page, contract ) {
 	await expectConnectedNonEmptyReference( page, overlay, 'aria-describedby' );
 
 	await expect( page.locator( contract.selectors.overlay_form ) ).toBeVisible();
-	await expect( page.locator( contract.selectors.overlay_pin_input ) ).toBeVisible();
+	const pinInput = page.locator( contract.selectors.overlay_pin_input );
+	await expect( pinInput ).toBeVisible();
+	await expectPinInputIgnoredByPasswordManagers( pinInput );
 	return overlay;
 }
 
