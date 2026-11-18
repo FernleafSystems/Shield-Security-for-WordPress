@@ -147,13 +147,16 @@ export class SecurityAdmin extends BaseComponent {
 			}
 		} );
 
-		// The form is drawn with Unlock disabled, so a PIN typed before this script was listening can't be sent
-		// and lost. It can be sent now.
+		// The form is drawn with Unlock disabled, so pressing Enter on a PIN typed before this script was listening
+		// doesn't send the form the ordinary way and lose it. It can be sent now.
 		unlockButton.disabled = false;
 
-		// The field asks for focus itself (autofocus), so it has it as soon as it's shown, without waiting for
-		// this script. This is for when a browser doesn't grant that, such as a page opened at an anchor.
-		focusElement( pinInput );
+		// The field asks for focus itself (autofocus), so it normally has it as soon as it's shown, without waiting
+		// for this script. This is for when the browser didn't grant that and nothing has focus; focus that has
+		// since been moved elsewhere is left where it was put.
+		if ( document.activeElement === null || document.activeElement === document.body ) {
+			focusElement( pinInput );
+		}
 	}
 
 	handleSecAdminCheck( resp ) {

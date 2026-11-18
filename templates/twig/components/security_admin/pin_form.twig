@@ -11,12 +11,12 @@
 	<form id="ShieldSecAdminUnlockForm" class="shield-secadmin-unlock" method="post" novalidate>
 		<label for="ShieldSecAdminUnlockPin" class="screen-reader-text">{{ strings.aar_enter_access_key }}</label>
 		<div class="shield-secadmin-unlock__row">
-			{# The PIN is all there is to do here, so it has focus as soon as it's shown: on the restricted page as the
-			   page is drawn, and in the dialog as it opens (the dialog gives its focus to whatever asks for it). #}
+			{# The PIN is what this form is for, so the field asks for focus: the browser gives it as the restricted
+			   page is drawn, unless something else already has it, and the dialog gives it as it opens. #}
 			<input id="ShieldSecAdminUnlockPin" name="sec_admin_key" autofocus
 				   {{ icwp_macros.pinEntryAttributes( 'shield-secadmin-unlock__pin' ) }} />
-			{# Unlocking is sent by script, which enables this once it's listening. Until then the PIN can be typed
-			   but not sent, where sending it would only draw the page again and lose it. #}
+			{# Unlocking is sent by script, which enables this once it's listening. Until then the PIN can be typed,
+			   but pressing Enter doesn't send the form, where sending it would only draw the page again and lose it. #}
 			<button type="submit" class="button button-primary" disabled>{{ strings.aar_unlock }}</button>
 			{% if with_cancel %}
 				<button type="button" class="button" data-shield-secadmin-unlock-cancel>{{ strings.cancel }}</button>

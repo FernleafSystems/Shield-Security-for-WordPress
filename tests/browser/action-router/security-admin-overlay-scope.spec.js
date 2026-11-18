@@ -113,7 +113,9 @@ test( 'Security Admin PIN can be typed as soon as the restricted page is shown, 
 		const held = new Promise( ( resolve ) => {
 			release = resolve;
 		} );
+		let isHeldBack = false;
 		const holdBack = async ( route ) => {
+			isHeldBack = true;
 			await held;
 			await route.continue();
 		};
@@ -121,6 +123,7 @@ test( 'Security Admin PIN can be typed as soon as the restricted page is shown, 
 		try {
 			await page.reload( { waitUntil: 'commit' } );
 			await expect( pinInput ).toBeVisible( { timeout: 30_000 } );
+			await expect.poll( () => isHeldBack ).toBe( true );
 			await expect( pinInput ).toBeFocused();
 
 			// Entered before the script is listening, the PIN stays put: sending it now would only draw the page
@@ -129,6 +132,10 @@ test( 'Security Admin PIN can be typed as soon as the restricted page is shown, 
 			await page.keyboard.press( 'Enter' );
 			await expect( unlock ).toBeDisabled();
 			await expect( pinInput ).toHaveValue( contract.pins.valid );
+
+			// Moving on from the field is the user's choice, and it holds when the script arrives.
+			await page.keyboard.press( 'Tab' );
+			await expect( pinInput ).not.toBeFocused();
 		}
 		finally {
 			release();
@@ -137,6 +144,7 @@ test( 'Security Admin PIN can be typed as soon as the restricted page is shown, 
 
 		await expect( unlock ).toBeEnabled( { timeout: 30_000 } );
 		await expect( pinInput ).toHaveValue( contract.pins.valid );
+		await expect( pinInput ).not.toBeFocused();
 	} );
 } );
 
