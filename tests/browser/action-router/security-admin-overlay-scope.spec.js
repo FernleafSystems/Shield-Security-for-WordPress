@@ -35,6 +35,8 @@ async function expectRestrictedOverlay( page, contract ) {
 	await expect( overlay.locator( contract.selectors.pin_form ) ).toBeVisible();
 	const pinInput = overlay.locator( contract.selectors.pin_input );
 	await expect( pinInput ).toBeVisible();
+	// The PIN is the only thing to do here, so it's ready to be typed without clicking into the field first.
+	await expect( pinInput ).toBeFocused();
 	await expectPinInputIgnoredByPasswordManagers( pinInput );
 	return overlay;
 }
@@ -94,6 +96,48 @@ test( 'Security Admin zone contract locks protected routes and restores cleanup 
 	const inspection = await fixtureApi.inspectSecurityAdminFixture();
 	expect( inspection.fixture_state_present ).toBe( false );
 	expect( inspection.current.selected_options ).toEqual( originalOptions );
+} );
+
+test( 'Security Admin PIN can be typed as soon as the restricted page is shown, and is kept until it can be sent', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withSecurityAdminFixture( 'locked', async ( rawContract ) => {
+		const contract = assertSecurityAdminContract( rawContract, 'locked' );
+		await openShieldRoute( page, contract.routes.protected );
+		await expectRestrictedOverlay( page, contract );
+
+		const overlay = page.locator( contract.selectors.overlay );
+		const pinInput = overlay.locator( contract.selectors.pin_input );
+		const unlock = overlay.locator( contract.selectors.pin_form ).locator( 'button[type="submit"]' );
+
+		// The page again, with Shield's script held back: the field can't be waiting on it for focus.
+		let release;
+		const held = new Promise( ( resolve ) => {
+			release = resolve;
+		} );
+		const holdBack = async ( route ) => {
+			await held;
+			await route.continue();
+		};
+		await page.route( '**/shield-main.bundle.js*', holdBack );
+		try {
+			await page.reload( { waitUntil: 'commit' } );
+			await expect( pinInput ).toBeVisible( { timeout: 30_000 } );
+			await expect( pinInput ).toBeFocused();
+
+			// Entered before the script is listening, the PIN stays put: sending it now would only draw the page
+			// again and lose it.
+			await page.keyboard.type( contract.pins.valid );
+			await page.keyboard.press( 'Enter' );
+			await expect( unlock ).toBeDisabled();
+			await expect( pinInput ).toHaveValue( contract.pins.valid );
+		}
+		finally {
+			release();
+			await page.unrouteAll( { behavior: 'wait' } );
+		}
+
+		await expect( unlock ).toBeEnabled( { timeout: 30_000 } );
+		await expect( pinInput ).toHaveValue( contract.pins.valid );
+	} );
 } );
 
 test( 'Security Admin PIN is set through configure and verified through login', async ( { page, fixtureApi } ) => {
