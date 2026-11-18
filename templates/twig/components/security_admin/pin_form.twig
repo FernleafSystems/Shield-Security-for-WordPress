@@ -11,8 +11,8 @@
 	<form id="ShieldSecAdminUnlockForm" class="shield-secadmin-unlock" method="post" novalidate>
 		<label for="ShieldSecAdminUnlockPin" class="screen-reader-text">{{ strings.aar_enter_access_key }}</label>
 		<div class="shield-secadmin-unlock__row">
-			{# The PIN is what this form is for, so the field asks for focus: the browser gives it as the restricted
-			   page is drawn, unless something else already has it, and the dialog gives it as it opens. #}
+			{# The PIN is what this form is for, so the field asks for focus: the browser normally gives it as the
+			   restricted page is drawn, and the dialog gives it as it opens. #}
 			<input id="ShieldSecAdminUnlockPin" name="sec_admin_key" autofocus
 				   {{ icwp_macros.pinEntryAttributes( 'shield-secadmin-unlock__pin' ) }} />
 			{# Unlocking is sent by script, which enables this once it's listening. Until then the PIN can be typed,

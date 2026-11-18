@@ -107,6 +107,7 @@ test( 'Security Admin PIN can be typed as soon as the restricted page is shown, 
 		const overlay = page.locator( contract.selectors.overlay );
 		const pinInput = overlay.locator( contract.selectors.pin_input );
 		const unlock = overlay.locator( contract.selectors.pin_form ).locator( 'button[type="submit"]' );
+		const forgotPin = overlay.locator( contract.selectors.pin_form ).locator( 'a' );
 
 		// The page again, with Shield's script held back: the field can't be waiting on it for focus.
 		let release;
@@ -133,9 +134,10 @@ test( 'Security Admin PIN can be typed as soon as the restricted page is shown, 
 			await expect( unlock ).toBeDisabled();
 			await expect( pinInput ).toHaveValue( contract.pins.valid );
 
-			// Moving on from the field is the user's choice, and it holds when the script arrives.
+			// Moving on from the field is the user's choice, and it holds when the script arrives. Unlock can't be
+			// reached yet, so the next stop is the link for a forgotten PIN.
 			await page.keyboard.press( 'Tab' );
-			await expect( pinInput ).not.toBeFocused();
+			await expect( forgotPin ).toBeFocused();
 		}
 		finally {
 			release();
@@ -144,7 +146,7 @@ test( 'Security Admin PIN can be typed as soon as the restricted page is shown, 
 
 		await expect( unlock ).toBeEnabled( { timeout: 30_000 } );
 		await expect( pinInput ).toHaveValue( contract.pins.valid );
-		await expect( pinInput ).not.toBeFocused();
+		await expect( forgotPin ).toBeFocused();
 	} );
 } );
 
