@@ -6,8 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRend
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 
 /**
- * Draws one wizard step from its own template. Everything the template shows comes from the step
- * (Merlin\Steps\Base::render()), so each step's text lives with the step.
+ * Draws one wizard step from its own template. What is particular to a step comes from the step
+ * (Merlin\Steps\Base::render()), so each step's text lives with the step; the few labels and links every page
+ * shares come from the renderer's common data.
  */
 class MerlinStep extends BaseRender {
 

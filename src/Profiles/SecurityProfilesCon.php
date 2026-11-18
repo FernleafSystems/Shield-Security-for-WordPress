@@ -182,7 +182,7 @@ class SecurityProfilesCon {
 	private function getRawStructure() :array {
 		return [
 			'auto_block'    => [
-				'title' => 'Auto IP Blocking',
+				'title' => __( 'Auto IP Blocking', 'wp-simple-firewall' ),
 				'opts'  => [
 					[
 						'item_key' => 'transgression_limit',

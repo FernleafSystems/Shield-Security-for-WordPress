@@ -35,7 +35,7 @@ class License extends Base {
 				'step_title'           => sprintf( __( "Activate Your %s License", 'wp-simple-firewall' ), $pluginName ),
 				/* translators: %s: plugin name */
 				'license_check_text'   => sprintf( __( 'If you already have a %s license assigned to this site, you can check below for your license automatically.', 'wp-simple-firewall' ), $pluginName ),
-				/* translators: %s: a "skip to the next step" link */
+				/* translators: %s: a "skip to the next step" button */
 				'license_skip_text'    => __( "If this doesn't apply to you, %s.", 'wp-simple-firewall' ),
 				'license_skip_button'  => __( 'skip to the next step', 'wp-simple-firewall' ),
 				/* translators: %s: plugin name */
