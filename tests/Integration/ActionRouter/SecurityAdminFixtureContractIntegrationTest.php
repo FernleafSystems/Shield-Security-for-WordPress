@@ -298,6 +298,39 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 	 * @param array<string,mixed> $actionData
 	 * @return array<string,mixed>
 	 */
+	public function test_invalid_pin_reloads_only_when_a_blockable_ip_has_no_attempts_left() :void {
+		$this->loginAsAdministrator();
+		$con = $this->requireController();
+		$builder = new SecurityAdminFixtureBuilder();
+		$options = RuntimeTestState::snapshotOptions( [ 'transgression_limit' ] );
+		$originalIp = $con->this_req->ip;
+		$originalIpIsPublic = $con->this_req->ip_is_public;
+
+		$locked = $builder->seed( SecurityAdminFixtureBuilder::SCENARIO_LOCKED );
+		try {
+			// With a limit of 1, any wrong PIN uses the last attempt of an IP that collects offenses.
+			$con->opts->optSet( 'transgression_limit', 1 );
+			$con->this_req->ip = '203.0.113.10';
+			$invalidPin = [ 'sec_admin_key' => $locked[ 'contract' ][ 'pins' ][ 'invalid' ] ];
+
+			$con->this_req->ip_is_public = false;
+			$payload = $this->runAction( SecurityAdminLogin::SLUG, $invalidPin );
+			$this->assertFalse( $payload[ 'success' ] );
+			$this->assertFalse( $payload[ 'page_reload' ], 'An IP that collects no offenses can always retry in place.' );
+
+			$con->this_req->ip_is_public = true;
+			$payload = $this->runAction( SecurityAdminLogin::SLUG, $invalidPin );
+			$this->assertFalse( $payload[ 'success' ] );
+			$this->assertTrue( $payload[ 'page_reload' ], 'A blockable IP with no attempts left reloads to meet its block.' );
+		}
+		finally {
+			$builder->cleanup( $locked[ 'state' ] );
+			RuntimeTestState::restoreOptions( $options );
+			$con->this_req->ip = $originalIp;
+			$con->this_req->ip_is_public = $originalIpIsPublic;
+		}
+	}
+
 	private function runAction( string $actionSlug, array $actionData = [] ) :array {
 		$this->requireController()->this_req->wp_is_ajax = false;
 		return $this->requireController()->action_router->action(

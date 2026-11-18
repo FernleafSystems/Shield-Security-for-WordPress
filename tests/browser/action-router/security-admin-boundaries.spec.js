@@ -1,5 +1,7 @@
 const { test, expect } = require( './support/shield-test' );
 const { dismissBlockingDialogs, openShieldRoute } = require( './support/shield-browser' );
+const { expectConnectedNonEmptyReference } = require( './support/modal-accessibility' );
+const { parseShieldAjaxJson, waitForShieldAjaxAction } = require( './support/security-assertions' );
 const {
 	assertSecurityAdminContract,
 	expectPinInputIgnoredByPasswordManagers,
@@ -7,11 +9,20 @@ const {
 	sendSecurityAdminAjax,
 } = require( './support/security-admin-assertions' );
 
+const ACCESSIBLE_DIALOG_ACTIVE_SELECTOR = '[data-shield-accessible-dialog="1"][aria-modal="true"]:not([aria-hidden="true"])';
+
 test.setTimeout( 180_000 );
 
 async function openWpGeneralOptions( page ) {
 	await page.goto( '/wp-admin/options-general.php', { waitUntil: 'load' } );
 	await dismissBlockingDialogs( page );
+}
+
+async function submitUnlockPin( page, contract, pinInput, pin ) {
+	const response = waitForShieldAjaxAction( page, contract.action_slugs.sec_admin_login );
+	await pinInput.fill( pin );
+	await pinInput.press( 'Enter' );
+	return parseShieldAjaxJson( await ( await response ).text() );
 }
 
 test( 'Security Admin direct-disable boundary clears state and unlocks protected surface', async ( { page, fixtureApi } ) => {
@@ -83,8 +94,39 @@ test( 'Security Admin restriction zones disable WP options only for non-Security
 		await expect( blogname ).toBeVisible( { timeout: 30_000 } );
 		await expect( blogname ).toBeDisabled();
 
-		// The unlock box printed on WP admin pages.
-		await expectPinInputIgnoredByPasswordManagers( page.locator( contract.selectors.login_box_pin_input ) );
+		// The PIN dialog opened from a restricted option's unlock link.
+		const unlockLink = page.locator( contract.selectors.unlock_link ).first();
+		const dialog = page.locator( ACCESSIBLE_DIALOG_ACTIVE_SELECTOR );
+		const pinInput = dialog.locator( contract.selectors.login_box_pin_input );
+		await unlockLink.click();
+		await expect( dialog ).toBeVisible();
+		await expect( pinInput ).toBeFocused();
+		await expectPinInputIgnoredByPasswordManagers( pinInput );
+
+		await dialog.locator( contract.selectors.unlock_cancel ).click();
+		await expect( dialog ).toHaveCount( 0 );
+		await expect( unlockLink ).toBeFocused();
+
+		// A wrong PIN keeps the dialog open, explains why, and clears the field for another try.
+		await unlockLink.click();
+		const rejected = await submitUnlockPin( page, contract, pinInput, contract.pins.invalid );
+		expect( rejected.success ).toBe( false );
+		expect( rejected.data.page_reload ).toBe( false );
+		await expect( dialog ).toBeVisible();
+		await expect( pinInput ).toHaveValue( '' );
+		await expect( pinInput ).toHaveAttribute( 'aria-invalid', 'true' );
+		await expect( pinInput ).toBeFocused();
+		await expectConnectedNonEmptyReference( page, pinInput, 'aria-describedby' );
+
+		// A correct PIN reloads the same page, where Shield (initialised on load) no longer restricts the options.
+		const reloaded = page.waitForEvent( 'load' );
+		const accepted = await submitUnlockPin( page, contract, pinInput, contract.pins.valid );
+		expect( accepted.success ).toBe( true );
+		await reloaded;
+		await expect( page ).toHaveURL( /\/wp-admin\/options-general\.php$/ );
+		await expect( page.locator( contract.selectors.unlock_link ) ).toHaveCount( 0 );
+		await expect( blogname ).toBeEnabled();
+		expect( ( await fixtureApi.inspectSecurityAdminFixture() ).current.session_active ).toBe( true );
 	} );
 
 	await fixtureApi.withSecurityAdminFixture( 'restriction-zones-active-admin', async ( rawContract ) => {

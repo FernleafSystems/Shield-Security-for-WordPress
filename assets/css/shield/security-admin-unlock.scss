@@ -1,0 +1,70 @@
+// The Security Admin PIN dialog opened from WP admin pages outside Shield.
+
+.shield-accessible-dialog__icon .dashicons {
+	width: auto;
+	height: auto;
+	font-size: 26px;
+}
+
+.shield-secadmin-unlock .shield-secadmin-unlock__pin {
+	width: 100%;
+	margin: 0;
+	padding: 10px 14px;
+	border: 1px solid #c3cfc7;
+	border-radius: 7px;
+	font-size: 20px;
+	line-height: 1.4;
+	letter-spacing: 0.2em;
+	text-align: center;
+}
+
+.shield-secadmin-unlock .shield-secadmin-unlock__pin:focus {
+	@include shield-focus-ring( 0 );
+	border-color: $shield-focus-ring-color;
+}
+
+.shield-secadmin-unlock .shield-secadmin-unlock__pin[aria-invalid="true"] {
+	border-color: #b32d2e;
+}
+
+.shield-secadmin-unlock__message {
+	text-align: center;
+}
+
+.shield-secadmin-unlock__message:empty {
+	margin: 0;
+}
+
+.shield-secadmin-unlock__message--ok {
+	color: #006400;
+}
+
+.shield-secadmin-unlock__forgot {
+	display: block;
+	margin-top: 12px;
+	color: #607168;
+	font-size: 13px;
+	text-align: center;
+}
+
+.shield-secadmin-unlock--rejected {
+	animation: shield-secadmin-unlock-shake 0.4s ease-in-out;
+}
+
+@keyframes shield-secadmin-unlock-shake {
+	0%, 100% {
+		transform: translateX( 0 );
+	}
+	20%, 60% {
+		transform: translateX( -8px );
+	}
+	40%, 80% {
+		transform: translateX( 8px );
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.shield-secadmin-unlock--rejected {
+		animation: none;
+	}
+}

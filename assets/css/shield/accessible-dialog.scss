@@ -128,6 +128,14 @@
 	align-items: flex-start;
 	margin-bottom: 22px;
 }
+// Beside an icon, the title and message sit as one block centred on it.
+.shield-accessible-dialog__header:has( > .shield-accessible-dialog__icon:not( [hidden] ) ) {
+	align-items: center;
+
+	.shield-accessible-dialog__title {
+		margin-bottom: 0;
+	}
+}
 .shield-accessible-dialog__icon[hidden],
 .shield-accessible-dialog__actions[hidden],
 .shield-accessible-dialog__actions [hidden] {

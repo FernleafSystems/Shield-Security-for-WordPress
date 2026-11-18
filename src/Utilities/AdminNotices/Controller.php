@@ -369,12 +369,7 @@ class Controller {
 				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->labels->Name ),
 				'notice_message' => __( 'Editing existing administrators, promoting existing users to the administrator role, or deleting administrator users is currently restricted.', 'wp-simple-firewall' )
 									.' '.__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.', 'wp-simple-firewall' ),
-				'unlock_link'    => sprintf(
-					'<a href="%1$s" title="%2$s" class="thickbox">%3$s</a>',
-					'#TB_inline?width=400&height=180&inlineId=WpsfAdminAccessLogin',
-					__( 'Security Admin Login', 'wp-simple-firewall' ),
-					__( 'Unlock Now', 'wp-simple-firewall' )
-				),
+				'unlock_link'    => $con->comps->sec_admin->unlockLink( __( 'Unlock Now', 'wp-simple-firewall' ) ),
 			],
 			'hrefs'             => [
 				'setting_page' => sprintf(

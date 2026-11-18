@@ -20,7 +20,9 @@ class SecurityAdminLogin extends SecurityAdminBase {
 	}
 
 	protected function exec() {
-		if ( self::con()->comps->sec_admin->isCurrentlySecAdmin() ) {
+		$con = self::con();
+		$reload = true;
+		if ( $con->comps->sec_admin->isCurrentlySecAdmin() ) {
 			$success = true;
 			$message = __( "You're already a Security Admin.", 'wp-simple-firewall' )
 					   .' '.__( 'Please wait a moment', 'wp-simple-firewall' ).' ...';
@@ -42,21 +44,26 @@ class SecurityAdminLogin extends SecurityAdminBase {
 				] );
 			}
 			else {
-				$remaining = ( new QueryRemainingOffenses() )
-					->setIP( self::con()->this_req->ip )
-					->run();
-				$message = __( 'Security Admin PIN incorrect.', 'wp-simple-firewall' ).' '
-						   .( $remaining > 0 ?
-						sprintf( __( 'Attempts remaining: %s.', 'wp-simple-firewall' ), $remaining )
-						: __( "No attempts remaining.", 'wp-simple-firewall' ) );
+				$message = __( 'Security Admin PIN incorrect.', 'wp-simple-firewall' );
+				// The PIN may be retried in place until the IP is about to be blocked; then reload to show the block.
+				// Only public IPs collect offenses (ProcessOffenses), so any other IP may always retry.
+				$reload = false;
+				if ( $con->comps->opts_lookup->enabledIpAutoBlock() && $con->this_req->ip_is_public ) {
+					$remaining = ( new QueryRemainingOffenses() )
+						->setIP( $con->this_req->ip )
+						->run();
+					$reload = $remaining < 1;
+					$message .= ' '.( $reload ?
+							__( "No attempts remaining.", 'wp-simple-firewall' )
+							: sprintf( __( 'Attempts remaining: %s.', 'wp-simple-firewall' ), $remaining ) );
+				}
 			}
 		}
 
+		// No redirect: the PIN is entered on the page it unlocks, so reloading that page is the outcome wanted.
 		$this->response()->setPayload( [
-			'message'      => $message,
-			'html'         => '',
-			'page_reload'  => true,
-			'redirect_url' => self::con()->plugin_urls->adminRefererOrHome(),
+			'message'     => $message,
+			'page_reload' => $reload,
 		] )->setPayloadSuccess( $success );
 	}
 }
