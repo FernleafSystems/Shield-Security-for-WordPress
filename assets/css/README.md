@@ -295,8 +295,8 @@ The protection level step (in the wizard and the setup guide) is three choices a
 
 ### Responsive
 
-- `max-width: 992px` — Profile cards switch to 2 columns
-- `max-width: 768px` — Profile cards switch to 1 column, stepper wraps with connecting lines hidden
+- `max-width: 782px` — Protection level choices stack in 1 column; each comparison row's change chip drops to a line of its own
+- `max-width: 768px` — Stepper wraps with connecting lines hidden
 
 ### JS Component
 
