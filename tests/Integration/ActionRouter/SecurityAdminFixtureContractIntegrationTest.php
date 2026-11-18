@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	SecurityAdminAuthClear,
@@ -212,6 +213,26 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 		}
 		finally {
 			$builder->cleanup( $result[ 'state' ] );
+		}
+	}
+
+	/**
+	 * A page left open from before the PIN box was replaced sends the PIN inside its form, and it still unlocks.
+	 */
+	public function test_pin_sent_inside_the_form_is_accepted() :void {
+		$this->loginAsAdministrator();
+		$builder = new SecurityAdminFixtureBuilder();
+
+		$locked = $builder->seed( SecurityAdminFixtureBuilder::SCENARIO_LOCKED );
+		try {
+			$payload = $this->runAction( SecurityAdminLogin::SLUG, [
+				ActionData::FIELD_FORM => [ 'sec_admin_key' => $locked[ 'contract' ][ 'pins' ][ 'valid' ] ],
+			] );
+			$this->assertTrue( $payload[ 'success' ] );
+			$this->assertTrue( $builder->inspect( $locked[ 'state' ] )[ 'current' ][ 'session_active' ] );
+		}
+		finally {
+			$builder->cleanup( $locked[ 'state' ] );
 		}
 	}
 

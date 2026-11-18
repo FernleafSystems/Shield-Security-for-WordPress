@@ -28,7 +28,8 @@ class SecurityAdminLogin extends SecurityAdminBase {
 					   .' '.__( 'Please wait a moment', 'wp-simple-firewall' ).' ...';
 		}
 		else {
-			// The PIN arrives either as a field of its own or inside the submitted form.
+			// The PIN arrives as a field of its own. A page still open from before the PIN box was replaced sends it
+			// inside the submitted form, and its PIN is just as good.
 			$pin = $this->fields()->string( 'sec_admin_key', '' );
 			if ( $pin === '' ) {
 				$pin = $this->formFields()->string( 'sec_admin_key', '' );
