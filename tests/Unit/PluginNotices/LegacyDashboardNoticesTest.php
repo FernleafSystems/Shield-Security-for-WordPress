@@ -110,7 +110,7 @@ class LegacyDashboardNoticesTest extends BaseUnitTest {
 							return $key === 'tracking_permission_set_at' ? 0 : null;
 						}
 					};
-					// The real notices controller decides who a notice is for; only what it reads from storage is stubbed.
+					// The real notices controller decides who a notice is for, given this fixture's notice and plugin.
 					$this->admin_notices = new class( $notice ) extends \FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\Controller {
 						private NoticeVO $notice;
 
