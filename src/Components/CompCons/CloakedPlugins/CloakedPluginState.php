@@ -131,14 +131,6 @@ class CloakedPluginState {
 	}
 
 	/**
-	 * @param list<CloakedPluginFinding> $findings
-	 * @return list<CloakedPluginFinding>
-	 */
-	public function rememberNew( array $findings ) :array {
-		return $this->rememberNewCandidates( $findings, $findings );
-	}
-
-	/**
 	 * @param list<CloakedPluginFinding> $trackedFindings
 	 * @param list<CloakedPluginFinding> $candidateFindings
 	 * @param list<string> $forgetIdentities plugins whose earlier alerts no longer count, so they're alerted again

@@ -55,12 +55,12 @@ class CloakedPluginStateTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function testRememberNewReturnsFindingOnlyOncePerFingerprint() :void {
+	public function testFindingIsNewOnlyOncePerFingerprint() :void {
 		$state = new CloakedPluginState();
 		$finding = $this->finding( 'cloaked/cloaked.php' );
 
-		$this->assertSame( [ $finding ], $state->rememberNew( [ $finding ] ) );
-		$this->assertSame( [], $state->rememberNew( [ $finding ] ) );
+		$this->assertSame( [ $finding ], $state->classify( [ $finding ] )[ 'new_active' ] );
+		$this->assertSame( [], $state->classify( [ $finding ] )[ 'new_active' ] );
 		$this->assertCount( 1, $this->opts->values[ CloakedPluginState::OPT_KEY ] );
 	}
 
@@ -68,10 +68,10 @@ class CloakedPluginStateTest extends BaseUnitTest {
 		$state = new CloakedPluginState();
 		$finding = $this->finding( 'cloaked/cloaked.php' );
 
-		$state->rememberNew( [ $finding ] );
-		$state->rememberNew( [] );
+		$state->classify( [ $finding ] );
+		$state->classify( [] );
 
-		$this->assertSame( [ $finding ], $state->rememberNew( [ $finding ] ) );
+		$this->assertSame( [ $finding ], $state->classify( [ $finding ] )[ 'new_active' ] );
 	}
 
 	public function testReconcilePersistsCanonicalEvidenceAndRehydratesFromCurrentInventory() :void {
