@@ -1167,6 +1167,13 @@
         {
             "type": "ERROR",
             "code": "WordPress.Security.EscapeOutput.ExceptionNotEscaped",
+            "file": "src/Modules/Plugin/Lib/Merlin/MerlinController.php",
+            "message": "All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found '__'.",
+            "count": 2
+        },
+        {
+            "type": "ERROR",
+            "code": "WordPress.Security.EscapeOutput.ExceptionNotEscaped",
             "file": "src/Modules/LoginGuard/Lib/TwoFactor/Provider/AbstractOtpProvider.php",
             "message": "All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found '$this'.",
             "count": 1

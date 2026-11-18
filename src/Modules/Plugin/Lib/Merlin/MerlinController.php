@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\RequestFields;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
@@ -21,16 +22,24 @@ class MerlinController {
 	}
 
 	/**
+	 * A wizard form is text fields only, and it's request input. One that holds anything else isn't a form a
+	 * wizard page sends, so it's refused here, once, and each step takes its fields as the text they are.
+	 * @param array $form the submitted form, as it arrived
 	 * @throws \Exception
 	 */
 	public function processFormSubmit( array $form ) :Response {
-		$step = $form[ 'step_slug' ] ?? '';
-		if ( empty( $step ) ) {
-			throw new \Exception( 'No step configured for this form' );
+		$fields = new RequestFields( $form );
+		foreach ( \array_keys( $form ) as $field ) {
+			$fields->string( (string)$field );
+		}
+
+		$step = $fields->string( 'step_slug', '' );
+		if ( $step === '' ) {
+			throw new \Exception( __( 'No step configured for this form', 'wp-simple-firewall' ) );
 		}
 		$handler = $this->getHandlerFromSlug( $step );
 		if ( empty( $handler ) || !\class_exists( $handler ) ) {
-			throw new \Exception( 'Invalid Step.' );
+			throw new \Exception( __( 'Invalid Step.', 'wp-simple-firewall' ) );
 		}
 		return ( new $handler() )->processStepFormSubmit( $form );
 	}
