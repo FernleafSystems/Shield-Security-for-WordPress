@@ -183,6 +183,96 @@ class IntegrationsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [ 'wordpress' ], $con->opts->optGet( 'user_form_providers' ) );
 	}
 
+	public function test_wizard_step_switches_on_only_the_integrations_ticked() :void {
+		$this->enablePremiumCapabilities( [ 'thirdparty_scan_spam', 'thirdparty_scan_users' ] );
+		$con = $this->installBothProvidersWithNoneSwitchedOn();
+
+		// Only a tick counts: anything else sent for an integration leaves it off.
+		$response = $con->comps->wizards->processFormSubmit( [
+			'step_slug'            => 'integrations',
+			'ninjaforms'           => 'Y',
+			'easydigitaldownloads' => [ 'Y' ],
+		] );
+
+		$this->assertTrue( $response->success );
+		$this->assertSame( [ 'ninjaforms' ], $con->opts->optGet( 'form_spam_providers' ) );
+		$this->assertSame( [ 'wordpress' ], $con->opts->optGet( 'user_form_providers' ) );
+
+		RuntimeTestState::resetOptionsRuntimeCache();
+		$this->assertSame( [ 'ninjaforms' ], $con->opts->optGet( 'form_spam_providers' ) );
+		$this->assertSame( [ 'wordpress' ], $con->opts->optGet( 'user_form_providers' ) );
+	}
+
+	public function test_wizard_step_switches_on_every_integration_ticked_across_both_kinds_of_form() :void {
+		$this->enablePremiumCapabilities( [ 'thirdparty_scan_spam', 'thirdparty_scan_users' ] );
+		$con = $this->installBothProvidersWithNoneSwitchedOn();
+
+		// WooCommerce is covered by the plan but isn't installed, so ticking it switches nothing on.
+		$this->assertArrayNotHasKey( 'woocommerce', $con->comps->forms_users->getInstalled() );
+		$response = $con->comps->wizards->processFormSubmit( [
+			'step_slug'            => 'integrations',
+			'ninjaforms'           => 'Y',
+			'easydigitaldownloads' => 'Y',
+			'woocommerce'          => 'Y',
+		] );
+
+		$this->assertTrue( $response->success );
+		$this->assertSame( [ 'ninjaforms' ], $con->opts->optGet( 'form_spam_providers' ) );
+		$this->assertSame( [ 'wordpress', 'easydigitaldownloads' ], $con->opts->optGet( 'user_form_providers' ) );
+	}
+
+	public function test_wizard_step_leaves_alone_what_the_plan_does_not_cover_and_what_is_not_an_integration() :void {
+		$this->enablePremiumCapabilities( [ 'thirdparty_scan_spam' ] );
+		$con = $this->installBothProvidersWithNoneSwitchedOn();
+
+		$response = $con->comps->wizards->processFormSubmit( [
+			'step_slug'            => 'integrations',
+			'ninjaforms'           => 'Y',
+			'easydigitaldownloads' => 'Y',
+			'woocommerce'          => 'Y',
+			'not_an_integration'   => 'Y',
+		] );
+
+		$this->assertTrue( $response->success );
+		$this->assertSame( [ 'ninjaforms' ], $con->opts->optGet( 'form_spam_providers' ) );
+		$this->assertSame( [ 'wordpress' ], $con->opts->optGet( 'user_form_providers' ) );
+	}
+
+	public function test_wizard_step_with_nothing_ticked_completes_and_switches_nothing_on() :void {
+		$this->enablePremiumCapabilities( [ 'thirdparty_scan_spam', 'thirdparty_scan_users' ] );
+		$con = $this->installBothProvidersWithNoneSwitchedOn();
+
+		$response = $con->comps->wizards->processFormSubmit( [
+			'step_slug' => 'integrations',
+		] );
+
+		$this->assertTrue( $response->success );
+		$this->assertSame( [], $con->opts->optGet( 'form_spam_providers' ) );
+		$this->assertSame( [ 'wordpress' ], $con->opts->optGet( 'user_form_providers' ) );
+	}
+
+	/**
+	 * Ninja Forms (a contact form) and Easy Digital Downloads (a user form) are installed, and neither is on.
+	 */
+	private function installBothProvidersWithNoneSwitchedOn() :\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller {
+		$this->installProviderFixture( 'ninjaforms', 'ninja-forms.php', 'Ninja_Forms', 'Ninja Forms' );
+		$this->installProviderFixture(
+			'easy-digital-downloads',
+			'easy-digital-downloads.php',
+			'Easy_Digital_Downloads',
+			'Easy Digital Downloads'
+		);
+
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'enable_auto_integrations', 'N' )
+			->optSet( 'form_spam_providers', [] )
+			->optSet( 'user_form_providers', [ 'wordpress' ] )
+			->store();
+		$this->resetProviderCaches();
+		return $con;
+	}
+
 	private function prepareAdminRequest() :void {
 		$this->applyCurrentRequestState(
 			[

@@ -9,40 +9,41 @@ class Integrations extends Base {
 	public const SLUG = 'integrations';
 
 	public function skipStep() :bool {
-		return !self::con()->isPremiumActive()
-			   || \count(
-					  \array_filter(
-						  self::con()->comps->integrations->buildIntegrationsStates(),
-						  fn( array $int ) => $int[ 'state' ] === 'available'
-					  )
-				  ) === 0;
+		return !self::con()->isPremiumActive() || \count( $this->integrationsWaiting() ) === 0;
+	}
+
+	/**
+	 * The integrations whose plugins are installed and that aren't switched on yet.
+	 * @return array<string,array{slug:string,state:string,name:string,has_cap:bool}>
+	 */
+	private function integrationsWaiting() :array {
+		return \array_filter(
+			self::con()->comps->integrations->buildIntegrationsStates(),
+			static fn( array $int ) :bool => $int[ 'state' ] === 'available'
+		);
 	}
 
 	public function getName() :string {
 		return __( 'Integrations', 'wp-simple-firewall' );
 	}
 
+	/**
+	 * Each integration ticked on the form arrives as its slug set to 'Y'. One left unticked isn't sent, so it
+	 * stays off; submitting with none ticked is a way of saying no to all of them, and still completes the step.
+	 */
 	public function processStepFormSubmit( array $form ) :Response {
-		$resp = parent::processStepFormSubmit( $form );
 		$con = self::con();
+		$switchedOn = $con->comps->integrations->switchOn( \array_map( '\strval', \array_keys( $form, 'Y', true ) ) );
+		if ( !empty( $switchedOn ) ) {
+			$con->opts->store();
+		}
 
-		$level = \strtolower( $form[ 'security_profile' ] ?? '' );
-		if ( empty( $level ) ) {
-			$resp->success = true;
-			$resp->message = __( 'No profile was applied', 'wp-simple-firewall' );
-		}
-		else {
-			try {
-				$con->comps->security_profiles->applyLevel( $level );
-				$resp->success = true;
-				$resp->message = sprintf( __( "Profile '%s' was applied.", 'wp-simple-firewall' ), $con->comps->security_profiles->meta( $level )[ 'title' ] );
-			}
-			catch ( \Exception $e ) {
-				error_log( $e->getMessage() );
-				$resp->success = false;
-				$resp->message = $resp->error = __( 'An unsupported profile was selected', 'wp-simple-firewall' );
-			}
-		}
+		$resp = parent::processStepFormSubmit( $form );
+		$resp->success = true;
+		$resp->message = empty( $switchedOn )
+			? __( 'No integrations were switched on.', 'wp-simple-firewall' )
+			/* translators: %s: a list of the names of 3rd party plugins */
+			: sprintf( __( 'Integrations switched on: %s', 'wp-simple-firewall' ), \implode( ', ', $switchedOn ) );
 		return $resp;
 	}
 
@@ -52,10 +53,7 @@ class Integrations extends Base {
 				'step_title' => __( '3rd Party Integrations', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'integrations' => \array_filter(
-					self::con()->comps->integrations->buildIntegrationsStates(),
-					fn( array $int ) => $int[ 'state' ] === 'available'
-				),
+				'integrations' => $this->integrationsWaiting(),
 			],
 		];
 	}

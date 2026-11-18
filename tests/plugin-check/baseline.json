@@ -2987,13 +2987,6 @@
         {
             "type": "ERROR",
             "code": "WordPress.WP.I18n.MissingTranslatorsComment",
-            "file": "src/Modules/Plugin/Lib/Merlin/Steps/Integrations.php",
-            "message": "A function call to __() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
-            "count": 1
-        },
-        {
-            "type": "ERROR",
-            "code": "WordPress.WP.I18n.MissingTranslatorsComment",
             "file": "src/Modules/Plugin/Lib/Merlin/Steps/License.php",
             "message": "A function call to __() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
             "count": 1
@@ -4843,13 +4836,6 @@
             "type": "WARNING",
             "code": "WordPress.PHP.DevelopmentFunctions.error_log_error_log",
             "file": "src/Modules/Plugin/Lib/Merlin/Steps/ApplySecurityProfile.php",
-            "message": "error_log() found. Debug code should not normally be used in production.",
-            "count": 1
-        },
-        {
-            "type": "WARNING",
-            "code": "WordPress.PHP.DevelopmentFunctions.error_log_error_log",
-            "file": "src/Modules/Plugin/Lib/Merlin/Steps/Integrations.php",
             "message": "error_log() found. Debug code should not normally be used in production.",
             "count": 1
         },
