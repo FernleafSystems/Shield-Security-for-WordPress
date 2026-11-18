@@ -48,9 +48,30 @@ class Integrations extends Base {
 	}
 
 	protected function getStepRenderData() :array {
+		$pluginName = self::con()->labels->Name;
 		return [
 			'strings' => [
-				'step_title' => __( '3rd Party Integrations', 'wp-simple-firewall' ),
+				'step_title'         => __( '3rd Party Integrations', 'wp-simple-firewall' ),
+				/* translators: %s: plugin name */
+				'integrations_text'  => sprintf( __( '%s provides built-in integrations to protect the forms of 3rd party plugins against SPAM Bots.', 'wp-simple-firewall' ), $pluginName ),
+				/* translators: %s: silentCAPTCHA, the name of the anti-bot technology */
+				'custom_built'       => __( 'Each integration is custom-built and implements our %s anti-bot technology.', 'wp-simple-firewall' ),
+				'form_types_intro'   => __( 'The types of forms that can be protected include:', 'wp-simple-firewall' ),
+				'form_types'         => [
+					__( 'Contact Forms', 'wp-simple-firewall' ),
+					__( 'Login Forms', 'wp-simple-firewall' ),
+					__( 'Registration Forms', 'wp-simple-firewall' ),
+					__( 'Password Reset Forms', 'wp-simple-firewall' ),
+				],
+				/* translators: %s: plugin name */
+				'integrations_text2' => sprintf( __( "Protection for WordPress forms is included as-standard, and you'll have access to some, or all, 3rd party integrations, depending on your %s plan.", 'wp-simple-firewall' ), $pluginName ),
+				'select_heading'     => __( 'Select 3rd Party Integrations', 'wp-simple-firewall' ),
+				/* translators: %s: name of a 3rd party plugin */
+				'switch_on'          => __( 'Switch-on integration for %s', 'wp-simple-firewall' ),
+				/* translators: %s: silentCAPTCHA, the name of the anti-bot technology */
+				'help_available'     => __( '%s will detect and block bot requests to these forms, without challenging your legitimate visitors.', 'wp-simple-firewall' ),
+				'help_unavailable'   => __( 'Not available on your current plan.', 'wp-simple-firewall' ),
+				'enable_button'      => __( 'Enable Selected Integrations', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'integrations' => $this->integrationsWaiting(),

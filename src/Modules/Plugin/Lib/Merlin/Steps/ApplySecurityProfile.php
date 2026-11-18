@@ -23,6 +23,7 @@ class ApplySecurityProfile extends Base {
 			try {
 				$con->comps->security_profiles->applyLevel( $level );
 				$resp->success = true;
+				/* translators: %s: name of a protection level */
 				$resp->message = sprintf( __( "Profile '%s' was applied.", 'wp-simple-firewall' ), $con->comps->security_profiles->meta( $level )[ 'title' ] );
 			}
 			catch ( \Exception $e ) {

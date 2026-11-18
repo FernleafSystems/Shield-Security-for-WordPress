@@ -52,68 +52,52 @@
 	{% endif %}
 {% endmacro %}
 
-{% macro formInput_Hidden(name,value,id='') %}
-	<input name="{{ name }}" value="{{ value }}" {% if id is not empty %}id="{{ id }}"{% endif %} type="hidden" />
+{% macro formInput_Hidden(name,value) %}
+	<input name="{{ name }}" value="{{ value }}" type="hidden" />
 {% endmacro %}
 
-{% macro formInput_Checkbox(name,value,toplabel,label,help,id, checked=false, classes=[], enabled=true) %}
-
-	{% if id is not defined or id|length < 1 %}
-		{% set id='_'~name %}
-	{% endif %}
-
+{#
+ # A tick box that sends 'Y' when ticked. The help beneath it may hold links, so it's given as markup; everything
+ # else is text.
+ #}
+{% macro formInput_Checkbox(name,toplabel,label,help,checked=false,classes='',enabled=true) %}
 	<div class="row mb-3">
-		<label class="col-4 col-form-label" for="{{ id }}">{{ toplabel }}</label>
+		<label class="col-4 col-form-label" for="_{{ name }}">{{ toplabel }}</label>
 		<div class="col-8">
 			<div class="form-check">
 				<input type="checkbox" name="{{ name }}"
-					   class="form-check-input {{ classes|join(' ') }} {{ enabled ? '' : 'disabled' }}"
-					   id="{{ id }}" value="{{ value }}"
-						{{ checked ? 'checked checked="checked"' : '' }}
+					   class="form-check-input {{ classes }} {{ enabled ? '' : 'disabled' }}"
+					   id="_{{ name }}" value="Y"
+						{{ checked ? 'checked' : '' }}
 						{{ enabled ? '' : 'disabled' }}
 				/>
-				<label class="form-check-label" for="{{ id }}">
-					{{ label|raw }}
+				<label class="form-check-label" for="_{{ name }}">
+					{{ label }}
 				</label>
 			</div>
-			{% if help is defined and help|length > 0 %}
-				<small class="form-text text-muted">{{ help|raw }}</small>
+			<small class="form-text text-muted">{{ help|raw }}</small>
+		</div>
+	</div>
+{% endmacro %}
+
+{% macro formInput_Password(name,label,placeholder,help='',classes='') %}
+	<div class="form-group row">
+		<label class="col-4 col-form-label" for="_{{ name }}">{{ label }}</label>
+		<div class="col-8">
+			<input name="{{ name }}" value="" type="password"
+				   class="form-control {{ classes }}" id="_{{ name }}" placeholder="{{ placeholder }}"
+			>
+			{% if help is not empty %}
+				<small class="form-text text-muted">{{ help }}</small>
 			{% endif %}
 		</div>
 	</div>
 {% endmacro %}
 
-{% macro formInput_Password(name,value,label,placeholder,help,id,classes='') %}
-	{% import _self as icwp_macros %}
-	{{ icwp_macros.formInput_Base('password',name,value,label,placeholder,help,id,classes) }}
-{% endmacro %}
-
-{% macro formInput_Submit2(label,name,btn,large=false,classes='') %}
+{% macro formInput_Submit(label,classes='') %}
 	<div class="row">
 		<div class="col-8 offset-4">
-			<button type="submit"
-					class="btn btn-{{ btn|default('primary') }} {% if large %}py-2 px-4{% endif %} {{ classes }}"
-					{% if name is defined %} name="{{ name }}" {% endif %}
-			>{{ label|default('Submit')|raw }}</button>
-		</div>
-	</div>
-{% endmacro %}
-
-{% macro formInput_Base(type,name,value,label,placeholder,help,id,classes='') %}
-	{% if id is not defined or id|length < 1 %}
-		{% set id='_'~name %}
-	{% endif %}
-
-	<div class="form-group row">
-		<label class="col-4 col-form-label" for="{{ id }}">{{ label }}</label>
-		<div class="col-8">
-			<input name="{{ name }}" value="{{ value }}" type="{{ type }}"
-				   class="form-control {{ classes }}" id="{{ id }}" placeholder="{{ placeholder|default('') }}"
-				   {% if type is not empty %}type="{{ type }}"{% endif %}
-			>
-			{% if help is defined and help|length > 0 %}
-				<small class="form-text text-muted">{{ help|raw }}</small>
-			{% endif %}
+			<button type="submit" class="btn btn-secondary {{ classes }}">{{ label }}</button>
 		</div>
 	</div>
 {% endmacro %}

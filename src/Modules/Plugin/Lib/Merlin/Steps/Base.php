@@ -36,7 +36,7 @@ abstract class Base {
 	public function processStepFormSubmit( array $form ) :Response {
 		$resp = new Response();
 		$resp->success = false;
-		$resp->error = 'No form processing has been configured for this step';
+		$resp->error = __( 'No form processing has been configured for this step', 'wp-simple-firewall' );
 		$resp->addData( 'page_reload', false );
 		return $resp;
 	}

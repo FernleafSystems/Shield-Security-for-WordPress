@@ -1167,6 +1167,13 @@
         {
             "type": "ERROR",
             "code": "WordPress.Security.EscapeOutput.ExceptionNotEscaped",
+            "file": "src/Modules/License/Lib/Verify.php",
+            "message": "All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found '__'.",
+            "count": 1
+        },
+        {
+            "type": "ERROR",
+            "code": "WordPress.Security.EscapeOutput.ExceptionNotEscaped",
             "file": "src/Modules/Plugin/Lib/Merlin/MerlinController.php",
             "message": "All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found '__'.",
             "count": 3
@@ -2196,13 +2203,6 @@
         {
             "type": "ERROR",
             "code": "WordPress.WP.I18n.MissingTranslatorsComment",
-            "file": "src/ActionRouter/Actions/Render/Components/Merlin/MerlinStep.php",
-            "message": "A function call to __() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
-            "count": 10
-        },
-        {
-            "type": "ERROR",
-            "code": "WordPress.WP.I18n.MissingTranslatorsComment",
             "file": "src/ActionRouter/Actions/Render/Components/Options/ConfigurePanelBuilder.php",
             "message": "A function call to _n() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
             "count": 7
@@ -2983,41 +2983,6 @@
             "file": "src/Modules/Plugin/Lib/Debug/Collate.php",
             "message": "A function call to __() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
             "count": 14
-        },
-        {
-            "type": "ERROR",
-            "code": "WordPress.WP.I18n.MissingTranslatorsComment",
-            "file": "src/Modules/Plugin/Lib/Merlin/Steps/ApplySecurityProfile.php",
-            "message": "A function call to __() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
-            "count": 1
-        },
-        {
-            "type": "ERROR",
-            "code": "WordPress.WP.I18n.MissingTranslatorsComment",
-            "file": "src/Modules/Plugin/Lib/Merlin/Steps/License.php",
-            "message": "A function call to __() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
-            "count": 1
-        },
-        {
-            "type": "ERROR",
-            "code": "WordPress.WP.I18n.MissingTranslatorsComment",
-            "file": "src/Modules/Plugin/Lib/Merlin/Steps/NewsletterSubscribe.php",
-            "message": "A function call to __() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
-            "count": 1
-        },
-        {
-            "type": "ERROR",
-            "code": "WordPress.WP.I18n.MissingTranslatorsComment",
-            "file": "src/Modules/Plugin/Lib/Merlin/Steps/SecurityAdmin.php",
-            "message": "A function call to __() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
-            "count": 1
-        },
-        {
-            "type": "ERROR",
-            "code": "WordPress.WP.I18n.MissingTranslatorsComment",
-            "file": "src/Modules/Plugin/Lib/Merlin/Steps/ThankYou.php",
-            "message": "A function call to __() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
-            "count": 4
         },
         {
             "type": "ERROR",

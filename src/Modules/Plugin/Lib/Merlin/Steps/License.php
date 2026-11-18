@@ -11,10 +11,11 @@ class License extends Base {
 	public function processStepFormSubmit( array $form ) :Response {
 		$resp = parent::processStepFormSubmit( $form );
 		if ( $resp->success = self::con()->comps->license->verify( true )->hasValidWorkingLicense() ) {
-			$resp->message = 'License found and installed successfully';
+			$resp->message = __( 'License found and installed successfully', 'wp-simple-firewall' );
 		}
 		else {
-			$resp->error = sprintf( "There doesn't appear to be a active %s license available for this site.", self::con()->labels->Name );
+			/* translators: %s: plugin name */
+			$resp->error = sprintf( __( "There doesn't appear to be an active %s license available for this site.", 'wp-simple-firewall' ), self::con()->labels->Name );
 		}
 
 		$resp->addData( 'page_reload', $resp->success );
@@ -27,9 +28,18 @@ class License extends Base {
 	}
 
 	protected function getStepRenderData() :array {
+		$pluginName = self::con()->labels->Name;
 		return [
 			'strings' => [
-				'step_title' => sprintf( __( "Activate Your %s License", 'wp-simple-firewall' ), self::con()->labels->Name ),
+				/* translators: %s: plugin name */
+				'step_title'           => sprintf( __( "Activate Your %s License", 'wp-simple-firewall' ), $pluginName ),
+				/* translators: %s: plugin name */
+				'license_check_text'   => sprintf( __( 'If you already have a %s license assigned to this site, you can check below for your license automatically.', 'wp-simple-firewall' ), $pluginName ),
+				/* translators: %s: a "skip to the next step" link */
+				'license_skip_text'    => __( "If this doesn't apply to you, %s.", 'wp-simple-firewall' ),
+				'license_skip_button'  => __( 'skip to the next step', 'wp-simple-firewall' ),
+				/* translators: %s: plugin name */
+				'check_license_button' => sprintf( __( 'Check For %s License', 'wp-simple-firewall' ), $pluginName ),
 			],
 		];
 	}
