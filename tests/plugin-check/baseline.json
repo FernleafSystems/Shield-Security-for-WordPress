@@ -2917,13 +2917,6 @@
         {
             "type": "ERROR",
             "code": "WordPress.WP.I18n.MissingTranslatorsComment",
-            "file": "src/Modules/LoginGuard/Lib/TwoFactor/EmailDeliveryVerificationMailer.php",
-            "message": "A function call to __() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
-            "count": 1
-        },
-        {
-            "type": "ERROR",
-            "code": "WordPress.WP.I18n.MissingTranslatorsComment",
             "file": "src/Modules/LoginGuard/Lib/TwoFactor/MfaController.php",
             "message": "A function call to __() with texts containing placeholders was found, but was not accompanied by a \"translators:\" comment on the line above to clarify the meaning of the placeholders.",
             "count": 2

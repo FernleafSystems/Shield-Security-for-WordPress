@@ -209,8 +209,18 @@ class OptsLookup {
 	}
 
 	public function getReportEmail() :string {
-		$e = $this->getChosenReportEmail();
-		return $e === '' ? Services::WpGeneral()->getSiteAdminEmail() : $e;
+		return $this->getReportEmailDetails()[ 'address' ];
+	}
+
+	/**
+	 * @return array{address:string,is_site_admin_fallback:bool}
+	 */
+	public function getReportEmailDetails() :array {
+		$chosen = $this->getChosenReportEmail();
+		return [
+			'address'                => $chosen === '' ? Services::WpGeneral()->getSiteAdminEmail() : $chosen,
+			'is_site_admin_fallback' => $chosen === '',
+		];
 	}
 
 	/**

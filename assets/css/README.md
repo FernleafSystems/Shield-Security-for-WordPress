@@ -17,6 +17,7 @@ assets/css/
     meters.scss               Meter gauge styling
     security-admin.scss       Security admin restricted page: places the PIN dialog over the page
     security-admin-unlock.scss  Security Admin PIN dialog and form (WP admin unlock dialog and restricted page)
+    email-delivery-verify.scss  Email 2FA verification dialog (Shield pages, while email delivery is unverified)
     options.scss              Module options pages
     ip_analyse.scss           IP analysis off-canvas (options-style rail layout)
     reports.scss              Security report styles (reference only — actual CSS is inline in Twig)
@@ -225,6 +226,7 @@ Each SCSS file owns specific components. Do not style another file's components:
 | `merlin.scss` | `#MerlinOverlay`, `.merlin-modal-dialog`, `.stepper*`, `.wizard-card*`, `.wizard-step-pane`, `.merlin-report-email-actions`, `.protection-levels*`, `.merlin-form-footer` |
 | `security-admin.scss` | `.security-admin-overlay` (restricted-page placement of the PIN dialog) |
 | `security-admin-unlock.scss` | `.shield-secadmin-unlock*` (Security Admin PIN form) |
+| `email-delivery-verify.scss` | `.shield-email-verify*` (email 2FA verification dialog content) |
 | `dashboard.scss` | shared reusable primitives including `.shield-card`, `.shield-card-accent`, `.shield-badge`, plus dashboard-specific components |
 
 ## Inline CSS Pattern (Reports)

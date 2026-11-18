@@ -56,8 +56,8 @@ class EmailDeliveryVerification {
 	/**
 	 * The credential carried by the verification link: it cannot be forged without the site's salt, it is
 	 * bound to the recorded send time, so links from earlier sends stop working, and it stops working once
-	 * verification completes. It is not bound to a user, because the link goes to the report email address,
-	 * not necessarily to the admin who triggered it.
+	 * verification completes or the send goes stale. It is not bound to a user, because the link goes to the
+	 * report email address, not necessarily to the admin who triggered it.
 	 */
 	public function linkToken( int $sentAt ) :string {
 		return $sentAt > 0 ? \substr( wp_hash( 'shield-email-send-verify|'.$sentAt, 'nonce' ), 0, 32 ) : '';
@@ -65,7 +65,7 @@ class EmailDeliveryVerification {
 
 	public function verifyLinkToken( string $token ) :bool {
 		$expected = $this->linkToken( $this->sentAt() );
-		return $expected !== '' && \hash_equals( $expected, $token );
+		return $expected !== '' && !$this->isStale() && \hash_equals( $expected, $token );
 	}
 
 	public function markVerified() :self {
