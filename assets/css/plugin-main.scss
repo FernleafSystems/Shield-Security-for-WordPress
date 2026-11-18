@@ -15,7 +15,6 @@ $code-color: $secondary;
 @import '~highlight.js/styles/github.css';
 @import './mode-palette';
 @import './shield/status-colors';
-@import './shield/focus-indicators';
 @import "./plugin-wpadmin.scss";
 @import './shield/email-delivery-verify';
 @import './shield/datatables.css';
@@ -784,9 +783,6 @@ body:has(.shield-setup-guide) {
   content: counter(line);
   width: 32px;
   display: inline-block;
-}
-
-#ShieldModalContainer pre.icwp-code-render > code:before {
   -webkit-user-select: none;
 }
 
