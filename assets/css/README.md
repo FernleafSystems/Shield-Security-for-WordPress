@@ -244,7 +244,7 @@ The setup wizard (`merlin.scss`) uses a custom **Card Stepper** pattern with van
 ### Layout Structure
 
 ```
-#MerlinOverlay (modal backdrop, z-index: 100000)
+#MerlinOverlay (modal root with the dimmed background, z-index: 100000)
   .merlin-modal-dialog (max-width: 1400px)
     .modal-content (height: 85vh, background: $surface-color-neutral-base)
       .merlin-close (close link, top right)
@@ -259,7 +259,7 @@ The setup wizard (`merlin.scss`) uses a custom **Card Stepper** pattern with van
 
 ### Infrastructure
 
-**Bootstrap Icons font** is imported via `~bootstrap-icons/font/bootstrap-icons.css` in entry bundles that render `<i class="bi bi-*">` icons, including `plugin-main.scss` for Shield admin UI and `plugin-login2fa.scss` for login/MFA UI. The WordPress dashboard widget deliberately avoids Bootstrap framework and Bootstrap Icons imports; its status marks are scoped CSS-only shapes in `shield/dashboard-widget.scss`. Webpack's `file-loader` rule emits Bootstrap Icons font files to `assets/dist/img/`.
+**Bootstrap Icons font** is imported via `~bootstrap-icons/font/bootstrap-icons.css` in entry bundles that render `<i class="bi bi-*">` icons, including `plugin-main.scss` for Shield admin UI and `plugin-login2fa.scss` for login/MFA UI. The WordPress dashboard widget deliberately avoids Bootstrap framework and Bootstrap Icons imports; its status marks are scoped CSS-only shapes in `shield/dashboard-widget.scss`. Webpack's `asset/resource` rule emits Bootstrap Icons font files to `assets/dist/img/`.
 
 ### Custom Stepper
 
@@ -281,7 +281,7 @@ The stepper is built with real HTML elements (not pseudo-elements), making state
 
 ### Step Content
 
-Step templates extend `templates/twig/components/merlin/steps/base.twig` which provides block structure (`slide_body_title`, `slide_body_video_section_blurb`, `slide_body_video_section`, `slide_body_action_area`). Content renders directly without Bootstrap grid wrapping — the card body padding controls spacing.
+Step templates extend `templates/twig/components/merlin/steps/base.twig` which provides block structure (`slide_body_title`, `slide_body_video_section_blurb`, `slide_body_video_section`, `slide_body_action_area`). The base template adds no Bootstrap grid wrapper of its own — the card body padding controls spacing — and a step lays out its form with rows and columns where it needs them.
 
 ### Protection Levels
 
@@ -290,7 +290,7 @@ The protection level step (in the wizard and the setup guide) is three choices a
 - `.protection-levels__choices` — 3-column grid of `.protection-levels__choice` buttons; the chosen one (`aria-pressed="true"`) has a green border and `#edf7ed` tint
 - `.protection-levels__comparison` — one per level, only the chosen level's shown; a `.protection-levels__summary` line of `.protection-levels__chip` counts over a `.protection-levels__list`
 - `.protection-levels__row` — setting, current value, arrow, new value, chip; `.is-stricter` colours the arrow and new value green, `.is-looser` amber, `.is-same` and `.is-unavailable` are grey with no arrow
-- `.protection-levels:not(.shows-everything)` — hides unchanged rows and groups with no changes
+- `.protection-levels:not(.shows-everything)` — hides unchanged and unavailable rows, and groups with no changes
 - `.merlin-form-footer` — Separator line above the step's submit button
 
 ### Responsive
@@ -300,11 +300,7 @@ The protection level step (in the wizard and the setup guide) is three choices a
 
 ### JS Component
 
-`Merlin.js` extends `BaseComponent` and manages step navigation with `goToStep()`, `next()`, `prev()` methods. No jQuery or third-party wizard dependency — pure vanilla DOM manipulation (class toggles, `querySelectorAll`). Form submissions use `AjaxService` and advance to the next step on success.
-
-### Prototypes (Reference)
-
-Standalone HTML prototypes in `prototypes/wizard/` were used during design exploration. The implemented design follows `card-stepper.html` (Prototype B).
+`Merlin.js` extends `BaseComponent` and manages step navigation with `goToStep()`, `next()`, `prev()` methods. No jQuery or third-party wizard dependency — step changes are plain DOM manipulation (class toggles, `querySelectorAll`), and each change registers the Bootstrap tooltips in the wizard. Form submissions use `AjaxService` and advance to the next step on success.
 
 ## Related Documentation
 
