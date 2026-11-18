@@ -81,26 +81,27 @@ class SetupGuideDataBuilder {
 		$steps = [];
 		foreach ( self::STEP_HANDLERS as $handlerClass ) {
 			$handler = new $handlerClass();
-			if ( $handlerClass === Steps\License::class && $handler->skipStep() ) {
+			$isNothingToSet = $handler->skipStep();
+			if ( $handlerClass === Steps\License::class && $isNothingToSet ) {
 				continue;
 			}
-			$isDone = $handler->skipStep() || \in_array( $handler::SLUG, $done, true );
+			$isDone = $isNothingToSet || \in_array( $handler::SLUG, $done, true );
 			// Completed steps need no form, which keeps every page render light, unless the guide was asked for.
 			$body = $isDone && !$isAskedFor ? '' : $handler->render();
+			// A finished step drawn without its form has a link that opens the guide on that step, form and all,
+			// to go over it again. Integrations has nothing to go over while there's nothing to switch on.
+			$redoHref = $isDone && $body === '' && !( $handlerClass === Steps\Integrations::class && $isNothingToSet )
+				? self::con()->plugin_urls->setupGuide( $handler::SLUG ) : '';
 			$steps[] = [
 				'slug'     => $handler::SLUG,
 				'name'     => $copy[ $handler::SLUG ][ 0 ],
 				'hint'     => $copy[ $handler::SLUG ][ 1 ],
 				'is_done'  => $isDone,
 				'body'     => $body,
-				// A step that was finished or skipped in the guide comes without its form on an ordinary page. This
-				// opens the guide on that step with its form, to go over it again. A step that was settled
-				// elsewhere was never gone over here, so it has no link.
-				'redo_href' => $body === '' && \in_array( $handler::SLUG, $done, true )
-					? self::con()->plugin_urls->setupGuide( $handler::SLUG ) : '',
+				'redo_href' => $redoHref,
 				// Changes only when what the step shows does, so a page refreshing its guide can leave alone a
 				// step that's the same, along with anything typed into it and not yet saved.
-				'version'  => \md5( ( $isDone ? 'done' : 'to do' ).$body ),
+				'version'  => \md5( ( $isDone ? 'done' : 'to do' ).$body.$redoHref ),
 			];
 		}
 

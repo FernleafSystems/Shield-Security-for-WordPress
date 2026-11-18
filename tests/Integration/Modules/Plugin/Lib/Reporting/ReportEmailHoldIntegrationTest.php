@@ -134,10 +134,10 @@ class ReportEmailHoldIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
-	 * A step finished or skipped in the guide can be gone over again from it. One that needs nothing here, as
-	 * Integrations doesn't on a site whose plan has none, was never gone over, so there's nothing to go back to.
+	 * A finished step can be gone over again from the guide, except Integrations while there's nothing to switch
+	 * on, as on a site whose plan has none. A step still to do shows its form instead.
 	 */
-	public function test_setup_guide_offers_to_go_over_only_the_steps_that_were_gone_over_in_it() :void {
+	public function test_setup_guide_offers_to_go_over_a_finished_step_that_has_something_to_go_over() :void {
 		$this->loginAsAdministrator();
 		\add_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 		Services::Request()->query = [];
@@ -151,7 +151,10 @@ class ReportEmailHoldIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( $steps[ 'integrations' ][ 'is_done' ] );
 		$this->assertSame( '', $steps[ 'integrations' ][ 'redo_href' ] );
-		$this->assertSame( '', $steps[ 'security_admin' ][ 'redo_href' ], 'A step still to do has its form, not a link.' );
+
+		$this->assertFalse( $steps[ 'security_admin' ][ 'is_done' ] );
+		$this->assertNotSame( '', $steps[ 'security_admin' ][ 'body' ] );
+		$this->assertSame( '', $steps[ 'security_admin' ][ 'redo_href' ] );
 	}
 
 	public function test_asking_for_a_dismissed_setup_guide_shows_it_without_bringing_it_back_for_the_site() :void {
