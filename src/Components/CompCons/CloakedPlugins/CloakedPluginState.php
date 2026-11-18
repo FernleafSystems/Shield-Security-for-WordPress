@@ -136,7 +136,7 @@ class CloakedPluginState {
 	 * @param list<string> $forgetIdentities plugins whose earlier alerts no longer count, so they're alerted again
 	 * @return list<CloakedPluginFinding>
 	 */
-	private function rememberNewCandidates( array $trackedFindings, array $candidateFindings, array $forgetIdentities = [] ) :array {
+	private function rememberNewCandidates( array $trackedFindings, array $candidateFindings, array $forgetIdentities ) :array {
 		$forget = \array_fill_keys( $forgetIdentities, true );
 		$stored = [];
 		$storedByIdentity = [];
@@ -272,7 +272,7 @@ class CloakedPluginState {
 		return $records;
 	}
 
-	public function isAutoIgnored( CloakedPluginFinding $finding ) :bool {
+	private function isAutoIgnored( CloakedPluginFinding $finding ) :bool {
 		return ( new ShieldGeneratedMuPlugin() )->isGeneratedShieldMuLoaderFinding( $finding );
 	}
 

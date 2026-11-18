@@ -404,7 +404,6 @@ class CloakedPluginStateTest extends BaseUnitTest {
 
 		$result = $state->classify( [ $finding ] );
 
-		$this->assertTrue( $state->isAutoIgnored( $finding ) );
 		$this->assertSame( [], $result[ 'active' ] );
 		$this->assertSame( [ $finding ], $result[ 'ignored' ] );
 		$this->assertSame( [], $result[ 'new_active' ] );
@@ -456,7 +455,6 @@ class CloakedPluginStateTest extends BaseUnitTest {
 
 		$result = $state->classify( [ $finding ] );
 
-		$this->assertFalse( $state->isAutoIgnored( $finding ) );
 		$this->assertSame( [ $finding ], $result[ 'active' ] );
 		$this->assertSame( [], $result[ 'ignored' ] );
 		$this->assertSame( [ $finding ], $result[ 'new_active' ] );
@@ -518,7 +516,6 @@ class CloakedPluginStateTest extends BaseUnitTest {
 
 		$result = $state->classify( [ $finding ] );
 
-		$this->assertFalse( $state->isAutoIgnored( $finding ) );
 		$this->assertSame( [ $finding ], $result[ 'active' ] );
 		$this->assertSame( [], $result[ 'ignored' ] );
 		$this->assertSame( [ $finding ], $result[ 'new_active' ] );
