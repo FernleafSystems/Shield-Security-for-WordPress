@@ -711,7 +711,8 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 	/**
 	 * One request for a group's ignores, or its restores: scan results go as one list of result IDs,
-	 * maintenance items and cloaked plugins as one list of identifiers.
+	 * maintenance items and cloaked plugins as one list of identifiers. A cloaked plugin ignored until it changes
+	 * carries the contents it was reviewed with, so each identifier keeps its own.
 	 * @param {Array<Object>} actions
 	 * @return {Object}
 	 */
@@ -722,6 +723,12 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		}
 		const combined = { ...first, identifiers: actions.map( ( data ) => data.identifier ) };
 		delete combined.identifier;
+		if ( typeof first.contents_hash === 'string' ) {
+			combined.contents_hashes = Object.fromEntries(
+				actions.map( ( data ) => [ data.identifier, data.contents_hash ] )
+			);
+			delete combined.contents_hash;
+		}
 		return combined;
 	}
 

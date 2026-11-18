@@ -176,10 +176,15 @@ class InstantAlertsCon {
 		unset( $allAlerts[ $handlerClass ] );
 		$this->setAlertsData( $allAlerts );
 
-		return !empty( $alertGroupData ) && $this->sendAlert( $handler, $alertGroupData );
+		return $this->sendAlert( $handler, $alertGroupData );
 	}
 
 	private function sendAlert( InstantAlerts\Handlers\AlertHandlerBase $handler, array $alertGroupData ) :bool {
+		$alertGroupData = $handler->alertDataStillToSend( $alertGroupData );
+		if ( $alertGroupData === [] ) {
+			return false;
+		}
+
 		return self::con()->email_con->sendVO(
 			EmailVO::Factory(
 				self::con()->comps->opts_lookup->getReportEmail(),

@@ -67,10 +67,27 @@ class CloakedPluginFinding {
 	}
 
 	public function identityKey() :string {
+		return self::IdentityFor( $this->entry->type, $this->entry->file );
+	}
+
+	/**
+	 * A plugin's identity is where it is (its type and file), whatever the file contains.
+	 */
+	public static function IdentityFor( string $type, string $file ) :string {
 		return \sha1( \json_encode( [
-			'type' => $this->entry->type,
-			'file' => $this->entry->file,
-		] ) ?: $this->entry->type.'|'.$this->entry->file );
+			'type' => $type,
+			'file' => $file,
+		] ) ?: $type.'|'.$file );
+	}
+
+	/**
+	 * What the plugin's main file contains right now, as a SHA-256 hash; empty when it can't be read.
+	 */
+	public function contentsHash() :string {
+		$hash = \is_file( $this->entry->path ) && \is_readable( $this->entry->path )
+			? @\hash_file( 'sha256', $this->entry->path )
+			: false;
+		return \is_string( $hash ) ? $hash : '';
 	}
 
 	/**

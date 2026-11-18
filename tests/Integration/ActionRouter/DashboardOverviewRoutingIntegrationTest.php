@@ -455,6 +455,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$optionsSnapshot = $this->snapshotSelectedOptions( [
 			CloakedPluginState::OPT_KEY,
 			CloakedPluginState::IGNORE_OPT_KEY,
+			CloakedPluginState::IGNORE_MODES_OPT_KEY,
 			CloakedPluginState::FINDINGS_OPT_KEY,
 			'instant_alert_hidden_plugins',
 		] );
@@ -463,6 +464,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			self::con()->opts
 				->optSet( CloakedPluginState::OPT_KEY, [] )
 				->optSet( CloakedPluginState::IGNORE_OPT_KEY, [] )
+				->optSet( CloakedPluginState::IGNORE_MODES_OPT_KEY, [] )
 				->optSet( CloakedPluginState::FINDINGS_OPT_KEY, [] )
 				->optSet( 'instant_alert_hidden_plugins', 'disabled' )
 				->store();
@@ -491,6 +493,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$optionsSnapshot = $this->snapshotSelectedOptions( [
 			CloakedPluginState::OPT_KEY,
 			CloakedPluginState::IGNORE_OPT_KEY,
+			CloakedPluginState::IGNORE_MODES_OPT_KEY,
 			CloakedPluginState::FINDINGS_OPT_KEY,
 			'instant_alert_hidden_plugins',
 		] );
@@ -499,6 +502,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			self::con()->opts
 				->optSet( CloakedPluginState::OPT_KEY, [] )
 				->optSet( CloakedPluginState::IGNORE_OPT_KEY, [] )
+				->optSet( CloakedPluginState::IGNORE_MODES_OPT_KEY, [] )
 				->optSet( CloakedPluginState::FINDINGS_OPT_KEY, [] )
 				->optSet( 'instant_alert_hidden_plugins', 'disabled' )
 				->store();

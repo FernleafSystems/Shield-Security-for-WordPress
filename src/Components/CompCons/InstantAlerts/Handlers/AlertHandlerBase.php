@@ -20,6 +20,14 @@ abstract class AlertHandlerBase {
 
 	abstract public function alertDataKeys() :array;
 
+	/**
+	 * What of a queued alert still needs sending, or an empty array when nothing remains. An alert held back for a
+	 * while can be about something that no longer calls for one by the time it goes.
+	 */
+	public function alertDataStillToSend( array $alertGroupData ) :array {
+		return $alertGroupData;
+	}
+
 	public function isImmediateAlert() :bool {
 		return false;
 	}

@@ -21,6 +21,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  * @phpstan-import-type AttentionItem from \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems
  * @phpstan-import-type AssessmentRow from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type CloakedPluginFindingState from CloakedPluginState
+ * @phpstan-import-type CloakedPluginIgnoreRecord from CloakedPluginState
  * @phpstan-import-type CompactSummaryAction from ActionsQueueCompactSummaryRowBuilder
  * @phpstan-import-type CompactSummaryDetailItem from ActionsQueueCompactSummaryRowBuilder
  * @phpstan-import-type CompactSummaryFoldedDetails from ActionsQueueCompactSummaryRowBuilder
@@ -37,6 +38,11 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 
 	public const KEY = 'hidden_plugins';
 	public const SOURCE = 'security_check';
+
+	/**
+	 * @var array<string,CloakedPluginIgnoreRecord>|null
+	 */
+	private ?array $loadedIgnoreRecords = null;
 
 	/**
 	 * @return list<AttentionItem>
@@ -131,6 +137,13 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 		return self::con()->comps->hidden_plugins->currentState();
 	}
 
+	/**
+	 * @return array<string,CloakedPluginIgnoreRecord>
+	 */
+	protected function ignoreRecords() :array {
+		return ( new CloakedPluginState() )->ignoreRecords();
+	}
+
 	private function label() :string {
 		return __( 'Cloaked Plugins', 'wp-simple-firewall' );
 	}
@@ -185,7 +198,10 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 			$this->detailItem( __( 'Status', 'wp-simple-firewall' ), $this->statusLabel( $finding ) ),
 		];
 
-		if ( !$isIgnored ) {
+		if ( $isIgnored ) {
+			$items = \array_merge( $items, $this->ignoreDetails( $finding ) );
+		}
+		else {
 			$items[] = $this->detailItem( __( 'Recommended action', 'wp-simple-firewall' ), $this->recommendedAction( $finding ) );
 		}
 
@@ -193,6 +209,34 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 			'label' => __( 'Details', 'wp-simple-firewall' ),
 			'items' => $items,
 		];
+	}
+
+	/**
+	 * How, and since when, the user ignored it. Shield's own loader, ignored automatically, has neither.
+	 * @return list<CompactSummaryDetailItem>
+	 */
+	private function ignoreDetails( CloakedPluginFinding $finding ) :array {
+		$this->loadedIgnoreRecords ??= $this->ignoreRecords();
+		$record = $this->loadedIgnoreRecords[ $finding->identityKey() ] ?? null;
+		if ( $record === null ) {
+			return [];
+		}
+
+		$items = [
+			$this->detailItem(
+				__( 'Ignored', 'wp-simple-firewall' ),
+				$record[ 'mode' ] === CloakedPluginState::IGNORE_MODE_CONTENTS
+					? __( 'Until its main file changes', 'wp-simple-firewall' )
+					: __( 'Always, whatever its file contains', 'wp-simple-firewall' )
+			),
+		];
+		if ( $record[ 'ignored_at' ] > 0 ) {
+			$items[] = $this->detailItem(
+				__( 'Ignored on', 'wp-simple-firewall' ),
+				(string)Services::WpGeneral()->getTimeStringForDisplay( $record[ 'ignored_at' ] )
+			);
+		}
+		return $items;
 	}
 
 	/**
@@ -238,7 +282,7 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 			return [];
 		}
 		if ( $isIgnored ) {
-			return [ $this->ignoreToggleAction( $finding, true ) ];
+			return [ $this->unignoreAction( $finding ) ];
 		}
 
 		$actions = [];
@@ -251,7 +295,13 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 			}
 		}
 
-		$actions[] = $this->ignoreToggleAction( $finding, false );
+		// "Ignore all" takes only the "until it changes" ignores (kind 'ignore'). A file that can't be read can't be
+		// held to its contents, so it can only be ignored wherever it is.
+		$contentsHash = $finding->contentsHash();
+		if ( $contentsHash !== '' ) {
+			$actions[] = $this->ignoreAction( $finding, CloakedPluginState::IGNORE_MODE_CONTENTS, $contentsHash );
+		}
+		$actions[] = $this->ignoreAction( $finding, CloakedPluginState::IGNORE_MODE_PATH, '' );
 		return $actions;
 	}
 
@@ -279,23 +329,48 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 	}
 
 	/**
+	 * @phpstan-param value-of<CloakedPluginState::IGNORE_MODES> $mode
 	 * @return CompactSummaryAction
 	 */
-	private function ignoreToggleAction( CloakedPluginFinding $finding, bool $isIgnored ) :array {
-		$actionClass = $isIgnored ? CloakedPluginUnignore::class : CloakedPluginIgnore::class;
+	private function ignoreAction( CloakedPluginFinding $finding, string $mode, string $contentsHash ) :array {
+		$isUntilChanged = $mode === CloakedPluginState::IGNORE_MODE_CONTENTS;
+		$data = [
+			'identifier'  => $finding->identityKey(),
+			'ignore_mode' => $mode,
+		];
+		if ( $isUntilChanged ) {
+			$data[ 'contents_hash' ] = $contentsHash;
+		}
 
 		return [
 			'href'             => '',
 			'is_action'        => true,
-			'kind'             => $isIgnored ? 'unignore' : 'ignore',
+			'kind'             => $isUntilChanged ? 'ignore' : '',
 			'maintenance_key'  => self::KEY,
-			'label'            => $isIgnored ? __( 'Stop ignoring', 'wp-simple-firewall' ) : __( 'Ignore', 'wp-simple-firewall' ),
-			'icon'             => $isIgnored ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill',
-			'tooltip'          => $isIgnored
-				? __( 'Stop ignoring this cloaked plugin result.', 'wp-simple-firewall' )
-				: __( 'Ignore this cloaked plugin result.', 'wp-simple-firewall' ),
+			'label'            => $isUntilChanged ? __( 'Ignore', 'wp-simple-firewall' ) : __( 'Always ignore', 'wp-simple-firewall' ),
+			'icon'             => 'bi bi-eye-slash-fill',
+			'tooltip'          => $isUntilChanged
+				? __( 'Ignore this cloaked plugin until its main file changes.', 'wp-simple-firewall' )
+				: __( 'Ignore this cloaked plugin at this location, whatever its file contains.', 'wp-simple-firewall' ),
 			'target'           => '',
-			'ajax_action_json' => OperatorChromeContract::encodeJson( ActionData::Build( $actionClass, true, [
+			'ajax_action_json' => OperatorChromeContract::encodeJson( ActionData::Build( CloakedPluginIgnore::class, true, $data ) ),
+		];
+	}
+
+	/**
+	 * @return CompactSummaryAction
+	 */
+	private function unignoreAction( CloakedPluginFinding $finding ) :array {
+		return [
+			'href'             => '',
+			'is_action'        => true,
+			'kind'             => 'unignore',
+			'maintenance_key'  => self::KEY,
+			'label'            => __( 'Stop ignoring', 'wp-simple-firewall' ),
+			'icon'             => 'bi bi-eye-fill',
+			'tooltip'          => __( 'Stop ignoring this cloaked plugin result.', 'wp-simple-firewall' ),
+			'target'           => '',
+			'ajax_action_json' => OperatorChromeContract::encodeJson( ActionData::Build( CloakedPluginUnignore::class, true, [
 				'identifier' => $finding->identityKey(),
 			] ) ),
 		];

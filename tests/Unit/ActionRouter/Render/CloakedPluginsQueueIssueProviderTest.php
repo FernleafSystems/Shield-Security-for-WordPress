@@ -18,11 +18,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\CloakedPluginsQueueIssueProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	CloakedPluginFinding,
+	CloakedPluginState,
 	CloakReason,
 	PluginEntry,
 	PluginType
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\MU\MUHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -35,6 +37,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 use FernleafSystems\Wordpress\Services\Core\Fs;
 
 class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
+
+	use TempDirLifecycleTrait;
 
 	private array $servicesSnapshot = [];
 
@@ -83,12 +87,15 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
 	public function test_active_standard_plugin_is_reported_across_actions_queue_contracts() :void {
+		$path = $this->createTrackedTempDir( 'shield-cloaked-queue-' ).'/cloaked.php';
+		$this->assertNotFalse( \file_put_contents( $path, "<?php\nrun();\n" ) );
 		$finding = $this->finding(
-			new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Cloaked Plugin', '1.2.3', '/plugins/cloaked/cloaked.php' ),
+			new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Cloaked Plugin', '1.2.3', $path ),
 			[ CloakReason::AllPlugins ],
 			true
 		);
@@ -119,10 +126,21 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$this->assertSame( '', $row[ 'badge_label' ] );
 		$this->assertSame( '/deactivate-cloaked', $row[ 'actions' ][ 0 ][ 'href' ] );
 		$this->assertFalse( $row[ 'actions' ][ 0 ][ 'is_action' ] );
+		// "Ignore" (until it changes) is the kind "Ignore all" takes, carrying the contents being reviewed.
 		$this->assertSame( 'ignore', $row[ 'actions' ][ 1 ][ 'kind' ] );
 		$this->assertSame( 'hidden_plugins', $row[ 'actions' ][ 1 ][ 'maintenance_key' ] );
-		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 1 ] )[ 'ex' ] );
-		$this->assertSame( $finding->identityKey(), $this->decodeAction( $row[ 'actions' ][ 1 ] )[ 'identifier' ] );
+		$untilChanged = $this->decodeAction( $row[ 'actions' ][ 1 ] );
+		$this->assertSame( CloakedPluginIgnore::SLUG, $untilChanged[ 'ex' ] );
+		$this->assertSame( $finding->identityKey(), $untilChanged[ 'identifier' ] );
+		$this->assertSame( CloakedPluginState::IGNORE_MODE_CONTENTS, $untilChanged[ 'ignore_mode' ] );
+		$this->assertSame( $finding->contentsHash(), $untilChanged[ 'contents_hash' ] );
+		// "Always ignore" stays out of "Ignore all".
+		$this->assertTrue( $row[ 'actions' ][ 2 ][ 'is_action' ] );
+		$this->assertSame( '', $row[ 'actions' ][ 2 ][ 'kind' ] );
+		$always = $this->decodeAction( $row[ 'actions' ][ 2 ] );
+		$this->assertSame( CloakedPluginIgnore::SLUG, $always[ 'ex' ] );
+		$this->assertSame( CloakedPluginState::IGNORE_MODE_PATH, $always[ 'ignore_mode' ] );
+		$this->assertArrayNotHasKey( 'contents_hash', $always );
 		$this->assertSame(
 			[ 'value' => 'wp-content/plugins/cloaked/cloaked.php', 'style' => 'code' ],
 			$this->detailNamed( $row, 'Path' )
@@ -174,8 +192,10 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 
 		$row = $provider->queueRows()[ 'active' ][ 0 ];
 
+		// Its file can't be read here, so it can't be held to its contents: it can only be ignored where it is.
 		$this->assertCount( 1, $row[ 'actions' ] );
 		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'ex' ] );
+		$this->assertSame( CloakedPluginState::IGNORE_MODE_PATH, $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'ignore_mode' ] );
 		$this->assertSame( 'wp-content/mu-plugins/loader.php', $this->detailNamed( $row, 'Path' )[ 'value' ] );
 		$this->assertNotSame( '', $this->detailNamed( $row, 'Recommended action' )[ 'value' ] );
 	}
@@ -190,7 +210,15 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 			[],
 			'',
 			'',
-			[ $ignoredFinding ]
+			[ $ignoredFinding ],
+			[],
+			[
+				$ignoredFinding->identityKey() => [
+					'mode'          => CloakedPluginState::IGNORE_MODE_CONTENTS,
+					'contents_hash' => \str_repeat( 'a', 64 ),
+					'ignored_at'    => 1700000500,
+				],
+			]
 		);
 
 		$this->assertSame( [], $provider->attentionItems() );
@@ -207,6 +235,42 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$this->assertSame( CloakedPluginUnignore::SLUG, $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'ex' ] );
 		$this->assertSame( $ignoredFinding->identityKey(), $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'identifier' ] );
 		$this->assertNull( $this->detailNamed( $row, 'Recommended action' ) );
+		$this->assertNotNull( $this->detailNamed( $row, 'Ignored' ) );
+		$this->assertStringContainsString( '1700000500', $this->detailNamed( $row, 'Ignored on' )[ 'value' ] );
+	}
+
+	public function test_ignored_rows_say_how_each_was_ignored() :void {
+		$untilChanged = $this->finding(
+			new PluginEntry( PluginType::Standard, 'one/one.php', 'One', '1.0', '/plugins/one/one.php' ),
+			[ CloakReason::PluginsList ],
+			false
+		);
+		$carriedOver = $this->finding(
+			new PluginEntry( PluginType::Standard, 'two/two.php', 'Two', '1.0', '/plugins/two/two.php' ),
+			[ CloakReason::PluginsList ],
+			false
+		);
+		$provider = new CloakedPluginsQueueIssueProviderTestDouble( [], '', '', [ $untilChanged, $carriedOver ], [], [
+			$untilChanged->identityKey() => [
+				'mode'          => CloakedPluginState::IGNORE_MODE_CONTENTS,
+				'contents_hash' => \str_repeat( 'a', 64 ),
+				'ignored_at'    => 1700000500,
+			],
+			// Carried over from before ignores had a mode, with no record of when.
+			$carriedOver->identityKey()  => [
+				'mode'          => CloakedPluginState::IGNORE_MODE_PATH,
+				'contents_hash' => '',
+				'ignored_at'    => 0,
+			],
+		] );
+
+		[ $untilChangedRow, $carriedOverRow ] = $provider->queueRows()[ 'ignored' ];
+
+		$this->assertNotSame(
+			$this->detailNamed( $untilChangedRow, 'Ignored' )[ 'value' ],
+			$this->detailNamed( $carriedOverRow, 'Ignored' )[ 'value' ]
+		);
+		$this->assertNull( $this->detailNamed( $carriedOverRow, 'Ignored on' ) );
 	}
 
 	public function test_auto_ignored_shield_mu_has_no_queue_actions() :void {
@@ -306,19 +370,26 @@ class CloakedPluginsQueueIssueProviderTestDouble extends CloakedPluginsQueueIssu
 	private string $deactivateUrl;
 	private string $pluginsSearchUrl;
 	private array $shieldMuLoaderIdentities;
+	private array $ignoreRecords;
 
 	public function __construct(
 		array $activeFindings,
 		string $deactivateUrl = '',
 		string $pluginsSearchUrl = '',
 		array $ignoredFindings = [],
-		array $shieldMuLoaderIdentities = []
+		array $shieldMuLoaderIdentities = [],
+		array $ignoreRecords = []
 	) {
 		$this->activeFindings = $activeFindings;
 		$this->ignoredFindings = $ignoredFindings;
 		$this->deactivateUrl = $deactivateUrl;
 		$this->pluginsSearchUrl = $pluginsSearchUrl;
 		$this->shieldMuLoaderIdentities = $shieldMuLoaderIdentities;
+		$this->ignoreRecords = $ignoreRecords;
+	}
+
+	protected function ignoreRecords() :array {
+		return $this->ignoreRecords;
 	}
 
 	protected function state() :array {

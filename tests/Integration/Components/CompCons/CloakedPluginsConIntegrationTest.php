@@ -38,6 +38,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 			'instant_alerts_data',
 			CloakedPluginState::OPT_KEY,
 			CloakedPluginState::IGNORE_OPT_KEY,
+			CloakedPluginState::IGNORE_MODES_OPT_KEY,
 			CloakedPluginState::FINDINGS_OPT_KEY,
 			'block_send_email_address',
 			'installation_time',
@@ -47,6 +48,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 			->optSet( 'instant_alerts_data', [] )
 			->optSet( CloakedPluginState::OPT_KEY, [] )
 			->optSet( CloakedPluginState::IGNORE_OPT_KEY, [] )
+			->optSet( CloakedPluginState::IGNORE_MODES_OPT_KEY, [] )
 			->optSet( CloakedPluginState::FINDINGS_OPT_KEY, [] )
 			->optSet( 'block_send_email_address', 'cloaked-plugins@example.com' )
 			->store();
@@ -355,7 +357,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		if ( $ignored ) {
 			foreach ( $findings as $finding ) {
 				if ( $finding->entry->file === $file ) {
-					$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $finding->identityKey(), $findings ) );
+					$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $finding->identityKey(), $findings, CloakedPluginState::IGNORE_MODE_PATH ) );
 				}
 			}
 			$this->resetCloakedPluginFindingsCache();
@@ -365,7 +367,9 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertEqualsCanonicalizing( [ $file, $muFile ], $initial[ 'all' ] );
 		$this->assertSame( $ignored ? [ $file ] : [], $initial[ 'ignored' ] );
 		$con = $this->requireController();
-		$saved = $this->snapshotSelectedOptions( [ CloakedPluginState::FINDINGS_OPT_KEY, CloakedPluginState::IGNORE_OPT_KEY ] );
+		$saved = $this->snapshotSelectedOptions( [
+			CloakedPluginState::FINDINGS_OPT_KEY, CloakedPluginState::IGNORE_OPT_KEY, CloakedPluginState::IGNORE_MODES_OPT_KEY,
+		] );
 		$notified = $con->opts->optGet( CloakedPluginState::OPT_KEY );
 		$restore = $this->injectMalformedDiscovery();
 		try {
@@ -485,7 +489,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $findings );
 		$this->assertSame( $file, $findings[ 0 ]->entry->file );
 		if ( $check === 'ignore' ) {
-			$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $findings[ 0 ]->identityKey(), $findings ) );
+			$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $findings[ 0 ]->identityKey(), $findings, CloakedPluginState::IGNORE_MODE_PATH ) );
 			$this->resetCloakedPluginFindingsCache();
 			$this->observeRealPluginsTable();
 		}
@@ -544,7 +548,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $findings );
 		$this->assertSame( $file, $findings[ 0 ]->entry->file );
 		if ( $ignored ) {
-			$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $findings[ 0 ]->identityKey(), $findings ) );
+			$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $findings[ 0 ]->identityKey(), $findings, CloakedPluginState::IGNORE_MODE_PATH ) );
 			$this->resetCloakedPluginFindingsCache();
 			$this->observeRealPluginsTable();
 		}
@@ -1052,9 +1056,9 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->captureShieldEvents();
 		$findings = $this->observeRealPluginsTable();
 		$this->assertCount( 1, $findings );
-		$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $findings[ 0 ]->identityKey(), $findings ) );
+		$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $findings[ 0 ]->identityKey(), $findings, CloakedPluginState::IGNORE_MODE_PATH ) );
 		$before = $this->snapshotSelectedOptions( [
-			CloakedPluginState::FINDINGS_OPT_KEY, CloakedPluginState::IGNORE_OPT_KEY, CloakedPluginState::OPT_KEY,
+			CloakedPluginState::FINDINGS_OPT_KEY, CloakedPluginState::IGNORE_OPT_KEY, CloakedPluginState::IGNORE_MODES_OPT_KEY, CloakedPluginState::OPT_KEY,
 		] );
 		$con = $this->requireController();
 		$con->opts->optSet( 'instant_alerts_data', [

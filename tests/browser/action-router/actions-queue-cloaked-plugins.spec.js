@@ -11,6 +11,7 @@ const cloakedGroup = ( page ) => page.locator( '[data-actions-queue-group-key="h
 const ignoredToggle = ( page ) => cloakedGroup( page ).locator( '[data-actions-queue-box-toggle="ignored:hidden_plugins"]' );
 const ignoreButtons = ( page ) => cloakedGroup( page ).locator( '[data-actions-queue-maintenance-kind="ignore"]' );
 const restoreButtons = ( page ) => cloakedGroup( page ).locator( '[data-actions-queue-maintenance-kind="unignore"]' );
+const alwaysIgnoreButtons = ( page ) => cloakedGroup( page ).locator( '[data-actions-queue-maintenance-kind=""][data-actions-queue-maintenance-action]' );
 
 async function openQueue( page ) {
 	await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
@@ -91,6 +92,16 @@ test( 'cloaked plugins can be ignored and restored in the queue, singly and toge
 		await restoreButtons( page ).click();
 		await expect( ignoreButtons( page ) ).toHaveCount( 2, { timeout: 20_000 } );
 		await expect( ignoredToggle( page ) ).toHaveCount( 0 );
+
+		// "Always ignore" sits beside "Ignore" on each row, outside "Ignore all", and works on its own.
+		await expect( alwaysIgnoreButtons( page ) ).toHaveCount( 2 );
+		await alwaysIgnoreButtons( page ).first().click();
+		await expect( alwaysIgnoreButtons( page ) ).toHaveCount( 1, { timeout: 20_000 } );
+		await expect( ignoredToggle( page ) ).toHaveText( /1 ignored/ );
+
+		await ignoredToggle( page ).click();
+		await restoreButtons( page ).click();
+		await expect( ignoreButtons( page ) ).toHaveCount( 2, { timeout: 20_000 } );
 
 		await cloakedGroup( page ).locator( '[data-actions-queue-maintenance-all="ignore"]' ).click();
 		await expect( passingGroup ).toHaveCount( 1, { timeout: 20_000 } );

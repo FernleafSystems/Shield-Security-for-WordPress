@@ -987,6 +987,15 @@
         "sensitive": true
     },
     {
+        "key": "cloaked_plugin_ignore_modes",
+        "section": "section_hidden",
+        "type": "array",
+        "default": [],
+        "transferable": false,
+        "tracking_exclude": true,
+        "sensitive": true
+    },
+    {
         "key": "is_scan_cron",
         "section": "section_hidden",
         "tracking_exclude": true,
