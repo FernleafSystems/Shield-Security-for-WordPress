@@ -33,8 +33,6 @@ class SetupGuideUpdate extends BaseAction {
 				$saved = false;
 				break;
 		}
-		$this->response()->setPayload( [
-			'saved' => $saved,
-		] )->setPayloadSuccess( $saved );
+		$this->response()->setPayloadSuccess( $saved );
 	}
 }

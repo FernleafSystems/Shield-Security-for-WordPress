@@ -49,7 +49,7 @@ class SetupGuideUpdateTest extends BaseUnitTest {
 		foreach ( [ 'report_email', 'report_email' ] as $slug ) {
 			$action = new SetupGuideUpdate( [ 'op' => 'skip', 'step_slug' => $slug ] );
 			$action->process();
-			$this->assertTrue( (bool)( $action->response()->payload()[ 'saved' ] ?? false ) );
+			$this->assertTrue( $action->response()->payload()[ 'success' ] );
 		}
 		$this->assertSame( [ 'report_email' ], ( new SetupGuideState() )->doneSlugs() );
 		$this->assertFalse( ( new SetupGuideState() )->isDismissed() );
@@ -66,7 +66,7 @@ class SetupGuideUpdateTest extends BaseUnitTest {
 		foreach ( [ 'not_a_step', 'welcome', 'REPORT_EMAIL', '' ] as $slug ) {
 			$action = new SetupGuideUpdate( [ 'op' => 'skip', 'step_slug' => $slug ] );
 			$action->process();
-			$this->assertFalse( (bool)( $action->response()->payload()[ 'saved' ] ?? true ), $slug );
+			$this->assertFalse( $action->response()->payload()[ 'success' ], $slug );
 		}
 		$this->assertSame( [], $opts->optGet( SetupGuideState::OPT_KEY ) );
 	}
@@ -77,7 +77,7 @@ class SetupGuideUpdateTest extends BaseUnitTest {
 		$action = new SetupGuideUpdate( [ 'op' => 'reset_everything' ] );
 		$action->process();
 
-		$this->assertFalse( (bool)( $action->response()->payload()[ 'saved' ] ?? true ) );
+		$this->assertFalse( $action->response()->payload()[ 'success' ] );
 		$this->assertSame( [], $opts->optGet( SetupGuideState::OPT_KEY ) );
 	}
 
