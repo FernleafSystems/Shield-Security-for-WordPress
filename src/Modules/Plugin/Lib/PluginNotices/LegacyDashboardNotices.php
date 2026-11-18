@@ -30,7 +30,7 @@ class LegacyDashboardNotices extends Base {
 				continue;
 			}
 
-			if ( !$this->isAllowedByLegacyVisibility( $notice, $installDays ) ) {
+			if ( $con->admin_notices->audienceNonDisplayReason( $notice, $installDays ) !== '' ) {
 				continue;
 			}
 
@@ -153,32 +153,6 @@ class LegacyDashboardNotices extends Base {
 				break;
 		}
 		return $normalised;
-	}
-
-	private function isAllowedByLegacyVisibility( NoticeVO $notice, int $installDays ) :bool {
-		$con = self::con();
-		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
-			$allowed = false;
-		}
-		elseif ( $notice->type == 'promo' && !$con->comps->opts_lookup->showsInDashboard( 'notices' ) ) {
-			$allowed = false;
-		}
-		elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {
-			$allowed = false;
-		}
-		elseif ( $notice->plugin_admin == 'yes' && !$con->isPluginAdmin() ) {
-			$allowed = false;
-		}
-		elseif ( $notice->plugin_admin == 'no' && $con->isPluginAdmin() ) {
-			$allowed = false;
-		}
-		elseif ( $notice->min_install_days > 0 && $notice->min_install_days > $installDays ) {
-			$allowed = false;
-		}
-		else {
-			$allowed = true;
-		}
-		return $allowed;
 	}
 
 	private function getNoticeDef( string $noticeID ) :?NoticeVO {

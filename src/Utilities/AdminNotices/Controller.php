@@ -186,23 +186,9 @@ class Controller {
 		if ( !empty( $installedAt ) ) {
 			$installDays = (int)\round( ( Services::Request()->ts() - $installedAt )/\DAY_IN_SECONDS );
 
-			if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
-				$notice->non_display_reason = 'plugin_page_only';
-			}
-			elseif ( $notice->type == 'promo' && !$con->comps->opts_lookup->showsInDashboard( 'notices' ) ) {
-				$notice->non_display_reason = 'promo_hidden';
-			}
-			elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {
-				$notice->non_display_reason = 'not_admin_area';
-			}
-			elseif ( $notice->plugin_admin == 'yes' && !$con->isPluginAdmin() ) {
-				$notice->non_display_reason = 'not_plugin_admin';
-			}
-			elseif ( $notice->plugin_admin == 'no' && $con->isPluginAdmin() ) {
-				$notice->non_display_reason = 'is_plugin_admin';
-			}
-			elseif ( $notice->min_install_days > 0 && $notice->min_install_days > $installDays ) {
-				$notice->non_display_reason = 'min_install_days';
+			$audienceReason = $this->audienceNonDisplayReason( $notice, $installDays );
+			if ( $audienceReason !== '' ) {
+				$notice->non_display_reason = $audienceReason;
 			}
 			elseif ( $this->count > 0 && $notice->type !== 'error' ) {
 				$notice->non_display_reason = 'max_nonerror_count';
@@ -221,6 +207,36 @@ class Controller {
 
 			$notice->template = '/notices/'.$notice->id;
 		}
+	}
+
+	/**
+	 * Why a notice isn't for this request, by the page it's on, who's looking and how long the plugin has been
+	 * installed; empty when it is. Whether it has been dismissed, or has anything to say, is for whoever shows it.
+	 */
+	public function audienceNonDisplayReason( NoticeVO $notice, int $installDays ) :string {
+		$con = self::con();
+		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
+			$reason = 'plugin_page_only';
+		}
+		elseif ( $notice->type == 'promo' && !$con->comps->opts_lookup->showsInDashboard( 'notices' ) ) {
+			$reason = 'promo_hidden';
+		}
+		elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {
+			$reason = 'not_admin_area';
+		}
+		elseif ( $notice->plugin_admin == 'yes' && !$con->isPluginAdmin() ) {
+			$reason = 'not_plugin_admin';
+		}
+		elseif ( $notice->plugin_admin == 'no' && $con->isPluginAdmin() ) {
+			$reason = 'is_plugin_admin';
+		}
+		elseif ( $notice->min_install_days > 0 && $notice->min_install_days > $installDays ) {
+			$reason = 'min_install_days';
+		}
+		else {
+			$reason = '';
+		}
+		return $reason;
 	}
 
 	private function isNoticeDismissed( NoticeVO $notice ) :bool {
