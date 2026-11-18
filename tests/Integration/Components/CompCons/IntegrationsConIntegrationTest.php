@@ -191,7 +191,7 @@ class IntegrationsConIntegrationTest extends ShieldIntegrationTestCase {
 		$response = $con->comps->wizards->processFormSubmit( [
 			'step_slug'            => 'integrations',
 			'ninjaforms'           => 'Y',
-			'easydigitaldownloads' => [ 'Y' ],
+			'easydigitaldownloads' => 'on',
 		] );
 
 		$this->assertTrue( $response->success );
@@ -249,6 +249,25 @@ class IntegrationsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( $response->success );
 		$this->assertSame( [], $con->opts->optGet( 'form_spam_providers' ) );
 		$this->assertSame( [ 'wordpress' ], $con->opts->optGet( 'user_form_providers' ) );
+	}
+
+	/**
+	 * An option takes a list whole or not at all. A stored list holding something the option no longer allows is
+	 * refused when it's added to, so nothing in it is switched on, and nothing is reported as switched on.
+	 */
+	public function test_an_integration_the_option_does_not_take_on_is_not_reported_as_switched_on() :void {
+		$this->enablePremiumCapabilities( [ 'thirdparty_scan_spam', 'thirdparty_scan_users' ] );
+		$con = $this->installBothProvidersWithNoneSwitchedOn();
+		RuntimeTestState::forcePersistOptions( [ 'form_spam_providers' => [ 'a-provider-that-is-gone' ] ] );
+		RuntimeTestState::resetOptionsRuntimeCache();
+		$this->resetProviderCaches();
+		$this->assertSame( [ 'a-provider-that-is-gone' ], $con->opts->optGet( 'form_spam_providers' ) );
+
+		$switchedOn = $con->comps->integrations->switchOn( [ 'ninjaforms', 'easydigitaldownloads' ] );
+
+		$this->assertSame( [ 'a-provider-that-is-gone' ], $con->opts->optGet( 'form_spam_providers' ) );
+		$this->assertSame( [ 'wordpress', 'easydigitaldownloads' ], $con->opts->optGet( 'user_form_providers' ) );
+		$this->assertCount( 1, $switchedOn, 'Only the integration that was stored is reported.' );
 	}
 
 	/**

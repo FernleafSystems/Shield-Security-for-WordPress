@@ -53,15 +53,22 @@ class IntegrationsCon {
 		$switchedOn = [];
 		/** @var BaseBotDetectionController $formCon */
 		foreach ( [ self::con()->comps->forms_users, self::con()->comps->forms_spam ] as $formCon ) {
-			$selected = $formCon->getSelectedProviders();
+			$adding = [];
 			foreach ( \array_keys( $formCon->getInstalled() ) as $slug ) {
 				if ( ( $slugs === null || \in_array( $slug, $slugs, true ) )
 					 && $states[ $slug ][ 'state' ] === 'available' && $states[ $slug ][ 'has_cap' ] ) {
-					$selected[] = $slug;
-					$switchedOn[] = $states[ $slug ][ 'name' ];
+					$adding[] = $slug;
 				}
 			}
-			self::con()->opts->optSet( $formCon->getSelectedProvidersOptKey(), \array_values( \array_unique( $selected ) ) );
+			self::con()->opts->optSet(
+				$formCon->getSelectedProvidersOptKey(),
+				\array_values( \array_unique( \array_merge( $formCon->getSelectedProviders(), $adding ) ) )
+			);
+			// The option has the last word: it takes a list whole or not at all, so an integration counts as
+			// switched on only once it's in the list the option now holds.
+			foreach ( \array_intersect( $adding, $formCon->getSelectedProviders() ) as $slug ) {
+				$switchedOn[] = $states[ $slug ][ 'name' ];
+			}
 		}
 		return $switchedOn;
 	}
