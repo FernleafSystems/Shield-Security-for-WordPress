@@ -93,9 +93,11 @@ class SetupGuideDataBuilder {
 				'hint'     => $copy[ $handler::SLUG ][ 1 ],
 				'is_done'  => $isDone,
 				'body'     => $body,
-				// A finished step comes without its form. This opens the guide on that step with its form, to
-				// go over it again.
-				'redo_href' => self::con()->plugin_urls->setupGuide( $handler::SLUG ),
+				// A step that was finished or skipped in the guide comes without its form on an ordinary page. This
+				// opens the guide on that step with its form, to go over it again. A step that was settled
+				// elsewhere was never gone over here, so it has no link.
+				'redo_href' => $body === '' && \in_array( $handler::SLUG, $done, true )
+					? self::con()->plugin_urls->setupGuide( $handler::SLUG ) : '',
 				// Changes only when what the step shows does, so a page refreshing its guide can leave alone a
 				// step that's the same, along with anything typed into it and not yet saved.
 				'version'  => \md5( ( $isDone ? 'done' : 'to do' ).$body ),
