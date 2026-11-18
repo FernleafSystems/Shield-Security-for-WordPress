@@ -2,8 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Plugin\Lib\Merlin;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MerlinAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PluginBadgeMode;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SetupGuideState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 /**
@@ -16,7 +20,11 @@ class WizardFormSubmitIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function set_up() {
 		parent::set_up();
-		$this->optionSnapshot = $this->snapshotSelectedOptions( [ 'admin_access_key', 'display_plugin_badge' ] );
+		$this->optionSnapshot = $this->snapshotSelectedOptions( [
+			'admin_access_key',
+			'display_plugin_badge',
+			SetupGuideState::OPT_KEY,
+		] );
 		$this->loginAsSecurityAdmin();
 	}
 
@@ -44,6 +52,31 @@ class WizardFormSubmitIntegrationTest extends ShieldIntegrationTestCase {
 			'an integration'       => [ [ 'step_slug' => 'integrations', 'ninjaforms' => [ 'Y' ] ] ],
 			'a field no step uses' => [ [ 'step_slug' => 'security_badge', 'SecurityPluginBadge' => 'Y', 'extra' => 1 ] ],
 		];
+	}
+
+	/**
+	 * The page shows the reason a form was refused, and a field's name is as much request input as its value, so
+	 * the reason never repeats one.
+	 */
+	public function test_the_reason_a_form_is_refused_repeats_nothing_that_was_sent() :void {
+		$sentName = '<b data-sent="name">field</b>';
+		$this->requireController()->this_req->wp_is_ajax = false;
+
+		$payload = $this->requireController()->action_router->action(
+			MerlinAction::SLUG,
+			[
+				ActionData::FIELD_FORM => [
+					'step_slug' => 'security_badge',
+					$sentName   => [ 'not text' ],
+				],
+			],
+			ActionRoutingController::ACTION_REST
+		)->payload();
+
+		$this->assertFalse( $payload[ 'success' ] );
+		$this->assertNotSame( '', $payload[ 'message' ] );
+		$this->assertStringNotContainsString( 'data-sent', $payload[ 'message' ] );
+		$this->assertSame( [], ( new SetupGuideState() )->doneSlugs() );
 	}
 
 	public function test_a_refused_form_changes_nothing() :void {

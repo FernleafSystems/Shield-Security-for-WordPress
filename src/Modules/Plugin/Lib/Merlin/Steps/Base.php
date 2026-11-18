@@ -30,7 +30,7 @@ abstract class Base {
 	}
 
 	/**
-	 * @param array<string,string> $form the step's form: every field is text (see MerlinController)
+	 * @param array<array-key,string> $form the step's form: every field is text (see MerlinController)
 	 * @throws \Exception
 	 */
 	public function processStepFormSubmit( array $form ) :Response {
