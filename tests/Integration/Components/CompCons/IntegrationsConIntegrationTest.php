@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components\CompCons;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\{
+	SetupGuideDataBuilder,
+	SetupGuideState
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
@@ -268,6 +272,45 @@ class IntegrationsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [ 'a-provider-that-is-gone' ], $con->opts->optGet( 'form_spam_providers' ) );
 		$this->assertSame( [ 'wordpress', 'easydigitaldownloads' ], $con->opts->optGet( 'user_form_providers' ) );
 		$this->assertCount( 1, $switchedOn, 'Only the integration that was stored is reported.' );
+	}
+
+	/**
+	 * In the setup guide a finished Integrations step can be gone over again while something is waiting to be
+	 * switched on. Once nothing is, the link goes, and the step counts as changed so a page showing it draws it
+	 * again.
+	 */
+	public function test_setup_guide_offers_to_go_over_integrations_only_while_something_is_waiting() :void {
+		$this->enablePremiumCapabilities( [ 'thirdparty_scan_spam', 'thirdparty_scan_users' ] );
+		$con = $this->installBothProvidersWithNoneSwitchedOn();
+		$guideSnapshot = $this->snapshotSelectedOptions( [ SetupGuideState::OPT_KEY ] );
+		$this->loginAsAdministrator();
+		\add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
+
+		try {
+			( new SetupGuideState() )->markDone( 'integrations' );
+			$whileWaiting = $this->setupGuideStep( 'integrations' );
+			$this->assertTrue( $whileWaiting[ 'is_done' ] );
+			$this->assertSame( '', $whileWaiting[ 'body' ] );
+			$this->assertNotSame( '', $whileWaiting[ 'redo_href' ] );
+
+			$con->comps->integrations->switchOn();
+			$con->opts->store();
+			$this->resetProviderCaches();
+
+			$withNoneWaiting = $this->setupGuideStep( 'integrations' );
+			$this->assertTrue( $withNoneWaiting[ 'is_done' ] );
+			$this->assertSame( '', $withNoneWaiting[ 'body' ] );
+			$this->assertSame( '', $withNoneWaiting[ 'redo_href' ] );
+			$this->assertNotSame( $whileWaiting[ 'version' ], $withNoneWaiting[ 'version' ] );
+		}
+		finally {
+			\remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
+			$this->restoreSelectedOptions( $guideSnapshot );
+		}
+	}
+
+	private function setupGuideStep( string $slug ) :array {
+		return \array_column( ( new SetupGuideDataBuilder() )->build()[ 'steps' ], null, 'slug' )[ $slug ];
 	}
 
 	/**

@@ -141,10 +141,12 @@ class ReportEmailHoldIntegrationTest extends ShieldIntegrationTestCase {
 		$this->loginAsAdministrator();
 		\add_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 		Services::Request()->query = [];
-		( new SetupGuideState() )->markDone( 'report_email' );
+		// Settled outside the guide: nothing records the step as finished in it, and it can still be gone over.
+		$this->requireController()->opts->optSet( 'block_send_email_address', 'guide-step@example.test' )->store();
 
 		$steps = \array_column( ( new SetupGuideDataBuilder() )->build()[ 'steps' ], null, 'slug' );
 
+		$this->assertSame( [], ( new SetupGuideState() )->doneSlugs() );
 		$this->assertTrue( $steps[ 'report_email' ][ 'is_done' ] );
 		\parse_str( (string)\wp_parse_url( $steps[ 'report_email' ][ 'redo_href' ], \PHP_URL_QUERY ), $link );
 		$this->assertSame( 'report_email', $link[ 'setup_step' ] ?? '' );
