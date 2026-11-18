@@ -244,17 +244,17 @@ The setup wizard (`merlin.scss`) uses a custom **Card Stepper** pattern with van
 ### Layout Structure
 
 ```
-#MerlinOverlay (modal backdrop, z-index: 1055)
-  .merlin-modal-dialog (max-width: 960px)
+#MerlinOverlay (modal backdrop, z-index: 100000)
+  .merlin-modal-dialog (max-width: 1400px)
     .modal-content (height: 85vh, background: $surface-color-neutral-base)
-      .modal-header (close button)
+      .merlin-close (close link, top right)
       .modal-body
-        #merlin (flex column, padding: 0 1.25rem 1.25rem)
+        #merlin (flex column, padding: 2.5rem 10rem 1.5rem)
           .stepper (horizontal step indicators)
           .wizard-card (white card with accent bar, flex: 1)
             .wizard-card-accent (salt-green bar)
-            .wizard-card-body (scrollable content, padding: 1rem)
-            .wizard-card-footer (prev/next buttons with separator line)
+            .wizard-card-body (scrollable content, padding: 2.5rem 3.5rem)
+          .wizard-card-footer (prev/next buttons, centred below the card)
 ```
 
 ### Infrastructure
@@ -277,7 +277,7 @@ The stepper is built with real HTML elements (not pseudo-elements), making state
 
 ### Wizard Card
 
-`.wizard-card` follows the standard card component pattern with `$card-border-radius`, `$card-box-shadow`, and a `.wizard-card-accent` salt-green bar. The card body scrolls when content overflows. The footer contains prev/next navigation buttons that use `visibility: hidden` (Bootstrap `.invisible` class) instead of `display: none` so buttons stay in fixed positions across all steps.
+`.wizard-card` follows the standard card component pattern with `$card-border-radius`, `$card-box-shadow`, and a `.wizard-card-accent` salt-green bar. The card body scrolls when content overflows. The prev/next navigation buttons sit in `.wizard-card-footer` below the card and are there on every step, so they stay in fixed positions; `Merlin.js` disables Previous on the first step and Next on the last.
 
 ### Step Content
 
