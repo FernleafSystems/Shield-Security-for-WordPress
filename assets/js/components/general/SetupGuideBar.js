@@ -59,7 +59,8 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 			const toggle = target.closest( '[data-setup-guide-toggle="1"]' )
 				|| ( onBar ? this.root.querySelector( '[data-setup-guide-toggle="1"]' ) : null );
 			const step = target.closest( '[data-setup-guide-step]' );
-			const skip = target.closest( '[data-setup-guide-skip]' );
+			// A step is skipped with the guide's own link under it, or with one the step's own wording offers.
+			const skip = target.closest( '[data-setup-guide-skip], .skip-step' );
 			if ( toggle ) {
 				this.setExpanded( toggle.getAttribute( 'aria-expanded' ) !== 'true' );
 			}
@@ -67,7 +68,7 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 				this.showStep( step.dataset.setupGuideStep || '' );
 			}
 			else if ( skip ) {
-				const slug = skip.dataset.setupGuideSkip;
+				const slug = skip.closest( '[data-setup-guide-pane]' ).dataset.setupGuidePane;
 				this.whileBusy( this.sendUpdate( { op: 'skip', step_slug: slug } ) )
 				.then( ( resp ) => resp?.success && this.completeStep( slug ) );
 			}

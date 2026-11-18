@@ -114,6 +114,20 @@ test( 'a finished setup guide step can be gone over again from its own link', as
 	} );
 } );
 
+test( 'the licence step is skipped from the setup guide by the skip link in its own wording', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withReportEmailHoldFixture( async () => {
+		await openShieldRoute( page, { nav: 'dashboard', nav_sub: 'overview' } );
+		const guide = page.locator( '#ShieldSetupGuide' );
+		const licenceStep = guide.locator( '[data-setup-guide-step="license"]' );
+		await expect( licenceStep ).not.toHaveClass( /is-done/ );
+
+		await guide.locator( '[data-setup-guide-toggle="1"]' ).click();
+		await licenceStep.click();
+		await guide.locator( '[data-setup-guide-pane="license"] .skip-step' ).click();
+		await expect( licenceStep ).toHaveClass( /is-done/ );
+	} );
+} );
+
 test( 'a typed report email saved from the queue link ends the hold', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withReportEmailHoldFixture( async () => {
 		await openReviewSection( page );
