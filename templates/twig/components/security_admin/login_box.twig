@@ -1,16 +1,5 @@
-{% import '/common/macros.twig' as icwp_macros %}
-<template id="ShieldSecAdminUnlock" data-title="{{ strings.title }}" data-message="{{ strings.message }}">
-	<form id="ShieldSecAdminUnlockForm" class="shield-secadmin-unlock" novalidate>
-		<label for="ShieldSecAdminUnlockPin" class="screen-reader-text">{{ strings.aar_enter_access_key }}</label>
-		<input id="ShieldSecAdminUnlockPin" name="sec_admin_key"
-			   {{ icwp_macros.pinEntryAttributes( 'shield-secadmin-unlock__pin' ) }} />
-		<p id="ShieldSecAdminUnlockMessage" class="shield-accessible-dialog__validation shield-secadmin-unlock__message"
-		   role="alert"></p>
-		<a class="shield-secadmin-unlock__forgot" href="{{ hrefs.aar_forget_key }}" target="_blank"
-		   rel="noopener noreferrer">{{ strings.aar_forget_key }}?</a>
-	</form>
-	<div class="shield-accessible-dialog__footer">
-		<button type="button" class="button" data-shield-secadmin-unlock-cancel>{{ strings.cancel }}</button>
-		<button type="submit" class="button button-primary" form="ShieldSecAdminUnlockForm">{{ strings.unlock }}</button>
-	</div>
+{% import '/components/security_admin/pin_form.twig' as pin %}
+<template id="ShieldSecAdminUnlock" data-title="{{ strings.aar_login_title }}" data-message="{{ strings.aar_login_message }}"
+		  data-icon-class="{{ pin.icon_class() }}">
+	{{ pin.form( strings, hrefs, true ) }}
 </template>

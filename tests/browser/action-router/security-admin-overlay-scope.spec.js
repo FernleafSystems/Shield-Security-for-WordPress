@@ -32,8 +32,8 @@ async function expectRestrictedOverlay( page, contract ) {
 	await expectConnectedNonEmptyReference( page, overlay, 'aria-labelledby' );
 	await expectConnectedNonEmptyReference( page, overlay, 'aria-describedby' );
 
-	await expect( page.locator( contract.selectors.overlay_form ) ).toBeVisible();
-	const pinInput = page.locator( contract.selectors.overlay_pin_input );
+	await expect( overlay.locator( contract.selectors.pin_form ) ).toBeVisible();
+	const pinInput = overlay.locator( contract.selectors.pin_input );
 	await expect( pinInput ).toBeVisible();
 	await expectPinInputIgnoredByPasswordManagers( pinInput );
 	return overlay;
@@ -57,8 +57,9 @@ async function openFocusedConfigureForm( page, contract ) {
 
 async function submitOverlayPin( page, contract, pin ) {
 	const response = waitForShieldAjaxAction( page, contract.action_slugs.sec_admin_login );
-	await page.locator( contract.selectors.overlay_pin_input ).fill( pin );
-	await page.locator( contract.selectors.overlay_form ).locator( 'button[type="submit"]' ).click();
+	const overlay = page.locator( contract.selectors.overlay );
+	await overlay.locator( contract.selectors.pin_input ).fill( pin );
+	await overlay.locator( contract.selectors.pin_form ).locator( 'button[type="submit"]' ).click();
 	const payload = parseShieldAjaxJson( await ( await response ).text() );
 	return payload;
 }

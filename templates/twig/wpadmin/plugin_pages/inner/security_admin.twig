@@ -1,63 +1,37 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	{% import '/common/macros.twig' as icwp_macros %}
+	{% import '/components/security_admin/pin_form.twig' as pin %}
+	{# The same PIN dialog that WP admin pages open from their Unlock links, shown in place over the restricted page. #}
 	<div id="SecurityAdminOverlay" class="security-admin-overlay"
 		 role="dialog" tabindex="-1"
 		 aria-labelledby="SecurityAdminLabel"
 		 aria-describedby="SecurityAdminDescription">
-		<div class="modal-dialog security-admin-dialog">
-			<div id="IcwpWpsfSecurityAdmin" class="modal-content rounded-3 shield-modal-content-raised">
-				<div class="modal-body p-4 p-md-5">
-
-					<form method="post" class="form-horizontal" id="SecurityAdminForm">
-
-						<div class="text-center mb-4">
-							<div class="shield-pin-icon text-secondary mb-2">
-								<i class="{{ imgs.icon_shield }}" aria-hidden="true"></i>
-							</div>
-							<h5 id="SecurityAdminLabel" class="mb-1 fw-semibold text-secondary">{{ strings.aar_enter_access_key }}</h5>
-							<p id="SecurityAdminDescription" class="text-muted small mb-0">{{ strings.aar_to_manage_must_enter_key }}</p>
-						</div>
-
-						<div class="mb-3">
-							<label for="sec_admin_key" class="visually-hidden">{{ strings.aar_enter_access_key }}</label>
-							<input name="sec_admin_key"
-								   id="sec_admin_key"
-								   placeholder="{{ strings.aar_enter_access_key }}"
-								   value=""
-								   {{ icwp_macros.pinEntryAttributes( 'form-control form-control-lg text-center rounded-3' ) }} />
-						</div>
-
-						<div class="d-grid mb-3">
-							<button type="submit" class="btn btn-primary btn-lg" name="submit">
-								{{ strings.aar_submit_access_key }}</button>
-						</div>
-
-						<div class="text-center">
-							<a class="text-muted small"
-							   href="{{ hrefs.aar_forget_key }}" target="_blank" rel="noopener noreferrer">
-								{{ strings.aar_forget_key }}?
-								<span class="icon-external-link"><i class="{{ imgs.icon_external_link }}" aria-hidden="true"></i></span>
-							</a>
-						</div>
-
-					</form>
-
-					{% if flags.allow_email_override %}
-						<hr class="my-3">
-						<div class="text-center">
-							<button type="button" id="SecAdminRemoveConfirmEmail" class="small fw-semibold shield-button-link">
-								{{ strings.disable_security_admin }}
-							</button>
-							<p class="text-muted small mt-1 mb-0">
-								{{ strings.send_to_email }}
-							</p>
-						</div>
-					{% endif %}
-
+		<div class="shield-accessible-dialog__surface">
+			<div class="shield-accessible-dialog__header operator-tile-card__main">
+				<span class="shield-accessible-dialog__icon operator-tile-card__icon" aria-hidden="true">
+					<i class="{{ pin.icon_class() }}"></i>
+				</span>
+				<div class="operator-tile-card__copy">
+					<h2 id="SecurityAdminLabel" class="shield-accessible-dialog__title">{{ strings.aar_login_title }}</h2>
+					<div id="SecurityAdminDescription" class="shield-accessible-dialog__message">{{ strings.aar_login_message }}</div>
 				</div>
 			</div>
+			<div class="shield-accessible-dialog__content">
+				{{ pin.form( strings, hrefs, false ) }}
+			</div>
+
+			{% if flags.allow_email_override %}
+				<hr class="my-3">
+				<div class="text-center">
+					<button type="button" id="SecAdminRemoveConfirmEmail" class="small fw-semibold shield-button-link">
+						{{ strings.disable_security_admin }}
+					</button>
+					<p class="text-muted small mt-1 mb-0">
+						{{ strings.send_to_email }}
+					</p>
+				</div>
+			{% endif %}
 		</div>
 	</div>
 {% endblock %}

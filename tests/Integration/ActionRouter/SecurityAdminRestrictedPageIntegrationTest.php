@@ -26,7 +26,6 @@ class SecurityAdminRestrictedPageIntegrationTest extends ShieldIntegrationTestCa
 		$this->assertSame( PageSecurityAdminRestricted::TEMPLATE, (string)( $payload[ 'render_template' ] ?? '' ) );
 		$this->assertArrayHasKey( 'allow_email_override', (array)( $renderData[ 'flags' ] ?? [] ) );
 		$this->assertArrayHasKey( 'inner_page_title_icon', (array)( $renderData[ 'imgs' ] ?? [] ) );
-		$this->assertArrayHasKey( 'icon_shield', (array)( $renderData[ 'imgs' ] ?? [] ) );
 		$this->assertArrayHasKey( 'disable_security_admin', (array)( $renderData[ 'strings' ] ?? [] ) );
 		$this->assertArrayHasKey( 'send_to_email', (array)( $renderData[ 'strings' ] ?? [] ) );
 	}

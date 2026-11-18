@@ -97,7 +97,7 @@ test( 'Security Admin restriction zones disable WP options only for non-Security
 		// The PIN dialog opened from a restricted option's unlock link.
 		const unlockLink = page.locator( contract.selectors.unlock_link ).first();
 		const dialog = page.locator( ACCESSIBLE_DIALOG_ACTIVE_SELECTOR );
-		const pinInput = dialog.locator( contract.selectors.login_box_pin_input );
+		const pinInput = dialog.locator( contract.selectors.pin_input );
 		await unlockLink.click();
 		await expect( dialog ).toBeVisible();
 		await expect( pinInput ).toBeFocused();

@@ -15,7 +15,8 @@ assets/css/
     progress.scss             Progress bars
     merlin.scss               Merlin setup wizard
     meters.scss               Meter gauge styling
-    security-admin.scss       Security admin pane-scoped overlay/dialog
+    security-admin.scss       Security admin restricted page: places the PIN dialog over the page
+    security-admin-unlock.scss  Security Admin PIN dialog and form (WP admin unlock dialog and restricted page)
     options.scss              Module options pages
     ip_analyse.scss           IP analysis off-canvas (options-style rail layout)
     reports.scss              Security report styles (reference only — actual CSS is inline in Twig)
@@ -201,7 +202,8 @@ Use **2 spaces** for SCSS indentation. This is distinct from the PHP convention 
 
 ### Variables
 
-- Use simple `$variable` declarations (no SCSS maps or mixins in this codebase)
+- Use simple `$variable` declarations (no SCSS maps)
+- Mixins are kept for styles shared across components, defined beside their owner: `shield-focus-ring` (`_focus-indicators.scss`) and `shield-accessible-dialog-buttons` (`accessible-dialog.scss`)
 - Naming: `$category-variant-property` (e.g., `$status-color-good`, `$badge-warning-bg`)
 - Shared variables go in `_status-colors.scss`; component-specific values stay in their own file
 
@@ -221,7 +223,8 @@ Each SCSS file owns specific components. Do not style another file's components:
 | `ip_analyse.scss` | `#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse*` and IP-analysis-specific content styling inside the shared options-style rail/panel layout |
 | `reports.scss` (ref) | `.report-section`, `.scan-card`, `.stat-card`, `.change-card`, `.status-pill`, `.category-header`, `.repair-item`, `.scan-item` |
 | `merlin.scss` | `#MerlinOverlay`, `.merlin-modal-dialog`, `.stepper*`, `.wizard-card*`, `.wizard-step-pane`, `.merlin-report-email-actions`, `.protection-levels*`, `.merlin-form-footer` |
-| `security-admin.scss` | Security admin pane-scoped overlay/dialog and PIN form |
+| `security-admin.scss` | `.security-admin-overlay` (restricted-page placement of the PIN dialog) |
+| `security-admin-unlock.scss` | `.shield-secadmin-unlock*` (Security Admin PIN form) |
 | `dashboard.scss` | shared reusable primitives including `.shield-card`, `.shield-card-accent`, `.shield-badge`, plus dashboard-specific components |
 
 ## Inline CSS Pattern (Reports)

@@ -1,4 +1,4 @@
-// The Security Admin PIN dialog opened from WP admin pages outside Shield.
+// The Security Admin PIN dialog: opened from WP admin pages outside Shield, and shown on Shield's restricted page.
 
 .shield-accessible-dialog__icon .dashicons {
 	width: auto;
@@ -6,8 +6,25 @@
 	font-size: 26px;
 }
 
+// Lines the form up under the title, beside the header icon (operator-tile-card__icon width + gap).
+.shield-secadmin-unlock {
+	padding-inline-start: calc( 52px + 0.75rem );
+	@include shield-accessible-dialog-buttons;
+}
+
+// The PIN with its buttons beside it, all the same height.
+.shield-secadmin-unlock__row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: stretch;
+	gap: 8px;
+}
+
+// Shrinks before a button wraps onto its own line; never wider than a PIN needs.
 .shield-secadmin-unlock .shield-secadmin-unlock__pin {
-	width: 100%;
+	flex: 1 1 120px;
+	min-width: 0;
+	max-width: 200px;
 	margin: 0;
 	padding: 10px 14px;
 	border: 1px solid #c3cfc7;
@@ -27,10 +44,6 @@
 	border-color: #b32d2e;
 }
 
-.shield-secadmin-unlock__message {
-	text-align: center;
-}
-
 .shield-secadmin-unlock__message:empty {
 	margin: 0;
 }
@@ -40,11 +53,31 @@
 }
 
 .shield-secadmin-unlock__forgot {
-	display: block;
-	margin-top: 12px;
+	display: inline-block;
+	margin-top: 10px;
 	color: #607168;
 	font-size: 13px;
-	text-align: center;
+	text-decoration: underline;
+}
+
+@media ( max-width: 480px ) {
+	// Dialogs sit at the top on small screens; this one is short, so it stays centred.
+	[data-shield-accessible-dialog="1"]:has( .shield-secadmin-unlock ) {
+		align-items: center;
+	}
+
+	.shield-secadmin-unlock {
+		padding-inline-start: 0;
+	}
+
+	.shield-secadmin-unlock .shield-secadmin-unlock__pin {
+		flex-basis: 100%;
+		max-width: none;
+	}
+
+	.shield-secadmin-unlock__row .button {
+		flex: 1 1 0;
+	}
 }
 
 .shield-secadmin-unlock--rejected {

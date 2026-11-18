@@ -19,7 +19,7 @@ type AccessibleDialogProcessingHandle = {
 };
 
 type AccessibleDialogService = {
-	content( config: AccessibleDialogConfig & { content: HTMLElement; footer: HTMLElement } ) :{
+	content( config: AccessibleDialogConfig & { content: HTMLElement; footer?: HTMLElement } ) :{
 		closed: Promise<void>;
 		close(): void;
 		setBusy( busy: boolean ): void;

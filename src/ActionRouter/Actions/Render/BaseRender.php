@@ -279,9 +279,10 @@ abstract class BaseRender extends BaseAction {
 				'loading'                      => __( 'Loading', 'wp-simple-firewall' ),
 				'request_failed'               => __( 'Request Failed', 'wp-simple-firewall' ),
 				'scan_repair_limit_exceeded'   => __( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item.", 'wp-simple-firewall' ),
-				'aar_to_manage_must_enter_key' => __( 'PIN Required', 'wp-simple-firewall' ),
+				'aar_login_title'              => __( 'Security Admin Login', 'wp-simple-firewall' ),
+				'aar_login_message'            => __( 'Enter your Security Admin PIN', 'wp-simple-firewall' ),
 				'aar_enter_access_key'         => __( 'Security Admin PIN', 'wp-simple-firewall' ),
-				'aar_submit_access_key'        => __( 'Submit PIN', 'wp-simple-firewall' ),
+				'aar_unlock'                   => __( 'Unlock', 'wp-simple-firewall' ),
 				'aar_forget_key'               => __( 'Forgotten PIN', 'wp-simple-firewall' ),
 
 				'offense' => __( 'offense', 'wp-simple-firewall' ),

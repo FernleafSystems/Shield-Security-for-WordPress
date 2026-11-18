@@ -1,6 +1,5 @@
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
-import { Forms } from "../../util/Forms";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldOverlay } from "../ui/ShieldOverlay";
 import { focusElement } from "../ui/ShieldA11y";
@@ -19,24 +18,6 @@ export class SecurityAdmin extends BaseComponent {
 			if ( this._base_data.flags.run_checks ) {
 				this.scheduleSecAdminCheck();
 			}
-
-			shieldEventsHandler_Main.add_Submit( 'form#SecurityAdminForm', ( form ) => {
-				const btn = form.querySelector( 'button[type="submit"]' );
-				btn.disabled = true;
-				( new AjaxService() )
-				.send(
-					ObjectOps.Merge( this._base_data.ajax.sec_admin_login, { form_params: Forms.Serialize( form ) } )
-				)
-				.then( ( resp ) => {
-					if ( !resp?.data?.page_reload ) {
-						btn.disabled = false;
-						const pinInput = form.querySelector( '[name="sec_admin_key"]' );
-						pinInput.value = '';
-						focusElement( pinInput );
-					}
-				} )
-				.finally();
-			} );
 
 			shieldEventsHandler_Main.add_Click( '#SecAdminRemoveConfirmEmail', async ( targetEl ) => {
 				const dialog = shieldServices.dialog();
@@ -64,35 +45,53 @@ export class SecurityAdmin extends BaseComponent {
 	}
 
 	/**
-	 * A wrong PIN keeps the dialog open to retry, unless the server reloads the page (e.g. the IP is now blocked).
-	 * The dialog is busy (can't be closed) only while a request is in flight.
+	 * The PIN dialog opened from an Unlock link on WP admin pages outside Shield.
 	 */
 	openUnlockDialog( template, launcher ) {
 		const fragment = template.content.cloneNode( true );
 		const form = fragment.querySelector( 'form' );
-		const footer = fragment.querySelector( '.shield-accessible-dialog__footer' );
-		const pinInput = form.querySelector( '[name="sec_admin_key"]' );
-		const message = form.querySelector( '.shield-secadmin-unlock__message' );
-		const unlockButton = footer.querySelector( 'button[type="submit"]' );
-		const controls = [ pinInput, ...footer.querySelectorAll( 'button' ) ];
 
 		const handle = shieldServices.dialog().content( {
 			title: template.dataset.title,
 			message: template.dataset.message,
-			iconClass: 'dashicons dashicons-lock',
+			iconClass: template.dataset.iconClass,
 			content: form,
-			footer,
 			launcher,
 		} );
-		if ( handle === null ) {
-			return;
+		if ( handle !== null ) {
+			form.querySelector( '[data-shield-secadmin-unlock-cancel]' ).addEventListener( 'click', () => handle.close() );
+			this.bindPinForm( form, handle );
 		}
+	}
+
+	/**
+	 * The same PIN dialog shown in place on Shield's restricted page, where it can't be closed.
+	 */
+	initializeRestrictedPageOverlay() {
+		const overlayEl = document.getElementById( 'SecurityAdminOverlay' );
+		if ( overlayEl ) {
+			this.bindPinForm( overlayEl.querySelector( 'form' ), null );
+		}
+	}
+
+	/**
+	 * A wrong PIN stays put to retry, unless the server reloads the page (e.g. the IP is now blocked).
+	 * A dialog (handle) is busy, so can't be closed, only while a request is in flight.
+	 * While busy the PIN is read-only rather than disabled, so keyboard focus stays on it; with Unlock disabled,
+	 * Enter can't resubmit.
+	 */
+	bindPinForm( form, handle ) {
+		const pinInput = form.querySelector( '[name="sec_admin_key"]' );
+		const message = form.querySelector( '.shield-secadmin-unlock__message' );
+		const unlockButton = form.querySelector( 'button[type="submit"]' );
+		const buttons = form.querySelectorAll( 'button' );
 
 		const surface = form.closest( '.shield-accessible-dialog__surface' );
 		const clearShake = () => surface.classList.remove( 'shield-secadmin-unlock--rejected' );
 		const setBusy = ( busy ) => {
-			handle.setBusy( busy );
-			controls.forEach( ( control ) => control.disabled = busy );
+			handle?.setBusy( busy );
+			pinInput.readOnly = busy;
+			buttons.forEach( ( button ) => button.disabled = busy );
 		};
 		const showMessage = ( text, isError ) => {
 			message.textContent = text;
@@ -110,8 +109,7 @@ export class SecurityAdmin extends BaseComponent {
 			focusElement( pinInput );
 		};
 
-		handle.closed.then( clearShake );
-		footer.querySelector( '[data-shield-secadmin-unlock-cancel]' ).addEventListener( 'click', () => handle.close() );
+		handle?.closed.then( clearShake );
 
 		form.addEventListener( 'submit', async ( evt ) => {
 			evt.preventDefault();
@@ -131,9 +129,11 @@ export class SecurityAdmin extends BaseComponent {
 			setBusy( false );
 			const text = typeof resp?.data?.message === 'string' ? resp.data.message : '';
 			if ( resp?.data?.session_changed ) {
-				// Not a PIN problem: hand over to the session-changed dialog, which this dialog was blocking.
-				handle.close();
-				await handle.closed;
+				// Not a PIN problem: hand over to the session-changed dialog, which this dialog may be blocking.
+				if ( handle !== null ) {
+					handle.close();
+					await handle.closed;
+				}
 				( new AjaxService() ).showSessionChangedDialog( resp );
 			}
 			else if ( resp?.data?.page_reload ) {
@@ -143,21 +143,11 @@ export class SecurityAdmin extends BaseComponent {
 				pinInput.disabled = unlockButton.disabled = true;
 			}
 			else {
-				reject( text || this._base_data.strings.unlock_failed );
+				reject( text || shieldStrings.string( 'request_failed' ) );
 			}
 		} );
 
 		focusElement( pinInput );
-	}
-
-	initializeRestrictedPageOverlay() {
-		const overlayEl = document.getElementById( 'SecurityAdminOverlay' );
-		if ( overlayEl ) {
-			const pinInput = overlayEl.querySelector( '#sec_admin_key' );
-			window.setTimeout( () => {
-				pinInput?.focus();
-			}, 0 );
-		}
 	}
 
 	handleSecAdminCheck( resp ) {

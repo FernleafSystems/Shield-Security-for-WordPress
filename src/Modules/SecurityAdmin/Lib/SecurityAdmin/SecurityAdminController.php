@@ -131,7 +131,6 @@ class SecurityAdminController {
 							'are_you_sure'       => __( 'Are you sure?', 'wp-simple-firewall' ),
 							'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
 							'unlock_link'        => $this->unlockLink( __( 'Unlock', 'wp-simple-firewall' ) ),
-							'unlock_failed'      => __( 'Request Failed', 'wp-simple-firewall' ),
 						],
 						'vars'    => [
 							'time_remaining'         => $this->getSecAdminTimeRemaining(), // JS uses milliseconds
