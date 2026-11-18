@@ -452,6 +452,9 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	}
 
 	public function test_operator_mode_landing_strip_includes_cloaked_plugin_finding() :void {
+		global $pagenow;
+
+		$originalPageNow = $pagenow ?? null;
 		$optionsSnapshot = $this->snapshotSelectedOptions( [
 			CloakedPluginState::OPT_KEY,
 			CloakedPluginState::IGNORE_OPT_KEY,
@@ -470,7 +473,11 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 				->store();
 			$this->createStandardCloakedPlugin( 'shi-cloaked-dashboard', 'SHI Cloaked Dashboard' );
 			\add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
-			$this->requireController()->comps->hidden_plugins->detect();
+			// Cloaking is found where WordPress lists its plugins, and remembered for every page after.
+			$pagenow = 'plugins.php';
+			$this->prepareRealPluginsTable();
+			$pagenow = 'admin.php';
+			$this->resetCloakedPluginFindingsCache();
 
 			$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
 			$renderData = $payload[ 'render_data' ] ?? [];
@@ -483,6 +490,12 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		finally {
 			$this->removeCloakedPluginFixtureFilters();
 			$this->restoreSelectedOptions( $optionsSnapshot );
+			if ( $originalPageNow === null ) {
+				unset( $GLOBALS[ 'pagenow' ] );
+			}
+			else {
+				$pagenow = $originalPageNow;
+			}
 		}
 	}
 
@@ -510,7 +523,8 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			\add_filter( 'all_plugins', [ $this, 'hideCloakedPluginOnlyOnPluginsPage' ], 1000 );
 
 			$pagenow = 'plugins.php';
-			$this->assertCount( 1, $this->requireController()->comps->hidden_plugins->detect() );
+			$this->prepareRealPluginsTable();
+			$this->assertCount( 1, $this->requireController()->comps->hidden_plugins->currentFindings() );
 			$pluginPageRows = ( new PluginPageView() )->addCloakedList( [] );
 			$this->assertArrayHasKey( $pluginFile, $pluginPageRows[ PluginPageView::STATUS ] ?? [] );
 
@@ -576,10 +590,15 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	public function test_operator_mode_landing_strip_is_clear_for_healthy_file_locker_and_zero_maintenance() :void {
 		$this->requireDb( 'file_locker' );
 		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
-		$optionsSnapshot = $this->snapshotSelectedOptions( [ MaintenanceIssueStateProvider::OPT_KEY ] );
+		$optionsSnapshot = $this->snapshotSelectedOptions( [
+			MaintenanceIssueStateProvider::OPT_KEY,
+			'block_send_email_address',
+		] );
 
 		try {
+			// A site that has just been installed is asked to choose a report email, which can't be ignored.
 			self::con()->opts
+				->optSet( 'block_send_email_address', 'dashboard-strip@example.test' )
 				->optSet( 'file_locker', [ 'wpconfig' ] )
 				->optSet(
 					MaintenanceIssueStateProvider::OPT_KEY,

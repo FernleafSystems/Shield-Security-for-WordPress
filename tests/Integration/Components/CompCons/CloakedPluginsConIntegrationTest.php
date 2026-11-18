@@ -971,43 +971,6 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
-
-	private function prepareRealPluginsTable( bool $network = false ) :array {
-		$keys = [ 'current_screen', 'status', 'plugins', 'totals', 'page', 'orderby', 'order', 's' ];
-		$globals = [];
-		foreach ( $keys as $key ) {
-			if ( \array_key_exists( $key, $GLOBALS ) ) {
-				$globals[ $key ] = $GLOBALS[ $key ];
-			}
-		}
-		$request = $_REQUEST;
-		$user = get_current_user_id();
-		try {
-			$_REQUEST = [];
-			$GLOBALS[ 's' ] = '';
-			wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
-			update_user_option( get_current_user_id(), 'plugins_per_page', 999 );
-			set_current_screen( $network ? 'plugins-network' : 'plugins' );
-			require_once ABSPATH.'wp-admin/includes/class-wp-list-table.php';
-			require_once ABSPATH.'wp-admin/includes/class-wp-plugins-list-table.php';
-			$table = new \WP_Plugins_List_Table( [ 'screen' => get_current_screen() ] );
-			$table->prepare_items();
-			return $table->items;
-		}
-		finally {
-			$_REQUEST = $request;
-			wp_set_current_user( $user );
-			foreach ( $keys as $key ) {
-				if ( \array_key_exists( $key, $globals ) ) {
-					$GLOBALS[ $key ] = $globals[ $key ];
-				}
-				else {
-					unset( $GLOBALS[ $key ] );
-				}
-			}
-		}
-	}
-
 	private function injectEmptyStandardList( string $stage ) :\Closure {
 		if ( $stage === 'discovery_cache' ) {
 			$cached = wp_cache_get( 'plugins', 'plugins', false, $found );
