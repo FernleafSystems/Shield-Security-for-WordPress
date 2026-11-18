@@ -542,7 +542,7 @@ $setup-guide-sheet-height: 640px;
 }
 
 // Leave room below page content inside the content column, so the sidebar runs all the way down
-// to the bar; and lift the Configure save bar above the guide.
+// to the bar; and lift the Reports selection bar above the guide.
 body:has(.shield-setup-guide) #PageMainBody_Inner-Apto {
 	padding-bottom: 5rem;
 }
