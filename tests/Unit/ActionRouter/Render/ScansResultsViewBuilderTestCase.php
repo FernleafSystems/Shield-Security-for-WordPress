@@ -127,12 +127,10 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 			'status'            => 'warning',
 			'icon_class'        => $assetType === 'plugin' ? 'bi bi-plug-fill' : 'bi bi-palette-fill',
 			'title'             => $title,
-			'rail_title'        => '',
 			'stat_text'         => $countBadge.' files need review',
 			'meta_text'         => $subjectId,
 			'count_badge'       => $countBadge,
 			'body_notice'         => '',
-			'body_notice_variant' => '',
 			'panel_data'          => [
 				'actions-queue-asset-panel-loaded' => '1',
 				'actions-queue-asset-panel-lazy'   => '0',
