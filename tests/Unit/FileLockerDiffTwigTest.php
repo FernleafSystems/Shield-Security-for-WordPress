@@ -165,7 +165,7 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 
 		$this->assertSame( 0, $xpath->query( '//*[@data-test-marker="unexpected-diff"]' )->length );
 		$this->assertSame( 1, $xpath->query( '//a[@href="/download/original"]' )->length );
-		$this->assertSame( 0, $xpath->query( '//a[@href="/download/current"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//a' )->length, 'The original is the only download offered' );
 		$this->assertSame( 0, $xpath->query( '//input[@data-action="restore" or @data-action="accept"]' )->length );
 	}
 
@@ -176,7 +176,7 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 		$xpath = $this->renderContext( $context );
 
 		$this->assertSame( 1, $xpath->query( '//a[@href="/download/original"]' )->length );
-		$this->assertSame( 0, $xpath->query( '//a[@href="/download/current"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//a' )->length, 'The original is the only download offered' );
 		$this->assertSame( 1, $xpath->query( '//input[@type="submit" and @data-action="restore" and @data-rid="14"]' )->length );
 		$this->assertSame( 1, $xpath->query( '//input[@type="submit" and @data-action="accept" and @data-rid="14"]' )->length );
 	}
