@@ -61,16 +61,15 @@ class FileLockerController {
 		$this->setupCronHooks();
 	}
 
-	public function createFileDownloadLinks( FileLockerDB\Record $lock ): array {
-		$links = [];
-		foreach ( [ 'original', 'current' ] as $type ) {
-			$links[ $type ] = self::con()->plugin_urls->fileDownload( 'filelocker', [
-				'type' => $type,
-				'rid'  => $lock->id,
-				'rand' => PasswordGenerator::Gen( 6, false, true, false ),
-			] );
-		}
-		return $links;
+	/**
+	 * @param 'original'|'current' $type
+	 */
+	public function createFileDownloadLink( FileLockerDB\Record $lock, string $type ) :string {
+		return self::con()->plugin_urls->fileDownload( 'filelocker', [
+			'type' => $type,
+			'rid'  => $lock->id,
+			'rand' => PasswordGenerator::Gen( 6, false, true, false ),
+		] );
 	}
 
 	/**

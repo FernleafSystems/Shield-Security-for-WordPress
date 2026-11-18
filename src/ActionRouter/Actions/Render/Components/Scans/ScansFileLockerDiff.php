@@ -41,14 +41,16 @@ class ScansFileLockerDiff extends BaseScans {
 			$data = [
 				'error'   => '',
 				'success' => false,
-				'ajax'    => $FLCon->createFileDownloadLinks( $lock ),
+				'ajax'    => [
+					'original' => $FLCon->createFileDownloadLink( $lock, 'original' ),
+					// Only a changed file is offered, and one that's gone or empty can't be downloaded: no link then.
+					'current'  => $isDifferent && !empty( $current ) ? $FLCon->createFileDownloadLink( $lock, 'current' ) : '',
+				],
 				'flags'   => [
 					'has_diff'              => $isDifferent,
 					'diff_available'        => $diffAvailable,
 					'original_file_missing' => $originalFileMissing,
 					'current_content_empty' => !$originalFileMissing && empty( $current ),
-					// A file that's gone or empty can't be downloaded, so it isn't offered.
-					'can_download_current'  => !empty( $current ),
 				],
 				'html'    => [
 					'diff' => $diff,

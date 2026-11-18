@@ -65,7 +65,7 @@
 					<dd>{{ vars.file_size_modified }}</dd>
 				</dl>
 
-				{% if flags.can_download_current %}
+				{% if ajax.current is not empty %}
 					<a href="{{ ajax.current }}" class="btn btn-sm btn-outline-secondary actions-queue-file-details__download">
 						<i class="bi bi-download" aria-hidden="true"></i>{{ strings.download_current }}
 					</a>

@@ -48,7 +48,6 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 				'diff_available'        => true,
 				'original_file_missing' => false,
 				'current_content_empty' => false,
-				'can_download_current'  => true,
 			],
 			'strings' => [
 				'file_content_original' => 'Original',
@@ -159,6 +158,8 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 		$context = $this->buildRenderContext();
 		$context[ 'flags' ][ 'has_diff' ] = false;
 		$context[ 'flags' ][ 'diff_available' ] = false;
+		// An unchanged file comes with no link to a changed copy.
+		$context[ 'ajax' ][ 'current' ] = '';
 		$context[ 'html' ][ 'diff' ] = '<span data-test-marker="unexpected-diff">Unexpected diff</span>';
 		$xpath = $this->renderContext( $context );
 
@@ -171,7 +172,7 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 	public function testFileLockerDiffTemplateOffersNoDownloadOfAChangedFileThatCannotBeDownloaded() :void {
 		$context = $this->buildRenderContext();
 		$context[ 'flags' ][ 'original_file_missing' ] = true;
-		$context[ 'flags' ][ 'can_download_current' ] = false;
+		$context[ 'ajax' ][ 'current' ] = '';
 		$xpath = $this->renderContext( $context );
 
 		$this->assertSame( 1, $xpath->query( '//a[@href="/download/original"]' )->length );
