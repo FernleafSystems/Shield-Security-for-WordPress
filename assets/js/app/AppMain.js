@@ -38,6 +38,7 @@ import { InvestigateLookup } from "../components/mode/InvestigateLookup";
 import { ConfigureTabs } from "../components/mode/ConfigureTabs";
 import { ConfigureLandingController } from "../components/mode/ConfigureLandingController";
 import { ActionsQueueLandingController } from "../components/mode/ActionsQueueLandingController";
+import { ActionsQueueRowDrawer } from "../components/mode/ActionsQueueRowDrawer";
 import { ReportsTabs } from "../components/mode/ReportsTabs";
 import { DetailRowExpandController } from "../components/mode/DetailRowExpandController";
 import { ConfigureExpandLoader } from "../components/mode/ConfigureExpandLoader";
@@ -114,6 +115,7 @@ export class AppMain extends AppBase {
 		this.components.configure_tabs = new ConfigureTabs();
 		this.components.protection_enable = new ProtectionEnableLaunchers();
 		this.components.actions_queue_landing = new ActionsQueueLandingController();
+		this.components.actions_queue_row_drawer = new ActionsQueueRowDrawer();
 		this.components.actions_queue_sections = new ActionsQueueSections();
 		this.components.detail_row_expand = new DetailRowExpandController();
 		this.components.configure_expand_loader = ( 'zones_manager' in comps ) ? new ConfigureExpandLoader( comps.zones_manager ) : null;

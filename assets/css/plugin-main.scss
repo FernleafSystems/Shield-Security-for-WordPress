@@ -953,6 +953,13 @@ td.status_file_size {
   width: 920px;
 }
 
+// Narrower than a phone is wide, it takes the screen's width rather than run off its edge.
+#AptoOffcanvas.offcanvas_cloaked_plugin {
+  max-width: 100%;
+  min-width: 0;
+  width: 640px;
+}
+
 #AptoOffcanvas.offcanvas_form_report_create {
   width: 800px;
 }

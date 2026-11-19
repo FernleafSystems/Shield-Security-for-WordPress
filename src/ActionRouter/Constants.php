@@ -176,6 +176,7 @@ class Constants {
 		Actions\Render\Components\Merlin\MerlinStep::class,
 		Actions\Render\Components\OffCanvas\ZoneComponentConfig::class,
 		Actions\Render\Components\OffCanvas\IpAnalysis::class,
+		Actions\Render\Components\OffCanvas\CloakedPluginDetails::class,
 		Actions\Render\Components\OffCanvas\ImportExportSitesAuthoriseUrls::class,
 		Actions\Render\Components\OffCanvas\IpRuleAddForm::class,
 		Actions\Render\Components\OffCanvas\FormReportCreate::class,

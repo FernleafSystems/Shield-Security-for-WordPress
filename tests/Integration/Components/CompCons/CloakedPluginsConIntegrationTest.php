@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components\CompCons;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\CloakedPluginDetails;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPluginsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerCloakedPlugins;
@@ -943,6 +944,33 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 
 	public static function restrictedListContexts() :array {
 		return [ 'search' => [ [ 's' => 'no matches' ] ], 'inactive' => [ [ 'plugin_status' => 'inactive' ] ], 'a list WordPress does not have' => [ [ 'plugin_status' => 'cloaked' ] ] ];
+	}
+
+	/**
+	 * A cloaked plugin's file can say anything about itself, markup included. Its drawer shows all of it as text.
+	 */
+	public function testCloakedPluginDrawerShowsWhatTheFileSaysAsText() :void {
+		$GLOBALS[ 'pagenow' ] = 'plugins.php';
+		$file = $this->createStandardCloakedPlugin( 'shi-cloaked-drawer', 'Drawer plugin' );
+		$payload = '<img src=x onerror=alert(1)>';
+		$this->assertNotFalse( \file_put_contents(
+			WP_PLUGIN_DIR.'/'.$file,
+			"<?php\n/*\nPlugin Name: Name {$payload}\nVersion: 1.0\nAuthor: Author {$payload}\nPlugin URI: https://example.com/{$payload}\n"
+			."Description: Description {$payload}\n*/\nadd_action('init', static function () {});\n"
+		) );
+		\wp_clean_plugins_cache( false );
+		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+		$findings = $this->observeRealPluginsTable();
+		$this->assertCount( 1, $findings );
+		$this->loginAsSecurityAdmin();
+
+		$html = $this->requireController()->action_router->render( CloakedPluginDetails::class, [
+			'identifier' => $findings[ 0 ]->identityKey(),
+		] );
+
+		$this->assertStringNotContainsString( '<img', $html );
+		// Its name, author, site and description are all there, as text.
+		$this->assertSame( 4, \substr_count( $html, esc_html( $payload ) ) );
 	}
 
 	public function testPluginsActionRequestDoesNotTurnAnActionOnlyFilterIntoAnAlert() :void {

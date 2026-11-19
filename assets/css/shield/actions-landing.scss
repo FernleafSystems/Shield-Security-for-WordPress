@@ -694,34 +694,83 @@ $aq-pro-bg: #f2ebfc;
 	font-size: 13px;
 }
 
-.actions-queue-row__details {
-	color: $aq-muted;
-	font-size: 13px;
+// A row's name, when it opens the item in a drawer.
+.actions-queue-row__open {
+	align-items: center;
+	background: none;
+	border: 0;
+	color: inherit;
+	cursor: pointer;
+	display: inline-flex;
+	font: inherit;
+	gap: 6px;
+	padding: 0;
+	text-align: left;
 
-	summary {
-		cursor: pointer;
-		width: fit-content;
+	i {
+		color: $aq-muted;
+		font-size: 13px;
+	}
 
-		&:focus-visible {
-			@include shield-focus-ring(1px);
+	&:hover {
+		text-decoration: underline;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring(1px);
+	}
+}
+
+// One cloaked plugin, opened in the drawer: a stack of the queue's own boxes and rows. Only what sits inside a
+// box that isn't a row is styled here.
+.shield-cloaked-drawer {
+	display: grid;
+	gap: 12px;
+
+	&__body {
+		font-size: 14px;
+		padding: 12px 14px;
+
+		> :last-child {
+			margin-bottom: 0;
+		}
+
+		ul {
+			list-style: disc;
+			margin: 0 0 8px;
+			padding-left: 18px;
+		}
+
+		li {
+			margin: 0;
+		}
+
+		p {
+			margin: 0 0 8px;
+		}
+
+		dl {
+			column-gap: 14px;
+			display: grid;
+			grid-template-columns: max-content minmax(0, 1fr);
+			margin: 0 0 8px;
+			row-gap: 6px;
+		}
+
+		dt {
+			color: $aq-muted;
+			font-weight: 600;
+		}
+
+		dd {
+			margin: 0;
+			overflow-wrap: anywhere;
 		}
 	}
 
-	dl {
-		column-gap: 12px;
-		display: grid;
-		grid-template-columns: max-content minmax(0, 1fr);
-		margin: 6px 0 2px;
-		row-gap: 3px;
-	}
-
-	dt {
-		font-weight: 600;
-	}
-
-	dd {
-		margin: 0;
-		overflow-wrap: anywhere;
+	&__note {
+		color: $aq-muted;
+		font-size: 13px;
 	}
 }
 
