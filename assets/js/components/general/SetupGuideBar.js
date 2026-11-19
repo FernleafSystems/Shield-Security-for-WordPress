@@ -98,7 +98,8 @@ export class SetupGuideBar extends BaseAutoExecComponent {
 
 	removeGuide() {
 		this.root.remove();
-		this.sidebarItem?.closest( '.sidebar-setup-footer' )?.remove();
+		// The sidebar link goes with it, with the divider above it.
+		this.sidebarItem?.closest( '.sidebar-guidance' )?.remove();
 		this.syncScrollPadding();
 		this.fillShellToViewport();
 	}

@@ -1,9 +1,13 @@
 @import '../mode-palette';
 
+// Space between the sidebar's groups, and the closer space between the items of the mode list.
+$sidebar-group-gap: 0.45rem;
+$sidebar-mode-gap: 0.12rem;
+
 #NavSideBar {
 	display: flex;
 	flex-direction: column;
-	gap: 0.45rem;
+	gap: $sidebar-group-gap;
 	padding: 0.4rem 0.5rem 0.5rem;
 }
 
@@ -42,32 +46,10 @@
 	text-align: center;
 }
 
-.sidebar-nav-dashboard {
-	align-items: center;
-	background: #ffffff;
-	border: 1px solid $border-color-neutral-subtle;
-	border-radius: 7px;
-	color: #3f4853;
-	display: flex;
-	font-size: 0.78rem;
-	font-weight: 600;
-	gap: 0.45rem;
-	margin: 0;
-	padding: 0.43rem 0.55rem;
-	text-decoration: none;
-	transition: background-color 0.2s ease, border-color 0.2s ease;
-
-	&:hover {
-		background: #f8fafb;
-		border-color: $border-color-neutral-strong;
-	}
-
-}
-
 .shield-mode-selector {
 	display: flex;
 	flex-direction: column;
-	gap: 0.12rem;
+	gap: $sidebar-mode-gap;
 }
 
 .mode-item {
@@ -95,8 +77,14 @@
 		line-height: 1;
 	}
 
+	// A label stays on one line. Two-digit counts fit beside it in full; past that, the label is shortened
+	// rather than the counts.
 	.mode-label {
 		line-height: 1.2;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.mode-badge {
@@ -108,7 +96,7 @@
 		font-weight: 700;
 		line-height: 1;
 		margin-left: auto;
-		padding: 0.2rem 0.42rem;
+		padding: 0.2rem 0.3rem;
 	}
 }
 
@@ -213,6 +201,19 @@
 .sidebar-sep {
 	border-top: 1px solid #e2e4e7;
 	margin: 0.25rem 0.35rem 0.2rem;
+}
+
+// The mode list's items sit closer together, so its divider makes up the difference and has the same space
+// around it as every other divider.
+.shield-mode-selector > .sidebar-sep {
+	margin-bottom: 0.2rem + $sidebar-group-gap - $sidebar-mode-gap;
+	margin-top: 0.25rem + $sidebar-group-gap - $sidebar-mode-gap;
+}
+
+// Groups the sidebar's one guidance link with the divider above it, so they're removed together. It adds no
+// box of its own: both stay in the menu's own flow and spacing.
+.sidebar-guidance {
+	display: contents;
 }
 
 .sidebar-license-item {
@@ -322,10 +323,8 @@ button.tool-item {
 }
 
 .sidebar-connect {
-	border-top: 1px solid $border-color-neutral-strong;
 	margin-bottom: 0.75rem;
-	margin-top: auto;
-	padding: 0.75rem 0.35rem 0.5rem;
+	padding: 0 0.35rem 0.5rem;
 
 	.sidebar-connect-title {
 		color: #5f6770;
@@ -442,10 +441,15 @@ button.tool-item {
 		padding-right: 0.2rem;
 	}
 
+	// Collapsed, the sidebar shows icons only: no labels or counts, and no tools or Connect, nor the dividers
+	// above them.
 	#NavSideBar .mode-label,
 	#NavSideBar .mode-badge,
+	#NavSideBar .sidebar-setup-count,
 	#NavSideBar .sidebar-license-item,
+	#NavSideBar .sidebar-tools-sep,
 	#NavSideBar .sidebar-tools,
+	#NavSideBar .sidebar-connect-sep,
 	#NavSideBar .sidebar-connect,
 	#NavSideBar .shield-sidebar-version {
 		display: none !important;
@@ -462,7 +466,13 @@ button.tool-item {
 	}
 
 	#PageMainSide-Apto:hover #NavSideBar .mode-label,
-	#PageMainSide-Apto:focus-within #NavSideBar .mode-label {
+	#PageMainSide-Apto:focus-within #NavSideBar .mode-label,
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-setup-count,
+	#PageMainSide-Apto:focus-within #NavSideBar .sidebar-setup-count,
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-tools-sep,
+	#PageMainSide-Apto:focus-within #NavSideBar .sidebar-tools-sep,
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-connect-sep,
+	#PageMainSide-Apto:focus-within #NavSideBar .sidebar-connect-sep {
 		display: block !important;
 	}
 
@@ -508,10 +518,6 @@ button.tool-item {
 	gap: 0.45rem;
 	margin-top: auto;
 	padding-top: 0.75rem;
-
-	~ .sidebar-connect {
-		margin-top: 0.75rem;
-	}
 }
 
 .sidebar-live-monitor-launch {

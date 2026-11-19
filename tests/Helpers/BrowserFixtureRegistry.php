@@ -22,6 +22,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PublicBlo
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ReportEmailHoldFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityAdminFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityHeadersFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SetupGuideDismissedFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\UserUiStateFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\CustomRulesTerminalFinalizationFixtureBuilder;
 
@@ -77,6 +78,8 @@ class BrowserFixtureRegistry {
 				return self::runSecurityAdminFixture( $action, $args );
 			case 'security-headers':
 				return self::runSecurityHeadersFixture( $action );
+			case 'setup-guide-dismissed':
+				return self::runSetupGuideDismissedFixture( $action );
 			case 'custom-rules-terminal-finalization':
 				return self::runCustomRulesTerminalFinalizationFixture( $action, $args );
 			case 'user-ui-state':
@@ -113,6 +116,7 @@ class BrowserFixtureRegistry {
 		self::runReportEmailHoldFixture( 'cleanup' );
 		self::runSecurityAdminFixture( 'cleanup', [] );
 		self::runSecurityHeadersFixture( 'cleanup' );
+		self::runSetupGuideDismissedFixture( 'cleanup' );
 		self::runCustomRulesTerminalFinalizationFixture( 'cleanup', [] );
 		return [ 'cleaned' => true ];
 	}
@@ -813,6 +817,36 @@ class BrowserFixtureRegistry {
 	private static function runSecurityHeadersFixture( string $action ) :array {
 		$builder = new SecurityHeadersFixtureBuilder();
 		$optionKey = self::fixtureOptionKey( 'security-headers' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private static function runSetupGuideDismissedFixture( string $action ) :array {
+		$builder = new SetupGuideDismissedFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'setup-guide-dismissed' );
 		$state = \get_option( $optionKey, [] );
 		$state = \is_array( $state ) ? $state : [];
 

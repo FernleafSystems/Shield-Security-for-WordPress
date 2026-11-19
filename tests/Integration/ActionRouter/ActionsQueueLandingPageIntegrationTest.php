@@ -27,6 +27,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetFileLockCandidateDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange\Cleanup;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
@@ -623,6 +624,37 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			ActionsQueueRefresh::SLUG,
 			(string)( \json_decode( (string)( $vars[ 'actions_queue_ajax' ][ 'refresh_action_json' ] ?? '' ), true )[ 'ex' ] ?? '' )
 		);
+	}
+
+	public function test_unlocked_critical_files_count_the_same_in_the_badge_and_the_lanes() :void {
+		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
+		$this->requireController()->opts->optSet( 'file_locker', [] )->store();
+		$notLocked = \count( ( new GetFileLockCandidateDisplays() )->notSelected() );
+		$this->assertGreaterThan( 0, $notLocked );
+
+		$attention = self::con()->comps->site_query->attention();
+		$critical = 0;
+		$unlocked = [];
+		foreach ( $attention[ 'items' ] as $item ) {
+			if ( $item[ 'severity' ] === 'critical' ) {
+				$critical += $item[ 'count' ];
+			}
+			if ( $item[ 'key' ] === 'file_locker_unlocked' ) {
+				$unlocked[] = $item;
+			}
+		}
+		$this->assertCount( 1, $unlocked );
+		$this->assertSame( $notLocked, $unlocked[ 0 ][ 'count' ] );
+		$this->assertSame( 'warning', $unlocked[ 0 ][ 'severity' ] );
+
+		// The sidebar badge counts critical items and the rest as warnings; the lanes count the same.
+		$this->assertSame( $critical, $this->findBucketPayload( 'critical' )[ 'item_count' ] );
+		$review = $this->findBucketPayload( 'review' );
+		$this->assertSame( 'warning', $review[ 'status' ] );
+		$this->assertSame( $attention[ 'summary' ][ 'total' ] - $critical, $review[ 'display_count' ] );
+
+		$fileLocker = $this->buildActionsQueueGroupMetrics()[ 'file_locker' ] ?? [];
+		$this->assertSame( [ 'count' => $notLocked, 'status' => 'warning', 'bucket' => 'review' ], $fileLocker );
 	}
 
 	public function test_maintenance_panel_exposes_updates_href() :void {

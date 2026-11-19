@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Hack
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\FileLockerController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\{
+	File,
+	FileLockerController
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
@@ -229,6 +232,30 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 			$this->assertNotSame( '', $display[ 'title' ] );
 			$this->assertSame( \wp_normalize_path( $display[ 'path' ] ), $display[ 'path' ] );
 		}
+	}
+
+	public function test_existing_possible_paths_start_with_a_file_found_above_its_directory() :void {
+		$parentDir = \wp_normalize_path( \sys_get_temp_dir().'/shield-file-locker-parent-'.\uniqid() );
+		$childDir = $parentDir.'/site';
+		\wp_mkdir_p( $childDir );
+		$parentFile = $parentDir.'/shield-probe.php';
+		\file_put_contents( $parentFile, '<?php' );
+
+		try {
+			// Searched as wp-config.php is: this directory and the one above it.
+			$file = new File( 'wpconfig', 'shield-probe.php', $childDir );
+			$file->max_levels = 2;
+			$file->max_paths = 1;
+			$found = \array_map( '\realpath', $file->getExistingPossiblePaths() );
+			$expected = \realpath( $parentFile );
+		}
+		finally {
+			@\unlink( $parentFile );
+			@\rmdir( $childDir );
+			@\rmdir( $parentDir );
+		}
+
+		$this->assertSame( [ $expected ], $found );
 	}
 
 	public function test_real_hooks_ignore_malformed_stored_selections_and_process_valid_siblings() :void {

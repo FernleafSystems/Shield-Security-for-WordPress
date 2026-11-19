@@ -59,6 +59,7 @@ class BuildAttentionItems {
 		'plugin_files',
 		'theme_files',
 		'file_locker',
+		'file_locker_unlocked',
 		'abandoned',
 		'hidden_plugins',
 		'report_email',

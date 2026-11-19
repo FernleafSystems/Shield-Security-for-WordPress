@@ -10,7 +10,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\InvestigateTabs;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerificationDialog;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
+	EmailDeliveryVerificationDialog,
+	EmailDeliveryVerifiedDialog
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
@@ -183,6 +186,14 @@ class AssetsCustomizer {
 					'main',
 				],
 				'data'     => fn() => ( new EmailDeliveryVerificationDialog() )->build(),
+			],
+			'email_delivery_verified' => [
+				'key'      => 'email_delivery_verified',
+				'required' => ( new EmailDeliveryVerifiedDialog() )->isRequired(),
+				'handles'  => [
+					'main',
+				],
+				'data'     => fn() => ( new EmailDeliveryVerifiedDialog() )->build(),
 			],
 			'file_locker'      => [
 				'key'     => 'file_locker',

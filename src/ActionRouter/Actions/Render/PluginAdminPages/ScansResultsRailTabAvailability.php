@@ -27,49 +27,29 @@ class ScansResultsRailTabAvailability {
 	private array $states = [];
 
 	/**
-	 * @return array{
-	 *   is_available:bool,
-	 *   show_in_actions_queue:bool,
-	 *   show_in_fix_now:bool,
-	 *   disabled_reason:''|'not_enabled'|'upgrade_required',
-	 *   disabled_message:string,
-	 *   disabled_status:string,
-	 *   disabled_actions:list<DisabledPaneAction>
-	 * }
-	 */
-	/**
-	 * On Pro, File Locker is something to review (not fix now) while any critical file is left unlocked. This is
-	 * its state for that, or null when every file is locked or the plan doesn't include it.
-	 * @return array{
-	 *   is_available:bool,
-	 *   show_in_actions_queue:bool,
-	 *   show_in_fix_now:bool,
-	 *   disabled_reason:''|'not_enabled'|'upgrade_required',
-	 *   disabled_message:string,
-	 *   disabled_status:string,
-	 *   disabled_actions:list<array<string,mixed>>
-	 * }|null
+	 * On Pro, the critical files left unlocked, which are something to review: how many, and what to say about
+	 * them. Null when every file is locked or the plan doesn't include File Locker.
+	 * @return array{not_locked_count:int,message:string}|null
 	 */
 	public function fileLockerReviewState() :?array {
-		$con = self::con();
-		if ( !$con->isPremiumActive() ) {
+		if ( !self::con()->isPremiumActive() ) {
 			return null;
 		}
 
-		// Only the critical files this site has, and that apply to how it runs, count.
-		$state = $this->build( 'file_locker' );
-		$lockable = \array_column( ( new GetFileLockCandidateDisplays() )->run(), 'file_key' );
-		$locked = \count( \array_intersect( $con->comps->file_locker->getFilesToLock(), $lockable ) );
-		$lockable = \count( $lockable );
-		if ( $state[ 'is_available' ] && $locked >= $lockable ) {
+		// Only the critical files this site has, and that apply to how it runs, count; those still to lock are
+		// the ones File Locker's panel offers to lock.
+		$candidates = new GetFileLockCandidateDisplays();
+		$notLocked = \count( $candidates->notSelected() );
+		if ( $notLocked < 1 ) {
 			return null;
 		}
+		$lockable = \count( $candidates->run() );
+		$locked = $lockable - $notLocked;
 
 		// A warning says what's wrong: the files left unlocked, rather than the ones that are locked.
-		$notLocked = $lockable - $locked;
-		return \array_replace( $state, [
-			'disabled_reason'  => 'not_enabled',
-			'disabled_message' => $state[ 'is_available' ] && $locked > 0
+		return [
+			'not_locked_count' => $notLocked,
+			'message'          => $locked > 0
 				? \sprintf(
 					/* translators: %1$s: files not locked, %2$s: files that can be locked */
 					_n(
@@ -82,9 +62,20 @@ class ScansResultsRailTabAvailability {
 					$lockable
 				)
 				: __( 'None of your critical files are locked yet.', 'wp-simple-firewall' ),
-		] );
+		];
 	}
 
+	/**
+	 * @return array{
+	 *   is_available:bool,
+	 *   show_in_actions_queue:bool,
+	 *   show_in_fix_now:bool,
+	 *   disabled_reason:''|'not_enabled'|'upgrade_required',
+	 *   disabled_message:string,
+	 *   disabled_status:string,
+	 *   disabled_actions:list<DisabledPaneAction>
+	 * }
+	 */
 	public function build( string $tabKey ) :array {
 		$tabKey = \strtolower( \trim( $tabKey ) );
 		if ( isset( $this->states[ $tabKey ] ) ) {

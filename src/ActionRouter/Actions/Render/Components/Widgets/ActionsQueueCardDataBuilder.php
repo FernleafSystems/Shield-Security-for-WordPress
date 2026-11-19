@@ -112,6 +112,7 @@ class ActionsQueueCardDataBuilder {
 	private function buildDashboardStrip( array $zoneGroups, string $href ) :array {
 		$maintenance = $zoneGroups[ 'maintenance' ];
 		$scanCount = $zoneGroups[ 'scans' ][ 'total' ];
+		$scanStatus = $this->localDashboardStatus( $zoneGroups[ 'scans' ] );
 		$maintenanceCount = $maintenance[ 'total' ];
 		$totalCount = $scanCount + $maintenanceCount;
 
@@ -120,12 +121,22 @@ class ActionsQueueCardDataBuilder {
 			$title = __( 'All Clear', 'wp-simple-firewall' );
 			$summary = $this->buildDashboardOverallSummary( __( 'Your site is protected. All systems operational.', 'wp-simple-firewall' ) );
 		}
-		elseif ( $scanCount > 0 || $this->normalizeSeverity( $maintenance[ 'severity' ] ) === 'critical' ) {
+		elseif ( $scanStatus === 'critical' || $this->normalizeSeverity( $maintenance[ 'severity' ] ) === 'critical' ) {
 			$status = 'critical';
 			$title = __( 'Critical Action Required', 'wp-simple-firewall' );
 			$summary = $this->buildDashboardOverallSummary(
 				sprintf(
 					_n( '%s issue needs your attention.', '%s issues need your attention.', $totalCount, 'wp-simple-firewall' ),
+					$totalCount
+				)
+			);
+		}
+		elseif ( $scanCount > 0 ) {
+			$status = 'warning';
+			$title = __( 'Review Recommended', 'wp-simple-firewall' );
+			$summary = $this->buildDashboardOverallSummary(
+				sprintf(
+					_n( '%s item needs review.', '%s items need review.', $totalCount, 'wp-simple-firewall' ),
 					$totalCount
 				)
 			);
@@ -160,7 +171,7 @@ class ActionsQueueCardDataBuilder {
 					'scans',
 					__( 'Security Issues', 'wp-simple-firewall' ),
 					$scanCount,
-					$scanCount > 0 ? 'critical' : 'good',
+					$scanStatus,
 					$href
 				),
 				$this->buildDashboardStripSummary(
@@ -218,8 +229,10 @@ class ActionsQueueCardDataBuilder {
 				: __( 'Up to date', 'wp-simple-firewall' );
 		}
 
+		// Security issues can be critical findings or items to review, such as critical files left unlocked; the
+		// status says which.
 		if ( $id === 'scans' ) {
-			return sprintf( _n( '%s critical issue', '%s critical issues', $count, 'wp-simple-firewall' ), $count );
+			return sprintf( _n( '%s issue', '%s issues', $count, 'wp-simple-firewall' ), $count );
 		}
 
 		return $status === 'critical'
@@ -235,7 +248,9 @@ class ActionsQueueCardDataBuilder {
 		}
 
 		if ( $id === 'scans' ) {
-			return __( 'Critical security findings need review.', 'wp-simple-firewall' );
+			return $status === 'critical'
+				? __( 'Critical security findings need review.', 'wp-simple-firewall' )
+				: __( 'Security items need review.', 'wp-simple-firewall' );
 		}
 
 		return $status === 'critical'

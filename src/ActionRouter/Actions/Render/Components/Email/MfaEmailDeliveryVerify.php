@@ -28,7 +28,7 @@ class MfaEmailDeliveryVerify extends EmailBase {
 				'or_copy'    => __( 'Or copy and paste this link:', 'wp-simple-firewall' ),
 				'logged_in'  => sprintf(
 					/* translators: %s: site domain, such as example.com */
-					__( "Open it in a browser where you're logged in to %s.", 'wp-simple-firewall' ),
+					__( "Open it in a browser where you're logged in to %s as an administrator.", 'wp-simple-firewall' ),
 					$site
 				),
 				'expiry'     => __( 'It works for 24 hours. Only the link in the newest email works.', 'wp-simple-firewall' ),

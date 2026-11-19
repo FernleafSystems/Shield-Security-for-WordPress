@@ -430,15 +430,7 @@ class ScansResultsViewBuilder {
 	 * @return list<FileLockCandidateDisplay>
 	 */
 	protected function getInactiveFileLockDisplays() :array {
-		$configuredFileKeys = \array_values( \array_map(
-			static fn( $fileKey ) :string => sanitize_key( (string)$fileKey ),
-			self::con()->comps->file_locker->getFilesToLock()
-		) );
-
-		return \array_values( \array_filter(
-			( new GetFileLockCandidateDisplays() )->run(),
-			static fn( array $display ) :bool => !\in_array( $display[ 'file_key' ], $configuredFileKeys, true )
-		) );
+		return ( new GetFileLockCandidateDisplays() )->notSelected();
 	}
 
 	protected function getProblemFileLocks() :array {
@@ -712,7 +704,8 @@ class ScansResultsViewBuilder {
 				? __( 'File integrity verified.', 'wp-simple-firewall' )
 				: $this->describeFileLockerRecord( $lock ),
 			'meta_text'          => $path,
-			'explanation'        => ( new FileLockExplanations() )->forFileKey( (string)$lock->type ),
+			// Why a file is worth locking only helps before it's locked.
+			'explanation'        => '',
 			'render_action'      => $this->buildAjaxRenderActionData( ScansFileLockerDiff::class, [
 				'rid' => $rid,
 			] ),
@@ -751,7 +744,7 @@ class ScansResultsViewBuilder {
 			'title'              => $pendingLock[ 'title' ],
 			'stat_text'          => __( 'Initial lock is still being created.', 'wp-simple-firewall' ),
 			'meta_text'          => $path,
-			'explanation'        => ( new FileLockExplanations() )->forFileKey( $fileKey ),
+			'explanation'        => '',
 			'body_notice'        => __( 'Shield is still creating the first lock for this file. Check back in about a minute for the full lock details.', 'wp-simple-firewall' ),
 		] );
 	}

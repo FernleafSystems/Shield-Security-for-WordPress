@@ -296,6 +296,7 @@ function shield_browser_fixture_allowed_actions() :array {
 		'report-email-hold' => [ 'seed', 'cleanup', 'inspect' ],
 		'security-admin' => [ 'seed', 'cleanup', 'inspect' ],
 		'security-headers' => [ 'seed', 'cleanup' ],
+		'setup-guide-dismissed' => [ 'seed', 'cleanup' ],
 		'user-ui-state' => [ 'reset' ],
 	];
 }
@@ -327,6 +328,7 @@ function shield_browser_fixture_require_helpers() :void {
 		'tests/Helpers/ActionRouter/ReportEmailHoldFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/SecurityAdminFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/SecurityHeadersFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/SetupGuideDismissedFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/UserUiStateFixtureBuilder.php',
 	] as $relativePath ) {
 		require_once $pluginRoot.'/'.$relativePath;

@@ -222,6 +222,8 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 			[ 'bi bi-gear-fill', 'bi bi-filetype-php', 'bi bi-server' ],
 			\array_column( $pane[ 'cards' ], 'icon_class' )
 		);
+		// Why a file is worth locking isn't repeated once it's locked or being locked.
+		$this->assertSame( [ '', '', '' ], \array_column( $pane[ 'cards' ], 'explanation' ) );
 	}
 
 	public function test_file_locker_not_enabled_premium_state_renders_inactive_cards_without_configuration_action() :void {
@@ -268,6 +270,10 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		);
 		$this->assertSame( [], $pane[ 'cards' ][ 0 ][ 'actions' ] );
 		$this->assertSame( [], $pane[ 'cards' ][ 0 ][ 'panel_data' ] );
+		// A file not yet locked says why it's worth locking.
+		foreach ( $pane[ 'cards' ] as $card ) {
+			$this->assertNotSame( '', $card[ 'explanation' ] );
+		}
 
 		$dialog = \json_decode( $pane[ 'cards' ][ 0 ][ 'enable_dialog_json' ], true, 512, \JSON_THROW_ON_ERROR );
 		$this->assertSame( '/wp-config.php', $dialog[ 'path' ] );

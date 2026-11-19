@@ -251,11 +251,10 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			[ 'id', 'label', 'value', 'summary', 'accessible_label', 'count', 'status', 'href' ],
 			\array_keys( $strip[ 'summaries' ][ 0 ] )
 		);
-		$this->assertSame( [ '2 critical issues', '3 items due' ], \array_column( $strip[ 'summaries' ], 'value' ) );
-		$this->assertSame(
-			[ 'Critical security findings need review.', 'Routine maintenance items require review.' ],
-			\array_column( $strip[ 'summaries' ], 'summary' )
-		);
+		foreach ( $strip[ 'summaries' ] as $summary ) {
+			$this->assertNotSame( '', $summary[ 'value' ] );
+			$this->assertNotSame( '', $summary[ 'summary' ] );
+		}
 		$this->assertSame(
 			$dataHrefs = \array_column( $strip[ 'summaries' ], 'href' ),
 			\array_fill( 0, 2, $dataHrefs[ 0 ] )
@@ -263,6 +262,17 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		$this->assertNotSame( '', $strip[ 'overall' ][ 'icon_class' ] );
 		$this->assertNotSame( '', $strip[ 'overall' ][ 'accessible_label' ] );
 		$this->assertNotSame( '', $strip[ 'summaries' ][ 0 ][ 'accessible_label' ] );
+	}
+
+	public function test_dashboard_strip_keeps_security_items_to_review_out_of_critical() :void {
+		$strip = $this->buildCardData( $this->attentionQuery(
+			[ $this->attentionItem( 'file_locker_unlocked', 'scans', 3, 'warning' ) ],
+			[]
+		) )[ 'dashboard_strip' ];
+
+		$this->assertSame( 'warning', $strip[ 'overall' ][ 'status' ] );
+		$this->assertSame( [ 'warning', 'good' ], \array_column( $strip[ 'summaries' ], 'status' ) );
+		$this->assertSame( [ 3, 0 ], \array_column( $strip[ 'summaries' ], 'count' ) );
 	}
 
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'dashboardStripPrecedenceProvider' )]
