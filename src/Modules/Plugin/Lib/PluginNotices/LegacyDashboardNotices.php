@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginDumpTelemetry;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -24,7 +23,6 @@ class LegacyDashboardNotices extends Base {
 		foreach ( [
 			'allow-tracking',
 			'rate-plugin',
-			'email-verification-sent',
 		] as $noticeID ) {
 
 			$notice = $this->getNoticeDef( $noticeID );
@@ -32,7 +30,7 @@ class LegacyDashboardNotices extends Base {
 				continue;
 			}
 
-			if ( !$this->isAllowedByLegacyVisibility( $notice, $installDays ) ) {
+			if ( $con->admin_notices->audienceNonDisplayReason( $notice, $installDays ) !== '' ) {
 				continue;
 			}
 
@@ -64,9 +62,6 @@ class LegacyDashboardNotices extends Base {
 				// Legacy parity: this notice currently has no display condition and is effectively disabled.
 				$needed = false;
 				break;
-			case 'email-verification-sent':
-				$needed = ( new EmailDeliveryVerification() )->needsVerificationAction();
-				break;
 			default:
 				$needed = false;
 				break;
@@ -80,8 +75,6 @@ class LegacyDashboardNotices extends Base {
 				return $this->buildAllowTrackingPayload( $notice );
 			case 'rate-plugin':
 				return $this->buildRatePluginPayload( $notice );
-			case 'email-verification-sent':
-				return $this->buildEmailVerificationPayload( $notice );
 			default:
 				return [];
 		}
@@ -147,53 +140,6 @@ class LegacyDashboardNotices extends Base {
 		];
 	}
 
-	private function buildEmailVerificationPayload( NoticeVO $notice ) :array {
-		$con = self::con();
-		$status = ( new EmailDeliveryVerification() )->status();
-		$recipient = $con->comps->opts_lookup->getReportEmail();
-
-		switch ( $status ) {
-			case EmailDeliveryVerification::STATUS_UNSENT:
-				$summary = __( "Email 2FA is enabled, but it isn't active until this site sends and verifies a delivery email.", 'wp-simple-firewall' );
-				$action = __( 'Send verification email', 'wp-simple-firewall' );
-				break;
-			case EmailDeliveryVerification::STATUS_STALE:
-				$summary = __( 'The previous email 2FA verification email is stale, so email 2FA is still inactive.', 'wp-simple-firewall' );
-				$action = __( 'Send verification email', 'wp-simple-firewall' );
-				break;
-			case EmailDeliveryVerification::STATUS_PENDING:
-				$summary = __( 'A verification email has been sent. Email 2FA is inactive until you click the link in that email.', 'wp-simple-firewall' );
-				$action = __( 'Resend verification email', 'wp-simple-firewall' );
-				break;
-			default:
-				return [];
-		}
-
-		return [
-			'id'          => $notice->id,
-			'type'        => $this->normaliseNoticeType( (string)$notice->type ),
-			'text'        => [
-				sprintf(
-					'<strong>%s</strong> %s %s %s',
-					sprintf( '%s: %s', $con->labels->Name, __( 'Email 2FA verification required', 'wp-simple-firewall' ) ),
-					$summary,
-					__( 'Verification email recipient:', 'wp-simple-firewall' ),
-					\esc_html( $recipient )
-				),
-				sprintf(
-					'<button type="button" class="shield_admin_notice_action shield-button-link" data-notice_action="resend_verification_email">%s</button> / <button type="button" class="shield_admin_notice_action shield-button-link" data-notice_action="mfa_email_disable">%s</button>',
-					$action,
-					__( 'Disable 2FA by email', 'wp-simple-firewall' )
-				)
-			],
-			'locations'   => [
-				'shield_admin_top_page',
-			],
-			'email_verification_status' => $status,
-			'can_dismiss' => (bool)$notice->can_dismiss,
-		];
-	}
-
 	private function normaliseNoticeType( string $type ) :string {
 		switch ( $type ) {
 			case 'promo':
@@ -207,32 +153,6 @@ class LegacyDashboardNotices extends Base {
 				break;
 		}
 		return $normalised;
-	}
-
-	private function isAllowedByLegacyVisibility( NoticeVO $notice, int $installDays ) :bool {
-		$con = self::con();
-		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
-			$allowed = false;
-		}
-		elseif ( $notice->type == 'promo' && !self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' ) ) {
-			$allowed = false;
-		}
-		elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {
-			$allowed = false;
-		}
-		elseif ( $notice->plugin_admin == 'yes' && !$con->isPluginAdmin() ) {
-			$allowed = false;
-		}
-		elseif ( $notice->plugin_admin == 'no' && $con->isPluginAdmin() ) {
-			$allowed = false;
-		}
-		elseif ( $notice->min_install_days > 0 && $notice->min_install_days > $installDays ) {
-			$allowed = false;
-		}
-		else {
-			$allowed = true;
-		}
-		return $allowed;
 	}
 
 	private function getNoticeDef( string $noticeID ) :?NoticeVO {

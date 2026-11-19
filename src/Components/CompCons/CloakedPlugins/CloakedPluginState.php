@@ -11,14 +11,39 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   ignored:list<CloakedPluginFinding>,
  *   new_active:list<CloakedPluginFinding>
  * }
+ * @phpstan-type CloakedPluginIgnoreRecord array{
+ *   mode:'path'|'contents',
+ *   contents_hash:string,
+ *   ignored_at:int
+ * }
  */
 class CloakedPluginState {
 
 	use PluginControllerConsumer;
 
 	public const OPT_KEY = 'hidden_plugins_alert_state';
+	/**
+	 * The identities of ignored plugins, as a plain list that every version of Shield can read.
+	 */
 	public const IGNORE_OPT_KEY = 'ignored_hidden_plugins';
+	/**
+	 * How each ignored plugin was ignored, by identity, beside that list.
+	 */
+	public const IGNORE_MODES_OPT_KEY = 'cloaked_plugin_ignore_modes';
 	public const FINDINGS_OPT_KEY = 'cloaked_plugin_findings';
+
+	/**
+	 * Ignored wherever the plugin's file is, whatever it contains.
+	 */
+	public const IGNORE_MODE_PATH = 'path';
+	/**
+	 * Ignored only while the plugin's main file holds what it held when it was ignored.
+	 */
+	public const IGNORE_MODE_CONTENTS = 'contents';
+	public const IGNORE_MODES = [
+		self::IGNORE_MODE_PATH,
+		self::IGNORE_MODE_CONTENTS,
+	];
 
 	/**
 	 * @param list<CloakedPluginFinding> $observedFindings
@@ -49,15 +74,24 @@ class CloakedPluginState {
 	 * @return CloakedPluginFindingState
 	 */
 	public function classify( array $findings ) :array {
-		$ignoredIdentities = $this->getNormalizedIgnoredIdentities( $findings );
-		$userIgnoredIdentityLookup = \array_fill_keys( $ignoredIdentities, true );
+		// An ignore stands until the user stops it, whether or not its plugin is a finding right now: a plugin
+		// briefly missing or visible (during an update, say) mustn't lose it.
+		$records = $this->ignoreRecords();
+		$recordsChanged = false;
+		$changedSinceIgnored = [];
 		$active = [];
 		$ignored = [];
 		$userIgnored = [];
 
 		foreach ( $findings as $finding ) {
 			$identity = $finding->identityKey();
+			$record = $records[ $identity ] ?? null;
 			if ( $this->isShieldMuLoader( $finding ) ) {
+				// Shield's own loader is never ignored by hand, only while it's exactly what Shield wrote.
+				if ( $record !== null ) {
+					unset( $records[ $identity ] );
+					$recordsChanged = true;
+				}
 				if ( $this->isAutoIgnored( $finding ) ) {
 					$ignored[] = $finding;
 				}
@@ -65,13 +99,23 @@ class CloakedPluginState {
 					$active[] = $finding;
 				}
 			}
-			elseif ( isset( $userIgnoredIdentityLookup[ $identity ] ) ) {
+			elseif ( $record !== null && $this->isIgnoreStillApplicable( $record, $finding ) ) {
 				$ignored[] = $finding;
 				$userIgnored[] = $finding;
 			}
 			else {
+				if ( $record !== null ) {
+					// Ignored until it changed, and it has: it's flagged, and alerted, as though found anew.
+					unset( $records[ $identity ] );
+					$recordsChanged = true;
+					$changedSinceIgnored[] = $identity;
+				}
 				$active[] = $finding;
 			}
+		}
+
+		if ( $recordsChanged ) {
+			$this->storeIgnoreRecords( $records );
 		}
 
 		return [
@@ -80,29 +124,28 @@ class CloakedPluginState {
 			'ignored'    => $ignored,
 			'new_active' => $this->rememberNewCandidates(
 				\array_merge( $active, $userIgnored ),
-				$active
+				$active,
+				$changedSinceIgnored
 			),
 		];
 	}
 
 	/**
-	 * @param list<CloakedPluginFinding> $findings
-	 * @return list<CloakedPluginFinding>
-	 */
-	public function rememberNew( array $findings ) :array {
-		return $this->rememberNewCandidates( $findings, $findings );
-	}
-
-	/**
 	 * @param list<CloakedPluginFinding> $trackedFindings
 	 * @param list<CloakedPluginFinding> $candidateFindings
+	 * @param list<string> $forgetIdentities plugins whose earlier alerts no longer count, so they're alerted again
 	 * @return list<CloakedPluginFinding>
 	 */
-	private function rememberNewCandidates( array $trackedFindings, array $candidateFindings ) :array {
-		$stored = $this->loadNotificationState();
+	private function rememberNewCandidates( array $trackedFindings, array $candidateFindings, array $forgetIdentities ) :array {
+		$forget = \array_fill_keys( $forgetIdentities, true );
+		$stored = [];
 		$storedByIdentity = [];
-		foreach ( $stored as $record ) {
+		foreach ( $this->loadNotificationState() as $storedFingerprint => $record ) {
 			$identity = $this->normalizeIdentity( (string)( $record[ 'identity' ] ?? '' ) );
+			if ( isset( $forget[ $identity ] ) ) {
+				continue;
+			}
+			$stored[ $storedFingerprint ] = $record;
 			if ( $identity !== '' && !isset( $storedByIdentity[ $identity ] ) ) {
 				$storedByIdentity[ $identity ] = $record;
 			}
@@ -134,95 +177,102 @@ class CloakedPluginState {
 		return $new;
 	}
 
-	public function ignoreIdentity( string $identity, ?array $validFindings = null ) :bool {
-		$identity = $this->normalizeIdentity( $identity );
-		if ( $identity === '' || !$this->isValidIdentity( $identity, $validFindings ) ) {
-			return false;
-		}
-		if ( $this->isShieldMuLoaderIdentity( $identity, $validFindings ) ) {
-			return false;
-		}
-
-		$ignored = $this->getNormalizedIgnoredIdentities( $validFindings );
-		$ignored[] = $identity;
-		$this->storeIgnoredIdentities( $this->normalizeIdentityList( $ignored ) );
-		return true;
-	}
-
-	public function unignoreIdentity( string $identity, ?array $validFindings = null ) :bool {
-		$identity = $this->normalizeIdentity( $identity );
-		if ( $identity === '' || !$this->isValidIdentity( $identity, $validFindings ) ) {
+	/**
+	 * Ignores one of the current findings. Ignoring it until it changes records the contents the user reviewed,
+	 * which must still be what's on disk, so a file changed since the page was drawn isn't ignored unseen.
+	 * @param list<CloakedPluginFinding> $currentFindings
+	 */
+	public function ignoreIdentity(
+		string $identity,
+		array $currentFindings,
+		string $mode,
+		string $reviewedContentsHash = ''
+	) :bool {
+		$finding = $this->currentFinding( $identity, $currentFindings );
+		if ( $finding === null || $this->isShieldMuLoader( $finding ) || !\in_array( $mode, self::IGNORE_MODES, true ) ) {
 			return false;
 		}
 
-		if ( $this->isShieldMuLoaderIdentity( $identity, $validFindings ) ) {
-			$currentIgnored = $this->normalizeIdentityList( $this->loadIgnoredIdentities() );
-			if ( !\in_array( $identity, $currentIgnored, true ) ) {
+		$contentsHash = '';
+		if ( $mode === self::IGNORE_MODE_CONTENTS ) {
+			$contentsHash = $finding->contentsHash();
+			if ( $contentsHash === '' || !\hash_equals( $contentsHash, $reviewedContentsHash ) ) {
 				return false;
 			}
-			$ignored = \array_values( \array_diff(
-				$currentIgnored,
-				[ $identity ]
-			) );
-			$this->storeIgnoredIdentities( $ignored );
-			return true;
 		}
 
-		$currentIgnored = $this->getNormalizedIgnoredIdentities( $validFindings );
-		$ignored = \array_values( \array_diff(
-			$currentIgnored,
-			[ $identity ]
-		) );
-		$this->storeIgnoredIdentities( $ignored );
+		$records = $this->ignoreRecords();
+		$records[ $finding->identityKey() ] = $this->ignoreRecord( $mode, $contentsHash, \time() );
+		$this->storeIgnoreRecords( $records );
 		return true;
 	}
 
 	/**
-	 * @param list<CloakedPluginFinding>|null $validFindings
-	 * @return list<string>
+	 * @param list<CloakedPluginFinding> $currentFindings
 	 */
-	public function getNormalizedIgnoredIdentities( ?array $validFindings = null ) :array {
-		$stored = $this->loadIgnoredIdentities();
-		$normalized = $this->normalizeIdentityList( $stored );
-
-		if ( $validFindings !== null ) {
-			$validIdentities = \array_fill_keys( \array_map(
-				static fn( CloakedPluginFinding $finding ) :string => $finding->identityKey(),
-				\array_values( \array_filter(
-					$validFindings,
-					fn( CloakedPluginFinding $finding ) :bool => !$this->isShieldMuLoader( $finding )
-				) )
-			), true );
-			$normalized = \array_values( \array_filter(
-				$normalized,
-				static fn( string $identity ) :bool => isset( $validIdentities[ $identity ] )
-			) );
+	public function unignoreIdentity( string $identity, array $currentFindings ) :bool {
+		$finding = $this->currentFinding( $identity, $currentFindings );
+		if ( $finding === null ) {
+			return false;
 		}
 
-		if ( $normalized !== $stored ) {
-			$this->storeIgnoredIdentities( $normalized );
+		$records = $this->ignoreRecords();
+		$identity = $finding->identityKey();
+		if ( !isset( $records[ $identity ] ) ) {
+			// Nothing to stop. That's fine for a plugin the user could ignore, but Shield's own loader never can be.
+			return !$this->isShieldMuLoader( $finding );
 		}
 
-		return $normalized;
+		unset( $records[ $identity ] );
+		$this->storeIgnoreRecords( $records );
+		return true;
 	}
 
 	/**
-	 * @param list<CloakedPluginFinding>|null $validFindings
+	 * Plugins WordPress has deleted take their ignores with them, so one installed later at the same place is
+	 * reviewed afresh.
+	 * @param list<string> $identities as CloakedPluginFinding::IdentityFor() gives them
 	 */
-	private function isValidIdentity( string $identity, ?array $validFindings ) :bool {
-		if ( $validFindings === null ) {
-			return true;
+	public function forgetIgnores( array $identities ) :void {
+		$records = $this->ignoreRecords();
+		$remaining = \array_diff_key( $records, \array_flip( $identities ) );
+		if ( $remaining !== $records ) {
+			$this->storeIgnoreRecords( $remaining );
 		}
-
-		foreach ( $validFindings as $finding ) {
-			if ( $finding->identityKey() === $identity ) {
-				return true;
-			}
-		}
-		return false;
 	}
 
-	public function isAutoIgnored( CloakedPluginFinding $finding ) :bool {
+	/**
+	 * Each ignored plugin's record, by identity.
+	 *
+	 * What's ignored is the plain list of identities that every version of Shield has kept, so a site that goes back
+	 * to an earlier version still has its ignores. How each was ignored is kept beside it. An identity with nothing
+	 * beside it was ignored before there was a choice, when every ignore held wherever the plugin's file was, whatever
+	 * it contained, so it carries on as exactly that and nothing anyone ignored comes back.
+	 * @return array<string,CloakedPluginIgnoreRecord>
+	 */
+	public function ignoreRecords() :array {
+		$list = self::con()->opts->optGet( self::IGNORE_OPT_KEY );
+		$list = \is_array( $list ) ? $list : [];
+		$modes = self::con()->opts->optGet( self::IGNORE_MODES_OPT_KEY );
+		$modes = \is_array( $modes ) ? $modes : [];
+
+		$records = [];
+		foreach ( $list as $identity ) {
+			$identity = \is_string( $identity ) ? $this->normalizeIdentity( $identity ) : '';
+			if ( $identity !== '' && !isset( $records[ $identity ] ) ) {
+				$records[ $identity ] = $this->normalizeIgnoreRecord( $modes[ $identity ] ?? null )
+										?? $this->ignoreRecord( self::IGNORE_MODE_PATH, '', 0 );
+			}
+		}
+
+		if ( \array_keys( $records ) !== $list || $this->modesToStore( $records ) !== $modes ) {
+			$this->storeIgnoreRecords( $records );
+		}
+
+		return $records;
+	}
+
+	private function isAutoIgnored( CloakedPluginFinding $finding ) :bool {
 		return ( new ShieldGeneratedMuPlugin() )->isGeneratedShieldMuLoaderFinding( $finding );
 	}
 
@@ -231,19 +281,66 @@ class CloakedPluginState {
 	}
 
 	/**
-	 * @param list<CloakedPluginFinding>|null $validFindings
+	 * @param list<CloakedPluginFinding> $currentFindings
 	 */
-	private function isShieldMuLoaderIdentity( string $identity, ?array $validFindings ) :bool {
-		if ( $validFindings === null ) {
-			return false;
-		}
-
-		foreach ( $validFindings as $finding ) {
-			if ( $finding->identityKey() === $identity && $this->isShieldMuLoader( $finding ) ) {
-				return true;
+	private function currentFinding( string $identity, array $currentFindings ) :?CloakedPluginFinding {
+		$identity = $this->normalizeIdentity( $identity );
+		foreach ( $currentFindings as $finding ) {
+			if ( $identity !== '' && $finding->identityKey() === $identity ) {
+				return $finding;
 			}
 		}
-		return false;
+		return null;
+	}
+
+	/**
+	 * @param CloakedPluginIgnoreRecord $record
+	 */
+	private function isIgnoreStillApplicable( array $record, CloakedPluginFinding $finding ) :bool {
+		if ( $record[ 'mode' ] === self::IGNORE_MODE_PATH ) {
+			return true;
+		}
+
+		// A file that can't be read just now hasn't been shown to have changed, so its ignore stands until it can be.
+		$current = $finding->contentsHash();
+		return $current === '' || \hash_equals( $record[ 'contents_hash' ], $current );
+	}
+
+	/**
+	 * @param mixed $record
+	 * @return CloakedPluginIgnoreRecord|null
+	 */
+	private function normalizeIgnoreRecord( $record ) :?array {
+		if ( !\is_array( $record ) ) {
+			return null;
+		}
+
+		$mode = $record[ 'mode' ] ?? null;
+		$hash = $record[ 'contents_hash' ] ?? null;
+		$ignoredAt = $record[ 'ignored_at' ] ?? null;
+		if ( !\is_string( $hash ) || !\is_int( $ignoredAt ) || $ignoredAt < 0 ) {
+			return null;
+		}
+
+		if ( $mode === self::IGNORE_MODE_PATH ) {
+			return $this->ignoreRecord( self::IGNORE_MODE_PATH, '', $ignoredAt );
+		}
+		if ( $mode === self::IGNORE_MODE_CONTENTS && \preg_match( '/^[a-f0-9]{64}$/D', $hash ) === 1 ) {
+			return $this->ignoreRecord( self::IGNORE_MODE_CONTENTS, $hash, $ignoredAt );
+		}
+		return null;
+	}
+
+	/**
+	 * @phpstan-param value-of<self::IGNORE_MODES> $mode
+	 * @return CloakedPluginIgnoreRecord
+	 */
+	private function ignoreRecord( string $mode, string $contentsHash, int $ignoredAt ) :array {
+		return [
+			'mode'          => $mode,
+			'contents_hash' => $contentsHash,
+			'ignored_at'    => $ignoredAt,
+		];
 	}
 
 	/**
@@ -366,27 +463,27 @@ class CloakedPluginState {
 		self::con()->opts->optSet( self::OPT_KEY, $state )->store();
 	}
 
-	private function loadIgnoredIdentities() :array {
-		$state = self::con()->opts->optGet( self::IGNORE_OPT_KEY );
-		return \is_array( $state ) ? $state : [];
+	/**
+	 * @param array<string,CloakedPluginIgnoreRecord> $records
+	 */
+	private function storeIgnoreRecords( array $records ) :void {
+		self::con()->opts
+			->optSet( self::IGNORE_OPT_KEY, \array_keys( $records ) )
+			->optSet( self::IGNORE_MODES_OPT_KEY, $this->modesToStore( $records ) )
+			->store();
 	}
 
 	/**
-	 * @param list<string> $identities
+	 * Only what differs from an identity with nothing beside it.
+	 * @param array<string,CloakedPluginIgnoreRecord> $records
+	 * @return array<string,CloakedPluginIgnoreRecord>
 	 */
-	private function storeIgnoredIdentities( array $identities ) :void {
-		self::con()->opts->optSet( self::IGNORE_OPT_KEY, $identities )->store();
-	}
-
-	/**
-	 * @param array<mixed> $identities
-	 * @return list<string>
-	 */
-	private function normalizeIdentityList( array $identities ) :array {
-		return \array_values( \array_unique( \array_filter(
-			\array_map( fn( $identity ) :string => $this->normalizeIdentity( (string)$identity ), $identities ),
-			static fn( string $identity ) :bool => $identity !== ''
-		) ) );
+	private function modesToStore( array $records ) :array {
+		$carriedOver = $this->ignoreRecord( self::IGNORE_MODE_PATH, '', 0 );
+		$modes = \array_filter( $records, static fn( array $record ) :bool => $record !== $carriedOver );
+		// OptsHandler sorts stored array keys. Compare and write the same order so a read does not rewrite the modes.
+		\ksort( $modes );
+		return $modes;
 	}
 
 	private function normalizeIdentity( string $identity ) :string {

@@ -14,7 +14,7 @@ class ReportEmail extends Base {
 		// Choosing the site admin email is still a choice, so it's saved like any other address.
 		$email = ( $form[ 'use_site_admin_email' ] ?? '' ) === 'Y'
 			? Services::WpGeneral()->getSiteAdminEmail()
-			: \trim( (string)( $form[ 'ReportEmail' ] ?? '' ) );
+			: \trim( $form[ 'ReportEmail' ] ?? '' );
 		if ( !Services::Data()->validEmail( $email ) ) {
 			throw new \Exception( __( 'Please provide a valid email address, or skip this step.', 'wp-simple-firewall' ) );
 		}

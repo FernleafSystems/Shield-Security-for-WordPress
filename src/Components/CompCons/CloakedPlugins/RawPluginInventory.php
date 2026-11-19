@@ -83,6 +83,22 @@ class RawPluginInventory {
 	}
 
 	/**
+	 * The plugin files WordPress deletes along with a plugin: every one in its folder, or for a plugin that's a single
+	 * file in the plugins folder itself, only that file.
+	 * @return list<string>
+	 */
+	public function standardPluginFilesDeletedWith( string $pluginFile ) :array {
+		$files = [ $pluginFile ];
+		$pluginDir = $this->pluginDir();
+		$folder = \dirname( \str_replace( '\\', '/', $pluginFile ) );
+		if ( $pluginDir !== '' && $folder !== '.' && $folder !== '' && $folder !== '/' && \is_dir( $pluginDir.'/'.$folder ) ) {
+			$files = \array_merge( $files, $this->pluginFilesInFolder( $pluginDir, $folder ) );
+		}
+
+		return \array_values( \array_unique( $files ) );
+	}
+
+	/**
 	 * @return list<string>
 	 */
 	private function standardPluginFiles( string $pluginDir ) :array {
@@ -97,20 +113,8 @@ class RawPluginInventory {
 				continue;
 			}
 
-			$path = $pluginDir.'/'.$item;
-			if ( \is_dir( $path ) ) {
-				$subItems = \scandir( $path );
-				if ( !\is_array( $subItems ) ) {
-					continue;
-				}
-				foreach ( $subItems as $subItem ) {
-					if ( $this->isDotFile( $subItem ) ) {
-						continue;
-					}
-					if ( $this->endsWith( $subItem, '.php' ) ) {
-						$files[] = $item.'/'.$subItem;
-					}
-				}
+			if ( \is_dir( $pluginDir.'/'.$item ) ) {
+				$files = \array_merge( $files, $this->pluginFilesInFolder( $pluginDir, $item ) );
 			}
 			elseif ( $this->endsWith( $item, '.php' ) ) {
 				$files[] = $item;
@@ -118,6 +122,21 @@ class RawPluginInventory {
 		}
 
 		\sort( $files );
+		return $files;
+	}
+
+	/**
+	 * The plugin entry files directly inside one folder of the plugins folder, as "folder/file.php".
+	 * @return list<string>
+	 */
+	private function pluginFilesInFolder( string $pluginDir, string $folder ) :array {
+		$items = \scandir( $pluginDir.'/'.$folder );
+		$files = [];
+		foreach ( \is_array( $items ) ? $items : [] as $item ) {
+			if ( !$this->isDotFile( $item ) && $this->endsWith( $item, '.php' ) ) {
+				$files[] = $folder.'/'.$item;
+			}
+		}
 		return $files;
 	}
 

@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\InvestigateTabs;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerificationDialog;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
@@ -174,6 +175,14 @@ class AssetsCustomizer {
 						Actions\ToolPurgeProviderIPs::SLUG => ActionData::Build( Actions\ToolPurgeProviderIPs::class ),
 					],
 				],
+			],
+			'email_delivery_verify' => [
+				'key'      => 'email_delivery_verify',
+				'required' => ( new EmailDeliveryVerificationDialog() )->isRequired(),
+				'handles'  => [
+					'main',
+				],
+				'data'     => fn() => ( new EmailDeliveryVerificationDialog() )->build(),
 			],
 			'file_locker'      => [
 				'key'     => 'file_locker',
@@ -348,9 +357,7 @@ class AssetsCustomizer {
 				],
 				'data'    => fn() => [
 					'ajax' => [
-						'resend_verification_email'             => ActionData::Build( Actions\MfaEmailSendVerification::class ),
-						Actions\MfaEmailDisable::SLUG           => ActionData::Build( Actions\MfaEmailDisable::class ),
-						Actions\DismissAdminNotice::SLUG        => ActionData::Build( Actions\DismissAdminNotice::class ),
+						Actions\DismissAdminNotice::SLUG       => ActionData::Build( Actions\DismissAdminNotice::class ),
 						Actions\PluginSetTracking::SLUG         => ActionData::Build( Actions\PluginSetTracking::class ),
 						Actions\PluginAutoDbRepair::SLUG        => ActionData::Build( Actions\PluginAutoDbRepair::class ),
 						Actions\PluginDeleteForceOff::SLUG      => ActionData::Build( Actions\PluginDeleteForceOff::class ),

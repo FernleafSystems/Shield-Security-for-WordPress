@@ -48,7 +48,7 @@ class PluginSetUiPreferenceTest extends BaseUnitTest {
 		$action = new PluginSetUiPreference( $this->actionData( UiPreferences::ACTIONS_QUEUE_VIEW, 'sections' ) );
 		$action->process();
 
-		$this->assertTrue( (bool)( $action->response()->payload()[ 'saved' ] ?? false ) );
+		$this->assertTrue( $action->response()->payload()[ 'success' ] );
 		$this->assertSame( [ UiPreferences::ACTIONS_QUEUE_VIEW => 'sections' ], $meta->ui_prefs );
 		$this->assertSame( 'sections', ( new UiPreferences() )->get( UiPreferences::ACTIONS_QUEUE_VIEW ) );
 	}
@@ -59,7 +59,7 @@ class PluginSetUiPreferenceTest extends BaseUnitTest {
 		foreach ( [ [ 'not_a_pref', 'tabs' ], [ UiPreferences::ACTIONS_QUEUE_VIEW, 'grid' ] ] as [ $key, $value ] ) {
 			$action = new PluginSetUiPreference( $this->actionData( $key, $value ) );
 			$action->process();
-			$this->assertFalse( (bool)( $action->response()->payload()[ 'saved' ] ?? true ) );
+			$this->assertFalse( $action->response()->payload()[ 'success' ] );
 		}
 
 		$this->assertSame( [ UiPreferences::ACTIONS_QUEUE_VIEW => 'sections' ], $meta->ui_prefs );

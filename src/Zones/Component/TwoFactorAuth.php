@@ -133,7 +133,7 @@ class TwoFactorAuth extends Base {
 			$usableProviders[] = GoogleAuth::ProviderName();
 		}
 		else {
-			$reasons[] = $this->explanationFixedBy( __( 'Google Authenticator is disabled.', 'wp-simple-firewall' ), 'enable_google_authenticator' );
+			$reasons[] = $this->explanationFixedBy( __( 'TOTP authenticator apps are disabled.', 'wp-simple-firewall' ), 'enable_google_authenticator' );
 		}
 
 		if ( Yubikey::ProviderEnabled() ) {

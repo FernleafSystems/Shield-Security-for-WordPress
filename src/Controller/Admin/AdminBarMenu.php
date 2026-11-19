@@ -41,7 +41,8 @@ class AdminBarMenu {
 			   && !$con->this_req->wp_is_ajax
 			   && $con->isValidAdminArea()
 			   && Services::WpUsers()->isUserAdmin()
-			   && (bool)apply_filters( 'shield/show_admin_bar_menu', true );
+			   // The site's "dashboard_display" setting is the filter's default, so the filter has the final say either way.
+			   && (bool)apply_filters( 'shield/show_admin_bar_menu', $con->comps->opts_lookup->showsInDashboard( 'admin_bar' ) );
 	}
 
 	protected function run() {

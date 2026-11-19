@@ -1,0 +1,103 @@
+// The Security Admin PIN dialog: opened from WP admin pages outside Shield, and shown on Shield's restricted page.
+
+.shield-accessible-dialog__icon .dashicons {
+	width: auto;
+	height: auto;
+	font-size: 26px;
+}
+
+// Lines the form up under the title, beside the header icon (operator-tile-card__icon width + gap).
+.shield-secadmin-unlock {
+	padding-inline-start: calc( 52px + 0.75rem );
+	@include shield-accessible-dialog-buttons;
+}
+
+// The PIN with its buttons beside it, all the same height.
+.shield-secadmin-unlock__row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: stretch;
+	gap: 8px;
+}
+
+// Shrinks before a button wraps onto its own line; never wider than a PIN needs.
+.shield-secadmin-unlock .shield-secadmin-unlock__pin {
+	flex: 1 1 120px;
+	min-width: 0;
+	max-width: 200px;
+	margin: 0;
+	padding: 10px 14px;
+	border: 1px solid #c3cfc7;
+	border-radius: 7px;
+	font-size: 20px;
+	line-height: 1.4;
+	letter-spacing: 0.2em;
+	text-align: center;
+}
+
+.shield-secadmin-unlock .shield-secadmin-unlock__pin:focus {
+	@include shield-focus-ring( 0 );
+	border-color: $shield-focus-ring-color;
+}
+
+.shield-secadmin-unlock .shield-secadmin-unlock__pin[aria-invalid="true"] {
+	border-color: #b32d2e;
+}
+
+.shield-secadmin-unlock__message:empty {
+	margin: 0;
+}
+
+.shield-secadmin-unlock__message--ok {
+	color: #006400;
+}
+
+.shield-secadmin-unlock__forgot {
+	display: inline-block;
+	margin-top: 10px;
+	color: #607168;
+	font-size: 13px;
+	text-decoration: underline;
+}
+
+@media ( max-width: 480px ) {
+	// Dialogs sit at the top on small screens; this one is short, so it stays centred.
+	[data-shield-accessible-dialog="1"]:has( .shield-secadmin-unlock ) {
+		align-items: center;
+	}
+
+	.shield-secadmin-unlock {
+		padding-inline-start: 0;
+	}
+
+	.shield-secadmin-unlock .shield-secadmin-unlock__pin {
+		flex-basis: 100%;
+		max-width: none;
+	}
+
+	.shield-secadmin-unlock__row .button {
+		flex: 1 1 0;
+	}
+}
+
+.shield-secadmin-unlock--rejected {
+	animation: shield-secadmin-unlock-shake 0.4s ease-in-out;
+}
+
+@keyframes shield-secadmin-unlock-shake {
+	0%, 100% {
+		transform: translateX( 0 );
+	}
+	20%, 60% {
+		transform: translateX( -8px );
+	}
+	40%, 80% {
+		transform: translateX( 8px );
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.shield-secadmin-unlock--rejected {
+		animation: none;
+	}
+}

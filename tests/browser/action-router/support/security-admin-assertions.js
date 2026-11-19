@@ -47,6 +47,21 @@ async function expectSecurityAdminLocalisation( page, contract ) {
 	return component;
 }
 
+async function expectPinInputIgnoredByPasswordManagers( pinInput ) {
+	await expect( pinInput ).toHaveAttribute( 'type', 'password' );
+	await expect( pinInput ).toContainClass( 'keeper-ignore' );
+	for ( const [ attribute, value ] of Object.entries( {
+		'data-1p-ignore': '',
+		'data-lpignore': 'true',
+		'data-form-type': 'other',
+		'data-bwignore': '',
+		'data-protonpass-ignore': 'true',
+		'data-spignore': 'true',
+	} ) ) {
+		await expect( pinInput ).toHaveAttribute( attribute, value );
+	}
+}
+
 async function sendSecurityAdminAjax( page, ajaxKey, extraData = {} ) {
 	const response = await page.evaluate( async ( { currentAjaxKey, currentExtraData } ) => {
 		const requestData = window.shield_vars_main?.comps?.sec_admin?.ajax?.[ currentAjaxKey ];
@@ -86,6 +101,7 @@ async function sendSecurityAdminAjax( page, ajaxKey, extraData = {} ) {
 
 module.exports = {
 	assertSecurityAdminContract,
+	expectPinInputIgnoredByPasswordManagers,
 	expectSecurityAdminLocalisation,
 	sendSecurityAdminAjax,
 };

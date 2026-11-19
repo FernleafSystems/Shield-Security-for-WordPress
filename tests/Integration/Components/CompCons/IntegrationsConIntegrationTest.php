@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components\CompCons;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\{
+	SetupGuideDataBuilder,
+	SetupGuideState
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
@@ -181,6 +185,154 @@ class IntegrationsConIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( [ 'ninjaforms' ], $con->opts->optGet( 'form_spam_providers' ) );
 		$this->assertSame( [ 'wordpress' ], $con->opts->optGet( 'user_form_providers' ) );
+	}
+
+	public function test_wizard_step_switches_on_only_the_integrations_ticked() :void {
+		$this->enablePremiumCapabilities( [ 'thirdparty_scan_spam', 'thirdparty_scan_users' ] );
+		$con = $this->installBothProvidersWithNoneSwitchedOn();
+
+		// Only a tick counts: anything else sent for an integration leaves it off.
+		$response = $con->comps->wizards->processFormSubmit( [
+			'step_slug'            => 'integrations',
+			'ninjaforms'           => 'Y',
+			'easydigitaldownloads' => 'on',
+		] );
+
+		$this->assertTrue( $response->success );
+		$this->assertSame( [ 'ninjaforms' ], $con->opts->optGet( 'form_spam_providers' ) );
+		$this->assertSame( [ 'wordpress' ], $con->opts->optGet( 'user_form_providers' ) );
+
+		RuntimeTestState::resetOptionsRuntimeCache();
+		$this->assertSame( [ 'ninjaforms' ], $con->opts->optGet( 'form_spam_providers' ) );
+		$this->assertSame( [ 'wordpress' ], $con->opts->optGet( 'user_form_providers' ) );
+	}
+
+	public function test_wizard_step_switches_on_every_integration_ticked_across_both_kinds_of_form() :void {
+		$this->enablePremiumCapabilities( [ 'thirdparty_scan_spam', 'thirdparty_scan_users' ] );
+		$con = $this->installBothProvidersWithNoneSwitchedOn();
+
+		// WooCommerce is covered by the plan but isn't installed, so ticking it switches nothing on.
+		$this->assertArrayNotHasKey( 'woocommerce', $con->comps->forms_users->getInstalled() );
+		$response = $con->comps->wizards->processFormSubmit( [
+			'step_slug'            => 'integrations',
+			'ninjaforms'           => 'Y',
+			'easydigitaldownloads' => 'Y',
+			'woocommerce'          => 'Y',
+		] );
+
+		$this->assertTrue( $response->success );
+		$this->assertSame( [ 'ninjaforms' ], $con->opts->optGet( 'form_spam_providers' ) );
+		$this->assertSame( [ 'wordpress', 'easydigitaldownloads' ], $con->opts->optGet( 'user_form_providers' ) );
+	}
+
+	public function test_wizard_step_leaves_alone_what_the_plan_does_not_cover_and_what_is_not_an_integration() :void {
+		$this->enablePremiumCapabilities( [ 'thirdparty_scan_spam' ] );
+		$con = $this->installBothProvidersWithNoneSwitchedOn();
+
+		$response = $con->comps->wizards->processFormSubmit( [
+			'step_slug'            => 'integrations',
+			'ninjaforms'           => 'Y',
+			'easydigitaldownloads' => 'Y',
+			'woocommerce'          => 'Y',
+			'not_an_integration'   => 'Y',
+		] );
+
+		$this->assertTrue( $response->success );
+		$this->assertSame( [ 'ninjaforms' ], $con->opts->optGet( 'form_spam_providers' ) );
+		$this->assertSame( [ 'wordpress' ], $con->opts->optGet( 'user_form_providers' ) );
+	}
+
+	public function test_wizard_step_with_nothing_ticked_completes_and_switches_nothing_on() :void {
+		$this->enablePremiumCapabilities( [ 'thirdparty_scan_spam', 'thirdparty_scan_users' ] );
+		$con = $this->installBothProvidersWithNoneSwitchedOn();
+
+		$response = $con->comps->wizards->processFormSubmit( [
+			'step_slug' => 'integrations',
+		] );
+
+		$this->assertTrue( $response->success );
+		$this->assertSame( [], $con->opts->optGet( 'form_spam_providers' ) );
+		$this->assertSame( [ 'wordpress' ], $con->opts->optGet( 'user_form_providers' ) );
+	}
+
+	/**
+	 * An option takes a list whole or not at all. A stored list holding something the option no longer allows is
+	 * refused when it's added to, so nothing in it is switched on, and nothing is reported as switched on.
+	 */
+	public function test_an_integration_the_option_does_not_take_on_is_not_reported_as_switched_on() :void {
+		$this->enablePremiumCapabilities( [ 'thirdparty_scan_spam', 'thirdparty_scan_users' ] );
+		$con = $this->installBothProvidersWithNoneSwitchedOn();
+		RuntimeTestState::forcePersistOptions( [ 'form_spam_providers' => [ 'a-provider-that-is-gone' ] ] );
+		RuntimeTestState::resetOptionsRuntimeCache();
+		$this->resetProviderCaches();
+		$this->assertSame( [ 'a-provider-that-is-gone' ], $con->opts->optGet( 'form_spam_providers' ) );
+
+		$switchedOn = $con->comps->integrations->switchOn( [ 'ninjaforms', 'easydigitaldownloads' ] );
+
+		$this->assertSame( [ 'a-provider-that-is-gone' ], $con->opts->optGet( 'form_spam_providers' ) );
+		$this->assertSame( [ 'wordpress', 'easydigitaldownloads' ], $con->opts->optGet( 'user_form_providers' ) );
+		$this->assertCount( 1, $switchedOn, 'Only the integration that was stored is reported.' );
+	}
+
+	/**
+	 * In the setup guide a finished Integrations step can be gone over again while something is waiting to be
+	 * switched on. Once nothing is, the link goes, and the step counts as changed so a page showing it draws it
+	 * again.
+	 */
+	public function test_setup_guide_offers_to_go_over_integrations_only_while_something_is_waiting() :void {
+		$this->enablePremiumCapabilities( [ 'thirdparty_scan_spam', 'thirdparty_scan_users' ] );
+		$con = $this->installBothProvidersWithNoneSwitchedOn();
+		$guideSnapshot = $this->snapshotSelectedOptions( [ SetupGuideState::OPT_KEY ] );
+		$this->loginAsAdministrator();
+		\add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
+
+		try {
+			( new SetupGuideState() )->markDone( 'integrations' );
+			$whileWaiting = $this->setupGuideStep( 'integrations' );
+			$this->assertTrue( $whileWaiting[ 'is_done' ] );
+			$this->assertSame( '', $whileWaiting[ 'body' ] );
+			$this->assertNotSame( '', $whileWaiting[ 'redo_href' ] );
+
+			$con->comps->integrations->switchOn();
+			$con->opts->store();
+			$this->resetProviderCaches();
+
+			$withNoneWaiting = $this->setupGuideStep( 'integrations' );
+			$this->assertTrue( $withNoneWaiting[ 'is_done' ] );
+			$this->assertSame( '', $withNoneWaiting[ 'body' ] );
+			$this->assertSame( '', $withNoneWaiting[ 'redo_href' ] );
+			$this->assertNotSame( $whileWaiting[ 'version' ], $withNoneWaiting[ 'version' ] );
+		}
+		finally {
+			\remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
+			$this->restoreSelectedOptions( $guideSnapshot );
+		}
+	}
+
+	private function setupGuideStep( string $slug ) :array {
+		return \array_column( ( new SetupGuideDataBuilder() )->build()[ 'steps' ], null, 'slug' )[ $slug ];
+	}
+
+	/**
+	 * Ninja Forms (a contact form) and Easy Digital Downloads (a user form) are installed, and neither is on.
+	 */
+	private function installBothProvidersWithNoneSwitchedOn() :\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller {
+		$this->installProviderFixture( 'ninjaforms', 'ninja-forms.php', 'Ninja_Forms', 'Ninja Forms' );
+		$this->installProviderFixture(
+			'easy-digital-downloads',
+			'easy-digital-downloads.php',
+			'Easy_Digital_Downloads',
+			'Easy Digital Downloads'
+		);
+
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'enable_auto_integrations', 'N' )
+			->optSet( 'form_spam_providers', [] )
+			->optSet( 'user_form_providers', [ 'wordpress' ] )
+			->store();
+		$this->resetProviderCaches();
+		return $con;
 	}
 
 	private function prepareAdminRequest() :void {

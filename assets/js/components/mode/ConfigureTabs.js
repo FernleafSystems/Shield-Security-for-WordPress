@@ -58,7 +58,6 @@ export class ConfigureTabs {
 		markCurrentTab( landing, 'data-configure-tab', key );
 		// Only the Search tab has a panel; a goal opens over it.
 		showTabPanel( landing, 'data-configure-tabpanel', key );
-		// The search tab has its own search, so a goal's filter doesn't fade anything there.
 		if ( key === 'search' ) {
 			ConfigureTabs.fade( landing, '', false );
 		}
@@ -66,7 +65,8 @@ export class ConfigureTabs {
 
 	/**
 	 * Fades the goals with nothing for the filter: no setting with the typed words, or nothing that needs
-	 * attention. They stay usable.
+	 * attention. They stay usable. The Search tab has its own search, so a goal's filter fades nothing
+	 * there, even as that goal's settings finish loading and apply the filter again.
 	 * @param {Element|null} within
 	 * @param {string} query
 	 * @param {boolean} attentionOnly
@@ -76,10 +76,13 @@ export class ConfigureTabs {
 		if ( !( landing instanceof HTMLElement ) ) {
 			return;
 		}
+		const onSearch = landing.dataset.configureCurrentTab === 'search';
 		landing.querySelectorAll( '[data-configure-tab][data-configure-tab-words]' ).forEach( ( tab ) => {
 			const words = tab.getAttribute( 'data-configure-tab-words' ) || '';
-			const faded = ( query.length > 0 && !words.includes( query ) )
-				|| ( attentionOnly && tab.getAttribute( 'data-configure-tab-attention' ) !== '1' );
+			const faded = !onSearch && (
+				( query.length > 0 && !words.includes( query ) )
+				|| ( attentionOnly && tab.getAttribute( 'data-configure-tab-attention' ) !== '1' )
+			);
 			tab.classList.toggle( 'is-faded', faded );
 		} );
 	}

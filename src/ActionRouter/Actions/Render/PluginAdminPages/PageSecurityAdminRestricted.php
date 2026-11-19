@@ -19,10 +19,6 @@ class PageSecurityAdminRestricted extends PageModeLandingBase {
 			'flags'   => [
 				'allow_email_override' => $con->opts->optIs( 'allow_email_override', 'Y' )
 			],
-			'imgs'    => [
-				'icon_shield'           => $con->svgs->iconClass( 'shield-fill' ),
-				'icon_external_link'    => $con->svgs->iconClass( 'box-arrow-up-right' ),
-			],
 			'strings' => [
 				'disable_security_admin' => __( 'Disable Security Admin via Email', 'wp-simple-firewall' ),
 				'send_to_email'          => sprintf( __( 'Confirmation email will be sent to %s', 'wp-simple-firewall' ),

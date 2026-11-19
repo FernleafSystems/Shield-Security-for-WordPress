@@ -142,6 +142,15 @@ class StringsOptions {
 					__( 'To improve security, increase the number of scans per day.', 'wp-simple-firewall' )
 				];
 				break;
+			case 'maintenance_alert_items':
+				$name = __( 'Review Next Items', 'wp-simple-firewall' );
+				$summary = __( 'Plugin And Theme Maintenance Items To Include In Review Next', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Choose which plugin and theme maintenance items the Actions Queue asks you to review.', 'wp-simple-firewall' ),
+					__( "Items you leave out are no longer counted or reported anywhere, including the Actions Queue, the WordPress dashboard widget and reports.", 'wp-simple-firewall' ),
+					__( 'Vulnerable and abandoned plugins are always reported.', 'wp-simple-firewall' ),
+				];
+				break;
 			case 'enable_plugin_vulnerabilities_scan':
 				$name = __( 'Vulnerabilities Scanner', 'wp-simple-firewall' );
 				$summary = sprintf( __( 'Daily Cron - %s', 'wp-simple-firewall' ), __( 'Scans Plugins For Known Vulnerabilities', 'wp-simple-firewall' ) );
@@ -751,12 +760,11 @@ class StringsOptions {
 				];
 				break;
 			case 'enable_google_authenticator':
-				$name = __( 'Google Authenticator', 'wp-simple-firewall' );
-				$summary = __( 'Allow Users To Use Google Authenticator', 'wp-simple-firewall' );
+				$name = __( 'TOTP Authenticator Apps', 'wp-simple-firewall' );
+				$summary = __( 'Allow Users To Use Google Authenticator, LastPass Authenticator, Microsoft Authenticator And Other TOTP Apps', 'wp-simple-firewall' );
 				$desc = [
-					__( 'When enabled, users will have the option to add Google Authenticator to their WordPress user profile', 'wp-simple-firewall' ),
-					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
-						sprintf( __( "Google Authenticator, LastPass Authenticator & Microsoft Authenticator are all supported by this option, but it is referred to as Google Authenticator for simplicity.", 'wp-simple-firewall' ), 'WooCommerce' ) ),
+					__( 'When enabled, users will have the option to add an authenticator app to their WordPress user profile.', 'wp-simple-firewall' ),
+					__( 'Any app that generates time-based one-time passwords (TOTP) is supported, including Google Authenticator, LastPass Authenticator, Microsoft Authenticator and Authy.', 'wp-simple-firewall' ),
 				];
 				break;
 			case 'enable_email_authentication':
@@ -947,12 +955,15 @@ class StringsOptions {
 				];
 				break;
 
-			case 'enable_upgrade_admin_notice':
-				$name = __( 'In-Plugin Notices', 'wp-simple-firewall' );
-				$summary = __( 'Display Non-Essential Plugin Notices And Admin Bar Menu', 'wp-simple-firewall' );
+			case 'dashboard_display':
+				/* translators: %s: plugin name */
+				$name = sprintf( __( '%s In Your Dashboard', 'wp-simple-firewall' ), $pluginName );
+				/* translators: %s: plugin name */
+				$summary = sprintf( __( 'Choose Where %s Appears In The WordPress Dashboard', 'wp-simple-firewall' ), $pluginName );
 				$desc = [
-					sprintf( __( 'By default %s displays non-essential notices in the admin area and admin bar.', 'wp-simple-firewall' ), $pluginName ),
-					__( 'These notices can be hidden by switching off this option.', 'wp-simple-firewall' ),
+					/* translators: %s: plugin name */
+					sprintf( __( 'Choose which parts of %s appear in the WordPress dashboard: its non-essential notices, the admin bar menu, and the dashboard widget.', 'wp-simple-firewall' ), $pluginName ),
+					__( 'Security warnings and errors are always shown; only non-essential notices can be hidden.', 'wp-simple-firewall' ),
 				];
 				break;
 

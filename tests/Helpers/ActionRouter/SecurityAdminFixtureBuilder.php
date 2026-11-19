@@ -403,9 +403,10 @@ class SecurityAdminFixtureBuilder {
 			],
 			'selectors'                  => [
 				'overlay'             => '#SecurityAdminOverlay',
-				'overlay_form'        => '#SecurityAdminForm',
-				'overlay_pin_input'   => '#sec_admin_key',
-				'login_box_pin_input' => '#SecAdminPinInput',
+				'pin_form'            => '#ShieldSecAdminUnlockForm',
+				'pin_input'           => '#ShieldSecAdminUnlockPin',
+				'unlock_link'         => '[data-shield-secadmin-unlock]',
+				'unlock_cancel'       => '[data-shield-secadmin-unlock-cancel]',
 				'pin_option'          => '#Opt-admin_access_key',
 				'pin_option_confirm'  => '#Opt-admin_access_key_confirm',
 				'configure_landing'   => '[data-configure-landing="1"]',

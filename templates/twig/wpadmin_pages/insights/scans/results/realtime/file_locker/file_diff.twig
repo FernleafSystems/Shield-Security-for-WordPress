@@ -28,110 +28,86 @@
 		</div>
 	{% endif %}
 
-	<div class="card-group">
+	{# The file's panel frames these already, so they sit side by side with no boxes of their own. #}
+	<div class="actions-queue-file-details">
 
-		<div class="card">
+		<div>
+			<h4 class="actions-queue-file-details__title">{{ strings.file_details }}</h4>
 
-			<div class="card-body">
-				<h4 class="card-title h5">{{ strings.file_details }}</h4>
+			<dl class="actions-queue-file-details__list">
+				<dt>{{ strings.relative_path }}</dt>
+				<dd>{{ vars.relative_path }}</dd>
 
-				<dl class="row">
-					<dt>{{ strings.relative_path }}</dt>
-					<dd>{{ vars.relative_path }}</dd>
-				</dl>
+				<dt>{{ strings.locked }}</dt>
+				<dd>{{ vars.locked_at }}</dd>
 
-				<dl class="row">
-					<dt>{{ strings.locked }}</dt>
-					<dd>{{ vars.locked_at }}</dd>
-				</dl>
+				<dt>{{ strings.file_size }}</dt>
+				<dd>{{ vars.file_size_locked }}</dd>
 
-				<dl class="row">
-					<dt>{{ strings.file_size }}</dt>
-					<dd>{{ vars.file_size_locked }}</dd>
-				</dl>
+				<dt>{{ strings.file_modified }}</dt>
+				<dd>{{ vars.file_modified_ago }}<br/>({{ vars.file_modified_at }})</dd>
+			</dl>
 
-				<dl class="row">
-					<dt>{{ strings.file_modified }}</dt>
-					<dd>{{ vars.file_modified_ago }}<br/>({{ vars.file_modified_at }})</dd>
-				</dl>
-
-				<dl class="row">
-					<dt>{{ strings.download }}</dt>
-					<dd>
-						<a href="{{ ajax.original }}" title="{{ strings.download }}" class="text-nowrap">
-							<span class="dashicons dashicons-download"></span></a>
-					</dd>
-				</dl>
-			</div>
-
+			<a href="{{ ajax.original }}" class="btn btn-sm btn-outline-secondary actions-queue-file-details__download">
+				<i class="bi bi-download" aria-hidden="true"></i>{{ strings.download_original }}
+			</a>
 		</div>
 
 		{% if flags.has_diff %}
-			<div class="card">
+			<div>
+				<h4 class="actions-queue-file-details__title">{{ strings.modified_file }}</h4>
 
-				<div class="card-body">
-					<h4 class="card-title h5">{{ strings.modified_file }}</h4>
+				<dl class="actions-queue-file-details__list">
+					<dt>{{ strings.change_detected_at }}</dt>
+					<dd>{{ vars.change_detected_at }}</dd>
 
-					<dl class="row">
-						<dt>{{ strings.change_detected_at }}</dt>
-						<dd>{{ vars.change_detected_at }}</dd>
-					</dl>
+					<dt>{{ strings.file_size }}</dt>
+					<dd>{{ vars.file_size_modified }}</dd>
+				</dl>
 
-					<dl class="row">
-						<dt >{{ strings.file_size }}</dt>
-						<dd >{{ vars.file_size_modified }}</dd>
-					</dl>
-
-					<dl class="row">
-						<dt >{{ strings.download }}</dt>
-						<dd class="col">
-							<a href="{{ ajax.current }}" title="{{ strings.download }}" class="text-nowrap">
-								<span class="dashicons dashicons-download"></span></a>
-						</dd>
-					</dl>
-				</div>
+				{% if ajax.current is not empty %}
+					<a href="{{ ajax.current }}" class="btn btn-sm btn-outline-secondary actions-queue-file-details__download">
+						<i class="bi bi-download" aria-hidden="true"></i>{{ strings.download_current }}
+					</a>
+				{% endif %}
 			</div>
 
-			<div class="card">
-				<div class="card-body">
-					<h4 class="card-title h5">{{ strings.file_restore }}</h4>
-					<form class="filelocker_fileaction">
-						<div class="form-check">
-							<input type="checkbox" class="form-check-input me-0"
-								   id="{{ restore_checkbox_id }}"
-								   name="ConfirmFileRestore"
-								   value="Y"
-							/>
-							<label class="form-check-label"
-								   for="{{ restore_checkbox_id }}">{{ strings.file_restore_checkbox }}</label>
-						</div>
-						<input type="submit" value="{{ strings.butt_restore }}"
-							   data-action="restore"
-							   data-rid="{{ vars.rid }}"
-							   class="btn btn-outline-success btn-sm mt-3" />
-					</form>
-				</div>
+			<div>
+				<h4 class="actions-queue-file-details__title">{{ strings.file_restore }}</h4>
+				<form class="filelocker_fileaction">
+					<div class="form-check">
+						<input type="checkbox" class="form-check-input me-0"
+							   id="{{ restore_checkbox_id }}"
+							   name="ConfirmFileRestore"
+							   value="Y"
+						/>
+						<label class="form-check-label"
+							   for="{{ restore_checkbox_id }}">{{ strings.file_restore_checkbox }}</label>
+					</div>
+					<input type="submit" value="{{ strings.butt_restore }}"
+						   data-action="restore"
+						   data-rid="{{ vars.rid }}"
+						   class="btn btn-outline-success btn-sm mt-3" />
+				</form>
 			</div>
 
-			<div class="card">
-				<div class="card-body">
-					<h4 class="card-title h5">{{ strings.file_accept }}</h4>
-					<form class="filelocker_fileaction">
-						<div class="form-check">
-							<input type="checkbox" class="form-check-input me-0"
-								   id="{{ accept_checkbox_id }}"
-								   name="ConfirmFileAccept"
-								   value="Y"
-							/>
-							<label class="form-check-label"
-								   for="{{ accept_checkbox_id }}">{{ strings.file_accept_checkbox }}</label>
-						</div>
-						<input type="submit" value="{{ strings.butt_accept }}"
-							   data-action="accept"
-							   data-rid="{{ vars.rid }}"
-							   class="btn btn-outline-danger btn-sm mt-3" />
-					</form>
-				</div>
+			<div>
+				<h4 class="actions-queue-file-details__title">{{ strings.file_accept }}</h4>
+				<form class="filelocker_fileaction">
+					<div class="form-check">
+						<input type="checkbox" class="form-check-input me-0"
+							   id="{{ accept_checkbox_id }}"
+							   name="ConfirmFileAccept"
+							   value="Y"
+						/>
+						<label class="form-check-label"
+							   for="{{ accept_checkbox_id }}">{{ strings.file_accept_checkbox }}</label>
+					</div>
+					<input type="submit" value="{{ strings.butt_accept }}"
+						   data-action="accept"
+						   data-rid="{{ vars.rid }}"
+						   class="btn btn-outline-danger btn-sm mt-3" />
+				</form>
 			</div>
 		{% endif %}
 

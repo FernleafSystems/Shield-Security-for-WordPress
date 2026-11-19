@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	SecurityAdminRequestRemoveByEmail
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
@@ -129,12 +130,7 @@ class SecurityAdminController {
 							'expired'            => __( 'Security Admin session has timed out.', 'wp-simple-firewall' ),
 							'are_you_sure'       => __( 'Are you sure?', 'wp-simple-firewall' ),
 							'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
-							'unlock_link'        => sprintf(
-								'<a href="%1$s" title="%2$s" class="thickbox">%3$s</a>',
-								'#TB_inline?width=400&height=180&inlineId=WpsfAdminAccessLogin',
-								__( 'Security Admin Login', 'wp-simple-firewall' ),
-								__( 'Unlock', 'wp-simple-firewall' )
-							),
+							'unlock_link'        => $this->unlockLink( __( 'Unlock', 'wp-simple-firewall' ) ),
 						],
 						'vars'    => [
 							'time_remaining'         => $this->getSecAdminTimeRemaining(), // JS uses milliseconds
@@ -190,8 +186,17 @@ class SecurityAdminController {
 		return $isPluginAdmin && ( self::con()->cfg->rebuilt || self::con()->this_req->is_security_admin );
 	}
 
+	/**
+	 * Opens the PIN dialog printed by printPinLoginForm(). Without JS, it goes to the Security Admin page instead.
+	 */
+	public function unlockLink( string $label ) :string {
+		return sprintf( '<a href="%s" data-shield-secadmin-unlock="1">%s</a>',
+			esc_url( self::con()->plugin_urls->zone( Secadmin::Slug() ) ),
+			esc_html( $label )
+		);
+	}
+
 	public function printPinLoginForm() {
-		add_thickbox();
 		echo self::con()->action_router->render( FormSecurityAdminLoginBox::class );
 	}
 }

@@ -1,6 +1,7 @@
 {#
 	One maintenance item, or one passing check, as a flat row: what it is, a line of detail, and its
-	actions written out ("Manage Users", "Ignore") rather than as bare icons.
+	actions written out ("Manage Users", "Ignore") rather than as bare icons. An item with more to show than
+	fits a row opens in a drawer from its name.
 #}
 <div class="actions-queue-row actions-queue-row--item{% if is_passing %} actions-queue-row--good{% endif %}{% if row.is_ignored %} is-ignored{% endif %}">
 	<span class="actions-queue-row__icon">
@@ -8,7 +9,14 @@
 	</span>
 	<div class="actions-queue-row__copy">
 		<span class="actions-queue-row__title">
-			{{ row.title is not empty ? row.title : row.summary }}
+			{% if row.drawer_json is not empty %}
+				<button type="button" class="actions-queue-row__open" data-actions-queue-row-drawer="{{ row.drawer_json|e('html_attr') }}">
+					{{ row.title }}
+					<i class="bi bi-layout-sidebar-inset-reverse" aria-hidden="true"></i>
+				</button>
+			{% else %}
+				{{ row.title is not empty ? row.title : row.summary }}
+			{% endif %}
 			{% if row.inline_meta is not empty %}
 				<span class="actions-queue-row__meta">{{ row.inline_meta }}</span>
 			{% endif %}
@@ -18,17 +26,6 @@
 		</span>
 		{% if row.title is not empty and row.summary is not empty %}
 			<span class="actions-queue-row__desc">{{ row.summary }}</span>
-		{% endif %}
-		{% if row.details is not empty %}
-			<details class="actions-queue-row__details">
-				<summary>{{ row.details.label }}</summary>
-				<dl>
-					{% for item in row.details.items %}
-						<dt>{{ item.label }}</dt>
-						<dd>{% if item.style == 'code' %}<code>{{ item.value }}</code>{% else %}{{ item.value }}{% endif %}</dd>
-					{% endfor %}
-				</dl>
-			</details>
 		{% endif %}
 	</div>
 	{% if row.actions is not empty and not is_passing %}

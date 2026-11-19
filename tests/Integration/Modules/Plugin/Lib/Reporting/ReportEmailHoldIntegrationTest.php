@@ -6,7 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\MaintenanceQueueItemDisplayNormalizer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Steps\ReportEmail;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportEmailHold;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SetupGuideDataBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\{
+	SetupGuideDataBuilder,
+	SetupGuideState
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Reporting;
@@ -23,6 +26,7 @@ class ReportEmailHoldIntegrationTest extends ShieldIntegrationTestCase {
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			'installation_time',
 			'block_send_email_address',
+			SetupGuideState::OPT_KEY,
 		] );
 		$this->originalQuery = Services::Request()->query;
 		$this->startHold();
@@ -127,6 +131,48 @@ class ReportEmailHoldIntegrationTest extends ShieldIntegrationTestCase {
 
 		Services::Request()->query = [ 'setup_guide' => 'open', 'setup_step' => 'not_a_step' ];
 		$this->assertSame( 'report_email', ( new SetupGuideDataBuilder() )->build()[ 'open_step' ] );
+	}
+
+	/**
+	 * A finished step can be gone over again from the guide, except Integrations while there's nothing to switch
+	 * on, as on a site whose plan has none. A step still to do shows its form instead.
+	 */
+	public function test_setup_guide_offers_to_go_over_a_finished_step_that_has_something_to_go_over() :void {
+		$this->loginAsAdministrator();
+		\add_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
+		Services::Request()->query = [];
+		// Settled outside the guide: nothing records the step as finished in it, and it can still be gone over.
+		$this->requireController()->opts->optSet( 'block_send_email_address', 'guide-step@example.test' )->store();
+
+		$steps = \array_column( ( new SetupGuideDataBuilder() )->build()[ 'steps' ], null, 'slug' );
+
+		$this->assertSame( [], ( new SetupGuideState() )->doneSlugs() );
+		$this->assertTrue( $steps[ 'report_email' ][ 'is_done' ] );
+		\parse_str( (string)\wp_parse_url( $steps[ 'report_email' ][ 'redo_href' ], \PHP_URL_QUERY ), $link );
+		$this->assertSame( 'report_email', $link[ 'setup_step' ] ?? '' );
+
+		$this->assertTrue( $steps[ 'integrations' ][ 'is_done' ] );
+		$this->assertSame( '', $steps[ 'integrations' ][ 'redo_href' ] );
+
+		$this->assertFalse( $steps[ 'security_admin' ][ 'is_done' ] );
+		$this->assertNotSame( '', $steps[ 'security_admin' ][ 'body' ] );
+		$this->assertSame( '', $steps[ 'security_admin' ][ 'redo_href' ] );
+	}
+
+	public function test_asking_for_a_dismissed_setup_guide_shows_it_without_bringing_it_back_for_the_site() :void {
+		$this->loginAsAdministrator();
+		\add_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
+		( new SetupGuideState() )->dismiss();
+
+		Services::Request()->query = [];
+		$this->assertFalse( ( new SetupGuideDataBuilder() )->build()[ 'show' ] );
+
+		Services::Request()->query = [ 'setup_guide' => 'open' ];
+		$this->assertTrue( ( new SetupGuideDataBuilder() )->build()[ 'show' ] );
+		$this->assertTrue( ( new SetupGuideState() )->isDismissed(), 'Loading a page changes nothing for the site.' );
+
+		Services::Request()->query = [];
+		$this->assertFalse( ( new SetupGuideDataBuilder() )->build()[ 'show' ] );
 	}
 
 	private function startHold() :void {

@@ -15,8 +15,8 @@ $code-color: $secondary;
 @import '~highlight.js/styles/github.css';
 @import './mode-palette';
 @import './shield/status-colors';
-@import './shield/focus-indicators';
 @import "./plugin-wpadmin.scss";
+@import './shield/email-delivery-verify';
 @import './shield/datatables.css';
 @import './shield/merlin.scss';
 @import './shield/options.scss';
@@ -46,7 +46,6 @@ $code-color: $secondary;
 @import './shield/dashboard';
 @import './shield/dashboard-task-guide';
 @import './shield/setup-guide';
-@import './shield/modal-layout';
 @import './shield/scan-item-analysis';
 @import './shield/security-admin';
 @import './shield/license.scss';
@@ -629,7 +628,7 @@ $sidebar-transition-speed: 0.25s;
   }
 }
 
-body:has(.shield-setup-guide:not([hidden])) {
+body:has(.shield-setup-guide) {
   --shield-bottom-bar-height: 64px;
 }
 
@@ -784,9 +783,6 @@ body:has(.shield-setup-guide:not([hidden])) {
   content: counter(line);
   width: 32px;
   display: inline-block;
-}
-
-#ShieldModalContainer pre.icwp-code-render > code:before {
   -webkit-user-select: none;
 }
 
@@ -955,6 +951,13 @@ td.status_file_size {
 
 #AptoOffcanvas.offcanvas_ipanalysis {
   width: 920px;
+}
+
+// Narrower than a phone is wide, it takes the screen's width rather than run off its edge.
+#AptoOffcanvas.offcanvas_cloaked_plugin {
+  max-width: 100%;
+  min-width: 0;
+  width: 640px;
 }
 
 #AptoOffcanvas.offcanvas_form_report_create {

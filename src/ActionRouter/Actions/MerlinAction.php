@@ -27,10 +27,10 @@ class MerlinAction extends BaseAction {
 			$msg = $e->getMessage();
 		}
 
-		// The setup guide and the wizard share these steps, so a completed step counts in both.
+		// The setup guide and the wizard share these steps, so a completed step counts in both. A form that was
+		// processed named its step.
 		if ( $success ) {
-			$stepSlug = $form[ 'step_slug' ] ?? '';
-			( new SetupGuideState() )->markDone( \is_string( $stepSlug ) ? $stepSlug : '' );
+			( new SetupGuideState() )->markDone( $form[ 'step_slug' ] );
 		}
 
 		$this->response()->setPayload( [

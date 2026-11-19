@@ -110,8 +110,7 @@ async function scenario( browser, lane, fixtureApi, run, { allowCookies = false,
 			const page = await context.newPage();
 			// End long simulated sequences near server time, preserving real signed challenge expiry.
 			const start = Date.now() - 4000000;
-			await page.clock.install( { time: new Date( start ) } );
-			await page.clock.pauseAt( new Date( start ) );
+			await pauseClockAt( page, start );
 			await page.addInitScript( () => {
 				performance.getEntriesByType = window.nativePerformanceEntries;
 			} );
@@ -127,6 +126,12 @@ async function scenario( browser, lane, fixtureApi, run, { allowCookies = false,
 		}
 		finally { await context.close(); }
 	} );
+}
+// An installed clock runs until it is paused, so it starts a second early: pausing at the time it was
+// installed with fails as a move into the past whenever any time passes between the two calls.
+async function pauseClockAt( page, time ) {
+	await page.clock.install( { time: new Date( time - 1000 ) } );
+	await page.clock.pauseAt( new Date( time ) );
 }
 async function completion( page, key ) {
 	return page.evaluate( key => {
@@ -461,8 +466,7 @@ test( 'cookie-free fresh tab reuse and one diagnostic override per document', as
 		await page.clock.runFor( 299999 );
 		expect( counts.basic ).toBe( 2 );
 		const other = await context.newPage();
-		await other.clock.install( { time: new Date( start + 299999 ) } );
-		await other.clock.pauseAt( new Date( start + 299999 ) );
+		await pauseClockAt( other, start + 299999 );
 		let requests = 0;
 		other.on( 'request', req => { if ( requestActionSlug( req ) === 'capture_not_bot' ) requests++; } );
 		await other.goto( '/' );
@@ -586,8 +590,7 @@ test( 'cookie-free loaded tab adopts another tab completion before its previous 
 		await success( page, key );
 		await page.clock.runFor( 100000 );
 		const other = await context.newPage();
-		await other.clock.install( { time: new Date( start + 100000 ) } );
-		await other.clock.pauseAt( new Date( start + 100000 ) );
+		await pauseClockAt( other, start + 100000 );
 		await other.goto( '/?force_notbot=1' );
 		await success( other, key, start );
 		await settled( other );

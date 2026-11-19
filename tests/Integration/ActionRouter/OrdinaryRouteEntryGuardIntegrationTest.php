@@ -168,9 +168,10 @@ class OrdinaryRouteEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( ( new EmailDeliveryVerificationMailer() )->send() );
 
 		$body = \html_entity_decode( (string)\tests_retrieve_phpmailer_instance()->get_sent()->body );
-		$this->assertSame( 1, \preg_match( '#https?://[^\s"\'<>]*'.MfaCanEmailSendVerify::SLUG.'[^\s"\'<>]*#', $body, $matches ) );
+		// The link the email's button opens, not the copy-and-paste text beside it.
+		$this->assertSame( 1, \preg_match( '#href="(https?://[^"]*'.MfaCanEmailSendVerify::SLUG.'[^"]*)"#', $body, $matches ) );
 
-		\parse_str( (string)\wp_parse_url( $matches[ 0 ], \PHP_URL_QUERY ), $query );
+		\parse_str( (string)\wp_parse_url( $matches[ 1 ], \PHP_URL_QUERY ), $query );
 		$this->assertNotEmpty( $query[ MfaCanEmailSendVerify::FIELD_TOKEN ] ?? '' );
 		return $query;
 	}

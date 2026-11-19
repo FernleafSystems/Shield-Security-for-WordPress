@@ -209,8 +209,18 @@ class OptsLookup {
 	}
 
 	public function getReportEmail() :string {
-		$e = $this->getChosenReportEmail();
-		return $e === '' ? Services::WpGeneral()->getSiteAdminEmail() : $e;
+		return $this->getReportEmailDetails()[ 'address' ];
+	}
+
+	/**
+	 * @return array{address:string,is_site_admin_fallback:bool}
+	 */
+	public function getReportEmailDetails() :array {
+		$chosen = $this->getChosenReportEmail();
+		return [
+			'address'                => $chosen === '' ? Services::WpGeneral()->getSiteAdminEmail() : $chosen,
+			'is_site_admin_fallback' => $chosen === '',
+		];
 	}
 
 	/**
@@ -313,6 +323,14 @@ class OptsLookup {
 
 	public function isPluginEnabled() :bool {
 		return self::con()->opts->optIs( 'global_enable_plugin_features', 'Y' );
+	}
+
+	/**
+	 * Whether the site owner has chosen to show this part of the plugin in the WordPress dashboard.
+	 * @param string $element - notices, admin_bar, dashboard_widget
+	 */
+	public function showsInDashboard( string $element ) :bool {
+		return \in_array( $element, self::con()->opts->optGet( 'dashboard_display' ), true );
 	}
 
 	public function isPassPoliciesEnabled() :bool {

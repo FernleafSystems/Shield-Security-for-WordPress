@@ -9,8 +9,12 @@ trait RequestedIdentifiers {
 	 * @return list<string>
 	 */
 	private function requestedIdentifiers() :array {
-		return \is_array( $this->action_data[ 'identifiers' ] ?? null )
+		return $this->isRequestForSeveralIdentifiers()
 			? \array_values( \array_unique( $this->fields()->stringList( 'identifiers' ) ) )
 			: [ $this->fields()->string( 'identifier', '' ) ];
+	}
+
+	protected function isRequestForSeveralIdentifiers() :bool {
+		return \is_array( $this->action_data[ 'identifiers' ] ?? null );
 	}
 }

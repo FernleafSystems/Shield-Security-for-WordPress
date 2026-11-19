@@ -46,42 +46,6 @@
 	min-height: 148px;
 }
 
-.actions-queue-asset-card.is-inactive {
-	background: #f6f7f7;
-	border-color: #dcdcde;
-	color: #50575e;
-}
-
-.actions-queue-asset-card.is-inactive:hover,
-.actions-queue-asset-card.is-inactive:focus-visible {
-	background: #fff;
-	border-color: #8c8f94;
-}
-
-.actions-queue-asset-card.is-inactive .operator-tile-card__icon {
-	background: #edf0f0;
-	color: #646970;
-}
-
-.actions-queue-asset-card.is-inactive .operator-tile-card__summary {
-	color: #787c82;
-}
-
-.actions-queue-asset-cards--files .actions-queue-asset-cards__grid {
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.actions-queue-asset-cards--files .actions-queue-asset-card {
-	min-height: 0;
-	padding: 0.875rem;
-}
-
-@media (max-width: 800px) {
-	.actions-queue-asset-cards--files .actions-queue-asset-cards__grid {
-		grid-template-columns: minmax(0, 1fr);
-	}
-}
-
 .actions-queue-asset-cards__hint {
 	color: #888;
 	font-size: 0.85rem;
@@ -224,7 +188,8 @@ $aq-pro-bg: #f2ebfc;
 
 .actions-queue-sections__count,
 .actions-queue-section__count {
-	background: rgba(255, 255, 255, 0.75);
+	// A neutral tint, so the count reads as a badge whatever colour its lane's heading is.
+	background: rgba(29, 35, 39, 0.08);
 	border-radius: 999px;
 	font-size: 11.5px;
 	font-variant-numeric: tabular-nums;
@@ -339,16 +304,119 @@ $aq-pro-bg: #f2ebfc;
 	}
 }
 
-.actions-queue-sections__clear {
+// A lane with nothing in it stays: green, with its zero as a solid badge, whether or not it's the tab showing.
+// Folded, its heading says there's nothing to do; open, its body does.
+.actions-queue-sections__tab.is-empty {
+	color: $aq-good;
+
+	.actions-queue-sections__count {
+		background: $aq-good;
+		color: #ffffff;
+	}
+}
+
+.actions-queue-section.is-empty > .actions-queue-section__head {
+	background: $aq-good-bg;
+	border-color: #bfe3bf;
+
+	.actions-queue-section__count {
+		background: $aq-good;
+		color: #ffffff;
+	}
+
+	.actions-queue-section__summary {
+		color: $aq-good;
+	}
+}
+
+.actions-queue-section__summary.is-folded-only {
+	[aria-expanded="true"] > & {
+		visibility: hidden;
+	}
+}
+
+.actions-queue-section__empty {
 	align-items: center;
-	background: #ffffff;
-	border: 1px solid $aq-line;
-	border-radius: 8px;
 	color: $aq-good;
 	display: flex;
+	font-size: 13px;
 	font-weight: 600;
 	gap: 0.5rem;
-	padding: 14px;
+	margin: 0;
+	padding: 4px 2px;
+}
+
+// The way to choose what a lane reports, under whatever it holds.
+.actions-queue-section__foot {
+	display: flex;
+	justify-content: flex-end;
+	margin: 0;
+}
+
+.actions-queue-section__config {
+	align-items: center;
+	background: none;
+	border: 0;
+	color: $aq-muted;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: 12px;
+	font-weight: 600;
+	gap: 6px;
+	padding: 2px 0;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+
+	&:hover,
+	&:focus {
+		color: #1d2327;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+}
+
+// A group's alerts switch, at the end of its heading: on while the group shows.
+.actions-queue-alert-switch {
+	align-items: center;
+	color: #50575e;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: 12px;
+	font-weight: 600;
+	gap: 6px;
+	letter-spacing: 0;
+	margin: 0 0 0 auto;
+	text-transform: none;
+	white-space: nowrap;
+
+	.actions-queue-row-group__link + & {
+		margin-left: 6px;
+	}
+
+	.form-check {
+		display: inline-flex;
+		margin: 0;
+		min-height: 0;
+		padding: 0;
+	}
+
+	.form-check-input {
+		cursor: pointer;
+		float: none;
+		margin: 0;
+	}
+}
+
+.actions-queue-alert-switch__name {
+	margin-right: 2px;
+}
+
+.actions-queue-alert-switch__side {
+	color: $aq-muted;
+	font-size: 11px;
+	font-weight: 400;
 }
 
 // A section is only its header bar and the group boxes beneath it, with no panel around them.
@@ -438,25 +506,14 @@ $aq-pro-bg: #f2ebfc;
 	}
 }
 
-.actions-queue-section__count {
-	margin-left: auto;
-
-	.actions-queue-section__summary + &,
-	.actions-queue-section__breakdown + & {
-		margin-left: 0;
-	}
-}
-
+// The chevron keeps to the end of the heading, whatever comes before it.
 .actions-queue-section__chevron {
 	color: currentColor;
+	margin-left: auto;
 	transition: transform 0.15s ease;
 
 	[aria-expanded="true"] > & {
 		transform: rotate(180deg);
-	}
-
-	.actions-queue-section__label + & {
-		margin-left: auto;
 	}
 }
 
@@ -637,34 +694,83 @@ $aq-pro-bg: #f2ebfc;
 	font-size: 13px;
 }
 
-.actions-queue-row__details {
-	color: $aq-muted;
-	font-size: 13px;
+// A row's name, when it opens the item in a drawer.
+.actions-queue-row__open {
+	align-items: center;
+	background: none;
+	border: 0;
+	color: inherit;
+	cursor: pointer;
+	display: inline-flex;
+	font: inherit;
+	gap: 6px;
+	padding: 0;
+	text-align: left;
 
-	summary {
-		cursor: pointer;
-		width: fit-content;
+	i {
+		color: $aq-muted;
+		font-size: 13px;
+	}
 
-		&:focus-visible {
-			@include shield-focus-ring(1px);
+	&:hover {
+		text-decoration: underline;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring(1px);
+	}
+}
+
+// One cloaked plugin, opened in the drawer: a stack of the queue's own boxes and rows. Only what sits inside a
+// box that isn't a row is styled here.
+.shield-cloaked-drawer {
+	display: grid;
+	gap: 12px;
+
+	&__body {
+		font-size: 14px;
+		padding: 12px 14px;
+
+		> :last-child {
+			margin-bottom: 0;
+		}
+
+		ul {
+			list-style: disc;
+			margin: 0 0 8px;
+			padding-left: 18px;
+		}
+
+		li {
+			margin: 0;
+		}
+
+		p {
+			margin: 0 0 8px;
+		}
+
+		dl {
+			column-gap: 14px;
+			display: grid;
+			grid-template-columns: max-content minmax(0, 1fr);
+			margin: 0 0 8px;
+			row-gap: 6px;
+		}
+
+		dt {
+			color: $aq-muted;
+			font-weight: 600;
+		}
+
+		dd {
+			margin: 0;
+			overflow-wrap: anywhere;
 		}
 	}
 
-	dl {
-		column-gap: 12px;
-		display: grid;
-		grid-template-columns: max-content minmax(0, 1fr);
-		margin: 6px 0 2px;
-		row-gap: 3px;
-	}
-
-	dt {
-		font-weight: 600;
-	}
-
-	dd {
-		margin: 0;
-		overflow-wrap: anywhere;
+	&__note {
+		color: $aq-muted;
+		font-size: 13px;
 	}
 }
 
@@ -952,8 +1058,28 @@ button.actions-queue-row-group__link {
 		white-space: normal;
 	}
 
-	.actions-queue-section__summary {
+	// A lane's summary is dropped for want of room, but not the line saying a lane has nothing in it: that takes
+	// a line of its own under the lane's name, in full.
+	.actions-queue-section__summary:not(.is-folded-only) {
 		display: none;
+	}
+
+	.actions-queue-section.is-empty > .actions-queue-section__head {
+		flex-wrap: wrap;
+	}
+
+	.actions-queue-section__summary.is-folded-only {
+		flex-basis: 100%;
+		order: 1;
+		white-space: normal;
+
+		&::before {
+			content: none;
+		}
+
+		[aria-expanded="true"] > & {
+			display: none;
+		}
 	}
 
 	// There's no width to spare for indenting a section's groups.
@@ -1093,8 +1219,7 @@ html.shield-results-overlay-open {
 	}
 
 	// The setup bar would sit across the bottom of the panel.
-	.shield-setup-guide,
-	.shield-setup-guide-reopen {
+	.shield-setup-guide {
 		display: none;
 	}
 }
@@ -1360,4 +1485,49 @@ html.shield-results-overlay-open {
 	font-size: 12px;
 	overflow-wrap: anywhere;
 	padding: 0;
+}
+
+// Why the file is worth locking: a few lines, kept to a comfortable reading width.
+.actions-queue-file-panel__about {
+	color: #50575e;
+	font-size: 13px;
+	line-height: 1.5;
+	margin: 0 0 1rem;
+	max-width: 80ch;
+}
+
+// A locked file's details, and what can be done about a change, side by side with no boxes around them.
+.actions-queue-file-details {
+	display: grid;
+	gap: 1.5rem 2.5rem;
+	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.actions-queue-file-details__title {
+	color: #1d2327;
+	font-size: 15px;
+	font-weight: 600;
+	margin: 0 0 0.75rem;
+}
+
+.actions-queue-file-details__list {
+	font-size: 13px;
+	margin: 0;
+
+	dt {
+		color: #646970;
+		font-size: 12px;
+		font-weight: 600;
+	}
+
+	dd {
+		margin: 0 0 0.75rem;
+		overflow-wrap: anywhere;
+	}
+}
+
+.actions-queue-file-details__download {
+	align-items: center;
+	display: inline-flex;
+	gap: 0.4rem;
 }

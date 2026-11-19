@@ -52,7 +52,7 @@ export class Navigation extends BaseComponent {
 		let queued = false;
 		const fit = () => {
 			queued = false;
-			const bar = document.querySelector( '.shield-setup-guide:not([hidden]) [data-setup-guide-bar="1"]' );
+			const bar = document.querySelector( '.shield-setup-guide [data-setup-guide-bar="1"]' );
 			const barHeight = bar instanceof HTMLElement ? bar.getBoundingClientRect().height : 0;
 			const top = Math.max( inner.getBoundingClientRect().top, 0 );
 			inner.style.setProperty( '--shield-sidebar-max-height', `${Math.max( 240, window.innerHeight - top - barHeight )}px` );

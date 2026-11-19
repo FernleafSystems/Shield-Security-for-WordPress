@@ -1,0 +1,175 @@
+// The email 2FA verification dialog (EmailDeliveryVerifyDialog.js), built inside the accessible dialog.
+
+.shield-accessible-dialog__surface:has( .shield-email-verify ) {
+	--operator-card-icon-bg: #fdf3dc;
+	--operator-card-icon-color: #9a6400;
+}
+
+@media ( max-width: 480px ) {
+	// Dialogs sit at the top on small screens; like the Security Admin PIN dialog, this one is short, so it stays
+	// centred.
+	[data-shield-accessible-dialog="1"]:has( .shield-email-verify ) {
+		align-items: center;
+	}
+}
+
+.shield-email-verify {
+	@include shield-accessible-dialog-buttons;
+}
+
+.shield-email-verify__delivery {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 14px;
+	background: #f6f9f7;
+	border: 1px solid #dce5df;
+	border-radius: 10px;
+
+	> i {
+		flex-shrink: 0;
+		font-size: 18px;
+		color: #008000;
+	}
+
+	> div {
+		min-width: 0;
+	}
+
+	&[data-tone="expired"] > i {
+		color: #9a6400;
+	}
+
+	&[data-tone="unsent"] {
+		background: #fcf0f0;
+		border-color: #efc9c9;
+
+		> i {
+			color: #b32d2e;
+		}
+
+		.shield-email-verify__detail {
+			color: #8a2424;
+			font-weight: 600;
+		}
+	}
+}
+
+.shield-email-verify__address {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font: 600 13px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+	overflow-wrap: anywhere;
+}
+
+.shield-email-verify__source {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: #69776e;
+	font-size: 13px;
+	line-height: 1;
+	cursor: help;
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+}
+
+.shield-email-verify__detail {
+	font-size: 12px;
+	color: #607168;
+}
+
+.shield-email-verify .shield-email-verify__resend {
+	flex-shrink: 0;
+	margin-inline-start: auto;
+	padding: 5px 12px;
+	font-size: 13px;
+}
+
+.shield-email-verify__skip {
+	margin-top: 16px;
+	padding-top: 12px;
+	border-top: 1px solid #e6ece8;
+
+	summary {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		list-style: none;
+		cursor: pointer;
+		font-size: 13px;
+		font-weight: 600;
+		color: #40554a;
+
+		&::-webkit-details-marker {
+			display: none;
+		}
+
+		&:focus-visible {
+			@include shield-focus-ring();
+		}
+
+		i {
+			font-size: 12px;
+			transition: transform 0.15s ease;
+		}
+	}
+
+	&[open] summary {
+		margin-bottom: 12px;
+
+		i {
+			transform: rotate( 90deg );
+		}
+	}
+}
+
+[dir="rtl"] .shield-email-verify__skip:not( [open] ) summary i {
+	transform: scaleX( -1 );
+}
+
+.shield-email-verify__risk {
+	margin: 10px 0 12px;
+	padding: 10px 12px;
+	border-inline-start: 4px solid #b32d2e;
+	border-start-end-radius: 8px;
+	border-end-end-radius: 8px;
+	background: #fcf0f0;
+	font-size: 13px;
+	color: #5c1c1c;
+
+	strong {
+		color: #8a2424;
+	}
+}
+
+.shield-email-verify .shield-email-verify__confirm {
+	display: block;
+	width: 100%;
+	background: #b32d2e;
+	border-color: #8a2424;
+	color: #fff;
+
+	&:hover {
+		background: #8a2424;
+	}
+}
+
+// The footer sits in the dialog's own actions row, so this outranks the dialog's and WordPress's button styles.
+.shield-email-verify__footer .shield-email-verify__turn-off {
+	margin-inline-end: auto;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: #2271b1;
+	font-size: 13px;
+	text-decoration: underline;
+	cursor: pointer;
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+}

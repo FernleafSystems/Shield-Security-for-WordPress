@@ -1,0 +1,112 @@
+{#
+	One cloaked plugin, opened from its row in the Actions Queue. It's laid out as the queue is: a box per subject,
+	each headed by an icon and a title, with the plugin itself and its actions as rows.
+#}
+{% set plugin = vars.plugin %}
+<div class="shield-cloaked-drawer"{% if plugin is not empty %} data-actions-queue-drawer-for="{{ plugin.identifier|e('html_attr') }}"{% endif %}>
+	{% if plugin is empty %}
+		<p>{{ strings.gone }}</p>
+	{% else %}
+		<div class="actions-queue-box">
+			<div class="actions-queue-row actions-queue-row--item">
+				<span class="actions-queue-row__icon"><i class="bi bi-plug" aria-hidden="true"></i></span>
+				<div class="actions-queue-row__copy">
+					<span class="actions-queue-row__title">
+						{{ plugin.name }}
+						{% for badge in plugin.badges %}
+							<span class="actions-queue-pill">{{ badge }}</span>
+						{% endfor %}
+						{% if plugin.is_ignored %}
+							<span class="actions-queue-pill">{{ strings.ignored }}</span>
+						{% endif %}
+					</span>
+					<span class="actions-queue-row__desc">{{ plugin.finding }}</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="actions-queue-box">
+			<div class="actions-queue-box__head">
+				<i class="bi bi-eye-slash-fill" aria-hidden="true"></i>{{ strings.why }}
+			</div>
+			<div class="shield-cloaked-drawer__body">
+				<ul>
+					{% for reason in plugin.reasons %}
+						<li>{{ reason }}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+
+		<div class="actions-queue-box">
+			<div class="actions-queue-box__head">
+				<i class="bi bi-file-earmark-code" aria-hidden="true"></i>{{ strings.file }}
+			</div>
+			<div class="shield-cloaked-drawer__body">
+				<dl>
+					{% for item in plugin.file %}
+						<dt>{{ item.label }}</dt>
+						<dd>{% if item.style == 'code' %}<code>{{ item.value }}</code>{% else %}{{ item.value }}{% endif %}</dd>
+					{% endfor %}
+				</dl>
+			</div>
+		</div>
+
+		{% if plugin.claims is not empty %}
+			<div class="actions-queue-box">
+				<div class="actions-queue-box__head">
+					<i class="bi bi-card-text" aria-hidden="true"></i>{{ strings.claims }}
+				</div>
+				<div class="shield-cloaked-drawer__body">
+					<p class="shield-cloaked-drawer__note">{{ strings.claims_note }}</p>
+					<dl>
+						{% for item in plugin.claims %}
+							<dt>{{ item.label }}</dt>
+							<dd>{{ item.value }}</dd>
+						{% endfor %}
+					</dl>
+				</div>
+			</div>
+		{% endif %}
+
+		{# Shield's own loader, ignored by Shield itself, has nothing to do and nothing to say about its ignoring. #}
+		{% if plugin.recommended is not empty or plugin.ignore_details is not empty or plugin.actions is not empty %}
+		<div class="actions-queue-box">
+			<div class="actions-queue-box__head">
+				<i class="bi bi-wrench-adjustable" aria-hidden="true"></i>{{ strings.what_to_do }}
+			</div>
+			{% if plugin.recommended is not empty or plugin.ignore_details is not empty %}
+				<div class="shield-cloaked-drawer__body">
+					{% if plugin.recommended is not empty %}
+						<p>{{ plugin.recommended }}</p>
+					{% endif %}
+					{% if plugin.ignore_details is not empty %}
+						<dl>
+							{% for item in plugin.ignore_details %}
+								<dt>{{ item.label }}</dt>
+								<dd>{{ item.value }}</dd>
+							{% endfor %}
+						</dl>
+					{% endif %}
+				</div>
+			{% endif %}
+			{% for action in plugin.actions %}
+				<div class="actions-queue-row actions-queue-row--item">
+					<span class="actions-queue-row__icon"><i class="{{ action.icon }}" aria-hidden="true"></i></span>
+					<div class="actions-queue-row__copy">
+						<span class="actions-queue-row__desc">{{ action.tooltip }}</span>
+					</div>
+					<span class="actions-queue-row__links">
+						<button type="button"
+								class="actions-queue-row__ignore action"
+								data-actions-queue-drawer-press="{{ action.kind|e('html_attr') }}">
+							<i class="{{ action.icon }}" aria-hidden="true"></i>
+							{{ action.label }}
+						</button>
+					</span>
+				</div>
+			{% endfor %}
+		</div>
+		{% endif %}
+	{% endif %}
+</div>

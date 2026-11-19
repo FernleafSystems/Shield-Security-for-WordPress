@@ -15,7 +15,9 @@ assets/css/
     progress.scss             Progress bars
     merlin.scss               Merlin setup wizard
     meters.scss               Meter gauge styling
-    security-admin.scss       Security admin pane-scoped overlay/dialog
+    security-admin.scss       Security admin restricted page: places the PIN dialog over the page
+    security-admin-unlock.scss  Security Admin PIN dialog and form (WP admin unlock dialog and restricted page)
+    email-delivery-verify.scss  Email 2FA verification dialog (Shield pages, while email delivery is unverified)
     options.scss              Module options pages
     ip_analyse.scss           IP analysis off-canvas (options-style rail layout)
     reports.scss              Security report styles (reference only — actual CSS is inline in Twig)
@@ -201,7 +203,8 @@ Use **2 spaces** for SCSS indentation. This is distinct from the PHP convention 
 
 ### Variables
 
-- Use simple `$variable` declarations (no SCSS maps or mixins in this codebase)
+- Use simple `$variable` declarations (no SCSS maps)
+- Mixins are kept for styles shared across components, defined beside their owner: `shield-focus-ring` (`_focus-indicators.scss`) and `shield-accessible-dialog-buttons` (`accessible-dialog.scss`)
 - Naming: `$category-variant-property` (e.g., `$status-color-good`, `$badge-warning-bg`)
 - Shared variables go in `_status-colors.scss`; component-specific values stay in their own file
 
@@ -220,8 +223,10 @@ Each SCSS file owns specific components. Do not style another file's components:
 | `options.scss` | `.options_form_for--modern`, `.shield-options-layout`, `.shield-options-rail`, `.shield-options-panel`, `.shield-option-item` |
 | `ip_analyse.scss` | `#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse*` and IP-analysis-specific content styling inside the shared options-style rail/panel layout |
 | `reports.scss` (ref) | `.report-section`, `.scan-card`, `.stat-card`, `.change-card`, `.status-pill`, `.category-header`, `.repair-item`, `.scan-item` |
-| `merlin.scss` | `#MerlinOverlay`, `.merlin-modal-dialog`, `.stepper*`, `.wizard-card*`, `.wizard-step-pane`, `.profile-card*`, `.feature-list`, `.section-header`, `.feature-item`, `.merlin-form-footer` |
-| `security-admin.scss` | Security admin pane-scoped overlay/dialog and PIN form |
+| `merlin.scss` | `#MerlinOverlay`, `.merlin-modal-dialog`, `.stepper*`, `.wizard-card*`, `.wizard-step-pane`, `.merlin-report-email-actions`, `.protection-levels*`, `.merlin-form-footer` |
+| `security-admin.scss` | `.security-admin-overlay` (restricted-page placement of the PIN dialog) |
+| `security-admin-unlock.scss` | `.shield-secadmin-unlock*` (Security Admin PIN form) |
+| `email-delivery-verify.scss` | `.shield-email-verify*` (email 2FA verification dialog content) |
 | `dashboard.scss` | shared reusable primitives including `.shield-card`, `.shield-card-accent`, `.shield-badge`, plus dashboard-specific components |
 
 ## Inline CSS Pattern (Reports)
@@ -239,22 +244,22 @@ The setup wizard (`merlin.scss`) uses a custom **Card Stepper** pattern with van
 ### Layout Structure
 
 ```
-#MerlinOverlay (modal backdrop, z-index: 1055)
-  .merlin-modal-dialog (max-width: 960px)
+#MerlinOverlay (modal root with the dimmed background, z-index: 100000)
+  .merlin-modal-dialog (max-width: 1400px)
     .modal-content (height: 85vh, background: $surface-color-neutral-base)
-      .modal-header (close button)
+      .merlin-close (close link, top right)
       .modal-body
-        #merlin (flex column, padding: 0 1.25rem 1.25rem)
+        #merlin (flex column, padding: 2.5rem 10rem 1.5rem)
           .stepper (horizontal step indicators)
           .wizard-card (white card with accent bar, flex: 1)
             .wizard-card-accent (salt-green bar)
-            .wizard-card-body (scrollable content, padding: 1rem)
-            .wizard-card-footer (prev/next buttons with separator line)
+            .wizard-card-body (scrollable content, padding: 2.5rem 3.5rem)
+          .wizard-card-footer (prev/next buttons, centred below the card)
 ```
 
 ### Infrastructure
 
-**Bootstrap Icons font** is imported via `~bootstrap-icons/font/bootstrap-icons.css` in entry bundles that render `<i class="bi bi-*">` icons, including `plugin-main.scss` for Shield admin UI and `plugin-login2fa.scss` for login/MFA UI. The WordPress dashboard widget deliberately avoids Bootstrap framework and Bootstrap Icons imports; its status marks are scoped CSS-only shapes in `shield/dashboard-widget.scss`. Webpack's `file-loader` rule emits Bootstrap Icons font files to `assets/dist/img/`.
+**Bootstrap Icons font** is imported via `~bootstrap-icons/font/bootstrap-icons.css` in entry bundles that render `<i class="bi bi-*">` icons, including `plugin-main.scss` for Shield admin UI and `plugin-login2fa.scss` for login/MFA UI. The WordPress dashboard widget deliberately avoids Bootstrap framework and Bootstrap Icons imports; its status marks are scoped CSS-only shapes in `shield/dashboard-widget.scss`. Webpack's `asset/resource` rule emits Bootstrap Icons font files to `assets/dist/img/`.
 
 ### Custom Stepper
 
@@ -272,36 +277,30 @@ The stepper is built with real HTML elements (not pseudo-elements), making state
 
 ### Wizard Card
 
-`.wizard-card` follows the standard card component pattern with `$card-border-radius`, `$card-box-shadow`, and a `.wizard-card-accent` salt-green bar. The card body scrolls when content overflows. The footer contains prev/next navigation buttons that use `visibility: hidden` (Bootstrap `.invisible` class) instead of `display: none` so buttons stay in fixed positions across all steps.
+`.wizard-card` follows the standard card component pattern with `$card-border-radius`, `$card-box-shadow`, and a `.wizard-card-accent` salt-green bar. The card body scrolls when content overflows. The prev/next navigation buttons sit in `.wizard-card-footer` below the card and are there on every step, so they stay in fixed positions; `Merlin.js` disables Previous on the first step and Next on the last.
 
 ### Step Content
 
-Step templates extend `templates/twig/components/merlin/steps/base.twig` which provides block structure (`slide_body_title`, `slide_body_video_section_blurb`, `slide_body_video_section`, `slide_body_action_area`). Content renders directly without Bootstrap grid wrapping — the card body padding controls spacing.
+Step templates extend `templates/twig/components/merlin/steps/base.twig` which provides block structure (`slide_body_title`, `slide_body_video_section_blurb`, `slide_body_video_section`, `slide_body_action_area`). The base template adds no Bootstrap grid wrapper of its own — the card body padding controls spacing — and a step lays out its form with rows and columns where it needs them.
 
-### Security Profile Cards
+### Protection Levels
 
-The profile selection step uses a 4-column grid of clickable cards (current config + 3 profiles):
+The protection level step (in the wizard and the setup guide) is three choices and one list of what the chosen level would change:
 
-- `.profile-cards-row` — 4-column CSS grid (`repeat(4, 1fr)`), 1rem gap
-- `.profile-card` — `$card-border-radius`, `$card-box-shadow`, transparent 2px border, hover lift
-- `.profile-card.selected` — 3px green border, `#edf7ed` background tint, double green glow ring
-- `.profile-card-current` — Non-selectable, neutral border and `$surface-color-neutral-raised` background
-- `.profile-card-accent` — Level-based colours: `.level-light` = `$status-color-good`, `.level-medium` = `$status-color-warning`, `.level-strong` = `$status-color-critical`
-- `.feature-list` — Vertical list of `.feature-item` rows with status icons (`.fi-on`, `.fi-off`, `.fi-val`)
-- `.merlin-form-footer` — Separator line + centered submit button below profile cards
+- `.protection-levels__choices` — 3-column grid of `.protection-levels__choice` buttons; the chosen one (`aria-pressed="true"`) has a green border and `#edf7ed` tint
+- `.protection-levels__comparison` — one per level, only the chosen level's shown; a `.protection-levels__summary` line of `.protection-levels__chip` counts over a `.protection-levels__list`
+- `.protection-levels__row` — setting, current value, arrow, new value, chip; `.is-stricter` colours the arrow and new value green, `.is-looser` amber, `.is-same` and `.is-unavailable` are grey with no arrow
+- `.protection-levels:not(.shows-everything)` — hides unchanged and unavailable rows, and groups with no changes
+- `.merlin-form-footer` — Separator line above the step's submit button
 
 ### Responsive
 
-- `max-width: 992px` — Profile cards switch to 2 columns
-- `max-width: 768px` — Profile cards switch to 1 column, stepper wraps with connecting lines hidden
+- `max-width: 782px` — Protection level choices stack in 1 column; each comparison row's change chip drops to a line of its own
+- `max-width: 768px` — Stepper wraps with connecting lines hidden
 
 ### JS Component
 
-`Merlin.js` extends `BaseComponent` and manages step navigation with `goToStep()`, `next()`, `prev()` methods. No jQuery or third-party wizard dependency — pure vanilla DOM manipulation (class toggles, `querySelectorAll`). Form submissions use `AjaxService` and advance to the next step on success.
-
-### Prototypes (Reference)
-
-Standalone HTML prototypes in `prototypes/wizard/` were used during design exploration. The implemented design follows `card-stepper.html` (Prototype B).
+`Merlin.js` extends `BaseComponent` and manages step navigation with `goToStep()`, `next()`, `prev()` methods. No jQuery or third-party wizard dependency — step changes are plain DOM manipulation (class toggles, `querySelectorAll`), and each change registers the Bootstrap tooltips in the wizard. Form submissions use `AjaxService` and advance to the next step on success.
 
 ## Related Documentation
 

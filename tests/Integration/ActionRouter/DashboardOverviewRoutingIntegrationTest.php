@@ -11,10 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\PluginAdminPages\CloakedPluginsQueueIssueProvider,
 	Actions\Render\PluginAdminPages\PageOperatorModeLanding,
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
-	CloakedPluginState,
-	PluginPageView
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\ChartOptions;
@@ -452,9 +449,13 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	}
 
 	public function test_operator_mode_landing_strip_includes_cloaked_plugin_finding() :void {
+		global $pagenow;
+
+		$originalPageNow = $pagenow ?? null;
 		$optionsSnapshot = $this->snapshotSelectedOptions( [
 			CloakedPluginState::OPT_KEY,
 			CloakedPluginState::IGNORE_OPT_KEY,
+			CloakedPluginState::IGNORE_MODES_OPT_KEY,
 			CloakedPluginState::FINDINGS_OPT_KEY,
 			'instant_alert_hidden_plugins',
 		] );
@@ -463,12 +464,17 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			self::con()->opts
 				->optSet( CloakedPluginState::OPT_KEY, [] )
 				->optSet( CloakedPluginState::IGNORE_OPT_KEY, [] )
+				->optSet( CloakedPluginState::IGNORE_MODES_OPT_KEY, [] )
 				->optSet( CloakedPluginState::FINDINGS_OPT_KEY, [] )
 				->optSet( 'instant_alert_hidden_plugins', 'disabled' )
 				->store();
 			$this->createStandardCloakedPlugin( 'shi-cloaked-dashboard', 'SHI Cloaked Dashboard' );
 			\add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
-			$this->requireController()->comps->hidden_plugins->detect();
+			// Cloaking is found where WordPress lists its plugins, and remembered for every page after.
+			$pagenow = 'plugins.php';
+			$this->prepareRealPluginsTable();
+			$pagenow = 'admin.php';
+			$this->resetCloakedPluginFindingsCache();
 
 			$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
 			$renderData = $payload[ 'render_data' ] ?? [];
@@ -481,6 +487,12 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		finally {
 			$this->removeCloakedPluginFixtureFilters();
 			$this->restoreSelectedOptions( $optionsSnapshot );
+			if ( $originalPageNow === null ) {
+				unset( $GLOBALS[ 'pagenow' ] );
+			}
+			else {
+				$pagenow = $originalPageNow;
+			}
 		}
 	}
 
@@ -491,6 +503,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$optionsSnapshot = $this->snapshotSelectedOptions( [
 			CloakedPluginState::OPT_KEY,
 			CloakedPluginState::IGNORE_OPT_KEY,
+			CloakedPluginState::IGNORE_MODES_OPT_KEY,
 			CloakedPluginState::FINDINGS_OPT_KEY,
 			'instant_alert_hidden_plugins',
 		] );
@@ -499,6 +512,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			self::con()->opts
 				->optSet( CloakedPluginState::OPT_KEY, [] )
 				->optSet( CloakedPluginState::IGNORE_OPT_KEY, [] )
+				->optSet( CloakedPluginState::IGNORE_MODES_OPT_KEY, [] )
 				->optSet( CloakedPluginState::FINDINGS_OPT_KEY, [] )
 				->optSet( 'instant_alert_hidden_plugins', 'disabled' )
 				->store();
@@ -506,9 +520,8 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			\add_filter( 'all_plugins', [ $this, 'hideCloakedPluginOnlyOnPluginsPage' ], 1000 );
 
 			$pagenow = 'plugins.php';
-			$this->assertCount( 1, $this->requireController()->comps->hidden_plugins->detect() );
-			$pluginPageRows = ( new PluginPageView() )->addCloakedList( [] );
-			$this->assertArrayHasKey( $pluginFile, $pluginPageRows[ PluginPageView::STATUS ] ?? [] );
+			$this->prepareRealPluginsTable();
+			$this->assertCount( 1, $this->requireController()->comps->hidden_plugins->currentFindings() );
 
 			$pagenow = 'admin.php';
 			$this->resetCloakedPluginFindingsCache();
@@ -572,10 +585,15 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	public function test_operator_mode_landing_strip_is_clear_for_healthy_file_locker_and_zero_maintenance() :void {
 		$this->requireDb( 'file_locker' );
 		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
-		$optionsSnapshot = $this->snapshotSelectedOptions( [ MaintenanceIssueStateProvider::OPT_KEY ] );
+		$optionsSnapshot = $this->snapshotSelectedOptions( [
+			MaintenanceIssueStateProvider::OPT_KEY,
+			'block_send_email_address',
+		] );
 
 		try {
+			// A site that has just been installed is asked to choose a report email, which can't be ignored.
 			self::con()->opts
+				->optSet( 'block_send_email_address', 'dashboard-strip@example.test' )
 				->optSet( 'file_locker', [ 'wpconfig' ] )
 				->optSet(
 					MaintenanceIssueStateProvider::OPT_KEY,

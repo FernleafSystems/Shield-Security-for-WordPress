@@ -1,30 +1,5 @@
-<div id="WpsfAdminAccessLogin" style="display:none;">
-	<div class="wpsf-admin-access-login" id="SecAdminDialog">
-		<div class="input-holder" id="SecAdminPinInputContainer">
-			<label>
-				{{ strings.access_message }}
-				<input id="SecAdminPinInput" type="password" name="sec_admin_key" />
-				<button type="button" class="button" style="margin-top:3px;">{{ strings.access_submit_label }}</button>
-			</label>
-		</div>
-
-	</div>
-</div>
-
-<style>
-	.input-holder label {
-		font-size: 24px;
-	}
-	.input-holder label {
-		font-size: inherit;
-		display: block;
-		margin: 6% 107px;
-		vertical-align: middle;
-	}
-	.input-holder input {
-		font-size: inherit;
-		height: 60px;
-		vertical-align: middle;
-		width: 180px;
-	}
-</style>
+{% import '/components/security_admin/pin_form.twig' as pin %}
+<template id="ShieldSecAdminUnlock" data-title="{{ strings.aar_login_title }}" data-message="{{ strings.aar_login_message }}"
+		  data-icon-class="{{ pin.icon_class() }}">
+	{{ pin.form( strings, hrefs, true ) }}
+</template>

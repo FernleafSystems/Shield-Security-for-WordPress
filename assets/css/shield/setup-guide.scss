@@ -27,10 +27,6 @@ $setup-guide-sheet-height: 640px;
 	position: fixed;
 	right: 0;
 	z-index: 9980;
-
-	&[hidden] {
-		display: none;
-	}
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -129,7 +125,7 @@ $setup-guide-sheet-height: 640px;
 	flex: 1 1 auto;
 }
 
-// Collapsed, the bar is just progress and Continue; hiding options appear once it's open, where
+// Collapsed, the bar is just progress and Continue; "Don't show again" appears once it's open, where
 // the step list makes "Next" redundant.
 .shield-setup-guide:not(.is-expanded) .shield-setup-guide__bar .shield-setup-guide__link,
 .shield-setup-guide.is-expanded .shield-setup-guide__next {
@@ -137,7 +133,8 @@ $setup-guide-sheet-height: 640px;
 }
 
 .shield-setup-guide__continue,
-.shield-setup-guide .merlin-form [type="submit"] {
+.shield-setup-guide__close,
+.shield-setup-guide .merlin-form [type="submit"]:not(.btn-link) {
 	align-items: center;
 	background: $status-color-good;
 	border: 0;
@@ -183,6 +180,27 @@ $setup-guide-sheet-height: 640px;
 	text-underline-offset: 2px;
 
 	&:hover {
+		color: #1d2327;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+}
+
+// A step's second choice (the report email step's "use the site admin email") reads as a link beside its button.
+.shield-setup-guide .merlin-form .btn-link[type="submit"] {
+	background: none;
+	border: 0;
+	color: $status-text-color-good;
+	font-size: 13px;
+	font-weight: 600;
+	padding: 0;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+
+	&:hover,
+	&:focus {
 		color: #1d2327;
 	}
 
@@ -448,6 +466,18 @@ $setup-guide-sheet-height: 640px;
 	.merlin-form {
 		display: grid;
 		gap: 0.75rem;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	.merlin-report-email-actions {
+		margin-top: 0.6rem;
+
+		[type="submit"] {
+			margin-top: 0 !important;
+		}
 	}
 
 	.row {
@@ -511,38 +541,9 @@ $setup-guide-sheet-height: 640px;
 	}
 }
 
-.shield-setup-guide-reopen {
-	align-items: center;
-	background: $status-color-good;
-	border: 0;
-	border-radius: 999px;
-	bottom: 1rem;
-	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-	color: #ffffff;
-	cursor: pointer;
-	display: inline-flex;
-	font-size: 0.82rem;
-	font-weight: 600;
-	gap: 0.4rem;
-	padding: 0.45rem 0.95rem;
-	// Bottom right, beside the floating help-desk button, clear of both sidebars.
-	right: 5.5rem;
-	position: fixed;
-	z-index: 9980;
-
-	&[hidden] {
-		display: none;
-	}
-
-	&:focus-visible {
-		@include shield-focus-ring();
-	}
-}
-
-
 // Leave room below page content inside the content column, so the sidebar runs all the way down
-// to the bar; and lift the Configure save bar above the guide.
-body.has-shield-setup-guide #PageMainBody_Inner-Apto {
+// to the bar; and lift the Reports selection bar above the guide.
+body:has(.shield-setup-guide) #PageMainBody_Inner-Apto {
 	padding-bottom: 5rem;
 }
 
@@ -576,15 +577,15 @@ body.has-shield-setup-guide #PageMainBody_Inner-Apto {
 	padding: 1px 7px;
 }
 
-body.has-shield-setup-guide .shield-actionbar:not(.shield-actionbar--top) {
+body:has(.shield-setup-guide) .shield-actionbar:not(.shield-actionbar--top) {
 	bottom: 4.4rem;
 }
 
 // The dashboard's Live Monitor dock also sits at the bottom; stack it above the collapsed guide.
-body.has-shield-setup-guide .dashboard-live-monitor {
+body:has(.shield-setup-guide) .dashboard-live-monitor {
 	bottom: 3.6rem;
 }
 
-body.has-shield-setup-guide #PageMainBody_Inner-Apto.has-live-monitor-docked {
+body:has(.shield-setup-guide) #PageMainBody_Inner-Apto.has-live-monitor-docked {
 	padding-bottom: calc(5.6rem + var(--dashboard-live-monitor-clearance, 0px));
 }

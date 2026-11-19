@@ -36,10 +36,25 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertPluginAdminShellRouteState( $payload, PluginNavs::SUBNAV_REPORTS_OVERVIEW );
 	}
 
-	public function test_reports_workspace_routes_render_expected_structural_markers() :void {
-		foreach ( \array_keys( PluginNavs::reportsWorkspaceDefinitions() ) as $subNav ) {
-			$payload = $this->renderReportsSubNavPayload( $subNav );
-			$this->assertPluginAdminShellRouteState( $payload, $subNav );
+	/**
+	 * Reports is one page with a tab for each workspace, and each tab has a link of its own: the Reports page,
+	 * opened on that tab.
+	 */
+	public function test_each_reports_tab_link_opens_the_reports_page_on_that_tab() :void {
+		foreach ( \array_keys( PluginNavs::reportsWorkspaceDefinitions() ) as $workspace ) {
+			// The page is asked for exactly as the tab's own link asks for it.
+			\parse_str(
+				(string)\wp_parse_url( $this->requireController()->plugin_urls->reportsHome( $workspace ), \PHP_URL_QUERY ),
+				$link
+			);
+			$payload = $this->renderPluginAdminRoutePayload(
+				(string)$link[ 'nav' ],
+				(string)$link[ 'nav_sub' ],
+				[ 'workspace' => (string)( $link[ 'workspace' ] ?? '' ) ]
+			);
+			$output = $this->assertRouteRenderOutputHealthy( $payload, 'reports tab '.$workspace );
+			$this->assertPluginAdminShellRouteState( $payload, PluginNavs::SUBNAV_REPORTS_OVERVIEW );
+			$this->assertStringContainsString( 'data-reports-current-tab="'.$workspace.'"', $output );
 		}
 	}
 }

@@ -525,6 +525,10 @@ class AssetsCustomizerControllerStub extends Controller {
 			public function optGet( string $key ) {
 				return $key === 'ipdetect_at' ? 1 : null;
 			}
+
+			public function optIs( string $key, $value ) :bool {
+				return false;
+			}
 		};
 		$this->comps = (object)[
 			'opts_lookup' => new class {

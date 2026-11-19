@@ -57,7 +57,8 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 				'locked'                => 'Locked',
 				'file_size'             => 'File Size',
 				'file_modified'         => 'File Modified',
-				'download'              => 'Download',
+				'download_original'     => 'Download Original',
+				'download_current'      => 'Download Current',
 				'modified_file'         => 'Modified File',
 				'change_detected_at'    => 'Change Detected At',
 				'file_restore'          => 'Restore File',
@@ -157,13 +158,27 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 		$context = $this->buildRenderContext();
 		$context[ 'flags' ][ 'has_diff' ] = false;
 		$context[ 'flags' ][ 'diff_available' ] = false;
+		// An unchanged file comes with no link to a changed copy.
+		$context[ 'ajax' ][ 'current' ] = '';
 		$context[ 'html' ][ 'diff' ] = '<span data-test-marker="unexpected-diff">Unexpected diff</span>';
 		$xpath = $this->renderContext( $context );
 
 		$this->assertSame( 0, $xpath->query( '//*[@data-test-marker="unexpected-diff"]' )->length );
 		$this->assertSame( 1, $xpath->query( '//a[@href="/download/original"]' )->length );
-		$this->assertSame( 0, $xpath->query( '//a[@href="/download/current"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//a' )->length, 'The original is the only download offered' );
 		$this->assertSame( 0, $xpath->query( '//input[@data-action="restore" or @data-action="accept"]' )->length );
+	}
+
+	public function testFileLockerDiffTemplateOffersNoDownloadOfAChangedFileThatCannotBeDownloaded() :void {
+		$context = $this->buildRenderContext();
+		$context[ 'flags' ][ 'original_file_missing' ] = true;
+		$context[ 'ajax' ][ 'current' ] = '';
+		$xpath = $this->renderContext( $context );
+
+		$this->assertSame( 1, $xpath->query( '//a[@href="/download/original"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//a' )->length, 'The original is the only download offered' );
+		$this->assertSame( 1, $xpath->query( '//input[@type="submit" and @data-action="restore" and @data-rid="14"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//input[@type="submit" and @data-action="accept" and @data-rid="14"]' )->length );
 	}
 
 	public function testFileLockerDiffTemplateKeepsWholeModalFailureBehaviour() :void {

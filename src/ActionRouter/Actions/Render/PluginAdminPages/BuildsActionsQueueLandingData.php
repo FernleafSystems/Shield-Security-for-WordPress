@@ -3,10 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceAlertsTurnOff;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginSetUiPreference;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\UiPreferences;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModuleScans;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -136,7 +140,7 @@ trait BuildsActionsQueueLandingData {
 			}
 		}
 
-		$layout = ( new ActionsQueueLandingSectionsBuilder() )->build(
+		$sections = ( new ActionsQueueLandingSectionsBuilder() )->build(
 			$this->getBucketsData(),
 			$bucketGroups,
 			$this->getHealthyRowsData(),
@@ -146,10 +150,17 @@ trait BuildsActionsQueueLandingData {
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/actions_queue/layer_buckets.twig' )
 			->setData( [
-				'sections'      => $layout[ 'sections' ],
-				'has_lanes'     => $layout[ 'has_lanes' ],
+				'sections'      => $sections,
 				'view'          => ( new UiPreferences() )->get( UiPreferences::ACTIONS_QUEUE_VIEW ),
 				'set_view_action_json' => ActionData::BuildJson( PluginSetUiPreference::class ),
+				'alert_switches' => $this->buildMaintenanceAlertSwitches(),
+				// Opens the Review Next Items setting beside the queue, which refreshes once it's saved.
+				'review_config_action' => [
+					'zone_component_action' => ZoneComponentConfig::SLUG,
+					'zone_component_slug'   => ModuleScans::Slug(),
+					'option_keys'           => MaintenanceIssueStateProvider::OPT_KEY_REPORTED_KINDS,
+					'configure_panel'       => 'code:advanced',
+				],
 				'hrefs'         => [
 					'scan_run' => self::con()->plugin_urls->scansRun(),
 				],
@@ -158,7 +169,11 @@ trait BuildsActionsQueueLandingData {
 					'view_label'    => __( 'Layout', 'wp-simple-firewall' ),
 					'view_sections' => __( 'Sections', 'wp-simple-firewall' ),
 					'view_tabs'     => __( 'Tabs', 'wp-simple-firewall' ),
-					'nothing_here'  => __( 'Nothing needs your action right now.', 'wp-simple-firewall' ),
+					'review_config'  => __( 'Choose what Review next includes', 'wp-simple-firewall' ),
+					'alerts'         => __( 'Alerts', 'wp-simple-firewall' ),
+					'alerts_off'     => __( 'Off', 'wp-simple-firewall' ),
+					'alerts_on'      => __( 'On', 'wp-simple-firewall' ),
+					'alerts_turn_off' => __( 'Turn off alerts', 'wp-simple-firewall' ),
 					'pro_pill'       => __( 'Shield Pro', 'wp-simple-firewall' ),
 					'turned_off_pill' => __( 'Turned off', 'wp-simple-firewall' ),
 					'compare_plans'  => __( 'Compare plans', 'wp-simple-firewall' ),
@@ -173,6 +188,32 @@ trait BuildsActionsQueueLandingData {
 				],
 			] )
 			->render();
+	}
+
+	/**
+	 * The switch in the heading of each kind of plugin and theme housekeeping. Turning it off, once confirmed,
+	 * leaves that kind out of Review next (the Review Next Items setting); the setting turns it back on.
+	 * @return array<string,array{action_json:string,confirm:string}>
+	 */
+	private function buildMaintenanceAlertSwitches() :array {
+		$confirmations = [
+			'wp_plugins_updates'  => __( 'Are you sure you want to turn off maintenance alerts for plugin updates?', 'wp-simple-firewall' ),
+			'wp_themes_updates'   => __( 'Are you sure you want to turn off maintenance alerts for theme updates?', 'wp-simple-firewall' ),
+			'wp_plugins_inactive' => __( 'Are you sure you want to turn off maintenance alerts for inactive plugins?', 'wp-simple-firewall' ),
+			'wp_themes_inactive'  => __( 'Are you sure you want to turn off maintenance alerts for inactive themes?', 'wp-simple-firewall' ),
+		];
+		$wayBack = __( 'They will no longer be counted or reported. You can turn them back on in the Configure section, under Scans.', 'wp-simple-firewall' );
+
+		$switches = [];
+		foreach ( MaintenanceIssueStateProvider::KINDS_THAT_CAN_BE_LEFT_OUT as $kind ) {
+			$switches[ $kind ] = [
+				'action_json' => ActionData::BuildJson( MaintenanceAlertsTurnOff::class, true, [
+					'maintenance_key' => $kind,
+				] ),
+				'confirm'     => $confirmations[ $kind ].' '.$wayBack,
+			];
+		}
+		return $switches;
 	}
 
 	protected function buildActionsQueueOperatorRootStep() :array {

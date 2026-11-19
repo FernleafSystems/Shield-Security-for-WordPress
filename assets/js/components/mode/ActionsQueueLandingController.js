@@ -162,6 +162,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.hasBoundMaintenanceActionHandlers = true;
 
 		document.addEventListener( 'click', ( evt ) => this.handleMaintenanceActionClick( evt ) );
+		document.addEventListener( 'shield:options-saved', () => this.handleOptionsSaved() );
 	}
 
 	bindTableActionHandlers() {
@@ -368,8 +369,9 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 	}
 
 	/**
-	 * Opens again the sections that were open, where they still exist, and selects the same tab. If none of
-	 * them is left, such as when a section's last item was ignored, the landing stays as rendered.
+	 * Opens again the sections that were open, where they still exist, and selects the same tab. A lane the
+	 * action emptied stays open, showing that nothing is left in it. If none of the open sections is left, as
+	 * Passing and Not covered can go, the landing stays as rendered.
 	 * @param {Element} container
 	 * @param {{open:string[],tab:string,boxes:string[]}} state
 	 */
@@ -650,7 +652,8 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		// refresh once.
 		const allKind = target.dataset.actionsQueueMaintenanceAll || '';
 		const isAll = allKind !== '';
-		const scope = isAll ? target.closest( '.actions-queue-row-group' ) : target.closest( '.actions-queue-row' );
+		// A group's own switch (its alerts) sits in the group's heading rather than on one of its rows.
+		const scope = isAll ? target.closest( '.actions-queue-row-group' ) : target.closest( '.actions-queue-row, .actions-queue-row-group' );
 		const actions = ( isAll
 			? [ ...( scope?.querySelectorAll( `[data-actions-queue-maintenance-kind="${allKind}"][data-actions-queue-maintenance-action]` ) || [] ) ]
 			: [ target ]
@@ -669,18 +672,47 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			scope?.classList.remove( 'is-busy' );
 		};
 
-		const service = new AjaxService();
-		const send = service.send( isAll ? this.combineActions( actions ) : actions[ 0 ] )
-			.then( ( resp ) => resp?.success === true );
+		// An action that says what it's about to do (turning a kind's alerts off) asks first.
+		const confirmMessage = target.dataset.confirmMessage || '';
+		const confirmed = confirmMessage === ''
+			? Promise.resolve( true )
+			: shieldServices.dialog().confirm( {
+				message: confirmMessage,
+				confirmLabel: target.dataset.confirmLabel,
+				launcher: target,
+			} );
 
-		send.then( ( ok ) => ok ? this.refreshAfterNestedAction( true ) : null )
+		confirmed
+			.then( ( isConfirmed ) => isConfirmed
+				? ( new AjaxService() ).send( isAll ? this.combineActions( actions ) : actions[ 0 ] )
+					.then( ( resp ) => resp?.success === true ? this.refreshAfterNestedAction( true ) : null )
+				: null )
 			.catch( () => null )
 			.finally( done );
 	}
 
 	/**
+	 * Settings saved on this page (the Review Next Items setting, beside the queue) can change what the queue
+	 * reports, so it refreshes in place.
+	 */
+	handleOptionsSaved() {
+		const root = this.rootEl || this.getRoot();
+		const lane = root?.querySelector( '[data-actions-queue-bucket-selection]' );
+		if ( !root || !lane ) {
+			return;
+		}
+		this.rootEl = root;
+		this.shellEl = this.getShell( root );
+		if ( this.selectedBucket === null ) {
+			this.adoptLandingBucket( lane );
+		}
+		this.refreshAfterNestedAction( false );
+	}
+
+	/**
 	 * One request for a group's ignores, or its restores: scan results go as one list of result IDs,
-	 * maintenance items and cloaked plugins as one list of identifiers.
+	 * maintenance items and cloaked plugins as one list of identifiers. A cloaked plugin ignored until it changes
+	 * carries the contents it was reviewed with, so each identifier keeps its own.
 	 * @param {Array<Object>} actions
 	 * @return {Object}
 	 */
@@ -691,6 +723,12 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		}
 		const combined = { ...first, identifiers: actions.map( ( data ) => data.identifier ) };
 		delete combined.identifier;
+		if ( typeof first.contents_hash === 'string' ) {
+			combined.contents_hashes = Object.fromEntries(
+				actions.map( ( data ) => [ data.identifier, data.contents_hash ] )
+			);
+			delete combined.contents_hash;
+		}
 		return combined;
 	}
 

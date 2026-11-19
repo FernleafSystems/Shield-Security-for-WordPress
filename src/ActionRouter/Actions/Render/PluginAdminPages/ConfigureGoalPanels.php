@@ -29,7 +29,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  * }
  * @phpstan-type PanelBlock array{heading?:string, items:list<PanelItem>}
  * @phpstan-type PanelTopic array{icon:string, blocks:list<PanelBlock>, more?:list<PanelItem>}
- * @phpstan-type PanelGoal array{icon:string, topics:array<string,PanelTopic>}
+ * @phpstan-type PanelGoal array{icon:string, topics:array<string,PanelTopic>, more?:list<PanelBlock>}
  */
 class ConfigureGoalPanels {
 
@@ -114,7 +114,8 @@ class ConfigureGoalPanels {
 	 * The layout of every goal, topic and panel: option keys and how each is shown, with no display text.
 	 * Settings few sites need to change are listed under "more" in the layout; each goal gathers them into
 	 * one Advanced options topic at its end, under the name of the topic each belongs to, where they're
-	 * easy to find rather than tucked away inside every topic.
+	 * easy to find rather than tucked away inside every topic. A goal's own "more" lists further blocks for
+	 * Advanced options that belong to none of its topics, each under its own heading.
 	 * @return array<string,PanelGoal>
 	 */
 	public static function goals() :array {
@@ -129,6 +130,8 @@ class ConfigureGoalPanels {
 					unset( $topic[ 'more' ] );
 				}
 				unset( $topic );
+				$advanced = \array_merge( $advanced, $goal[ 'more' ] ?? [] );
+				unset( $goal[ 'more' ] );
 				if ( !empty( $advanced ) ) {
 					$goal[ 'topics' ][ 'advanced' ] = [ 'icon' => 'gear', 'blocks' => $advanced ];
 				}
@@ -486,6 +489,9 @@ class ConfigureGoalPanels {
 						],
 					],
 				],
+				'more'   => [
+					[ 'heading' => 'review_next_items', 'items' => [ [ 'key' => 'maintenance_alert_items', 'control' => 'chips' ] ] ],
+				],
 			],
 			'spam'     => [
 				'icon'   => 'chat-dots',
@@ -582,7 +588,7 @@ class ConfigureGoalPanels {
 							[
 								'heading' => 'in_your_dashboard',
 								'items'   => [
-									[ 'key' => 'enable_upgrade_admin_notice', 'control' => 'toggle' ],
+									[ 'key' => 'dashboard_display', 'control' => 'chips' ],
 									[ 'key' => 'enable_tracking', 'control' => 'toggle' ],
 								],
 							],
@@ -753,6 +759,7 @@ class ConfigureGoalPanels {
 				'visitor_ip'        => __( 'Visitor IP addresses', 'wp-simple-firewall' ),
 				'on_your_site'      => __( 'On your site', 'wp-simple-firewall' ),
 				'in_your_dashboard' => __( 'In your dashboard', 'wp-simple-firewall' ),
+				'review_next_items' => __( 'Actions Queue: Review next', 'wp-simple-firewall' ),
 				'names'             => __( 'Names', 'wp-simple-firewall' ),
 				'link'              => __( 'Link', 'wp-simple-firewall' ),
 				'logos'             => __( 'Logos', 'wp-simple-firewall' ),

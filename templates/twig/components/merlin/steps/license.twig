@@ -1,9 +1,9 @@
 {% extends '/components/merlin/steps/base.twig' %}
 
 {% block slide_body_video_section_blurb %}
-	<p>{{ strings.license_check_text }}
-	   you can check below for your license automatically.</p>
-	<p>If this doesn't apply to you, <button type="button" class="skip-step shield-button-link text-primary text-decoration-underline">skip to the next step</button>.</p>
+	<p>{{ strings.license_check_text }}</p>
+	{% set skip_button %}<button type="button" class="skip-step shield-button-link text-primary text-decoration-underline">{{ strings.license_skip_button }}</button>{% endset %}
+	<p>{{ strings.license_skip_text|e|format( skip_button )|raw }}</p>
 {% endblock %}
 
 {% block slide_body_action_area %}

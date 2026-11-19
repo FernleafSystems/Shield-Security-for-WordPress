@@ -11,6 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Admin;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\OptsLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Admin\DashboardWidget;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -41,7 +42,25 @@ class DashboardWidgetTest extends BaseUnitTest {
 	}
 
 	public function test_can_run_for_wp_admin_in_valid_admin_area_when_widget_enabled() :void {
-		$this->installEnvironment( true, true, true );
+		$this->installEnvironment( true, true, null );
+
+		$this->assertTrue( $this->canRun() );
+	}
+
+	public function test_cannot_run_when_widget_is_not_chosen_for_the_dashboard() :void {
+		$this->installEnvironment( true, true, null, true, [ 'notices', 'admin_bar' ] );
+
+		$this->assertFalse( $this->canRun() );
+	}
+
+	public function test_cannot_run_when_plugin_property_disables_widget() :void {
+		$this->installEnvironment( true, true, null, false );
+
+		$this->assertFalse( $this->canRun() );
+	}
+
+	public function test_dashboard_widget_filter_can_show_widget_not_chosen_for_the_dashboard() :void {
+		$this->installEnvironment( true, true, true, true, [] );
 
 		$this->assertTrue( $this->canRun() );
 	}
@@ -89,9 +108,20 @@ class DashboardWidgetTest extends BaseUnitTest {
 		return (bool)$this->invokeNonPublicMethod( new DashboardWidget(), 'canRun' );
 	}
 
-	private function installEnvironment( bool $isValidAdminArea, bool $isWpAdmin, bool $showWidget ) :void {
+	/**
+	 * @param bool|null $filterResult what the show-widget filter returns; null leaves the default it's given untouched
+	 * @param string[]  $dashboardDisplay
+	 */
+	private function installEnvironment(
+		bool $isValidAdminArea,
+		bool $isWpAdmin,
+		?bool $filterResult,
+		bool $propertyShowsWidget = true,
+		array $dashboardDisplay = [ 'notices', 'admin_bar', 'dashboard_widget' ]
+	) :void {
 		Functions\when( 'apply_filters' )->alias(
-			static fn( string $hook, $value ) => $hook === 'shield/show_dashboard_widget' ? $showWidget : $value
+			static fn( string $hook, $value ) => ( $hook === 'shield/show_dashboard_widget' && $filterResult !== null )
+				? $filterResult : $value
 		);
 
 		ServicesState::installItems( [
@@ -108,17 +138,31 @@ class DashboardWidgetTest extends BaseUnitTest {
 			},
 		] );
 
-		PluginControllerInstaller::install( new class( $isValidAdminArea ) extends Controller {
+		PluginControllerInstaller::install( new class( $isValidAdminArea, $propertyShowsWidget, $dashboardDisplay ) extends Controller {
 			private bool $isValidAdminArea;
 
-			public function __construct( bool $isValidAdminArea ) {
+			public function __construct( bool $isValidAdminArea, bool $propertyShowsWidget, array $dashboardDisplay ) {
 				$this->isValidAdminArea = $isValidAdminArea;
 				$this->cfg = (object)[
 					'properties' => [
-						'show_dashboard_widget' => true,
+						'show_dashboard_widget' => $propertyShowsWidget,
 						'slug_parent'           => 'icwp',
 						'slug_plugin'           => 'wpsf',
 					],
+				];
+				$this->opts = new class( $dashboardDisplay ) {
+					private array $dashboardDisplay;
+
+					public function __construct( array $dashboardDisplay ) {
+						$this->dashboardDisplay = $dashboardDisplay;
+					}
+
+					public function optGet( string $key ) {
+						return $key === 'dashboard_display' ? $this->dashboardDisplay : null;
+					}
+				};
+				$this->comps = (object)[
+					'opts_lookup' => new OptsLookup(),
 				];
 				$this->labels = (object)[
 					'Name' => 'Shield',
