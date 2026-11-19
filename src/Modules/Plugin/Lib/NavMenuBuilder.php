@@ -102,7 +102,6 @@ class NavMenuBuilder {
 			'href'         => self::con()->plugin_urls->adminHome(),
 			'active'       => $this->inav() === PluginNavs::NAV_DASHBOARD
 				&& $this->subnav() === PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
-			'classes'      => [ 'sidebar-nav-dashboard' ],
 			'divider_after'=> false,
 		] ];
 		foreach ( PluginNavs::allOperatorModes() as $mode ) {
@@ -179,7 +178,6 @@ class NavMenuBuilder {
 			'is_action'    => true,
 			'active'       => false,
 			'classes'      => [ 'sidebar-task-guide-link' ],
-			'divider_after'=> false,
 		];
 	}
 
@@ -499,7 +497,6 @@ class NavMenuBuilder {
 			'kind'      => '',
 			'mode'      => '',
 			'route'     => [],
-			'divider_after' => false,
 		], $item );
 
 		$item[ 'is_action' ] = (bool)$item[ 'is_action' ];

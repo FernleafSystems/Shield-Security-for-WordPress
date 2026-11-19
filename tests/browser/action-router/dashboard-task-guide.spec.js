@@ -79,27 +79,44 @@ test( 'dashboard task guide opens an accessible chooser and exposes deep links',
 	await page.keyboard.press( 'Escape' );
 	await expect( modal ).not.toBeVisible();
 	await expect( launcher ).toBeFocused();
-
-	await openShieldRoute( page, {
-		nav: 'reports',
-		nav_sub: 'overview',
-	} );
-	await dismissBlockingDialogs( page );
-	const urlBeforeSidebarLaunch = page.url();
-	const sidebarGuide = page.locator( '#NavSideBar .sidebar-task-guide-link' );
-	await expect( sidebarGuide ).toHaveRole( 'button' );
-	await expect( sidebarGuide ).not.toHaveAttribute( 'href' );
-	await expect( sidebarGuide ).toHaveAttribute( 'aria-haspopup', 'dialog' );
-	await expect( sidebarGuide ).toHaveAttribute( 'aria-controls', 'ShieldMainAccessibleDialog' );
-	await sidebarGuide.focus();
-	await page.keyboard.press( 'Enter' );
-	await expect( modal ).toBeVisible();
-	await expectFocusWithin( modal );
-	expect( page.url() ).toBe( urlBeforeSidebarLaunch );
-	await page.keyboard.press( 'Escape' );
-	await expect( modal ).not.toBeVisible();
-	await expect( sidebarGuide ).toBeFocused();
 	await expectNoRuntimeErrors( runtimeErrors, 'dashboard task guide' );
+} );
+
+test( 'the sidebar offers the setup guide while it shows, and Guide Me in its place otherwise', async ( { page, fixtureApi } ) => {
+	const runtimeErrors = collectRuntimeErrors( page );
+	const sidebarGuidance = page.locator( '#NavSideBar .sidebar-guidance' );
+	const sidebarSetup = sidebarGuidance.locator( '.sidebar-setup-item' );
+	const sidebarGuide = sidebarGuidance.locator( '.sidebar-task-guide-link' );
+
+	await openShieldRoute( page, { nav: 'reports', nav_sub: 'overview', setup_guide: 'open' } );
+	await expect( page.locator( '#ShieldSetupGuide' ) ).toBeAttached();
+	await expect( sidebarGuidance ).toHaveCount( 1 );
+	await expect( sidebarSetup ).toHaveCount( 1 );
+	await expect( page.locator( '#NavSideBar .sidebar-task-guide-link' ) ).toHaveCount( 0 );
+
+	await fixtureApi.withSetupGuideDismissedFixture( async () => {
+		await openShieldRoute( page, { nav: 'reports', nav_sub: 'overview' } );
+		await dismissBlockingDialogs( page );
+		await expect( page.locator( '#ShieldSetupGuide' ) ).toHaveCount( 0 );
+		await expect( sidebarGuidance ).toHaveCount( 1 );
+		await expect( page.locator( '#NavSideBar .sidebar-setup-item' ) ).toHaveCount( 0 );
+
+		const modal = page.locator( '#ShieldMainAccessibleDialog' );
+		const urlBeforeSidebarLaunch = page.url();
+		await expect( sidebarGuide ).toHaveRole( 'button' );
+		await expect( sidebarGuide ).not.toHaveAttribute( 'href' );
+		await expect( sidebarGuide ).toHaveAttribute( 'aria-haspopup', 'dialog' );
+		await expect( sidebarGuide ).toHaveAttribute( 'aria-controls', 'ShieldMainAccessibleDialog' );
+		await sidebarGuide.focus();
+		await page.keyboard.press( 'Enter' );
+		await expect( modal ).toBeVisible();
+		await expectFocusWithin( modal );
+		expect( page.url() ).toBe( urlBeforeSidebarLaunch );
+		await page.keyboard.press( 'Escape' );
+		await expect( modal ).not.toBeVisible();
+		await expect( sidebarGuide ).toBeFocused();
+	} );
+	await expectNoRuntimeErrors( runtimeErrors, 'sidebar guidance' );
 } );
 
 test( 'dashboard task guide appears as a distinct guidance panel before dashboard stats', async ( { page } ) => {
