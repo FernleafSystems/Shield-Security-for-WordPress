@@ -1016,12 +1016,70 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
 		$this->prepareRealPluginsTable( $network );
 
+		$shown = $this->actionLinksShownOnTheCloakedTab( $network );
+
+		$this->assertSame( [], $shown[ $mustUse ] ?? null );
+		$this->assertArrayHasKey( 'shi-offered', $shown[ $standard ] ?? [] );
+	}
+
+	/**
+	 * To draw a row's update notice, WordPress builds a second table, and with it works out the page's list again
+	 * from the request alone. Up to WordPress 6.9 that leaves the rows after the notice being drawn as rows of
+	 * "all", as it does here (the helper draws the table without giving WordPress the request's list). They're
+	 * still the cloaked list's rows.
+	 * @dataProvider pluginsPages
+	 */
+	public function testCloakedRowsAfterAnUpdateNoticeAreStillTheCloakedListsRows( bool $network ) :void {
+		$GLOBALS[ 'pagenow' ] = 'plugins.php';
+		// The table's rows are in name order: the plugin with the update comes first.
+		$mustUse = $this->createMustUseCloakedPlugin( 'shi-cloaked-mu-later.php', 'Cloaked row B' );
+		add_filter( 'show_advanced_plugins', [ $this, 'hideCloakedMustUsePlugins' ], 1000, 2 );
+		$standard = $this->createStandardCloakedPlugin( 'shi-cloaked-updatable', 'Cloaked row A' );
+		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+		$this->prepareRealPluginsTable( $network );
+
+		require_once ABSPATH.'wp-admin/includes/list-table.php';
+		require_once ABSPATH.'wp-admin/includes/update.php';
+		$pendingUpdate = static function ( $updates ) use ( $standard ) {
+			$updates = \is_object( $updates ) ? $updates : new \stdClass();
+			$updates->response = \array_merge( \is_array( $updates->response ?? null ) ? $updates->response : [], [
+				$standard => (object)[
+					'slug'        => 'shi-cloaked-updatable',
+					'plugin'      => $standard,
+					'new_version' => '99.0',
+					'url'         => '',
+					'package'     => '',
+				],
+			] );
+			return $updates;
+		};
+		$noticesDrawn = did_action( 'in_plugin_update_message-'.$standard );
+		add_filter( 'site_transient_update_plugins', $pendingUpdate );
+		add_action( 'after_plugin_row_'.$standard, 'wp_plugin_update_row', 10, 2 );
+		try {
+			$shown = $this->actionLinksShownOnTheCloakedTab( $network );
+		}
+		finally {
+			remove_filter( 'site_transient_update_plugins', $pendingUpdate );
+			remove_action( 'after_plugin_row_'.$standard, 'wp_plugin_update_row', 10 );
+		}
+
+		$this->assertSame( $noticesDrawn + 1, did_action( 'in_plugin_update_message-'.$standard ) );
+		$this->assertSame( [ $standard, $mustUse ], \array_values( \array_intersect( \array_keys( $shown ), [ $standard, $mustUse ] ) ) );
+		$this->assertSame( [], $shown[ $mustUse ] );
+	}
+
+	/**
+	 * Draws the Cloaked tab's table, offering every row an action link, whatever WordPress would give this user
+	 * for it.
+	 * @return array<string,mixed> the action links each row is left with, by plugin file, in the order drawn
+	 */
+	private function actionLinksShownOnTheCloakedTab( bool $network ) :array {
 		$_GET = [ 'plugin_status' => PluginPageView::STATUS ];
 		Services::Request()->query = $_GET;
 
 		$hook = $network ? 'network_admin_plugin_action_links' : 'plugin_action_links';
 		$shown = [];
-		// Every row is offered a link, whatever WordPress would give this user for it.
 		$offer = static fn( $actions ) => \array_merge( \is_array( $actions ) ? $actions : [], [ 'shi-offered' => 'link' ] );
 		$record = static function ( $actions, $file ) use ( &$shown ) {
 			$shown[ $file ] = $actions;
@@ -1036,9 +1094,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 			remove_filter( $hook, $offer, 1 );
 			remove_filter( $hook, $record, PHP_INT_MAX );
 		}
-
-		$this->assertSame( [], $shown[ $mustUse ] ?? null );
-		$this->assertArrayHasKey( 'shi-offered', $shown[ $standard ] ?? [] );
+		return $shown;
 	}
 
 	public function testPluginsActionRequestDoesNotTurnAnActionOnlyFilterIntoAnAlert() :void {

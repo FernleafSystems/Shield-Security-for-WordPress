@@ -12,6 +12,13 @@ class PluginPageView {
 	public const STATUS = 'cloaked';
 
 	/**
+	 * Whether the table being drawn shows the cloaked list. It's settled once, as the table's rows are chosen, and
+	 * the tab and every row go by it. WordPress isn't asked as each is drawn, because its answer can change part-way
+	 * down the table: to draw a row's update notice it works the list out again, from the request alone.
+	 */
+	private bool $showsCloakedList = false;
+
+	/**
 	 * A network's own Plugins page asks for its tabs and for a row's action links under names of its own, so each is
 	 * answered under both names. The plugin lists and a row's details go by one name on either page.
 	 */
@@ -21,9 +28,9 @@ class PluginPageView {
 			add_filter( $hook, [ $this, 'addStatusViewLink' ], 1000 );
 		}
 		foreach ( [ 'plugin_action_links', 'network_admin_plugin_action_links' ] as $hook ) {
-			add_filter( $hook, [ $this, 'filterActionLinks' ], 1000, 4 );
+			add_filter( $hook, [ $this, 'filterActionLinks' ], 1000, 2 );
 		}
-		add_filter( 'plugin_row_meta', [ $this, 'addRowMeta' ], 1000, 4 );
+		add_filter( 'plugin_row_meta', [ $this, 'addRowMeta' ], 1000, 2 );
 	}
 
 	public function addStatusViewLink( $views ) {
@@ -36,11 +43,10 @@ class PluginPageView {
 			return $views;
 		}
 
-		global $status;
 		$views[ self::STATUS ] = \sprintf(
 			"<a href='%s' %s>%s</a>",
 			self::con()->plugin_urls->cloakedPlugins(),
-			$status === self::STATUS ? ' class="current"' : '',
+			$this->showsCloakedList ? ' class="current"' : '',
 			\sprintf(
 				'%s <span class="count">(%s)</span>',
 				__( 'Cloaked', 'wp-simple-firewall' ),
@@ -55,11 +61,11 @@ class PluginPageView {
 	 *
 	 * WordPress settles which list to show from the request before this runs, and up to 6.9 it takes only the
 	 * lists it knows of, so a request for this one is left showing every plugin. This is the last point before
-	 * the table's rows are chosen, so the list is chosen here, and it's the only place that reads the request:
-	 * everything drawn afterwards is told by WordPress which list it's in. The request is the page's own, or the
-	 * one the page's search box sends in the background, which posts the list it's on. A search is left as
-	 * WordPress has it, as on any other tab. With nothing cloaked there is no list to show, and WordPress shows
-	 * every plugin, as it does when asked for any list that's empty.
+	 * the table's rows are chosen, so the list is chosen here, and it's the only place that reads the request.
+	 * The request is the page's own, or the one the page's search box sends in the background, which posts the
+	 * list it's on. A search is left as WordPress has it, as on any other tab. With nothing cloaked there is no
+	 * list to show, and WordPress shows every plugin, as it does when asked for any list that's empty. What the
+	 * table shows is then taken from WordPress, which from 7.0 may already have chosen this list by itself.
 	 */
 	public function addCloakedList( $plugins ) {
 		if ( !\is_array( $plugins ) ) {
@@ -68,21 +74,18 @@ class PluginPageView {
 
 		$plugins[ self::STATUS ] = $this->buildRowsByFile( $plugins );
 
+		$isListed = !empty( $plugins[ self::STATUS ] );
+
 		global $status;
-		if ( $status !== 'search' && !empty( $plugins[ self::STATUS ] )
-			 && Services::Request()->request( 'plugin_status' ) === self::STATUS ) {
+		if ( $isListed && $status !== 'search' && Services::Request()->request( 'plugin_status' ) === self::STATUS ) {
 			$status = self::STATUS;
 		}
+		$this->showsCloakedList = $isListed && $status === self::STATUS;
 		return $plugins;
 	}
 
-	/**
-	 * @param string $context the list the row is in, as WordPress gives it
-	 */
-	public function filterActionLinks( $actions, string $pluginFile = '', $pluginData = [], string $context = '' ) {
-		unset( $pluginData );
-
-		if ( $context !== self::STATUS || !\is_array( $actions ) ) {
+	public function filterActionLinks( $actions, string $pluginFile = '' ) {
+		if ( !$this->showsCloakedList || !\is_array( $actions ) ) {
 			return $actions;
 		}
 
@@ -92,13 +95,8 @@ class PluginPageView {
 			: $actions;
 	}
 
-	/**
-	 * @param string $status the list the row is in, as WordPress gives it
-	 */
-	public function addRowMeta( $pluginMeta, string $pluginFile = '', $pluginData = [], string $status = '' ) {
-		unset( $pluginData );
-
-		if ( $status !== self::STATUS || !\is_array( $pluginMeta ) ) {
+	public function addRowMeta( $pluginMeta, string $pluginFile = '' ) {
+		if ( !$this->showsCloakedList || !\is_array( $pluginMeta ) ) {
 			return $pluginMeta;
 		}
 

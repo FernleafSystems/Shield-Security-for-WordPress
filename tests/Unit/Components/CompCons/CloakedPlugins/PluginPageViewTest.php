@@ -58,14 +58,24 @@ class PluginPageViewTest extends BaseUnitTest {
 
 	public function test_status_link_is_added_only_for_active_findings() :void {
 		$this->activeFindings = [ $this->standardFinding( 'cloaked/cloaked.php', 'Cloaked Plugin' ) ];
-		$GLOBALS[ 'status' ] = PluginPageView::STATUS;
 
-		$views = ( new PluginPageView() )->addStatusViewLink( [ 'all' => '<a>All</a>' ] );
+		$views = $this->viewShowingTheCloakedList()->addStatusViewLink( [ 'all' => '<a>All</a>' ] );
 
 		$this->assertArrayHasKey( PluginPageView::STATUS, $views );
 		$this->assertStringContainsString( '/wp-admin/plugins.php?plugin_status=cloaked', $views[ PluginPageView::STATUS ] );
 		$this->assertStringContainsString( 'class="current"', $views[ PluginPageView::STATUS ] );
 		$this->assertStringContainsString( '(1)', $views[ PluginPageView::STATUS ] );
+	}
+
+	public function test_status_link_is_not_marked_current_on_another_list() :void {
+		$this->activeFindings = [ $this->standardFinding( 'cloaked/cloaked.php', 'Cloaked Plugin' ) ];
+		$view = new PluginPageView();
+		$view->addCloakedList( [ 'all' => [] ] );
+
+		$views = $view->addStatusViewLink( [ 'all' => '<a>All</a>' ] );
+
+		$this->assertArrayHasKey( PluginPageView::STATUS, $views );
+		$this->assertStringNotContainsString( 'class="current"', $views[ PluginPageView::STATUS ] );
 	}
 
 	public function test_status_link_is_not_added_without_active_findings() :void {
@@ -115,13 +125,74 @@ class PluginPageViewTest extends BaseUnitTest {
 		$this->activeFindings = [ $finding ];
 		$meta = [ 'version' => 'Version 1.0' ];
 
-		// WordPress tells each row which list it's in.
-		$this->assertSame( $meta, ( new PluginPageView() )->addRowMeta( $meta, $finding->entry->file, [], 'all' ) );
+		$onAnotherList = new PluginPageView();
+		$onAnotherList->addCloakedList( [ 'all' => [] ] );
+		$this->assertSame( $meta, $onAnotherList->addRowMeta( $meta, $finding->entry->file ) );
 
-		$result = ( new PluginPageView() )->addRowMeta( $meta, $finding->entry->file, [], PluginPageView::STATUS );
+		$result = $this->viewShowingTheCloakedList()->addRowMeta( $meta, $finding->entry->file );
 
 		$this->assertStringContainsString( '<code>wp-content/plugins/cloaked/cloaked.php</code>', $result[ 'shield-cloaked-path' ] );
 		$this->assertNotSame( '', $result[ 'shield-cloaked-reason' ] );
+	}
+
+	/**
+	 * To draw a row's update notice, WordPress works out the table's list again from the request alone, which up to
+	 * 6.9 puts it back on "all" for the rows that follow. Those rows are still rows of the cloaked list.
+	 */
+	public function test_rows_stay_rows_of_the_cloaked_list_when_wordpress_changes_its_list_part_way_down_the_table() :void {
+		$standard = $this->standardFinding( 'cloaked/cloaked.php', 'Cloaked Plugin' );
+		$mustUse = $this->mustUseFinding( 'mu-loader.php', 'MU Loader' );
+		$this->activeFindings = [ $standard, $mustUse ];
+		$view = $this->viewShowingTheCloakedList();
+
+		$GLOBALS[ 'status' ] = 'all';
+
+		$this->assertArrayHasKey( 'shield-cloaked-path', $view->addRowMeta( [], $standard->entry->file ) );
+		$this->assertSame( [], $view->filterActionLinks( [ 'activate' => '<a>Activate</a>' ], $mustUse->entry->file ) );
+	}
+
+	/**
+	 * From WordPress 7.0 the list is chosen by WordPress itself, and it takes the request's spelling of it more
+	 * loosely than an exact match.
+	 */
+	public function test_a_table_wordpress_already_has_on_the_cloaked_list_is_showing_it() :void {
+		$mustUse = $this->mustUseFinding( 'mu-loader.php', 'MU Loader' );
+		$this->activeFindings = [ $mustUse ];
+		ServicesState::mergeItems( [
+			'service_request' => new UnitTestRequest( [
+				'plugin_status' => 'CLOAKED',
+			] ),
+		] );
+		$GLOBALS[ 'status' ] = PluginPageView::STATUS;
+		$view = new PluginPageView();
+		$view->addCloakedList( [ 'all' => [] ] );
+
+		$this->assertArrayHasKey( 'shield-cloaked-path', $view->addRowMeta( [], $mustUse->entry->file ) );
+		$this->assertSame( [], $view->filterActionLinks( [ 'activate' => '<a>Activate</a>' ], $mustUse->entry->file ) );
+	}
+
+	/**
+	 * The same redrawing, from WordPress 7.0, sets WordPress's note of the page's list to the one a search was
+	 * started from. The table's rows are still search results.
+	 */
+	public function test_rows_stay_search_results_when_wordpress_changes_its_list_part_way_down_the_table() :void {
+		$mustUse = $this->mustUseFinding( 'mu-loader.php', 'MU Loader' );
+		$this->activeFindings = [ $mustUse ];
+		ServicesState::mergeItems( [
+			'service_request' => new UnitTestRequest( [
+				'plugin_status' => PluginPageView::STATUS,
+				's'             => 'something',
+			] ),
+		] );
+		$GLOBALS[ 'status' ] = 'search';
+		$view = new PluginPageView();
+		$view->addCloakedList( [ 'all' => [], 'search' => [] ] );
+		$actions = [ 'activate' => '<a>Activate</a>' ];
+
+		$GLOBALS[ 'status' ] = PluginPageView::STATUS;
+
+		$this->assertSame( [], $view->addRowMeta( [], $mustUse->entry->file ) );
+		$this->assertSame( $actions, $view->filterActionLinks( $actions, $mustUse->entry->file ) );
 	}
 
 	/**
@@ -209,8 +280,25 @@ class PluginPageViewTest extends BaseUnitTest {
 		$this->activeFindings = [ $mustUse ];
 		$actions = [ 'deactivate' => '<a>Deactivate</a>' ];
 
-		$this->assertSame( $actions, ( new PluginPageView() )->filterActionLinks( $actions, $mustUse->entry->file, [], 'all' ) );
-		$this->assertSame( [], ( new PluginPageView() )->filterActionLinks( $actions, $mustUse->entry->file, [], PluginPageView::STATUS ) );
+		$onAnotherList = new PluginPageView();
+		$onAnotherList->addCloakedList( [ 'all' => [] ] );
+		$this->assertSame( $actions, $onAnotherList->filterActionLinks( $actions, $mustUse->entry->file ) );
+		$this->assertSame( [], $this->viewShowingTheCloakedList()->filterActionLinks( $actions, $mustUse->entry->file ) );
+	}
+
+	/**
+	 * The page view as it stands once WordPress has chosen the rows of a table that was asked for the cloaked list.
+	 */
+	private function viewShowingTheCloakedList() :PluginPageView {
+		ServicesState::mergeItems( [
+			'service_request' => new UnitTestRequest( [
+				'plugin_status' => PluginPageView::STATUS,
+			] ),
+		] );
+		$GLOBALS[ 'status' ] = 'all';
+		$view = new PluginPageView();
+		$view->addCloakedList( [ 'all' => [] ] );
+		return $view;
 	}
 
 	private function standardFinding( string $file, string $name ) :CloakedPluginFinding {
