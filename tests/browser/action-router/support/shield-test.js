@@ -553,6 +553,19 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 					}
 				}
 			},
+			async withSetupGuideDismissedFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'setup-guide-dismissed', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'setup-guide-dismissed', 'cleanup' );
+					}
+				}
+			},
 		},
 	};
 }

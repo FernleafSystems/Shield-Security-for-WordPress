@@ -171,7 +171,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 	public function test_ip_detect_component_is_localized_for_user_with_base_permission() :void {
 		$this->installEnvironment();
 
-		$ipDetect = $this->getLocalisedIpDetectComponent()[ 'ip_detect' ] ?? null;
+		$ipDetect = $this->getLocalisedComponents( 'wpadmin', 'ip_detect' )[ 'ip_detect' ] ?? null;
 
 		$this->assertIsArray( $ipDetect );
 		$this->assertArrayHasKey( 'flags', $ipDetect );
@@ -181,7 +181,26 @@ class AssetsCustomizerTest extends BaseUnitTest {
 	public function test_ip_detect_component_is_not_localized_for_user_without_base_permission() :void {
 		$this->installEnvironment( [], [], false, false );
 
-		$this->assertArrayNotHasKey( 'ip_detect', $this->getLocalisedIpDetectComponent() );
+		$this->assertArrayNotHasKey( 'ip_detect', $this->getLocalisedComponents( 'wpadmin', 'ip_detect' ) );
+	}
+
+	public function test_email_delivery_verified_dialog_is_localized_when_its_link_verified_this_request() :void {
+		$this->installEnvironment( [], [], false, true, true );
+
+		$dialog = $this->getLocalisedComponents( 'main', 'email_delivery_verified' )[ 'email_delivery_verified' ] ?? null;
+
+		$this->assertIsArray( $dialog );
+		$this->assertSame( [ 'title', 'message', 'icon_class', 'strings' ], \array_keys( $dialog ) );
+		$this->assertSame( [ 'ok' ], \array_keys( $dialog[ 'strings' ] ) );
+	}
+
+	public function test_email_delivery_verified_dialog_is_not_localized_without_a_verifying_link() :void {
+		$this->installEnvironment();
+
+		$this->assertArrayNotHasKey(
+			'email_delivery_verified',
+			$this->getLocalisedComponents( 'main', 'email_delivery_verified' )
+		);
 	}
 
 	/**
@@ -335,7 +354,8 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		array $query = [],
 		array $completedTours = [],
 		bool $hasRunningScans = false,
-		bool $meetsBasePermissions = true
+		bool $meetsBasePermissions = true,
+		bool $emailDeliveryVerifiedByLink = false
 	) :void {
 		$query = \array_merge( [
 			'page'                  => 'icwp-wpsf-plugin',
@@ -364,7 +384,8 @@ class AssetsCustomizerTest extends BaseUnitTest {
 				new AssetsCustomizerUserMetasStub( (object)[ 'tours' => $completedTours ] ),
 				self::VALID_VIDEO_URL,
 				$hasRunningScans,
-				$meetsBasePermissions
+				$meetsBasePermissions,
+				$emailDeliveryVerifiedByLink
 			)
 		);
 
@@ -390,15 +411,18 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		return [];
 	}
 
-	private function getLocalisedIpDetectComponent() :array {
+	/**
+	 * The handle's localised components, narrowed to one component so that no other component's data is built.
+	 */
+	private function getLocalisedComponents( string $handle, string $key ) :array {
 		Functions\when( 'apply_filters' )->alias(
-			static function ( string $hook, $value, ...$args ) {
+			static function ( string $hook, $value, ...$args ) use ( $key ) {
 				return $hook === 'shield/custom_localisations/components' && \is_array( $value )
-					? \array_intersect_key( $value, [ 'ip_detect' => true ] )
+					? \array_intersect_key( $value, [ $key => true ] )
 					: $value;
 			}
 		);
-		return $this->getLocalisedCompsForHandle( 'wpadmin' );
+		return $this->getLocalisedCompsForHandle( $handle );
 	}
 
 	private function getComponentDefinition( string $key ) :array {
@@ -512,12 +536,16 @@ class AssetsCustomizerControllerStub extends Controller {
 		object $userMetas,
 		string $dashboardVideoURL,
 		bool $hasRunningScans = false,
-		bool $meetsBasePermissions = true
+		bool $meetsBasePermissions = true,
+		bool $emailDeliveryVerifiedByLink = false
 	) {
 		$this->pluginAdminPage = $pluginAdminPage;
 		$this->pluginAdmin = $pluginAdmin;
 		$this->meetsBasePermissions = $meetsBasePermissions;
 		$this->user_metas = $userMetas;
+		$this->this_req = (object)[
+			'email_delivery_verified_by_link' => $emailDeliveryVerifiedByLink,
+		];
 		$this->cfg = (object)[
 			'configuration' => new AssetsCustomizerConfigStub( [
 				'dashboard_intro_video_url_v22' => $dashboardVideoURL,

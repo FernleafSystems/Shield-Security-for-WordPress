@@ -36,6 +36,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionV
  * @property bool            $is_site_lockdown_blocked
  * ** Dynamic **
  * @property bool            $is_trusted_request
+ * @property ?bool           $email_delivery_verified_by_link - set when this request's emailed link verified delivery
  */
 class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisRequest {
 

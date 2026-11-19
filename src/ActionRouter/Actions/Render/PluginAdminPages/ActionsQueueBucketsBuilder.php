@@ -210,18 +210,13 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		foreach ( $this->groupDefinitions()->criticalScanGroupKeys() as $groupKey ) {
-			// Unlocked critical files are worth reviewing next, not fixing now; changes to locked files come first.
-			if ( $groupKey === 'file_locker' && !$this->hasAttentionForGroup( $sources[ 'critical' ], $groupKey ) ) {
-				$reviewState = $this->scanAvailability()->fileLockerReviewState();
-				if ( $reviewState !== null ) {
-					$sources[ 'review' ][ 'disabled_item_count' ]++;
-					$sources[ 'review' ][ 'disabled_groups' ][ $groupKey ] = $reviewState;
-					continue;
-				}
-			}
-
 			$availability = $this->scanAvailability()->build( $groupKey );
 			if ( empty( $availability[ 'show_in_fix_now' ] ) || !empty( $availability[ 'is_available' ] ) ) {
+				continue;
+			}
+			// File Locker is switched on by locking files, which Review next asks for, so it's never listed as
+			// switched off; only as an upgrade.
+			if ( $groupKey === 'file_locker' && $availability[ 'disabled_reason' ] === 'not_enabled' ) {
 				continue;
 			}
 
@@ -233,18 +228,6 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		return $sources;
-	}
-
-	/**
-	 * @param BucketSource $bucketSource
-	 */
-	private function hasAttentionForGroup( array $bucketSource, string $groupKey ) :bool {
-		foreach ( $bucketSource[ 'attention_items' ] as $item ) {
-			if ( $this->groupDefinitions()->groupKeyForSummaryKey( $item[ 'key' ] ) === $groupKey ) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private function bucketKeyForStatus( string $status ) :string {
@@ -271,7 +254,7 @@ class ActionsQueueBucketsBuilder {
 	 * @param BucketSource $bucketSource
 	 */
 	private function buildSummaryText( array $bucketSource ) :string {
-		$summaryParts = $this->buildAttentionSummaryParts( $bucketSource[ 'attention_items' ] );
+		$summaryParts = $this->buildSummaryParts( $bucketSource );
 
 		if ( empty( $summaryParts ) ) {
 			if ( $bucketSource[ 'healthy_item_count' ] > 0 ) {
@@ -287,15 +270,18 @@ class ActionsQueueBucketsBuilder {
 	}
 
 	/**
-	 * @param list<AttentionItem> $items
+	 * @param BucketSource $bucketSource
 	 * @return list<string>
 	 */
-	private function buildAttentionSummaryParts( array $items ) :array {
-		$counts = \array_fill_keys( \array_keys( $this->getGroupDefinitions() ), 0 );
+	private function buildSummaryParts( array $bucketSource ) :array {
+		// Files left unlocked aren't changes to look at, so they're named apart from File Locker's changes.
+		$counts = \array_fill_keys( \array_merge( \array_keys( $this->getGroupDefinitions() ), [ 'file_locker_unlocked' ] ), 0 );
 
-		foreach ( $items as $item ) {
-			$groupKey = $this->groupDefinitions()->groupKeyForSummaryKey( $item[ 'key' ] );
-			$counts[ $groupKey ] += $item[ 'count' ];
+		foreach ( $bucketSource[ 'attention_items' ] as $item ) {
+			$countKey = $item[ 'key' ] === 'file_locker_unlocked'
+				? $item[ 'key' ]
+				: $this->groupDefinitions()->groupKeyForSummaryKey( $item[ 'key' ] );
+			$counts[ $countKey ] += $item[ 'count' ];
 		}
 
 		return $this->buildOrderedSummaryParts( $counts, false );
@@ -366,6 +352,12 @@ class ActionsQueueBucketsBuilder {
 			case 'file_locker':
 				return \sprintf(
 					_n( '%s file change', '%s file changes', $count, 'wp-simple-firewall' ),
+					$count
+				);
+
+			case 'file_locker_unlocked':
+				return \sprintf(
+					_n( '%s critical file not locked', '%s critical files not locked', $count, 'wp-simple-firewall' ),
 					$count
 				);
 

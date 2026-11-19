@@ -339,37 +339,72 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertCount( 2, $classified[ 'review' ][ 'attention_items' ] );
 	}
 
-	public function test_classify_puts_unlocked_file_locker_in_review_rather_than_fix_now() :void {
-		$builder = $this->newBuilder( [], [
-			'is_available'          => true,
-			'show_in_actions_queue' => true,
-			'show_in_fix_now'       => true,
-			'disabled_reason'       => 'not_enabled',
-			'disabled_message'      => 'file-locker-review-sentinel',
-			'disabled_status'       => '',
-			'disabled_actions'      => [],
-		] );
+	public function test_classify_lists_file_locker_as_switched_off_only_when_an_upgrade_is_needed() :void {
+		$switchedOff = $this->newBuilder( [
+			'file_locker' => [ 'is_available' => false, 'disabled_reason' => 'not_enabled' ],
+		] )->classify( [ 'items' => [ $this->unlockedFilesItem( 2 ) ] ] );
+		$upgrade = $this->newBuilder( [
+			'file_locker' => [ 'is_available' => false, 'disabled_reason' => 'upgrade_required' ],
+		] )->classify( [ 'items' => [] ] );
 
-		$classified = $builder->classify( [ 'items' => [] ] );
-
-		$this->assertArrayNotHasKey( 'file_locker', $classified[ 'critical' ][ 'disabled_groups' ] );
-		$this->assertSame( 'file-locker-review-sentinel', $classified[ 'review' ][ 'disabled_groups' ][ 'file_locker' ][ 'disabled_message' ] ?? '' );
-		$this->assertSame( 1, $classified[ 'review' ][ 'disabled_item_count' ] );
+		$this->assertArrayNotHasKey( 'file_locker', $switchedOff[ 'critical' ][ 'disabled_groups' ] );
+		$this->assertSame( 0, $switchedOff[ 'critical' ][ 'disabled_item_count' ] );
+		$this->assertSame( 2, $switchedOff[ 'review' ][ 'item_count' ] );
+		$this->assertArrayHasKey( 'file_locker', $upgrade[ 'critical' ][ 'disabled_groups' ] );
 	}
 
-	private function newBuilder( array $availability = [], ?array $fileLockerReviewState = null ) :ActionsQueueBucketsBuilder {
+	public function test_review_lane_needs_attention_while_critical_files_are_unlocked_beside_healthy_rows() :void {
+		$healthyReviewRow = [
+			'key'               => 'system_php_version',
+			'label'             => 'PHP Version',
+			'description'       => 'Healthy.',
+			'drill_bucket'      => 'review',
+			'item_icon_class'   => 'bi bi-code-slash',
+			'status'            => 'good',
+			'status_label'      => 'Good',
+			'status_icon_class' => 'bi bi-check-circle-fill',
+		];
+		$assessmentRows = [ 'scans' => [], 'maintenance' => [ $healthyReviewRow ] ];
+
+		$withoutUnlocked = $this->reviewBucket( $this->newBuilder()->build( [ 'items' => [] ], $assessmentRows ) );
+		$withUnlocked = $this->reviewBucket(
+			$this->newBuilder()->build( [ 'items' => [ $this->unlockedFilesItem( 3 ) ] ], $assessmentRows )
+		);
+
+		$this->assertSame( 'good', $withoutUnlocked[ 'status' ] );
+		$this->assertSame( 0, $withoutUnlocked[ 'display_count' ] );
+
+		// The lane counts the files left unlocked, as the site's attention count does.
+		$this->assertSame( 'warning', $withUnlocked[ 'status' ] );
+		$this->assertSame( 3, $withUnlocked[ 'display_count' ] );
+		$this->assertNotSame( $withoutUnlocked[ 'summary_text' ], $withUnlocked[ 'summary_text' ] );
+	}
+
+	private function reviewBucket( array $buckets ) :array {
+		foreach ( $buckets as $bucket ) {
+			if ( $bucket[ 'key' ] === 'review' ) {
+				return $bucket;
+			}
+		}
+		$this->fail( 'The review bucket is missing.' );
+	}
+
+	private function unlockedFilesItem( int $count ) :array {
+		return [
+			'key'      => 'file_locker_unlocked',
+			'label'    => 'File Locker',
+			'count'    => $count,
+			'severity' => 'warning',
+		];
+	}
+
+	private function newBuilder( array $availability = [] ) :ActionsQueueBucketsBuilder {
 		return new ActionsQueueBucketsBuilder(
-			new class( $availability, $fileLockerReviewState ) extends ScansResultsRailTabAvailability {
+			new class( $availability ) extends ScansResultsRailTabAvailability {
 				private array $availability;
-				private ?array $fileLockerReviewState;
 
-				public function __construct( array $availability, ?array $fileLockerReviewState ) {
+				public function __construct( array $availability ) {
 					$this->availability = $availability;
-					$this->fileLockerReviewState = $fileLockerReviewState;
-				}
-
-				public function fileLockerReviewState() :?array {
-					return $this->fileLockerReviewState;
 				}
 
 				public function build( string $tabKey ) :array {

@@ -10,6 +10,7 @@ import { ConfigImport } from "../components/options/ConfigImport";
 import { DashboardLiveMonitor } from "../components/general/DashboardLiveMonitor";
 import { DivPrinter } from "../components/general/DivPrinter";
 import { DynamicActionButtons } from "../components/general/DynamicActionButtons";
+import { EmailDeliveryVerifiedDialog } from "../components/general/EmailDeliveryVerifiedDialog";
 import { EmailDeliveryVerifyDialog } from "../components/general/EmailDeliveryVerifyDialog";
 import { FileLocker } from "../components/scans/FileLocker";
 import { HelpscoutBeacon } from "../components/general/HelpscoutBeacon";
@@ -90,6 +91,7 @@ export class AppMain extends AppBase {
 		this.components.pro_upsell = new ProUpsell();
 		this.components.div_printer = new DivPrinter();
 		this.components.dynamic_buttons = new DynamicActionButtons();
+		this.components.email_delivery_verified = ( 'email_delivery_verified' in comps ) ? new EmailDeliveryVerifiedDialog( comps.email_delivery_verified ) : null;
 		this.components.email_delivery_verify = ( 'email_delivery_verify' in comps ) ? new EmailDeliveryVerifyDialog( comps.email_delivery_verify ) : null;
 		this.components.file_locker = ( 'file_locker' in comps ) ? new FileLocker( comps.file_locker ) : null;
 		this.components.helpscout = ( 'helpscout' in comps ) ? new HelpscoutBeacon( comps.helpscout ) : null;

@@ -128,6 +128,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$scanTool = $this->findItemBySlug( $sidebar[ 'tool_items' ], PluginNavs::NAV_SCANS.'-'.PluginNavs::SUBNAV_SCANS_RUN );
 		$this->assertIsArray( $scanTool );
 		$this->assertTrue( $scanTool[ 'active' ] );
+		$this->assertContains( 'active', $scanTool[ 'classes' ] );
 	}
 
 	public function test_dashboard_is_active_only_on_overview_route() :void {
@@ -140,6 +141,9 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$links = $this->createBuilder()->build()[ 'navigation_links' ];
 		$this->assertTrue( $links[ 0 ][ 'active' ] );
 		$this->assertSame( 'dashboard', $links[ 0 ][ 'id' ] );
+		// The sidebar renders an item's classes as given, so its active state must be among them.
+		$this->assertContains( 'active', $links[ 0 ][ 'classes' ] );
+		$this->assertNotContains( 'active', $links[ 1 ][ 'classes' ] );
 	}
 
 	public function test_investigate_mode_shows_peer_tools_without_reintroducing_parent_activity_item() :void {

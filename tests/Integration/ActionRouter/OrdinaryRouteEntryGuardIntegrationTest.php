@@ -152,6 +152,21 @@ class OrdinaryRouteEntryGuardIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThan( 0, (int)$this->requireController()->opts->optGet( 'email_can_send_verified_at' ) );
 	}
 
+	public function test_email_verification_link_opened_by_a_non_administrator_leaves_it_for_an_administrator() :void {
+		$this->loginAsAdministrator();
+		$link = $this->sendVerificationEmailAndExtractLinkQuery();
+
+		\wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+		$this->applyOrdinaryRequest( $link );
+		( new OrdinaryRouteCaptureTestDouble() )->runForTest();
+		$this->assertSame( 0, (int)$this->requireController()->opts->optGet( 'email_can_send_verified_at' ) );
+
+		$this->loginAsAdministrator();
+		$this->applyOrdinaryRequest( $link );
+		( new OrdinaryRouteCaptureTestDouble() )->runForTest();
+		$this->assertGreaterThan( 0, (int)$this->requireController()->opts->optGet( 'email_can_send_verified_at' ) );
+	}
+
 	public function test_email_verification_link_without_its_token_does_not_verify() :void {
 		$this->loginAsAdministrator();
 		$link = $this->sendVerificationEmailAndExtractLinkQuery();

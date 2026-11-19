@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
 	EmailDeliveryVerification,
 	EmailDeliveryVerificationDialog,
+	EmailDeliveryVerifiedDialog,
 	Exceptions\CouldNotValidate2FA,
 	Exceptions\OtpVerificationFailedException,
 	LoginIntentRequestValidate,
@@ -154,6 +155,9 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)$payload[ 'success' ] );
 		$this->assertGreaterThan( 0, $this->requireController()->opts->optGet( 'email_can_send_verified_at' ) );
 		$this->assertSame( 0, $this->requireController()->opts->optGet( 'email_can_send_verification_sent_at' ) );
+		$this->assertTrue( ( new EmailDeliveryVerifiedDialog() )->isRequired() );
+		$this->assertFalse( ( new EmailDeliveryVerificationDialog() )->isRequired() );
+		$this->assertEmpty( $this->requireController()->user_metas->current()->flash_msg );
 		$this->resetMfaProviderCache();
 		$this->assertArrayHasKey(
 			Email::ProviderSlug(),
@@ -194,6 +198,34 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertFalse( (bool)$payload[ 'success' ] );
 		$this->assertSame( 0, $this->requireController()->opts->optGet( 'email_can_send_verified_at' ) );
+		$this->assertFalse( ( new EmailDeliveryVerifiedDialog() )->isRequired() );
+		$this->assertEmpty( $this->requireController()->user_metas->current()->flash_msg );
+	}
+
+	public function test_email_delivery_verify_link_opened_again_does_nothing() :void {
+		$this->loginAsSecurityAdmin();
+		$sentAt = \time() - 60;
+		RuntimeTestState::restoreOptions( [
+			'enable_email_authentication' => 'Y',
+			'email_can_send_verified_at'  => 0,
+			'email_can_send_verification_sent_at' => $sentAt,
+		], true );
+		$link = [
+			MfaCanEmailSendVerify::FIELD_TOKEN => ( new EmailDeliveryVerification() )->linkToken( $sentAt ),
+		];
+		$first = $this->requireController()->action_router->action( MfaCanEmailSendVerify::class, $link )->payload();
+		$this->assertTrue( (bool)$first[ 'success' ] );
+		$verifiedAt = $this->requireController()->opts->optGet( 'email_can_send_verified_at' );
+
+		// Reloading the page is a new request.
+		$this->applyCurrentRequestState( [ 'REQUEST_URI' => '/wp-admin/admin.php' ] );
+		$payload = $this->requireController()->action_router->action( MfaCanEmailSendVerify::class, $link )->payload();
+
+		$this->assertFalse( (bool)$payload[ 'success' ] );
+		$this->assertSame( EmailDeliveryVerification::STATUS_VERIFIED, ( new EmailDeliveryVerification() )->status() );
+		$this->assertSame( $verifiedAt, $this->requireController()->opts->optGet( 'email_can_send_verified_at' ) );
+		$this->assertFalse( ( new EmailDeliveryVerifiedDialog() )->isRequired() );
+		$this->assertEmpty( $this->requireController()->user_metas->current()->flash_msg );
 	}
 
 	public function test_email_confirm_delivery_action_turns_on_email_provider_without_the_link() :void {

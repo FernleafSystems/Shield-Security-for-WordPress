@@ -324,7 +324,22 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		];
 	}
 
-	private function newFileLockerStateBuilder( int $problemCount, int $pendingCount ) :ActionsQueueScanStateBuilder {
+	public function test_build_lists_critical_files_left_unlocked_for_review() :void {
+		$state = $this->newFileLockerStateBuilder( 0, 0, [ 'not_locked_count' => 3, 'message' => 'unlocked-sentinel' ] )->build();
+
+		$this->assertSame( [ 'file_locker', 'file_locker_unlocked' ], \array_column( $state[ 'rows' ], 'key' ) );
+		$this->assertSame( 3, $state[ 'rows' ][ 1 ][ 'count' ] );
+		$this->assertSame( 'warning', $state[ 'rows' ][ 1 ][ 'severity' ] );
+		$this->assertSame( 'unlocked-sentinel', $state[ 'rows' ][ 1 ][ 'text' ] );
+	}
+
+	public function test_build_leaves_unlocked_files_out_while_locked_files_have_changed() :void {
+		$state = $this->newFileLockerStateBuilder( 2, 0, [ 'not_locked_count' => 3, 'message' => 'unlocked-sentinel' ] )->build();
+
+		$this->assertSame( [ 'file_locker' ], \array_column( $state[ 'rows' ], 'key' ) );
+	}
+
+	private function newFileLockerStateBuilder( int $problemCount, int $pendingCount, ?array $unlocked = null ) :ActionsQueueScanStateBuilder {
 		$builder = new class( $problemCount, $pendingCount ) extends ActionsQueueScanStateBuilder {
 			private int $problemCount;
 			private int $pendingCount;
@@ -342,7 +357,9 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 				return $this->pendingCount;
 			}
 		};
-		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTabs( 'file_locker' ) );
+		$availability = $this->newAvailabilityForTabs( 'file_locker' );
+		$availability->unlocked = $unlocked;
+		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
 
 		return $builder;
 	}
@@ -352,11 +369,17 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 			/** @var list<string> */
 			private array $availableTabKeys;
 
+			public ?array $unlocked = null;
+
 			/**
 			 * @param list<string> $availableTabKeys
 			 */
 			public function __construct( array $availableTabKeys ) {
 				$this->availableTabKeys = $availableTabKeys;
+			}
+
+			public function fileLockerReviewState() :?array {
+				return $this->unlocked;
 			}
 
 			public function build( string $tabKey ) :array {

@@ -279,6 +279,27 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'actions_queue', (string)( $group[ 'render_action_data' ][ 'display_context' ] ?? '' ) );
 	}
 
+	public function test_file_locker_group_manages_locks_unless_locked_files_have_changed() :void {
+		$drillIcons = [];
+		foreach ( [ 'warning' => 3, 'good' => 0, 'critical' => 2 ] as $status => $count ) {
+			$groups = $this->newBuilder()->buildResolvedGroups( 'Queue', [
+				$this->groupSeed( [
+					'key'            => 'file_locker',
+					'definition_key' => 'file_locker',
+					'label'          => 'Critical File Locker',
+					'item_count'     => $count,
+					'status'         => $status,
+					'detail_shell'   => 'asset_cards',
+				] ),
+			] );
+			$drillIcons[ $status ] = $groups[ 'groups_indexed' ][ 'file_locker' ][ 'drill_icon' ];
+		}
+
+		$this->assertSame( 'bi bi-file-lock2', $drillIcons[ 'warning' ] );
+		$this->assertSame( 'bi bi-file-lock2', $drillIcons[ 'good' ] );
+		$this->assertSame( 'bi bi-search', $drillIcons[ 'critical' ] );
+	}
+
 	public function test_cloaked_seed_has_no_detail_render_contract() :void {
 		$groups = $this->newBuilder()->buildResolvedGroups( 'Fix now', [
 			$this->groupSeed( [

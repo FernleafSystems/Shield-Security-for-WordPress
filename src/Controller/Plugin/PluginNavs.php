@@ -508,7 +508,7 @@ class PluginNavs {
 				'slug'            => 'file_locker',
 				'label'           => __( 'File Locker', 'wp-simple-firewall' ),
 				'icon'            => 'file-lock2',
-				'summary_keys'    => [ 'file_locker' ],
+				'summary_keys'    => [ 'file_locker', 'file_locker_unlocked' ],
 			],
 		];
 	}
