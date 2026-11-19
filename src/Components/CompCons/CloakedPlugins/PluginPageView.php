@@ -11,10 +11,18 @@ class PluginPageView {
 
 	public const STATUS = 'cloaked';
 
+	/**
+	 * A network's own Plugins page asks for its tabs and for a row's action links under names of its own, so each is
+	 * answered under both names. The plugin lists and a row's details go by one name on either page.
+	 */
 	public function addHooks() :void {
 		add_filter( 'plugins_list', [ $this, 'addCloakedList' ], \PHP_INT_MAX );
-		add_filter( 'views_plugins', [ $this, 'addStatusViewLink' ], 1000 );
-		add_filter( 'plugin_action_links', [ $this, 'filterActionLinks' ], 1000, 4 );
+		foreach ( [ 'views_plugins', 'views_plugins-network' ] as $hook ) {
+			add_filter( $hook, [ $this, 'addStatusViewLink' ], 1000 );
+		}
+		foreach ( [ 'plugin_action_links', 'network_admin_plugin_action_links' ] as $hook ) {
+			add_filter( $hook, [ $this, 'filterActionLinks' ], 1000, 4 );
+		}
 		add_filter( 'plugin_row_meta', [ $this, 'addRowMeta' ], 1000, 4 );
 	}
 

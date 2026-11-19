@@ -965,6 +965,82 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [ $file ], \array_keys( $this->prepareRealPluginsTable() ) );
 	}
 
+	public static function pluginsPages() :array {
+		return [
+			'a site\'s Plugins page'    => [ false ],
+			'a network\'s Plugins page' => [ true ],
+		];
+	}
+
+	/**
+	 * WordPress makes a tab of its own for every list it's given, and has no name for the cloaked one, so the tab
+	 * that's shown is Shield's, which is put in its place. A network's Plugins page asks for its tabs under a name
+	 * of its own.
+	 * @dataProvider pluginsPages
+	 */
+	public function testCloakedTabIsTheOneShieldSupplies( bool $network ) :void {
+		$GLOBALS[ 'pagenow' ] = 'plugins.php';
+		$this->createStandardCloakedPlugin( 'shi-cloaked-tab-link', 'Cloaked tab link' );
+		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+
+		$hook = $network ? 'views_plugins-network' : 'views_plugins';
+		$tab = null;
+		$record = static function ( $views ) use ( &$tab ) {
+			$tab = $views[ PluginPageView::STATUS ] ?? null;
+			return $views;
+		};
+		add_filter( $hook, $record, PHP_INT_MAX );
+		try {
+			$this->drawRealPluginsTable( $network );
+		}
+		finally {
+			remove_filter( $hook, $record, PHP_INT_MAX );
+		}
+
+		// WordPress's own tab links to the page it's on; Shield's gives the Cloaked tab's whole address.
+		$this->assertIsString( $tab );
+		$this->assertStringContainsString( $this->requireController()->plugin_urls->cloakedPlugins(), $tab );
+	}
+
+	/**
+	 * WordPress works out a row's action links as it would for an ordinary plugin, which a must-use plugin can't
+	 * be activated or deleted as, so its row in the cloaked list offers none, while an ordinary plugin's row keeps
+	 * its own. A network's Plugins page asks for a row's links under a name of its own.
+	 * @dataProvider pluginsPages
+	 */
+	public function testCloakedMustUsePluginRowOffersNoActionLinks( bool $network ) :void {
+		$GLOBALS[ 'pagenow' ] = 'plugins.php';
+		$mustUse = $this->createMustUseCloakedPlugin( 'shi-cloaked-mu-row.php', 'Cloaked MU row' );
+		add_filter( 'show_advanced_plugins', [ $this, 'hideCloakedMustUsePlugins' ], 1000, 2 );
+		$standard = $this->createStandardCloakedPlugin( 'shi-cloaked-row', 'Cloaked row' );
+		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+		$this->prepareRealPluginsTable( $network );
+
+		$_GET = [ 'plugin_status' => PluginPageView::STATUS ];
+		Services::Request()->query = $_GET;
+
+		$hook = $network ? 'network_admin_plugin_action_links' : 'plugin_action_links';
+		$shown = [];
+		// Every row is offered a link, whatever WordPress would give this user for it.
+		$offer = static fn( $actions ) => \array_merge( \is_array( $actions ) ? $actions : [], [ 'shi-offered' => 'link' ] );
+		$record = static function ( $actions, $file ) use ( &$shown ) {
+			$shown[ $file ] = $actions;
+			return $actions;
+		};
+		add_filter( $hook, $offer, 1 );
+		add_filter( $hook, $record, PHP_INT_MAX, 2 );
+		try {
+			$this->drawRealPluginsTable( $network );
+		}
+		finally {
+			remove_filter( $hook, $offer, 1 );
+			remove_filter( $hook, $record, PHP_INT_MAX );
+		}
+
+		$this->assertSame( [], $shown[ $mustUse ] ?? null );
+		$this->assertArrayHasKey( 'shi-offered', $shown[ $standard ] ?? [] );
+	}
+
 	public function testPluginsActionRequestDoesNotTurnAnActionOnlyFilterIntoAnAlert() :void {
 		$GLOBALS[ 'pagenow' ] = 'plugins.php';
 		$_GET[ 'action' ] = 'activate';

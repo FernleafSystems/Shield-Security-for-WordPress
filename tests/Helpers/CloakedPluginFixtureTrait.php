@@ -78,6 +78,31 @@ trait CloakedPluginFixtureTrait {
 	 * @return array<string,mixed> the rows the table shows
 	 */
 	protected function prepareRealPluginsTable( bool $network = false ) :array {
+		return $this->withRealPluginsTable( $network, static fn( \WP_Plugins_List_Table $table ) :array => $table->items );
+	}
+
+	/**
+	 * Draws the real Plugins page's tabs and rows, as the page does once its table is prepared. What's printed is
+	 * thrown away: a test listens on the hooks WordPress fires as it draws.
+	 */
+	protected function drawRealPluginsTable( bool $network = false ) :void {
+		$this->withRealPluginsTable( $network, static function ( \WP_Plugins_List_Table $table ) :void {
+			\ob_start();
+			try {
+				$table->views();
+				$table->display_rows();
+			}
+			finally {
+				\ob_end_clean();
+			}
+		} );
+	}
+
+	/**
+	 * @param \Closure(\WP_Plugins_List_Table):mixed $use run while the table and the page's state are in place
+	 * @return mixed what $use gives back
+	 */
+	private function withRealPluginsTable( bool $network, \Closure $use ) {
 		$keys = [ 'current_screen', 'typenow', 'taxnow', 'status', 'plugins', 'totals', 'page', 'orderby', 'order', 's' ];
 		$globals = [];
 		foreach ( $keys as $key ) {
@@ -97,7 +122,7 @@ trait CloakedPluginFixtureTrait {
 			require_once ABSPATH.'wp-admin/includes/class-wp-plugins-list-table.php';
 			$table = new \WP_Plugins_List_Table( [ 'screen' => get_current_screen() ] );
 			$table->prepare_items();
-			return $table->items;
+			return $use( $table );
 		}
 		finally {
 			$_REQUEST = $request;
