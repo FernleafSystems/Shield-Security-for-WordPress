@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\Diff;
@@ -23,17 +22,8 @@ class ScansFileLockerDiff extends BaseScans {
 			$lock = $FLCon->getFileLock( $RID );
 			$isDifferent = $lock->detected_at > 0;
 
-			if ( !$FS->isAccessibleFile( $lock->path ) ) {
-				$originalFileMissing = true;
-				$current = '';
-			}
-			else {
-				$originalFileMissing = false;
-				$current = (string)$FS->getFileContent( $lock->path );
-				if ( empty( $current ) ) {
-					$currentContentEmpty = false;
-				}
-			}
+			$originalFileMissing = !$FS->isAccessibleFile( $lock->path );
+			$current = $originalFileMissing ? '' : (string)$FS->getFileContent( $lock->path );
 
 			$original = ( new FileLocker\Ops\ReadOriginalFileContent() )->run( $lock );
 			$diff = '';
@@ -51,12 +41,16 @@ class ScansFileLockerDiff extends BaseScans {
 			$data = [
 				'error'   => '',
 				'success' => false,
-				'ajax'    => $FLCon->createFileDownloadLinks( $lock ),
+				'ajax'    => [
+					'original' => $FLCon->createFileDownloadLink( $lock, 'original' ),
+					// Only a changed file is offered, and one that's gone or empty can't be downloaded: no link then.
+					'current'  => $isDifferent && !empty( $current ) ? $FLCon->createFileDownloadLink( $lock, 'current' ) : '',
+				],
 				'flags'   => [
 					'has_diff'              => $isDifferent,
 					'diff_available'        => $diffAvailable,
 					'original_file_missing' => $originalFileMissing,
-					'current_content_empty' => $currentContentEmpty ?? false,
+					'current_content_empty' => !$originalFileMissing && empty( $current ),
 				],
 				'html'    => [
 					'diff' => $diff,
@@ -67,19 +61,17 @@ class ScansFileLockerDiff extends BaseScans {
 				'strings' => [
 					'butt_restore'          => __( 'Restore File', 'wp-simple-firewall' ),
 					'butt_accept'           => __( 'Accept Changes', 'wp-simple-firewall' ),
-					'file_name'             => CommonDisplayStrings::get( 'name_label' ),
 					'file_size'             => __( 'File Size', 'wp-simple-firewall' ),
 					'file_details'          => __( 'File Details', 'wp-simple-firewall' ),
 					'modified_file'         => __( 'Modified File', 'wp-simple-firewall' ),
 					'locked'                => __( 'Locked', 'wp-simple-firewall' ),
 					'file_modified'         => __( 'File Modified', 'wp-simple-firewall' ),
 					'relative_path'         => __( 'Relative Path', 'wp-simple-firewall' ),
-					'modified'              => __( 'Modified', 'wp-simple-firewall' ),
-					'download'              => __( 'Download', 'wp-simple-firewall' ),
+					'download_original'     => __( 'Download Original File', 'wp-simple-firewall' ),
+					'download_current'      => __( 'Download Modified File', 'wp-simple-firewall' ),
 					'change_detected_at'    => __( 'Change Detected', 'wp-simple-firewall' ),
 					'file_content_original' => __( 'Original File Content', 'wp-simple-firewall' ),
 					'file_content_current'  => __( 'Current File Content', 'wp-simple-firewall' ),
-					'file_download'         => __( 'File Download', 'wp-simple-firewall' ),
 					'file_accept'           => __( 'Accept File Changes', 'wp-simple-firewall' ),
 					'file_accept_checkbox'  => __( 'Are you sure you want to keep the file changes?', 'wp-simple-firewall' ),
 					'file_restore'          => __( 'Restore Original File', 'wp-simple-firewall' ),
@@ -98,7 +90,6 @@ class ScansFileLockerDiff extends BaseScans {
 				$carb->setTimestamp( $FS->getModifiedTime( $lock->path ) )->diffForHumans();
 			$data[ 'vars' ][ 'change_detected_at' ] = $carb->setTimestamp( $lock->detected_at )->diffForHumans();
 			$data[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $lock->path ) ? FormatBytes::Format( $FS->getFileSize( $lock->path ), 3 ) : 0;
-			$data[ 'vars' ][ 'file_name' ] = \basename( $lock->path );
 
 			$data[ 'vars' ][ 'file_size_locked' ] = FormatBytes::Format( \strlen( $original ), 3 );
 

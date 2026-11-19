@@ -32,14 +32,24 @@ for ( const [ component, nav, navSub, rowKey ] of [
 	] ) {
 		test( `legacy configuration ${component} via ${route.nav} opens its settings panel`, async ( { page } ) => {
 			const errors = collectRuntimeErrors( page );
+			// Configure drops row_key from the address bar once it opens that panel, so read the page the
+			// redirect landed on rather than page.url().
+			let landedUrl = '';
+			page.on( 'response', ( response ) => {
+				const request = response.request();
+				if ( request.isNavigationRequest() && request.frame() === page.mainFrame() && response.status() < 300 ) {
+					landedUrl = response.url();
+				}
+			} );
 			await openShieldRoute( page, route );
 			await dismissBlockingDialogs( page );
-			const url = new URL( page.url() );
+			const url = new URL( landedUrl );
 			expect( url.searchParams.get( 'nav' ) ).toBe( nav );
 			expect( url.searchParams.get( 'nav_sub' ) ).toBe( navSub );
 			expect( url.searchParams.get( 'component' ) ).toBeNull();
 			expect( url.searchParams.get( 'row_key' ) ).toBe( rowKey );
-			await expect( page.locator( 'form.options_form_for--panel:visible' ).first() ).toBeVisible();
+			const panelScope = rowKey === null ? page : page.locator( `[data-configure-row-key="${rowKey}"]` );
+			await expect( panelScope.locator( 'form.options_form_for--panel:visible' ).first() ).toBeVisible();
 			await expect( page.locator( '.offcanvas.show' ) ).toHaveCount( 0 );
 			expectNoRuntimeErrors( errors );
 		} );

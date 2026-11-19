@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	PhpFileActivity,
 	PhpFileActivityClassifier,
 	PluginEntry,
-	PluginPageView,
+	PluginType,
 	PluginVisibilityComparator,
 	RawPluginInventory
 };
@@ -32,6 +32,11 @@ class CloakedPluginsCon {
 	private ?AdminPluginVisibility $visibility = null;
 
 	/**
+	 * @var array<string,list<string>>
+	 */
+	private array $pluginFilesBeingDeleted = [];
+
+	/**
 	 * @var CloakedPluginFindingState|null
 	 */
 	private ?array $currentState = null;
@@ -47,18 +52,53 @@ class CloakedPluginsCon {
 		add_filter( 'all_plugins', [ $this->visibility, 'observeAllPlugins' ], \PHP_INT_MAX );
 		add_filter( 'show_advanced_plugins', [ $this->visibility, 'observeAdvancedPlugins' ], \PHP_INT_MAX, 2 );
 		add_action( 'activated_plugin', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
+		add_action( 'delete_plugin', [ $this, 'notePluginBeingDeleted' ], \PHP_INT_MAX );
+		add_action( 'deleted_plugin', [ $this, 'forgetDeletedPluginIgnores' ], \PHP_INT_MAX - 1, 2 );
 		add_action( 'deleted_plugin', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
 		add_action( 'pre_uninstall_plugin', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
 		add_action( 'upgrader_process_complete', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
 		add_action( 'update_option_active_plugins', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 3 );
 		add_action( 'update_site_option_active_sitewide_plugins', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 4 );
 		add_filter( 'plugins_list', [ $this, 'observePluginsList' ], \PHP_INT_MAX );
-		( new PluginPageView() )->addHooks();
 	}
 
 	public function triggerDetection( ...$args ) :void {
 		unset( $args );
 		$this->detect();
+	}
+
+	/**
+	 * WordPress deletes a plugin's whole folder, so every plugin file in it goes, not only the one named. They're
+	 * noted now, while they're still there to be listed.
+	 * @param string $pluginFile
+	 */
+	public function notePluginBeingDeleted( $pluginFile ) :void {
+		if ( \is_string( $pluginFile ) && $pluginFile !== '' ) {
+			$this->pluginFilesBeingDeleted[ $pluginFile ] = $this->inventory()->standardPluginFilesDeletedWith( $pluginFile );
+		}
+	}
+
+	/**
+	 * @param string $pluginFile
+	 * @param bool   $deleted
+	 */
+	public function forgetDeletedPluginIgnores( $pluginFile, $deleted = false ) :void {
+		if ( !\is_string( $pluginFile ) || $pluginFile === '' ) {
+			return;
+		}
+		$files = $this->pluginFilesBeingDeleted[ $pluginFile ] ?? [ $pluginFile ];
+		unset( $this->pluginFilesBeingDeleted[ $pluginFile ] );
+
+		if ( $deleted === true ) {
+			( new CloakedPluginState() )->forgetIgnores( \array_map(
+				static fn( string $file ) :string => CloakedPluginFinding::IdentityFor( PluginType::Standard, $file ),
+				$files
+			) );
+		}
+	}
+
+	protected function inventory() :RawPluginInventory {
+		return new RawPluginInventory();
 	}
 
 	public function observePluginsList( $plugins ) {

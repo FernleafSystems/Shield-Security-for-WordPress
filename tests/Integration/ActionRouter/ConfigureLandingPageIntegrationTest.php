@@ -179,8 +179,8 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_search_render_matches_hyphenated_and_compact_dash_option_queries() :void {
 		$cases = [
 			[
-				'search'      => 'in-plugin',
-				'config_item' => 'enable_upgrade_admin_notice',
+				'search'      => 'non-essential',
+				'config_item' => 'dashboard_display',
 			],
 			[
 				'search'      => 'xml-rpc',

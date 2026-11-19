@@ -65,13 +65,20 @@ class ScansResultsRailTabAvailability {
 			return null;
 		}
 
+		// A warning says what's wrong: the files left unlocked, rather than the ones that are locked.
+		$notLocked = $lockable - $locked;
 		return \array_replace( $state, [
 			'disabled_reason'  => 'not_enabled',
 			'disabled_message' => $state[ 'is_available' ] && $locked > 0
 				? \sprintf(
-					/* translators: %1$s: files locked, %2$s: files that can be locked */
-					__( '%1$s of %2$s critical files are locked.', 'wp-simple-firewall' ),
-					$locked,
+					/* translators: %1$s: files not locked, %2$s: files that can be locked */
+					_n(
+						'%1$s of your %2$s critical files is not locked yet.',
+						'%1$s of your %2$s critical files are not locked yet.',
+						$notLocked,
+						'wp-simple-firewall'
+					),
+					$notLocked,
 					$lockable
 				)
 				: __( 'None of your critical files are locked yet.', 'wp-simple-firewall' ),

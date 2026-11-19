@@ -15,6 +15,7 @@ class AjaxRenderTargetPolicy {
 		Actions\Render\Components\Widgets\WpDashboardSummary::class,
 		Actions\Render\Components\Scans\ScansFileLockerDiff::class,
 		Actions\Render\Components\OffCanvas\IpAnalysis::class,
+		Actions\Render\Components\OffCanvas\CloakedPluginDetails::class,
 		Actions\Render\Components\OffCanvas\ImportExportSitesAuthoriseUrls::class,
 		Actions\Render\Components\OffCanvas\IpRuleAddForm::class,
 		Actions\Render\Components\Rules\RuleBuilder::class,
@@ -40,6 +41,7 @@ class AjaxRenderTargetPolicy {
 		Actions\Render\PluginAdminPages\TrafficLogLivePanelBody::class,
 		Actions\Render\Components\Scans\ItemAnalysis\Container::class,
 		Actions\Render\Components\Scans\ItemAnalysis\Diff::class,
+		Actions\Render\Components\SetupGuideBar::class,
 	];
 
 	public function isAllowed( string $classOrSlug ) :bool {

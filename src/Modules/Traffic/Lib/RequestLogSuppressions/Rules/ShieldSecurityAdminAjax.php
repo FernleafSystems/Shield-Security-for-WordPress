@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\CrowdsecResetEnrollment,
 	Actions\MainWP\ServerActions\BaseSiteMwpAction,
 	Actions\MainWP\ServerActions\MainwpServerClientActionHandler,
+	Actions\MfaEmailConfirmDelivery,
 	Actions\MfaEmailDisable,
 	Actions\MfaEmailSendVerification,
 	Actions\MfaUserConfigBase,
@@ -40,6 +41,7 @@ class ShieldSecurityAdminAjax extends BaseRule {
 	private const ALWAYS_LOGGABLE_ACTIONS = [
 		CrowdsecResetEnrollment::class,
 		MainwpServerClientActionHandler::class,
+		MfaEmailConfirmDelivery::class,
 		MfaEmailDisable::class,
 		MfaEmailSendVerification::class,
 		PluginAutoDbRepair::class,

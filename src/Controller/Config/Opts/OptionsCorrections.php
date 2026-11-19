@@ -34,6 +34,7 @@ class OptionsCorrections {
 		$this->backupCodesFreeOption();
 		$this->requestLogging();
 		$this->alerts();
+		$this->dashboardDisplay();
 		$this->pluginBadgeMode();
 		$this->reporting();
 		$this->silentCaptcha();
@@ -196,6 +197,7 @@ class OptionsCorrections {
 	private function plugin() :void {
 		$opts = self::con()->opts;
 
+		$this->dashboardDisplay();
 		$this->pluginBadgeMode();
 
 		$url = Services::Data()->validateSimpleHttpUrl( $opts->optGet( 'importexport_masterurl' ) );
@@ -354,6 +356,19 @@ class OptionsCorrections {
 		$opts->mod_opts_all = $all;
 		$opts->optSet( 'allow_backupcodes', $free[ 'allow_backupcodes' ] );
 		Services::WpGeneral()->updateOption( $con->prefix( 'opts_all', '_' ), $all );
+	}
+
+	/**
+	 * The legacy "In-Plugin Notices" switch only ever hid non-essential notices. Once carried over it's put back to its
+	 * default so this never runs twice.
+	 */
+	private function dashboardDisplay() :void {
+		$opts = self::con()->opts;
+
+		if ( $opts->optIs( 'enable_upgrade_admin_notice', 'N' ) ) {
+			$opts->optSet( 'dashboard_display', \array_values( \array_diff( $opts->optGet( 'dashboard_display' ), [ 'notices' ] ) ) )
+				 ->optSet( 'enable_upgrade_admin_notice', 'Y' );
+		}
 	}
 
 	private function pluginBadgeMode() :void {

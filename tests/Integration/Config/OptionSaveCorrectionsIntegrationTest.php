@@ -46,6 +46,8 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'block_send_email',
 		'allow_backupcodes',
 		'display_plugin_badge',
+		'dashboard_display',
+		'enable_upgrade_admin_notice',
 		'enable_logger',
 		'enable_live_log',
 		'live_log_started_at',
@@ -449,6 +451,54 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'N', $con->opts->optGet( 'block_send_email' ) );
 
 		$con->cfg->previous_version = $previousVersion;
+	}
+
+	public function test_legacy_hidden_plugin_notices_migrate_to_dashboard_display_during_store() :void {
+		$con = $this->requireController();
+		$this->replaceStoredOptionValues( [
+			'dashboard_display'           => [ 'notices', 'admin_bar', 'dashboard_widget' ],
+			'enable_upgrade_admin_notice' => 'N',
+		] );
+
+		$con->opts->store();
+
+		$this->assertSame( [ 'admin_bar', 'dashboard_widget' ], $con->opts->optGet( 'dashboard_display' ) );
+		$this->assertSame( 'Y', $con->opts->optGet( 'enable_upgrade_admin_notice' ) );
+		$this->assertFalse( $con->comps->opts_lookup->showsInDashboard( 'notices' ) );
+		$this->assertTrue( $con->comps->opts_lookup->showsInDashboard( 'admin_bar' ) );
+		$this->assertTrue( $con->comps->opts_lookup->showsInDashboard( 'dashboard_widget' ) );
+	}
+
+	public function test_legacy_hidden_plugin_notices_migrate_to_dashboard_display_during_upgrade_hook() :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+
+		$this->replaceStoredOptionValues( [
+			'dashboard_display'           => [ 'notices', 'admin_bar', 'dashboard_widget' ],
+			'enable_upgrade_admin_notice' => 'N',
+		] );
+
+		$con->cfg->previous_version = '0.0.1';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+
+		$this->assertSame( [ 'admin_bar', 'dashboard_widget' ], $con->opts->optGet( 'dashboard_display' ) );
+		$this->assertSame( 'Y', $con->opts->optGet( 'enable_upgrade_admin_notice' ) );
+
+		$con->cfg->previous_version = $previousVersion;
+	}
+
+	public function test_dashboard_display_choice_is_untouched_when_legacy_plugin_notices_were_shown() :void {
+		$con = $this->requireController();
+		$this->replaceStoredOptionValues( [
+			'dashboard_display'           => [ 'notices', 'dashboard_widget' ],
+			'enable_upgrade_admin_notice' => 'Y',
+		] );
+
+		$con->opts->store();
+
+		$this->assertSame( [ 'notices', 'dashboard_widget' ], $con->opts->optGet( 'dashboard_display' ) );
+		$this->assertSame( 'Y', $con->opts->optGet( 'enable_upgrade_admin_notice' ) );
 	}
 
 	public function test_legacy_backup_codes_pro_option_migrates_to_free_during_store() :void {

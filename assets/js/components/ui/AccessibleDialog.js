@@ -89,7 +89,7 @@ export class AccessibleDialog {
 		}, null );
 	}
 
-	/** Open caller-owned content within the same accessible dialog lifecycle. */
+	/** Open caller-owned content (and optional footer) within the same accessible dialog lifecycle. */
 	content( config ) {
 		if ( this.isOpen() ) {
 			return null;
@@ -366,8 +366,9 @@ export class AccessibleDialog {
 
 		const cancelButton = element.querySelector( `.${classPrefix}__cancel` );
 		this.setActionButton( cancelButton, ![ 'alert', 'processing', 'content' ].includes( config.type ), config.cancelLabel );
-		element.querySelector( `.${classPrefix}__actions` ).hidden = isProcessing;
-		if ( isContent ) {
+		// Content may hold its own buttons, so the footer is optional.
+		element.querySelector( `.${classPrefix}__actions` ).hidden = isProcessing || ( isContent && !config.footer );
+		if ( isContent && config.footer ) {
 			config.footer.dataset.dialogCustomFooter = '1';
 			element.querySelector( `.${classPrefix}__actions` ).append( config.footer );
 		}

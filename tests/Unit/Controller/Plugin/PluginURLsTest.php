@@ -146,7 +146,6 @@ class PluginURLsTest extends BaseUnitTest {
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=license&nav_sub=check', $urls->licenseCheck() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=build', $urls->rulesBuild() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=manage', $urls->rulesManage() );
-		$this->assertSame( '/wp-admin/plugins.php?plugin_status=cloaked', $urls->cloakedPlugins() );
 	}
 
 	public function test_import_export_options_link_to_current_import_export_tool() :void {

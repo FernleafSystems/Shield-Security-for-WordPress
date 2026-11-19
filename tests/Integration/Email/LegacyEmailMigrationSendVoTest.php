@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVerification;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	MfaCanEmailSendVerify,
+	MfaEmailSendVerification
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerAdminLogin;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\LicenseEmails;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\BackupCodes;
@@ -57,13 +60,12 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 		$payload = $con->action_router->action( MfaEmailSendVerification::class )->payload();
 
 		$mail = $this->lastMail();
-		$this->assertArrayHasKey( 'success', $payload );
-		$this->assertArrayHasKey( 'page_reload', $payload );
 		$this->assertTrue( (bool)$payload[ 'success' ] );
-		$this->assertTrue( (bool)$payload[ 'page_reload' ] );
-		$this->assertArrayHasKey( 'subject', $mail );
-		$this->assertStringContainsString( 'Email Sending Verification', (string)$mail[ 'subject' ] );
+		// The dialog stays open and shows the new send.
+		$this->assertFalse( $payload[ 'page_reload' ] );
+		$this->assertSame( 'sent', $payload[ 'delivery' ][ 'tone' ] );
 		$this->assertContains( 'mfa-report@example.com', $this->mailRecipients( $mail ) );
+		$this->assertStringContainsString( MfaCanEmailSendVerify::SLUG, (string)$mail[ 'message' ] );
 		$this->assertGreaterThan( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
 	}
 
@@ -77,10 +79,10 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 
 		$payload = $con->action_router->action( MfaEmailSendVerification::class )->payload();
 
-		$this->assertArrayHasKey( 'success', $payload );
-		$this->assertArrayHasKey( 'page_reload', $payload );
 		$this->assertFalse( (bool)$payload[ 'success' ] );
-		$this->assertFalse( (bool)$payload[ 'page_reload' ] );
+		// Nothing is left to verify, so the page reloads and the dialog goes.
+		$this->assertTrue( $payload[ 'page_reload' ] );
+		$this->assertArrayNotHasKey( 'delivery', $payload );
 		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
 		$this->assertCount( 0, $this->mails );
 	}
@@ -95,12 +97,9 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 
 		$payload = $con->action_router->action( MfaEmailSendVerification::class )->payload();
 
-		$this->assertArrayHasKey( 'success', $payload );
-		$this->assertArrayHasKey( 'page_reload', $payload );
-		$this->assertArrayHasKey( 'status', $payload );
 		$this->assertTrue( (bool)$payload[ 'success' ] );
-		$this->assertFalse( (bool)$payload[ 'page_reload' ] );
-		$this->assertSame( 'verified', $payload[ 'status' ] );
+		$this->assertTrue( $payload[ 'page_reload' ] );
+		$this->assertArrayNotHasKey( 'delivery', $payload );
 		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
 		$this->assertCount( 0, $this->mails );
 	}
@@ -122,11 +121,33 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 			\remove_filter( 'pre_wp_mail', $failMail, 20 );
 		}
 
-		$this->assertArrayHasKey( 'success', $payload );
-		$this->assertArrayHasKey( 'page_reload', $payload );
 		$this->assertFalse( (bool)$payload[ 'success' ] );
-		$this->assertFalse( (bool)$payload[ 'page_reload' ] );
+		$this->assertFalse( $payload[ 'page_reload' ] );
+		$this->assertSame( 'unsent', $payload[ 'delivery' ][ 'tone' ] );
 		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
+	}
+
+	public function testMfaEmailVerificationResendFailureShowsNotSentWhileEarlierLinkIsPending() :void {
+		$con = $this->requireController();
+		$this->loginAsSecurityAdmin();
+		$sentAt = \time() - 60;
+		$con->opts
+			->optSet( 'enable_email_authentication', 'Y' )
+			->optSet( 'email_can_send_verified_at', 0 )
+			->optSet( 'email_can_send_verification_sent_at', $sentAt );
+		$failMail = static fn() :bool => false;
+		\add_filter( 'pre_wp_mail', $failMail, 20 );
+
+		try {
+			$payload = $con->action_router->action( MfaEmailSendVerification::class )->payload();
+		}
+		finally {
+			\remove_filter( 'pre_wp_mail', $failMail, 20 );
+		}
+
+		$this->assertFalse( (bool)$payload[ 'success' ] );
+		$this->assertSame( 'unsent', $payload[ 'delivery' ][ 'tone' ] );
+		$this->assertSame( $sentAt, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
 	}
 
 	public function testLicenseWarningEmailRespectsThrottle() :void {

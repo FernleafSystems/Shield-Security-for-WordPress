@@ -14,18 +14,17 @@ class ActionsQueueLandingSectionsBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_lanes_take_groups_needing_action_and_open_only_the_first() :void {
-		$layout = $this->build();
-		$sections = $layout[ 'sections' ];
+		$sections = $this->build();
 
-		$this->assertTrue( $layout[ 'has_lanes' ] );
 		$this->assertSame( [ 'critical', 'review', 'passing', 'not_covered' ], \array_column( $sections, 'key' ) );
 		$this->assertSame( [ true, false, false, false ], \array_column( $sections, 'is_open' ) );
+		$this->assertSame( [ true, false, false, false ], \array_column( $sections, 'is_selected_tab' ) );
 		$this->assertSame( [ true, true, false, true ], \array_column( $sections, 'show_count' ) );
 		$this->assertSame( 'bucket-critical-json', $sections[ 0 ][ 'selection_json' ] );
 	}
 
 	public function test_lane_boxes_follow_kind_order_with_single_rows_sharing_a_box() :void {
-		$critical = $this->build()[ 'sections' ][ 0 ];
+		$critical = $this->build()[ 0 ];
 
 		// Malware comes before plugins; the two single-row plugin groups share one box under the kind's heading.
 		$this->assertSame(
@@ -43,7 +42,7 @@ class ActionsQueueLandingSectionsBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_review_lane_folds_its_boxes_and_counts_only_items_still_to_do() :void {
-		$review = $this->build()[ 'sections' ][ 1 ];
+		$review = $this->build()[ 1 ];
 
 		$this->assertSame( [ 'group', 'group' ], \array_column( $review[ 'boxes' ], 'type' ) );
 		$this->assertSame( [ true, true ], \array_column( $review[ 'boxes' ], 'collapsible' ) );
@@ -72,7 +71,7 @@ class ActionsQueueLandingSectionsBuilderTest extends BaseUnitTest {
 			],
 			[],
 			[]
-		)[ 'sections' ][ 0 ];
+		)[ 0 ];
 
 		$this->assertSame(
 			[ 'maintenance_system', 'wp_plugins_updates', 'wp_plugins_inactive', 'wp_themes_updates', 'wp_themes_inactive' ],
@@ -88,7 +87,7 @@ class ActionsQueueLandingSectionsBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_passing_lists_each_check_once_and_never_one_a_lane_needs() :void {
-		$passing = $this->build()[ 'sections' ][ 2 ];
+		$passing = $this->build()[ 2 ];
 
 		// "Plugin A" passes in the review lane but needs action in critical, so it isn't passing. Its summary
 		// row is dropped for the same reason; "Firewall" shows once, as a group.
@@ -102,30 +101,104 @@ class ActionsQueueLandingSectionsBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_not_covered_gathers_upsells_and_turned_off_protections() :void {
-		$notCovered = $this->build()[ 'sections' ][ 3 ];
+		$notCovered = $this->build()[ 3 ];
 
 		$this->assertSame( 'pro', $notCovered[ 'status' ] );
 		$this->assertSame( 'Vulnerabilities, File Scan', $notCovered[ 'summary' ] );
 		$this->assertSame( [ 'plain' ], \array_column( $notCovered[ 'boxes' ], 'type' ) );
 	}
 
-	public function test_without_lanes_only_passing_shows() :void {
-		$layout = ( new ActionsQueueLandingSectionsBuilder() )->build(
-			[ $this->bucket( 'critical' ) ],
+	public function test_a_lane_with_nothing_to_do_stays_folded_in_green_with_a_zero_and_says_so() :void {
+		$sections = ( new ActionsQueueLandingSectionsBuilder() )->build(
+			// Fix now has only a passing group; Review next has nothing at all, so no groups were built for it.
+			[ $this->bucket( 'critical' ), [ 'is_interactive' => false ] + $this->bucket( 'review' ) ],
 			[ 'critical' => $this->layer( 'critical', [], [ $this->section( [ $this->group( 'firewall', 'Firewall', 'good' ) ] ) ] ) ],
 			[],
 			[]
 		);
 
-		$this->assertFalse( $layout[ 'has_lanes' ] );
-		$this->assertSame( [ 'passing' ], \array_column( $layout[ 'sections' ], 'key' ) );
+		$this->assertSame( [ 'critical', 'review', 'passing' ], \array_column( $sections, 'key' ) );
+		foreach ( [ $sections[ 0 ], $sections[ 1 ] ] as $lane ) {
+			$this->assertSame( 'good', $lane[ 'status' ] );
+			$this->assertSame( 0, $lane[ 'count' ] );
+			$this->assertTrue( $lane[ 'show_count' ] );
+			$this->assertFalse( $lane[ 'is_open' ] );
+			$this->assertNotSame( '', $lane[ 'empty_text' ] );
+			$this->assertSame( [], $lane[ 'boxes' ] );
+		}
+		$this->assertNotSame( $sections[ 0 ][ 'empty_text' ], $sections[ 1 ][ 'empty_text' ] );
+		// With nothing to do anywhere, the first section is the tab showing.
+		$this->assertSame( [ true, false, false ], \array_column( $sections, 'is_selected_tab' ) );
+	}
+
+	public function test_a_lane_holding_only_ignored_items_has_nothing_to_do_and_still_lists_them() :void {
+		$sections = ( new ActionsQueueLandingSectionsBuilder() )->build(
+			[ $this->bucket( 'critical' ), $this->bucket( 'review' ) ],
+			[
+				'critical' => $this->layer( 'critical', [ $this->section( [ $this->group( 'malware', 'PHP Malware', 'critical', [ 'item_count' => 1 ] ) ] ) ], [] ),
+				'review'   => $this->layer( 'review', [], [
+					$this->section( [
+						$this->group( 'wp_themes_inactive', 'Inactive Themes', 'good', [
+							'detail_shell' => 'maintenance',
+							'card_type'    => 'category',
+							'ignored_rows' => [ $this->row( 'Twenty', true ) ],
+						] ),
+					] ),
+				] ),
+			],
+			[],
+			[]
+		);
+		$review = $sections[ 1 ];
+
+		$this->assertSame( 'good', $review[ 'status' ] );
+		$this->assertSame( 0, $review[ 'count' ] );
+		$this->assertFalse( $review[ 'is_open' ] );
+		$this->assertNotSame( '', $review[ 'empty_text' ] );
+		// What was ignored is still there to be restored.
+		$this->assertSame( [ 'wp_themes_inactive' ], \array_column( $review[ 'boxes' ], 'kind' ) );
+		$this->assertSame( [ true, false ], \array_column( $sections, 'is_open' ) );
+	}
+
+	public function test_a_lane_of_ignored_items_does_not_take_the_place_of_the_lane_to_open() :void {
+		$ignored = $this->group( 'wp_themes_inactive', 'Inactive Themes', 'good', [
+			'detail_shell' => 'maintenance',
+			'card_type'    => 'category',
+			'ignored_rows' => [ $this->row( 'Twenty', true ) ],
+		] );
+		$sections = ( new ActionsQueueLandingSectionsBuilder() )->build(
+			[ $this->bucket( 'critical' ), $this->bucket( 'review' ) ],
+			[
+				'critical' => $this->layer( 'critical', [], [ $this->section( [ $ignored ] ) ] ),
+				'review'   => $this->layer( 'review', [ $this->section( [ $this->group( 'malware', 'PHP Malware', 'warning', [ 'item_count' => 1 ] ) ] ) ], [] ),
+			],
+			[],
+			[]
+		);
+
+		$this->assertSame( [ false, true ], \array_column( $sections, 'is_open' ) );
+		$this->assertSame( [ false, true ], \array_column( $sections, 'is_selected_tab' ) );
+	}
+
+	public function test_the_first_lane_with_something_to_do_opens_after_an_empty_one() :void {
+		$sections = ( new ActionsQueueLandingSectionsBuilder() )->build(
+			[ [ 'is_interactive' => false ] + $this->bucket( 'critical' ), $this->bucket( 'review' ) ],
+			[ 'review' => $this->layer( 'review', [ $this->section( [ $this->group( 'malware', 'PHP Malware', 'warning', [ 'item_count' => 1 ] ) ] ) ], [] ) ],
+			[],
+			[]
+		);
+
+		$this->assertSame( [ 'critical', 'review' ], \array_column( $sections, 'key' ) );
+		$this->assertSame( [ false, true ], \array_column( $sections, 'is_open' ) );
+		$this->assertSame( [ false, true ], \array_column( $sections, 'is_selected_tab' ) );
+		$this->assertSame( [ 'good', 'warning' ], \array_column( $sections, 'status' ) );
+		$this->assertSame( '', $sections[ 1 ][ 'empty_text' ] );
 	}
 
 	private function build() :array {
 		$buckets = [
 			$this->bucket( 'critical' ),
 			$this->bucket( 'review' ),
-			[ 'is_interactive' => false ] + $this->bucket( 'info' ),
 		];
 		$groups = [
 			'critical' => $this->layer( 'critical', [

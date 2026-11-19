@@ -15,15 +15,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   kind:''|'ignore'|'unignore',
  *   maintenance_key:string
  * }
- * @phpstan-type CompactSummaryDetailItem array{
- *   label:string,
- *   value:string,
- *   style:'text'|'code'
- * }
- * @phpstan-type CompactSummaryFoldedDetails array{
- *   label:string,
- *   items:list<CompactSummaryDetailItem>
- * }
  * @phpstan-type CompactSummaryRow array{
  *   icon_class:string,
  *   title:string,
@@ -32,14 +23,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   badge_label:string,
  *   is_ignored:bool,
  *   actions:list<CompactSummaryAction>,
- *   details:array{}|CompactSummaryFoldedDetails
+ *   drawer_json:string
  * }
  */
 class ActionsQueueCompactSummaryRowBuilder {
 
 	/**
 	 * @param list<CompactSummaryAction> $actions
-	 * @param array{}|CompactSummaryFoldedDetails $details more about the item, folded under its line of detail
+	 * @param string $drawerJson the request for the drawer the item's name opens; empty when it opens nothing
 	 * @return CompactSummaryRow
 	 */
 	public function build(
@@ -50,7 +41,7 @@ class ActionsQueueCompactSummaryRowBuilder {
 		bool $isIgnored = false,
 		array $actions = [],
 		string $inlineMeta = '',
-		array $details = []
+		string $drawerJson = ''
 	) :array {
 		return [
 			'icon_class'  => $iconClass,
@@ -60,7 +51,7 @@ class ActionsQueueCompactSummaryRowBuilder {
 			'badge_label' => $badgeLabel,
 			'is_ignored'  => $isIgnored,
 			'actions'     => $actions,
-			'details'     => $details,
+			'drawer_json' => $drawerJson,
 		];
 	}
 

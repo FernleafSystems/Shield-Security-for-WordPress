@@ -22,14 +22,17 @@
 					   autocomplete="email"
 					   value="{{ vars.report_email }}"
 					   placeholder="{{ vars.admin_email }}">
-				{{ icwp_macros.formInput_Submit2( strings.report_email_button, null, 'secondary', false, 'mt-2' ) }}
+				{# The second button belongs to the form below, so the two choices sit side by side. #}
+				<div class="merlin-report-email-actions">
+					<button type="submit" class="btn btn-secondary">{{ strings.report_email_button }}</button>
+					<button type="submit" class="btn btn-link" form="ReportEmailUseAdmin-{{ vars.step_slug }}">{{ strings.use_admin_button }}</button>
+				</div>
 			</div>
 		</div>
 	</form>
 
-	<form class="form-horizontal merlin-form ajax-form mt-2">
+	<form class="merlin-form ajax-form" id="ReportEmailUseAdmin-{{ vars.step_slug }}" hidden>
 		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
 		{{ icwp_macros.formInput_Hidden( 'use_site_admin_email', 'Y' ) }}
-		<button type="submit" class="btn btn-link px-0">{{ strings.use_admin_button }}</button>
 	</form>
 {% endblock %}

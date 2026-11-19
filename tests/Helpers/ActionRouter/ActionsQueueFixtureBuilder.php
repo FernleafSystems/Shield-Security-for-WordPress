@@ -2,6 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
+	CloakedPluginFinding,
+	CloakedPluginState,
+	CloakReason,
+	PluginType
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 	RuntimeTestState,
 	TestDataFactory
@@ -60,6 +66,7 @@ class ActionsQueueFixtureBuilder {
 		'license_activated_at',
 		'license_deactivated_at',
 		'ignored_maintenance_items',
+		'maintenance_alert_items',
 	];
 
 	private const REQUIRED_DB_KEYS = [
@@ -216,6 +223,8 @@ class ActionsQueueFixtureBuilder {
 				return $this->seedIgnoredCloakedPlugins( $state );
 			case 'abandoned_plugins':
 				return $this->seedAbandonedPlugins( $state );
+			case 'inactive_plugins':
+				return $this->seedInactivePlugins( $state );
 			case 'scan_enablement':
 				$definition = $this->seedProUpsell( $state );
 				RuntimeTestState::applyPremiumCapabilities( [ 'scan_file_areas', 'scan_malware_local', 'scan_pluginsthemes_local', 'scan_vulnerabilities', 'scan_file_locker' ] );
@@ -783,14 +792,11 @@ class ActionsQueueFixtureBuilder {
 			$this->createCloakedPluginFixture( $state ),
 			$this->createCloakedPluginFixture( $state, 'shield-browser-cloaked-fixture-two', 'Shield Browser Cloaked Fixture Two' ),
 		] as $pluginFile ) {
-			$identity = \sha1( \json_encode( [
-				'type' => \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\PluginType::Standard,
-				'file' => $pluginFile,
-			] ) ?: 'standard|'.$pluginFile );
+			$identity = CloakedPluginFinding::IdentityFor( PluginType::Standard, $pluginFile );
 			$findings[ $identity ] = [
-				'type'          => \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\PluginType::Standard,
+				'type'          => PluginType::Standard,
 				'file'          => $pluginFile,
-				'cloak_reasons' => [ \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakReason::AllPlugins ],
+				'cloak_reasons' => [ CloakReason::AllPlugins ],
 				'detected_at'   => 1700000000,
 			];
 		}
@@ -817,22 +823,25 @@ class ActionsQueueFixtureBuilder {
 	}
 
 	/**
+	 * Ignores are saved as a plain list of identities, as sites held them before ignores had a mode, so the queue
+	 * fixtures also cover carrying them over.
 	 * @param array<string,array<string,mixed>> $findings
 	 * @param list<string> $ignoredIdentities
 	 */
 	private function storeCloakedPluginState( array $findings, array $ignoredIdentities ) :void {
+		$options = [
+			'global_enable_plugin_features'         => 'Y',
+			CloakedPluginState::OPT_KEY              => [],
+			CloakedPluginState::IGNORE_OPT_KEY       => $ignoredIdentities,
+			CloakedPluginState::IGNORE_MODES_OPT_KEY => [],
+			CloakedPluginState::FINDINGS_OPT_KEY     => $findings,
+		];
 		$opts = RuntimeTestState::controller()->opts;
-		$opts->optSet( 'global_enable_plugin_features', 'Y' )
-			 ->optSet( \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState::OPT_KEY, [] )
-			 ->optSet( \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState::IGNORE_OPT_KEY, $ignoredIdentities )
-			 ->optSet( \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState::FINDINGS_OPT_KEY, $findings )
-			 ->store();
-		RuntimeTestState::forcePersistOptions( [
-			'global_enable_plugin_features' => 'Y',
-			\FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState::OPT_KEY      => [],
-			\FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState::IGNORE_OPT_KEY => $ignoredIdentities,
-			\FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState::FINDINGS_OPT_KEY => $findings,
-		] );
+		foreach ( $options as $key => $value ) {
+			$opts->optSet( $key, $value );
+		}
+		$opts->store();
+		RuntimeTestState::forcePersistOptions( $options );
 		$this->resetCloakedPluginFindingsCache();
 	}
 
@@ -860,6 +869,36 @@ class ActionsQueueFixtureBuilder {
 			'scenario'                    => 'abandoned_plugins',
 			'target_group_key'            => 'abandoned',
 			'expected_detail_shell'       => 'direct_table',
+			'expected_lazy_panel'         => false,
+			'expected_interactivity'      => false,
+			'require_scan_results_table'  => false,
+			'require_populated_scan_results_table' => false,
+		];
+	}
+
+	/**
+	 * A plugin that's installed and not active, so Review next always has plugin housekeeping to report, with
+	 * every kind of housekeeping reported and none of it ignored.
+	 * @phpstan-param FixtureState $state
+	 * @return ScenarioDefinition
+	 */
+	private function seedInactivePlugins( array &$state ) :array {
+		$this->createCloakedPluginFixture( $state, 'shield-browser-inactive-fixture', 'Shield Browser Inactive Fixture' );
+
+		$opts = RuntimeTestState::controller()->opts;
+		$reported = $opts->optDefault( 'maintenance_alert_items' );
+		$opts->optSet( 'maintenance_alert_items', $reported )
+			 ->optSet( 'ignored_maintenance_items', [] )
+			 ->store();
+		RuntimeTestState::forcePersistOptions( [
+			'maintenance_alert_items'   => $reported,
+			'ignored_maintenance_items' => [],
+		] );
+
+		return [
+			'scenario'                    => 'inactive_plugins',
+			'target_group_key'            => 'wp_plugins_inactive',
+			'expected_detail_shell'       => 'maintenance',
 			'expected_lazy_panel'         => false,
 			'expected_interactivity'      => false,
 			'require_scan_results_table'  => false,

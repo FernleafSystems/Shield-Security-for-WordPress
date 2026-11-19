@@ -1,69 +1,92 @@
 {% extends '/components/merlin/steps/base.twig' %}
 
+{#
+	Pick a level, see what changes: three choices, each saying how many settings it would change on this site, and
+	under them one list of the chosen level's settings as they are and as they would be. Every level's list is
+	here; the picker script shows the chosen one.
+#}
 {% block slide_body_video_section_blurb %}
-	<p>Shield uses a default security profile when first activated, which applies basic security
-	   measures so that your site is protected from some common attacks.</p>
-	<p>We recommend you apply as many security restrictions as your site allows. Production sites that already
-	   have integrations with 3rd party services in-place, this may cause some issues and we recommend
-	   you test these integrations and review the Activity Logs for any issues.</p>
-	<p>Please review the 3 pre-made security profiles below, or customise the settings manually.</p>
+	<p>{{ strings.intro }}</p>
 {% endblock %}
 
 {% block slide_body_video_section %}
 	{% import '/common/macros.twig' as icwp_macros %}
 
-	<form class="form-horizontal merlin-form ajax-form">
+	<form class="merlin-form ajax-form protection-levels" data-protection-levels="1">
 		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
-		{{ icwp_macros.formInput_Hidden( 'security_profile', '', 'SelectedSecurityProfile' ) }}
+		<input type="hidden" name="security_profile" value="{{ vars.closest }}" data-protection-levels-choice="1">
 
-		<div class="profile-cards-row" id="ProfileCards">
-			{% for level_key, level in vars.profile_levels %}
-				<div class="profile-card {% if level_key == 'current' %}profile-card-current{% endif %}" data-level="{{ level_key }}">
-					<div class="profile-card-accent level-{{ level_key }}"></div>
-					<div class="profile-card-header">
-						<h5>{{ level.title }}</h5>
-						<small>{{ level.subtitle }}</small>
-					</div>
-					<div class="profile-card-body">
-						<div class="feature-list">
-							{% for section_key, section in vars.profile_structure %}
-								<div class="section-header">{{ section.title }}</div>
-								{% for item_key, item in section.opts %}
-									{% set item_value = level.structure[section_key]['opts'][item_key].value %}
-									<div class="feature-item">
-										{% if item_value is same as(true) or item_value is same as('Y') %}
-											<i class="bi bi-check-circle-fill fi-on"></i>
-										{% elseif item_value is same as(false) or item_value is same as('N') %}
-											<i class="bi bi-x-circle fi-off"></i>
-										{% elseif item_value is not none %}
-											<i class="bi bi-sliders fi-val"></i>
-										{% else %}
-											<i class="bi bi-dash fi-off"></i>
-										{% endif %}
-										<span class="fi-label {% if not item.is_available %}text-secondary text-opacity-50{% endif %}">
-											{{ item.title }}
-										</span>
-										{% if item_value is not same as(true) and item_value is not same as(false)
-										   and item_value is not same as('Y') and item_value is not same as('N')
-										   and item_value is not none %}
-											<span class="fi-value">{{ item_value }}</span>
-										{% endif %}
-									</div>
-								{% endfor %}
-							{% endfor %}
-						</div>
-						{% if level_key != 'current' %}
-						<div class="selected-badge">
-							<i class="bi bi-check-circle-fill"></i> Selected
-						</div>
+		<div class="protection-levels__choices" role="group" aria-label="{{ strings.levels_label }}">
+			{% for level in vars.levels %}
+				<button type="button"
+						class="protection-levels__choice"
+						data-protection-level="{{ level.key }}"
+						data-apply-label="{{ level.strings.apply|e('html_attr') }}"
+						aria-pressed="{{ level.key == vars.closest ? 'true' : 'false' }}">
+					<span class="protection-levels__name">
+						<span class="protection-levels__dot" aria-hidden="true"></span>{{ level.title }}
+						{% if level.key == vars.closest %}
+							<span class="protection-levels__closest">{{ strings.closest }}</span>
 						{% endif %}
-					</div>
-				</div>
+					</span>
+					<span class="protection-levels__subtitle">{{ level.subtitle }}</span>
+					<span class="protection-levels__changes">{{ level.strings.changes }}</span>
+				</button>
 			{% endfor %}
 		</div>
 
-		<div class="merlin-form-footer">
-			<button type="submit" class="btn btn-primary">Apply Selected Profile</button>
+		{% for level in vars.levels %}
+			{% set comparison = level.comparison %}
+			<div class="protection-levels__comparison"
+				 data-protection-level-comparison="{{ level.key }}"
+				 {% if level.key != vars.closest %}hidden{% endif %}>
+				<div class="protection-levels__summary">
+					<strong>{{ level.strings.compared }}</strong>
+					{% if comparison.stricter > 0 %}
+						<span class="protection-levels__chip is-stricter">{{ strings.stricter|format( comparison.stricter ) }}</span>
+					{% endif %}
+					{% if comparison.looser > 0 %}
+						<span class="protection-levels__chip is-looser">{{ strings.looser|format( comparison.looser ) }}</span>
+					{% endif %}
+					<span class="protection-levels__chip">{{ strings.unchanged|format( comparison.unchanged ) }}</span>
+				</div>
+
+				<div class="protection-levels__list">
+					<div class="protection-levels__row protection-levels__row--head" aria-hidden="true">
+						<span>{{ strings.col_setting }}</span>
+						<span>{{ strings.col_now }}</span>
+						<span></span>
+						<span>{{ strings.col_after }}</span>
+						<span></span>
+					</div>
+					{% if level.changes == 0 %}
+						<p class="protection-levels__match">{{ strings.all_match }}</p>
+					{% endif %}
+					{% for group in comparison.groups %}
+						<div class="protection-levels__group{{ group.has_changes ? ' has-changes' : '' }}">
+							<div class="protection-levels__group-title">{{ group.title }}</div>
+							{% for row in group.rows %}
+								{# Written out in full: the stylesheet only keeps class names it can find in a template. #}
+								{% set change_class = { stricter: 'is-stricter', looser: 'is-looser', same: 'is-same', unavailable: 'is-unavailable' }[row.change] %}
+								<div class="protection-levels__row {{ change_class }}">
+									<span class="protection-levels__setting">{{ row.title }}</span>
+									<span class="protection-levels__now">{{ row.now }}</span>
+									<span class="protection-levels__arrow" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>
+									<span class="protection-levels__after">{{ row.after }}</span>
+									<span class="protection-levels__chip {{ change_class }}">{{ strings.change_labels[row.change] }}</span>
+								</div>
+							{% endfor %}
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		{% endfor %}
+
+		<div class="merlin-form-footer protection-levels__foot">
+			<button type="submit" class="btn btn-primary" data-protection-levels-apply="1">{{ vars.levels[vars.closest].strings.apply }}</button>
+			<label class="protection-levels__only-changes">
+				<input type="checkbox" checked data-protection-levels-only-changes="1"> {{ strings.only_changes }}
+			</label>
 		</div>
 	</form>
 {% endblock %}

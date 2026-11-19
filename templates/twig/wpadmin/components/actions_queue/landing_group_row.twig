@@ -69,6 +69,24 @@
 					<i class="bi {{ group.management_link.icon_class }}" aria-hidden="true"></i>{{ group.management_link.label }}
 				</a>
 			{% endif %}
+			{#
+				Housekeeping that never ends (updates, inactive plugins and themes) can be left out of the queue.
+				The switch is on while the group shows; turning it off asks first, then the group goes.
+			#}
+			{% if alert_switch is not null %}
+				<label class="actions-queue-alert-switch">
+					<span class="actions-queue-alert-switch__name">{{ strings.alerts }}</span>
+					<span class="actions-queue-alert-switch__side" aria-hidden="true">{{ strings.alerts_off }}</span>
+					<span class="form-check form-switch">
+						<input class="form-check-input" type="checkbox" role="switch" checked
+							   aria-label="{{ strings.alerts }}: {{ group.label }}"
+							   data-actions-queue-maintenance-action="{{ alert_switch.action_json|e('html_attr') }}"
+							   data-confirm-message="{{ alert_switch.confirm|e('html_attr') }}"
+							   data-confirm-label="{{ strings.alerts_turn_off|e('html_attr') }}">
+					</span>
+					<span class="actions-queue-alert-switch__side" aria-hidden="true">{{ strings.alerts_on }}</span>
+				</label>
+			{% endif %}
 		</div>
 		<div class="actions-queue-row-group__body" id="{{ body_id }}" {% if is_collapsible %}hidden{% endif %}>
 		{% for row in group_rows %}

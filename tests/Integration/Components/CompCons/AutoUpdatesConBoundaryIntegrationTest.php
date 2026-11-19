@@ -25,6 +25,7 @@ class AutoUpdatesConBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 			'autoupdate_plugin_self',
 			CloakedPluginState::OPT_KEY,
 			CloakedPluginState::IGNORE_OPT_KEY,
+			CloakedPluginState::IGNORE_MODES_OPT_KEY,
 			CloakedPluginState::FINDINGS_OPT_KEY,
 			'delay_tracking',
 			'update_delay',
@@ -79,6 +80,7 @@ class AutoUpdatesConBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireController()->opts
 			->optSet( CloakedPluginState::OPT_KEY, [] )
 			->optSet( CloakedPluginState::IGNORE_OPT_KEY, [] )
+			->optSet( CloakedPluginState::IGNORE_MODES_OPT_KEY, [] )
 			->optSet( CloakedPluginState::FINDINGS_OPT_KEY, [] )
 			->store();
 		$this->resetCloakedPluginFindingsCache();

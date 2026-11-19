@@ -6,25 +6,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Per-user progress through the setup guide: steps completed or skipped, and whether the guide
- * was dismissed for good. Steps whose setting is already in place count as done regardless.
+ * The site's progress through the setup guide: steps completed or skipped, and whether the guide
+ * was dismissed for good. Setup belongs to the plugin, so every admin sees the same progress.
+ * Steps whose setting is already in place count as done regardless.
  */
 class SetupGuideState {
 
 	use PluginControllerConsumer;
 
+	public const OPT_KEY = 'setup_guide_state';
+
 	public function isDismissed() :bool {
 		return !empty( $this->stored()[ 'dismissed_at' ] );
 	}
 
-	public function undismiss() :bool {
-		$state = $this->stored();
-		unset( $state[ 'dismissed_at' ] );
-		return $this->store( $state );
-	}
-
-	public function dismiss() :bool {
-		return $this->store( \array_merge( $this->stored(), [ 'dismissed_at' => Services::Request()->ts() ] ) );
+	public function dismiss() :void {
+		$this->store( \array_merge( $this->stored(), [ 'dismissed_at' => Services::Request()->ts() ] ) );
 	}
 
 	/**
@@ -44,20 +41,15 @@ class SetupGuideState {
 		}
 		$state = $this->stored();
 		$state[ 'done' ] = \array_values( \array_unique( \array_merge( $this->doneSlugs(), [ $stepSlug ] ) ) );
-		return $this->store( $state );
+		$this->store( $state );
+		return true;
 	}
 
 	private function stored() :array {
-		$meta = self::con()->user_metas->current();
-		return ( !empty( $meta ) && \is_array( $meta->setup_guide ) ) ? $meta->setup_guide : [];
+		return self::con()->opts->optGet( self::OPT_KEY );
 	}
 
-	private function store( array $state ) :bool {
-		$meta = self::con()->user_metas->current();
-		if ( empty( $meta ) ) {
-			return false;
-		}
-		$meta->setup_guide = $state;
-		return true;
+	private function store( array $state ) :void {
+		self::con()->opts->optSet( self::OPT_KEY, $state );
 	}
 }

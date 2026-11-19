@@ -13,12 +13,12 @@
 
 		<div class="row">
 			<div class="col mb-2">
-				<h6 class="pb-1 border-bottom d-inline-block">Display Security Badge</h6>
+				<h6 class="pb-1 border-bottom d-inline-block">{{ strings.badge_heading }}</h6>
 			</div>
 		</div>
 
 		<div class="row mb-3">
-			<label class="col-4 col-form-label" for="SecurityPluginBadge">Security Badge</label>
+			<label class="col-4 col-form-label" for="SecurityPluginBadge">{{ strings.badge_label }}</label>
 			<div class="col-8">
 				<select class="form-select" name="SecurityPluginBadge" id="SecurityPluginBadge">
 					{% for option in vars.security_badge_options %}
@@ -28,6 +28,6 @@
 			</div>
 		</div>
 
-		{{ icwp_macros.formInput_Submit2( strings.security_badge_text_button, null, 'secondary', false ) }}
+		{{ icwp_macros.formInput_Submit( strings.security_badge_text_button ) }}
 	</form>
 {% endblock %}

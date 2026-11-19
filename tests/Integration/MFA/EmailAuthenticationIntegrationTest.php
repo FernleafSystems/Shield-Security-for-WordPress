@@ -7,11 +7,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MfaEmailAutoLogin,
 	MfaCanEmailSendVerify,
+	MfaEmailConfirmDelivery,
 	MfaEmailDisable,
-	MfaEmailSendIntent
+	MfaEmailSendIntent,
+	ModuleOptionsSave
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
 	EmailDeliveryVerification,
+	EmailDeliveryVerificationDialog,
 	Exceptions\CouldNotValidate2FA,
 	Exceptions\OtpVerificationFailedException,
 	LoginIntentRequestValidate,
@@ -43,8 +46,11 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 	/** @var list<string> */
 	private array $otpSequence = [];
 
+	private \Closure $pluginAdminGrant;
+
 	public function set_up() :void {
 		parent::set_up();
+		$this->pluginAdminGrant = static fn() :bool => true;
 		$this->requireDb( 'mfa' );
 		$this->enablePremiumCapabilities( [ '2fa_webauthn' ] );
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
@@ -57,6 +63,7 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 			'enable_google_authenticator',
 			'two_factor_auth_user_roles',
 			'suresend_emails',
+			'block_send_email_address',
 		] );
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
 		RuntimeTestState::restoreOptions( [
@@ -80,6 +87,7 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function tear_down() :void {
+		\remove_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), $this->pluginAdminGrant, 1000 );
 		$this->stopLoginSuccessFixture();
 		$this->stopLocalEmailCapture();
 		\remove_filter( 'shield/2fa_email_otp', [ $this, 'nextEmailOtp' ] );
@@ -169,6 +177,174 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)$payload[ 'page_reload' ] );
 		$this->assertSame( 'N', $this->requireController()->opts->optGet( 'enable_email_authentication' ) );
 		$this->assertSame( 0, $this->requireController()->opts->optGet( 'email_can_send_verification_sent_at' ) );
+	}
+
+	public function test_email_delivery_verify_action_rejects_an_expired_link() :void {
+		$this->loginAsSecurityAdmin();
+		$sentAt = \time() - \DAY_IN_SECONDS - 60;
+		RuntimeTestState::restoreOptions( [
+			'enable_email_authentication' => 'Y',
+			'email_can_send_verified_at'  => 0,
+			'email_can_send_verification_sent_at' => $sentAt,
+		], true );
+
+		$payload = $this->requireController()->action_router->action( MfaCanEmailSendVerify::class, [
+			MfaCanEmailSendVerify::FIELD_TOKEN => ( new EmailDeliveryVerification() )->linkToken( $sentAt ),
+		] )->payload();
+
+		$this->assertFalse( (bool)$payload[ 'success' ] );
+		$this->assertSame( 0, $this->requireController()->opts->optGet( 'email_can_send_verified_at' ) );
+	}
+
+	public function test_email_confirm_delivery_action_turns_on_email_provider_without_the_link() :void {
+		$user = \get_user_by( 'id', $this->loginAsSecurityAdmin() );
+		RuntimeTestState::restoreOptions( [
+			'enable_email_authentication' => 'Y',
+			'email_can_send_verified_at'  => 0,
+			'email_can_send_verification_sent_at' => \time() - 60,
+			'two_factor_auth_user_roles'  => [ 'administrator' ],
+		], true );
+
+		$payload = $this->requireController()->action_router->action( MfaEmailConfirmDelivery::class )->payload();
+
+		$this->assertTrue( (bool)$payload[ 'success' ] );
+		$this->assertTrue( $payload[ 'page_reload' ] );
+		$this->assertSame( EmailDeliveryVerification::STATUS_VERIFIED, ( new EmailDeliveryVerification() )->status() );
+		$this->assertSame( 0, $this->requireController()->opts->optGet( 'email_can_send_verification_sent_at' ) );
+		$this->resetMfaProviderCache();
+		$this->assertArrayHasKey(
+			Email::ProviderSlug(),
+			$this->requireController()->comps->mfa->getProvidersActiveForUser( $user )
+		);
+	}
+
+	public function test_email_confirm_delivery_action_changes_nothing_when_email_2fa_is_off() :void {
+		$this->loginAsSecurityAdmin();
+		RuntimeTestState::restoreOptions( [
+			'enable_email_authentication' => 'N',
+			'email_can_send_verified_at'  => 0,
+		], true );
+
+		$payload = $this->requireController()->action_router->action( MfaEmailConfirmDelivery::class )->payload();
+
+		$this->assertFalse( (bool)$payload[ 'success' ] );
+		$this->assertSame( 0, $this->requireController()->opts->optGet( 'email_can_send_verified_at' ) );
+	}
+
+	/**
+	 * @dataProvider providerVerificationDialogDelivery
+	 */
+	public function test_verification_dialog_is_required_until_resolved_and_shows_where_delivery_stands(
+		string $enabled, int $verifiedAt, int $sentAgo, bool $expectRequired, string $expectTone
+	) :void {
+		$this->loginAsSecurityAdmin();
+		$this->grantPluginAdmin();
+		RuntimeTestState::restoreOptions( [
+			'enable_email_authentication' => $enabled,
+			'email_can_send_verified_at'  => $verifiedAt,
+			'email_can_send_verification_sent_at' => $sentAgo < 0 ? 0 : \time() - $sentAgo,
+		], true );
+
+		$dialog = new EmailDeliveryVerificationDialog();
+
+		$this->assertSame( $expectRequired, $dialog->isRequired() );
+		if ( $expectRequired ) {
+			$this->assertSame( $expectTone, $dialog->build()[ 'delivery' ][ 'tone' ] );
+		}
+	}
+
+	public static function providerVerificationDialogDelivery() :array {
+		return [
+			'not sent'       => [ 'Y', 0, -1, true, 'unsent' ],
+			'sent'           => [ 'Y', 0, 60, true, 'sent' ],
+			'link expired'   => [ 'Y', 0, \DAY_IN_SECONDS + 60, true, 'expired' ],
+			'verified'       => [ 'Y', 1700000000, -1, false, '' ],
+			'email 2FA off'  => [ 'N', 0, 60, false, '' ],
+		];
+	}
+
+	/**
+	 * @dataProvider providerUnavailableVerificationAddress
+	 */
+	public function test_verification_dialog_builds_when_there_is_no_email_address_to_show( string $adminEmail ) :void {
+		$this->loginAsSecurityAdmin();
+		$this->grantPluginAdmin();
+		RuntimeTestState::restoreOptions( [
+			'enable_email_authentication' => 'Y',
+			'email_can_send_verified_at'  => 0,
+			'block_send_email_address'    => '',
+		], true );
+		$fallback = static fn() :string => $adminEmail;
+		\add_filter( 'pre_option_admin_email', $fallback );
+
+		try {
+			$dialog = ( new EmailDeliveryVerificationDialog() )->build();
+		}
+		finally {
+			\remove_filter( 'pre_option_admin_email', $fallback );
+		}
+
+		$this->assertStringNotContainsString( '@', $dialog[ 'address' ] );
+		$this->assertSame( 'unsent', $dialog[ 'delivery' ][ 'tone' ] );
+	}
+
+	public static function providerUnavailableVerificationAddress() :array {
+		return [
+			'blank fallback' => [ '' ],
+			'no domain suffix' => [ 'admin@localhost' ],
+		];
+	}
+
+	public function test_verification_dialog_is_not_required_while_security_admin_is_locked() :void {
+		$this->loginAsAdministrator();
+		// What a locked Security Admin does to an administrator who hasn't entered the PIN.
+		$locked = static fn() :bool => false;
+		\add_filter( $this->requireController()->prefix( 'is_plugin_admin' ), $locked, 1000 );
+		RuntimeTestState::restoreOptions( [
+			'enable_email_authentication' => 'Y',
+			'email_can_send_verified_at'  => 0,
+		], true );
+
+		try {
+			$this->assertFalse( ( new EmailDeliveryVerificationDialog() )->isRequired() );
+		}
+		finally {
+			\remove_filter( $this->requireController()->prefix( 'is_plugin_admin' ), $locked, 1000 );
+		}
+	}
+
+	/**
+	 * @dataProvider providerOptionsSaveReload
+	 */
+	public function test_options_save_reloads_the_page_only_when_it_turns_on_unverified_email_2fa(
+		string $before, string $submitted, int $verifiedAt, bool $expectReload
+	) :void {
+		$this->loginAsSecurityAdmin();
+		$this->grantPluginAdmin();
+		RuntimeTestState::restoreOptions( [
+			'enable_email_authentication' => $before,
+			'email_can_send_verified_at'  => $verifiedAt,
+			'email_can_send_verification_sent_at' => 0,
+		], true );
+
+		$payload = $this->requireController()->action_router->action( ModuleOptionsSave::class, [
+			ActionData::FIELD_FORM => [
+				'all_opts_keys'               => 'enable_email_authentication',
+				'enable_email_authentication' => $submitted,
+			],
+		] )->payload();
+
+		$this->assertTrue( (bool)$payload[ 'success' ] );
+		$this->assertSame( $expectReload, $payload[ 'page_reload' ] );
+	}
+
+	public static function providerOptionsSaveReload() :array {
+		return [
+			'turned on, unverified'      => [ 'N', 'Y', 0, true ],
+			'turned on, already verified' => [ 'N', 'Y', 1700000000, false ],
+			'already on, unverified'     => [ 'Y', 'Y', 0, false ],
+			'turned off'                 => [ 'Y', 'N', 0, false ],
+		];
 	}
 
 	public function test_email_login_form_field_does_not_rehydrate_submitted_otp() :void {
@@ -530,6 +706,14 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		}
 
 		$this->fail( 'Expected captured email to expose the email MFA auto-login action query.' );
+	}
+
+	/**
+	 * The test request never caches base permissions for the logged-in user, so plugin admin is granted directly.
+	 * The callback is this test's own: saving options adds and removes a '__return_true' bypass of its own.
+	 */
+	private function grantPluginAdmin() :void {
+		\add_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), $this->pluginAdminGrant, 1000 );
 	}
 
 	private function resetMfaProviderCache() :void {

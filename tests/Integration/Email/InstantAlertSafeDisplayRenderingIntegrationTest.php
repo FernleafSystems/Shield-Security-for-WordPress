@@ -55,7 +55,7 @@ class InstantAlertSafeDisplayRenderingIntegrationTest extends ShieldIntegrationT
 		}
 	}
 
-	public function testCloakedPluginEmailLinksFindingsToCloakedPluginView() :void {
+	public function testCloakedPluginEmailLinksFindingsToTheActionsQueue() :void {
 		$html = $this->requireController()->action_router->render( EmailInstantAlertCloakedPlugins::class, [
 			'alert_data' => [
 				'hidden_plugins' => [
@@ -65,18 +65,11 @@ class InstantAlertSafeDisplayRenderingIntegrationTest extends ShieldIntegrationT
 			],
 		] );
 
-		$pluginStatusHrefs = $this->anchorHrefsContaining( $html, 'plugin_status=' );
-		$cloakedAnchorTexts = $this->anchorTextsByHrefContaining( $html, 'plugin_status=cloaked' );
+		// Cloaked plugins aren't listed on the Plugins page, so nothing links there.
+		$this->assertSame( [], $this->anchorHrefsContaining( $html, 'plugins.php' ) );
 
-		$this->assertNotEmpty( $pluginStatusHrefs );
-		foreach ( $pluginStatusHrefs as $href ) {
-			$this->assertStringContainsString( 'plugin_status=cloaked', $href );
-			$this->assertStringNotContainsString( 'plugin_status=active', $href );
-			$this->assertStringNotContainsString( 'plugin_status=inactive', $href );
-			$this->assertStringNotContainsString( 'plugin_status=mustuse', $href );
-		}
-
-		$this->assertNotEmpty( $cloakedAnchorTexts );
+		$cloakedAnchorTexts = $this->anchorTextsByHrefContaining( $html, $this->requireController()->plugin_urls->actionsQueueScans() );
+		$this->assertCount( 2, $cloakedAnchorTexts );
 		foreach ( $cloakedAnchorTexts as $anchorText ) {
 			$this->assertStringNotContainsString( 'hidden-plugin/hidden-plugin.php', $anchorText );
 			$this->assertStringNotContainsString( 'hidden-mu-plugin.php', $anchorText );

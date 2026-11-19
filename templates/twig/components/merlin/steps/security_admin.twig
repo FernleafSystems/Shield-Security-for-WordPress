@@ -12,14 +12,14 @@
 		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
 		<div class="row mb-2">
 			<div class="col">
-				<h4 class="h6 pb-1 border-bottom d-inline-block">Choose Your Security Admin PIN</h4>
+				<h4 class="h6 pb-1 border-bottom d-inline-block">{{ strings.pin_heading }}</h4>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col">
-				{{ icwp_macros.formInput_Password( 'SecAdminPIN', '', 'PIN', 'Create a new secret PIN', "Don't forget this PIN" ) }}
-				{{ icwp_macros.formInput_Password( 'SecAdminPINConfirm', '', 'Confirm PIN', 'Confirm PIN','','','my-2' ) }}
-				{{ icwp_macros.formInput_Submit2( strings.security_admin_text_button, null, 'secondary', false, 'mt-2' ) }}
+				{{ icwp_macros.formInput_Password( 'SecAdminPIN', strings.pin_label, strings.pin_placeholder, strings.pin_help ) }}
+				{{ icwp_macros.formInput_Password( 'SecAdminPINConfirm', strings.pin_confirm, strings.pin_confirm, '', 'my-2' ) }}
+				{{ icwp_macros.formInput_Submit( strings.security_admin_text_button, 'mt-2' ) }}
 			</div>
 		</div>
 	</form>

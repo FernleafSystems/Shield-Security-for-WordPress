@@ -18,12 +18,9 @@ class PluginSetUiPreference extends BaseAction {
 	}
 
 	protected function exec() {
-		$saved = ( new UiPreferences() )->set(
+		$this->response()->setPayloadSuccess( ( new UiPreferences() )->set(
 			sanitize_key( $this->fields()->string( 'pref_key', '' ) ),
 			sanitize_key( $this->fields()->string( 'pref_value', '' ) )
-		);
-		$this->response()->setPayload( [
-			'saved' => $saved,
-		] )->setPayloadSuccess( $saved );
+		) );
 	}
 }

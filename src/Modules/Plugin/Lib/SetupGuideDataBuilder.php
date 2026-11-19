@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MerlinAction,
+	Render\Components\SetupGuideBar,
 	SetupGuideUpdate
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -42,45 +43,70 @@ class SetupGuideDataBuilder {
 		return \array_map( static fn( string $handlerClass ) :string => $handlerClass::SLUG, self::STEP_HANDLERS );
 	}
 
+	/**
+	 * The guide for a page as it loads: nothing when setup is finished or the guide was dismissed, unless the
+	 * page's link asked for it. Asking for a dismissed guide shows it on that page only: the site's "don't show
+	 * again" stands, as loading a page changes nothing.
+	 */
 	public function build() :array {
-		$con = self::con();
-		$state = new SetupGuideState();
 		$isAskedFor = Services::Request()->query( 'setup_guide' ) === 'open';
-		if ( !$con->isPluginAdmin() || PluginNavs::GetNav() === PluginNavs::NAV_WIZARD ) {
+		if ( !self::con()->isPluginAdmin() || PluginNavs::GetNav() === PluginNavs::NAV_WIZARD ) {
 			return [ 'show' => false ];
 		}
-		if ( $state->isDismissed() ) {
-			if ( !$isAskedFor ) {
-				return [ 'show' => false ];
-			}
-			$state->undismiss();
+		if ( !$isAskedFor && ( new SetupGuideState() )->isDismissed() ) {
+			return [ 'show' => false ];
 		}
 
-		$done = $state->doneSlugs();
+		$guide = $this->buildGuide( $isAskedFor, $isAskedFor ? (string)Services::Request()->query( 'setup_step' ) : '' );
+		return ( $guide[ 'done_count' ] === $guide[ 'total' ] && !$isAskedFor ) ? [ 'show' => false ] : $guide;
+	}
+
+	/**
+	 * The guide again, for a page that's already showing it, after settings were saved elsewhere on that page.
+	 * It stays on the page even when that save finished setup, so the guide can say so. Who may ask for it is
+	 * settled by the action that renders it.
+	 * @param bool $withEveryForm whether the page's guide was asked for by link, and so shows every step's form
+	 */
+	public function buildForRefresh( bool $withEveryForm ) :array {
+		return $this->buildGuide( $withEveryForm, '' );
+	}
+
+	/**
+	 * @param bool   $isAskedFor whether the guide was asked for by link: it opens at once, with every step's form
+	 * @param string $askedStep  the step a link asked for, if any
+	 */
+	private function buildGuide( bool $isAskedFor, string $askedStep ) :array {
+		$done = ( new SetupGuideState() )->doneSlugs();
 		$copy = $this->stepCopy();
 		$steps = [];
 		foreach ( self::STEP_HANDLERS as $handlerClass ) {
 			$handler = new $handlerClass();
-			if ( $handlerClass === Steps\License::class && $handler->skipStep() ) {
+			$isNothingToSet = $handler->skipStep();
+			if ( $handlerClass === Steps\License::class && $isNothingToSet ) {
 				continue;
 			}
-			$isDone = $handler->skipStep() || \in_array( $handler::SLUG, $done, true );
+			$isDone = $isNothingToSet || \in_array( $handler::SLUG, $done, true );
+			// Completed steps need no form, which keeps every page render light, unless the guide was asked for.
+			$body = $isDone && !$isAskedFor ? '' : $handler->render();
+			// A finished step drawn without its form has a link that opens the guide on that step, form and all,
+			// to go over it again. Integrations has nothing to go over while there's nothing to switch on.
+			$redoHref = $isDone && $body === '' && !( $handlerClass === Steps\Integrations::class && $isNothingToSet )
+				? self::con()->plugin_urls->setupGuide( $handler::SLUG ) : '';
 			$steps[] = [
 				'slug'     => $handler::SLUG,
 				'name'     => $copy[ $handler::SLUG ][ 0 ],
 				'hint'     => $copy[ $handler::SLUG ][ 1 ],
 				'is_done'  => $isDone,
-				// Completed steps need no form, which keeps every page render light, unless the guide was asked for.
-				'body'     => $isDone && !$isAskedFor ? '' : $handler->render(),
+				'body'     => $body,
+				'redo_href' => $redoHref,
+				// Changes only when what the step shows does, so a page refreshing its guide can leave alone a
+				// step that's the same, along with anything typed into it and not yet saved.
+				'version'  => \md5( ( $isDone ? 'done' : 'to do' ).$body.$redoHref ),
 			];
 		}
 
 		$doneCount = \count( \array_filter( $steps, static fn( array $step ) :bool => $step[ 'is_done' ] ) );
-		if ( $doneCount === \count( $steps ) && !$isAskedFor ) {
-			return [ 'show' => false ];
-		}
 		$next = \current( \array_filter( $steps, static fn( array $step ) :bool => !$step[ 'is_done' ] ) );
-		$askedStep = $isAskedFor ? (string)Services::Request()->query( 'setup_step' ) : '';
 
 		return [
 			'show'        => true,
@@ -93,21 +119,22 @@ class SetupGuideDataBuilder {
 				: ( \is_array( $next ) ? $next[ 'slug' ] : 'all_done' ),
 			'done_count'  => $doneCount,
 			'total'       => \count( $steps ),
-			'merlin_action_json' => ActionData::BuildJson( MerlinAction::class ),
-			'update_action_json' => ActionData::BuildJson( SetupGuideUpdate::class ),
+			'merlin_action_json'  => ActionData::BuildJson( MerlinAction::class ),
+			'update_action_json'  => ActionData::BuildJson( SetupGuideUpdate::class ),
+			'refresh_action_json' => (string)\wp_json_encode( ActionData::BuildAjaxRender( SetupGuideBar::class ) ),
 			'strings'     => [
-				'title'          => sprintf( __( 'Finish setting up %s', 'wp-simple-firewall' ), $con->labels->Name ),
+				'title'          => sprintf( __( 'Finish setting up %s', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				/* translators: %1$s: steps done, %2$s: total steps */
 				'progress'       => __( '%1$s of %2$s done', 'wp-simple-firewall' ),
 				'continue'       => __( 'Continue', 'wp-simple-firewall' ),
 				'collapse'       => __( 'Minimise', 'wp-simple-firewall' ),
-				'hide_for_now'   => __( 'Hide until next visit', 'wp-simple-firewall' ),
 				'dismiss'        => __( "Don't show again", 'wp-simple-firewall' ),
 				'skip'           => __( 'Skip this step', 'wp-simple-firewall' ),
 				'done'           => __( 'Done', 'wp-simple-firewall' ),
+				'redo'           => __( 'Go over this step again', 'wp-simple-firewall' ),
 				'steps_label'    => __( 'Setup steps', 'wp-simple-firewall' ),
 				'all_done'       => __( 'Setup is complete. You can change any of this later in Configure.', 'wp-simple-firewall' ),
-				'reopen'         => __( 'Setup', 'wp-simple-firewall' ),
+				'close'          => __( 'Close this setup guide', 'wp-simple-firewall' ),
 				'sidebar_label'  => __( 'Setup guide', 'wp-simple-firewall' ),
 				/* translators: %s: name of the next setup step */
 				'next'           => __( 'Next: %s', 'wp-simple-firewall' ),

@@ -28,11 +28,11 @@ class MfaCanEmailSendVerify extends MfaUserConfigBase {
 			$verification->markVerified();
 			$con->opts->store();
 			$success = true;
-			$msg = __( 'Email verification completed successfully.', 'wp-simple-firewall' );
+			$msg = __( 'Email 2FA is now on.', 'wp-simple-firewall' );
 		}
 		else {
 			$success = false;
-			$msg = __( 'This email verification link is not valid. Please use the link in the most recent verification email.', 'wp-simple-firewall' );
+			$msg = __( 'This verification link has expired or a newer email has replaced it.', 'wp-simple-firewall' );
 		}
 
 		$con->admin_notices->addFlash( $msg, $this->getActiveWPUser(), !$success );

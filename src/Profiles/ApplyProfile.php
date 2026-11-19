@@ -14,6 +14,13 @@ class ApplyProfile {
 		$this->profile = $profile;
 	}
 
+	/**
+	 * The CrowdSec mode a level sets: blocking, with visitors able to unblock themselves, or none at all.
+	 */
+	public static function CrowdSecMode( bool $isOn ) :string {
+		return $isOn ? 'block_with_unblock' : 'disabled';
+	}
+
 	public function run() :void {
 		$con = self::con();
 		$opts = $con->opts;
@@ -33,7 +40,7 @@ class ApplyProfile {
 						}
 						/* Special Cases */
 						elseif ( $optKey === 'cs_block' ) {
-							$opts->optSet( 'cs_block', $optValue ? 'block_with_unblock' : 'disabled' );
+							$opts->optSet( 'cs_block', self::CrowdSecMode( $optValue ) );
 						}
 					}
 					else {

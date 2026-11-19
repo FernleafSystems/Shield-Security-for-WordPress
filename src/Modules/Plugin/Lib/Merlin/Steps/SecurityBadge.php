@@ -18,7 +18,13 @@ class SecurityBadge extends Base {
 
 		return [
 			'strings' => [
-				'step_title' => __( "Show Your Visitors That You Take Security Seriously!", 'wp-simple-firewall' ),
+				'step_title'                 => __( "Show Your Visitors That You Take Security Seriously!", 'wp-simple-firewall' ),
+				/* translators: %s: plugin name */
+				'security_badge_text_1'      => sprintf( __( 'The %s Badge demonstrates to your customers that you take security seriously.', 'wp-simple-firewall' ), self::con()->labels->Name ),
+				'security_badge_text_2'      => __( 'Turning this on adds a translucent badge to the footer of your website.', 'wp-simple-firewall' ),
+				'badge_heading'              => __( 'Display Security Badge', 'wp-simple-firewall' ),
+				'badge_label'                => __( 'Security Badge', 'wp-simple-firewall' ),
+				'security_badge_text_button' => __( 'Set Security Badge.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'security_badge_options' => \array_map(
