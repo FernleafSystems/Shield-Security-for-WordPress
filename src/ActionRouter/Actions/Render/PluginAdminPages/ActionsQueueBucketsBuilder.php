@@ -21,7 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   badge_label:string,
  *   is_ignored:bool,
  *   actions:list<CompactSummaryAction>,
- *   details:array{},
+ *   drawer_json:string,
  *   group_key:string,
  *   zone:'scans'|'maintenance'
  * }
