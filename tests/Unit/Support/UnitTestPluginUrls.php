@@ -102,10 +102,6 @@ class UnitTestPluginUrls {
 		return '/admin/scans/run';
 	}
 
-	public function cloakedPlugins() :string {
-		return '/wp-admin/plugins.php?plugin_status=cloaked';
-	}
-
 	public function noncedPluginAction( string $action, ?string $url = null, array $aux = [] ) :string {
 		$params = \array_merge( [
 			'action'  => 'shield_action',

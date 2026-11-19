@@ -158,7 +158,11 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$this->assertSame( [ 'active' => [], 'ignored' => [] ], $provider->queueRows() );
 	}
 
-	public function test_inactive_standard_plugin_uses_plugins_management_link() :void {
+	/**
+	 * A cloaked plugin that isn't switched on has nothing to switch off, and isn't on the Plugins page to be
+	 * managed there, so its row links nowhere: it's ignored, or its file is removed by hand.
+	 */
+	public function test_inactive_standard_plugin_offers_no_link_only_ignoring() :void {
 		$provider = new CloakedPluginsQueueIssueProviderTestDouble(
 			[
 				$this->finding(
@@ -167,15 +171,15 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 					false
 				),
 			],
-			'',
-			'/plugins-search'
+			'/deactivate-quiet'
 		);
 
 		$row = $provider->queueRows()[ 'active' ][ 0 ];
 
-		$this->assertSame( '/plugins-search', $row[ 'actions' ][ 0 ][ 'href' ] );
-		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 1 ] )[ 'ex' ] );
-		$this->assertSame( 'Inactive', $this->detailNamed( $row, 'Status' )[ 'value' ] );
+		$this->assertCount( 1, $row[ 'actions' ] );
+		$this->assertTrue( $row[ 'actions' ][ 0 ][ 'is_action' ] );
+		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'ex' ] );
+		$this->assertContains( '2.0.0', \array_column( $row[ 'details' ][ 'items' ], 'value' ) );
 	}
 
 	public function test_must_use_plugin_has_manual_remediation_with_ignore_action() :void {
@@ -197,6 +201,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'ex' ] );
 		$this->assertSame( CloakedPluginState::IGNORE_MODE_PATH, $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'ignore_mode' ] );
 		$this->assertSame( 'wp-content/mu-plugins/loader.php', $this->detailNamed( $row, 'Path' )[ 'value' ] );
+		$this->assertNotContains( '', \array_column( $row[ 'details' ][ 'items' ], 'value' ) );
 		$this->assertNotSame( '', $this->detailNamed( $row, 'Recommended action' )[ 'value' ] );
 	}
 
@@ -208,7 +213,6 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		);
 		$provider = new CloakedPluginsQueueIssueProviderTestDouble(
 			[],
-			'',
 			'',
 			[ $ignoredFinding ],
 			[],
@@ -250,7 +254,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 			[ CloakReason::PluginsList ],
 			false
 		);
-		$provider = new CloakedPluginsQueueIssueProviderTestDouble( [], '', '', [ $untilChanged, $carriedOver ], [], [
+		$provider = new CloakedPluginsQueueIssueProviderTestDouble( [], '', [ $untilChanged, $carriedOver ], [], [
 			$untilChanged->identityKey() => [
 				'mode'          => CloakedPluginState::IGNORE_MODE_CONTENTS,
 				'contents_hash' => \str_repeat( 'a', 64 ),
@@ -282,7 +286,6 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$provider = new CloakedPluginsQueueIssueProviderTestDouble(
 			[],
 			'',
-			'',
 			[ $ignoredFinding ],
 			[ $ignoredFinding->identityKey() ]
 		);
@@ -299,7 +302,6 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$provider = new CloakedPluginsQueueIssueProviderTestDouble(
 			[ $activeFinding ],
 			'',
-			'',
 			[],
 			[ $activeFinding->identityKey() ]
 		);
@@ -314,7 +316,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 			[ CloakReason::AllPlugins ],
 			true
 		);
-		$provider = new CloakedPluginsQueueIssueProviderTestDouble( [ $finding ], '', '', [ $finding ] );
+		$provider = new CloakedPluginsQueueIssueProviderTestDouble( [ $finding ], '', [ $finding ] );
 
 		$this->assertSame( [], $provider->attentionItems() );
 		$this->assertSame( [], $provider->assessmentRows() );
@@ -368,14 +370,12 @@ class CloakedPluginsQueueIssueProviderTestDouble extends CloakedPluginsQueueIssu
 	private array $activeFindings;
 	private array $ignoredFindings;
 	private string $deactivateUrl;
-	private string $pluginsSearchUrl;
 	private array $shieldMuLoaderIdentities;
 	private array $ignoreRecords;
 
 	public function __construct(
 		array $activeFindings,
 		string $deactivateUrl = '',
-		string $pluginsSearchUrl = '',
 		array $ignoredFindings = [],
 		array $shieldMuLoaderIdentities = [],
 		array $ignoreRecords = []
@@ -383,7 +383,6 @@ class CloakedPluginsQueueIssueProviderTestDouble extends CloakedPluginsQueueIssu
 		$this->activeFindings = $activeFindings;
 		$this->ignoredFindings = $ignoredFindings;
 		$this->deactivateUrl = $deactivateUrl;
-		$this->pluginsSearchUrl = $pluginsSearchUrl;
 		$this->shieldMuLoaderIdentities = $shieldMuLoaderIdentities;
 		$this->ignoreRecords = $ignoreRecords;
 	}
@@ -403,10 +402,6 @@ class CloakedPluginsQueueIssueProviderTestDouble extends CloakedPluginsQueueIssu
 
 	protected function deactivateUrl( string $pluginFile ) :string {
 		return $this->deactivateUrl;
-	}
-
-	protected function pluginsSearchUrl( string $pluginFile ) :string {
-		return $this->pluginsSearchUrl;
 	}
 
 	protected function isShieldMuLoaderFinding( CloakedPluginFinding $finding ) :bool {

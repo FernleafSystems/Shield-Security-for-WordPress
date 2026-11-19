@@ -11,10 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\PluginAdminPages\CloakedPluginsQueueIssueProvider,
 	Actions\Render\PluginAdminPages\PageOperatorModeLanding,
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
-	CloakedPluginState,
-	PluginPageView
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\ChartOptions;
@@ -525,8 +522,6 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			$pagenow = 'plugins.php';
 			$this->prepareRealPluginsTable();
 			$this->assertCount( 1, $this->requireController()->comps->hidden_plugins->currentFindings() );
-			$pluginPageRows = ( new PluginPageView() )->addCloakedList( [] );
-			$this->assertArrayHasKey( $pluginFile, $pluginPageRows[ PluginPageView::STATUS ] ?? [] );
 
 			$pagenow = 'admin.php';
 			$this->resetCloakedPluginFindingsCache();

@@ -11,7 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	PhpFileActivity,
 	PhpFileActivityClassifier,
 	PluginEntry,
-	PluginPageView,
 	PluginType,
 	PluginVisibilityComparator,
 	RawPluginInventory
@@ -61,7 +60,6 @@ class CloakedPluginsCon {
 		add_action( 'update_option_active_plugins', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 3 );
 		add_action( 'update_site_option_active_sitewide_plugins', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 4 );
 		add_filter( 'plugins_list', [ $this, 'observePluginsList' ], \PHP_INT_MAX );
-		( new PluginPageView() )->addHooks();
 	}
 
 	public function triggerDetection( ...$args ) :void {

@@ -15,7 +15,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
  * @phpstan-import-type AttentionItem from \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems
@@ -195,8 +194,11 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 		$items = [
 			$this->detailItem( __( 'Finding', 'wp-simple-firewall' ), $this->findingDescription( $finding ) ),
 			$this->detailItem( __( 'Path', 'wp-simple-firewall' ), $finding->relativePath(), 'code' ),
-			$this->detailItem( __( 'Status', 'wp-simple-firewall' ), $this->statusLabel( $finding ) ),
 		];
+		if ( $finding->entry->version !== '' ) {
+			$items[] = $this->detailItem( __( 'Version', 'wp-simple-firewall' ), $finding->entry->version );
+		}
+		$items[] = $this->detailItem( __( 'Status', 'wp-simple-firewall' ), $this->statusLabel( $finding ) );
 
 		if ( $isIgnored ) {
 			$items = \array_merge( $items, $this->ignoreDetails( $finding ) );
@@ -285,14 +287,11 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 			return [ $this->unignoreAction( $finding ) ];
 		}
 
+		// A plugin that's switched on can be switched off from here. Removing one is left to whoever has its files:
+		// WordPress's own delete runs the plugin's uninstall code first, and takes everything in the plugin's folder.
 		$actions = [];
-		if ( $finding->entry->type !== PluginType::MustUse ) {
-			if ( $finding->active || $finding->networkActive ) {
-				$actions = $this->linkActions( $this->deactivateUrl( $finding->entry->file ), __( 'Deactivate Plugin', 'wp-simple-firewall' ), 'bi bi-power' );
-			}
-			else {
-				$actions = $this->linkActions( $this->pluginsSearchUrl( $finding->entry->file ), __( 'Manage Plugins', 'wp-simple-firewall' ), 'bi bi-arrow-right' );
-			}
+		if ( $finding->entry->type !== PluginType::MustUse && ( $finding->active || $finding->networkActive ) ) {
+			$actions = $this->linkActions( $this->deactivateUrl( $finding->entry->file ), __( 'Deactivate Plugin', 'wp-simple-firewall' ), 'bi bi-power' );
 		}
 
 		// "Ignore all" takes only the "until it changes" ignores (kind 'ignore'). A file that can't be read can't be
@@ -378,12 +377,6 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 
 	protected function deactivateUrl( string $pluginFile ) :string {
 		return Services::WpPlugins()->getUrl_Deactivate( $pluginFile );
-	}
-
-	protected function pluginsSearchUrl( string $pluginFile ) :string {
-		return URL::Build( Services::WpGeneral()->getAdminUrl_Plugins(), [
-			's' => $pluginFile,
-		] );
 	}
 
 	protected function isShieldMuLoaderFinding( CloakedPluginFinding $finding ) :bool {

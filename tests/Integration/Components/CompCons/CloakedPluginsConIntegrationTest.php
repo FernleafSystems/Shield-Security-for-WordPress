@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components\CompCons;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\PluginPageView;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPluginsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerCloakedPlugins;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Processor;
@@ -943,158 +942,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public static function restrictedListContexts() :array {
-		return [ 'search' => [ [ 's' => 'no matches' ] ], 'inactive' => [ [ 'plugin_status' => 'inactive' ] ], 'cloaked' => [ [ 'plugin_status' => 'cloaked' ] ] ];
-	}
-
-	/**
-	 * The Cloaked tab's table lists the cloaked plugins and nothing else.
-	 *
-	 * Up to WordPress 6.9 the table begins on every plugin when it's asked for a list it doesn't know of, and it
-	 * begins that way here too (the helper prepares the table's rows without giving WordPress the request's
-	 * list), so this fails unless the cloaked list is chosen before WordPress picks the rows.
-	 */
-	public function testCloakedTabListsTheCloakedPluginsAndNothingElse() :void {
-		$GLOBALS[ 'pagenow' ] = 'plugins.php';
-		$file = $this->createStandardCloakedPlugin( 'shi-cloaked-tab', 'Cloaked tab' );
-		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
-		$this->assertCount( 1, $this->observeRealPluginsTable() );
-
-		$_GET = [ 'plugin_status' => PluginPageView::STATUS ];
-		Services::Request()->query = $_GET;
-
-		$this->assertSame( [ $file ], \array_keys( $this->prepareRealPluginsTable() ) );
-	}
-
-	public static function pluginsPages() :array {
-		return [
-			'a site\'s Plugins page'    => [ false ],
-			'a network\'s Plugins page' => [ true ],
-		];
-	}
-
-	/**
-	 * WordPress makes a tab of its own for every list it's given, and has no name for the cloaked one, so the tab
-	 * that's shown is Shield's, which is put in its place. A network's Plugins page asks for its tabs under a name
-	 * of its own.
-	 * @dataProvider pluginsPages
-	 */
-	public function testCloakedTabIsTheOneShieldSupplies( bool $network ) :void {
-		$GLOBALS[ 'pagenow' ] = 'plugins.php';
-		$this->createStandardCloakedPlugin( 'shi-cloaked-tab-link', 'Cloaked tab link' );
-		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
-
-		$hook = $network ? 'views_plugins-network' : 'views_plugins';
-		$tab = null;
-		$record = static function ( $views ) use ( &$tab ) {
-			$tab = $views[ PluginPageView::STATUS ] ?? null;
-			return $views;
-		};
-		add_filter( $hook, $record, PHP_INT_MAX );
-		try {
-			$this->drawRealPluginsTable( $network );
-		}
-		finally {
-			remove_filter( $hook, $record, PHP_INT_MAX );
-		}
-
-		// WordPress's own tab links to the page it's on; Shield's gives the Cloaked tab's whole address.
-		$this->assertIsString( $tab );
-		$this->assertStringContainsString( $this->requireController()->plugin_urls->cloakedPlugins(), $tab );
-	}
-
-	/**
-	 * WordPress works out a row's action links as it would for an ordinary plugin, which a must-use plugin can't
-	 * be activated or deleted as, so its row in the cloaked list offers none, while an ordinary plugin's row keeps
-	 * its own. A network's Plugins page asks for a row's links under a name of its own.
-	 * @dataProvider pluginsPages
-	 */
-	public function testCloakedMustUsePluginRowOffersNoActionLinks( bool $network ) :void {
-		$GLOBALS[ 'pagenow' ] = 'plugins.php';
-		$mustUse = $this->createMustUseCloakedPlugin( 'shi-cloaked-mu-row.php', 'Cloaked MU row' );
-		add_filter( 'show_advanced_plugins', [ $this, 'hideCloakedMustUsePlugins' ], 1000, 2 );
-		$standard = $this->createStandardCloakedPlugin( 'shi-cloaked-row', 'Cloaked row' );
-		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
-		$this->prepareRealPluginsTable( $network );
-
-		$shown = $this->actionLinksShownOnTheCloakedTab( $network );
-
-		$this->assertSame( [], $shown[ $mustUse ] ?? null );
-		$this->assertArrayHasKey( 'shi-offered', $shown[ $standard ] ?? [] );
-	}
-
-	/**
-	 * To draw a row's update notice, WordPress builds a second table, and with it works out the page's list again
-	 * from the request alone. Up to WordPress 6.9 that leaves the rows after the notice being drawn as rows of
-	 * "all", as it does here (the helper draws the table without giving WordPress the request's list). They're
-	 * still the cloaked list's rows.
-	 * @dataProvider pluginsPages
-	 */
-	public function testCloakedRowsAfterAnUpdateNoticeAreStillTheCloakedListsRows( bool $network ) :void {
-		$GLOBALS[ 'pagenow' ] = 'plugins.php';
-		// The table's rows are in name order: the plugin with the update comes first.
-		$mustUse = $this->createMustUseCloakedPlugin( 'shi-cloaked-mu-later.php', 'Cloaked row B' );
-		add_filter( 'show_advanced_plugins', [ $this, 'hideCloakedMustUsePlugins' ], 1000, 2 );
-		$standard = $this->createStandardCloakedPlugin( 'shi-cloaked-updatable', 'Cloaked row A' );
-		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
-		$this->prepareRealPluginsTable( $network );
-
-		require_once ABSPATH.'wp-admin/includes/list-table.php';
-		require_once ABSPATH.'wp-admin/includes/update.php';
-		$pendingUpdate = static function ( $updates ) use ( $standard ) {
-			$updates = \is_object( $updates ) ? $updates : new \stdClass();
-			$updates->response = \array_merge( \is_array( $updates->response ?? null ) ? $updates->response : [], [
-				$standard => (object)[
-					'slug'        => 'shi-cloaked-updatable',
-					'plugin'      => $standard,
-					'new_version' => '99.0',
-					'url'         => '',
-					'package'     => '',
-				],
-			] );
-			return $updates;
-		};
-		$noticesDrawn = did_action( 'in_plugin_update_message-'.$standard );
-		add_filter( 'site_transient_update_plugins', $pendingUpdate );
-		add_action( 'after_plugin_row_'.$standard, 'wp_plugin_update_row', 10, 2 );
-		try {
-			$shown = $this->actionLinksShownOnTheCloakedTab( $network );
-		}
-		finally {
-			remove_filter( 'site_transient_update_plugins', $pendingUpdate );
-			remove_action( 'after_plugin_row_'.$standard, 'wp_plugin_update_row', 10 );
-		}
-
-		$this->assertSame( $noticesDrawn + 1, did_action( 'in_plugin_update_message-'.$standard ) );
-		$this->assertSame( [ $standard, $mustUse ], \array_values( \array_intersect( \array_keys( $shown ), [ $standard, $mustUse ] ) ) );
-		$this->assertSame( [], $shown[ $mustUse ] );
-	}
-
-	/**
-	 * Draws the Cloaked tab's table, offering every row an action link, whatever WordPress would give this user
-	 * for it.
-	 * @return array<string,mixed> the action links each row is left with, by plugin file, in the order drawn
-	 */
-	private function actionLinksShownOnTheCloakedTab( bool $network ) :array {
-		$_GET = [ 'plugin_status' => PluginPageView::STATUS ];
-		Services::Request()->query = $_GET;
-
-		$hook = $network ? 'network_admin_plugin_action_links' : 'plugin_action_links';
-		$shown = [];
-		$offer = static fn( $actions ) => \array_merge( \is_array( $actions ) ? $actions : [], [ 'shi-offered' => 'link' ] );
-		$record = static function ( $actions, $file ) use ( &$shown ) {
-			$shown[ $file ] = $actions;
-			return $actions;
-		};
-		add_filter( $hook, $offer, 1 );
-		add_filter( $hook, $record, PHP_INT_MAX, 2 );
-		try {
-			$this->drawRealPluginsTable( $network );
-		}
-		finally {
-			remove_filter( $hook, $offer, 1 );
-			remove_filter( $hook, $record, PHP_INT_MAX );
-		}
-		return $shown;
+		return [ 'search' => [ [ 's' => 'no matches' ] ], 'inactive' => [ [ 'plugin_status' => 'inactive' ] ], 'a list WordPress does not have' => [ [ 'plugin_status' => 'cloaked' ] ] ];
 	}
 
 	public function testPluginsActionRequestDoesNotTurnAnActionOnlyFilterIntoAnAlert() :void {
@@ -1328,8 +1176,6 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 			$this->prepareRealPluginsTable();
 			$this->assertIsArray( $before );
 			$this->assertIsArray( $after );
-			$this->assertArrayHasKey( $file, $after[ 'cloaked' ], 'Shield rows must use the newly observed result.' );
-			unset( $after[ 'cloaked' ] );
 			$this->assertSame( $before, $after, 'Observation must not change WordPress plugin buckets.' );
 			$this->assertCloakedPluginEvent( $file, 'plugins_list' );
 		}
