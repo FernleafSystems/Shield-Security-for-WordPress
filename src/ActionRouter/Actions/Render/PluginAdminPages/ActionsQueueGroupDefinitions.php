@@ -41,7 +41,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  * }
  * @phpstan-type SummaryBehaviour array{
  *   definition_key:string,
- *   seed_strategy:'attention_aggregate'|'asset_cards'|'vulnerability_section'|'cloaked_plugins'|'maintenance',
+ *   seed_strategy:'attention_aggregate'|'asset_cards'|'vulnerability_section'|'cloaked_plugins'|'file_locker_unlocked'|'maintenance',
  *   asset_source?:'plugins'|'themes',
  *   vulnerability_section?:'vulnerable'|'abandoned'
  * }
@@ -170,6 +170,10 @@ class ActionsQueueGroupDefinitions {
 		'hidden_plugins' => [
 			'definition_key' => 'hidden_plugins',
 			'seed_strategy'  => 'cloaked_plugins',
+		],
+		'file_locker_unlocked' => [
+			'definition_key' => 'file_locker',
+			'seed_strategy'  => 'file_locker_unlocked',
 		],
 	];
 

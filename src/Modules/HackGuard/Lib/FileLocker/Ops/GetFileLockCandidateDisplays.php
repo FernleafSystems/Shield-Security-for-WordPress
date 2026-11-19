@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FileLockKeyApplicability;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
  * @phpstan-type FileLockCandidateDisplay array{
@@ -12,6 +13,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Uti
  * }
  */
 class GetFileLockCandidateDisplays {
+
+	use PluginControllerConsumer;
 
 	private FileLockKeyApplicability $applicability;
 
@@ -32,6 +35,19 @@ class GetFileLockCandidateDisplays {
 		}
 
 		return $displays;
+	}
+
+	/**
+	 * The critical files still to lock: those not selected for locking. A selected file is locked, or is waiting
+	 * for its first lock.
+	 * @return list<FileLockCandidateDisplay>
+	 */
+	public function notSelected() :array {
+		$selected = self::con()->comps->file_locker->getFilesToLock();
+		return \array_values( \array_filter(
+			$this->run(),
+			static fn( array $display ) :bool => !\in_array( $display[ 'file_key' ], $selected, true )
+		) );
 	}
 
 	/**

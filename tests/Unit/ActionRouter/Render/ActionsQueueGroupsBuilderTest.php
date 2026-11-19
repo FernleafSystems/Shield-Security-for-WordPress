@@ -1511,6 +1511,37 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_build_review_bucket_lists_unlocked_critical_files_as_the_file_locker_group() :void {
+		$payload = $this->buildLayerAndGroup( $this->createBuilder(), 'review',
+			'file_locker',
+			[
+				'items' => [
+					[
+						'key'         => 'file_locker_unlocked',
+						'label'       => 'File Locker',
+						'description' => 'unlocked-sentinel',
+						'count'       => 3,
+						'severity'    => 'warning',
+						'zone'        => 'scans',
+						'source'      => 'scan',
+					],
+				],
+			],
+			[
+				'scans'       => [],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( [ [ 'file_locker' ] ], $this->sectionGroupKeys( $payload[ 'layer' ][ 'active_sections' ] ) );
+		$group = $payload[ 'selected_group' ];
+		$this->assertSame( 3, $group[ 'item_count' ] );
+		$this->assertSame( 'warning', $group[ 'status' ] );
+		$this->assertSame( 'unlocked-sentinel', $group[ 'narrative' ] );
+		$this->assertSame( 'bi bi-file-lock2', $group[ 'drill_icon' ] );
+		$this->assertSame( 'scanresults_filelocker', $group[ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
+	}
+
 	public function test_build_with_selected_group_keeps_healthy_file_locker_interactive_at_zero_items() :void {
 		$builder = $this->createBuilder();
 
@@ -1806,10 +1837,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 
 					public function __construct( array $states ) {
 						$this->states = $states;
-					}
-
-					public function fileLockerReviewState() :?array {
-						return null;
 					}
 
 					public function build( string $tabKey ) :array {

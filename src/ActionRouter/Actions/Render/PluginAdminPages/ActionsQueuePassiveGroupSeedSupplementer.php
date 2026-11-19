@@ -177,19 +177,16 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		$seeds = [];
 		foreach ( $bucketSource[ 'disabled_groups' ] as $definitionKey => $availability ) {
 			$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
-			$isFileLockerSetup = $definitionKey === 'file_locker'
-				&& $availability[ 'disabled_reason' ] === 'not_enabled';
 			$statusLabel = $availability[ 'disabled_reason' ] === 'upgrade_required'
 				? __( 'Upgrade Required', 'wp-simple-firewall' )
-				: ( $isFileLockerSetup ? __( 'Not all locked', 'wp-simple-firewall' ) : __( 'Not Enabled', 'wp-simple-firewall' ) );
+				: __( 'Not Enabled', 'wp-simple-firewall' );
 
 			$seed = [
 				'key'                     => $definitionKey,
 				'definition_key'          => $definitionKey,
 				'label'                   => $definition[ 'label' ],
 				'item_count'              => 0,
-				// Critical files left unlocked are a warning to review.
-				'status'                  => $isFileLockerSetup ? 'warning' : 'neutral',
+				'status'                  => 'neutral',
 				'narrative'               => $availability[ 'disabled_message' ],
 				'detail_shell'            => $definition[ 'detail_shell' ],
 				'management_link'         => [],
@@ -201,14 +198,10 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'header_summary_override' => $availability[ 'disabled_message' ],
 				'header_focus_override'   => $availability[ 'disabled_reason' ] === 'upgrade_required'
 					? __( 'Upgrade your plan to unlock this protection.', 'wp-simple-firewall' )
-					: ( $isFileLockerSetup
-						? __( 'Lock each critical file so any change to it is caught.', 'wp-simple-firewall' )
-						: __( 'Open this protection\'s settings to switch it on.', 'wp-simple-firewall' ) ),
+					: __( 'Open this protection\'s settings to switch it on.', 'wp-simple-firewall' ),
 				'header_next_step_override' => $availability[ 'disabled_reason' ] === 'upgrade_required'
 					? __( 'Review the upgrade option for this protection.', 'wp-simple-firewall' )
-					: ( $isFileLockerSetup
-						? __( 'Open File Locker and lock the files that are not locked yet.', 'wp-simple-firewall' )
-						: __( 'Review this protection\'s settings and switch it on.', 'wp-simple-firewall' ) ),
+					: __( 'Review this protection\'s settings and switch it on.', 'wp-simple-firewall' ),
 				'header_badge_override'      => $statusLabel,
 				'header_badge_status_override' => 'neutral',
 				'header_color_key_override'    => 'neutral',
@@ -217,7 +210,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				&& \in_array( $definitionKey, self::PRO_UPSELL_GROUP_KEYS, true ) ) {
 				$seed[ 'is_pro_upsell' ] = true;
 			}
-			if ( $availability[ 'disabled_reason' ] === 'not_enabled' && !$isFileLockerSetup ) {
+			if ( $availability[ 'disabled_reason' ] === 'not_enabled' ) {
 				$seed[ 'enable_dialog_json' ] = ( new ProtectionEnableDialogBuilder() )->forScan( $definitionKey, $definition[ 'icon_class' ] );
 			}
 			$seeds[] = $seed;

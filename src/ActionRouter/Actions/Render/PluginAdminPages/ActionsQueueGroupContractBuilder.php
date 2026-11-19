@@ -327,7 +327,7 @@ class ActionsQueueGroupContractBuilder {
 				$seed[ 'detail_shell' ],
 				$seed[ 'status' ]
 			),
-			'drill_icon'          => $this->isFileLockerToManage( $seed[ 'definition_key' ], $seed[ 'item_count' ] )
+			'drill_icon'          => $this->isFileLockerToManage( $seed[ 'definition_key' ], $seed[ 'status' ] )
 				? 'bi bi-file-lock2'
 				: 'bi bi-search',
 			'management_link'     => $seed[ 'management_link' ],
@@ -402,15 +402,15 @@ class ActionsQueueGroupContractBuilder {
 	}
 
 	/**
-	 * File Locker with no changed files to look at is in the queue for files left unlocked: its row manages
-	 * the locks.
+	 * File Locker with no changed files to look at (only those are critical) is in the queue for files left
+	 * unlocked, or as passing: its row manages the locks.
 	 */
-	private function isFileLockerToManage( string $definitionKey, int $itemCount ) :bool {
-		return $definitionKey === 'file_locker' && $itemCount < 1;
+	private function isFileLockerToManage( string $definitionKey, string $status ) :bool {
+		return $definitionKey === 'file_locker' && $status !== 'critical';
 	}
 
 	private function buildDrillHint( string $definitionKey, int $itemCount, string $detailShell, string $status ) :string {
-		if ( $this->isFileLockerToManage( $definitionKey, $itemCount ) ) {
+		if ( $this->isFileLockerToManage( $definitionKey, $status ) ) {
 			return __( 'Manage', 'wp-simple-firewall' );
 		}
 		if ( $itemCount < 1 || $detailShell === 'maintenance' || $status === 'good' ) {
