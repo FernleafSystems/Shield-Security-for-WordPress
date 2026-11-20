@@ -32,7 +32,7 @@ class ScansResultsRailTabAvailability {
 	 * @return array{not_locked_count:int,message:string}|null
 	 */
 	public function fileLockerReviewState() :?array {
-		if ( !self::con()->isPremiumActive() ) {
+		if ( !self::con()->caps->hasCap( 'scan_file_locker' ) ) {
 			return null;
 		}
 
@@ -235,11 +235,11 @@ class ScansResultsRailTabAvailability {
 
 			case 'file_locker':
 				$state[ 'show_in_fix_now' ] = true;
-				$state[ 'is_available' ] = self::con()->comps->file_locker->isEnabled()
-					&& self::con()->isPremiumActive();
+				$hasFileLocker = self::con()->caps->hasCap( 'scan_file_locker' );
+				$state[ 'is_available' ] = self::con()->comps->file_locker->isEnabled() && $hasFileLocker;
 				$state[ 'show_in_actions_queue' ] = $state[ 'is_available' ];
 				if ( !$state[ 'is_available' ] ) {
-					$state = \array_replace( $state, self::con()->isPremiumActive()
+					$state = \array_replace( $state, $hasFileLocker
 						? $this->buildDisabledState(
 							'not_enabled',
 							__( 'Detect changes to critical files', 'wp-simple-firewall' ),

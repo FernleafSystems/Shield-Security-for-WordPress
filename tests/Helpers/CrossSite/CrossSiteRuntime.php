@@ -1066,7 +1066,8 @@ try {
 					break;
 				}
 			}
-			return $values !== [] ? $values : $current;
+			// With every choice already selected, deselect one so the stored value still changes.
+			return $values !== [] ? $values : \array_slice( $current, 0, -1 );
 		}
 
 		/**
