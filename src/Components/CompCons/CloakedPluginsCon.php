@@ -8,10 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	AdminPluginVisibilitySnapshot,
 	CloakedPluginFinding,
 	CloakedPluginState,
-	PhpFileActivity,
 	PhpFileActivityClassifier,
 	PluginEntry,
-	PluginType,
 	PluginVisibilityComparator,
 	RawPluginInventory
 };
@@ -32,11 +30,6 @@ class CloakedPluginsCon {
 	private ?AdminPluginVisibility $visibility = null;
 
 	/**
-	 * @var array<string,list<string>>
-	 */
-	private array $pluginFilesBeingDeleted = [];
-
-	/**
 	 * @var CloakedPluginFindingState|null
 	 */
 	private ?array $currentState = null;
@@ -52,8 +45,7 @@ class CloakedPluginsCon {
 		add_filter( 'all_plugins', [ $this->visibility, 'observeAllPlugins' ], \PHP_INT_MAX );
 		add_filter( 'show_advanced_plugins', [ $this->visibility, 'observeAdvancedPlugins' ], \PHP_INT_MAX, 2 );
 		add_action( 'activated_plugin', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
-		add_action( 'delete_plugin', [ $this, 'notePluginBeingDeleted' ], \PHP_INT_MAX );
-		add_action( 'deleted_plugin', [ $this, 'forgetDeletedPluginIgnores' ], \PHP_INT_MAX - 1, 2 );
+		add_action( 'deleted_plugin', [ $this, 'forgetIgnoresOfRemovedPlugins' ], \PHP_INT_MAX - 1, 0 );
 		add_action( 'deleted_plugin', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
 		add_action( 'pre_uninstall_plugin', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
 		add_action( 'upgrader_process_complete', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
@@ -68,27 +60,22 @@ class CloakedPluginsCon {
 	}
 
 	/**
-	 * WordPress deletes a plugin's whole folder, so every plugin file in it goes, not only the one named. They're
-	 * noted now, while they're still there to be listed.
+	 * A plugin whose file has gone loses its ignore however it was removed: run from the hourly cron, before detect(),
+	 * and straight after WordPress deletes a plugin, so one reinstalled at the same place within the hour is reviewed
+	 * afresh. Not run during ordinary detection, which can fire part way through an update; cron events run one at a
+	 * time, and WordPress deletes plugins outside its updates.
 	 */
-	public function notePluginBeingDeleted( mixed $pluginFile ) :void {
-		if ( \is_string( $pluginFile ) && $pluginFile !== '' ) {
-			$this->pluginFilesBeingDeleted[ $pluginFile ] = $this->inventory()->standardPluginFilesDeletedWith( $pluginFile );
-		}
-	}
-
-	public function forgetDeletedPluginIgnores( mixed $pluginFile, mixed $deleted = false ) :void {
-		if ( !\is_string( $pluginFile ) || $pluginFile === '' ) {
+	public function forgetIgnoresOfRemovedPlugins() :void {
+		if ( !$this->canRun() ) {
 			return;
 		}
-		$files = $this->pluginFilesBeingDeleted[ $pluginFile ] ?? [ $pluginFile ];
-		unset( $this->pluginFilesBeingDeleted[ $pluginFile ] );
-
-		if ( $deleted === true ) {
-			( new CloakedPluginState() )->forgetIgnores( \array_map(
-				static fn( string $file ) :string => CloakedPluginFinding::IdentityFor( PluginType::Standard, $file ),
-				$files
-			) );
+		$inventory = $this->inventory();
+		$standard = $inventory->scanStandardPlugins();
+		// Shield is a standard plugin itself, so finding none means the plugins folder couldn't be read.
+		if ( !empty( $standard ) ) {
+			( new CloakedPluginState() )->forgetIgnoresOfPluginsNotIn(
+				\array_merge( $standard, $inventory->scanMustUsePlugins() )
+			);
 		}
 	}
 
@@ -139,7 +126,7 @@ class CloakedPluginsCon {
 		try {
 			$classifier = new PhpFileActivityClassifier();
 			$entries = \array_values( \array_filter(
-				( new RawPluginInventory() )->scan(),
+				$this->inventory()->scan(),
 				static fn( PluginEntry $entry ) :bool => $classifier->classify( $entry->path )->isAlertable()
 			) );
 

@@ -3,7 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components\CompCons;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\CloakedPluginDetails;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
+	CloakedPluginFinding,
+	CloakedPluginState,
+	PluginType
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPluginsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerCloakedPlugins;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Processor;
@@ -152,6 +156,47 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$pagenow = 'admin.php';
 		$this->resetCloakedPluginFindingsCache();
 		$this->assertSame( [], $this->requireController()->comps->hidden_plugins->detect() );
+	}
+
+	public function testHourlyCronForgetsTheIgnoreOfAPluginRemovedOutsideWordPress() :void {
+		$GLOBALS[ 'pagenow' ] = 'plugins.php';
+		$this->createStandardCloakedPlugin( 'shi-cloaked-removed-outside', 'SHI Cloaked Removed Outside' );
+		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+		$findings = $this->observeRealPluginsTable();
+		$this->assertCount( 1, $findings );
+		$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity(
+			$findings[ 0 ]->identityKey(), $findings, CloakedPluginState::IGNORE_MODE_PATH
+		) );
+		$opts = $this->requireController()->opts;
+
+		( new Processor() )->runHourlyCron();
+		$this->assertSame( [ $findings[ 0 ]->identityKey() ], $opts->optGet( CloakedPluginState::IGNORE_OPT_KEY ) );
+
+		// Removed straight from the filesystem, as FTP or a hosting panel would, so WordPress fires no delete hooks.
+		$this->removeCloakedPluginFixtures();
+		$this->resetCloakedPluginFindingsCache();
+		( new Processor() )->runHourlyCron();
+		$this->assertSame( [], $opts->optGet( CloakedPluginState::IGNORE_OPT_KEY ) );
+	}
+
+	public function testPluginDeletedInWordPressAndReinstalledBeforeTheHourlyCheckIsReviewedAfresh() :void {
+		$GLOBALS[ 'pagenow' ] = 'plugins.php';
+		$file = $this->createStandardCloakedPlugin( 'shi-cloaked-reinstalled', 'SHI Cloaked Reinstalled' );
+		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+		$findings = $this->observeRealPluginsTable();
+		$this->assertCount( 1, $findings );
+		$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity(
+			$findings[ 0 ]->identityKey(), $findings, CloakedPluginState::IGNORE_MODE_PATH
+		) );
+
+		require_once ABSPATH.'wp-admin/includes/file.php';
+		require_once ABSPATH.'wp-admin/includes/plugin.php';
+		$this->assertTrue( \delete_plugins( [ $file ] ) );
+		$this->createStandardCloakedPlugin( 'shi-cloaked-reinstalled', 'SHI Cloaked Reinstalled' );
+
+		$this->assertSame( [], $this->requireController()->opts->optGet( CloakedPluginState::IGNORE_OPT_KEY ) );
+		$this->resetCloakedPluginFindingsCache();
+		$this->assertCount( 1, $this->observeRealPluginsTable() );
 	}
 
 	public function testStandardPluginCloakedByAllPluginsFilterFiresEventAndDedupeAlert() :void {
@@ -1048,10 +1093,15 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$findings = $this->observeRealPluginsTable();
 		$this->assertCount( 1, $findings );
 		$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $findings[ 0 ]->identityKey(), $findings, CloakedPluginState::IGNORE_MODE_PATH ) );
+		$con = $this->requireController();
+		// An ignore whose plugin has gone, which the hourly check would forget if it ran on this version.
+		$con->opts->optSet( CloakedPluginState::IGNORE_OPT_KEY, \array_merge(
+			$con->opts->optGet( CloakedPluginState::IGNORE_OPT_KEY ),
+			[ CloakedPluginFinding::IdentityFor( PluginType::Standard, 'shi-cloaked-gone/shi-cloaked-gone.php' ) ]
+		) )->store();
 		$before = $this->snapshotSelectedOptions( [
 			CloakedPluginState::FINDINGS_OPT_KEY, CloakedPluginState::IGNORE_OPT_KEY, CloakedPluginState::IGNORE_MODES_OPT_KEY, CloakedPluginState::OPT_KEY,
 		] );
-		$con = $this->requireController();
 		$con->opts->optSet( 'instant_alerts_data', [
 			AlertHandlerCloakedPlugins::class => [ 'hidden_plugins' => [ $findings[ 0 ]->toAlertData() ] ],
 		] );

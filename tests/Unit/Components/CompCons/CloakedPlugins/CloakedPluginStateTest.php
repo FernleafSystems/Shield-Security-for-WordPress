@@ -752,32 +752,52 @@ class CloakedPluginStateTest extends BaseUnitTest {
 		$this->assertSame( [ $finding ], $changed[ 'new_active' ] );
 	}
 
-	public function testDamagedIgnoreModesFallBackToAlwaysAndStrayOnesAreDropped() :void {
+	public function testDamagedAndStrayIgnoreModesAreDropped() :void {
 		$finding = $this->finding( 'cloaked/cloaked.php' );
+		$legacy = \str_repeat( 'a', 40 );
 		$badHash = \str_repeat( 'b', 40 );
 		$badMode = \str_repeat( 'c', 40 );
 		$stray = \str_repeat( 'd', 40 );
-		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [ $finding->identityKey(), $badHash, $badMode, 7, 'not-an-identity' ];
+		$notAnArray = \str_repeat( 'e', 40 );
+		$null = \str_repeat( '0', 40 );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [
+			$finding->identityKey(), $legacy, $badHash, $badMode, $notAnArray, $null, 7, 'not-an-identity'
+		];
 		$this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ] = [
 			$finding->identityKey() => $this->alwaysRecord( 5 ),
 			$badHash                => [ 'mode' => CloakedPluginState::IGNORE_MODE_CONTENTS, 'contents_hash' => \str_repeat( 'b', 64 )."\n", 'ignored_at' => 1 ],
 			$badMode                => [ 'mode' => 'forever', 'contents_hash' => '', 'ignored_at' => 1 ],
+			$notAnArray             => 'path',
+			$null                   => null,
 			$stray                  => $this->alwaysRecord( 5 ),
 		];
 
 		$this->assertSame(
 			[
 				$finding->identityKey() => $this->alwaysRecord( 5 ),
-				$badHash                => $this->alwaysRecord( 0 ),
-				$badMode                => $this->alwaysRecord( 0 ),
+				$legacy                 => $this->alwaysRecord( 0 ),
 			],
 			( new CloakedPluginState() )->ignoreRecords()
 		);
-		$this->assertSame( [ $finding->identityKey(), $badHash, $badMode ], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+		$this->assertSame( [ $finding->identityKey(), $legacy ], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
 		$this->assertSame(
 			[ $finding->identityKey() => $this->alwaysRecord( 5 ) ],
 			$this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ]
 		);
+	}
+
+	public function testPluginWithADamagedIgnoreIsFlaggedAgain() :void {
+		$state = new CloakedPluginState();
+		$finding = $this->finding( 'cloaked/cloaked.php' );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [ $finding->identityKey() ];
+		$this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ] = [
+			$finding->identityKey() => [ 'mode' => CloakedPluginState::IGNORE_MODE_CONTENTS, 'contents_hash' => 'damaged', 'ignored_at' => 1 ],
+		];
+
+		$result = $state->classify( [ $finding ] );
+
+		$this->assertSame( [ $finding ], $result[ 'active' ] );
+		$this->assertSame( [], $result[ 'ignored' ] );
 	}
 
 	public function testReadingIgnoresKeepsStoredMapOrderAndLegacyListOrder() :void {
@@ -794,33 +814,52 @@ class CloakedPluginStateTest extends BaseUnitTest {
 		$this->assertSame( $modes, $this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ] );
 	}
 
-	public function testDeletingAPluginInWordPressForgetsTheIgnoresOfEverythingInItsFolder() :void {
+	public function testHourlyCheckForgetsTheIgnoresOfPluginsWhoseFilesHaveGoneHoweverTheyWent() :void {
 		$pluginsDir = $this->createTrackedTempDir( 'shield-cloaked-plugins-dir-' );
-		foreach ( [ 'suite/main.php', 'suite/secondary.php', 'suite/readme.txt', 'other/other.php' ] as $file ) {
-			if ( !\is_dir( \dirname( $pluginsDir.'/'.$file ) ) ) {
-				$this->assertTrue( \mkdir( \dirname( $pluginsDir.'/'.$file ) ) );
-			}
-			$this->assertNotFalse( \file_put_contents( $pluginsDir.'/'.$file, "<?php\n" ) );
+		$muDir = $this->createTrackedTempDir( 'shield-cloaked-mu-dir-' );
+		$this->writePluginFile( $pluginsDir.'/wp-simple-firewall/icwp-wpsf.php', "<?php\n/*\nPlugin Name: Shield\n*/\n" );
+		$this->writePluginFile( $pluginsDir.'/kept/kept.php', "<?php\n/*\nPlugin Name: Kept\n*/\nrun();\n" );
+		$this->writePluginFile( $muDir.'/kept-mu.php', "<?php\nrun();\n" );
+		$kept = $this->findingForEntry( $this->pluginEntry( 'kept/kept.php', 'Kept', '', $pluginsDir.'/kept/kept.php' ) );
+		$keptMuIdentity = CloakedPluginFinding::IdentityFor( PluginType::MustUse, 'kept-mu.php' );
+		$goneMuIdentity = CloakedPluginFinding::IdentityFor( PluginType::MustUse, 'gone-mu.php' );
+		$state = new CloakedPluginState();
+		$this->assertTrue( $state->ignoreIdentity(
+			$kept->identityKey(), [ $kept ], CloakedPluginState::IGNORE_MODE_CONTENTS, $kept->contentsHash()
+		) );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = \array_merge(
+			$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ],
+			[ $this->finding( 'gone/gone.php' )->identityKey(), $keptMuIdentity, $goneMuIdentity ]
+		);
+		$keptMode = $this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ];
+
+		( new CloakedPluginsConTestDouble( $pluginsDir, $muDir ) )->forgetIgnoresOfRemovedPlugins();
+
+		$this->assertSame( [ $kept->identityKey(), $keptMuIdentity ], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+		$this->assertSame( $keptMode, $this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ] );
+
+		// A plugin later put where an ignored one was is reviewed afresh.
+		$this->assertTrue( \unlink( $pluginsDir.'/kept/kept.php' ) );
+		( new CloakedPluginsConTestDouble( $pluginsDir, $muDir ) )->forgetIgnoresOfRemovedPlugins();
+		$this->writePluginFile( $pluginsDir.'/kept/kept.php', "<?php\n/*\nPlugin Name: Kept\n*/\nrun();\n" );
+		$this->assertSame( [ $kept ], $state->classify( [ $kept ] )[ 'active' ] );
+	}
+
+	public function testHourlyCheckForgetsNothingWhenThePluginsFolderCannotBeRead() :void {
+		$ignored = [ $this->finding( 'cloaked/cloaked.php' )->identityKey() ];
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = $ignored;
+
+		( new CloakedPluginsConTestDouble( $this->createTrackedTempDir( 'shield-cloaked-plugins-dir-' ).'/missing' ) )
+			->forgetIgnoresOfRemovedPlugins();
+
+		$this->assertSame( $ignored, $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+	}
+
+	private function writePluginFile( string $path, string $contents ) :void {
+		if ( !\is_dir( \dirname( $path ) ) ) {
+			$this->assertTrue( \mkdir( \dirname( $path ), 0777, true ) );
 		}
-		$main = $this->finding( 'suite/main.php' )->identityKey();
-		$secondary = $this->finding( 'suite/secondary.php' )->identityKey();
-		$other = $this->finding( 'other/other.php' )->identityKey();
-		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [ $main, $secondary, $other ];
-		$con = new CloakedPluginsConTestDouble( $pluginsDir );
-
-		// WordPress reports a deletion that failed with $deleted false.
-		$con->notePluginBeingDeleted( 'suite/main.php' );
-		$con->forgetDeletedPluginIgnores( 'suite/main.php', false );
-		$this->assertSame( [ $main, $secondary, $other ], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
-
-		// WordPress lists nothing more until the whole folder has gone.
-		$con->notePluginBeingDeleted( 'suite/main.php' );
-		foreach ( [ 'main.php', 'secondary.php', 'readme.txt' ] as $file ) {
-			$this->assertTrue( \unlink( $pluginsDir.'/suite/'.$file ) );
-		}
-		$con->forgetDeletedPluginIgnores( 'suite/main.php', true );
-
-		$this->assertSame( [ $other ], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+		$this->assertNotFalse( \file_put_contents( $path, $contents ) );
 	}
 
 	private function finding( string $file ) :CloakedPluginFinding {
@@ -926,12 +965,19 @@ class CloakedPluginsConTestDouble extends CloakedPluginsCon {
 
 	private string $pluginDir;
 
-	public function __construct( string $pluginDir ) {
+	private string $muPluginDir;
+
+	public function __construct( string $pluginDir, string $muPluginDir = '' ) {
 		$this->pluginDir = $pluginDir;
+		$this->muPluginDir = $muPluginDir;
+	}
+
+	protected function canRun() :bool {
+		return true;
 	}
 
 	protected function inventory() :RawPluginInventory {
-		return new RawPluginInventory( $this->pluginDir, '' );
+		return new RawPluginInventory( $this->pluginDir, $this->muPluginDir );
 	}
 }
 

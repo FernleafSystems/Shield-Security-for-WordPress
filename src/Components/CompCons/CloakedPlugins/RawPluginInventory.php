@@ -83,22 +83,6 @@ class RawPluginInventory {
 	}
 
 	/**
-	 * The plugin files WordPress deletes along with a plugin: every one in its folder, or for a plugin that's a single
-	 * file in the plugins folder itself, only that file.
-	 * @return list<string>
-	 */
-	public function standardPluginFilesDeletedWith( string $pluginFile ) :array {
-		$files = [ $pluginFile ];
-		$pluginDir = $this->pluginDir();
-		$folder = \dirname( \str_replace( '\\', '/', $pluginFile ) );
-		if ( $pluginDir !== '' && $folder !== '.' && $folder !== '' && $folder !== '/' && \is_dir( $pluginDir.'/'.$folder ) ) {
-			$files = \array_merge( $files, $this->pluginFilesInFolder( $pluginDir, $folder ) );
-		}
-
-		return \array_values( \array_unique( $files ) );
-	}
-
-	/**
 	 * @return list<string>
 	 */
 	private function standardPluginFiles( string $pluginDir ) :array {
