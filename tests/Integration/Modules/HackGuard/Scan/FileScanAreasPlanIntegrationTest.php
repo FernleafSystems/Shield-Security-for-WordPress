@@ -31,8 +31,11 @@ class FileScanAreasPlanIntegrationTest extends ShieldIntegrationTestCase {
 		$option = $this->displayedAreas();
 		$this->assertFalse( $option[ 'disabled' ] );
 		$this->assertTrue( $option[ 'value_options' ][ 'wp' ][ 'is_available' ] );
+		$this->assertSame( '', $option[ 'value_options' ][ 'wp' ][ 'unavailable_title' ] );
 		foreach ( [ 'malware_php', 'plugins', 'themes', 'wpcontent', 'wproot' ] as $proArea ) {
 			$this->assertFalse( $option[ 'value_options' ][ $proArea ][ 'is_available' ], $proArea );
+			// A choice the plan doesn't include says so when hovered.
+			$this->assertNotSame( '', $option[ 'value_options' ][ $proArea ][ 'unavailable_title' ], $proArea );
 		}
 		$this->assertSame( [ 'wp' ], \array_values( $option[ 'value' ] ) );
 	}

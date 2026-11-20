@@ -813,10 +813,10 @@ class StringsOptions {
 				];
 				break;
 			case 'login_limit_interval':
-				$name = __( 'Cooldown Period', 'wp-simple-firewall' );
-				$summary = __( 'Limit account access requests to every X seconds', 'wp-simple-firewall' );
+				$name = __( 'Login Cooldown Period', 'wp-simple-firewall' );
+				$summary = __( 'Limit login attempts to one every X seconds', 'wp-simple-firewall' );
 				$desc = [
-					__( 'WordPress will process only ONE account access attempt per number of seconds specified.', 'wp-simple-firewall' ),
+					__( 'WordPress will process only ONE login attempt per number of seconds specified.', 'wp-simple-firewall' ),
 					__( 'Zero (0) turns this off.', 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $con->opts->optDefault( 'login_limit_interval' ) )
 				];

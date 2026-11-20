@@ -324,8 +324,8 @@ if ( false ) { // This ensures the code is never executed but is parsed for tran
 	__( 'Protected Forms', 'wp-simple-firewall' ); // config_spec.options.114.name
 	__( 'Which WordPress Forms Should Be Protected From Bots', 'wp-simple-firewall' ); // config_spec.options.114.summary
 	__( 'Choose on which forms silentCAPTHA Bot Protection will be deployed.', 'wp-simple-firewall' ); // config_spec.options.114.description
-	__( 'Login Cooldown Interval', 'wp-simple-firewall' ); // config_spec.options.115.name
-	__( 'Limit login attempts to every X seconds', 'wp-simple-firewall' ); // config_spec.options.115.summary
+	__( 'Login Cooldown Period', 'wp-simple-firewall' ); // config_spec.options.115.name
+	__( 'Limit login attempts to one every X seconds', 'wp-simple-firewall' ); // config_spec.options.115.summary
 	__( 'Block Login Bots', 'wp-simple-firewall' ); // config_spec.options.116.name
 	__( 'Block Login Attempted By Automated Bots', 'wp-simple-firewall' ); // config_spec.options.116.summary
 	__( "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks", 'wp-simple-firewall' ); // config_spec.options.116.description

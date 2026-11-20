@@ -20,6 +20,12 @@ class BuildOptionsForDisplay {
 
 	private array $values = [];
 
+	/**
+	 * False when the values come from elsewhere, such as a sync profile, so this site's files and server mustn't
+	 * limit them.
+	 */
+	private bool $valuesAreThisSite = true;
+
 	public function __construct( array $options = [], array $sections = [] ) {
 		$this->options = $options;
 		$this->sections = $sections;
@@ -27,6 +33,7 @@ class BuildOptionsForDisplay {
 
 	public function setValues( array $values ) :self {
 		$this->values = $values;
+		$this->valuesAreThisSite = false;
 		return $this;
 	}
 
@@ -121,10 +128,13 @@ class BuildOptionsForDisplay {
 				$available = [];
 				$converted = [];
 				foreach ( $optDef[ 'value_options' ] as $valueOpt ) {
+					$hasAccess = $opts->optValueHasAccess( $optDef[ 'key' ], (string)$valueOpt[ 'value_key' ] );
 
 					$converted[ $valueOpt[ 'value_key' ] ] = [
-						'name'         => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
-						'is_available' => $opts->optValueHasAccess( $optDef[ 'key' ], (string)$valueOpt[ 'value_key' ] ),
+						'name'              => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
+						'is_available'      => $hasAccess,
+						// Why a choice is unavailable, as a hover title: '' when there's nothing to add.
+						'unavailable_title' => $hasAccess ? '' : sprintf( __( 'Available with %s', 'wp-simple-firewall' ), $con->labels->Name ),
 					];
 
 					if ( $converted[ $valueOpt[ 'value_key' ] ][ 'is_available' ] ) {
@@ -261,16 +271,25 @@ class BuildOptionsForDisplay {
 		switch ( $option[ 'key' ] ) {
 
 			case 'file_locker':
+				if ( !$this->valuesAreThisSite ) {
+					break;
+				}
 				$applicability = FileLockKeyApplicability::fromCurrentEnvironment();
 				/** @var array<array-key,mixed> $fileLockerValue */
 				$fileLockerValue = $option[ 'value' ];
-				$option[ 'value' ] = $applicability->removeNonApplicableKnownKeys( $fileLockerValue );
-				if ( !$applicability->isApplicable( 'root_webconfig' ) ) {
-					$option[ 'value_options' ][ 'root_webconfig' ][ 'name' ] .= sprintf( ' (%s)', __( 'IIS only', 'wp-simple-firewall' ) );
-					$option[ 'value_options' ][ 'root_webconfig' ][ 'is_available' ] = false;
-				}
-				if ( !$applicability->isApplicable( 'theme_functions' ) ) {
-					$option[ 'value_options' ][ 'theme_functions' ][ 'is_available' ] = false;
+				$option[ 'value' ] = $applicability->removeServerUnsupportedKeys( $fileLockerValue );
+				foreach ( \array_map( 'strval', \array_keys( $option[ 'value_options' ] ) ) as $fileKey ) {
+					if ( !$applicability->isServerSupported( $fileKey ) ) {
+						$option[ 'value_options' ][ $fileKey ][ 'name' ] .= sprintf( ' (%s)', __( 'IIS only', 'wp-simple-firewall' ) );
+						$option[ 'value_options' ][ $fileKey ][ 'is_available' ] = false;
+					}
+					elseif ( !$applicability->isApplicable( $fileKey ) ) {
+						$option[ 'value_options' ][ $fileKey ][ 'name' ] .= sprintf( ' (%s)', __( 'not found', 'wp-simple-firewall' ) );
+						// A selected file that's gone missing stays tickable, so saving keeps it (and its lock).
+						if ( !\in_array( $fileKey, $option[ 'value' ], true ) ) {
+							$option[ 'value_options' ][ $fileKey ][ 'is_available' ] = false;
+						}
+					}
 				}
 				break;
 
