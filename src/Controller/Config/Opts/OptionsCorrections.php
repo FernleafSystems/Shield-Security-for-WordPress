@@ -210,7 +210,7 @@ class OptionsCorrections {
 		if ( $opts->optChanged( 'file_locker' ) ) {
 			$lockFiles = $opts->optGet( 'file_locker' );
 			if ( \is_array( $lockFiles ) && !empty( $lockFiles ) ) {
-				$lockFiles = FileLockKeyApplicability::fromCurrentEnvironment()->removeNonApplicableKnownKeys( $lockFiles );
+				$lockFiles = FileLockKeyApplicability::fromCurrentEnvironment()->removeServerUnsupportedKeys( $lockFiles );
 			}
 			$opts->optSet( 'file_locker', $lockFiles );
 		}

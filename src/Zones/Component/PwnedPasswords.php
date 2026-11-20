@@ -26,13 +26,26 @@ class PwnedPasswords extends Base {
 
 		$status = parent::status();
 
-		if ( $opts->optIs( 'pass_prevent_pwned', 'Y' ) && $opts->optIs( 'enable_password_policies', 'Y' ) ) {
+		$pwnedOn = $opts->optIs( 'pass_prevent_pwned', 'Y' );
+		$policiesOn = self::con()->comps->opts_lookup->isPassPoliciesEnabled();
+
+		if ( $pwnedOn && $policiesOn ) {
 			$status[ 'level' ] = EnumEnabledStatus::GOOD;
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			// Password policies being off is said once, by the Password Policies component.
-			$status[ 'exp' ][] = $this->explanationFixedBy( __( "Users are allowed to re-use compromised passwords.", 'wp-simple-firewall' ), 'pass_prevent_pwned' );
+			// Names policies being off as the cause, but stays on this setting: the warning on the
+			// policies switch itself is said once, by the Password Policies component.
+			if ( $policiesOn ) {
+				$exp = __( 'Users are allowed to re-use compromised passwords.', 'wp-simple-firewall' );
+			}
+			elseif ( $pwnedOn ) {
+				$exp = __( 'Users may re-use compromised passwords because password policies are turned off.', 'wp-simple-firewall' );
+			}
+			else {
+				$exp = __( 'Users may re-use compromised passwords because password policies and pwned password blocking are both turned off.', 'wp-simple-firewall' );
+			}
+			$status[ 'exp' ][] = $this->explanationFixedBy( $exp, 'pass_prevent_pwned' );
 		}
 
 		return $status;

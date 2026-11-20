@@ -71,6 +71,7 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 			],
 			'vars'    => [
 				'rid'                => 14,
+				'accept_action'      => 'accept',
 				'relative_path'      => 'wp-config.php',
 				'locked_at'          => '2026-03-12 08:00:00',
 				'file_size_locked'   => '2 KB',

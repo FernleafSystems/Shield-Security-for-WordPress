@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Zones\Component;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\BuildFileFromFileKey;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FileLockKeyApplicability;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
@@ -60,6 +61,9 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$_SERVER[ 'HTTP_USER_AGENT' ] = 'Unit Test Agent';
 
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( '_n' )->alias(
+			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
+		);
 		Functions\when( 'esc_html' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text )
@@ -113,8 +117,8 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			'security admin options' => [ fn() => new SecadminWpOptions(), [ 'admin_access_restrict_options' => 'N' ], [ 'sec_admin' => new class { public function isEnabledSecAdmin() :bool { return false; } } ] ],
 			'security admin admins'  => [ fn() => new SecadminWpAdmins(), [ 'admin_access_restrict_admin_users' => 'N' ], [ 'sec_admin' => new class { public function isEnabledSecAdmin() :bool { return false; } } ] ],
 			'password policies'      => [ fn() => new PasswordPolicies(), [], [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'isPassPoliciesEnabled' => false ] ) ] ],
-			'password strength'      => [ fn() => new PasswordStrength(), [ 'enable_password_policies' => 'N', 'pass_min_strength' => 2 ], [] ],
-			'pwned passwords'        => [ fn() => new PwnedPasswords(), [ 'enable_password_policies' => 'N', 'pass_prevent_pwned' => 'N' ], [] ],
+			'password strength'      => [ fn() => new PasswordStrength(), [ 'pass_min_strength' => 2 ], [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'isPassPoliciesEnabled' => false ] ) ] ],
+			'pwned passwords'        => [ fn() => new PwnedPasswords(), [ 'pass_prevent_pwned' => 'N' ], [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'isPassPoliciesEnabled' => false ] ) ] ],
 		];
 
 		foreach ( $cases as $label => [ $factory, $optValues, $componentOverrides ] ) {
@@ -239,7 +243,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			]
 		);
 
-		$fileLocker = $this->fileLockerForEnvironment( false, true );
+		$fileLocker = $this->fileLockerForEnvironment( false );
 		$row = $this->firstConfigureRow( $fileLocker );
 
 		$this->assertSame( EnumEnabledStatus::GOOD, $row[ 'enabled_status' ] );
@@ -262,19 +266,20 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			]
 		);
 
-		$fileLocker = $this->fileLockerForEnvironment( true, false );
+		$fileLocker = $this->fileLockerForEnvironment( true, [ 'theme_functions' ] );
 		$row = $this->firstConfigureRow( $fileLocker );
 
 		$this->assertSame( EnumEnabledStatus::GOOD, $row[ 'enabled_status' ] );
 		$this->assertSame( [], $row[ 'explanations' ] );
 	}
 
-	public function test_file_locker_applicability_removes_only_non_applicable_known_stored_keys() :void {
-		$applicability = new FileLockKeyApplicability( false, false );
+	public function test_file_locker_saved_selection_drops_only_files_the_server_never_uses() :void {
+		// A missing file stays selected: its lock is what lets the owner review or restore it.
+		$applicability = $this->fileLockApplicability( false, [ 'theme_functions', 'root_htaccess' ] );
 
 		$this->assertSame(
-			[ 'wpconfig', 'root_htaccess', 'unknown_file' ],
-			$applicability->removeNonApplicableKnownKeys( [
+			[ 'wpconfig', 'root_htaccess', 'theme_functions', 'unknown_file' ],
+			$applicability->removeServerUnsupportedKeys( [
 				'wpconfig',
 				'root_webconfig',
 				'root_htaccess',
@@ -282,6 +287,79 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				'unknown_file',
 			] )
 		);
+	}
+
+	public function test_file_locker_applicability_needs_the_server_to_use_the_file_and_the_file_to_exist() :void {
+		$windowsWithoutHtaccess = $this->fileLockApplicability( true, [ 'root_htaccess' ] );
+		$this->assertFalse( $windowsWithoutHtaccess->isApplicable( 'root_htaccess' ) );
+		$this->assertTrue( $windowsWithoutHtaccess->isServerSupported( 'root_htaccess' ) );
+		$this->assertTrue( $windowsWithoutHtaccess->isApplicable( 'root_webconfig' ) );
+
+		$windowsWithoutWebConfig = $this->fileLockApplicability( true, [ 'root_webconfig' ] );
+		$this->assertFalse( $windowsWithoutWebConfig->isApplicable( 'root_webconfig' ) );
+		$this->assertTrue( $windowsWithoutWebConfig->isServerSupported( 'root_webconfig' ) );
+
+		// A Web.config left on a non-IIS server still isn't one File Locker offers.
+		$linux = $this->fileLockApplicability( false );
+		$this->assertFalse( $linux->isApplicable( 'root_webconfig' ) );
+		$this->assertFalse( $linux->isServerSupported( 'root_webconfig' ) );
+	}
+
+	public function test_file_locker_ignores_a_missing_root_htaccess_in_configure() :void {
+		$this->installController(
+			[],
+			[
+				'file_locker' => new class {
+					public function getFilesToLock() :array {
+						return [ 'wpconfig', 'theme_functions', 'root_index', 'root_webconfig' ];
+					}
+
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
+					}
+				},
+			]
+		);
+
+		$row = $this->firstConfigureRow( $this->fileLockerForEnvironment( true, [ 'root_htaccess' ] ) );
+
+		$this->assertSame( EnumEnabledStatus::GOOD, $row[ 'enabled_status' ] );
+		$this->assertSame( [], $row[ 'explanations' ] );
+	}
+
+	public function test_file_locker_says_a_selected_file_it_cannot_find_is_not_protected() :void {
+		$this->installController(
+			[],
+			[
+				'file_locker' => new class {
+					public function getFilesToLock() :array {
+						return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ];
+					}
+
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
+					}
+				},
+			]
+		);
+
+		$missingHtaccess = $this->fileLockerForEnvironment( true, [ 'root_htaccess' ] );
+		$row = $this->firstConfigureRow( $missingHtaccess );
+		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] );
+		$this->assertCount( 1, $row[ 'explanations' ] );
+		$this->assertSame( 'file_locker', $this->fixedBy( $row[ 'explanations' ][ 0 ] ) );
+		$this->assertSame( EnumEnabledStatus::GOOD, $missingHtaccess->enabledStatus() );
+
+		// Without wp-config.php, the site's most important file isn't protected, wherever it's looked at.
+		$missingWpConfig = $this->fileLockerForEnvironment( true, [ 'wpconfig' ] );
+		$row = $this->firstConfigureRow( $missingWpConfig );
+		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] );
+		$this->assertCount( 1, $row[ 'explanations' ] );
+		$this->assertNotSame( EnumEnabledStatus::GOOD, $missingWpConfig->enabledStatus() );
+
+		// A Web.config left selected on a server that doesn't use it isn't reported as missing.
+		$row = $this->firstConfigureRow( $this->fileLockerForEnvironment( false, [ 'root_webconfig' ] ) );
+		$this->assertSame( [], $row[ 'explanations' ] );
 	}
 
 	public function test_waf_only_becomes_critical_when_primary_rules_are_absent() :void {
@@ -415,7 +493,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 	public function test_password_policies_being_off_is_said_once() :void {
 		$this->installController(
-			[ 'enable_password_policies' => 'N', 'pass_prevent_pwned' => 'N', 'pass_min_strength' => 2 ],
+			[ 'pass_prevent_pwned' => 'N', 'pass_min_strength' => 2 ],
 			[ 'opts_lookup' => $this->buildOptsLookupStub( [ 'isPassPoliciesEnabled' => false ] ) ]
 		);
 
@@ -429,6 +507,40 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		}
 
 		$this->assertCount( 1, $fixedByPolicies );
+	}
+
+	/**
+	 * A password setting that's switched on but has no effect must say why: whether password policies are off,
+	 * the setting itself is off, or both. The reason always sits on the component's own setting.
+	 */
+	public function test_password_settings_say_which_switch_stops_them_working() :void {
+		$cases = [
+			'pass_prevent_pwned' => [
+				fn() => new PwnedPasswords(),
+				[ 'pass_prevent_pwned' => 'N' ],
+				[ 'pass_prevent_pwned' => 'Y' ],
+			],
+			'pass_min_strength'  => [
+				fn() => new PasswordStrength(),
+				[ 'pass_min_strength' => 2 ],
+				[ 'pass_min_strength' => 4 ],
+			],
+		];
+
+		foreach ( $cases as $optionKey => [ $build, $settingOff, $settingOn ] ) {
+			$explanations = [];
+			foreach ( [ [ $settingOff, true ], [ $settingOn, false ], [ $settingOff, false ] ] as [ $opts, $policiesOn ] ) {
+				$this->installController( $opts, [
+					'opts_lookup' => $this->buildOptsLookupStub( [ 'isPassPoliciesEnabled' => $policiesOn ] ),
+				] );
+				$row = $this->firstConfigureRow( $build() );
+				$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ], $optionKey );
+				$this->assertCount( 1, $row[ 'explanations' ], $optionKey );
+				$this->assertSame( $optionKey, $this->fixedBy( $row[ 'explanations' ][ 0 ] ), $optionKey );
+				$explanations[] = $row[ 'explanations' ][ 0 ];
+			}
+			$this->assertCount( 3, \array_unique( $explanations ), $optionKey.': each cause needs its own explanation' );
+		}
 	}
 
 	public function test_bot_actions_use_partial_primary_coverage() :void {
@@ -551,18 +663,49 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				'login_limit_interval'     => 0,
 			],
 			[
-				'forms_users' => new class {
-					public function getInstalled() :array {
-						return [];
-					}
-				},
+				'forms_users' => $this->formsUsersStub(),
 			]
 		);
 
 		$row = $this->firstConfigureRow( new LoginProtectionForms() );
 
 		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] ?? null );
-		$this->assertCount( 3, $row[ 'explanations' ] ?? [] );
+		// One explanation for the unprotected forms, one for the cooldown.
+		$this->assertCount( 2, $row[ 'explanations' ] ?? [] );
+	}
+
+	public function test_login_protection_names_every_unprotected_form_in_one_explanation() :void {
+		$noProviders = [
+			'forms_users' => $this->formsUsersStub(),
+		];
+
+		$explanations = [];
+		foreach ( [ [ 'login', 'register' ], [ 'login' ], [] ] as $locations ) {
+			$this->installController( [ 'bot_protection_locations' => $locations, 'login_limit_interval' => 5 ], $noProviders );
+			$row = $this->firstConfigureRow( new LoginProtectionForms() );
+			$this->assertCount( 1, $row[ 'explanations' ] );
+			$this->assertSame( 'bot_protection_locations', $this->fixedBy( $row[ 'explanations' ][ 0 ] ) );
+			$explanations[] = $row[ 'explanations' ][ 0 ];
+		}
+		$this->assertCount( 3, \array_unique( $explanations ) );
+
+		$this->installController( [ 'bot_protection_locations' => [ 'login', 'register', 'password' ], 'login_limit_interval' => 5 ], $noProviders );
+		$this->assertSame( [], $this->firstConfigureRow( new LoginProtectionForms() )[ 'explanations' ] );
+	}
+
+	public function test_login_protection_says_no_wordpress_form_is_protected_while_wordpress_is_unticked() :void {
+		$this->installController(
+			[ 'bot_protection_locations' => [ 'login', 'register', 'password' ], 'login_limit_interval' => 5 ],
+			[ 'forms_users' => $this->formsUsersStub( [], [] ) ]
+		);
+
+		$component = new LoginProtectionForms();
+		$row = $this->firstConfigureRow( $component );
+		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] );
+		$this->assertCount( 1, $row[ 'explanations' ] );
+		// Ticking the locations wouldn't help: the warning sits on the provider setting that does.
+		$this->assertSame( 'user_form_providers', $this->fixedBy( $row[ 'explanations' ][ 0 ] ) );
+		$this->assertSame( EnumEnabledStatus::BAD, $component->enabledStatus() );
 	}
 
 	public function test_login_protection_uses_secondary_gaps_as_warning_once_login_is_protected() :void {
@@ -572,18 +715,15 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				'login_limit_interval'     => 0,
 			],
 			[
-				'forms_users' => new class {
-					public function getInstalled() :array {
-						return [ 'third_party_form' => FakeThirdPartyLoginForm::class ];
-					}
-				},
+				'forms_users' => $this->formsUsersStub( [ 'third_party_form' => FakeThirdPartyLoginForm::class ] ),
 			]
 		);
 
 		$row = $this->firstConfigureRow( new LoginProtectionForms() );
 
 		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
-		$this->assertCount( 4, $row[ 'explanations' ] ?? [] );
+		// Unprotected forms, cooldown and third-party forms: one explanation each.
+		$this->assertCount( 3, $row[ 'explanations' ] ?? [] );
 	}
 
 	public function test_two_factor_general_row_uses_configure_status_path() :void {
@@ -934,11 +1074,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 						return [ 'index.php' ];
 					}
 				},
-				'forms_users' => new class {
-					public function getInstalled() :array {
-						return [];
-					}
-				},
+				'forms_users' => $this->formsUsersStub(),
 				'forms_spam'  => new class {
 					public function getInstalled() :array {
 						return [];
@@ -1059,12 +1195,46 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		};
 	}
 
-	private function fileLockerForEnvironment(
-		bool $isWindows = true,
-		bool $themeFunctionsAccessible = true
-	) :FileLocker {
-		return new FileLocker(
-			new FileLockKeyApplicability( $isWindows, $themeFunctionsAccessible )
+	/**
+	 * @param list<string> $missingFileKeys supported files that don't exist on the site
+	 */
+	private function fileLockerForEnvironment( bool $isWindows = true, array $missingFileKeys = [] ) :FileLocker {
+		return new FileLocker( $this->fileLockApplicability( $isWindows, $missingFileKeys ) );
+	}
+
+	/**
+	 * @param array<string,string> $installed third-party providers installed
+	 * @param list<string>         $selected  providers ticked in User Forms Bot Detection
+	 */
+	private function formsUsersStub( array $installed = [], array $selected = [ 'wordpress' ] ) :object {
+		return new class( $installed, $selected ) {
+
+			private array $installed;
+
+			private array $selected;
+
+			public function __construct( array $installed, array $selected ) {
+				$this->installed = $installed;
+				$this->selected = $selected;
+			}
+
+			public function getInstalled() :array {
+				return $this->installed;
+			}
+
+			public function getSelectedProviders() :array {
+				return $this->selected;
+			}
+		};
+	}
+
+	/**
+	 * @param list<string> $missingFileKeys
+	 */
+	private function fileLockApplicability( bool $isWindows, array $missingFileKeys = [] ) :FileLockKeyApplicability {
+		return new FileLockKeyApplicability(
+			$isWindows,
+			\array_values( \array_diff( BuildFileFromFileKey::SUPPORTED_FILE_KEYS, $missingFileKeys ) )
 		);
 	}
 

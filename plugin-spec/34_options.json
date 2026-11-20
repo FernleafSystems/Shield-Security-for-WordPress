@@ -2119,8 +2119,8 @@
         "link_info": "https://clk.shldscrty.com/3q",
         "link_blog": "https://clk.shldscrty.com/9o",
         "beacon_id": 242,
-        "name": "Login Cooldown Interval",
-        "summary": "Limit login attempts to every X seconds",
+        "name": "Login Cooldown Period",
+        "summary": "Limit login attempts to one every X seconds",
         "description": "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
     },
     {

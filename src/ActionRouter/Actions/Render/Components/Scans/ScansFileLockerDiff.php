@@ -56,11 +56,13 @@ class ScansFileLockerDiff extends BaseScans {
 					'diff' => $diff,
 				],
 				'vars'    => [
-					'rid' => $RID,
+					'rid'           => $RID,
+					// The page sends the Accept it showed, so a file that changes state meanwhile can't switch it.
+					'accept_action' => $originalFileMissing ? 'accept_removal' : 'accept',
 				],
 				'strings' => [
 					'butt_restore'          => __( 'Restore File', 'wp-simple-firewall' ),
-					'butt_accept'           => __( 'Accept Changes', 'wp-simple-firewall' ),
+					'butt_accept'           => $originalFileMissing ? __( 'Accept Removal', 'wp-simple-firewall' ) : __( 'Accept Changes', 'wp-simple-firewall' ),
 					'file_size'             => __( 'File Size', 'wp-simple-firewall' ),
 					'file_details'          => __( 'File Details', 'wp-simple-firewall' ),
 					'modified_file'         => __( 'Modified File', 'wp-simple-firewall' ),
@@ -72,8 +74,10 @@ class ScansFileLockerDiff extends BaseScans {
 					'change_detected_at'    => __( 'Change Detected', 'wp-simple-firewall' ),
 					'file_content_original' => __( 'Original File Content', 'wp-simple-firewall' ),
 					'file_content_current'  => __( 'Current File Content', 'wp-simple-firewall' ),
-					'file_accept'           => __( 'Accept File Changes', 'wp-simple-firewall' ),
-					'file_accept_checkbox'  => __( 'Are you sure you want to keep the file changes?', 'wp-simple-firewall' ),
+					'file_accept'           => $originalFileMissing ? __( 'Accept File Removal', 'wp-simple-firewall' ) : __( 'Accept File Changes', 'wp-simple-firewall' ),
+					'file_accept_checkbox'  => $originalFileMissing ?
+						__( 'Are you sure the file should stay removed? File Locker will stop locking it.', 'wp-simple-firewall' )
+						: __( 'Are you sure you want to keep the file changes?', 'wp-simple-firewall' ),
 					'file_restore'          => __( 'Restore Original File', 'wp-simple-firewall' ),
 					'file_restore_checkbox' => __( 'Are you sure you want to restore the original file contents?', 'wp-simple-firewall' ),
 					'diff_unavailable'      => __( 'The file comparison could not be displayed. File details and actions are still available below.', 'wp-simple-firewall' ),

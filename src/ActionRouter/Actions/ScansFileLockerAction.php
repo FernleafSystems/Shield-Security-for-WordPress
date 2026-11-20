@@ -25,13 +25,16 @@ class ScansFileLockerAction extends BaseAction {
 		// The page sends 1 when the confirmation box is ticked and 0 when it isn't.
 		if ( $fields->flag( 'confirmed', '1', '0', false ) ) {
 			$lockID = $fields->positiveInt( 'rid' );
-			$fileAction = $fields->oneOf( 'file_action', [ 'accept', 'restore' ] );
+			$fileAction = $fields->oneOf( 'file_action', [ 'accept', 'accept_removal', 'restore' ] );
 			try {
 				$lock = self::con()->comps->file_locker->getFileLock( $lockID );
 
 				switch ( $fileAction ) {
 					case 'accept':
 						$success = ( new Accept() )->run( $lock );
+						break;
+					case 'accept_removal':
+						$success = ( new Accept() )->acceptRemoval( $lock );
 						break;
 					case 'restore':
 						$success = ( new Restore() )->run( $lock );
