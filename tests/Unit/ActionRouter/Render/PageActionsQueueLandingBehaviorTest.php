@@ -481,6 +481,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 					public function canDetectCloakedPlugins() :bool {
 						return true;
 					}
+
+					public function hasCap( string $cap ) :bool {
+						return false;
+					}
 				},
 				'action_router' => new PageActionsQueueActionRouter( $this->capture ),
 			]

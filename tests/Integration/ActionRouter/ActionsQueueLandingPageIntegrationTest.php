@@ -1537,6 +1537,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'scan_pluginsthemes_local',
 			'scan_vulnerabilities',
 			'scan_malware_local',
+			'scan_file_locker',
 		] );
 
 		$this->requireController()->opts
