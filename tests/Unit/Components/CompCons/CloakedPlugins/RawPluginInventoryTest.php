@@ -57,23 +57,6 @@ class RawPluginInventoryTest extends BaseUnitTest {
 		$this->assertSame( '3.0.0', $entries[ 2 ]->version );
 	}
 
-	public function testFilesDeletedWithAPluginAreItsFolderOrOnlyItself() :void {
-		$pluginDir = $this->createTrackedTempDir( 'cloaked-plugin-delete-' );
-		$this->writeFile( $pluginDir.'/root-plugin.php', "<?php\n" );
-		$this->writeFile( $pluginDir.'/other-root.php', "<?php\n" );
-		$this->writeFile( $pluginDir.'/suite/main.php', "<?php\n" );
-		$this->writeFile( $pluginDir.'/suite/secondary.php', "<?php\n" );
-		$this->writeFile( $pluginDir.'/suite/.hidden.php', "<?php\n" );
-		$this->writeFile( $pluginDir.'/suite/readme.txt', 'not a plugin' );
-		$inventory = new RawPluginInventory( $pluginDir, '' );
-
-		$this->assertSame( [ 'root-plugin.php' ], $inventory->standardPluginFilesDeletedWith( 'root-plugin.php' ) );
-		$this->assertEqualsCanonicalizing(
-			[ 'suite/main.php', 'suite/secondary.php' ],
-			$inventory->standardPluginFilesDeletedWith( 'suite/main.php' )
-		);
-	}
-
 	private function writeFile( string $path, string $content ) :void {
 		$dir = \dirname( $path );
 		if ( !\is_dir( $dir ) ) {

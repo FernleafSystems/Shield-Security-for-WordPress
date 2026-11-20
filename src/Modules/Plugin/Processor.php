@@ -100,6 +100,7 @@ class Processor {
 	public function runHourlyCron() {
 		$this->setEarlyLoadOrder();
 		if ( self::con()->comps->opts_lookup->isPluginEnabled() ) {
+			self::con()->comps->hidden_plugins->forgetIgnoresOfRemovedPlugins();
 			self::con()->comps->hidden_plugins->detect();
 		}
 		( new BulkUpdateUserMeta() )->execute();
