@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetFileLockCandidateDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\ChartOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
@@ -594,7 +595,8 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			// A site that has just been installed is asked to choose a report email, which can't be ignored.
 			self::con()->opts
 				->optSet( 'block_send_email_address', 'dashboard-strip@example.test' )
-				->optSet( 'file_locker', [ 'wpconfig' ] )
+				// Every critical file is selected, as any unselected one is a review item.
+				->optSet( 'file_locker', \array_column( ( new GetFileLockCandidateDisplays() )->run(), 'file_key' ) )
 				->optSet(
 					MaintenanceIssueStateProvider::OPT_KEY,
 					( new MaintenanceIssueStateProvider() )->currentIssueIdentifiersByKey()
