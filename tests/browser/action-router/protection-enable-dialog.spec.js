@@ -156,7 +156,8 @@ for ( const outcome of [ 'removed', 'refresh_failure', 'focus_moved' ] ) {
 			try {
 				await c.toggle.check(); await c.save.click(); await expect( c.dialog ).not.toBeVisible();
 				await expect.poll( () => started ).toBe( true );
-				const other = page.locator( '[data-dashboard-task-guide-launch="1"]' ).first();
+				// The sidebar's guidance button: the setup guide or Guide Me, whichever the site shows.
+				const other = page.locator( '#NavSideBar .sidebar-guidance .mode-item' );
 				if ( outcome === 'focus_moved' ) await other.focus();
 				release(); await expect.poll( () => finished ).toBe( true );
 				if ( outcome === 'removed' ) await expect( page.locator( '#PageContainer-Apto' ) ).toBeFocused();

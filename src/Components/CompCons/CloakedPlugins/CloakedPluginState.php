@@ -74,8 +74,8 @@ class CloakedPluginState {
 	 * @return CloakedPluginFindingState
 	 */
 	public function classify( array $findings ) :array {
-		// An ignore stands until the user stops it, whether or not its plugin is a finding right now: a plugin
-		// briefly missing or visible (during an update, say) mustn't lose it.
+		// An ignore stands until the user stops it or its plugin's file goes (see forgetIgnoresOfPluginsNotIn()),
+		// whether or not its plugin is a finding right now: a plugin briefly visible mustn't lose it.
 		$records = $this->ignoreRecords();
 		$recordsChanged = false;
 		$changedSinceIgnored = [];
@@ -229,13 +229,18 @@ class CloakedPluginState {
 	}
 
 	/**
-	 * Plugins WordPress has deleted take their ignores with them, so one installed later at the same place is
+	 * A plugin whose file has gone, however it went, takes its ignore with it, so one put at the same place later is
 	 * reviewed afresh.
-	 * @param list<string> $identities as CloakedPluginFinding::IdentityFor() gives them
+	 * @param list<PluginEntry> $entries every plugin file there is
 	 */
-	public function forgetIgnores( array $identities ) :void {
+	public function forgetIgnoresOfPluginsNotIn( array $entries ) :void {
+		$present = [];
+		foreach ( $entries as $entry ) {
+			$present[ CloakedPluginFinding::IdentityFor( $entry->type, $entry->file ) ] = true;
+		}
+
 		$records = $this->ignoreRecords();
-		$remaining = \array_diff_key( $records, \array_flip( $identities ) );
+		$remaining = \array_intersect_key( $records, $present );
 		if ( $remaining !== $records ) {
 			$this->storeIgnoreRecords( $remaining );
 		}
@@ -247,7 +252,8 @@ class CloakedPluginState {
 	 * What's ignored is the plain list of identities that every version of Shield has kept, so a site that goes back
 	 * to an earlier version still has its ignores. How each was ignored is kept beside it. An identity with nothing
 	 * beside it was ignored before there was a choice, when every ignore held wherever the plugin's file was, whatever
-	 * it contained, so it carries on as exactly that and nothing anyone ignored comes back.
+	 * it contained, so it carries on as exactly that and nothing anyone ignored comes back. One with something
+	 * damaged beside it is dropped, so its plugin is flagged again rather than ignored more widely than it was.
 	 * @return array<string,CloakedPluginIgnoreRecord>
 	 */
 	public function ignoreRecords() :array {
@@ -260,8 +266,12 @@ class CloakedPluginState {
 		foreach ( $list as $identity ) {
 			$identity = \is_string( $identity ) ? $this->normalizeIdentity( $identity ) : '';
 			if ( $identity !== '' && !isset( $records[ $identity ] ) ) {
-				$records[ $identity ] = $this->normalizeIgnoreRecord( $modes[ $identity ] ?? null )
-										?? $this->ignoreRecord( self::IGNORE_MODE_PATH, '', 0 );
+				$record = \array_key_exists( $identity, $modes )
+					? $this->normalizeIgnoreRecord( $modes[ $identity ] )
+					: $this->ignoreRecord( self::IGNORE_MODE_PATH, '', 0 );
+				if ( $record !== null ) {
+					$records[ $identity ] = $record;
+				}
 			}
 		}
 
