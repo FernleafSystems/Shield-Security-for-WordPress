@@ -41,6 +41,12 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 
 	use TempDirLifecycleTrait;
 
+	/**
+	 * The provider calls get_plugin_data() unqualified, so it's mocked in the provider's namespace. A global mock
+	 * would outlive this test and be picked up by RawPluginInventory's function_exists() check in later tests.
+	 */
+	private const GET_PLUGIN_DATA = 'FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\get_plugin_data';
+
 	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
@@ -76,7 +82,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 			}
 		);
 		Functions\when( 'size_format' )->alias( static fn( int $bytes ) :string => $bytes.' bytes' );
-		Functions\when( 'get_plugin_data' )->justReturn( [] );
+		Functions\when( self::GET_PLUGIN_DATA )->justReturn( [] );
 		$this->servicesSnapshot = ServicesState::snapshot();
 		ServicesState::mergeItems( [
 			'service_wpgeneral' => new UnitTestGeneral(),
@@ -177,7 +183,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 	public function test_drawer_gives_what_the_file_says_about_itself_as_it_was_read() :void {
 		$path = $this->createTrackedTempDir( 'shield-cloaked-queue-' ).'/claims.php';
 		$this->assertNotFalse( \file_put_contents( $path, "<?php\nrun();\n" ) );
-		Functions\when( 'get_plugin_data' )->justReturn( [
+		Functions\when( self::GET_PLUGIN_DATA )->justReturn( [
 			'Author'      => '<b>An author</b>',
 			'PluginURI'   => '   ',
 			'Description' => 'What it says it does',
