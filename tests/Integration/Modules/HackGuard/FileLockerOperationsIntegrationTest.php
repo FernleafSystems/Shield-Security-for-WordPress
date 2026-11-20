@@ -2,12 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\BuildOptionsForDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\{
 	File,
 	FileLockerController
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\Accept;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
@@ -218,7 +220,10 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_file_lock_candidate_displays_follow_supported_order_and_applicability() :void {
-		$displays = ( new GetFileLockCandidateDisplays( new FileLockKeyApplicability( false, false ) ) )->run();
+		$displays = ( new GetFileLockCandidateDisplays( new FileLockKeyApplicability(
+			false,
+			\array_values( \array_diff( BuildFileFromFileKey::SUPPORTED_FILE_KEYS, [ 'theme_functions' ] ) )
+		) ) )->run();
 		$fileKeys = \array_column( $displays, 'file_key' );
 
 		$this->assertNotEmpty( $fileKeys );
@@ -231,6 +236,144 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		foreach ( $displays as $display ) {
 			$this->assertNotSame( '', $display[ 'title' ] );
 			$this->assertSame( \wp_normalize_path( $display[ 'path' ] ), $display[ 'path' ] );
+		}
+	}
+
+	public function test_configure_and_actions_queue_offer_root_htaccess_only_while_it_exists() :void {
+		$this->withRootHtaccess( false, function () :void {
+			$this->prepareFileLockerRuntime( [ 'root_index' ] );
+			$this->assertNull( ( new GetFileLockCandidateDisplays() )->forFileKey( 'root_htaccess' ) );
+			$choice = $this->configureFileLockerChoices()[ 'root_htaccess' ];
+			$this->assertFalse( $choice[ 'is_available' ] );
+			// It's this site, not the licence, so there's no "available with" hover title.
+			$this->assertSame( '', $choice[ 'unavailable_title' ] );
+		} );
+
+		$this->withRootHtaccess( true, function () :void {
+			$this->prepareFileLockerRuntime( [ 'root_index' ] );
+			$this->assertNotNull( ( new GetFileLockCandidateDisplays() )->forFileKey( 'root_htaccess' ) );
+			$this->assertTrue( $this->configureFileLockerChoices()[ 'root_htaccess' ][ 'is_available' ] );
+		} );
+	}
+
+	public function test_a_selected_file_that_goes_missing_stays_selected_through_saves() :void {
+		$this->withRootHtaccess( false, function () :void {
+			$con = $this->requireController();
+			// Saving any File Locker change, e.g. enabling another file from the actions queue, mustn't drop it
+			// or the locked copy needed to review or restore it.
+			$this->prepareFileLockerRuntime( [ 'root_htaccess', 'root_index' ] );
+			$lockId = TestDataFactory::insertFileLockRecord( 'root_htaccess', ABSPATH.'.htaccess', 1 );
+			$con->comps->file_locker->clearLocks();
+			$con->opts->optSet( 'file_locker', [ 'root_htaccess', 'root_index', 'wpconfig' ] )->store();
+			$con->comps->file_locker->clearLocks();
+
+			$this->assertContains( 'root_htaccess', $con->comps->file_locker->getFilesToLock() );
+			$this->assertSame( $lockId, (int)$con->comps->file_locker->getFileLock( $lockId )->id );
+			// It stays tickable in Configure, so saving that form keeps it too.
+			$this->assertTrue( $this->configureFileLockerChoices()[ 'root_htaccess' ][ 'is_available' ] );
+		} );
+	}
+
+	public function test_accepting_a_deleted_file_stops_locking_it() :void {
+		$this->withRootHtaccess( false, function () :void {
+			$con = $this->requireController();
+			$this->prepareFileLockerRuntime( [ 'root_htaccess', 'root_index' ] );
+			$lockId = TestDataFactory::insertFileLockRecord( 'root_htaccess', ABSPATH.'.htaccess', 1 );
+			$con->comps->file_locker->clearLocks();
+
+			$lock = $con->comps->file_locker->getFileLock( $lockId );
+			// Keeping changed contents was not what was confirmed for a file that's gone.
+			$this->assertTrue( $this->isRefused( fn() => ( new Accept() )->run( $lock ) ) );
+			$this->assertContains( 'root_htaccess', $con->comps->file_locker->getFilesToLock() );
+
+			$this->assertTrue( ( new Accept() )->acceptRemoval( $lock ) );
+
+			$this->assertSame( [ 'root_index' ], $con->comps->file_locker->getFilesToLock() );
+			$this->assertSame( [], \array_filter(
+				$con->comps->file_locker->getLocks(),
+				fn( $lock ) :bool => $lock->type === 'root_htaccess'
+			) );
+		} );
+	}
+
+	public function test_accepting_removal_is_refused_once_the_file_is_back() :void {
+		$this->withRootHtaccess( true, function () :void {
+			$con = $this->requireController();
+			$this->prepareFileLockerRuntime( [ 'root_htaccess', 'root_index' ] );
+			$lockId = TestDataFactory::insertFileLockRecord( 'root_htaccess', ABSPATH.'.htaccess', 1 );
+			$con->comps->file_locker->clearLocks();
+
+			$lock = $con->comps->file_locker->getFileLock( $lockId );
+			$this->assertTrue( $this->isRefused( fn() => ( new Accept() )->acceptRemoval( $lock ) ) );
+			$this->assertContains( 'root_htaccess', $con->comps->file_locker->getFilesToLock() );
+		} );
+	}
+
+	public function test_sync_profile_choices_are_not_limited_by_this_sites_files() :void {
+		$this->withRootHtaccess( false, function () :void {
+			// .htaccess isn't in the profile and is missing here, yet the profile can still add it for other sites.
+			$profileOption = $this->fileLockerDisplayOption(
+				( new BuildOptionsForDisplay( [ 'file_locker' ], [] ) )->setValues( [ 'file_locker' => [ 'root_index' ] ] )
+			);
+
+			$this->assertTrue( $profileOption[ 'value_options' ][ 'root_htaccess' ][ 'is_available' ] );
+		} );
+	}
+
+	/**
+	 * Whether $action refuses by throwing. Kept apart from assertions, whose own failures are exceptions too.
+	 */
+	private function isRefused( callable $action ) :bool {
+		try {
+			$action();
+		}
+		catch ( \Exception $e ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @return array<string,array{name:string,is_available:bool,unavailable_title:string}>
+	 */
+	private function configureFileLockerChoices() :array {
+		return $this->fileLockerDisplayOption( new BuildOptionsForDisplay( [ 'file_locker' ], [] ) )[ 'value_options' ];
+	}
+
+	private function fileLockerDisplayOption( BuildOptionsForDisplay $builder ) :array {
+		foreach ( $builder->standard() as $section ) {
+			foreach ( $section[ 'options' ] as $option ) {
+				if ( $option[ 'key' ] === 'file_locker' ) {
+					return $option;
+				}
+			}
+		}
+		$this->fail( 'file_locker option was not built for display.' );
+	}
+
+	/**
+	 * Runs $test with the root .htaccess present or absent, then puts back whatever was there.
+	 */
+	private function withRootHtaccess( bool $exists, callable $test ) :void {
+		$htaccess = ABSPATH.'.htaccess';
+		$original = \is_file( $htaccess ) ? \file_get_contents( $htaccess ) : null;
+
+		try {
+			if ( $exists ) {
+				\file_put_contents( $htaccess, "# test\n" );
+			}
+			elseif ( \is_file( $htaccess ) ) {
+				\unlink( $htaccess );
+			}
+			$test();
+		}
+		finally {
+			if ( $original !== null ) {
+				\file_put_contents( $htaccess, $original );
+			}
+			elseif ( \is_file( $htaccess ) ) {
+				\unlink( $htaccess );
+			}
 		}
 	}
 

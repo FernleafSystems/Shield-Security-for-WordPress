@@ -26,13 +26,26 @@ class PasswordStrength extends Base {
 
 		$status = parent::status();
 
-		if ( $opts->optGet( 'pass_min_strength' ) >= 3 && $opts->optIs( 'enable_password_policies', 'Y' ) ) {
+		$strengthOk = $opts->optGet( 'pass_min_strength' ) >= 3;
+		$policiesOn = self::con()->comps->opts_lookup->isPassPoliciesEnabled();
+
+		if ( $strengthOk && $policiesOn ) {
 			$status[ 'level' ] = EnumEnabledStatus::GOOD;
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			// Password policies being off is said once, by the Password Policies component.
-			$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Users are allowed to set weak passwords.', 'wp-simple-firewall' ), 'pass_min_strength' );
+			// Names policies being off as the cause, but stays on this setting: the warning on the
+			// policies switch itself is said once, by the Password Policies component.
+			if ( $policiesOn ) {
+				$exp = __( 'It is recommended to set the minimum password strength to Strong.', 'wp-simple-firewall' );
+			}
+			elseif ( $strengthOk ) {
+				$exp = __( 'Users may set weak passwords because password policies are turned off.', 'wp-simple-firewall' );
+			}
+			else {
+				$exp = __( 'Users may set weak passwords because password policies are turned off. It is also recommended to set the minimum password strength to Strong.', 'wp-simple-firewall' );
+			}
+			$status[ 'exp' ][] = $this->explanationFixedBy( $exp, 'pass_min_strength' );
 		}
 
 		return $status;
