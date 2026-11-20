@@ -283,13 +283,8 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 
 			$lock = $con->comps->file_locker->getFileLock( $lockId );
 			// Keeping changed contents was not what was confirmed for a file that's gone.
-			try {
-				( new Accept() )->run( $lock );
-				$this->fail( 'Accepting changes to a missing file should be refused.' );
-			}
-			catch ( \Exception $e ) {
-				$this->assertContains( 'root_htaccess', $con->comps->file_locker->getFilesToLock() );
-			}
+			$this->assertTrue( $this->isRefused( fn() => ( new Accept() )->run( $lock ) ) );
+			$this->assertContains( 'root_htaccess', $con->comps->file_locker->getFilesToLock() );
 
 			$this->assertTrue( ( new Accept() )->acceptRemoval( $lock ) );
 
@@ -308,13 +303,9 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 			$lockId = TestDataFactory::insertFileLockRecord( 'root_htaccess', ABSPATH.'.htaccess', 1 );
 			$con->comps->file_locker->clearLocks();
 
-			try {
-				( new Accept() )->acceptRemoval( $con->comps->file_locker->getFileLock( $lockId ) );
-				$this->fail( 'Accepting the removal of a file that exists should be refused.' );
-			}
-			catch ( \Exception $e ) {
-				$this->assertContains( 'root_htaccess', $con->comps->file_locker->getFilesToLock() );
-			}
+			$lock = $con->comps->file_locker->getFileLock( $lockId );
+			$this->assertTrue( $this->isRefused( fn() => ( new Accept() )->acceptRemoval( $lock ) ) );
+			$this->assertContains( 'root_htaccess', $con->comps->file_locker->getFilesToLock() );
 		} );
 	}
 
@@ -327,6 +318,19 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 
 			$this->assertTrue( $profileOption[ 'value_options' ][ 'root_htaccess' ][ 'is_available' ] );
 		} );
+	}
+
+	/**
+	 * Whether $action refuses by throwing. Kept apart from assertions, whose own failures are exceptions too.
+	 */
+	private function isRefused( callable $action ) :bool {
+		try {
+			$action();
+		}
+		catch ( \Exception $e ) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
