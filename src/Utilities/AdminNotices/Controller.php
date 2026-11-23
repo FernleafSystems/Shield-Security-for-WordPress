@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\AdminNotice;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
 use FernleafSystems\Wordpress\Services\Services;
@@ -218,7 +219,7 @@ class Controller {
 		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
 			$reason = 'plugin_page_only';
 		}
-		elseif ( $notice->type == 'promo' && !$con->comps->opts_lookup->showsInDashboard( 'notices' ) ) {
+		elseif ( $notice->type == 'promo' && !$con->comps->opts_lookup->showsInDashboard( EnumDashboardDisplay::NOTICES ) ) {
 			$reason = 'promo_hidden';
 		}
 		elseif ( $notice->valid_admin && !$con->isValidAdminArea() ) {

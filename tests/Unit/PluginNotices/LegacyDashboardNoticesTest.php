@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\PluginNotices;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices\LegacyDashboardNotices;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -135,7 +136,7 @@ class LegacyDashboardNoticesTest extends BaseUnitTest {
 							}
 
 							public function showsInDashboard( string $element ) :bool {
-								return $element !== 'notices' || $this->showNonEssentialNotices;
+								return $element !== EnumDashboardDisplay::NOTICES || $this->showNonEssentialNotices;
 							}
 						},
 					];

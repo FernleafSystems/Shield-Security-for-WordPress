@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FileLockKeyApplicability;
@@ -366,7 +367,7 @@ class OptionsCorrections {
 		$opts = self::con()->opts;
 
 		if ( $opts->optIs( 'enable_upgrade_admin_notice', 'N' ) ) {
-			$opts->optSet( 'dashboard_display', \array_values( \array_diff( $opts->optGet( 'dashboard_display' ), [ 'notices' ] ) ) )
+			$opts->optSet( 'dashboard_display', \array_values( \array_diff( $opts->optGet( 'dashboard_display' ), [ EnumDashboardDisplay::NOTICES ] ) ) )
 				 ->optSet( 'enable_upgrade_admin_notice', 'Y' );
 		}
 	}

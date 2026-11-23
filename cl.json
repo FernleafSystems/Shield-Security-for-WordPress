@@ -1,4 +1,211 @@
 {
+  "22.4": {
+    "version":     "22.4",
+    "released_at": 1795433000,
+    "hrefs":       {
+      "release": "https://clk.shldscrty.com/shieldrelease224",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide224"
+    },
+    "title":       "Redesigned Admin Screens and a Guided Setup",
+    "description": [
+      "Configure, the Actions Queue, Investigate, Reports and Run Manual Scan are redesigned so you can see what needs doing and act on it quickly.",
+      "A new setup guide takes over from the welcome wizard on new installs, and Shield holds early scan alerts until you choose where reports go."
+    ],
+    "items":       [
+      {
+        "type":        "security",
+        "title":       "Address Responsibly Disclosed Security Advisory",
+        "description": [
+          "Further information regarding this vulnerability will be published in due course."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Configure Organised by Goal",
+        "description": [
+          "Settings are grouped by what they protect, such as \"Protect user accounts\" and \"Block hackers and bad bots\", with a tab for each goal and a clear panel for each topic.",
+          "One save bar saves every change you've made, and each warning sits beside the setting that fixes it.",
+          "Less-used settings are gathered under Advanced options at the end of each goal."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Search Every Setting",
+        "description": [
+          "Search Configure, or press Ctrl+K on any Shield page, to find a setting by name and see where it lives and its current value."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "A Clearer Actions Queue",
+        "description": [
+          "Issues are arranged in lanes, starting with what to fix now, with a box for each kind of problem.",
+          "Results open in a panel over the queue, so you never lose your place.",
+          "Ignore or restore items one at a time or all at once, including abandoned and cloaked plugins. Known vulnerabilities always stay in view.",
+          "Cloaked plugins are now reviewed here instead of on the Plugins page, and can be ignored until they change or for good.",
+          "Scan alerts in the admin bar take you straight to the matching group, and the sidebar badge shows critical items and warnings separately."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Guided Setup",
+        "description": [
+          "New installs land on the dashboard with a setup guide along the bottom of Shield's pages, instead of being sent into the welcome wizard.",
+          "Work through the steps at your own pace, or hide the guide until you need it.",
+          "The protection level step shows how each level compares with your current settings."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Scan Alerts Wait for Your Report Email",
+        "description": [
+          "For the first 24 hours after install, scan alerts are held until a report email is chosen, so early findings reach the right person rather than the site admin email.",
+          "Choosing a report email is now the first step of the setup guide."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Shield Under the Tools Menu",
+        "description": [
+          "Prefer a tidier admin menu? Untick \"Top-level admin menu\" in the Shield In Your Dashboard setting to list Shield under Tools instead.",
+          "You can also choose separately whether Shield shows its notices, its admin bar menu and its dashboard widget."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Investigate in One Place",
+        "description": [
+          "One lookup searches users, IP addresses, plugins, themes and WordPress core together.",
+          "The Activity Log, Request Log, IP Rules, User Sessions and Live Traffic are now tabs on the same page."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Reports in One Place",
+        "description": [
+          "Charts, security reports and reporting settings are tabs on one page, and the trends chart opens ready to read.",
+          "Info reports run daily or weekly. Existing bi-weekly and monthly reports become weekly."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Run Manual Scan in Three Steps",
+        "description": [
+          "Choose your scans, follow their progress and see the results on the same page, then go straight to the Actions Queue.",
+          "While scans run, the Actions Queue shows their progress in its top bar."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Site Lockdown, White Label and Hide Login",
+        "description": [
+          "Each is now a page of its own under Tools.",
+          "Site Lockdown shows exactly who can still reach your site before you lock it down, and White Label previews your changes as you type."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Dashboard",
+        "description": [
+          "Stats show how they compare with the week before, and recent events show their counts for the past week.",
+          "The Live Monitor opens from the sidebar instead of covering the dashboard."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Security Admin PIN and Email 2FA",
+        "description": [
+          "Entering your Security Admin PIN works the same way on every admin page, a wrong PIN can be retried straight away, and password managers no longer offer to save it.",
+          "When you turn on email two-factor, Shield makes clear it's waiting for you to verify, and lets you resend the email."
+        ]
+      },
+      {
+        "type":        "security",
+        "title":       "Stronger Request Protection",
+        "description": [
+          "Every Shield action now declares where it can be reached from, and each request is checked before the action runs.",
+          "Shield's security tokens are tied to your login session, so they stop working when you log out. If a page outlives your session, Shield tells you and offers to reload it.",
+          "Malformed requests are refused cleanly instead of causing PHP errors, and White Label values are cleaned of markup wherever they're shown."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Fewer False File Scan Alerts",
+        "description": [
+          "Optimised JavaScript files created by LiteSpeed Cache are no longer reported as unidentified files.",
+          "WordPress translation files with plural forms, and plugin files that legitimately differ from one site to the next, now verify correctly.",
+          "A single inactive theme, often kept as a fallback, is no longer flagged."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "silentCAPTCHA and Page Speed",
+        "description": [
+          "On pages without a form, silentCAPTCHA waits for the visitor's first interaction, or 10 seconds, before running its checks, so page speed tests aren't affected.",
+          "Bot checks on forms and login pages are unchanged."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Log and IP Rule Downloads",
+        "description": [
+          "Request logs and IP rules can be downloaded on every plan, and IP rules download as a CSV file."
+        ]
+      },
+      {
+        "type":        "changed",
+        "title":       "File Scan Areas on Every Plan",
+        "description": [
+          "Choose which file areas are scanned on every plan. WordPress core files are scanned on the free plan, and the other areas need ShieldPRO."
+        ]
+      },
+      {
+        "type":        "changed",
+        "title":       "WordPress Site Health",
+        "description": [
+          "Shield's checks and Security tab in WordPress Site Health are now off by default. Use the shield/show_site_health filter to turn them back on."
+        ]
+      },
+      {
+        "type":        "changed",
+        "title":       "PHP 8.2+ Coming in Shield 23",
+        "description": [
+          "This is the last major release that supports PHP 7.4, 8.0 and 8.1. Shield v23+ will require PHP 8.2+"
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Cleared and Ignored Findings Stay That Way",
+        "description": [
+          "Files that MAL{ai} has marked clean no longer reappear as malware after every scan, in the admin bar or in alert emails.",
+          "A failed WordPress.org lookup no longer clears an abandoned plugin finding, only for it to be raised again later.",
+          "Ignored cloaked plugins no longer reappear after a plugin update."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "File Scans on Custom Hosting Layouts",
+        "description": [
+          "On hosts that run WordPress from the top level of the server's filesystem, file scans no longer flag genuine WordPress files, and missing WordPress files are reported correctly.",
+          "A file that's deleted while a scan is running, such as a temporary or cache file, no longer stops the scan from finishing.",
+          "On Windows servers, scan exclusions can no longer remove core WordPress folders from file scans."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Fewer Errors and General Improvements",
+        "description": [
+          "Choosing Disagree on the usage tracking notice no longer switches tracking on.",
+          "Integrations ticked during setup are now switched on.",
+          "White Label names containing an apostrophe or percent sign no longer cause errors.",
+          "Downloaded files, such as scan files, exports and PDF reports, are saved with the correct file names.",
+          "Admin pages load a little faster.",
+          "Plus other smaller fixes and quality-of-life improvements."
+        ]
+      }
+    ],
+    "patches":     []
+  },
   "22.3": {
     "version":     "22.3",
     "released_at": 1792000000,
@@ -101,33 +308,6 @@
             "title":       "Address Responsibly Disclosed Security Advisory",
             "description": [
               "Further information regarding this vulnerability will be published in due course."
-            ]
-          }
-        ]
-      },
-      {
-        "version":     "5",
-        "released_at": 1793800000,
-        "items":       [
-          {
-            "type":        "fixed",
-            "title":       "File Scans on Custom Hosting Layouts",
-            "description": [
-              "On hosts that run WordPress from the top level of the server's filesystem, file scans no longer flag genuine WordPress files, and missing WordPress files are reported correctly."
-            ]
-          },
-          {
-            "type":        "fixed",
-            "title":       "File Scans Finish Reliably",
-            "description": [
-              "A file that's deleted while a scan is running, such as a temporary or cache file, no longer stops the scan from finishing."
-            ]
-          },
-          {
-            "type":        "fixed",
-            "title":       "Scan Exclusions on Windows",
-            "description": [
-              "On Windows servers, scan exclusions can no longer remove core WordPress folders from file scans."
             ]
           }
         ]

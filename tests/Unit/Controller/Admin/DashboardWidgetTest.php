@@ -14,6 +14,7 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\OptsLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Admin\DashboardWidget;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -48,7 +49,7 @@ class DashboardWidgetTest extends BaseUnitTest {
 	}
 
 	public function test_cannot_run_when_widget_is_not_chosen_for_the_dashboard() :void {
-		$this->installEnvironment( true, true, null, true, [ 'notices', 'admin_bar' ] );
+		$this->installEnvironment( true, true, null, true, [ EnumDashboardDisplay::NOTICES, EnumDashboardDisplay::ADMIN_BAR ] );
 
 		$this->assertFalse( $this->canRun() );
 	}
@@ -117,7 +118,7 @@ class DashboardWidgetTest extends BaseUnitTest {
 		bool $isWpAdmin,
 		?bool $filterResult,
 		bool $propertyShowsWidget = true,
-		array $dashboardDisplay = [ 'notices', 'admin_bar', 'dashboard_widget' ]
+		array $dashboardDisplay = [ EnumDashboardDisplay::NOTICES, EnumDashboardDisplay::ADMIN_BAR, EnumDashboardDisplay::DASHBOARD_WIDGET ]
 	) :void {
 		Functions\when( 'apply_filters' )->alias(
 			static fn( string $hook, $value ) => ( $hook === 'shield/show_dashboard_widget' && $filterResult !== null )

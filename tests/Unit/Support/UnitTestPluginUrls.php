@@ -20,6 +20,10 @@ class UnitTestPluginUrls {
 		return $this->rootAdminPageSlug;
 	}
 
+	public function rootAdminPage() :string {
+		return '/wp-admin/admin.php?page='.$this->rootAdminPageSlug;
+	}
+
 	public function adminHome() :string {
 		return $this->adminHome;
 	}

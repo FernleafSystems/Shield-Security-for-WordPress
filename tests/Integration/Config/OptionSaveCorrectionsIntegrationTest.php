@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\{
 	PluginBadgeMode,
 	WildCardOptions
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
@@ -456,17 +457,17 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_legacy_hidden_plugin_notices_migrate_to_dashboard_display_during_store() :void {
 		$con = $this->requireController();
 		$this->replaceStoredOptionValues( [
-			'dashboard_display'           => [ 'notices', 'admin_bar', 'dashboard_widget' ],
+			'dashboard_display'           => [ EnumDashboardDisplay::NOTICES, EnumDashboardDisplay::ADMIN_BAR, EnumDashboardDisplay::DASHBOARD_WIDGET ],
 			'enable_upgrade_admin_notice' => 'N',
 		] );
 
 		$con->opts->store();
 
-		$this->assertSame( [ 'admin_bar', 'dashboard_widget' ], $con->opts->optGet( 'dashboard_display' ) );
+		$this->assertSame( [ EnumDashboardDisplay::ADMIN_BAR, EnumDashboardDisplay::DASHBOARD_WIDGET ], $con->opts->optGet( 'dashboard_display' ) );
 		$this->assertSame( 'Y', $con->opts->optGet( 'enable_upgrade_admin_notice' ) );
-		$this->assertFalse( $con->comps->opts_lookup->showsInDashboard( 'notices' ) );
-		$this->assertTrue( $con->comps->opts_lookup->showsInDashboard( 'admin_bar' ) );
-		$this->assertTrue( $con->comps->opts_lookup->showsInDashboard( 'dashboard_widget' ) );
+		$this->assertFalse( $con->comps->opts_lookup->showsInDashboard( EnumDashboardDisplay::NOTICES ) );
+		$this->assertTrue( $con->comps->opts_lookup->showsInDashboard( EnumDashboardDisplay::ADMIN_BAR ) );
+		$this->assertTrue( $con->comps->opts_lookup->showsInDashboard( EnumDashboardDisplay::DASHBOARD_WIDGET ) );
 	}
 
 	public function test_legacy_hidden_plugin_notices_migrate_to_dashboard_display_during_upgrade_hook() :void {
@@ -474,7 +475,7 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$previousVersion = $con->cfg->previous_version;
 
 		$this->replaceStoredOptionValues( [
-			'dashboard_display'           => [ 'notices', 'admin_bar', 'dashboard_widget' ],
+			'dashboard_display'           => [ EnumDashboardDisplay::NOTICES, EnumDashboardDisplay::ADMIN_BAR, EnumDashboardDisplay::DASHBOARD_WIDGET ],
 			'enable_upgrade_admin_notice' => 'N',
 		] );
 
@@ -482,8 +483,39 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		( new HandleUpgrade() )->execute();
 		do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
 
-		$this->assertSame( [ 'admin_bar', 'dashboard_widget' ], $con->opts->optGet( 'dashboard_display' ) );
+		$this->assertSame( [ EnumDashboardDisplay::ADMIN_BAR, EnumDashboardDisplay::DASHBOARD_WIDGET ], $con->opts->optGet( 'dashboard_display' ) );
 		$this->assertSame( 'Y', $con->opts->optGet( 'enable_upgrade_admin_notice' ) );
+
+		$con->cfg->previous_version = $previousVersion;
+	}
+
+	public static function providerLegacyPluginNotices() :array {
+		return [
+			'notices shown'  => [ 'Y' ],
+			'notices hidden' => [ 'N' ],
+		];
+	}
+
+	/**
+	 * Releases before 22.4 never stored a dashboard display choice.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerLegacyPluginNotices' )]
+	public function test_upgrade_from_a_site_without_a_dashboard_display_choice_keeps_the_top_level_menu( string $legacyNotices ) :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+
+		$this->replaceStoredOptionValues( [ 'enable_upgrade_admin_notice' => $legacyNotices ] );
+		$this->forgetStoredOptionValue( 'dashboard_display' );
+
+		$con->cfg->previous_version = '22.3.4';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '22.3.4' );
+
+		$lookup = $con->comps->opts_lookup;
+		$this->assertTrue( $lookup->showsInDashboard( EnumDashboardDisplay::ADMIN_MENU ) );
+		$this->assertTrue( $lookup->showsInDashboard( EnumDashboardDisplay::ADMIN_BAR ) );
+		$this->assertTrue( $lookup->showsInDashboard( EnumDashboardDisplay::DASHBOARD_WIDGET ) );
+		$this->assertSame( $legacyNotices === 'Y', $lookup->showsInDashboard( EnumDashboardDisplay::NOTICES ) );
 
 		$con->cfg->previous_version = $previousVersion;
 	}
@@ -491,13 +523,13 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_dashboard_display_choice_is_untouched_when_legacy_plugin_notices_were_shown() :void {
 		$con = $this->requireController();
 		$this->replaceStoredOptionValues( [
-			'dashboard_display'           => [ 'notices', 'dashboard_widget' ],
+			'dashboard_display'           => [ EnumDashboardDisplay::NOTICES, EnumDashboardDisplay::DASHBOARD_WIDGET ],
 			'enable_upgrade_admin_notice' => 'Y',
 		] );
 
 		$con->opts->store();
 
-		$this->assertSame( [ 'notices', 'dashboard_widget' ], $con->opts->optGet( 'dashboard_display' ) );
+		$this->assertSame( [ EnumDashboardDisplay::NOTICES, EnumDashboardDisplay::DASHBOARD_WIDGET ], $con->opts->optGet( 'dashboard_display' ) );
 		$this->assertSame( 'Y', $con->opts->optGet( 'enable_upgrade_admin_notice' ) );
 	}
 
@@ -713,6 +745,13 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 
 		Services::WpGeneral()->updateOption( $this->optsAllOptionName(), $all );
 		$con->opts = new OptsHandler();
+	}
+
+	private function forgetStoredOptionValue( string $key ) :void {
+		$all = $this->storedOptionsAll();
+		unset( $all[ 'values' ][ OptsHandler::TYPE_FREE ][ $key ], $all[ 'values' ][ OptsHandler::TYPE_PRO ][ $key ] );
+		Services::WpGeneral()->updateOption( $this->optsAllOptionName(), $all );
+		$this->requireController()->opts = new OptsHandler();
 	}
 
 	private function storedOptionsAll() :array {
