@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PluginBadgeMode;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\ArrayOps;
 use FernleafSystems\Wordpress\Services\Services;
@@ -327,7 +328,7 @@ class OptsLookup {
 
 	/**
 	 * Whether the site owner has chosen to show this part of the plugin in the WordPress dashboard.
-	 * @param string $element - notices, admin_bar, dashboard_widget
+	 * @param EnumDashboardDisplay::* $element
 	 */
 	public function showsInDashboard( string $element ) :bool {
 		return \in_array( $element, self::con()->opts->optGet( 'dashboard_display' ), true );

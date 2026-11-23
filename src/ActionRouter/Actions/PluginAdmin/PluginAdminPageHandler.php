@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginAdminPageHandler extends Actions\BaseAction {
@@ -23,6 +24,9 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 			add_action( 'admin_menu', function () {
 				if ( !Services::WpGeneral()->isMultisite() && is_admin() ) {
 					$this->createAdminMenu();
+					if ( !self::con()->comps->opts_lookup->showsInDashboard( EnumDashboardDisplay::ADMIN_MENU ) ) {
+						$this->moveAdminMenuToTools();
+					}
 				}
 			} );
 
@@ -83,6 +87,34 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 		}
 	}
 
+	/**
+	 * The top-level page stays registered, so Shield keeps its one URL; only its menu item is hidden. A Tools entry
+	 * without a callback is a plain link, so it points straight at that URL.
+	 */
+	private function moveAdminMenuToTools() :void {
+		$con = self::con();
+		if ( remove_menu_page( $con->plugin_urls->rootAdminPageSlug() ) !== false ) {
+
+			$url = $con->plugin_urls->rootAdminPage();
+			add_management_page(
+				$con->labels->Name,
+				$con->labels->MenuTitle,
+				$con->cfg->properties[ 'base_permissions' ],
+				$url
+			);
+
+			if ( $con->isPluginAdminPageRequest() ) {
+				// WordPress finds a page's title, and its place in the menu, from its menu item, which is now hidden.
+				$GLOBALS[ 'title' ] = $con->labels->Name;
+				add_filter( 'parent_file', fn() => 'tools.php' );
+				add_filter( 'submenu_file', fn() => $url );
+			}
+		}
+	}
+
+	/**
+	 * The network admin has no Tools menu, so the top-level menu stays there.
+	 */
 	private function createNetworkAdminMenu() {
 		$this->createAdminMenu();
 	}

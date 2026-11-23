@@ -968,7 +968,9 @@ class StringsOptions {
 				$summary = sprintf( __( 'Choose Where %s Appears In The WordPress Dashboard', 'wp-simple-firewall' ), $pluginName );
 				$desc = [
 					/* translators: %s: plugin name */
-					sprintf( __( 'Choose which parts of %s appear in the WordPress dashboard: its non-essential notices, the admin bar menu, and the dashboard widget.', 'wp-simple-firewall' ), $pluginName ),
+					sprintf( __( 'Choose which parts of %s appear in the WordPress dashboard: its non-essential notices, the admin bar menu, the dashboard widget, and the top-level admin menu.', 'wp-simple-firewall' ), $pluginName ),
+					/* translators: %s: plugin name */
+					sprintf( __( 'Without the top-level admin menu, %s is listed under the Tools menu instead. A network admin always keeps the top-level menu.', 'wp-simple-firewall' ), $pluginName ),
 					__( 'Security warnings and errors are always shown; only non-essential notices can be hidden.', 'wp-simple-firewall' ),
 				];
 				break;

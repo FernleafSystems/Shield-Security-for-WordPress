@@ -2518,7 +2518,8 @@
         "default": [
             "notices",
             "admin_bar",
-            "dashboard_widget"
+            "dashboard_widget",
+            "admin_menu"
         ],
         "value_options": [
             {
@@ -2532,13 +2533,17 @@
             {
                 "value_key": "dashboard_widget",
                 "text": "Dashboard widget"
+            },
+            {
+                "value_key": "admin_menu",
+                "text": "Top-level admin menu"
             }
         ],
         "link_info": "",
         "link_blog": "",
         "name": "Shield In Your Dashboard",
         "summary": "Choose Where Shield Appears In The WordPress Dashboard",
-        "description": "Choose which parts of Shield appear in the WordPress dashboard: non-essential notices, the admin bar menu, and the dashboard widget. Security warnings and errors are always shown."
+        "description": "Choose which parts of Shield appear in the WordPress dashboard: non-essential notices, the admin bar menu, the dashboard widget, and the top-level admin menu. Without the top-level menu, Shield is listed under Tools instead; a network admin always keeps the top-level menu. Security warnings and errors are always shown."
     },
     {
         "key": "enable_upgrade_admin_notice",

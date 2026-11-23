@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Admin;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -20,7 +21,7 @@ class DashboardWidget {
 			   apply_filters(
 				   'shield/show_dashboard_widget',
 				   ( $con->cfg->properties[ 'show_dashboard_widget' ] ?? true )
-				   && $con->comps->opts_lookup->showsInDashboard( 'dashboard_widget' )
+				   && $con->comps->opts_lookup->showsInDashboard( EnumDashboardDisplay::DASHBOARD_WIDGET )
 			   );
 	}
 
