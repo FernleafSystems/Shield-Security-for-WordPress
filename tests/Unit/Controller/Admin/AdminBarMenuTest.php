@@ -26,6 +26,7 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\OptsLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Admin\AdminBarMenu;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\AdminBarScanSummaryCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -91,7 +92,7 @@ class AdminBarMenuTest extends BaseUnitTest {
 	public function test_admin_bar_menu_is_not_registered_when_not_chosen_for_the_dashboard() :void {
 		$cache = new AdminBarSummaryCacheSpy( null );
 		$counts = new AdminBarCountsSpy( $this->emptySummary() );
-		$this->installGateEnvironment( false, $counts, $cache, [ 'notices', 'dashboard_widget' ] );
+		$this->installGateEnvironment( false, $counts, $cache, [ EnumDashboardDisplay::NOTICES, EnumDashboardDisplay::DASHBOARD_WIDGET ] );
 
 		( new AdminBarMenu() )->execute();
 
@@ -579,11 +580,11 @@ class AdminBarMenuTest extends BaseUnitTest {
 		bool $showMenu,
 		AdminBarCountsSpy $counts,
 		AdminBarSummaryCacheSpy $cache,
-		array $dashboardDisplay = [ 'notices', 'admin_bar', 'dashboard_widget' ]
+		array $dashboardDisplay = [ EnumDashboardDisplay::NOTICES, EnumDashboardDisplay::ADMIN_BAR, EnumDashboardDisplay::DASHBOARD_WIDGET ]
 	) :void {
 		Functions\expect( 'apply_filters' )
 			->once()
-			->with( 'shield/show_admin_bar_menu', \in_array( 'admin_bar', $dashboardDisplay, true ) )
+			->with( 'shield/show_admin_bar_menu', \in_array( EnumDashboardDisplay::ADMIN_BAR, $dashboardDisplay, true ) )
 			->andReturn( $showMenu );
 
 		ServicesState::mergeItems( [

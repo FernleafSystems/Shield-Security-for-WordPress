@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Admin;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
@@ -42,7 +43,7 @@ class AdminBarMenu {
 			   && $con->isValidAdminArea()
 			   && Services::WpUsers()->isUserAdmin()
 			   // The site's "dashboard_display" setting is the filter's default, so the filter has the final say either way.
-			   && (bool)apply_filters( 'shield/show_admin_bar_menu', $con->comps->opts_lookup->showsInDashboard( 'admin_bar' ) );
+			   && (bool)apply_filters( 'shield/show_admin_bar_menu', $con->comps->opts_lookup->showsInDashboard( EnumDashboardDisplay::ADMIN_BAR ) );
 	}
 
 	protected function run() {

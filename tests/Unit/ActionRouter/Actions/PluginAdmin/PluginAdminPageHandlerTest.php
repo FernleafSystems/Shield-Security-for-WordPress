@@ -10,16 +10,26 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules {
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Actions\PluginAdmin {
 
-use Brain\Monkey\Functions;
+use Brain\Monkey\{
+	Actions,
+	Filters,
+	Functions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginAdmin\PluginAdminPageHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PageAdminPlugin;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Services\Core\{
+	General,
+	Request
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	RenderCapture,
+	ServicesState,
 	UnitTestActionRouter,
 	UnitTestControllerFactory,
 	UnitTestLicenseComponent,
@@ -30,6 +40,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 class PluginAdminPageHandlerTest extends BaseUnitTest {
 
 	private array $subMenuCalls = [];
+
+	private ?array $servicesSnapshot = null;
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -56,6 +68,10 @@ class PluginAdminPageHandlerTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
+		if ( $this->servicesSnapshot !== null ) {
+			ServicesState::restore( $this->servicesSnapshot );
+		}
+		unset( $GLOBALS[ 'title' ] );
 		PluginControllerInstaller::reset();
 		parent::tearDown();
 	}
@@ -86,6 +102,43 @@ class PluginAdminPageHandlerTest extends BaseUnitTest {
 				'shield_highlighted_menu'
 			)
 		);
+	}
+
+	public function test_admin_menu_is_top_level_when_the_site_shows_it() :void {
+		$calls = $this->captureAdminMenuRegistration( true );
+
+		$this->assertSame( [ 'icwp-wpsf-plugin' ], \array_column( $calls[ 'menu' ], 'menu_slug' ) );
+		$this->assertSame( [], $calls[ 'removed' ] );
+		$this->assertSame( [], $calls[ 'management' ] );
+		$this->assertArrayNotHasKey( 'title', $GLOBALS );
+		$this->assertSame( [], $calls[ 'filters' ] );
+	}
+
+	public function test_hidden_top_level_menu_keeps_its_page_and_links_to_it_from_tools() :void {
+		$calls = $this->captureAdminMenuRegistration( false );
+
+		// The page is registered exactly as when shown, so its URL and screen are unchanged; only the item is hidden.
+		$this->assertSame( [ 'icwp-wpsf-plugin' ], \array_column( $calls[ 'menu' ], 'menu_slug' ) );
+		$this->assertSame( [ 'icwp-wpsf-plugin' ], $calls[ 'removed' ] );
+		$this->assertSame( [ [
+			'menu_slug'    => '/wp-admin/admin.php?page=icwp-wpsf-plugin',
+			'capability'   => 'manage_options',
+			'has_callback' => false,
+		] ], $calls[ 'management' ] );
+		// WordPress can't find the page's title, or open Tools, from a hidden menu item.
+		$this->assertSame( 'Shield Security', $GLOBALS[ 'title' ] ?? null );
+		$this->assertSame( [
+			'parent_file'  => 'tools.php',
+			'submenu_file' => '/wp-admin/admin.php?page=icwp-wpsf-plugin',
+		], $calls[ 'filters' ] );
+	}
+
+	public function test_hidden_top_level_menu_leaves_other_admin_pages_alone() :void {
+		$calls = $this->captureAdminMenuRegistration( false, 'some-other-page' );
+
+		$this->assertCount( 1, $calls[ 'management' ] );
+		$this->assertArrayNotHasKey( 'title', $GLOBALS );
+		$this->assertSame( [], $calls[ 'filters' ] );
 	}
 
 	public function test_display_module_admin_page_passes_only_allowed_route_payload_to_page_render() :void {
@@ -122,12 +175,70 @@ class PluginAdminPageHandlerTest extends BaseUnitTest {
 		] ) )->captureSubMenuItems();
 	}
 
-	private function installController( bool $isPremium, ?UnitTestActionRouter $actionRouter = null ) :void {
+	/**
+	 * @return array{
+	 *   menu:list<array<string,mixed>>,
+	 *   removed:list<string>,
+	 *   management:list<array<string,mixed>>,
+	 *   filters:array<string,mixed>
+	 * }
+	 */
+	private function captureAdminMenuRegistration( bool $showsTopLevelMenu, string $page = 'icwp-wpsf-plugin' ) :array {
+		$calls = [ 'menu' => [], 'removed' => [], 'management' => [], 'filters' => [] ];
+		foreach ( [ 'parent_file', 'submenu_file' ] as $filter ) {
+			Filters\expectAdded( $filter )->zeroOrMoreTimes()->whenHappen( function ( callable $callback ) use ( &$calls, $filter ) :void {
+				$calls[ 'filters' ][ $filter ] = $callback( 'unchanged' );
+			} );
+		}
+		Functions\when( 'is_multisite' )->justReturn( false );
+		Functions\when( 'is_admin' )->justReturn( true );
+		Functions\when( 'add_menu_page' )->alias( function ( string $pageTitle, string $menuTitle, string $capability, string $menuSlug ) use ( &$calls ) :string {
+			$calls[ 'menu' ][] = [ 'menu_slug' => $menuSlug, 'capability' => $capability ];
+			return 'toplevel_page_'.$menuSlug;
+		} );
+		Functions\when( 'remove_menu_page' )->alias( function ( string $menuSlug ) use ( &$calls ) {
+			$calls[ 'removed' ][] = $menuSlug;
+			return [ 'Shield Security', 'manage_options', $menuSlug ];
+		} );
+		Functions\when( 'add_management_page' )->alias( function ( string $pageTitle, string $menuTitle, string $capability, string $menuSlug, $callback = '' ) use ( &$calls ) :string {
+			$calls[ 'management' ][] = [
+				'menu_slug'    => $menuSlug,
+				'capability'   => $capability,
+				'has_callback' => !empty( $callback ),
+			];
+			return 'tools_page_'.$menuSlug;
+		} );
+		Actions\expectAdded( 'admin_menu' )->once()->whenHappen( static function ( callable $callback ) :void {
+			$callback();
+		} );
+
+		$this->installController( false, null, $showsTopLevelMenu );
+		$this->servicesSnapshot = ServicesState::snapshot();
+		$request = new Request();
+		$request->query = [ 'page' => $page ];
+		ServicesState::installItems( [
+			'service_wpgeneral' => new General(),
+			'service_request'   => $request,
+		] );
+		( new PluginAdminPageHandlerTestSubject( [
+			Constants::NAV_ID => PluginNavs::NAV_DASHBOARD,
+		] ) )->runExec();
+
+		return $calls;
+	}
+
+	private function installController( bool $isPremium, ?UnitTestActionRouter $actionRouter = null, bool $showsTopLevelMenu = true ) :void {
 		UnitTestControllerFactory::install(
 			new UnitTestPluginUrls(),
 			$actionRouter,
 			(object)[
 				'cfg' => (object)[
+					'menu'       => [
+						'show'           => true,
+						'top_level'      => true,
+						'has_submenu'    => true,
+						'do_submenu_fix' => false,
+					],
 					'properties' => [
 						'slug_parent'      => 'icwp',
 						'slug_plugin'      => 'wpsf',
@@ -140,8 +251,20 @@ class PluginAdminPageHandlerTest extends BaseUnitTest {
 					'icon_url_16x16' => 'dashicons-shield',
 				],
 				'comps' => (object)[
-					'license' => new UnitTestLicenseComponent( $isPremium ),
-					'zones'   => new UnitTestZonesComponent(),
+					'license'     => new UnitTestLicenseComponent( $isPremium ),
+					'zones'       => new UnitTestZonesComponent(),
+					'opts_lookup' => new class( $showsTopLevelMenu ) {
+
+						private bool $showsTopLevelMenu;
+
+						public function __construct( bool $showsTopLevelMenu ) {
+							$this->showsTopLevelMenu = $showsTopLevelMenu;
+						}
+
+						public function showsInDashboard( string $element ) :bool {
+							return $element !== EnumDashboardDisplay::ADMIN_MENU || $this->showsTopLevelMenu;
+						}
+					},
 				],
 			]
 		);
@@ -180,6 +303,10 @@ class PluginAdminPageHandlerTestSubject extends PluginAdminPageHandler {
 
 	public function captureSubMenuItems() :void {
 		$this->addSubMenuItems();
+	}
+
+	public function runExec() :void {
+		$this->exec();
 	}
 }
 
