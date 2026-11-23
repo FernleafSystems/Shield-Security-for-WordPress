@@ -13,9 +13,15 @@ class Accept {
 	use PluginControllerConsumer;
 
 	/**
+	 * Keeps the file's current contents as its new locked copy.
 	 * @throws \Exception
 	 */
 	public function run( FileLockerDB\Record $lock ) :bool {
+		// The owner confirmed keeping changed contents: if the file has since gone, that's not what they agreed to.
+		if ( !Services::WpFs()->isAccessibleFile( $lock->path ) ) {
+			throw new \Exception( 'The file is missing, so its changes cannot be accepted.' );
+		}
+
 		$FL = self::con()->comps->file_locker;
 		$state = $FL->getState();
 
@@ -51,5 +57,25 @@ class Accept {
 			$FL->reassessLocksNow();
 		}
 		return $success;
+	}
+
+	/**
+	 * The file is gone and the owner accepts that: File Locker stops locking it, just as if it were unticked in the
+	 * File Locker settings. Saving that runs the usual clean-up, which deletes the lock of a file no longer selected.
+	 * @throws \Exception
+	 */
+	public function acceptRemoval( FileLockerDB\Record $lock ) :bool {
+		// The owner confirmed the file is gone: if it's back, dropping its locked copy is not what they agreed to.
+		if ( Services::WpFs()->isAccessibleFile( $lock->path ) ) {
+			throw new \Exception( 'The file exists again, so its removal cannot be accepted.' );
+		}
+
+		$FL = self::con()->comps->file_locker;
+		self::con()
+			->opts
+			->optSet( 'file_locker', \array_values( \array_diff( $FL->getFilesToLock(), [ $lock->type ] ) ) )
+			->store();
+		$FL->clearLocks();
+		return true;
 	}
 }

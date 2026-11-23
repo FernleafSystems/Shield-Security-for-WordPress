@@ -59,16 +59,15 @@ class SecurityAdminDisableActionBuilderTest extends BaseUnitTest {
 
 		$zoneAction = $builder->buildZoneAction();
 		$contextHref = $builder->buildContextualHref();
-		$configureActions = $builder->buildConfigureContextActions();
+		$goalLinks = $builder->buildConfigureGoalLinks();
 
 		$this->assertIsArray( $zoneAction );
 		$this->assertIsArray( $contextHref );
-		$this->assertCount( 1, $configureActions );
-		$this->assertSame( 'href', $configureActions[ 0 ][ 'kind' ] ?? '' );
-		$this->assertSame( 'deactivate', $configureActions[ 0 ][ 'type' ] ?? '' );
+		$this->assertCount( 1, $goalLinks );
+		$this->assertSame( 'Disable Security Admin', $goalLinks[ 0 ][ 'label' ] );
 		$this->assertSecurityAdminRemoveHref( (string)( $zoneAction[ 'href' ] ?? '' ) );
 		$this->assertSecurityAdminRemoveHref( (string)( $contextHref[ 'href' ] ?? '' ) );
-		$this->assertSecurityAdminRemoveHref( (string)( $configureActions[ 0 ][ 'href' ] ?? '' ) );
+		$this->assertSecurityAdminRemoveHref( $goalLinks[ 0 ][ 'href' ] );
 	}
 
 	public function test_build_returns_empty_when_security_admin_is_disabled() :void {
@@ -77,7 +76,7 @@ class SecurityAdminDisableActionBuilderTest extends BaseUnitTest {
 
 		$this->assertNull( $builder->buildZoneAction() );
 		$this->assertNull( $builder->buildContextualHref() );
-		$this->assertSame( [], $builder->buildConfigureContextActions() );
+		$this->assertSame( [], $builder->buildConfigureGoalLinks() );
 	}
 
 	private function assertSecurityAdminRemoveHref( string $href ) :void {

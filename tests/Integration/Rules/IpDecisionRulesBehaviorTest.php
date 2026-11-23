@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage
 	BlockIpAddressShield
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\Core\HighReputationIp,
 	Build\Core\IpBlockedCrowdsec,
 	Build\Core\IpBlockedShield,
 	Build\Core\IpWhitelisted,
@@ -140,11 +139,6 @@ class IpDecisionRulesBehaviorTest extends ShieldIntegrationTestCase {
 		] );
 		$this->applyRequestForIp( $ip );
 
-		$rule = ( new HighReputationIp() )->build();
-
-		$this->assertSame( HighReputationIp::SLUG, $rule->slug );
-		$this->assertTrue( $this->evaluateRule( $rule ) );
-		$this->responseDefinition( $rule, Responses\PreventShieldIpAutoBlock::class );
 		$this->assertTrue( $this->evaluateCondition( Conditions\IsIpHighReputation::class ) );
 		$this->assertFalse( $this->requireController()->this_req->is_ip_blocked_shield_auto );
 

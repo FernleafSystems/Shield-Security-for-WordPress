@@ -15,7 +15,6 @@ class PageInvestigateByCore extends BaseInvestigateAsset {
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_by_core.twig';
 
 	protected function getRenderData() :array {
-		$con = self::con();
 		$coreVersion = $this->getCoreVersion();
 		$coreFileCount = $this->getCoreFileIssueCount();
 		$activityCount = $this->countActivityForSubject(
@@ -55,12 +54,6 @@ class PageInvestigateByCore extends BaseInvestigateAsset {
 		return [
 			'flags'   => [
 				'has_subject' => true,
-			],
-			'hrefs'   => [
-				'by_core' => $con->plugin_urls->investigateByCore(),
-			],
-			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->iconClass( 'wordpress' ),
 			],
 			'strings' => $strings,
 			'vars'    => [

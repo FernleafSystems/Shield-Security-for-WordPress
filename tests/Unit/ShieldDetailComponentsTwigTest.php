@@ -63,11 +63,6 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 						'href'    => '#view',
 						'tooltip' => '',
 					],
-					[
-						'type'  => 'navigate',
-						'label' => 'Null tooltip',
-						'href'  => '#null',
-					],
 				],
 			],
 		] );
@@ -97,11 +92,6 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 			0,
 			$xpath->query( '//*[@href="#view" and @data-bs-toggle="tooltip"]' )->length,
 			'Blank tooltip strings should not render tooltip attributes'
-		);
-		$this->assertSame(
-			0,
-			$xpath->query( '//*[@href="#null" and @data-bs-toggle="tooltip"]' )->length,
-			'Missing tooltip values should not render tooltip attributes'
 		);
 	}
 
@@ -145,134 +135,6 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 				'//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__explanations ")]/li[normalize-space()!=""]'
 			)->length,
 			'Non-warning rows should render non-empty explanation items'
-		);
-	}
-
-	public function testDetailRowRendersStructuredDetailItemsWithCodeValues() :void {
-		$html = $this->twig()->render( '/wpadmin/components/page/shield_detail_row.twig', [
-			'row' => [
-				'status'       => 'critical',
-				'title'        => 'Cloaked Plugin',
-				'description'  => 'Plugin file is hidden.',
-				'expandable'   => false,
-				'expand_target' => '',
-				'expand_cta_label' => '',
-				'expand_accessible_label' => '',
-				'expand_title' => '',
-				'detail_items' => [
-					[
-						'label' => 'Path',
-						'value' => 'wp-content/plugins/cloaked/cloaked.php',
-						'style' => 'code',
-					],
-					[
-						'label' => 'Status',
-						'value' => 'Active',
-						'style' => 'text',
-					],
-				],
-			],
-		] );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertSame(
-			1,
-			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__details ")]' )->length,
-			'Rows should render the structured detail list when supplied'
-		);
-		$this->assertSame(
-			1,
-			$xpath->query( '//code[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__detail-code ") and normalize-space()="wp-content/plugins/cloaked/cloaked.php"]' )->length,
-			'Code-style detail values should render inside code elements'
-		);
-		$this->assertSame(
-			1,
-			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__detail-value ") and normalize-space()="Active"]' )->length,
-			'Text-style detail values should render as regular text values'
-		);
-	}
-
-	public function testSimpleTableSupportsIconOnlyPrimaryActionsAndEmptyPrimaryActions() :void {
-		$html = $this->twig()->render( '/wpadmin/components/page/detail_expansion_simple_table.twig', [
-			'table' => [
-				'columns' => [
-					'item'    => 'Item',
-					'details' => 'Details',
-					'action'  => 'Action',
-				],
-				'rows'    => [
-					[
-						'title'      => 'Inactive Plugin',
-						'subtitle'   => 'Plugin is currently inactive',
-						'context'    => 'Version: 1.0.0',
-						'identifier' => 'inactive-plugin/inactive-plugin.php',
-						'is_ignored' => true,
-						'ignored_label' => 'Currently ignored',
-						'action'     => [
-							'href'         => '/wp-admin/plugins.php?s=inactive-plugin%2Finactive-plugin.php',
-							'label'        => 'Manage this plugin',
-							'icon'         => 'bi bi-arrow-right-circle-fill',
-							'tooltip'      => 'Manage this plugin',
-							'target'       => '_blank',
-							'is_icon_only' => true,
-						],
-						'secondary_actions' => [
-							[
-								'href'             => '',
-								'label'            => 'Ignore',
-								'icon'             => 'bi bi-eye-slash-fill',
-								'tooltip'          => 'Ignore this maintenance item',
-								'target'           => '',
-								'is_action'        => true,
-								'ajax_action'      => [ 'ex' => 'maintenance_item_ignore' ],
-								'ajax_action_json' => '{"ex":"maintenance_item_ignore"}',
-							],
-						],
-					],
-					[
-						'title'      => 'Inactive Theme',
-						'subtitle'   => 'Theme is currently inactive',
-						'context'    => 'Version: 1.0.0',
-						'identifier' => 'inactive-theme',
-						'ignored_label' => '',
-						'action'     => [],
-						'secondary_actions' => [],
-					],
-				],
-				'empty_text' => 'No items are currently available.',
-			],
-		] );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertSame(
-			1,
-			$xpath->query( '//table[contains(concat(" ", normalize-space(@class), " "), " actions-landing__maintenance-table ")]' )->length,
-			'Simple tables should expose the maintenance table styling hook'
-		);
-		$this->assertSame(
-			1,
-			$xpath->query( '//a[@href="/wp-admin/plugins.php?s=inactive-plugin%2Finactive-plugin.php" and @target="_blank" and @data-bs-title and contains(concat(" ", normalize-space(@class), " "), " actions-landing__table-icon-action ")]' )->length,
-			'Icon-only maintenance primary actions should render tooltip-enabled icon buttons'
-		);
-		$this->assertSame(
-			1,
-			$xpath->query( '//button[@type="button" and contains(concat(" ", normalize-space(@class), " "), " actions-landing__table-icon-action ") and contains(@data-actions-queue-maintenance-action, "maintenance_item_ignore")]' )->length,
-			'Simple tables should render PHP-provided maintenance AJAX actions as buttons'
-		);
-		$this->assertSame(
-			1,
-			$xpath->query( '//tr[@data-actions-queue-maintenance-ignored="1"]//*[contains(concat(" ", normalize-space(@class), " "), " actions-landing__maintenance-ignored-badge ")]' )->length,
-			'Ignored maintenance rows should render the PHP-provided ignored label badge'
-		);
-		$this->assertSame(
-			1,
-			$xpath->query( '//a[@href="/wp-admin/plugins.php?s=inactive-plugin%2Finactive-plugin.php"]//*[contains(concat(" ", normalize-space(@class), " "), " visually-hidden ") and normalize-space()!=""]' )->length,
-			'Icon-only maintenance primary actions should keep an accessible text label'
-		);
-		$this->assertSame(
-			0,
-			$xpath->query( '//tr[not(@data-actions-queue-maintenance-ignored)]//*[self::a or self::button]' )->length,
-			'Rows without maintenance actions should not render an empty control'
 		);
 	}
 

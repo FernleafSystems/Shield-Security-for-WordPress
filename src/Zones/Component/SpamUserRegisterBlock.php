@@ -14,10 +14,6 @@ class SpamUserRegisterBlock extends Base {
 		return __( 'Attempt to identify SPAM users and prevent their successful account creation.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Edit settings for SPAM user registrations', 'wp-simple-firewall' );
-	}
-
 	/**
 	 * @inheritDoc
 	 */
@@ -29,14 +25,14 @@ class SpamUserRegisterBlock extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( 'There are no checks for SPAM user email addresses during user registration.', 'wp-simple-firewall' );
+			// Checks only run when registration email validation is on, so that is the setting to change first.
+			$status[ 'exp' ][] = $this->explanationFixedBy(
+				__( 'There are no checks for SPAM user email addresses during user registration.', 'wp-simple-firewall' ),
+				self::con()->opts->optGet( 'reg_email_validate' ) === 'disabled' ? 'reg_email_validate' : 'email_checks'
+			);
 		}
 
 		return $status;
-	}
-
-	protected function postureWeight() :int {
-		return 3;
 	}
 
 	protected function configureTreatsBadStatusAsWarning() :bool {

@@ -128,13 +128,6 @@ class ProcessIPs extends ProcessBase {
 			$slice = \array_slice( $this->newDecisions, $page*$pageSize, $pageSize );
 			if ( !empty( $slice ) ) {
 
-				// We don't need to deal with ranges just yet:
-//				$singles = \array_keys( \array_filter( $slice, function ( array $dec ) {
-//					/** @var RangeInterface $range */
-//					$range = $dec[ 'parsed' ];
-//					return $range->getSize() === 1;
-//				} ) );
-
 				$singles = \array_keys( $slice );
 				$loader = new LoadIpRules();
 				$loader->wheres = [
@@ -165,14 +158,6 @@ class ProcessIPs extends ProcessBase {
 					}
 				}
 
-//				$ranges = \array_filter( $slice, function ( array $dec ) {
-//					/** @var RangeInterface $range */
-//					$range = $dec[ 'parsed' ];
-//					return $range->getSize() > 1;
-//				} );
-//				if ( !empty( $ranges ) ) {
-//					// TODO.
-//				}
 			}
 
 			$page++;
@@ -228,7 +213,6 @@ class ProcessIPs extends ProcessBase {
 						// store the Range object for use later on.  When this position changes, this code can update.
 						$group[ $decision[ 'value' ] ] = [
 							'expires_at' => $this->getDecisionExpiresAt( $decision )
-							// 'parsed'     => Factory::parseRangeString( $ip ),
 						];
 					}
 				}

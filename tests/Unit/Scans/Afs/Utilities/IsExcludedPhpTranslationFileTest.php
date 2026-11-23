@@ -69,6 +69,42 @@ class IsExcludedPhpTranslationFileTest extends BaseUnitTest {
 		);
 	}
 
+	public function testAcceptsPluralFormsJoinedWithNulSeparator() :void {
+		$subject = new IsExcludedPhpTranslationFile();
+
+		foreach ( [
+			"<?php\nreturn ['messages'=>['%d day'=>'%d day' . \"\\0\" . '%d days','Other'=>'Autre']];\n",
+			"<?php\nreturn ['messages'=>['%d day'=>'%d dan' . \"\\0\" . '%d dana' . \"\\0\" . '%d dana']];\n",
+		] as $content ) {
+			$this->assertTrue(
+				$this->invokeProtected( $subject, 'isSafeTranslationPhpPayload', [ $content ] ),
+				sprintf( 'Expected payload to be accepted: %s', $content )
+			);
+		}
+	}
+
+	public function testRejectsConcatenationOfAnythingOtherThanStringLiterals() :void {
+		$subject = new IsExcludedPhpTranslationFile();
+
+		foreach ( [
+			"<?php return ['messages'=>['A'=>'B' . system('id')]];",
+			"<?php return ['messages'=>['A'=>system('id') . 'B']];",
+			"<?php return ['messages'=>['A'=>'B' . \$_GET['c']]];",
+			"<?php return ['messages'=>['A'=>'B' . \"\$c\"]];",
+			"<?php return ['messages'=>['A'=>'B' . PHP_VERSION]];",
+			"<?php return ['messages'=>['A'=>'B' . 1]];",
+			"<?php return ['messages'=>['A'=>'B' . true]];",
+			"<?php return ['messages'=>['A'=>'B' . ['C']]];",
+			"<?php return ['messages'=>['A'=>1 . 'B']];",
+			"<?php return 'A' . 'B';",
+		] as $content ) {
+			$this->assertFalse(
+				$this->invokeProtected( $subject, 'isSafeTranslationPhpPayload', [ $content ] ),
+				sprintf( 'Expected payload to be rejected: %s', $content )
+			);
+		}
+	}
+
 	public function testRejectsExecutablePayload() :void {
 		$subject = new IsExcludedPhpTranslationFile();
 		$content = "<?php return ['x-generator'=>'GlotPress/4.0','translation-revision-date'=>'2026-01-01','messages'=>['A'=>'B']]; system('id');";

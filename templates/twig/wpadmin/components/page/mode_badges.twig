@@ -1,0 +1,11 @@
+{# A sidebar item's counts, one per severity. The Actions Queue replaces these in place as its items change. #}
+{% if badges is not empty %}
+	<span class="mode-badges">
+		{% for badge in badges %}
+			<span class="mode-badge status-{{ badge.status }}" title="{{ badge.label|e('html_attr') }}">
+				<span aria-hidden="true">{{ badge.text }}</span>
+				<span class="visually-hidden">{{ badge.label }}</span>
+			</span>
+		{% endfor %}
+	</span>
+{% endif %}

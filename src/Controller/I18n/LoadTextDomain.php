@@ -48,7 +48,7 @@ class LoadTextDomain {
 	 */
 	private function overrideTranslations( string $moFilePath ) :string {
 		// use determine_locale() as it also considers the user's profile preference
-		$targetLoc = \function_exists( 'determine_locale' ) ? determine_locale() : Services::WpGeneral()->getLocale();
+		$targetLoc = determine_locale();
 		$filteredLocale = apply_filters( 'plugin_locale', $targetLoc, self::con()->getTextDomain() );
 		if ( !empty( $filteredLocale ) ) {
 			$targetLoc = $filteredLocale;

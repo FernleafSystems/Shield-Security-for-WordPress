@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Conditions,
 	RuleVO,
 	Utility\ExtractSubConditions,
 	WPHooksOrder

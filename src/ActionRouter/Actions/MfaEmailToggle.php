@@ -2,18 +2,26 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Email;
 
 class MfaEmailToggle extends MfaUserConfigBase {
 
 	public const SLUG = 'mfa_profile_toggle_email';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
 		$available = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var ?Email $provider */
 		$provider = $available[ Email::ProviderSlug() ] ?? null;
 		if ( !empty( $provider ) && !$provider->isEnforced() ) {
-			$turnOn = ( $this->action_data[ 'direction' ] ?? '' ) === 'on';
+			// Only an explicit "on" or "off" changes the setting; anything else refuses the request.
+			$turnOn = $this->fields()->oneOf( 'direction', [ 'on', 'off' ] ) === 'on';
 			$provider->toggleEmail2FA( $turnOn );
 			$success = $turnOn === $provider->isProfileActive();
 

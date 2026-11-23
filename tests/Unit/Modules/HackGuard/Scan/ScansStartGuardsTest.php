@@ -11,7 +11,9 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScanProgressBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansStart;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
@@ -48,164 +50,94 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		$this->assertSame( '', $scans->getStartBlockedMessage( true ) );
 	}
 
-	public function test_action_router_start_returns_maintenance_message_instead_of_generic_no_selection() :void {
-		$request = new UnitTestRequest();
-		$request->post = [];
-		ServicesState::installItems( [
-			'service_request' => $request,
-		] );
+	public function test_blocked_start_reports_why_scans_cannot_run() :void {
+		$this->installActionController( false, StartScansResult::fromRequested( [] ) );
 
-		$controller = $this->installActionController(
-			false,
-			[ 'reason_not_call_self' ],
-			StartScansResult::fromRequested( [] )
-		);
-
-		$action = new ScansStart();
-		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
-		$method->setAccessible( true );
-		$method->invoke( $action );
-
-		$payload = $action->response()->payload();
+		[ $payload, $progress ] = $this->runStart( [] );
 
 		$this->assertFalse( $payload[ 'success' ] );
-		$this->assertSame( StartScansResult::CODE_START_BLOCKED, $payload[ 'error_code' ] );
-		$this->assertSame( [ 'reason_not_call_self' ], $payload[ 'blocked_reasons' ] );
-		$this->assertNotSame( '', $payload[ 'message' ] );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] );
-		$this->assertNotSame( '', $payload[ 'modal_html' ] );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $controller->action_router->renderData[ 'modal_state' ] );
-		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
+		$this->assertSame( [ [ 'forFailure', 'blocked' ] ], $progress->calls );
+		$this->assertSame( ScansStartRecordingProgress::FAILED, $this->withoutSuccess( $payload ) );
 	}
 
-	public function test_action_router_start_returns_structured_failure_for_selected_scan_that_cannot_start() :void {
-		$request = new UnitTestRequest();
-		$request->post = [ 'afs' => 'Y' ];
-		ServicesState::installItems( [
-			'service_request' => $request,
-		] );
+	public function test_selected_scan_that_cannot_start_is_reported_as_failed_with_the_reason() :void {
+		$result = StartScansResult::fromRequested( [ 'afs' ] )->addFailure( 'afs', StartScansResult::REASON_CREATE_FAILED );
+		$controller = $this->installActionController( true, $result );
 
-		$controller = $this->installActionController(
-			true,
-			[],
-			StartScansResult::fromRequested( [ 'afs' ] )
-										->addFailure( 'afs', StartScansResult::REASON_CREATE_FAILED )
-		);
-
-		$action = new ScansStart();
-		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
-		$method->setAccessible( true );
-		$method->invoke( $action );
-
-		$payload = $action->response()->payload();
+		[ $payload, $progress ] = $this->runStart( [ 'afs' => 'Y' ] );
 
 		$this->assertFalse( $payload[ 'success' ] );
-		$this->assertSame( StartScansResult::CODE_START_FAILED, $payload[ 'error_code' ] );
-		$this->assertSame( [ StartScansResult::REASON_CREATE_FAILED ], \array_column( $payload[ 'start_failures' ], 'reason' ) );
+		$this->assertNotSame( '', $result->getMessage() );
+		$this->assertSame( [ [ 'forFailure', $result->getMessage() ] ], $progress->calls );
 		$this->assertSame( [ [ 'afs' ] ], $controller->comps->scans->startCalls );
 		$this->assertSame( [ false ], $controller->comps->scans->resetIgnoreCalls );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] );
-		$this->assertNotSame( '', $payload[ 'modal_html' ] );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $controller->action_router->renderData[ 'modal_state' ] );
-		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 	}
 
-	public function test_action_router_start_accepts_active_duplicate_as_resumed_scan() :void {
-		$request = new UnitTestRequest();
-		$request->post = [ 'afs' => 'Y' ];
-		ServicesState::installItems( [
-			'service_request' => $request,
-		] );
+	public function test_active_duplicate_is_followed_as_a_resumed_scan() :void {
+		$this->installActionController( true, StartScansResult::fromRequested( [ 'afs' ] )->addResumed( 'afs', 44 ) );
 
-		$controller = $this->installActionController(
-			true,
-			[],
-			StartScansResult::fromRequested( [ 'afs' ] )
-										->addResumed( 'afs', 44 )
-		);
-
-		$action = new ScansStart();
-		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
-		$method->setAccessible( true );
-		$method->invoke( $action );
-
-		$payload = $action->response()->payload();
+		[ $payload, $progress ] = $this->runStart( [ 'afs' => 'Y' ] );
 
 		$this->assertTrue( $payload[ 'success' ] );
-		$this->assertSame( [ 44 ], $payload[ 'scan_ids' ] );
-		$this->assertArrayNotHasKey( 'error_code', $payload );
-		$this->assertArrayNotHasKey( 'start_failures', $payload );
-		$this->assertSame( [ [ 'afs' ] ], $controller->comps->scans->startCalls );
-		$this->assertSame( [ false ], $controller->comps->scans->resetIgnoreCalls );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $payload[ 'modal_state' ] );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $controller->action_router->renderData[ 'modal_state' ] );
-		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
+		$this->assertSame( [ [ 'forScans', [ 44 ] ] ], $progress->calls );
+		$this->assertSame( ScansStartRecordingProgress::RUNNING + [ 'scan_ids' => [ 44 ] ], $this->withoutSuccess( $payload ) );
 	}
 
-	public function test_action_router_start_allows_partial_success_with_started_ids_and_failures() :void {
-		$request = new UnitTestRequest();
-		$request->post = [ 'afs' => 'Y', 'wpv' => 'Y' ];
-		ServicesState::installItems( [
-			'service_request' => $request,
-		] );
-
+	public function test_partial_start_follows_the_scans_that_did_start() :void {
 		$controller = $this->installActionController(
 			true,
-			[],
 			StartScansResult::fromRequested( [ 'afs', 'wpv' ] )
-										->addStarted( 'afs', 31 )
-										->addFailure( 'wpv', StartScansResult::REASON_CREATE_FAILED )
+							->addStarted( 'afs', 31 )
+							->addFailure( 'wpv', StartScansResult::REASON_CREATE_FAILED )
 		);
 
-		$action = new ScansStart();
-		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
-		$method->setAccessible( true );
-		$method->invoke( $action );
-
-		$payload = $action->response()->payload();
+		[ $payload, $progress ] = $this->runStart( [ 'afs' => 'Y', 'wpv' => 'Y' ] );
 
 		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( [ [ 'forScans', [ 31 ] ] ], $progress->calls );
 		$this->assertSame( [ 31 ], $payload[ 'scan_ids' ] );
-		$this->assertSame( StartScansResult::CODE_PARTIAL_START, $payload[ 'error_code' ] );
-		$this->assertSame( [ StartScansResult::REASON_CREATE_FAILED ], \array_column( $payload[ 'start_failures' ], 'reason' ) );
 		$this->assertSame( [ [ 'afs', 'wpv' ] ], $controller->comps->scans->startCalls );
-		$this->assertSame( [ false ], $controller->comps->scans->resetIgnoreCalls );
-		$this->assertTrue( $payload[ 'page_reload' ] );
-		$this->assertSame( '/actions-queue-scans/', $payload[ 'redirect_url' ] );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $payload[ 'modal_state' ] );
-		$this->assertNotSame( '', $payload[ 'modal_html' ] );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $controller->action_router->renderData[ 'modal_state' ] );
-		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
-		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] );
 	}
 
-	public function test_action_router_start_passes_reset_ignore_flag_to_central_start() :void {
-		$request = new UnitTestRequest();
-		$request->post = [ 'afs' => 'Y', 'opt_clear_ignore' => 'Y' ];
-		ServicesState::installItems( [
-			'service_request' => $request,
-		] );
+	public function test_only_known_scans_are_started() :void {
+		$controller = $this->installActionController( true, StartScansResult::fromRequested( [ 'afs' ] )->addStarted( 'afs', 31 ) );
 
-		$controller = $this->installActionController(
-			true,
-			[],
-			StartScansResult::fromRequested( [ 'afs' ] )->addStarted( 'afs', 31 )
-		);
+		$this->runStart( [ 'afs' => 'Y', 'not_a_scan' => 'Y' ] );
 
-		$action = new ScansStart();
-		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
-		$method->setAccessible( true );
-		$method->invoke( $action );
+		$this->assertSame( [ [ 'afs' ] ], $controller->comps->scans->startCalls );
+	}
+
+	public function test_start_passes_reset_ignore_flag_to_central_start() :void {
+		$controller = $this->installActionController( true, StartScansResult::fromRequested( [ 'afs' ] )->addStarted( 'afs', 31 ) );
+
+		$this->runStart( [ 'afs' => 'Y', 'opt_clear_ignore' => 'Y' ] );
 
 		$this->assertSame( [ [ 'afs' ] ], $controller->comps->scans->startCalls );
 		$this->assertSame( [ true ], $controller->comps->scans->resetIgnoreCalls );
 	}
 
-	private function assertModalRenderInputDoesNotCarryDerivedFlags( array $renderData ) :void {
-		$this->assertSame( [], $renderData[ 'scan_rows' ] );
-		foreach ( [ 'is_initiating', 'is_running', 'is_complete', 'is_failed' ] as $key ) {
-			$this->assertArrayNotHasKey( $key, $renderData );
-		}
+	/**
+	 * @return array{0:array<string,mixed>,1:ScansStartRecordingProgress}
+	 */
+	private function runStart( array $post ) :array {
+		$request = new UnitTestRequest();
+		$request->post = $post;
+		ServicesState::installItems( [
+			'service_request' => $request,
+		] );
+
+		$action = new ScansStartUnderTest( ExternalEntryGuard::ActionDataFromTransport( $request->post ) );
+		$action->recordingProgress = new ScansStartRecordingProgress();
+		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
+		$method->setAccessible( true );
+		$method->invoke( $action );
+
+		return [ $action->response()->payload(), $action->recordingProgress ];
+	}
+
+	private function withoutSuccess( array $payload ) :array {
+		unset( $payload[ 'success' ] );
+		return $payload;
 	}
 
 	private function installController( bool $canLoopback ) :void {
@@ -226,26 +158,19 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		PluginControllerInstaller::install( $controller );
 	}
 
-	private function installActionController(
-		bool $canStart,
-		array $blockedReasons,
-		StartScansResult $startResult,
-		bool $hasRunningScans = false
-	) :Controller {
+	private function installActionController( bool $canStart, StartScansResult $startResult ) :Controller {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->comps = (object)[
-			'scans' => new class( $canStart, $blockedReasons, $startResult ) {
+			'scans' => new class( $canStart, $startResult ) {
 				public array $startCalls = [];
 				public array $resetIgnoreCalls = [];
 
 				private bool $canStart;
-				private array $blockedReasons;
 				private StartScansResult $startResult;
 
-				public function __construct( bool $canStart, array $blockedReasons, StartScansResult $startResult ) {
+				public function __construct( bool $canStart, StartScansResult $startResult ) {
 					$this->canStart = $canStart;
-					$this->blockedReasons = $blockedReasons;
 					$this->startResult = $startResult;
 				}
 
@@ -259,10 +184,6 @@ class ScansStartGuardsTest extends BaseUnitTest {
 					return $this->canStart;
 				}
 
-				public function getReasonsScansCantExecute() :array {
-					return $this->blockedReasons;
-				}
-
 				public function getScanSlugs() :array {
 					return [ 'afs', 'apc', 'wpv' ];
 				}
@@ -273,34 +194,36 @@ class ScansStartGuardsTest extends BaseUnitTest {
 					return $this->startResult;
 				}
 			},
-			'scans_queue' => new class( $hasRunningScans ) {
-				private bool $hasRunningScans;
-
-				public function __construct( bool $hasRunningScans ) {
-					$this->hasRunningScans = $hasRunningScans;
-				}
-
-				public function hasRunningScans() :bool {
-					return $this->hasRunningScans;
-				}
-			},
 		];
-		$controller->plugin_urls = new class {
-			public function actionsQueueScans() :string {
-				return '/actions-queue-scans/';
-			}
-		};
-		$controller->action_router = new class {
-			public array $renderData = [];
-
-			public function render( string $renderClass, array $data ) :string {
-				unset( $renderClass );
-				$this->renderData = $data;
-				return 'rendered-modal';
-			}
-		};
 
 		PluginControllerInstaller::install( $controller );
 		return $controller;
+	}
+}
+
+class ScansStartUnderTest extends ScansStart {
+
+	public ScansStartRecordingProgress $recordingProgress;
+
+	protected function progress() :ScanProgressBuilder {
+		return $this->recordingProgress;
+	}
+}
+
+class ScansStartRecordingProgress extends ScanProgressBuilder {
+
+	public const RUNNING = [ 'progress_state' => 'running', 'progress_html' => 'running-html', 'progress_detail' => 'File Guard 5%' ];
+	public const FAILED = [ 'progress_state' => 'failed', 'progress_html' => 'failed-html', 'progress_detail' => '' ];
+
+	public array $calls = [];
+
+	public function forScans( array $trackedScanIDs ) :array {
+		$this->calls[] = [ 'forScans', $trackedScanIDs ];
+		return self::RUNNING;
+	}
+
+	public function forFailure( string $message ) :array {
+		$this->calls[] = [ 'forFailure', $message ];
+		return self::FAILED;
 	}
 }

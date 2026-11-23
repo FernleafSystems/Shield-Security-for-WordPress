@@ -293,6 +293,12 @@ class EventStrings {
 					__( 'Login/Register request triggered cooldown and was blocked.', 'wp-simple-firewall' )
 				],
 			],
+			'action_request_rejected'      => [
+				'name'  => __( 'Shield Action Request Rejected', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "A request to run the Shield action '{{action}}' through '{{entry}}' was rejected because the action isn't available there or the request's security check failed.", 'wp-simple-firewall' ),
+				],
+			],
 			'2fa_success'                  => [
 				'name'  => __( '2FA Login Success', 'wp-simple-firewall' ),
 				'audit' => [

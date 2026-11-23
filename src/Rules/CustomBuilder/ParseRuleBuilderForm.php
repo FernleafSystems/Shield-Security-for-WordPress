@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\RequestFields;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
@@ -49,7 +50,15 @@ class ParseRuleBuilderForm {
 	private function nameAndDescription() :void {
 		$this->extractedForm->name = \trim( \preg_replace( '#[^a-z0-9_\s-]#i', '', $this->form[ 'rule_name' ] ?? '' ) );
 		$this->extractedForm->description = \trim( \preg_replace( '#[^a-z0-9_\s-]#i', '', $this->form[ 'rule_description' ] ?? '' ) );
-		$this->extractedForm->edit_rule_id = $this->form[ 'edit_rule_id' ] ?? -1;
+		$this->extractedForm->edit_rule_id = self::EditRuleIdFrom( $this->form );
+	}
+
+	/**
+	 * The rule a builder form edits, or -1 for a new rule. Anything but a genuine rule ID means a new rule,
+	 * never rule 1.
+	 */
+	public static function EditRuleIdFrom( array $form ) :int {
+		return RequestFields::PositiveIntFrom( $form[ 'edit_rule_id' ] ?? null ) ?? -1;
 	}
 
 	private function assessReadiness() :void {

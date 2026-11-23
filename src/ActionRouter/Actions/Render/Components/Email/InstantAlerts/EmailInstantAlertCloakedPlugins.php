@@ -60,7 +60,7 @@ class EmailInstantAlertCloakedPlugins extends EmailInstantAlertBase {
 				$this->alertLine( __( 'Reason', 'wp-simple-firewall' ), $cloakedBy ),
 				$this->alertLine( __( 'Path', 'wp-simple-firewall' ), $finding[ 'location' ], self::LINE_STYLE_CODE ),
 			],
-			self::con()->plugin_urls->cloakedPlugins(),
+			self::con()->plugin_urls->actionsQueueScans(),
 			__( 'Review Cloaked Plugins', 'wp-simple-firewall' )
 		);
 	}

@@ -38,10 +38,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   title:string,
  *   stat_text:string,
  *   meta_text:string,
- *   show_meta_in_tile:bool,
  *   count_badge:int,
- *   body_notice:string,
- *   body_notice_variant:string,
  *   panel_data:array<string,string>,
  *   actions:list<QueueAssetAction>,
  *   table:array<string,mixed>
@@ -125,10 +122,7 @@ class ActionsQueueScanAssetCardsBuilder {
 				'title'             => $summary[ 'title' ],
 				'stat_text'         => $summary[ 'stat_text' ],
 				'meta_text'         => $summary[ 'meta_text' ],
-				'show_meta_in_tile' => true,
 				'count_badge'       => $summary[ 'count_badge' ],
-				'body_notice'         => '',
-				'body_notice_variant' => '',
 				'panel_data'          => $this->buildImmediatePanelData(),
 				'actions'             => $this->buildAssetActions( $summary, $assetType ),
 				'table'               => $this->buildFileStatusTable(
@@ -177,10 +171,10 @@ class ActionsQueueScanAssetCardsBuilder {
 			$actions[] = [
 				'type'         => 'deactivate',
 				'label'        => __( 'Deactivate', 'wp-simple-firewall' ),
-				'href'         => \admin_url( 'plugins.php' ),
+				'href'         => self::con()->plugin_urls->pluginInPluginsScreen( $summary[ 'title' ] ),
 				'is_action'    => false,
 				'icon_class'   => 'bi bi-power',
-				'tooltip_attr' => __( 'Go to plugins', 'wp-simple-firewall' ),
+				'tooltip_attr' => __( 'Go to plugin', 'wp-simple-firewall' ),
 				'attributes'   => [],
 			];
 		}

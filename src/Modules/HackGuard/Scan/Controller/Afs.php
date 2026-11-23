@@ -207,61 +207,6 @@ class Afs extends Base {
 			->getScanActionVO();
 	}
 
-	public function queueAssetScansFromUpgraderProcessComplete( $handler, $data ) :void {
-		unset( $handler );
-
-		if ( !\is_array( $data ) ) {
-			return;
-		}
-
-		if ( ( $data[ 'action' ] ?? null ) === 'update' && ( $data[ 'type' ] ?? null ) === 'plugin' ) {
-			foreach ( \is_array( $data[ 'plugins' ] ?? null ) ? $data[ 'plugins' ] : [] as $plugin ) {
-				$this->queuePluginAssetScan( $plugin );
-			}
-		}
-
-		if ( ( $data[ 'action' ] ?? null ) === 'update' && ( $data[ 'type' ] ?? null ) === 'theme' ) {
-			foreach ( \is_array( $data[ 'themes' ] ?? null ) ? $data[ 'themes' ] : [] as $theme ) {
-				$this->queueThemeAssetScan( $theme, true );
-			}
-		}
-	}
-
-	public function queueAssetScansFromUpgraderPostInstall( $response, $hookExtra ) {
-		if ( \is_array( $hookExtra ) ) {
-			$this->queuePluginAssetScan( $hookExtra[ 'plugin' ] ?? null );
-			$this->queueThemeAssetScan( $hookExtra[ 'theme' ] ?? null, true );
-		}
-		return $response;
-	}
-
-	public function queuePluginAssetScan( $plugin = null ) :void {
-		$plugin = $this->normalizeAssetKey( $plugin );
-		if ( $plugin !== null ) {
-			( new Scan\AssetChange\Cleanup() )->schedule( 'plugin', $plugin );
-		}
-	}
-
-	public function queueThemeAssetScan( $stylesheet = null, $wasDeleted = true ) :void {
-		$stylesheet = $this->normalizeAssetKey( $stylesheet );
-		if ( $wasDeleted === true && $stylesheet !== null ) {
-			( new Scan\AssetChange\Cleanup() )->schedule( 'theme', $stylesheet );
-		}
-	}
-
-	public function queueCoreAssetScan( $newVersion = '' ) :void {
-		unset( $newVersion );
-		( new Scan\AssetChange\Cleanup() )->schedule( 'core', 'core' );
-	}
-
-	private function normalizeAssetKey( $value ) :?string {
-		if ( !\is_string( $value ) ) {
-			return null;
-		}
-		$value = \trim( $value );
-		return $value === '' || $value === '0' ? null : $value;
-	}
-
 	/**
 	 * Since we can't track site assets while the plugin is inactive, our snapshots and results
 	 * are unreliable once the plugin has been deactivated.
@@ -272,18 +217,16 @@ class Afs extends Base {
 		return $this;
 	}
 
+	/**
+	 * The areas chosen that this plan can scan; areas kept from a Pro plan are left out on Free.
+	 * @return list<string>
+	 */
 	public function getFileScanAreas() :array {
-		$areas = self::con()->opts->optGet( 'file_scan_areas' );
-		if ( !self::con()->isPremiumActive() ) {
-			$available = [];
-			foreach ( self::con()->opts->optDef( 'file_scan_areas' )[ 'value_options' ] as $valueOption ) {
-				if ( empty( $valueOption[ 'premium' ] ) ) {
-					$available[] = $valueOption[ 'value_key' ];
-				}
-			}
-			$areas = \array_diff( $areas, $available );
-		}
-		return $areas;
+		$opts = self::con()->opts;
+		return \array_values( \array_filter(
+			$opts->optGet( 'file_scan_areas' ),
+			static fn( $area ) :bool => \is_string( $area ) && $opts->optValueHasAccess( 'file_scan_areas', $area )
+		) );
 	}
 
 	public function isRepairFilePlugin() :bool {

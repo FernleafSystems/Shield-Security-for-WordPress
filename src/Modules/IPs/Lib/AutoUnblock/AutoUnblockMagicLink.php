@@ -19,15 +19,14 @@ class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 	/**
 	 * @throws \Exception
 	 */
-	public function processEmailSend() {
+	public function processEmailSend( string $requestedIP ) {
 		$con = self::con();
 		$user = Services::WpUsers()->getCurrentWpUser();
 		if ( !$user instanceof \WP_User ) {
 			throw new \Exception( __( 'There is no user currently logged-in.', 'wp-simple-firewall' ) );
 		}
 
-		$reqIP = Services::Request()->request( 'ip' );
-		if ( empty( $reqIP ) || !Services::IP()->IpIn( $reqIP, [ $con->this_req->ip ] ) ) {
+		if ( empty( $requestedIP ) || !Services::IP()->IpIn( $requestedIP, [ $con->this_req->ip ] ) ) {
 			throw new \Exception( __( 'IP does not match.', 'wp-simple-firewall' ) );
 		}
 

@@ -25,8 +25,9 @@ class LoginIntentRequestValidate {
 	 * @throws NoActiveProvidersForUserException
 	 * @throws OtpVerificationFailedException
 	 * @throws TooManyAttemptsException
+	 * @param array $submitted the login form's submitted fields, passed to each provider to read its own field
 	 */
-	public function run( string $plainNonce, bool $isCancel = false ) :string {
+	public function run( string $plainNonce, array $submitted, bool $isCancel = false ) :string {
 		$mfaCon = self::con()->comps->mfa;
 		$user = $this->getWpUser();
 
@@ -51,7 +52,7 @@ class LoginIntentRequestValidate {
 		foreach ( $providers as $provider ) {
 			try {
 				\ob_start();
-				if ( $provider->validateLoginIntent( $mfaCon->findHashedNonce( $user, $plainNonce ) ) ) {
+				if ( $provider->validateLoginIntent( $mfaCon->findHashedNonce( $user, $plainNonce ), $submitted ) ) {
 					if ( \method_exists( $provider, 'postSuccessActions' ) ) {
 						$provider->postSuccessActions();
 					}

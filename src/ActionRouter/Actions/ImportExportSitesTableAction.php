@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExportSites\BuildImportExportSitesTableData;
@@ -9,6 +11,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExp
 class ImportExportSitesTableAction extends TableActionBase {
 
 	public const SLUG = 'importexport_sites_table_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 	public const SUB_ACTION_QUEUE_SYNC = 'queue_sync';
 	public const SUB_ACTION_DELETE_SITE = 'delete_site';
 	public const SUB_ACTION_REPAIR_CONNECTION = 'repair_connection';
@@ -46,10 +54,7 @@ class ImportExportSitesTableAction extends TableActionBase {
 		$count = self::con()->comps->import_export->queueSitesForSync( $rids );
 		$pendingOnly = false;
 		if ( $count === 0 ) {
-			$ids = \array_values( \array_unique( \array_filter(
-				\array_map( '\intval', $rids ),
-				static fn( int $id ) :bool => $id > 0
-			) ) );
+			$ids = \array_values( \array_unique( $rids ) );
 			$pendingOnly = !empty( $ids );
 			$repo = new SiteRepository();
 			foreach ( $ids as $id ) {
@@ -110,9 +115,12 @@ class ImportExportSitesTableAction extends TableActionBase {
 		] );
 	}
 
+	/**
+	 * @return int[]
+	 * @throws ActionException
+	 */
 	private function ridsFromActionData() :array {
-		$rids = $this->action_data[ 'rids' ] ?? [];
-		return \is_array( $rids ) ? $rids : [];
+		return $this->fields()->positiveIntList( 'rids', [] );
 	}
 
 	protected function isPageReloadOnFailure() :bool {

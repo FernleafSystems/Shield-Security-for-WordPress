@@ -14,10 +14,10 @@ test( 'free Actions Queue upgrade cards open the shared Pro modal without drilli
 			nav_sub: 'overview',
 		} );
 		await page.setViewportSize( { width: 500, height: 900 } );
+		await actionsQueuePage.showSectionsView();
 
-		const bucket = await actionsQueuePage.waitForBucket( fixture.bucket_key );
-		await bucket.click();
-		await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
+		// Pro upsell rows are listed on the landing, in the "Not covered" section.
+		await expect( actionsQueuePage.landingSection( 'not_covered' ) ).toBeVisible();
 
 		const modal = page.locator( '#ShieldModalContainer' );
 		const modalContent = modal.locator( '.modal-content' );
@@ -29,7 +29,7 @@ test( 'free Actions Queue upgrade cards open the shared Pro modal without drilli
 		} );
 
 		for ( const groupKey of fixture.context.pro_upsell_group_keys ) {
-			const launcher = await actionsQueuePage.waitForGroupOuter( groupKey );
+			const launcher = await actionsQueuePage.waitForLandingGroupOuter( groupKey );
 			await expect( launcher ).toHaveAttribute( 'data-pro-upsell', '1' );
 			await expect( launcher ).not.toHaveAttribute( 'data-drill-target' );
 			await expect( launcher ).not.toHaveAttribute( 'data-drill-bucket-selection' );

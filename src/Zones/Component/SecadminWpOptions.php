@@ -14,10 +14,6 @@ class SecadminWpOptions extends Base {
 		return __( 'Prevent tampering and accidental changes to the core WordPress configuration.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Switch on/off ability to edit critical WP settings', 'wp-simple-firewall' );
-	}
-
 	/**
 	 * @inheritDoc
 	 */
@@ -30,7 +26,7 @@ class SecadminWpOptions extends Base {
 			}
 			else {
 				$status[ 'level' ] = EnumEnabledStatus::OKAY;
-				$status[ 'exp' ][] = __( "A PIN needs to be set to enable the Security Admin.", 'wp-simple-firewall' );
+				$status[ 'exp' ][] = $this->explanationFixedBy( __( "A PIN needs to be set to enable the Security Admin.", 'wp-simple-firewall' ), 'admin_access_key' );
 			}
 		}
 		else {
@@ -39,9 +35,5 @@ class SecadminWpOptions extends Base {
 		}
 
 		return $status;
-	}
-
-	protected function postureWeight() :int {
-		return 3;
 	}
 }

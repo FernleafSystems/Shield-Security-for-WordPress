@@ -4,8 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies;
 
 class Monolog {
 
-	public const API_VERSION_REQUIRED = '2';
-
 	/**
 	 * Since this is a shutdown method, use \version_compare( $this->con()->cfg->version(), 'x.y.z', '<' )
 	 * to test whether we can run it (if there are changes)

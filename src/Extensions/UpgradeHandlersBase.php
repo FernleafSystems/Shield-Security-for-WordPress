@@ -4,8 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Extensions;
 
 abstract class UpgradeHandlersBase {
 
-	public const DEFAULT_UPGRADE_CHECK_INTERVAL = 168;
-
 	protected $cfg;
 
 	protected $upgrader;

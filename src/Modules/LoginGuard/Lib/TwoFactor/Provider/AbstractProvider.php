@@ -74,7 +74,7 @@ abstract class AbstractProvider implements Provider2faInterface {
 		$this->user = $user;
 	}
 
-	public function validateLoginIntent( string $hashedLoginNonce ) :bool {
+	public function validateLoginIntent( string $hashedLoginNonce, array $submitted ) :bool {
 		$this->workingHashedLoginNonce = $hashedLoginNonce;
 
 		if ( !$this->isProfileActive() ) {

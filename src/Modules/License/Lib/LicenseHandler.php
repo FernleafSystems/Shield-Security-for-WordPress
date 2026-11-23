@@ -164,18 +164,9 @@ class LicenseHandler {
 			   > $this->getLicVerifyExpireDays()*\DAY_IN_SECONDS;
 	}
 
-	public function isLastVerifiedGraceExpired() :bool {
-		return ( Services::Request()->ts() - $this->getLicense()->last_verified_at )
-			   > ( \DAY_IN_SECONDS*( $this->getLicVerifyExpireDays() + $this->getLicExpireGraceDays() ) );
-	}
-
 	private function isMaybeExpiring() :bool {
 		return $this->isActive() &&
 			   ( \abs( Services::Request()->ts() - $this->getLicense()->getExpiresAt() ) < ( \DAY_IN_SECONDS/2 ) );
-	}
-
-	public function isWithinVerifiedGraceExpired() :bool {
-		return $this->isLastVerifiedExpired() && !$this->isLastVerifiedGraceExpired();
 	}
 
 	private function isVerifyRequired() :bool {

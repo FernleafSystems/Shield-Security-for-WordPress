@@ -4,15 +4,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	ActionProcessor,
-	Constants
+	CaptureAjaxAction,
+	CapturePluginAction,
+	Utility\ExternalEntryGuard
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	SecurityAdminAuthClear,
 	SecurityAdminRemove,
 	SecurityAdminRequestRemoveByEmail
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\InvalidActionNonceException;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityAdminFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\LocalEmailCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -48,11 +48,9 @@ class SecurityAdminBoundaryAuthorizationIntegrationTest extends ShieldIntegratio
 	public function test_missing_nonce_blocks_direct_disable_without_mutating_security_admin_state() :void {
 		$this->seedBoundaryState();
 
-		$this->assertInvalidNonceRejected(
-			SecurityAdminRemove::SLUG,
+		$this->assertRefusedAtEntryPoint(
 			SecurityAdminRemove::class,
-			$this->transportWithoutNonce( SecurityAdminRemove::class ),
-			ActionData::Build( SecurityAdminRemove::class, false )
+			$this->transportWithoutNonce( SecurityAdminRemove::class )
 		);
 
 		$this->assertNotSame( '', (string)$this->requireController()->opts->optGet( 'admin_access_key' ) );
@@ -66,11 +64,9 @@ class SecurityAdminBoundaryAuthorizationIntegrationTest extends ShieldIntegratio
 			->optSet( 'allow_email_override', 'Y' )
 			->store();
 
-		$this->assertInvalidNonceRejected(
-			SecurityAdminRequestRemoveByEmail::SLUG,
+		$this->assertRefusedAtEntryPoint(
 			SecurityAdminRequestRemoveByEmail::class,
-			$this->transportWithoutNonce( SecurityAdminRequestRemoveByEmail::class ),
-			ActionData::Build( SecurityAdminRequestRemoveByEmail::class, false )
+			$this->transportWithoutNonce( SecurityAdminRequestRemoveByEmail::class )
 		);
 
 		$this->assertCount( 0, $this->capturedMails() );
@@ -87,16 +83,11 @@ class SecurityAdminBoundaryAuthorizationIntegrationTest extends ShieldIntegratio
 
 			$invalidTransport = $this->canonicalShieldTransportFor( SecurityAdminAuthClear::class );
 			$invalidTransport[ ActionData::FIELD_NONCE ] = 'invalid-security-admin-nonce';
-			$this->assertInvalidNonceRejected(
-				SecurityAdminAuthClear::SLUG,
-				SecurityAdminAuthClear::class,
-				$invalidTransport,
-				ActionData::Build( SecurityAdminAuthClear::class, false, [
-					'action_overrides' => [
-						Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
-					],
-				] )
-			);
+			// Request-supplied override metadata has no effect: only the entry point decides.
+			$invalidTransport[ 'action_overrides' ] = [
+				'is_nonce_verify_required' => false,
+			];
+			$this->assertRefusedAtEntryPoint( SecurityAdminAuthClear::class, $invalidTransport );
 
 			$after = $builder->inspect( $seeded[ 'state' ] );
 			$this->assertTrue( $after[ 'current' ][ 'session_active' ] );
@@ -126,44 +117,63 @@ class SecurityAdminBoundaryAuthorizationIntegrationTest extends ShieldIntegratio
 	}
 
 	/**
+	 * Sends the request through the entry point that would really receive it and asserts it is refused there.
 	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction> $actionClass
 	 * @param array<string,mixed> $transport
-	 * @param array<string,mixed> $actionData
 	 */
-	private function assertInvalidNonceRejected(
-		string $actionSlug,
-		string $actionClass,
-		array $transport,
-		array $actionData
-	) :void {
+	private function assertRefusedAtEntryPoint( string $actionClass, array $transport ) :void {
 		$snapshot = $this->snapshotCurrentRequestState();
 		try {
-			$this->applyCurrentRequestState(
-				[
-					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI'    => '/wp-admin/admin.php',
-				],
-				[],
-				[],
-				[
-					'wp_is_ajax'        => false,
-					'is_security_admin' => false,
-				]
-			);
-			if ( $transport !== [] ) {
-				$this->mergeCurrentRequestTransport( $transport );
+			if ( isset( ExternalEntryGuard::DeclaredAccess( $actionClass )[ ExternalEntryGuard::ENTRY_ORDINARY ] ) ) {
+				$this->applyCurrentRequestState(
+					[
+						'REQUEST_METHOD' => 'GET',
+						'REQUEST_URI'    => '/wp-admin/admin.php',
+					],
+					$transport,
+					[],
+					[
+						'wp_is_ajax'        => false,
+						'is_security_admin' => false,
+					]
+				);
+				$capture = new SecurityAdminBoundaryPluginCaptureTestDouble();
+				$this->assertTrue( $capture->canRunForTest() );
+				try {
+					$capture->runForTest();
+					$this->fail( 'Expected the ordinary route to refuse '.$actionClass );
+				}
+				catch ( \WPDieException $e ) {
+					$this->assertSame( 'Unexpected data. Please try again.', $e->getMessage() );
+				}
 			}
-
-			try {
-				( new ActionProcessor() )->processAction( $actionSlug, $actionData );
-				$this->fail( 'Expected invalid Security Admin boundary nonce to be rejected for '.$actionClass );
-			}
-			catch ( InvalidActionNonceException $e ) {
-				$this->assertNotSame( '', $e->getMessage() );
+			else {
+				$this->applyCurrentShieldAjaxRequest( $transport, false );
+				$payload = ( new SecurityAdminBoundaryAjaxCaptureTestDouble() )->buildIssuePayloadForTest();
+				$this->assertSame( 401, $payload[ 'status_code' ] ?? 0 );
+				$this->assertFalse( (bool)( $payload[ 'success' ] ?? true ) );
 			}
 		}
 		finally {
 			$this->restoreCurrentRequestState( $snapshot );
 		}
+	}
+}
+
+class SecurityAdminBoundaryPluginCaptureTestDouble extends CapturePluginAction {
+
+	public function canRunForTest() :bool {
+		return $this->canRun();
+	}
+
+	public function runForTest() :void {
+		$this->theRun();
+	}
+}
+
+class SecurityAdminBoundaryAjaxCaptureTestDouble extends CaptureAjaxAction {
+
+	public function buildIssuePayloadForTest() :array {
+		return $this->buildAjaxIssuePayload();
 	}
 }

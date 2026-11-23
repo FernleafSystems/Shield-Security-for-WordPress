@@ -23,10 +23,6 @@ class ClientPluginStatus {
 	public const VERSION_NEWER_THAN_SERVER = 'vnts';
 	public const VERSION_OLDER_THAN_SERVER = 'vots';
 
-	public function status() :string {
-		return \key( $this->detect() );
-	}
-
 	/**
 	 * TODO: Consider things like global disabled / forceoff
 	 */

@@ -266,6 +266,9 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 					'badge_label' => '',
 					'is_ignored'  => false,
 					'actions'     => [],
+					'drawer_json' => '',
+					'group_key'   => 'malware',
+					'zone'        => 'scans',
 				],
 				[
 					'icon_class'  => 'bi bi-code-slash',
@@ -275,6 +278,9 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 					'badge_label' => '',
 					'is_ignored'  => false,
 					'actions'     => [],
+					'drawer_json' => '',
+					'group_key'   => 'system_php_version',
+					'zone'        => 'maintenance',
 				],
 			],
 			$healthyRows
@@ -331,6 +337,65 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 0, $classified[ 'critical' ][ 'item_count' ] );
 		$this->assertSame( 5, $classified[ 'review' ][ 'item_count' ] );
 		$this->assertCount( 2, $classified[ 'review' ][ 'attention_items' ] );
+	}
+
+	public function test_classify_lists_file_locker_as_switched_off_only_when_an_upgrade_is_needed() :void {
+		$switchedOff = $this->newBuilder( [
+			'file_locker' => [ 'is_available' => false, 'disabled_reason' => 'not_enabled' ],
+		] )->classify( [ 'items' => [ $this->unlockedFilesItem( 2 ) ] ] );
+		$upgrade = $this->newBuilder( [
+			'file_locker' => [ 'is_available' => false, 'disabled_reason' => 'upgrade_required' ],
+		] )->classify( [ 'items' => [] ] );
+
+		$this->assertArrayNotHasKey( 'file_locker', $switchedOff[ 'critical' ][ 'disabled_groups' ] );
+		$this->assertSame( 0, $switchedOff[ 'critical' ][ 'disabled_item_count' ] );
+		$this->assertSame( 2, $switchedOff[ 'review' ][ 'item_count' ] );
+		$this->assertArrayHasKey( 'file_locker', $upgrade[ 'critical' ][ 'disabled_groups' ] );
+	}
+
+	public function test_review_lane_needs_attention_while_critical_files_are_unlocked_beside_healthy_rows() :void {
+		$healthyReviewRow = [
+			'key'               => 'system_php_version',
+			'label'             => 'PHP Version',
+			'description'       => 'Healthy.',
+			'drill_bucket'      => 'review',
+			'item_icon_class'   => 'bi bi-code-slash',
+			'status'            => 'good',
+			'status_label'      => 'Good',
+			'status_icon_class' => 'bi bi-check-circle-fill',
+		];
+		$assessmentRows = [ 'scans' => [], 'maintenance' => [ $healthyReviewRow ] ];
+
+		$withoutUnlocked = $this->reviewBucket( $this->newBuilder()->build( [ 'items' => [] ], $assessmentRows ) );
+		$withUnlocked = $this->reviewBucket(
+			$this->newBuilder()->build( [ 'items' => [ $this->unlockedFilesItem( 3 ) ] ], $assessmentRows )
+		);
+
+		$this->assertSame( 'good', $withoutUnlocked[ 'status' ] );
+		$this->assertSame( 0, $withoutUnlocked[ 'display_count' ] );
+
+		// The lane counts the files left unlocked, as the site's attention count does.
+		$this->assertSame( 'warning', $withUnlocked[ 'status' ] );
+		$this->assertSame( 3, $withUnlocked[ 'display_count' ] );
+		$this->assertNotSame( $withoutUnlocked[ 'summary_text' ], $withUnlocked[ 'summary_text' ] );
+	}
+
+	private function reviewBucket( array $buckets ) :array {
+		foreach ( $buckets as $bucket ) {
+			if ( $bucket[ 'key' ] === 'review' ) {
+				return $bucket;
+			}
+		}
+		$this->fail( 'The review bucket is missing.' );
+	}
+
+	private function unlockedFilesItem( int $count ) :array {
+		return [
+			'key'      => 'file_locker_unlocked',
+			'label'    => 'File Locker',
+			'count'    => $count,
+			'severity' => 'warning',
+		];
 	}
 
 	private function newBuilder( array $availability = [] ) :ActionsQueueBucketsBuilder {

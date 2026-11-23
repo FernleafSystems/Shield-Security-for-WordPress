@@ -2,26 +2,39 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\{
 	Accept,
 	Restore
 };
 
-class ScansFileLockerAction extends ScansBase {
+class ScansFileLockerAction extends BaseAction {
 
 	public const SLUG = 'filelocker_fileaction';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
-		$reqData = $this->action_data;
+		$fields = $this->fields();
 		$success = false;
 
-		if ( $reqData[ 'confirmed' ] ?? false ) {
+		// The page sends 1 when the confirmation box is ticked and 0 when it isn't.
+		if ( $fields->flag( 'confirmed', '1', '0', false ) ) {
+			$lockID = $fields->positiveInt( 'rid' );
+			$fileAction = $fields->oneOf( 'file_action', [ 'accept', 'accept_removal', 'restore' ] );
 			try {
-				$lock = self::con()->comps->file_locker->getFileLock( (int)$reqData[ 'rid' ] );
+				$lock = self::con()->comps->file_locker->getFileLock( $lockID );
 
-				switch ( $reqData[ 'file_action' ] ) {
+				switch ( $fileAction ) {
 					case 'accept':
 						$success = ( new Accept() )->run( $lock );
+						break;
+					case 'accept_removal':
+						$success = ( new Accept() )->acceptRemoval( $lock );
 						break;
 					case 'restore':
 						$success = ( new Restore() )->run( $lock );

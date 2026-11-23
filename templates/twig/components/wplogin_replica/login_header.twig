@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html {{ vars.language_attributes|raw }}>
 <head>
-	<meta http-equiv="Content-Type" content="{{ vars.meta_content_type }}; charset={{ vars.meta_content_type }}" />
+	<meta http-equiv="Content-Type" content="{{ vars.meta_content_type }}; charset={{ vars.meta_charset }}" />
 	<title>{{ strings.login_title|raw }}</title>
 
 	{{ content.action_login_enqueue_scripts|raw }}

@@ -62,7 +62,6 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 						'key'    => 'Layer One',
 						'body'   => '<div>Layer 1</div>',
 						'header' => [
-							'compact_back_label' => '  Back to Overview  ',
 							'title'              => ' Overview ',
 							'badge'              => ' 3 items ',
 							'badge_status'       => 'critical',
@@ -72,8 +71,6 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 						'key'    => 'bucket_detail',
 						'body'   => '<div>Layer 2</div>',
 						'header' => [
-							'compact_back_label' => ' Back to Bucket Detail ',
-							'active_back_label'  => ' Back to Queue ',
 							'title'              => ' Bucket Detail ',
 							'meta'               => ' Warning ',
 							'summary'            => ' Narrow the queue. ',
@@ -86,7 +83,6 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 						'key'    => 'Final Detail',
 						'body'   => '<div>Layer 3</div>',
 						'header' => [
-							'active_back_label' => 'Back to Bucket Detail',
 							'title'             => 'Item Detail',
 							'badge'             => 'Ready',
 							'badge_status'      => 'unknown-status',

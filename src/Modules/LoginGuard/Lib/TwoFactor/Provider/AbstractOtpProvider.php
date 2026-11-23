@@ -6,14 +6,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exc
 	OtpNotPresentException,
 	OtpVerificationFailedException
 };
-use FernleafSystems\Wordpress\Services\Services;
 
 abstract class AbstractOtpProvider extends AbstractProvider {
 
-	public function validateLoginIntent( string $hashedLoginNonce ) :bool {
-		parent::validateLoginIntent( $hashedLoginNonce );
+	public function validateLoginIntent( string $hashedLoginNonce, array $submitted ) :bool {
+		parent::validateLoginIntent( $hashedLoginNonce, $submitted );
 
-		$otp = $this->fetchOtpFromRequest();
+		$otp = $this->otpFrom( $submitted );
 		if ( empty( $otp ) ) {
 			throw new OtpNotPresentException();
 		}
@@ -25,8 +24,13 @@ abstract class AbstractOtpProvider extends AbstractProvider {
 		return true;
 	}
 
-	protected function fetchOtpFromRequest() :string {
-		return \trim( (string)Services::Request()->request( $this->getLoginIntentFormParameter(), false, '' ) );
+	/**
+	 * This provider's OTP from the submitted login form. The form is request input and a field can arrive in any
+	 * shape, so anything but a string reads as no OTP.
+	 */
+	private function otpFrom( array $submitted ) :string {
+		$otp = $submitted[ $this->getLoginIntentFormParameter() ] ?? '';
+		return \is_string( $otp ) ? \trim( $otp ) : '';
 	}
 
 	public function getFormField() :array {

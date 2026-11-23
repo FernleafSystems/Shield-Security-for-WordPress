@@ -5,12 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
- * @phpstan-type AllClearChip array{
- *   slug:string,
- *   label:string,
- *   icon_class:string,
- *   severity:string
- * }
  * @phpstan-type AllClearCheck array{
  *   slug:string,
  *   label:string,
@@ -21,8 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   title:string,
  *   subtitle:string,
  *   icon_class:string,
- *   checks:list<AllClearCheck>,
- *   zone_chips:list<AllClearChip>
+ *   checks:list<AllClearCheck>
  * }
  */
 class ActionsQueueAllClearDataBuilder {
@@ -44,16 +37,6 @@ class ActionsQueueAllClearDataBuilder {
 				static fn( array $zone ) :array => [
 					'slug'       => $zone[ 'slug' ],
 					'label'      => \sprintf( __( '%s clear', 'wp-simple-firewall' ), $zone[ 'label' ] ),
-					'icon_class' => $chipIconClass,
-					'severity'   => 'good',
-				],
-				\array_values( $zonesIndexed )
-			) ),
-			// Compatibility for consumers outside the primary dashboard that still render compact zone chips.
-			'zone_chips' => \array_values( \array_map(
-				static fn( array $zone ) :array => [
-					'slug'       => $zone[ 'slug' ],
-					'label'      => $zone[ 'label' ],
 					'icon_class' => $chipIconClass,
 					'severity'   => 'good',
 				],

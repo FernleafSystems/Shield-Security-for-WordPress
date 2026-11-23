@@ -9,7 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\{
 	ScanActionVO,
 	ScanFromFileMap
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Services\Core\CoreFileHashes;
 use FernleafSystems\Wordpress\Services\Services;
 
 class FileScanOptimiserIntegrationTest extends ShieldIntegrationTestCase {
@@ -22,8 +24,21 @@ class FileScanOptimiserIntegrationTest extends ShieldIntegrationTestCase {
 
 	private $originalCacheDirHandler;
 
+	private array $servicesSnapshot = [];
+
 	public function set_up() {
 		parent::set_up();
+		// The core file's hash comes from the installed copy, so these tests don't call WordPress.org.
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::mergeItems( [
+			'service_corefilehashes' => new class extends CoreFileHashes {
+				public function getHashes() :array {
+					return [
+						'wp-includes/version.php' => (string)\md5_file( \path_join( ABSPATH, 'wp-includes/version.php' ) ),
+					];
+				}
+			},
+		] );
 		$this->optionSnapshot = $this->snapshotSelectedOptions( [
 			'enable_core_file_integrity_scan',
 			'file_scan_areas',
@@ -45,6 +60,7 @@ class FileScanOptimiserIntegrationTest extends ShieldIntegrationTestCase {
 		foreach ( \array_reverse( $this->createdDirs ) as $dir ) {
 			$this->removeDir( $dir );
 		}
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tear_down();
 	}
 
@@ -88,9 +104,6 @@ class FileScanOptimiserIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_known_valid_cache_is_exact_to_core_context() :void {
 		$corePath = \wp_normalize_path( \path_join( ABSPATH, 'wp-includes/version.php' ) );
-		if ( !Services::WpFs()->isAccessibleFile( $corePath ) || !Services::CoreFileHashes()->isCoreFile( $corePath ) ) {
-			$this->markTestSkipped( 'Core hash service is not ready for this integration fixture.' );
-		}
 		$tempDir = $this->makeDir( \sys_get_temp_dir().'/shield-afs-known-valid-'.\uniqid() );
 		$copyPath = $this->writeFile( $tempDir.'/version.php', (string)\file_get_contents( $corePath ) );
 		$action = $this->newAction( [ $corePath, $copyPath ] );
@@ -109,9 +122,6 @@ class FileScanOptimiserIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_full_scan_prescan_filters_only_exact_known_valid_context() :void {
 		$corePath = \wp_normalize_path( \path_join( ABSPATH, 'wp-includes/version.php' ) );
-		if ( !Services::WpFs()->isAccessibleFile( $corePath ) || !Services::CoreFileHashes()->isCoreFile( $corePath ) ) {
-			$this->markTestSkipped( 'Core hash service is not ready for this integration fixture.' );
-		}
 		$fixtureDir = $this->makeDir( WP_CONTENT_DIR.'/shield-afs-prescan-cache-'.\uniqid() );
 		$coreCopy = $this->writeFile( $fixtureDir.'/version-copy.php', (string)\file_get_contents( $corePath ) );
 		$malware = $this->writeFile( $fixtureDir.'/malware.php', '<?php '.self::MALWARE_MARKER.'();' );

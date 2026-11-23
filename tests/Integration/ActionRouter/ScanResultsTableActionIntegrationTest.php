@@ -2,12 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	ActionProcessor,
-	Actions\ScanResultsTableAction,
-	Exceptions\InvalidActionNonceException
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler as ResultItemsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueScanResultScopeStateBuilder,
@@ -16,8 +12,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PluginAdminRouteRuntime;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use PHPUnit\Framework\ExpectationFailedException;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\ApiBase;
@@ -25,7 +21,8 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ActionRequestNonceFixture;
+	use CurrentRequestFixture;
+	use ExternalEntryRefusalAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -249,26 +246,17 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$tracked = $this->seedWordpressScanResult();
 		$resultItemId = (int)( $tracked[ 'result_item_id' ] ?? 0 );
 		$this->assertGreaterThan( 0, $resultItemId );
-		$snapshot = $this->seedActionNonceContext( ScanResultsTableAction::class );
-		$this->mergeCurrentRequestTransport( [
-			ActionData::FIELD_NONCE => '',
+
+		$this->assertAjaxRequestRefused( ScanResultsTableAction::class, [
+			'sub_action' => $subAction,
+			'type'       => 'malware',
+			'file'       => 'malware',
+			'rids'       => [ $resultItemId ],
 		] );
 
-		try {
-			$this->expectException( InvalidActionNonceException::class );
-			( new ActionProcessor() )->processAction( ScanResultsTableAction::SLUG, [
-				'sub_action' => $subAction,
-				'type' => 'malware',
-				'file' => 'malware',
-				'rids'       => [ $resultItemId ],
-			] );
-		}
-		finally {
-			$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( $resultItemId );
-			$this->restoreActionNonceContext( $snapshot );
-			$this->assertNotEmpty( $item );
-			$this->assertSame( 0, (int)( $item->ignored_at ?? -1 ) );
-		}
+		$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( $resultItemId );
+		$this->assertNotEmpty( $item );
+		$this->assertSame( 0, (int)( $item->ignored_at ?? -1 ) );
 	}
 
 	public static function nonceProtectedSubActionProvider() :array {
@@ -873,15 +861,8 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	 * @return array<string,mixed>
 	 */
 	private function processScanResultsAction( array $params ) :array {
-		$snapshot = $this->seedActionNonceContext( ScanResultsTableAction::class );
-
-		try {
-			return ( new PluginAdminRouteRuntime() )
-				->processActionPayloadWithAdminBypass( ScanResultsTableAction::SLUG, $params );
-		}
-		finally {
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		return ( new PluginAdminRouteRuntime() )
+			->processActionPayloadWithAdminBypass( ScanResultsTableAction::SLUG, $params );
 	}
 
 	/**

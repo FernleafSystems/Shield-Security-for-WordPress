@@ -558,7 +558,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$_FILES = [ 'import_file' => new \stdClass() ];
 
 		try {
-			( new Import() )->fromFileUpload();
+			( new Import() )->fromFileUpload( [ 'confirm' => 'Y' ] );
 			$this->fail( 'Expected malformed upload metadata to be rejected.' );
 		}
 		catch ( \Exception $e ) {
@@ -593,7 +593,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		];
 
 		try {
-			( new Import() )->fromFileUpload();
+			( new Import() )->fromFileUpload( [ 'confirm' => 'Y' ] );
 			$this->fail( 'Expected the nested upload error to reject the file.' );
 		}
 		catch ( \Exception $e ) {
@@ -1780,7 +1780,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		\ob_start();
 
 		try {
-			( new Export() )->run( 'json' );
+			( new Export() )->run( 'json', $query );
 		}
 		catch ( ImportExportContractsWpDieException $e ) {
 			$caught = true;

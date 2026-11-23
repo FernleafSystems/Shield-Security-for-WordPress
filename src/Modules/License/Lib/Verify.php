@@ -68,7 +68,7 @@ class Verify {
 
 			$licHandler->maybeDeactivateWithGrace();
 
-			throw new \Exception( 'License API HTTP Request Failed.' );
+			throw new \Exception( __( 'License API HTTP Request Failed.', 'wp-simple-firewall' ) );
 		}
 	}
 

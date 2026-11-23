@@ -1,6 +1,6 @@
-<div{% if nav_id|default('') is not empty %} id="{{ nav_id }}"{% endif %}
-	 class="shield-options-nav{% if nav_container_class|default('') is not empty %} {{ nav_container_class }}{% endif %}">
-	<ul class="nav flex-column shield-options-rail-nav{% if nav_list_class|default('') is not empty %} {{ nav_list_class }}{% endif %}" role="tablist" aria-orientation="vertical">
+<div{% if nav_id is not empty %} id="{{ nav_id }}"{% endif %}
+	 class="shield-options-nav{% if nav_container_class is not empty %} {{ nav_container_class }}{% endif %}">
+	<ul class="nav flex-column shield-options-rail-nav{% if nav_list_class is not empty %} {{ nav_list_class }}{% endif %}" role="tablist" aria-orientation="vertical">
 		{% for item in nav_items %}
 			<li class="nav-item" role="presentation">
 				<button type="button"

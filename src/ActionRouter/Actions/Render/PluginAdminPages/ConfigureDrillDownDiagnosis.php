@@ -10,7 +10,7 @@ class ConfigureDrillDownDiagnosis extends ConfigureDrillDownRenderBase {
 	protected function getRenderData() :array {
 		$zoneKey = $this->getSelectedConfigureZoneKey();
 		$data = $this->buildConfigureDiagnosisRenderData( $zoneKey );
-		if ( !empty( $this->action_data[ 'include_landing_refresh' ] ) ) {
+		if ( $this->fields()->flag( 'include_landing_refresh', '1', '0', false ) ) {
 			$data[ 'landing_refresh' ] = $this->buildConfigureLandingRefresh();
 		}
 		return $data;

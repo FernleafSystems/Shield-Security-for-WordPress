@@ -221,18 +221,23 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 	public function test_build_returns_flat_option_and_zone_results_for_silentcaptcha_search() :void {
 		$results = $this->newBuilder()->build( 'silentcaptcha' );
 
-		$this->assertNotSame( [], $results );
-		$this->assertSame( [ 'zone', 'option' ], \array_column( $results, 'type' ) );
-		$this->assertSame(
-			[],
-			\array_diff( \array_column( $results, 'type' ), [ 'option', 'zone' ] )
-		);
-		$this->assertSame( 'zone', $results[ 0 ][ 'type' ] ?? '' );
+		// The option names silentCAPTCHA in its summary; the zone only mentions it in row text.
+		$this->assertSame( [ 'option', 'zone' ], \array_column( $results, 'type' ) );
+		$this->assertSame( 'bi bi-sliders', $results[ 0 ][ 'icon_class' ] ?? '' );
+		$this->assertSame( [
+			'row_key'     => 'silentcaptcha_component',
+			'config_item' => 'custom_silentcaptcha_toggle',
+		], \json_decode( (string)( $results[ 0 ][ 'focus_request_json' ] ?? '' ), true ) );
+		$this->assertResultHrefQueryMatches( $results[ 0 ], [
+			'zone'        => 'spam',
+			'row_key'     => 'silentcaptcha_component',
+			'config_item' => 'custom_silentcaptcha_toggle',
+		] );
 		$this->assertSame(
 			$this->landingViewData[ 'tile_lookup' ][ 'spam' ][ 'summary' ],
-			$results[ 0 ][ 'summary' ] ?? ''
+			$results[ 1 ][ 'summary' ] ?? ''
 		);
-		$this->assertSame( 'bi bi-shield-fill', $results[ 0 ][ 'icon_class' ] ?? '' );
+		$this->assertSame( 'bi bi-shield-fill', $results[ 1 ][ 'icon_class' ] ?? '' );
 		$this->assertSame( [
 			'key'        => 'spam',
 			'label'      => 'Spam',
@@ -241,19 +246,21 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			'header'     => [
 				'title' => 'Spam',
 			],
-		], \json_decode( (string)( $results[ 0 ][ 'selection_json' ] ?? '' ), true ) );
-		$this->assertSame( '', $results[ 0 ][ 'focus_request_json' ] ?? 'missing' );
-		$this->assertSame( 'option', $results[ 1 ][ 'type' ] ?? '' );
-		$this->assertSame( 'bi bi-sliders', $results[ 1 ][ 'icon_class' ] ?? '' );
-		$this->assertSame( [
-			'row_key'     => 'silentcaptcha_component',
-			'config_item' => 'custom_silentcaptcha_toggle',
-		], \json_decode( (string)( $results[ 1 ][ 'focus_request_json' ] ?? '' ), true ) );
-		$this->assertResultHrefQueryMatches( $results[ 1 ], [
-			'zone'        => 'spam',
-			'row_key'     => 'silentcaptcha_component',
-			'config_item' => 'custom_silentcaptcha_toggle',
-		] );
+		], \json_decode( (string)( $results[ 1 ][ 'selection_json' ] ?? '' ), true ) );
+		$this->assertSame( '', $results[ 1 ][ 'focus_request_json' ] ?? 'missing' );
+	}
+
+	public function test_option_name_matches_rank_above_summary_only_matches() :void {
+		$labels = \array_values( \array_column( \array_filter(
+			$this->newBuilder()->build( 'login' ),
+			static fn( array $result ) :bool => $result[ 'type' ] === 'option'
+		), 'label' ) );
+
+		$nameMatch = \array_search( 'User Login Notification Email', $labels, true );
+		$summaryOnlyMatch = \array_search( 'Allow Manual User Suspension', $labels, true );
+		$this->assertIsInt( $nameMatch );
+		$this->assertIsInt( $summaryOnlyMatch );
+		$this->assertLessThan( $summaryOnlyMatch, $nameMatch );
 	}
 
 	public function test_build_uses_exact_row_keys_and_excludes_unresolvable_options() :void {

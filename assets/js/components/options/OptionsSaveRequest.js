@@ -26,5 +26,12 @@ export function sendEncodedOptionsSave( baseAction, formData ) {
 			} );
 	};
 
-	return send( false );
+	// Anything on the page that reflects settings (the setup guide, for one) can refresh itself on this. A save
+	// that reloads the page needs no notice.
+	return send( false ).then( ( resp ) => {
+		if ( resp?.success && !resp?.data?.page_reload ) {
+			document.dispatchEvent( new CustomEvent( 'shield:options-saved' ) );
+		}
+		return resp;
+	} );
 }

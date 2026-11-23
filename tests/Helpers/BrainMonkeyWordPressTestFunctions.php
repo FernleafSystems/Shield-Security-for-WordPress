@@ -28,6 +28,8 @@ trait BrainMonkeyWordPressTestFunctions {
 			}
 		);
 		Functions\when( 'wp_timezone' )->justReturn( new \DateTimeZone( 'UTC' ) );
+		// A unit test has no login session.
+		Functions\when( 'wp_get_session_token' )->justReturn( '' );
 		Functions\when( 'wp_timezone_string' )->justReturn( 'UTC' );
 
 		Functions\when( 'get_option' )->alias(

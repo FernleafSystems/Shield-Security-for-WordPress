@@ -14,10 +14,6 @@ class AnonRestApiDisable extends Base {
 		return __( 'Disable anonymous requests to the REST API.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Enable or disable access to the anonymous Rest API', 'wp-simple-firewall' );
-	}
-
 	/**
 	 * @inheritDoc
 	 */
@@ -29,13 +25,12 @@ class AnonRestApiDisable extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
-			$status[ 'exp' ][] = __( "Anonymous (unauthenticated) requests to the WP REST API is allowed.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy(
+				__( "Anonymous (unauthenticated) requests to the WP REST API is allowed.", 'wp-simple-firewall' ),
+				'disable_anonymous_restapi'
+			);
 		}
 
 		return $status;
-	}
-
-	protected function postureWeight() :int {
-		return 2;
 	}
 }

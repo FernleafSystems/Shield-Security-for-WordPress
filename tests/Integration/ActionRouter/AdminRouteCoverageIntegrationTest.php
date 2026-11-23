@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PageAdminPluginRouteResolver;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureGoalPanels;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -46,7 +47,6 @@ class AdminRouteCoverageIntegrationTest extends ShieldIntegrationTestCase {
 			[ 'reports', 'list', 'reports', 'overview', [ 'workspace' => 'list' ] ],
 			[ 'reports', 'settings', 'reports', 'overview', [ 'workspace' => 'settings' ] ],
 			[ 'reports', 'charts', 'reports', 'overview', [ 'workspace' => 'charts' ] ],
-			[ 'traffic', 'live', 'activity', 'overview', [ 'subject' => 'live_traffic' ] ],
 			[ 'tools', 'sessions', 'activity', 'sessions', [] ],
 		] as [ $nav, $subNav, $targetNav, $targetSubNav, $state ] ) {
 			$url = $urls->legacyAdminRouteRedirect( $nav, $subNav );
@@ -74,8 +74,7 @@ class AdminRouteCoverageIntegrationTest extends ShieldIntegrationTestCase {
 				$route[ 'delegate_action' ]::SLUG, $route[ 'delegate_payload' ]
 			);
 			$this->assertRouteRenderOutputHealthy( $payload, $workspace );
-			$this->assertSame( 1, $payload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'active_index' ] );
-			$this->assertSame( $workspace, $payload[ 'render_data' ][ 'vars' ][ 'reports_workspace' ] );
+			$this->assertSame( $workspace, $payload[ 'render_data' ][ 'vars' ][ 'reports_current_tab' ] );
 		}
 	}
 
@@ -89,7 +88,7 @@ class AdminRouteCoverageIntegrationTest extends ShieldIntegrationTestCase {
 				\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageReportsLanding::SLUG, $input
 			);
 			$this->assertRouteRenderOutputHealthy( $payload, 'reports/overview' );
-			$this->assertSame( 0, $payload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'active_index' ] );
+			$this->assertSame( 'charts', $payload[ 'render_data' ][ 'vars' ][ 'reports_current_tab' ] );
 		}
 	}
 
@@ -130,16 +129,40 @@ class AdminRouteCoverageIntegrationTest extends ShieldIntegrationTestCase {
 				continue;
 			}
 			\parse_str( \parse_url( $destination, PHP_URL_QUERY ), $query );
-			$expected = $special[ $slug ] ?? [ 'zones', 'overview', 'component', $slug ];
-			$this->assertSame( $expected[ 0 ], $query[ 'nav' ], $slug );
-			$this->assertSame( $expected[ 1 ], $query[ 'nav_sub' ], $slug );
-			if ( isset( $expected[ 2 ] ) ) {
-				$this->assertSame( $expected[ 3 ], $query[ $expected[ 2 ] ], $slug );
+			$this->assertArrayNotHasKey( 'component', $query, $slug );
+			if ( isset( $special[ $slug ] ) ) {
+				$expected = $special[ $slug ];
+				$this->assertSame( $expected[ 0 ], $query[ 'nav' ], $slug );
+				$this->assertSame( $expected[ 1 ], $query[ 'nav_sub' ], $slug );
+				if ( isset( $expected[ 2 ] ) ) {
+					$this->assertSame( $expected[ 3 ], $query[ $expected[ 2 ] ], $slug );
+				}
+			}
+			elseif ( $query[ 'nav' ] === 'zones' && isset( $query[ 'row_key' ] ) ) {
+				// A component's settings open in the Configure topic that holds them.
+				$this->assertNotEmpty( \array_intersect(
+					ConfigureGoalPanels::topicOptionKeys( $query[ 'zone' ], $query[ 'row_key' ] ),
+					( new $component() )->getOptions()
+				), $slug );
+			}
+			else {
+				$this->assertContains( $query[ 'nav' ], [ 'zones', 'tools' ], $slug );
 			}
 			$this->assertTrue( PluginNavs::NavExists( $query[ 'nav' ], $query[ 'nav_sub' ] ), $slug );
-			$this->assertNull( $urls->legacyAdminRouteRedirect( $query[ 'nav' ], $query[ 'nav_sub' ] ), $slug );
+			$this->assertNull( $urls->legacyAdminRouteRedirect( $query[ 'nav' ], $query[ 'nav_sub' ], $query ), $slug );
 			$this->assertSame( $destination, $urls->cfgForZoneComponent( $slug ), $slug );
+			// Configure links that named the component go to the same place.
+			$this->assertSame( $destination, $urls->legacyAdminRouteRedirect( 'zones', 'overview', [ 'component' => $slug ] ), $slug );
 		}
 		$this->assertNull( $urls->legacyAdminRouteRedirect( 'zone_components', 'not-a-component' ) );
+		$this->assertNull( $urls->legacyAdminRouteRedirect( 'zones', 'overview', [ 'component' => 'not-a-component' ] ) );
+	}
+
+	public function test_legacy_component_link_keeps_the_setting_it_names() :void {
+		$urls = $this->requireController()->plugin_urls;
+		$this->assertSame(
+			$urls->cfgForOpt( 'antibot_high_reputation_minimum' ),
+			$urls->legacyAdminRouteRedirect( 'zones', 'overview', [ 'component' => 'silent_captcha', 'config_item' => 'antibot_high_reputation_minimum' ] )
+		);
 	}
 }

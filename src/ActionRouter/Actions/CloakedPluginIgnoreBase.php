@@ -8,28 +8,33 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 };
 
 /**
+ * Ignores, or stops ignoring, cloaked plugins: one, or, from "Ignore all" and "Stop ignoring all", several together.
  * @phpstan-import-type CloakedPluginFindingState from CloakedPluginState
  */
 abstract class CloakedPluginIgnoreBase extends BaseAction {
 
-	use Traits\NonceVerifyRequired;
+	use Traits\RequestedIdentifiers;
 
 	public const ERROR_IDENTIFIER_UNAVAILABLE = 'cloaked_plugin_identifier_unavailable';
 	public const ERROR_MISSING_IDENTIFIER = 'cloaked_plugin_missing_identifier';
 
 	protected function exec() {
-		$identity = \trim( (string)$this->action_data[ 'finding_id' ] );
-		if ( $identity === '' ) {
+		$identities = \array_map( 'trim', $this->requestedIdentifiers() );
+		if ( \in_array( '', $identities, true ) || $identities === [] ) {
 			$this->fail( __( 'A cloaked plugin identifier is required.', 'wp-simple-firewall' ), self::ERROR_MISSING_IDENTIFIER );
 			return;
 		}
 
 		$state = $this->currentFindingState();
-		if ( !$this->applyIdentityChange(
-			$this->buildCloakedPluginState(),
-			$identity,
-			\array_merge( $state[ 'active' ], $state[ 'ignored' ] )
-		) ) {
+		$findings = \array_merge( $state[ 'active' ], $state[ 'ignored' ] );
+		$cloakedPluginState = $this->buildCloakedPluginState();
+		$hasChanged = false;
+		// A plugin removed since the page was drawn can't be changed, but that needn't hold up the others.
+		foreach ( $identities as $identity ) {
+			$hasChanged = $this->applyIdentityChange( $cloakedPluginState, $identity, $findings ) || $hasChanged;
+		}
+
+		if ( !$hasChanged ) {
 			$this->fail( __( 'The specified cloaked plugin cannot be changed right now.', 'wp-simple-firewall' ), self::ERROR_IDENTIFIER_UNAVAILABLE );
 			return;
 		}
@@ -38,10 +43,6 @@ abstract class CloakedPluginIgnoreBase extends BaseAction {
 			'page_reload' => false,
 			'message'     => $this->successMessage(),
 		] )->setPayloadSuccess( true );
-	}
-
-	protected function getRequiredDataKeys() :array {
-		return [ 'finding_id' ];
 	}
 
 	/**

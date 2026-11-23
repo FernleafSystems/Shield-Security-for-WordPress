@@ -21,14 +21,17 @@ class ZoneComponentConfigRenderIntegrationTest extends ShieldIntegrationTestCase
 		$payload = $this->processActionPayloadWithAdminBypass( ZoneComponentConfig::SLUG, [
 			'zone_component_slug' => PluginGeneral::Slug(),
 			'form_context'        => 'expansion',
+			'configure_panel'     => 'shield:general',
 		] );
 		$this->assertRouteRenderOutputHealthy( $payload, 'zone component config offcanvas render' );
 
 		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
 		$this->assertSame( ZoneComponentConfig::TEMPLATE, (string)( $payload[ 'render_template' ] ?? '' ) );
-		$this->assertArrayHasKey( 'canvas_title', $renderData[ 'content' ] ?? [] );
-		$this->assertArrayHasKey( 'canvas_body', $renderData[ 'content' ] ?? [] );
 		$this->assertIsString( $renderData[ 'content' ][ 'canvas_title' ] );
-		$this->assertIsString( $renderData[ 'content' ][ 'canvas_body' ] );
+		// The body is the topic's settings panel, not a message about why it couldn't render.
+		$body = $renderData[ 'content' ][ 'canvas_body' ];
+		$this->assertStringContainsString( 'options_form_for--panel', $body );
+		$this->assertStringContainsString( 'data-context="expansion"', $body );
+		$this->assertStringContainsString( 'data-option-key="visitor_address_source"', $body );
 	}
 }

@@ -56,8 +56,11 @@ class SelectSearchDataToolsTest extends BaseUnitTest {
 		foreach ( $definitionsById as $toolId => $definition ) {
 			$this->assertArrayHasKey( $toolId, $definitionsById );
 			$this->assertArrayHasKey( $toolId, $childrenById );
+			// Guided Setup opens the setup guide rather than the old wizard.
 			$this->assertSame(
-				$pluginUrls->adminTopNav( $definition[ 'nav' ], $definition[ 'subnav' ] ),
+				$toolId === 'tool_guidedsetup'
+					? $pluginUrls->setupGuide()
+					: $pluginUrls->adminTopNav( $definition[ 'nav' ], $definition[ 'subnav' ] ),
 				$childrenById[ $toolId ][ 'link' ][ 'href' ] ?? ''
 			);
 			$this->assertSame( (string)$definition[ 'search_tokens' ], $childrenById[ $toolId ][ 'tokens' ] ?? '' );
@@ -80,6 +83,10 @@ class SelectSearchDataToolsTest extends BaseUnitTest {
 		$pluginUrls = new class {
 			public function adminTopNav( string $nav, string $subnav = '' ) :string {
 				return '/admin/'.$nav.'/'.$subnav;
+			}
+
+			public function setupGuide() :string {
+				return '/admin/zones/overview?setup_guide=open';
 			}
 		};
 		$controller->plugin_urls = $pluginUrls;

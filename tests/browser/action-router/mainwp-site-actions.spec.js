@@ -7,7 +7,7 @@ function requestParams( request ) {
 	return new URLSearchParams( request.postData() || '' );
 }
 
-function isMainwpSiteActionRequest( request, siteID, actionSlug ) {
+function isMainwpSiteActionRequest( request, siteID, actionKey ) {
 	if ( request.method() !== 'POST' || !request.url().includes( '/admin-ajax.php' ) ) {
 		return false;
 	}
@@ -16,12 +16,12 @@ function isMainwpSiteActionRequest( request, siteID, actionSlug ) {
 	return params.get( 'action' ) === 'shield_action'
 		&& params.get( 'ex' ) === ACTION_HANDLER
 		&& params.get( 'client_site_id' ) === String( siteID )
-		&& params.get( 'client_site_action_data[site_action_slug]' ) === actionSlug;
+		&& params.get( 'client_site_action' ) === actionKey;
 }
 
-async function expectActionRequestFrom( page, action, siteID, actionSlug, trigger ) {
+async function expectActionRequestFrom( page, action, siteID, actionKey, trigger ) {
 	const request = page.waitForRequest(
-		( candidate ) => isMainwpSiteActionRequest( candidate, siteID, actionSlug ),
+		( candidate ) => isMainwpSiteActionRequest( candidate, siteID, actionKey ),
 		{ timeout: 20_000 }
 	);
 	await trigger();
@@ -34,7 +34,6 @@ test( 'MainWP site action buttons preserve click keyboard focus and payload beha
 		await page.goto( fixture.page_url, { waitUntil: 'load' } );
 
 		const actionKey = 'sync';
-		const actionSlug = fixture.actions[ actionKey ];
 		const siteAction = page.locator(
 			`${ SITE_ACTION_SELECTOR }[data-mainwp-site-id="${ fixture.site_id }"][data-mainwp-site-action-key="${ actionKey }"]`
 		);
@@ -51,7 +50,7 @@ test( 'MainWP site action buttons preserve click keyboard focus and payload beha
 			page,
 			siteAction,
 			fixture.site_id,
-			actionSlug,
+			actionKey,
 			() => siteAction.click()
 		);
 		expect( page.url() ).toBe( originalURL );
@@ -60,7 +59,7 @@ test( 'MainWP site action buttons preserve click keyboard focus and payload beha
 			page,
 			siteAction,
 			fixture.site_id,
-			actionSlug,
+			actionKey,
 			() => page.keyboard.press( 'Enter' )
 		);
 		expect( page.url() ).toBe( originalURL );
@@ -69,7 +68,7 @@ test( 'MainWP site action buttons preserve click keyboard focus and payload beha
 			page,
 			siteAction,
 			fixture.site_id,
-			actionSlug,
+			actionKey,
 			() => page.keyboard.press( 'Space' )
 		);
 		expect( page.url() ).toBe( originalURL );

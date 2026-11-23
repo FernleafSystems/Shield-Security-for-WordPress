@@ -2,10 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components\CompCons;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\CloakedPluginDetails;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
+	CloakedPluginFinding,
+	CloakedPluginState,
+	PluginType
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPluginsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerCloakedPlugins;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Processor;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportEmailHold;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\CloakedPluginFixtureTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Services\Core\General;
@@ -37,14 +43,17 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 			'instant_alerts_data',
 			CloakedPluginState::OPT_KEY,
 			CloakedPluginState::IGNORE_OPT_KEY,
+			CloakedPluginState::IGNORE_MODES_OPT_KEY,
 			CloakedPluginState::FINDINGS_OPT_KEY,
 			'block_send_email_address',
+			'installation_time',
 		] );
 		$this->requireController()->opts
 			->optSet( 'instant_alert_hidden_plugins', 'email' )
 			->optSet( 'instant_alerts_data', [] )
 			->optSet( CloakedPluginState::OPT_KEY, [] )
 			->optSet( CloakedPluginState::IGNORE_OPT_KEY, [] )
+			->optSet( CloakedPluginState::IGNORE_MODES_OPT_KEY, [] )
 			->optSet( CloakedPluginState::FINDINGS_OPT_KEY, [] )
 			->optSet( 'block_send_email_address', 'cloaked-plugins@example.com' )
 			->store();
@@ -149,6 +158,47 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [], $this->requireController()->comps->hidden_plugins->detect() );
 	}
 
+	public function testHourlyCronForgetsTheIgnoreOfAPluginRemovedOutsideWordPress() :void {
+		$GLOBALS[ 'pagenow' ] = 'plugins.php';
+		$this->createStandardCloakedPlugin( 'shi-cloaked-removed-outside', 'SHI Cloaked Removed Outside' );
+		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+		$findings = $this->observeRealPluginsTable();
+		$this->assertCount( 1, $findings );
+		$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity(
+			$findings[ 0 ]->identityKey(), $findings, CloakedPluginState::IGNORE_MODE_PATH
+		) );
+		$opts = $this->requireController()->opts;
+
+		( new Processor() )->runHourlyCron();
+		$this->assertSame( [ $findings[ 0 ]->identityKey() ], $opts->optGet( CloakedPluginState::IGNORE_OPT_KEY ) );
+
+		// Removed straight from the filesystem, as FTP or a hosting panel would, so WordPress fires no delete hooks.
+		$this->removeCloakedPluginFixtures();
+		$this->resetCloakedPluginFindingsCache();
+		( new Processor() )->runHourlyCron();
+		$this->assertSame( [], $opts->optGet( CloakedPluginState::IGNORE_OPT_KEY ) );
+	}
+
+	public function testPluginDeletedInWordPressAndReinstalledBeforeTheHourlyCheckIsReviewedAfresh() :void {
+		$GLOBALS[ 'pagenow' ] = 'plugins.php';
+		$file = $this->createStandardCloakedPlugin( 'shi-cloaked-reinstalled', 'SHI Cloaked Reinstalled' );
+		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+		$findings = $this->observeRealPluginsTable();
+		$this->assertCount( 1, $findings );
+		$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity(
+			$findings[ 0 ]->identityKey(), $findings, CloakedPluginState::IGNORE_MODE_PATH
+		) );
+
+		require_once ABSPATH.'wp-admin/includes/file.php';
+		require_once ABSPATH.'wp-admin/includes/plugin.php';
+		$this->assertTrue( \delete_plugins( [ $file ] ) );
+		$this->createStandardCloakedPlugin( 'shi-cloaked-reinstalled', 'SHI Cloaked Reinstalled' );
+
+		$this->assertSame( [], $this->requireController()->opts->optGet( CloakedPluginState::IGNORE_OPT_KEY ) );
+		$this->resetCloakedPluginFindingsCache();
+		$this->assertCount( 1, $this->observeRealPluginsTable() );
+	}
+
 	public function testStandardPluginCloakedByAllPluginsFilterFiresEventAndDedupeAlert() :void {
 		global $pagenow;
 		$pagenow = 'plugins.php';
@@ -173,6 +223,71 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->observeRealPluginsTable();
 		$this->assertCount( 1, $this->getCapturedEventsByKey( 'plugin_hidden_detected' ) );
 		$this->assertCount( 1, $this->capturedMails() );
+	}
+
+	public function testReportEmailHoldKeepsTheAlertQueuedUntilAReportEmailIsChosen() :void {
+		global $pagenow;
+		$pagenow = 'plugins.php';
+
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'installation_time', Services::Request()->ts() - 60 )
+			->optSet( 'block_send_email_address', '' )
+			->store();
+		$pluginFile = $this->createStandardCloakedPlugin( 'shi-cloaked-held', 'SHI Cloaked Held' );
+		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+
+		$this->observeRealPluginsTable();
+		$this->assertSame( [], $this->capturedMails() );
+		$this->assertNotEmpty( $con->opts->optGet( 'instant_alerts_data' )[ AlertHandlerCloakedPlugins::class ] ?? [] );
+
+		$sendHook = $con->prefix( 'instant_alerts_send' );
+		\wp_clear_scheduled_hook( $sendHook );
+		$con->comps->instant_alerts->resetExecution()->execute();
+		\do_action( $sendHook );
+		$this->assertSame( [], $this->capturedMails(), 'Still held while no report email is chosen.' );
+
+		$con->opts->optSet( 'block_send_email_address', 'agency@example.test' )->store();
+		\do_action( $sendHook );
+
+		$this->assertCount( 1, $this->capturedMails() );
+		$mail = $this->lastCapturedMail();
+		$this->assertSame( 'agency@example.test', \is_array( $mail[ 'to' ] ) ? \implode( ',', $mail[ 'to' ] ) : $mail[ 'to' ] );
+		$this->assertHtmlContainsMarker( $pluginFile, (string)$mail[ 'html_body' ], 'Released cloaked plugin alert HTML body' );
+		$this->assertArrayNotHasKey( AlertHandlerCloakedPlugins::class, $con->opts->optGet( 'instant_alerts_data' ) );
+		\wp_clear_scheduled_hook( $sendHook );
+	}
+
+	public function testReportEmailHoldExpirySendsTheQueuedAlertOnceToTheSiteAdminEmail() :void {
+		global $pagenow;
+		$pagenow = 'plugins.php';
+
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'installation_time', Services::Request()->ts() - 60 )
+			->optSet( 'block_send_email_address', '' )
+			->store();
+		$pluginFile = $this->createStandardCloakedPlugin( 'shi-cloaked-expiry', 'SHI Cloaked Expiry' );
+		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+
+		$this->observeRealPluginsTable();
+		$this->assertSame( [], $this->capturedMails() );
+
+		$con->opts->optSet( 'installation_time', Services::Request()->ts() - ReportEmailHold::WINDOW )->store();
+		$sendHook = $con->prefix( 'instant_alerts_send' );
+		\wp_clear_scheduled_hook( $sendHook );
+		$con->comps->instant_alerts->resetExecution()->execute();
+		\do_action( $sendHook );
+		\do_action( $sendHook );
+
+		$this->assertCount( 1, $this->capturedMails(), 'The queued alert goes out once when the hold expires.' );
+		$mail = $this->lastCapturedMail();
+		$this->assertSame(
+			Services::WpGeneral()->getSiteAdminEmail(),
+			\is_array( $mail[ 'to' ] ) ? \implode( ',', $mail[ 'to' ] ) : $mail[ 'to' ]
+		);
+		$this->assertHtmlContainsMarker( $pluginFile, (string)$mail[ 'html_body' ], 'Expired-hold cloaked plugin alert HTML body' );
+		\wp_clear_scheduled_hook( $sendHook );
 	}
 
 	public function testBackgroundCheckFollowedByAdminObservationDetectsCloaking() :void {
@@ -288,7 +403,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		if ( $ignored ) {
 			foreach ( $findings as $finding ) {
 				if ( $finding->entry->file === $file ) {
-					$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $finding->identityKey(), $findings ) );
+					$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $finding->identityKey(), $findings, CloakedPluginState::IGNORE_MODE_PATH ) );
 				}
 			}
 			$this->resetCloakedPluginFindingsCache();
@@ -298,7 +413,9 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertEqualsCanonicalizing( [ $file, $muFile ], $initial[ 'all' ] );
 		$this->assertSame( $ignored ? [ $file ] : [], $initial[ 'ignored' ] );
 		$con = $this->requireController();
-		$saved = $this->snapshotSelectedOptions( [ CloakedPluginState::FINDINGS_OPT_KEY, CloakedPluginState::IGNORE_OPT_KEY ] );
+		$saved = $this->snapshotSelectedOptions( [
+			CloakedPluginState::FINDINGS_OPT_KEY, CloakedPluginState::IGNORE_OPT_KEY, CloakedPluginState::IGNORE_MODES_OPT_KEY,
+		] );
 		$notified = $con->opts->optGet( CloakedPluginState::OPT_KEY );
 		$restore = $this->injectMalformedDiscovery();
 		try {
@@ -418,7 +535,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $findings );
 		$this->assertSame( $file, $findings[ 0 ]->entry->file );
 		if ( $check === 'ignore' ) {
-			$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $findings[ 0 ]->identityKey(), $findings ) );
+			$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $findings[ 0 ]->identityKey(), $findings, CloakedPluginState::IGNORE_MODE_PATH ) );
 			$this->resetCloakedPluginFindingsCache();
 			$this->observeRealPluginsTable();
 		}
@@ -477,7 +594,7 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $findings );
 		$this->assertSame( $file, $findings[ 0 ]->entry->file );
 		if ( $ignored ) {
-			$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $findings[ 0 ]->identityKey(), $findings ) );
+			$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $findings[ 0 ]->identityKey(), $findings, CloakedPluginState::IGNORE_MODE_PATH ) );
 			$this->resetCloakedPluginFindingsCache();
 			$this->observeRealPluginsTable();
 		}
@@ -871,7 +988,34 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public static function restrictedListContexts() :array {
-		return [ 'search' => [ [ 's' => 'no matches' ] ], 'inactive' => [ [ 'plugin_status' => 'inactive' ] ], 'cloaked' => [ [ 'plugin_status' => 'cloaked' ] ] ];
+		return [ 'search' => [ [ 's' => 'no matches' ] ], 'inactive' => [ [ 'plugin_status' => 'inactive' ] ], 'a list WordPress does not have' => [ [ 'plugin_status' => 'cloaked' ] ] ];
+	}
+
+	/**
+	 * A cloaked plugin's file can say anything about itself, markup included. Its drawer shows all of it as text.
+	 */
+	public function testCloakedPluginDrawerShowsWhatTheFileSaysAsText() :void {
+		$GLOBALS[ 'pagenow' ] = 'plugins.php';
+		$file = $this->createStandardCloakedPlugin( 'shi-cloaked-drawer', 'Drawer plugin' );
+		$payload = '<img src=x onerror=alert(1)>';
+		$this->assertNotFalse( \file_put_contents(
+			WP_PLUGIN_DIR.'/'.$file,
+			"<?php\n/*\nPlugin Name: Name {$payload}\nVersion: 1.0\nAuthor: Author {$payload}\nPlugin URI: https://example.com/{$payload}\n"
+			."Description: Description {$payload}\n*/\nadd_action('init', static function () {});\n"
+		) );
+		\wp_clean_plugins_cache( false );
+		add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+		$findings = $this->observeRealPluginsTable();
+		$this->assertCount( 1, $findings );
+		$this->loginAsSecurityAdmin();
+
+		$html = $this->requireController()->action_router->render( CloakedPluginDetails::class, [
+			'identifier' => $findings[ 0 ]->identityKey(),
+		] );
+
+		$this->assertStringNotContainsString( '<img', $html );
+		// Its name, author, site and description are all there, as text.
+		$this->assertSame( 4, \substr_count( $html, esc_html( $payload ) ) );
 	}
 
 	public function testPluginsActionRequestDoesNotTurnAnActionOnlyFilterIntoAnAlert() :void {
@@ -897,43 +1041,6 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		}
 		finally {
 			remove_filter( 'all_plugins', $filter, 1000 );
-		}
-	}
-
-
-	private function prepareRealPluginsTable( bool $network = false ) :array {
-		$keys = [ 'current_screen', 'status', 'plugins', 'totals', 'page', 'orderby', 'order', 's' ];
-		$globals = [];
-		foreach ( $keys as $key ) {
-			if ( \array_key_exists( $key, $GLOBALS ) ) {
-				$globals[ $key ] = $GLOBALS[ $key ];
-			}
-		}
-		$request = $_REQUEST;
-		$user = get_current_user_id();
-		try {
-			$_REQUEST = [];
-			$GLOBALS[ 's' ] = '';
-			wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
-			update_user_option( get_current_user_id(), 'plugins_per_page', 999 );
-			set_current_screen( $network ? 'plugins-network' : 'plugins' );
-			require_once ABSPATH.'wp-admin/includes/class-wp-list-table.php';
-			require_once ABSPATH.'wp-admin/includes/class-wp-plugins-list-table.php';
-			$table = new \WP_Plugins_List_Table( [ 'screen' => get_current_screen() ] );
-			$table->prepare_items();
-			return $table->items;
-		}
-		finally {
-			$_REQUEST = $request;
-			wp_set_current_user( $user );
-			foreach ( $keys as $key ) {
-				if ( \array_key_exists( $key, $globals ) ) {
-					$GLOBALS[ $key ] = $globals[ $key ];
-				}
-				else {
-					unset( $GLOBALS[ $key ] );
-				}
-			}
 		}
 	}
 
@@ -985,11 +1092,16 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->captureShieldEvents();
 		$findings = $this->observeRealPluginsTable();
 		$this->assertCount( 1, $findings );
-		$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $findings[ 0 ]->identityKey(), $findings ) );
-		$before = $this->snapshotSelectedOptions( [
-			CloakedPluginState::FINDINGS_OPT_KEY, CloakedPluginState::IGNORE_OPT_KEY, CloakedPluginState::OPT_KEY,
-		] );
+		$this->assertTrue( ( new CloakedPluginState() )->ignoreIdentity( $findings[ 0 ]->identityKey(), $findings, CloakedPluginState::IGNORE_MODE_PATH ) );
 		$con = $this->requireController();
+		// An ignore whose plugin has gone, which the hourly check would forget if it ran on this version.
+		$con->opts->optSet( CloakedPluginState::IGNORE_OPT_KEY, \array_merge(
+			$con->opts->optGet( CloakedPluginState::IGNORE_OPT_KEY ),
+			[ CloakedPluginFinding::IdentityFor( PluginType::Standard, 'shi-cloaked-gone/shi-cloaked-gone.php' ) ]
+		) )->store();
+		$before = $this->snapshotSelectedOptions( [
+			CloakedPluginState::FINDINGS_OPT_KEY, CloakedPluginState::IGNORE_OPT_KEY, CloakedPluginState::IGNORE_MODES_OPT_KEY, CloakedPluginState::OPT_KEY,
+		] );
 		$con->opts->optSet( 'instant_alerts_data', [
 			AlertHandlerCloakedPlugins::class => [ 'hidden_plugins' => [ $findings[ 0 ]->toAlertData() ] ],
 		] );
@@ -1142,8 +1254,6 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 			$this->prepareRealPluginsTable();
 			$this->assertIsArray( $before );
 			$this->assertIsArray( $after );
-			$this->assertArrayHasKey( $file, $after[ 'cloaked' ], 'Shield rows must use the newly observed result.' );
-			unset( $after[ 'cloaked' ] );
 			$this->assertSame( $before, $after, 'Observation must not change WordPress plugin buckets.' );
 			$this->assertCloakedPluginEvent( $file, 'plugins_list' );
 		}

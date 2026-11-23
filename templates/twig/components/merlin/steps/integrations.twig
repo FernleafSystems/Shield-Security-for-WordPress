@@ -4,13 +4,12 @@
 	{% import '/common/macros.twig' as icwp_macros %}
 
 	<p>{{ strings.integrations_text }}</p>
-	<p>Each integration is custom-built and implements our {{ icwp_macros.silentcaptcha() }} anti-bot technology.</p>
-	<p>The types of forms that can be protected include:</p>
+	<p>{{ strings.custom_built|e|format( icwp_macros.silentcaptcha() )|raw }}</p>
+	<p>{{ strings.form_types_intro }}</p>
 	<ul style="list-style: square">
-		<li>Contact Forms</li>
-		<li>Login Forms</li>
-		<li>Registration Forms</li>
-		<li>Password Reset Forms</li>
+		{% for form_type in strings.form_types %}
+			<li>{{ form_type }}</li>
+		{% endfor %}
 	</ul>
 	<p>{{ strings.integrations_text2 }}</p>
 
@@ -24,24 +23,30 @@
 
 		<div class="row">
 			<div class="col mb-2">
-				<h6 class="pb-1 border-bottom d-inline-block">Select 3rd Party Integrations</h6>
+				<h6 class="pb-1 border-bottom d-inline-block">{{ strings.select_heading }}</h6>
 			</div>
 		</div>
 
 		{% for integration in vars.integrations %}
+			{# An integration the plan doesn't cover can't be ticked, and says where to find out more. #}
+			{% set integration_help %}
+				{% if integration.has_cap %}
+					{{ strings.help_available|e|format( icwp_macros.silentcaptcha() )|raw }}
+					[<a href="https://silentcaptcha.com/" target="_blank" rel="noopener noreferrer">{{ strings.more_info_label }}</a>]
+				{% else %}
+					{{ strings.help_unavailable }}
+					[<a href="{{ hrefs.go_pro }}" target="_blank" rel="noopener noreferrer">{{ strings.more_info_label }}</a>]
+				{% endif %}
+			{% endset %}
 			{{ icwp_macros.formInput_Checkbox(
 				integration.slug,
-				'Y',
 				integration.name,
-				'Switch-on integration for ' ~ integration.name,
-				integration.has_cap ?
-				icwp_macros.silentcaptcha()~" will detect and block bot requests to these forms, without challenging your legitimate visitors."
-				~' [<a href="https://silentcaptcha.com/" target="_blank">more info</a>]'
-				: 'Not available on your current plan.'~' [<a href="'~hrefs.go_pro~'" target="_blank">more info</a>]',
-				null, true, 'me-0', integration.has_cap
+				strings.switch_on|format( integration.name ),
+				integration_help,
+				true, 'me-0', integration.has_cap
 			) }}
 		{% endfor %}
 
-		{{ icwp_macros.formInput_Submit2( 'Enable Selected Integrations', null, 'secondary', false ) }}
+		{{ icwp_macros.formInput_Submit( strings.enable_button ) }}
 	</form>
 {% endblock %}

@@ -367,6 +367,22 @@ class OptsHandler extends DynPropertiesClass {
 		return $access;
 	}
 
+	/**
+	 * Whether one choice of a select option can be used on this plan: a choice marked premium needs Pro, even
+	 * when the option itself is available to everyone.
+	 */
+	public function optValueHasAccess( string $key, string $valueKey ) :bool {
+		if ( !$this->optHasAccess( $key ) ) {
+			return false;
+		}
+		foreach ( $this->optDef( $key )[ 'value_options' ] ?? [] as $valueOption ) {
+			if ( ( $valueOption[ 'value_key' ] ?? null ) === $valueKey ) {
+				return empty( $valueOption[ 'premium' ] ) || self::con()->isPremiumActive();
+			}
+		}
+		return false;
+	}
+
 	public function optReset( string $key ) :void {
 		$this->optSet( $key, $this->optDefault( $key ) );
 	}

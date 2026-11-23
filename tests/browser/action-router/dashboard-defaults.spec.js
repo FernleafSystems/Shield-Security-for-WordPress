@@ -62,7 +62,64 @@ async function openFocusedConfigureForm( page, contract ) {
 	return { row, form };
 }
 
+/**
+ * Configure panels show some selects as a row of choices (radios) rather than a dropdown.
+ */
+function choiceControl( form, option, value ) {
+	const key = option.control_id.replace( /^Opt-/, '' );
+	return form.locator( `input[type="radio"][name="${key}"][value="${value}"]` );
+}
+
+async function isChoiceSelect( form, option ) {
+	return option.type === 'select' && await form.locator( `#${option.control_id}` ).count() === 0;
+}
+
+/**
+ * Configure panels show some settings as a slider: a range input that moves between steps, with the
+ * chosen step's value in a hidden field named after the option.
+ */
+function sliderControl( form, option ) {
+	return form.locator( `input.shield-range__input#${option.control_id}` );
+}
+
+async function moveSlider( slider, value ) {
+	const stops = JSON.parse( await slider.getAttribute( 'data-stops' ) || '[]' );
+	const index = stops.findIndex( ( stop ) => stop.value === String( value ) );
+	expect( index, `slider has a step for ${value}` ).toBeGreaterThan( -1 );
+	await slider.fill( String( index ) );
+}
+
+// Settings few sites change sit in the goal's Advanced options rather than the focused topic. Opens
+// whichever of the two holds the setting; in the component list only one is open at a time.
+async function formHolding( page, form, option ) {
+	const key = option.control_id.replace( /^Opt-/, '' );
+	const inFocused = await form.locator( `#${option.control_id}, [name="${key}"]` ).count() > 0;
+	const rowKey = inFocused
+		? await form.locator( 'xpath=ancestor::*[@data-configure-row-key][1]' ).getAttribute( 'data-configure-row-key' )
+		: 'advanced';
+	const row = page.locator( `[data-configure-row-key="${rowKey}"]` );
+	const rowForm = row.locator( 'form.options_form_for' ).first();
+	if ( !await rowForm.isVisible() ) {
+		// In the component list the whole row opens it; expanded in place, its toggle does.
+		const trigger = row.locator( '[data-shield-expand-trigger="1"]' ).first();
+		await ( await trigger.isVisible() ? trigger : row.locator( '.shield-detail-row' ).first() ).click();
+	}
+	await expect( rowForm ).toBeVisible( { timeout: 30_000 } );
+	return rowForm;
+}
+
 async function expectControlValue( form, option, expectedValue ) {
+	if ( await isChoiceSelect( form, option ) ) {
+		await expect( choiceControl( form, option, String( expectedValue ) ) ).toBeChecked();
+		return;
+	}
+
+	if ( await sliderControl( form, option ).count() > 0 ) {
+		const key = option.control_id.replace( /^Opt-/, '' );
+		await expect( form.locator( `input[type="hidden"][name="${key}"]` ) ).toHaveValue( String( expectedValue ) );
+		return;
+	}
+
 	const control = form.locator( `#${option.control_id}` );
 	await expect( control ).toBeAttached();
 
@@ -77,11 +134,25 @@ async function expectControlValue( form, option, expectedValue ) {
 }
 
 async function applyOptionValue( form, option ) {
+	if ( await isChoiceSelect( form, option ) ) {
+		const choice = choiceControl( form, option, String( option.save ) );
+		const key = option.control_id.replace( /^Opt-/, '' );
+		const label = form.locator( `label:has(input[type="radio"][name="${key}"][value="${String( option.save )}"])` );
+		await label.click();
+		await expect( choice ).toBeChecked();
+		return;
+	}
+
 	const control = form.locator( `#${option.control_id}` );
 	await expect( control ).toBeAttached();
 
+	if ( await sliderControl( form, option ).count() > 0 ) {
+		await moveSlider( control, option.save );
+		return;
+	}
+
 	if ( option.type === 'checkbox' ) {
-		await control.setChecked( option.save === 'Y' );
+		await control.setChecked( option.save === 'Y', { force: true } );
 		return;
 	}
 
@@ -107,7 +178,9 @@ test( 'global dashboard defaults fixture opens Shield routes and restores cleanu
 
 		await openShieldRoute( page, contract.routes.dashboard );
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="dashboard"]' ) ).toBeVisible();
-		await expect( page.locator( contract.selectors.dashboard_live_monitor ) ).toBeVisible();
+		// The Live Monitor is closed by default and opened from the dashboard sidebar.
+		await expect( page.locator( contract.selectors.dashboard_live_monitor ) ).toHaveAttribute( 'data-is-collapsed', '1' );
+		await expect( page.locator( '[data-live-monitor-launch="1"]' ) ).toBeVisible();
 
 		await openShieldRoute( page, contract.routes.configure );
 		await expect( page.locator( contract.selectors.configure_landing ) ).toBeVisible();
@@ -128,7 +201,7 @@ test( 'reset defaults restores representative option defaults and reflected cont
 
 		const { form } = await openFocusedConfigureForm( page, contract );
 		for ( const key of contract.option_keys ) {
-			await expectControlValue( form, contract.options[ key ], contract.options[ key ].default );
+			await expectControlValue( await formHolding( page, form, contract.options[ key ] ), contract.options[ key ], contract.options[ key ].default );
 		}
 	} );
 } );
@@ -138,16 +211,16 @@ test( 'configuration save persists representative defaults-section values throug
 		const contract = assertDashboardDefaultsContract( rawContract );
 		await fixtureApi.resetDashboardDefaultsFixture();
 
-		const { row, form } = await openFocusedConfigureForm( page, contract );
+		const { form } = await openFocusedConfigureForm( page, contract );
 		for ( const key of contract.option_keys ) {
-			await applyOptionValue( form, contract.options[ key ] );
+			await applyOptionValue( await formHolding( page, form, contract.options[ key ] ), contract.options[ key ] );
 		}
 
 		const savedEvent = page.evaluate( () => new Promise( ( resolve ) => {
 			document.addEventListener( 'shield:expansion-form-saved', () => resolve( true ), { once: true } );
 		} ) );
 		const saveResponse = waitForShieldAjaxAction( page, contract.action_slugs.module_options_save );
-		await row.locator( '.shield-detail-expansion__btn-save' ).click();
+		await page.locator( '[data-configure-diagnosis="1"] [data-configure-savebar-save="1"]' ).click();
 		await expectShieldAjaxSuccess( await saveResponse );
 		await savedEvent;
 
@@ -158,7 +231,7 @@ test( 'configuration save persists representative defaults-section values throug
 		await dismissBlockingDialogs( page );
 		const reloaded = await openFocusedConfigureForm( page, contract );
 		for ( const key of contract.option_keys ) {
-			await expectControlValue( reloaded.form, contract.options[ key ], contract.options[ key ].expected );
+			await expectControlValue( await formHolding( page, reloaded.form, contract.options[ key ] ), contract.options[ key ], contract.options[ key ].expected );
 		}
 	} );
 } );

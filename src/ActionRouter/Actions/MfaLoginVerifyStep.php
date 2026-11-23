@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\LoginIntentRequestCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -10,6 +11,12 @@ class MfaLoginVerifyStep extends BaseAction {
 	use Traits\AuthNotRequired;
 
 	public const SLUG = 'wp_login_2fa_verify';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_ORDINARY => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		if ( Services::Request()->isPost() && !Services::WpUsers()->isUserLoggedIn() ) {

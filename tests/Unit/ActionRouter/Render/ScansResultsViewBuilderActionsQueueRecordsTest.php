@@ -143,13 +143,10 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( 'example-plugin', $queuePane[ 'cards' ][ 0 ][ 'key' ] );
 		$this->assertSame( 'actions-queue-plugin-example-plugin', $queuePane[ 'cards' ][ 0 ][ 'panel_target' ] );
 		$this->assertSame( 'example-plugin/example-plugin.php', $queuePane[ 'cards' ][ 0 ][ 'meta_text' ] );
-		$this->assertTrue( $queuePane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
 		$this->assertSame( 3, $queuePane[ 'cards' ][ 0 ][ 'count_badge' ] );
 		$this->assertSame( '', $queuePane[ 'cards' ][ 0 ][ 'body_notice' ] );
-		$this->assertSame( '', $queuePane[ 'cards' ][ 0 ][ 'body_notice_variant' ] );
 		$this->assertSame( '/wp-admin/plugins.php', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'href' ] );
 		$this->assertSame( 'bi bi-power', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'icon_class' ] );
-		$this->assertSame( 'Go to plugins', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'tooltip_attr' ] );
 		$this->assertSame( '1', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] );
 		$this->assertSame( '0', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] );
 		$queueTableAction = $this->decodeJsonAttr( $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'table_action_attr' ] );
@@ -187,7 +184,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 
 	public function test_actions_queue_file_locker_pane_uses_per_card_panels_and_orders_problem_pending_and_good_locks() :void {
 		$builder = $this->createBuilder( [
-			'problemFileLocks' => [ (object)[ 'id' => 14, 'path' => '/wp-config.php', 'detected_at' => 1000, 'hash_current' => '' ] ],
+			'problemFileLocks' => [ (object)[ 'id' => 14, 'type' => 'wpconfig', 'path' => '/wp-config.php', 'detected_at' => 1000, 'hash_current' => '' ] ],
 			'pendingFileLockDisplays' => [
 				[
 					'file_key' => 'root_index',
@@ -195,7 +192,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 					'path'     => '/index.php',
 				],
 			],
-			'goodFileLocks'    => [ (object)[ 'id' => 15, 'path' => '/.htaccess', 'detected_at' => 0, 'hash_current' => 'abc123' ] ],
+			'goodFileLocks'    => [ (object)[ 'id' => 15, 'type' => 'root_htaccess', 'path' => '/.htaccess', 'detected_at' => 0, 'hash_current' => 'abc123' ] ],
 		] );
 
 		$pane = $builder->buildActionsQueueFileLockerPane();
@@ -207,7 +204,6 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( 'actions-queue-filelocker-card-14', $pane[ 'cards' ][ 0 ][ 'panel_id' ] );
 		$this->assertSame( 'actions-queue-filelocker-14', $pane[ 'cards' ][ 0 ][ 'panel_target' ] );
 		$this->assertSame( '/wp-config.php', $pane[ 'cards' ][ 0 ][ 'meta_text' ] );
-		$this->assertTrue( $pane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
 		$this->assertSame( '0', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] );
 		$this->assertSame( '1', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] );
 		$fileDiffRenderAction = \json_decode(
@@ -221,7 +217,13 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( '0', $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] );
 		$this->assertArrayNotHasKey( 'actions-queue-asset-render-action', $pane[ 'cards' ][ 1 ][ 'panel_data' ] );
 		$this->assertSame( '/index.php', $pane[ 'cards' ][ 1 ][ 'meta_text' ] );
-		$this->assertSame( 'info', $pane[ 'cards' ][ 1 ][ 'body_notice_variant' ] );
+		// Each file's tab icon says what kind of file it is.
+		$this->assertSame(
+			[ 'bi bi-gear-fill', 'bi bi-filetype-php', 'bi bi-server' ],
+			\array_column( $pane[ 'cards' ], 'icon_class' )
+		);
+		// Why a file is worth locking isn't repeated once it's locked or being locked.
+		$this->assertSame( [ '', '', '' ], \array_column( $pane[ 'cards' ], 'explanation' ) );
 	}
 
 	public function test_file_locker_not_enabled_premium_state_renders_inactive_cards_without_configuration_action() :void {
@@ -257,14 +259,21 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( [], $pane[ 'disabled_actions' ] );
 		$this->assertCount( 2, $pane[ 'cards' ] );
 		$this->assertSame( [ 'inactive:wpconfig', 'inactive:root_index' ], \array_column( $pane[ 'cards' ], 'key' ) );
+		// Each file's tab names a panel of its own, so opening one never shows another file's.
 		$this->assertSame(
-			[ '', '' ],
+			[ 'actions-queue-filelocker-inactive-wpconfig', 'actions-queue-filelocker-inactive-root_index' ],
 			\array_column( $pane[ 'cards' ], 'panel_target' )
 		);
-		$this->assertTrue( $pane[ 'cards' ][ 0 ][ 'is_inactive' ] );
+		$this->assertSame(
+			[ 'actions-queue-filelocker-card-inactive-wpconfig', 'actions-queue-filelocker-card-inactive-root_index' ],
+			\array_column( $pane[ 'cards' ], 'panel_id' )
+		);
 		$this->assertSame( [], $pane[ 'cards' ][ 0 ][ 'actions' ] );
-		$this->assertTrue( $pane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
 		$this->assertSame( [], $pane[ 'cards' ][ 0 ][ 'panel_data' ] );
+		// A file not yet locked says why it's worth locking.
+		foreach ( $pane[ 'cards' ] as $card ) {
+			$this->assertNotSame( '', $card[ 'explanation' ] );
+		}
 
 		$dialog = \json_decode( $pane[ 'cards' ][ 0 ][ 'enable_dialog_json' ], true, 512, \JSON_THROW_ON_ERROR );
 		$this->assertSame( '/wp-config.php', $dialog[ 'path' ] );
@@ -330,10 +339,6 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$sectionLabels = \array_column( $builder->buildRailPaneData( 'vulnerabilities' )[ 'items' ] ?? [], 'section_label' );
 		$this->assertContains( $vulnerableLabel, $sectionLabels );
 		$this->assertNotContains( $abandonedLabel, $sectionLabels );
-
-		$abandonedSectionLabels = \array_column( $builder->buildRailPaneData( 'abandoned' )[ 'items' ] ?? [], 'section_label' );
-		$this->assertContains( $abandonedLabel, $abandonedSectionLabels );
-		$this->assertNotContains( $vulnerableLabel, $abandonedSectionLabels );
 	}
 
 	public function test_vulnerability_items_keep_native_and_lookup_actions() :void {

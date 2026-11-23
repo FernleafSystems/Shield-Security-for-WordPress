@@ -16,12 +16,12 @@
 
 				<h1 class="display-4 fw-bold mb-3">
 					{% block block_header_title %}
-						{{ strings.title|default('NO TITLE') }}
+						{{ strings.title }}
 					{% endblock %}
 				</h1>
 				<p class="lead mb-1">
 					{% block block_header_subtitle %}
-						{{ strings.subtitle|default('NO SUBTITLE') }}
+						{{ strings.subtitle }}
 					{% endblock %}
 				</p>
 			</div>
@@ -34,7 +34,7 @@
 
 			<div class="row">
 		    <div class="col-lg-6 col-md-9 mx-auto text-start mt-5">
-		      <h3 class="">{{ strings.restriction_details|default('Restriction Details') }}</h3>
+		      <h3 class="">{{ strings.restriction_details }}</h3>
 
 			    {% block restriction_details_blurb %}
 				    {% for blurb in strings.restriction_details_blurb %}

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 /**
+ * @phpstan-import-type CloakedPluginQueueRows from CloakedPluginsQueueIssueProvider
  * @phpstan-import-type QueueAssetSummaryRecord from ActionsQueueScanAssetCardsBuilder
  * @phpstan-import-type VulnerabilitySection from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
@@ -46,6 +47,13 @@ class ActionsQueueGroupScanSource {
 	 */
 	public function vulnerabilitySection( string $sectionKey ) :array {
 		return $this->vulnerabilitiesPayload()[ 'sections' ][ $sectionKey ];
+	}
+
+	/**
+	 * @return CloakedPluginQueueRows
+	 */
+	public function cloakedPluginRows() :array {
+		return ( new CloakedPluginsQueueIssueProvider() )->queueRows();
 	}
 
 	/**

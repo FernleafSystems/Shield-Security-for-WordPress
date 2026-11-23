@@ -17,8 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
  * }
  * @phpstan-type FixtureContract array{
  *   page_url:string,
- *   site_id:int,
- *   actions:array<string,string>
+ *   site_id:int
  * }
  * @phpstan-type FixtureState array{
  *   options_snapshot:array<string,mixed>,
@@ -59,7 +58,6 @@ class MainwpSitesFixtureBuilder {
 				'contract' => [
 					'page_url' => '/wp-admin/admin.php?page='.self::PAGE.'&tab=sites',
 					'site_id'  => self::SITE_ID,
-					'actions'  => $this->buildActionContract(),
 				],
 				'state'    => $state,
 			];
@@ -125,17 +123,6 @@ class MainwpSitesFixtureBuilder {
 					],
 				],
 			],
-		];
-	}
-
-	/**
-	 * @return array<string,string>
-	 */
-	private function buildActionContract() :array {
-		return [
-			'sync'       => SiteActionSync::SLUG,
-			'deactivate' => SiteActionDeactivate::SLUG,
-			'license'    => SiteCustomAction::SLUG,
 		];
 	}
 

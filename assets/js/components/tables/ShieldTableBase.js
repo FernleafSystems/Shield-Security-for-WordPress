@@ -104,7 +104,8 @@ export class ShieldTableBase extends BaseComponent {
 	/** @returns {Record<string, any>} */
 	getDefaultDatatableConfig() {
 		return {
-			dom: 'PrBpftip',
+			// The table's buttons on one line, then its search and its pages on the next, then the table.
+			dom: 'Pr<"shield-dt-buttons"B><"shield-dt-nav"fp>tip',
 			serverSide: true,
 			processing: true,
 			searchDelay: 600,
@@ -184,7 +185,7 @@ export class ShieldTableBase extends BaseComponent {
 			}
 		} ];
 
-		if ( this._base_data.ajax && this._base_data.ajax.render_offcanvas ) {
+		if ( this._base_data.ajax.render_offcanvas ) {
 			buttons.push( {
 				text: 'Search Help',
 				name: 'search-help',
@@ -197,6 +198,19 @@ export class ShieldTableBase extends BaseComponent {
 				}
 			} );
 		}
+
+		// Downloads come last, as links. DataTables Buttons cancels every click, so the action follows the link
+		// itself; the endpoint answers with an attachment, so the page stays put.
+		( this._base_data.vars?.downloads || [] ).forEach( ( download, idx ) => {
+			buttons.push( {
+				text: download.label,
+				name: `download-${idx}`,
+				tag: 'a',
+				className: 'action table-download btn-outline-secondary mb-2',
+				attr: { href: download.href },
+				action: () => window.location.assign( download.href ),
+			} );
+		} );
 
 		return buttons;
 	}
@@ -359,25 +373,6 @@ export class ShieldTableBase extends BaseComponent {
 
 		container.classList.toggle( 'shield-table-is-busy', isBusy );
 		container.setAttribute( 'aria-busy', isBusy ? 'true' : 'false' );
-		return true;
-	}
-
-	static resolveDatatableForTableElement( tableEl ) {
-		return tableEl instanceof HTMLTableElement
-			&& $.fn.dataTable
-			&& $.fn.dataTable.isDataTable( tableEl )
-			? $( tableEl ).DataTable()
-			: null;
-	}
-
-	static setBusyForTableElement( tableEl, isBusy ) {
-		const datatable = ShieldTableBase.resolveDatatableForTableElement( tableEl );
-		const processingDatatable = /** @type {{processing?: ( isBusy: boolean ) => void}|null} */ ( datatable );
-		if ( processingDatatable === null || typeof processingDatatable.processing !== 'function' ) {
-			return false;
-		}
-
-		processingDatatable.processing( isBusy );
 		return true;
 	}
 

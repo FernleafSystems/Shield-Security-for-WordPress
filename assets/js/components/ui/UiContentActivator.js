@@ -52,12 +52,6 @@ export class UiContentActivator {
 		UiContentActivator.activateInvestigateSelect2( selectEls );
 	}
 
-	static activateInvestigationTablesWithin( contextEl ) {
-		UiContentActivator.activateInvestigationTables(
-			UiContentActivator.collectElements( contextEl, '[data-investigation-table="1"]' )
-		);
-	}
-
 	static activateBootstrapTabsWithin( contextEl ) {
 		UiContentActivator.collectElements( contextEl, UiContentActivator.bootstrapTabSelector )
 		.forEach( ( element ) => Tab.getOrCreateInstance( element ) );
@@ -66,12 +60,6 @@ export class UiContentActivator {
 	static disposeBootstrapTabsWithin( contextEl ) {
 		UiContentActivator.collectElements( contextEl, UiContentActivator.bootstrapTabSelector )
 		.forEach( ( element ) => Tab.getInstance( element )?.dispose() );
-	}
-
-	static activateInvestigateSelect2Within( contextEl ) {
-		UiContentActivator.activateInvestigateSelect2(
-			UiContentActivator.collectElements( contextEl, 'select[data-investigate-select2="1"]' )
-		);
 	}
 
 	static activateInvestigationTables( tableEls ) {
@@ -102,6 +90,7 @@ export class UiContentActivator {
 					table_selector: '#'+tableEl.id,
 					datatables_init: datatablesInit,
 					malware_refresh: UiContentActivator.parseJsonObject( tableEl.dataset.malwareRefresh || '' ),
+					asset_actions: UiContentActivator.parseJsonObject( tableEl.dataset.assetActions || '' ),
 				},
 			} );
 			tableEl.dataset.shieldScanResultsInitialized = '1';

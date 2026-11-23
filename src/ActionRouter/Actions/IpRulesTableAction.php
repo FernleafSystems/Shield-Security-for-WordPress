@@ -2,11 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\IpRules\BuildIpRulesTableData;
 
 class IpRulesTableAction extends TableActionBase {
 
 	public const SLUG = 'iprulestable_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function getSubActionHandlers() :array {
 		return [

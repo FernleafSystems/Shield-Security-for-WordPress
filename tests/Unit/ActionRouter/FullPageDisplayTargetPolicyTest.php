@@ -21,7 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage
 	SecurityReport,
 	SecurityReportAlert
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\OverviewTraffic;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\DashboardLiveMonitorTicker;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
@@ -44,7 +44,7 @@ class FullPageDisplayTargetPolicyTest extends BaseUnitTest {
 		] ) );
 
 		$this->assertFullPageTargetRejected( new FullPageDisplayDynamicTargetPolicyTestDouble( [
-			'render_slug' => OverviewTraffic::SLUG,
+			'render_slug' => DashboardLiveMonitorTicker::SLUG,
 		] ) );
 	}
 

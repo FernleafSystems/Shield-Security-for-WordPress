@@ -6,11 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\{
 	StringsOptions,
 	StringsSections
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\ContactFormSpamBlockBot;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\LoginProtectionForms;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModuleIntegrations;
 
 class SelectSearchData {
 
@@ -22,9 +18,12 @@ class SelectSearchData {
 		$this->searchTextTokenBuilder = $searchTextTokenBuilder ?? new SearchTextTokenBuilder();
 	}
 
-	public function build( string $terms ) :array {
+	/**
+	 * @param bool $includeConfig false when the settings are searched another way, as the search dialog does
+	 */
+	public function build( string $terms, bool $includeConfig = true ) :array {
 		$terms = \strtolower( \trim( sanitize_text_field( $terms ) ) );
-		return $this->postProcessResults( \array_merge( $this->textSearch( $terms ), $this->ipSearch( $terms ) ) );
+		return $this->postProcessResults( \array_merge( $this->textSearch( $terms, $includeConfig ), $this->ipSearch( $terms ) ) );
 	}
 
 	private function postProcessResults( array $results ) :array {
@@ -33,7 +32,7 @@ class SelectSearchData {
 				$result[ 'children' ] = \array_map(
 					function ( array $child ) {
 						$child[ 'link' ] = \array_merge( [
-							'target'  => ( $child[ 'is_external' ] ?? false ) ? '_blank' : false,
+							'target'  => ( $child[ 'is_external' ] ?? false ) ? '_blank' : '',
 							'classes' => [],
 							'data'    => [],
 						], $child[ 'link' ] ?? [] );
@@ -87,14 +86,14 @@ class SelectSearchData {
 	 * Note use of \array_values() throughout. This is required by Select2 when it receives the data.
 	 * All arrays must have simple numeric keys starting from 0.
 	 */
-	protected function textSearch( string $search ) :array {
+	protected function textSearch( string $search, bool $includeConfig = true ) :array {
 		$terms = $this->searchTextTokenBuilder->extractTerms( $search );
 
 		$optionGroups = \array_merge(
 			$this->getToolsSearch(),
 			$this->getIntegrationsSearch(),
 			$this->getExternalSearch(),
-			$this->getConfigSearch()
+			$includeConfig ? $this->getConfigSearch() : []
 		);
 
 		foreach ( $optionGroups as $optGroupKey => $optionGroup ) {
@@ -249,7 +248,9 @@ class SelectSearchData {
 			'id'     => $definition[ 'id' ],
 			'text'   => $this->toolSearchText( $definition ),
 			'link'   => [
-				'href' => self::con()->plugin_urls->adminTopNav( $definition[ 'nav' ], $definition[ 'subnav' ] ),
+				'href' => $definition[ 'id' ] === 'tool_guidedsetup'
+					? self::con()->plugin_urls->setupGuide()
+					: self::con()->plugin_urls->adminTopNav( $definition[ 'nav' ], $definition[ 'subnav' ] ),
 			],
 			'tokens' => (string)( $definition[ 'search_tokens' ] ?? '' ),
 			'icon'   => self::con()->svgs->iconClass( $definition[ 'icon' ].'.svg' ),
@@ -274,7 +275,7 @@ class SelectSearchData {
 				'id'     => 'integration_mainwp',
 				'text'   => 'Integration with MainWP',
 				'link'   => [
-					'href' => $con->plugin_urls->cfgForZoneComponent( ModuleIntegrations::Slug() ),
+					'href' => $con->plugin_urls->cfgForOpt( 'enable_mainwp' ),
 				],
 				'tokens' => 'integration main mainwp',
 				'icon'   => $con->svgs->iconClass( 'sliders.svg' ),
@@ -286,7 +287,7 @@ class SelectSearchData {
 				'id'     => 'integration_'.$item[ 'value_key' ],
 				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
 				'link'   => [
-					'href' => $con->plugin_urls->cfgForZoneComponent( LoginProtectionForms::Slug() ),
+					'href' => $con->plugin_urls->cfgForOpt( 'user_form_providers' ),
 				],
 				'tokens' => 'integration login form bots '.$item[ 'text' ],
 				'icon'   => $con->svgs->iconClass( 'sliders.svg' ),
@@ -298,7 +299,7 @@ class SelectSearchData {
 				'id'     => 'integration_'.$item[ 'value_key' ],
 				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
 				'link'   => [
-					'href' => $con->plugin_urls->cfgForZoneComponent( ContactFormSpamBlockBot::Slug() ),
+					'href' => $con->plugin_urls->cfgForOpt( 'form_spam_providers' ),
 				],
 				'tokens' => 'contact integration form forms spam '.$item[ 'text' ],
 				'icon'   => $con->svgs->iconClass( 'sliders.svg' ),

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRuleRecord,
 	LoadIpRules
@@ -9,42 +10,43 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\LoadRequestLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Utility\ConvertLogsToFlatText;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\File\Download\IssueFileDownloadResponse;
 
 class FileDownloadAsStream extends BaseAction {
 
+	use Traits\IssuesFileDownloads;
+
 	public const SLUG = 'file_download_stream';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_ORDINARY => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		try {
-			( new IssueFileDownloadResponse(
-				sprintf( '%s-%s.log', $this->action_data[ 'download_category' ], Services::Request()->ts() )
-			) )->fromGenerator( $this->getGenerator() );
+			$category = $this->fields()->string( 'download_category', '' );
+			switch ( $category ) {
+				case 'ip_rules':
+					$extension = 'csv';
+					$gen = $this->downloadIpRules();
+					break;
+				case 'traffic':
+					$extension = 'log';
+					$gen = $this->downloadTrafficLogs();
+					break;
+				default:
+					throw new \Exception( __( 'Invalid download request.', 'wp-simple-firewall' ) );
+			}
+
+			$this->fileDownloadResponse( \sprintf( '%s-%s.%s', $category, Services::Request()->ts(), $extension ) )
+				->fromGenerator( $gen );
 		}
 		catch ( \Exception $e ) {
-			$resp = $this->response();
-			$resp->message = $e->getMessage();
-			$resp->mergePayload( [
+			$this->response()->mergePayload( [
 				'message' => $e->getMessage(),
 			] )->setPayloadSuccess( false );
 		}
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function getGenerator() :\Generator {
-		switch ( $this->action_data[ 'download_category' ] ) {
-			case 'ip_rules':
-				$gen = $this->downloadIpRules();
-				break;
-			case 'traffic':
-				$gen = $this->downloadTrafficLogs();
-				break;
-			default:
-				throw new \Exception( __( 'Invalid download request.', 'wp-simple-firewall' ) );
-		}
-		return $gen;
 	}
 
 	private function downloadIpRules() :\Generator {

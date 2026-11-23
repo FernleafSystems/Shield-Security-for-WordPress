@@ -3,11 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Contexts\EmailReportInfo;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\OverviewReports;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\FullPageDisplay\DisplayReport,
 	Actions\FullPageDisplay\DisplayReportAdmin,
+	Exceptions\ActionException,
 	Exceptions\UserAuthRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
@@ -80,14 +80,44 @@ class DisplayReportAccessIntegrationTest extends ShieldIntegrationTestCase {
 		$report = $this->insertReport( 'private-report-marker' );
 		$this->loginAsAdministrator();
 
-		$action = new DisplayReportAdminAccessTestDouble( [
-			'report_unique_id' => $report[ 'unique_id' ],
-		] );
-		$action->process();
-		$payload = $action->response()->payload();
+		$payload = $this->withAdminScreen( function () use ( $report ) :array {
+			$action = new DisplayReportAdminAccessTestDouble( [
+				'report_unique_id' => $report[ 'unique_id' ],
+			] );
+			$action->process();
+			return $action->response()->payload();
+		} );
 
 		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
 		$this->assertStringContainsString( 'private-report-marker', (string)( $payload[ 'render_output' ] ?? '' ) );
+	}
+
+	public function test_admin_report_view_is_refused_outside_the_wordpress_admin() :void {
+		$report = $this->insertReport( 'private-report-marker' );
+		$this->loginAsAdministrator();
+
+		$this->expectException( ActionException::class );
+
+		( new DisplayReportAdminAccessTestDouble( [
+			'report_unique_id' => $report[ 'unique_id' ],
+		] ) )->process();
+	}
+
+	/**
+	 * @return mixed
+	 */
+	private function withAdminScreen( callable $callback ) {
+		global $current_screen;
+
+		$screenSnapshot = $current_screen ?? null;
+		\set_current_screen( 'dashboard' );
+
+		try {
+			return $callback();
+		}
+		finally {
+			$current_screen = $screenSnapshot;
+		}
 	}
 
 	public function test_report_url_producer_uses_admin_report_view_without_signature() :void {
@@ -97,20 +127,6 @@ class DisplayReportAccessIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertStringContainsString( '/wp-admin/', $url );
 		$this->assertSame( ActionData::FIELD_SHIELD, $query[ ActionData::FIELD_ACTION ] ?? null );
-		$this->assertSame( DisplayReportAdmin::SLUG, $query[ ActionData::FIELD_EXECUTE ] ?? null );
-		$this->assertSame( $report[ 'unique_id' ], $query[ 'report_unique_id' ] ?? null );
-		$this->assertArrayNotHasKey( 'report_sig', $query );
-	}
-
-	public function test_overview_widget_report_producer_uses_admin_report_view_without_signature() :void {
-		$report = $this->insertReport( 'widget-link-marker' );
-		$data = ( new OverviewReportsAdminLinkTestDouble( [
-			'limit' => 1,
-		] ) )->renderDataForTest();
-
-		$href = (string)( $data[ 'vars' ][ 'reports' ][ 0 ][ 'href' ] ?? '' );
-		$query = $this->queryParamsFromUrl( $href );
-
 		$this->assertSame( DisplayReportAdmin::SLUG, $query[ ActionData::FIELD_EXECUTE ] ?? null );
 		$this->assertSame( $report[ 'unique_id' ], $query[ 'report_unique_id' ] ?? null );
 		$this->assertArrayNotHasKey( 'report_sig', $query );
@@ -162,13 +178,6 @@ class DisplayReportAccessIntegrationTest extends ShieldIntegrationTestCase {
 class DisplayReportAdminAccessTestDouble extends DisplayReportAdmin {
 
 	protected function postExec() {
-	}
-}
-
-class OverviewReportsAdminLinkTestDouble extends OverviewReports {
-
-	public function renderDataForTest() :array {
-		return $this->getRenderData();
 	}
 }
 

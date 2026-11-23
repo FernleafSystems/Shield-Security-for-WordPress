@@ -2,23 +2,25 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	SecurityAdminAuthClear,
 	SecurityAdminCheck,
 	SecurityAdminLogin
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\HandleOptionsSaveRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\RawOptionStoreSnapshot;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityAdminFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ActionRequestNonceFixture;
+	use CurrentRequestFixture;
 
 	public function test_fixture_contract_owns_scenarios_and_cleanup_restores_raw_option_stores() :void {
 		$this->loginAsAdministrator();
@@ -49,8 +51,8 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 					$this->assertSame( $scenario, $contract[ 'scenario' ] );
 					$this->assertContains( $scenario, $contract[ 'scenarios' ] );
 					$this->assertSame( 'zones', $contract[ 'routes' ][ 'configure' ][ 'nav' ] );
-					$this->assertSame( 'secadmin', $contract[ 'configure_focus' ][ 'zone_key' ] );
-					$this->assertSame( 'secadmin_enabled', $contract[ 'configure_focus' ][ 'row_key' ] );
+					$this->assertSame( 'control', $contract[ 'configure_focus' ][ 'zone_key' ] );
+					$this->assertSame( 'security_admin', $contract[ 'configure_focus' ][ 'row_key' ] );
 					$this->assertSame( 'admin_access_key', $contract[ 'configure_focus' ][ 'config_item' ] );
 					$this->assertSame( 'mod_options_save', $contract[ 'action_slugs' ][ 'module_options_save' ] );
 					$this->assertSame( 'sec_admin_login', $contract[ 'action_slugs' ][ 'sec_admin_login' ] );
@@ -215,6 +217,31 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 		}
 	}
 
+	/**
+	 * A page left open from before the PIN box was replaced sends the PIN inside its form, and it still unlocks.
+	 * The request is sent as that page sends it, through the same entry as any other AJAX request.
+	 */
+	public function test_pin_sent_inside_the_form_is_accepted() :void {
+		$this->loginAsAdministrator();
+		$builder = new SecurityAdminFixtureBuilder();
+
+		$locked = $builder->seed( SecurityAdminFixtureBuilder::SCENARIO_LOCKED );
+		try {
+			$payload = ( new ExternalEntryGuard() )->dispatch(
+				ExternalEntryGuard::ENTRY_AJAX,
+				SecurityAdminLogin::SLUG,
+				\array_merge( ActionData::Build( SecurityAdminLogin::class ), [
+					'form_params' => [ 'sec_admin_key' => $locked[ 'contract' ][ 'pins' ][ 'valid' ] ],
+				] )
+			)->payload();
+			$this->assertTrue( $payload[ 'success' ] );
+			$this->assertTrue( $builder->inspect( $locked[ 'state' ] )[ 'current' ][ 'session_active' ] );
+		}
+		finally {
+			$builder->cleanup( $locked[ 'state' ] );
+		}
+	}
+
 	public function test_invalid_pin_timeout_and_auth_clear_contracts_preserve_session_boundaries() :void {
 		$this->loginAsAdministrator();
 		$builder = new SecurityAdminFixtureBuilder();
@@ -270,18 +297,19 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 	private function savePinThroughOptionsOwner( string $pin ) :void {
 		$snapshot = $this->snapshotCurrentRequestState();
 		try {
+			$form = [
+				'all_opts_keys'            => 'admin_access_key',
+				'admin_access_key'         => $pin,
+				'admin_access_key_confirm' => $pin,
+			];
 			$this->applyCurrentShieldAjaxRequest( [
-				'form_params' => [
-					'all_opts_keys'            => 'admin_access_key',
-					'admin_access_key'         => $pin,
-					'admin_access_key_confirm' => $pin,
-				],
+				'form_params' => $form,
 			], true );
 
 			$bypass = static fn() :bool => true;
 			\add_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), $bypass, 1000 );
 			try {
-				$this->assertTrue( ( new HandleOptionsSaveRequest() )->handleSave() );
+				$this->assertTrue( ( new HandleOptionsSaveRequest( $form ) )->handleSave() );
 				RuntimeTestState::resetOptionsRuntimeCache();
 			}
 			finally {
@@ -297,26 +325,46 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 	 * @param array<string,mixed> $actionData
 	 * @return array<string,mixed>
 	 */
-	private function runAction( string $actionSlug, array $actionData = [] ) :array {
-		$nonceSnapshot = null;
-		$this->requireController()->this_req->wp_is_ajax = false;
-		if ( $actionSlug === SecurityAdminAuthClear::SLUG ) {
-			$nonceSnapshot = $this->seedActionNonceContext( SecurityAdminAuthClear::class );
-		}
+	public function test_invalid_pin_reloads_only_when_a_blockable_ip_has_no_attempts_left() :void {
+		$this->loginAsAdministrator();
+		$con = $this->requireController();
+		$builder = new SecurityAdminFixtureBuilder();
+		$options = RuntimeTestState::snapshotOptions( [ 'transgression_limit' ] );
+		$originalIp = $con->this_req->ip;
+		$originalIpIsPublic = $con->this_req->ip_is_public;
 
+		$locked = $builder->seed( SecurityAdminFixtureBuilder::SCENARIO_LOCKED );
 		try {
-			$routed = $this->requireController()->action_router->action(
-				$actionSlug,
-				$actionData,
-				ActionRoutingController::ACTION_REST
-			);
-			return $routed->payload();
+			// With a limit of 1, any wrong PIN uses the last attempt of an IP that collects offenses.
+			$con->opts->optSet( 'transgression_limit', 1 );
+			$con->this_req->ip = '203.0.113.10';
+			$invalidPin = [ 'sec_admin_key' => $locked[ 'contract' ][ 'pins' ][ 'invalid' ] ];
+
+			$con->this_req->ip_is_public = false;
+			$payload = $this->runAction( SecurityAdminLogin::SLUG, $invalidPin );
+			$this->assertFalse( $payload[ 'success' ] );
+			$this->assertFalse( $payload[ 'page_reload' ], 'An IP that collects no offenses can always retry in place.' );
+
+			$con->this_req->ip_is_public = true;
+			$payload = $this->runAction( SecurityAdminLogin::SLUG, $invalidPin );
+			$this->assertFalse( $payload[ 'success' ] );
+			$this->assertTrue( $payload[ 'page_reload' ], 'A blockable IP with no attempts left reloads to meet its block.' );
 		}
 		finally {
-			if ( \is_array( $nonceSnapshot ) ) {
-				$this->restoreActionNonceContext( $nonceSnapshot );
-			}
+			$builder->cleanup( $locked[ 'state' ] );
+			RuntimeTestState::restoreOptions( $options );
+			$con->this_req->ip = $originalIp;
+			$con->this_req->ip_is_public = $originalIpIsPublic;
 		}
+	}
+
+	private function runAction( string $actionSlug, array $actionData = [] ) :array {
+		$this->requireController()->this_req->wp_is_ajax = false;
+		return $this->requireController()->action_router->action(
+			$actionSlug,
+			$actionData,
+			ActionRoutingController::ACTION_REST
+		)->payload();
 	}
 
 	private function writeSessionSecAdminAt( int $userId, string $token, int $timestamp ) :void {

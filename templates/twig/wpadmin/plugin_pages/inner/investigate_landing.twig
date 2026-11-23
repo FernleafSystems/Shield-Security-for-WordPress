@@ -1,14 +1,44 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+{% import '/common/macros.twig' as macros %}
 
+{#
+	Investigate is one place with tabs. The lookup stays above whatever subject it opens; the logs and IP
+	rules sit in their own tabs, each table starting the first time its tab opens; Live traffic runs only
+	while its tab is open.
+#}
 {% block inner_page_body %}
+	{% set current_tab = vars.investigate_current_tab %}
 	<div class="investigate-landing"
 		 data-investigate-landing="1"
+		 data-investigate-current-tab="{{ current_tab }}"
 		 data-investigate-panel-loading="{{ strings.panel_loading }}"
 		 data-investigate-panel-error="{{ strings.panel_load_error }}">
-		<div class="investigate-landing__drilldown" data-investigate-section="drilldown">
+		{% include '/wpadmin/components/page/mode_tabs.twig' with { tabs: vars.investigate_tabs, key_attr: 'data-investigate-tab', mode: 'investigate' } only %}
+
+		<div class="investigate-landing__tabpanel" data-investigate-tabpanel="lookup" {% if current_tab != 'lookup' %}hidden{% endif %}>
+			{{ vars.investigate_lookup|raw }}
+		</div>
+
+		<div class="investigate-landing__drilldown" data-investigate-section="drilldown" {% if current_tab != 'lookup' %}hidden{% endif %}>
 			{% include '/wpadmin/components/page/drill_down_shell.twig' with {
 				shell: vars.drill_shell
 			} only %}
+		</div>
+
+		{% for log in vars.investigate_logs %}
+			<div class="investigate-landing__tabpanel investigate-landing__log"
+				 data-investigate-tabpanel="{{ log.key }}"
+				 {% if current_tab != log.key %}hidden{% endif %}>
+				<div class="shield-section-datatable">
+					<table id="{{ log.table_id }}" class="table table-striped table-bordered" style="width: 100%;"></table>
+				</div>
+			</div>
+		{% endfor %}
+
+		<div class="investigate-landing__tabpanel investigate-landing__live"
+			 data-investigate-tabpanel="live"
+			 {% if current_tab != 'live' %}hidden{% endif %}>
+			{{ vars.investigate_live|raw }}
 		</div>
 	</div>
 {% endblock %}

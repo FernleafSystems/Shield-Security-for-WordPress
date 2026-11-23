@@ -50,8 +50,11 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		}
 	}
 
+	/**
+	 * Configure itself, or a page that shows some of Configure's settings (such as Reports).
+	 */
 	getConfigureRoot() {
-		const root = document.querySelector( '[data-configure-landing="1"]' );
+		const root = document.querySelector( '[data-configure-landing="1"], [data-configure-embed="1"]' );
 		return root instanceof HTMLElement ? root : null;
 	}
 
@@ -92,12 +95,8 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		form.dataset.context = 'expansion';
 		form.querySelector( '.shield-options-rail-save' )?.remove();
 
-		const rail = form.querySelector( '.shield-options-rail' );
-		if ( rail instanceof HTMLElement ) {
-			rail.style.display = 'none';
-		}
-
 		placeholder.replaceWith( form );
+		form.dispatchEvent( new CustomEvent( 'shield:configure-panel-loaded', { bubbles: true } ) );
 		this.setSaveButtonDisabled( expansion, false );
 		if ( expansion?.classList.contains( 'show' ) ) {
 			UiContentActivator.activateCurrentSubtree( expansion );
@@ -434,16 +433,26 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 			return;
 		}
 
-		const field = expansion.querySelector( `[name="${focus.config_item}"]` ) || null;
+		// The visible control comes first (a panel slider's named field is hidden); multi-selects submit as "key[]".
+		const field = expansion.querySelector( `[id="Opt-${focus.config_item}"]` )
+					  || expansion.querySelector( `[name="${focus.config_item}"], [name="${focus.config_item}[]"]` )
+					  || null;
 		if ( !( field instanceof HTMLElement ) ) {
 			this.clearPendingRequestedFocus();
 			return;
 		}
 
-		field.scrollIntoView( {
+		field.closest( 'details' )?.setAttribute( 'open', '' );
+
+		const item = field.closest( '.shield-option-item' );
+		( item instanceof HTMLElement ? item : field ).scrollIntoView( {
 			block: 'center',
 			behavior: 'auto',
 		} );
+		if ( item instanceof HTMLElement ) {
+			item.classList.add( 'is-highlighted' );
+			window.setTimeout( () => item.classList.remove( 'is-highlighted' ), 2500 );
+		}
 
 		if ( typeof field.focus === 'function' ) {
 			field.focus( {

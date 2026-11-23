@@ -15,10 +15,6 @@ class SessionTheftProtection extends Base {
 		return __( 'Protect user sessions against the threat of hijacking and theft.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Edit settings which lock-down user login sessions', 'wp-simple-firewall' );
-	}
-
 	/**
 	 * @inheritDoc
 	 */
@@ -39,21 +35,20 @@ class SessionTheftProtection extends Base {
 		}
 
 		if ( empty( $con->opts->optGet( 'session_lock' ) ) ) {
-			$status[ 'exp' ][] = __( "It's good practice to lock a session at least 1 property to help prevent theft of the session.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( "It's good practice to lock a session at least 1 property to help prevent theft of the session.", 'wp-simple-firewall' ), 'session_lock' );
 		}
 		if ( $lookup->getSessionIdleInterval() === 0 ) {
-			$status[ 'exp' ][] = __( "It's good practice to limit session lifetime, particularly when left idle.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( "It's good practice to limit session lifetime, particularly when left idle.", 'wp-simple-firewall' ), 'session_idle_timeout_interval' );
 		}
 		$source = Services::Request()->getIpDetector()->getPublicRequestSource();
 		if ( $source !== 'REMOTE_ADDR' && \in_array( 'ip', $con->opts->optGet( 'session_lock' ), true ) ) {
 			$status[ 'level' ] = $status[ 'level' ] === EnumEnabledStatus::BAD ? EnumEnabledStatus::BAD : EnumEnabledStatus::OKAY;
-			$status[ 'exp' ][] = sprintf( __( 'Session IP locking is enabled, but the current visitor IP source (%s) can weaken that protection.', 'wp-simple-firewall' ), sprintf( '<code>%s</code>', $source ) );
+			$status[ 'exp' ][] = $this->explanationFixedBy(
+				sprintf( __( 'Session IP locking is enabled, but the current visitor IP source (%s) can weaken that protection.', 'wp-simple-firewall' ), sprintf( '<code>%s</code>', $source ) ),
+				'session_lock'
+			);
 		}
 
 		return $status;
-	}
-
-	protected function postureWeight() :int {
-		return 4;
 	}
 }

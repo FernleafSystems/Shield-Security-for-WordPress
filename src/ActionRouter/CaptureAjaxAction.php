@@ -8,8 +8,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	SecurityAdminRequiredException,
 	UserAuthRequiredException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\AuthRefreshRequest;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ResponseEnvelopeNormalizer;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ResponseAdapter\ResponseAdapterFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\{
+	AuthRefreshRequest,
+	ExternalEntryGuard,
+	ResponseEnvelopeNormalizer
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Ajax\Response;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -20,12 +24,11 @@ class CaptureAjaxAction extends CaptureActionBase {
 	}
 
 	protected function transportData() :array {
-		$post = Services::Request()->post;
-		return \is_array( $post ) ? $post : [];
+		return Services::Request()->post;
 	}
 
-	protected function actionType() :int {
-		return ActionRoutingController::ACTION_AJAX;
+	protected function guardedEntry() :string {
+		return ExternalEntryGuard::ENTRY_AJAX;
 	}
 
 	protected function theRun() {
@@ -51,34 +54,42 @@ class CaptureAjaxAction extends CaptureActionBase {
 	}
 
 	protected function buildAjaxIssuePayload() :array {
-		$con = self::con();
 		$transport = $this->transportData();
+		$slug = $this->requestedSlug( $transport );
+		$guard = new ExternalEntryGuard();
 
 		try {
 			\ob_start();
-			$routedResponse = $con->action_router->executor()->execute(
-				$this->extractActionSlugFromTransport( $transport ),
-				$transport,
-				ActionRoutingController::ACTION_AJAX
-			);
-			$response = $this->normaliseAjaxResponse( $routedResponse->payload() );
-			$statusCode = $routedResponse->statusCode();
+			if ( $this->isFromExpiredSession( $guard, $slug, $transport ) ) {
+				$statusCode = 401;
+				$response = ResponseEnvelopeNormalizer::forAjaxAuthRefresh();
+			}
+			else {
+				$routedResponse = ( new ResponseAdapterFactory() )
+					->forActionType( ActionRoutingController::ACTION_AJAX )
+					->adapt( $guard->dispatch( $this->guardedEntry(), $slug, $transport ) );
+				$response = $this->normaliseAjaxResponse( $routedResponse->payload() );
+				$statusCode = $routedResponse->statusCode();
+			}
 		}
 		catch ( InvalidActionNonceException $e ) {
 			$statusCode = 401;
-			$msg = __( 'Nonce Failed.', 'wp-simple-firewall' );
-			$response = [
-				'success' => false,
-				'message' => $msg,
-				'error'   => $msg,
-			];
+			if ( Services::WpUsers()->isUserLoggedIn() ) {
+				// The page's nonce was issued to a different login session of this user: ask for a reload.
+				$response = ResponseEnvelopeNormalizer::forAjaxSessionChanged();
+			}
+			else {
+				$msg = ResponseEnvelopeNormalizer::nonceFailedMessage();
+				$response = [
+					'success' => false,
+					'message' => $msg,
+					'error'   => $msg,
+				];
+			}
 		}
 		catch ( SecurityAdminRequiredException $e ) {
 			$statusCode = 401;
-			$msg = \implode( ' ', [
-				__( 'You must be authorised as a Security Admin to perform this action.', 'wp-simple-firewall' ),
-				__( 'You may need to reload this page to continue.', 'wp-simple-firewall' ),
-			] );
+			$msg = ResponseEnvelopeNormalizer::securityAdminRequiredMessage();
 			$response = [
 				'success' => false,
 				'message' => $msg,
@@ -103,6 +114,17 @@ class CaptureAjaxAction extends CaptureActionBase {
 				'error'   => $e->getMessage(),
 			];
 		}
+		catch ( \Throwable $e ) {
+			// A fault in the action, not a refusal. The request still gets a controlled response.
+			\error_log( \sprintf( 'Shield AJAX action %s failed: %s', $slug, $e->getMessage() ) );
+			$statusCode = 500;
+			$msg = __( 'An unexpected error occurred.', 'wp-simple-firewall' );
+			$response = [
+				'success' => false,
+				'message' => $msg,
+				'error'   => $msg,
+			];
+		}
 		finally {
 			$noise = \ob_get_clean();
 		}
@@ -111,13 +133,27 @@ class CaptureAjaxAction extends CaptureActionBase {
 			? []
 			: [
 				'success'     => (bool)( $response[ 'success' ] ?? false ),
-				'data'        => \array_diff_key( $response, \array_flip( [
-					'action_data',
-					/** TODO: refine action process to ensure that excess data isn't included */
-				] ) ),
+				'data'        => $response,
 				'noise'       => $noise,
 				'status_code' => $statusCode
 			];
+	}
+
+	/**
+	 * A request from a page that was loaded while logged in, whose login session has since expired: it arrives
+	 * logged out, with a nonce that no longer verifies. It's told to log in again and isn't recorded as a refusal.
+	 */
+	private function isFromExpiredSession( ExternalEntryGuard $guard, string $slug, array $transport ) :bool {
+		$expired = false;
+		if ( AuthRefreshRequest::isRequested() && !Services::WpUsers()->isUserLoggedIn() ) {
+			try {
+				$guard->verifyProof( $slug, $this->guardedEntry(), $transport );
+			}
+			catch ( InvalidActionNonceException $e ) {
+				$expired = true;
+			}
+		}
+		return $expired;
 	}
 
 	protected function issueAjaxResponse( array $issuePayload ) :void {

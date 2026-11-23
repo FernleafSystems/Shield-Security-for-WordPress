@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	Exceptions\ActionException
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\{
+	ActionsMap,
 	AjaxRenderTargetPolicy,
 	RenderActionTarget
 };
@@ -20,38 +20,32 @@ class AjaxRender extends BaseAction {
 
 	public const SLUG = 'ajax_render';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
-		$renderAction = RenderActionTarget::require( (string)$this->action_data[ 'render_slug' ] );
+		// The page names its render target by slug, like any other request names its action.
+		$renderAction = RenderActionTarget::require(
+			ActionsMap::ActionFromRequest( $this->fields()->string( 'render_slug' ) )
+		);
 		if ( !( new AjaxRenderTargetPolicy() )->isAllowed( $renderAction ) ) {
 			throw new ActionException( __( 'Render target is not allowed.', 'wp-simple-firewall' ) );
 		}
 
-		$routedResponse = self::con()->action_router->action(
-			$renderAction,
-			$this->getParamsMinusAjax()
-		);
-		$payload = $routedResponse->payload();
-		$response = $routedResponse->actionResponse();
-		foreach ( [ 'success', 'message', 'error' ] as $item ) {
-			if ( isset( $payload[ $item ] ) ) {
-				$response->{$item} = $payload[ $item ];
-			}
-		}
-
-		$this->setResponse( $routedResponse );
+		$this->setResponse( self::con()->action_router->action( $renderAction, $this->renderData() ) );
 	}
 
-	protected function getParamsMinusAjax() :array {
-		return \array_diff_key(
-			$this->action_data,
-			\array_flip( [
-				ActionData::FIELD_ACTION,
-				ActionData::FIELD_EXECUTE,
-				ActionData::FIELD_NONCE,
-				ActionData::FIELD_WRAP_RESPONSE,
-				'render_slug'
-			] )
-		);
+	/**
+	 * The data the render is given: this request's data, without the field that named the render, and marked as
+	 * coming from a request.
+	 */
+	protected function renderData() :array {
+		$data = \array_diff_key( $this->action_data, [ 'render_slug' => true ] );
+		$data[ BaseRender::DATA_FROM_REQUEST ] = true;
+		return $data;
 	}
 
 	protected function getRequiredDataKeys() :array {

@@ -138,16 +138,14 @@ class PluginURLsTest extends BaseUnitTest {
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=overview', $urls->reportsHome() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=overview&zone=scans', $urls->modeHome( 'actions' ) );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=zones&nav_sub=overview&zone=login', $urls->zone( 'login' ) );
-		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=zones&nav_sub=overview&component=module_plugin', $urls->cfgForZoneComponent( 'module_plugin' ) );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=run', $urls->scansRun() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=tools&nav_sub=debug', $urls->debugInfo() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=tools&nav_sub=blockdown', $urls->lockdown() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=traffic&nav_sub=logs', $urls->trafficLog() );
-		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=activity&nav_sub=overview&subject=live_traffic', $urls->trafficLive() );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=traffic&nav_sub=live', $urls->trafficLive() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=license&nav_sub=check', $urls->licenseCheck() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=build', $urls->rulesBuild() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=manage', $urls->rulesManage() );
-		$this->assertSame( '/wp-admin/plugins.php?plugin_status=cloaked', $urls->cloakedPlugins() );
 	}
 
 	public function test_import_export_options_link_to_current_import_export_tool() :void {
@@ -157,6 +155,25 @@ class PluginURLsTest extends BaseUnitTest {
 		foreach ( [ 'importexport_enable', 'importexport_masterurl', 'importexport_secretkey' ] as $optKey ) {
 			$this->assertSame( $expected, $urls->cfgForOpt( $optKey ) );
 		}
+	}
+
+	public function test_option_links_open_the_configure_topic_that_holds_the_setting() :void {
+		$urls = new PluginURLs();
+		$this->assertSame(
+			'/shield-admin.php?page=icwp-wpsf-plugin&nav=zones&nav_sub=overview&zone=shield&row_key=general&config_item=visitor_address_source',
+			$urls->cfgForOpt( 'visitor_address_source' )
+		);
+		$this->assertSame(
+			'/shield-admin.php?page=icwp-wpsf-plugin&nav=zones&nav_sub=overview&zone=attacks&row_key=advanced&config_item=antibot_high_reputation_minimum',
+			$urls->cfgForOpt( 'antibot_high_reputation_minimum' )
+		);
+		$this->assertSame( $urls->configureHome(), $urls->cfgForOpt( 'not_an_option' ) );
+	}
+
+	public function test_option_links_for_settings_on_pages_of_their_own_open_those_pages() :void {
+		$urls = new PluginURLs();
+		$this->assertSame( $urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_WHITELABEL ), $urls->cfgForOpt( 'wl_companyname' ) );
+		$this->assertSame( $urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_LOGINHIDE ), $urls->cfgForOpt( 'rename_wplogin_path' ) );
 	}
 
 	public function test_report_view_builds_admin_shield_action_without_signature_or_nonce() :void {

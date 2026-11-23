@@ -48,7 +48,6 @@ class LeafPageOperatorShellIntegrationTest extends ShieldIntegrationTestCase {
 
 	public static function leafPages() :array {
 		return [
-			'ip rules' => [ PluginAdminPages\PageIpRulesTable::class, PluginNavs::MODE_INVESTIGATE, [ 'vars', 'datatable_iprules' ] ],
 			'scan runner' => [ PluginAdminPages\PageScansRun::class, PluginNavs::MODE_ACTIONS, [ 'scans' ] ],
 			'rules manager' => [ PluginAdminPages\PageRulesManage::class, PluginNavs::MODE_CONFIGURE, [ 'vars', 'datatables_init' ] ],
 			'rules builder' => [ PluginAdminPages\PageRulesBuild::class, PluginNavs::MODE_CONFIGURE, [ 'hrefs', 'rules_builder' ] ],

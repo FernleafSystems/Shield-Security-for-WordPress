@@ -9,40 +9,16 @@ class Capabilities {
 
 	use PluginControllerConsumer;
 
-	public function canActivityLogsSendToFile() :bool {
-		return $this->hasCap( 'activity_logs_send_to_file' ) || $this->canActivityLogsSendToIntegrations();
-	}
-
 	public function canActivityLogsSendToIntegrations() :bool {
 		return $this->hasCap( 'activity_logs_send_to_integrations' );
-	}
-
-	public function canActivityLogsIntegrations() :bool {
-		return $this->hasCap( 'activity_logs_integrations' );
 	}
 
 	public function canCustomSecurityRules() :bool {
 		return $this->hasCap( 'custom_security_rules' );
 	}
 
-	public function canRunShieldAddons() :bool {
-		return $this->hasCap( 'run_addons' );
-	}
-
 	public function canBotsAdvancedBlocking() :bool {
 		return $this->hasCap( 'bots_advanced_blocking' );
-	}
-
-	public function canCrowdsecLevel1() :bool {
-		return $this->hasCap( 'crowdsec_level_1' ) || $this->canCrowdsecLevel2();
-	}
-
-	public function canCrowdsecLevel2() :bool {
-		return $this->hasCap( 'crowdsec_level_2' ) || $this->canCrowdsecLevel3();
-	}
-
-	public function canCrowdsecLevel3() :bool {
-		return $this->hasCap( 'crowdsec_level_3' );
 	}
 
 	public function canImportExportFile() :bool {
@@ -57,24 +33,12 @@ class Capabilities {
 		return $this->hasCap( '2fa_login_backup_codes' );
 	}
 
-	public function canLogin2faCustomPages() :bool {
-		return $this->hasCap( '2fa_custom_pages' );
-	}
-
-	public function canLogin2faRememberMe() :bool {
-		return $this->hasCap( '2fa_remember_me' );
-	}
-
 	public function canHttpHeadersCSP() :bool {
 		return $this->hasCap( 'http_headers_csp' );
 	}
 
 	public function canScanAllFiles() :bool {
 		return $this->hasCap( 'scan_files_everywhere' );
-	}
-
-	public function canScanAutoFileRepair() :bool {
-		return $this->hasCap( 'scan_auto_repair' );
 	}
 
 	public function canScanMalwareLocal() :bool {
@@ -157,14 +121,6 @@ class Capabilities {
 
 	public function canUserPasswordPolicies() :bool {
 		return $this->hasCap( 'user_password_policies' );
-	}
-
-	public function canUserSuspend() :bool {
-		return $this->hasCap( 'user_suspension' );
-	}
-
-	public function canUserAutoUnblock() :bool {
-		return $this->hasCap( 'user_auto_unblock' );
 	}
 
 	public function canUserBlockSpamReg() :bool {

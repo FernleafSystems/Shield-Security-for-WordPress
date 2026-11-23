@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\{
 	PluginBadgeMode,
 	WildCardOptions
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
@@ -46,6 +47,8 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'block_send_email',
 		'allow_backupcodes',
 		'display_plugin_badge',
+		'dashboard_display',
+		'enable_upgrade_admin_notice',
 		'enable_logger',
 		'enable_live_log',
 		'live_log_started_at',
@@ -159,11 +162,19 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$con = $this->requireController();
 		$con->opts
 			->optSet( 'frequency_alert', 'weekly' )
-			->optSet( 'frequency_info', 'monthly' )
+			->optSet( 'frequency_info', 'daily' )
 			->store();
 
 		$this->assertSame( 'weekly', $con->opts->optGet( 'frequency_alert' ) );
-		$this->assertSame( 'monthly', $con->opts->optGet( 'frequency_info' ) );
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_info' ) );
+	}
+
+	public function test_longer_info_report_frequencies_become_weekly() :void {
+		$con = $this->requireController();
+		foreach ( [ 'biweekly', 'monthly' ] as $legacy ) {
+			$con->opts->optSet( 'frequency_info', $legacy )->store();
+			$this->assertSame( 'weekly', $con->opts->optGet( 'frequency_info' ), $legacy );
+		}
 	}
 
 	public function test_request_logger_cannot_be_set_off_directly() :void {
@@ -443,6 +454,85 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$con->cfg->previous_version = $previousVersion;
 	}
 
+	public function test_legacy_hidden_plugin_notices_migrate_to_dashboard_display_during_store() :void {
+		$con = $this->requireController();
+		$this->replaceStoredOptionValues( [
+			'dashboard_display'           => [ EnumDashboardDisplay::NOTICES, EnumDashboardDisplay::ADMIN_BAR, EnumDashboardDisplay::DASHBOARD_WIDGET ],
+			'enable_upgrade_admin_notice' => 'N',
+		] );
+
+		$con->opts->store();
+
+		$this->assertSame( [ EnumDashboardDisplay::ADMIN_BAR, EnumDashboardDisplay::DASHBOARD_WIDGET ], $con->opts->optGet( 'dashboard_display' ) );
+		$this->assertSame( 'Y', $con->opts->optGet( 'enable_upgrade_admin_notice' ) );
+		$this->assertFalse( $con->comps->opts_lookup->showsInDashboard( EnumDashboardDisplay::NOTICES ) );
+		$this->assertTrue( $con->comps->opts_lookup->showsInDashboard( EnumDashboardDisplay::ADMIN_BAR ) );
+		$this->assertTrue( $con->comps->opts_lookup->showsInDashboard( EnumDashboardDisplay::DASHBOARD_WIDGET ) );
+	}
+
+	public function test_legacy_hidden_plugin_notices_migrate_to_dashboard_display_during_upgrade_hook() :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+
+		$this->replaceStoredOptionValues( [
+			'dashboard_display'           => [ EnumDashboardDisplay::NOTICES, EnumDashboardDisplay::ADMIN_BAR, EnumDashboardDisplay::DASHBOARD_WIDGET ],
+			'enable_upgrade_admin_notice' => 'N',
+		] );
+
+		$con->cfg->previous_version = '0.0.1';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+
+		$this->assertSame( [ EnumDashboardDisplay::ADMIN_BAR, EnumDashboardDisplay::DASHBOARD_WIDGET ], $con->opts->optGet( 'dashboard_display' ) );
+		$this->assertSame( 'Y', $con->opts->optGet( 'enable_upgrade_admin_notice' ) );
+
+		$con->cfg->previous_version = $previousVersion;
+	}
+
+	public static function providerLegacyPluginNotices() :array {
+		return [
+			'notices shown'  => [ 'Y' ],
+			'notices hidden' => [ 'N' ],
+		];
+	}
+
+	/**
+	 * Releases before 22.4 never stored a dashboard display choice.
+	 * @dataProvider providerLegacyPluginNotices
+	 */
+	public function test_upgrade_from_a_site_without_a_dashboard_display_choice_keeps_the_top_level_menu( string $legacyNotices ) :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+
+		$this->replaceStoredOptionValues( [ 'enable_upgrade_admin_notice' => $legacyNotices ] );
+		$this->forgetStoredOptionValue( 'dashboard_display' );
+
+		$con->cfg->previous_version = '22.3.4';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '22.3.4' );
+
+		$lookup = $con->comps->opts_lookup;
+		$this->assertTrue( $lookup->showsInDashboard( EnumDashboardDisplay::ADMIN_MENU ) );
+		$this->assertTrue( $lookup->showsInDashboard( EnumDashboardDisplay::ADMIN_BAR ) );
+		$this->assertTrue( $lookup->showsInDashboard( EnumDashboardDisplay::DASHBOARD_WIDGET ) );
+		$this->assertSame( $legacyNotices === 'Y', $lookup->showsInDashboard( EnumDashboardDisplay::NOTICES ) );
+
+		$con->cfg->previous_version = $previousVersion;
+	}
+
+	public function test_dashboard_display_choice_is_untouched_when_legacy_plugin_notices_were_shown() :void {
+		$con = $this->requireController();
+		$this->replaceStoredOptionValues( [
+			'dashboard_display'           => [ EnumDashboardDisplay::NOTICES, EnumDashboardDisplay::DASHBOARD_WIDGET ],
+			'enable_upgrade_admin_notice' => 'Y',
+		] );
+
+		$con->opts->store();
+
+		$this->assertSame( [ EnumDashboardDisplay::NOTICES, EnumDashboardDisplay::DASHBOARD_WIDGET ], $con->opts->optGet( 'dashboard_display' ) );
+		$this->assertSame( 'Y', $con->opts->optGet( 'enable_upgrade_admin_notice' ) );
+	}
+
 	public function test_legacy_backup_codes_pro_option_migrates_to_free_during_store() :void {
 		$con = $this->requireController();
 
@@ -655,6 +745,13 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 
 		Services::WpGeneral()->updateOption( $this->optsAllOptionName(), $all );
 		$con->opts = new OptsHandler();
+	}
+
+	private function forgetStoredOptionValue( string $key ) :void {
+		$all = $this->storedOptionsAll();
+		unset( $all[ 'values' ][ OptsHandler::TYPE_FREE ][ $key ], $all[ 'values' ][ OptsHandler::TYPE_PRO ][ $key ] );
+		Services::WpGeneral()->updateOption( $this->optsAllOptionName(), $all );
+		$this->requireController()->opts = new OptsHandler();
 	}
 
 	private function storedOptionsAll() :array {

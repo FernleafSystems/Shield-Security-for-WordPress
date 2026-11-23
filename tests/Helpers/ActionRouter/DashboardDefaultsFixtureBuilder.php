@@ -43,9 +43,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
  */
 class DashboardDefaultsFixtureBuilder {
 
-	private const CONFIGURE_ROW_KEY = 'plugin_general';
+	private const CONFIGURE_ROW_KEY = 'general';
 
-	private const CONFIGURE_ZONE_KEY = 'general';
+	private const CONFIGURE_ZONE_KEY = 'shield';
 
 	private const OPTION_CASES = [
 		'display_plugin_badge' => [
@@ -72,12 +72,6 @@ class DashboardDefaultsFixtureBuilder {
 			'save'     => 'Y',
 			'expected' => 'Y',
 		],
-		'enable_upgrade_admin_notice' => [
-			'type'     => 'checkbox',
-			'default'  => 'Y',
-			'save'     => 'N',
-			'expected' => 'N',
-		],
 		'language_override' => [
 			'type'     => 'text',
 			'default'  => '',
@@ -87,6 +81,7 @@ class DashboardDefaultsFixtureBuilder {
 	];
 
 	private const DEFAULT_SECTION_REMAINDER = [
+		'dashboard_display',
 		'enable_mu',
 		'delete_on_deactivate',
 		'preferred_temp_dir',

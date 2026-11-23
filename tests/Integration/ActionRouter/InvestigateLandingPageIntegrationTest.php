@@ -53,8 +53,6 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'investigate', (string)( $headerJson[ 'color_key' ] ?? '' ) );
 		$header = $layers[ 0 ][ 'header' ] ?? [];
 		$this->assertSame( [
-			'compact_back_label',
-			'active_back_label',
 			'meta',
 			'breadcrumb_label',
 			'title',

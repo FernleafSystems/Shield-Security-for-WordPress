@@ -39,6 +39,25 @@ class InvestigateUserLookupBuilder {
 		);
 	}
 
+	/**
+	 * Users for the Investigate lookup: the matches for a search, or the first users when nothing is typed.
+	 * @return list<array{value:string,title:string,meta:string}>
+	 */
+	public function lookupRows( string $search, int $limit = 20 ): array {
+		$users = trim( $search ) === '' ? $this->loadUsersForStaticSelect( $limit ) : $this->searchUsers( $search, $limit );
+		return \array_values( \array_map(
+			fn( \WP_User $user ): array => [
+				'value' => (string)$user->ID,
+				'title' => trim( (string)$user->user_login ) === '' ? (string)$user->display_name : (string)$user->user_login,
+				'meta'  => \implode( ' · ', \array_filter( [
+					$this->formatPrimaryRole( $user ),
+					trim( (string)$user->user_email ),
+				] ) ),
+			],
+			$users
+		) );
+	}
+
 	public function formatLabel( \WP_User $user ): string {
 		$role = $this->formatPrimaryRole( $user );
 		$username = trim( (string)( $user->user_login ?? '' ) );

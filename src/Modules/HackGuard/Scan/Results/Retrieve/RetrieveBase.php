@@ -22,10 +22,6 @@ abstract class RetrieveBase extends DynPropertiesClass {
 
 	abstract protected function getBaseQuery( bool $joinWithResultMeta = false ) :string;
 
-	public function getAdditionalWheres() :array {
-		return \is_array( $this->additionalWheres ) ? $this->additionalWheres : [];
-	}
-
 	public function getWheres() :array {
 		return \array_filter( \array_map( '\trim', \is_array( $this->wheres ) ? $this->wheres : [] ) );
 	}

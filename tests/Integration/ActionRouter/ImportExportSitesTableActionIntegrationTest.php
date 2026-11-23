@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
 	Actions\ImportExportSitesTableAction,
-	Exceptions\InvalidActionNonceException,
 	Exceptions\SecurityAdminRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
@@ -18,6 +18,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\ImportExport\Sit
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ImportExportSitesTableActionIntegrationTest extends ShieldIntegrationTestCase {
+
+	use \FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
+	use ExternalEntryRefusalAssertions;
 
 	private $enabledOptionSnapshot;
 
@@ -376,20 +379,14 @@ class ImportExportSitesTableActionIntegrationTest extends ShieldIntegrationTestC
 	public function test_retry_invitation_requires_valid_nonce_before_mutation() :void {
 		$repo = new SiteRepository();
 		$eligible = $repo->upsertPendingClientSite( 'https://retry-nonce.example.com', SitesDB::SOURCE_MANUAL, false );
-		$this->requireController()->this_req->wp_is_ajax = true;
 
-		try {
-			$this->expectException( InvalidActionNonceException::class );
-			( new ActionProcessor() )->processAction( ImportExportSitesTableAction::SLUG, [
-				'sub_action' => ImportExportSitesTableAction::SUB_ACTION_RETRY_INVITATION,
-				'rids'       => [ $eligible->id ],
-				ActionData::FIELD_NONCE => '',
-			] );
-		}
-		finally {
-			$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $repo->findById( $eligible->id, true )->queue_status );
-			$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
-		}
+		$this->assertAjaxRequestRefused( ImportExportSitesTableAction::class, [
+			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_RETRY_INVITATION,
+			'rids'       => [ $eligible->id ],
+		] );
+
+		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $repo->findById( $eligible->id, true )->queue_status );
+		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
 	public function test_retry_invitation_requires_security_admin_before_mutation() :void {

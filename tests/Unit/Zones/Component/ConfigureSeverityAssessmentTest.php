@@ -12,11 +12,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Zones\Component;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\BuildFileFromFileKey;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FileLockKeyApplicability;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
+	AnonRestApiDisable,
 	Base as ComponentBase,
 	BotActions,
 	CommentSpamBlockBot,
@@ -29,9 +31,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	InactiveUsers,
 	LoginHide,
 	LoginProtectionForms,
-	Modules\ModuleFirewall,
-	Modules\ModuleLogin,
-	Modules\ModuleUsers,
 	PasswordPolicies,
 	PasswordStrength,
 	PwnedPasswords,
@@ -62,6 +61,9 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$_SERVER[ 'HTTP_USER_AGENT' ] = 'Unit Test Agent';
 
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( '_n' )->alias(
+			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
+		);
 		Functions\when( 'esc_html' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text )
@@ -115,8 +117,8 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			'security admin options' => [ fn() => new SecadminWpOptions(), [ 'admin_access_restrict_options' => 'N' ], [ 'sec_admin' => new class { public function isEnabledSecAdmin() :bool { return false; } } ] ],
 			'security admin admins'  => [ fn() => new SecadminWpAdmins(), [ 'admin_access_restrict_admin_users' => 'N' ], [ 'sec_admin' => new class { public function isEnabledSecAdmin() :bool { return false; } } ] ],
 			'password policies'      => [ fn() => new PasswordPolicies(), [], [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'isPassPoliciesEnabled' => false ] ) ] ],
-			'password strength'      => [ fn() => new PasswordStrength(), [ 'enable_password_policies' => 'N', 'pass_min_strength' => 2 ], [] ],
-			'pwned passwords'        => [ fn() => new PwnedPasswords(), [ 'enable_password_policies' => 'N', 'pass_prevent_pwned' => 'N' ], [] ],
+			'password strength'      => [ fn() => new PasswordStrength(), [ 'pass_min_strength' => 2 ], [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'isPassPoliciesEnabled' => false ] ) ] ],
+			'pwned passwords'        => [ fn() => new PwnedPasswords(), [ 'pass_prevent_pwned' => 'N' ], [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'isPassPoliciesEnabled' => false ] ) ] ],
 		];
 
 		foreach ( $cases as $label => [ $factory, $optValues, $componentOverrides ] ) {
@@ -145,6 +147,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			[
 				'scans' => $this->buildScansComponent( [
 					'afsEnabled'     => true,
+					'fileScanAreas'  => [ 'malware_php', 'plugins', 'themes', 'wpcontent', 'wproot' ],
 					'malwareEnabled' => true,
 					'wpCoreEnabled'  => false,
 					'pluginsEnabled' => true,
@@ -159,12 +162,9 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		);
 
 		$row = $this->firstConfigureRow( new FileScanning() );
-		$signals = $this->indexSignalsBySlug( ( new FileScanning() )->postureSignals() );
 
 		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
 		$this->assertCount( 2, $row[ 'explanations' ] ?? [] );
-		$this->assertSame( 'critical', $signals[ 'scan_enabled_afs_core' ][ 'severity' ] ?? null );
-		$this->assertSame( 'warning', $signals[ 'scan_enabled_afs_autorepair_core' ][ 'severity' ] ?? null );
 	}
 
 	public function test_vulnerability_scanning_treats_secondary_gaps_as_warning() :void {
@@ -180,12 +180,9 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		);
 
 		$row = $this->firstConfigureRow( new VulnerabilityScanning() );
-		$signals = $this->indexSignalsBySlug( ( new VulnerabilityScanning() )->postureSignals() );
 
 		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
 		$this->assertCount( 2, $row[ 'explanations' ] ?? [] );
-		$this->assertSame( 'warning', $signals[ 'scan_enabled_apc' ][ 'severity' ] ?? null );
-		$this->assertSame( 'warning', $signals[ 'scan_enabled_wpv_autoupdate' ][ 'severity' ] ?? null );
 	}
 
 	public function test_file_locker_requires_wpconfig_and_accepts_real_lock_keys() :void {
@@ -195,6 +192,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				'file_locker' => new class {
 					public function getFilesToLock() :array {
 						return [ 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ];
+					}
+
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
 					}
 				},
 			]
@@ -212,19 +213,21 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 					public function getFilesToLock() :array {
 						return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ];
 					}
+
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
+					}
 				},
 			]
 		);
 
-		$signals = $this->fileLockerForEnvironment()->postureSignals();
+		$row = $this->firstConfigureRow( $this->fileLockerForEnvironment() );
 
-		$this->assertSame(
-			[ 'good', 'good', 'good', 'good', 'good' ],
-			\array_column( $signals, 'severity' )
-		);
+		$this->assertSame( EnumEnabledStatus::GOOD, $row[ 'enabled_status' ] );
+		$this->assertSame( [], $row[ 'explanations' ] );
 	}
 
-	public function test_file_locker_ignores_non_applicable_webconfig_in_configure_score_and_signals() :void {
+	public function test_file_locker_ignores_non_applicable_webconfig_in_configure() :void {
 		$this->installController(
 			[],
 			[
@@ -232,21 +235,22 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 					public function getFilesToLock() :array {
 						return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index' ];
 					}
+
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
+					}
 				},
 			]
 		);
 
-		$fileLocker = $this->fileLockerForEnvironment( false, true );
+		$fileLocker = $this->fileLockerForEnvironment( false );
 		$row = $this->firstConfigureRow( $fileLocker );
-		$signals = $this->indexSignalsBySlug( $fileLocker->postureSignals() );
 
 		$this->assertSame( EnumEnabledStatus::GOOD, $row[ 'enabled_status' ] );
 		$this->assertSame( [], $row[ 'explanations' ] );
-		$this->assertArrayNotHasKey( 'scan_enabled_filelocker_webconfig', $signals );
-		$this->assertSame( 4, \count( $signals ) );
 	}
 
-	public function test_file_locker_ignores_non_applicable_theme_functions_in_configure_score_and_signals() :void {
+	public function test_file_locker_ignores_non_applicable_theme_functions_in_configure() :void {
 		$this->installController(
 			[],
 			[
@@ -254,26 +258,28 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 					public function getFilesToLock() :array {
 						return [ 'wpconfig', 'root_htaccess', 'root_index', 'root_webconfig' ];
 					}
+
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
+					}
 				},
 			]
 		);
 
-		$fileLocker = $this->fileLockerForEnvironment( true, false );
+		$fileLocker = $this->fileLockerForEnvironment( true, [ 'theme_functions' ] );
 		$row = $this->firstConfigureRow( $fileLocker );
-		$signals = $this->indexSignalsBySlug( $fileLocker->postureSignals() );
 
 		$this->assertSame( EnumEnabledStatus::GOOD, $row[ 'enabled_status' ] );
 		$this->assertSame( [], $row[ 'explanations' ] );
-		$this->assertArrayNotHasKey( 'scan_enabled_filelocker_theme_functions', $signals );
-		$this->assertSame( 4, \count( $signals ) );
 	}
 
-	public function test_file_locker_applicability_removes_only_non_applicable_known_stored_keys() :void {
-		$applicability = new FileLockKeyApplicability( false, false );
+	public function test_file_locker_saved_selection_drops_only_files_the_server_never_uses() :void {
+		// A missing file stays selected: its lock is what lets the owner review or restore it.
+		$applicability = $this->fileLockApplicability( false, [ 'theme_functions', 'root_htaccess' ] );
 
 		$this->assertSame(
-			[ 'wpconfig', 'root_htaccess', 'unknown_file' ],
-			$applicability->removeNonApplicableKnownKeys( [
+			[ 'wpconfig', 'root_htaccess', 'theme_functions', 'unknown_file' ],
+			$applicability->removeServerUnsupportedKeys( [
 				'wpconfig',
 				'root_webconfig',
 				'root_htaccess',
@@ -281,6 +287,79 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				'unknown_file',
 			] )
 		);
+	}
+
+	public function test_file_locker_applicability_needs_the_server_to_use_the_file_and_the_file_to_exist() :void {
+		$windowsWithoutHtaccess = $this->fileLockApplicability( true, [ 'root_htaccess' ] );
+		$this->assertFalse( $windowsWithoutHtaccess->isApplicable( 'root_htaccess' ) );
+		$this->assertTrue( $windowsWithoutHtaccess->isServerSupported( 'root_htaccess' ) );
+		$this->assertTrue( $windowsWithoutHtaccess->isApplicable( 'root_webconfig' ) );
+
+		$windowsWithoutWebConfig = $this->fileLockApplicability( true, [ 'root_webconfig' ] );
+		$this->assertFalse( $windowsWithoutWebConfig->isApplicable( 'root_webconfig' ) );
+		$this->assertTrue( $windowsWithoutWebConfig->isServerSupported( 'root_webconfig' ) );
+
+		// A Web.config left on a non-IIS server still isn't one File Locker offers.
+		$linux = $this->fileLockApplicability( false );
+		$this->assertFalse( $linux->isApplicable( 'root_webconfig' ) );
+		$this->assertFalse( $linux->isServerSupported( 'root_webconfig' ) );
+	}
+
+	public function test_file_locker_ignores_a_missing_root_htaccess_in_configure() :void {
+		$this->installController(
+			[],
+			[
+				'file_locker' => new class {
+					public function getFilesToLock() :array {
+						return [ 'wpconfig', 'theme_functions', 'root_index', 'root_webconfig' ];
+					}
+
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
+					}
+				},
+			]
+		);
+
+		$row = $this->firstConfigureRow( $this->fileLockerForEnvironment( true, [ 'root_htaccess' ] ) );
+
+		$this->assertSame( EnumEnabledStatus::GOOD, $row[ 'enabled_status' ] );
+		$this->assertSame( [], $row[ 'explanations' ] );
+	}
+
+	public function test_file_locker_says_a_selected_file_it_cannot_find_is_not_protected() :void {
+		$this->installController(
+			[],
+			[
+				'file_locker' => new class {
+					public function getFilesToLock() :array {
+						return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ];
+					}
+
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
+					}
+				},
+			]
+		);
+
+		$missingHtaccess = $this->fileLockerForEnvironment( true, [ 'root_htaccess' ] );
+		$row = $this->firstConfigureRow( $missingHtaccess );
+		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] );
+		$this->assertCount( 1, $row[ 'explanations' ] );
+		$this->assertSame( 'file_locker', $this->fixedBy( $row[ 'explanations' ][ 0 ] ) );
+		$this->assertSame( EnumEnabledStatus::GOOD, $missingHtaccess->enabledStatus() );
+
+		// Without wp-config.php, the site's most important file isn't protected, wherever it's looked at.
+		$missingWpConfig = $this->fileLockerForEnvironment( true, [ 'wpconfig' ] );
+		$row = $this->firstConfigureRow( $missingWpConfig );
+		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] );
+		$this->assertCount( 1, $row[ 'explanations' ] );
+		$this->assertNotSame( EnumEnabledStatus::GOOD, $missingWpConfig->enabledStatus() );
+
+		// A Web.config left selected on a server that doesn't use it isn't reported as missing.
+		$row = $this->firstConfigureRow( $this->fileLockerForEnvironment( false, [ 'root_webconfig' ] ) );
+		$this->assertSame( [], $row[ 'explanations' ] );
 	}
 
 	public function test_waf_only_becomes_critical_when_primary_rules_are_absent() :void {
@@ -296,6 +375,11 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] ?? null );
 		$this->assertCount( 4, $row[ 'explanations' ] ?? [] );
+		// Each rule is its own setting, so its reason is shown there; only the summary is left for the panel's top.
+		$this->assertSame(
+			[ '', 'block_dir_traversal', 'block_sql_queries', 'block_php_code' ],
+			\array_map( fn( string $text ) :string => $this->fixedBy( $text ), $row[ 'explanations' ] )
+		);
 	}
 
 	public function test_waf_aggressive_rule_disabled_is_warning_when_primary_rules_are_enabled() :void {
@@ -313,44 +397,33 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->assertCount( 1, $row[ 'explanations' ] );
 	}
 
-	public function test_firewall_zone_owns_core_rule_components_and_module_config_scope() :void {
+	public function test_firewall_zone_owns_core_rule_components() :void {
 		$this->installController();
 
 		$zone = new FirewallZone();
 		$components = $zone->components();
-		$configAction = $zone->getAction_Config();
 
 		$this->assertContains( WebApplicationFirewall::class, $components );
 		$this->assertContains( UsernameFishingBlock::class, $components );
 		$this->assertContains( FileEditingBlock::class, $components );
-		$this->assertSame( [ ModuleFirewall::Slug() ], $zone->getConfigZoneComponentSlugs() );
-		$this->assertSame( ModuleFirewall::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertNotSame( '', $configAction[ 'data' ][ 'option_keys' ] );
-		$this->assertContains( 'clean_wp_rubbish', \explode( ',', $configAction[ 'data' ][ 'option_keys' ] ) );
 	}
 
-	public function test_login_zone_owns_login_guard_components_and_module_config_scope() :void {
+	public function test_login_zone_owns_login_guard_components() :void {
 		$this->installController();
 
 		$zone = new LoginZone();
 		$components = $zone->components();
-		$configAction = $zone->getAction_Config();
 
 		$this->assertContains( LoginProtectionForms::class, $components );
 		$this->assertContains( LoginHide::class, $components );
 		$this->assertContains( TwoFactorAuth::class, $components );
 		$this->assertContains( SessionTheftProtection::class, $components );
-		$this->assertSame( [ ModuleLogin::Slug() ], $zone->getConfigZoneComponentSlugs() );
-		$this->assertSame( ModuleLogin::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertNotSame( '', $configAction[ 'data' ][ 'option_keys' ] );
-		$this->assertContains( 'rename_wplogin_path', \explode( ',', $configAction[ 'data' ][ 'option_keys' ] ) );
 	}
 
-	public function test_users_zone_owns_user_management_components_and_module_config_scope() :void {
+	public function test_users_zone_owns_user_management_components() :void {
 		$this->installController();
 
 		$zone = new UsersZone();
-		$configAction = $zone->getAction_Config();
 
 		$this->assertSame( [
 			PasswordPolicies::class,
@@ -359,19 +432,9 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			InactiveUsers::class,
 			SpamUserRegisterBlock::class,
 		], $zone->components() );
-		$this->assertSame( [ ModuleUsers::Slug() ], $zone->getConfigZoneComponentSlugs() );
-		$this->assertSame( ModuleUsers::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertNotSame( '', $configAction[ 'data' ][ 'option_keys' ] );
-		$this->assertContains( 'manual_suspend', \explode( ',', $configAction[ 'data' ][ 'option_keys' ] ) );
 	}
 
-	public function test_zone_config_action_is_absent_without_module_options() :void {
-		$this->installController( [], [], [] );
-
-		$this->assertNull( ( new FirewallZone() )->getAction_Config() );
-	}
-
-	public function test_firewall_core_component_statuses_and_signals_follow_options() :void {
+	public function test_firewall_core_component_statuses_follow_options() :void {
 		$enabledOptions = [
 			'block_dir_traversal'    => 'Y',
 			'block_sql_queries'      => 'Y',
@@ -384,11 +447,8 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->installController( $enabledOptions );
 
 		$enabledWaf = new WebApplicationFirewall();
-		$enabledSignals = $this->indexSignalsBySlug( $enabledWaf->postureSignals() );
 
 		$this->assertSame( EnumEnabledStatus::GOOD, $enabledWaf->enabledStatus() );
-		$this->assertSame( 'good', $enabledSignals[ 'firewall_dir_traversal' ][ 'severity' ] ?? null );
-		$this->assertTrue( $enabledSignals[ 'firewall_dir_traversal' ][ 'is_protected' ] ?? null );
 		$this->assertSame( EnumEnabledStatus::GOOD, ( new FileEditingBlock() )->enabledStatus() );
 		$this->assertSame( EnumEnabledStatus::GOOD, ( new UsernameFishingBlock() )->enabledStatus() );
 
@@ -404,16 +464,86 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->installController( $disabledOptions );
 
 		$disabledWaf = new WebApplicationFirewall();
-		$disabledSignals = $this->indexSignalsBySlug( $disabledWaf->postureSignals() );
 
 		$this->assertSame( EnumEnabledStatus::BAD, $disabledWaf->enabledStatus() );
-		$this->assertSame( 'critical', $disabledSignals[ 'firewall_dir_traversal' ][ 'severity' ] ?? null );
-		$this->assertFalse( $disabledSignals[ 'firewall_dir_traversal' ][ 'is_protected' ] ?? true );
 		$this->assertSame( EnumEnabledStatus::BAD, ( new FileEditingBlock() )->enabledStatus() );
 		$this->assertSame( EnumEnabledStatus::BAD, ( new UsernameFishingBlock() )->enabledStatus() );
 	}
 
-	public function test_bot_actions_use_partial_primary_coverage_and_shared_signal_list() :void {
+	public function test_anonymous_rest_api_reason_is_shown_on_its_switch() :void {
+		$this->installController( [ 'disable_anonymous_restapi' => 'N' ] );
+
+		$row = $this->firstConfigureRow( new AnonRestApiDisable() );
+
+		$this->assertCount( 1, $row[ 'explanations' ] );
+		$this->assertSame( 'disable_anonymous_restapi', $this->fixedBy( $row[ 'explanations' ][ 0 ] ) );
+	}
+
+	public function test_spam_registration_reason_is_shown_on_the_setting_that_turns_the_checks_on() :void {
+		$noChecks = [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'getEmailValidateChecks' => [] ] ) ];
+
+		$this->installController( [ 'reg_email_validate' => 'disabled' ], $noChecks );
+		$row = $this->firstConfigureRow( new SpamUserRegisterBlock() );
+		$this->assertSame( 'reg_email_validate', $this->fixedBy( $row[ 'explanations' ][ 0 ] ) );
+
+		$this->installController( [ 'reg_email_validate' => 'block' ], $noChecks );
+		$row = $this->firstConfigureRow( new SpamUserRegisterBlock() );
+		$this->assertSame( 'email_checks', $this->fixedBy( $row[ 'explanations' ][ 0 ] ) );
+	}
+
+	public function test_password_policies_being_off_is_said_once() :void {
+		$this->installController(
+			[ 'pass_prevent_pwned' => 'N', 'pass_min_strength' => 2 ],
+			[ 'opts_lookup' => $this->buildOptsLookupStub( [ 'isPassPoliciesEnabled' => false ] ) ]
+		);
+
+		$fixedByPolicies = [];
+		foreach ( [ new PasswordPolicies(), new PwnedPasswords(), new PasswordStrength() ] as $component ) {
+			foreach ( $this->firstConfigureRow( $component )[ 'explanations' ] as $text ) {
+				if ( $this->fixedBy( $text ) === 'enable_password_policies' ) {
+					$fixedByPolicies[] = $text;
+				}
+			}
+		}
+
+		$this->assertCount( 1, $fixedByPolicies );
+	}
+
+	/**
+	 * A password setting that's switched on but has no effect must say why: whether password policies are off,
+	 * the setting itself is off, or both. The reason always sits on the component's own setting.
+	 */
+	public function test_password_settings_say_which_switch_stops_them_working() :void {
+		$cases = [
+			'pass_prevent_pwned' => [
+				fn() => new PwnedPasswords(),
+				[ 'pass_prevent_pwned' => 'N' ],
+				[ 'pass_prevent_pwned' => 'Y' ],
+			],
+			'pass_min_strength'  => [
+				fn() => new PasswordStrength(),
+				[ 'pass_min_strength' => 2 ],
+				[ 'pass_min_strength' => 4 ],
+			],
+		];
+
+		foreach ( $cases as $optionKey => [ $build, $settingOff, $settingOn ] ) {
+			$explanations = [];
+			foreach ( [ [ $settingOff, true ], [ $settingOn, false ], [ $settingOff, false ] ] as [ $opts, $policiesOn ] ) {
+				$this->installController( $opts, [
+					'opts_lookup' => $this->buildOptsLookupStub( [ 'isPassPoliciesEnabled' => $policiesOn ] ),
+				] );
+				$row = $this->firstConfigureRow( $build() );
+				$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ], $optionKey );
+				$this->assertCount( 1, $row[ 'explanations' ], $optionKey );
+				$this->assertSame( $optionKey, $this->fixedBy( $row[ 'explanations' ][ 0 ] ), $optionKey );
+				$explanations[] = $row[ 'explanations' ][ 0 ];
+			}
+			$this->assertCount( 3, \array_unique( $explanations ), $optionKey.': each cause needs its own explanation' );
+		}
+	}
+
+	public function test_bot_actions_use_partial_primary_coverage() :void {
 		$this->installController( [
 			'track_logininvalid'   => 'disabled',
 			'track_loginfailed'    => 'block',
@@ -430,8 +560,82 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
 		$this->assertCount( 6, $row[ 'explanations' ] ?? [] );
-		$this->assertContains( 'bot_signal_track_linkcheese', \array_column( $component->postureSignals(), 'slug' ) );
-		$this->assertContains( 'bot_signal_track_useragent', \array_column( $component->postureSignals(), 'slug' ) );
+	}
+
+	public function test_bot_actions_say_offenses_do_nothing_while_the_offense_limit_is_zero() :void {
+		$signals = [
+			'track_logininvalid'   => 'block',
+			'track_loginfailed'    => 'block',
+			'track_xmlrpc'         => 'block',
+			'track_fakewebcrawler' => 'block',
+			'track_404'            => 'block',
+			'track_linkcheese'     => 'block',
+			'track_invalidscript'  => 'block',
+			'track_useragent'      => 'block',
+		];
+		$this->installController( $signals );
+		$this->assertSame( EnumEnabledStatus::GOOD, $this->firstConfigureRow( new BotActions() )[ 'enabled_status' ] );
+
+		$this->installController( $signals, [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'enabledIpAutoBlock' => false ] ) ] );
+		$row = $this->firstConfigureRow( new BotActions() );
+
+		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] );
+		$this->assertSame( [ 'Responses that record an offense have no effect while the offense limit is 0.' ], $row[ 'explanations' ] );
+	}
+
+	public function test_contact_form_protection_needs_silentcaptcha_on() :void {
+		$this->installController( [], [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'enabledSilentCaptcha' => false ] ) ] );
+		$row = $this->firstConfigureRow( new ContactFormSpamBlockBot() );
+
+		$this->assertContains(
+			"Contact forms aren't protected from bots because silentCAPTCHA is off: its minimum score is 0.",
+			$row[ 'explanations' ]
+		);
+		// Configure shows a form integration that isn't working as a warning.
+		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] );
+	}
+
+	public function test_file_scanning_says_plugin_and_theme_scans_need_a_temporary_folder() :void {
+		$this->installController( [], [
+			'scans' => $this->buildScansComponent( [ 'afsEnabled' => true ] ),
+		], null, false );
+		$row = $this->firstConfigureRow( new FileScanning() );
+
+		$this->assertContains(
+			"Plugin and theme files can't be scanned because Shield couldn't create a temporary folder.",
+			$row[ 'explanations' ]
+		);
+	}
+
+	public function test_file_locker_says_why_it_cannot_work_on_this_site() :void {
+		$this->installController( [], [
+			'file_locker' => new class {
+				public function getFilesToLock() :array {
+					return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ];
+				}
+
+				public function lastCipherCheckFoundNone() :bool {
+					return true;
+				}
+			},
+			'license'     => new class {
+				public function hasValidWorkingLicense() :bool {
+					return true;
+				}
+			},
+			'shieldnet'   => new class {
+				public function canHandshake() :bool {
+					return false;
+				}
+			},
+		] );
+		$row = $this->firstConfigureRow( $this->fileLockerForEnvironment() );
+
+		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] );
+		$this->assertSame( [
+			"File Locker can't work because the last check found no encryption cipher it can use. It needs the PHP OpenSSL extension and a cipher it supports.",
+			"File Locker can't work because this site can't connect to shieldnet API.",
+		], $row[ 'explanations' ] );
 	}
 
 	public function test_silentcaptcha_uses_warning_for_low_thresholds() :void {
@@ -459,18 +663,49 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				'login_limit_interval'     => 0,
 			],
 			[
-				'forms_users' => new class {
-					public function getInstalled() :array {
-						return [];
-					}
-				},
+				'forms_users' => $this->formsUsersStub(),
 			]
 		);
 
 		$row = $this->firstConfigureRow( new LoginProtectionForms() );
 
 		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] ?? null );
-		$this->assertCount( 3, $row[ 'explanations' ] ?? [] );
+		// One explanation for the unprotected forms, one for the cooldown.
+		$this->assertCount( 2, $row[ 'explanations' ] ?? [] );
+	}
+
+	public function test_login_protection_names_every_unprotected_form_in_one_explanation() :void {
+		$noProviders = [
+			'forms_users' => $this->formsUsersStub(),
+		];
+
+		$explanations = [];
+		foreach ( [ [ 'login', 'register' ], [ 'login' ], [] ] as $locations ) {
+			$this->installController( [ 'bot_protection_locations' => $locations, 'login_limit_interval' => 5 ], $noProviders );
+			$row = $this->firstConfigureRow( new LoginProtectionForms() );
+			$this->assertCount( 1, $row[ 'explanations' ] );
+			$this->assertSame( 'bot_protection_locations', $this->fixedBy( $row[ 'explanations' ][ 0 ] ) );
+			$explanations[] = $row[ 'explanations' ][ 0 ];
+		}
+		$this->assertCount( 3, \array_unique( $explanations ) );
+
+		$this->installController( [ 'bot_protection_locations' => [ 'login', 'register', 'password' ], 'login_limit_interval' => 5 ], $noProviders );
+		$this->assertSame( [], $this->firstConfigureRow( new LoginProtectionForms() )[ 'explanations' ] );
+	}
+
+	public function test_login_protection_says_no_wordpress_form_is_protected_while_wordpress_is_unticked() :void {
+		$this->installController(
+			[ 'bot_protection_locations' => [ 'login', 'register', 'password' ], 'login_limit_interval' => 5 ],
+			[ 'forms_users' => $this->formsUsersStub( [], [] ) ]
+		);
+
+		$component = new LoginProtectionForms();
+		$row = $this->firstConfigureRow( $component );
+		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] );
+		$this->assertCount( 1, $row[ 'explanations' ] );
+		// Ticking the locations wouldn't help: the warning sits on the provider setting that does.
+		$this->assertSame( 'user_form_providers', $this->fixedBy( $row[ 'explanations' ][ 0 ] ) );
+		$this->assertSame( EnumEnabledStatus::BAD, $component->enabledStatus() );
 	}
 
 	public function test_login_protection_uses_secondary_gaps_as_warning_once_login_is_protected() :void {
@@ -480,18 +715,15 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				'login_limit_interval'     => 0,
 			],
 			[
-				'forms_users' => new class {
-					public function getInstalled() :array {
-						return [ 'third_party_form' => FakeThirdPartyLoginForm::class ];
-					}
-				},
+				'forms_users' => $this->formsUsersStub( [ 'third_party_form' => FakeThirdPartyLoginForm::class ] ),
 			]
 		);
 
 		$row = $this->firstConfigureRow( new LoginProtectionForms() );
 
 		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
-		$this->assertCount( 4, $row[ 'explanations' ] ?? [] );
+		// Unprotected forms, cooldown and third-party forms: one explanation each.
+		$this->assertCount( 3, $row[ 'explanations' ] ?? [] );
 	}
 
 	public function test_two_factor_general_row_uses_configure_status_path() :void {
@@ -719,7 +951,18 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$row = $this->firstConfigureRow( new InactiveUsers() );
 
 		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
-		$this->assertCount( 3, $row[ 'explanations' ] ?? [] );
+		$this->assertCount( 2, $row[ 'explanations' ] ?? [] );
+		$this->assertSame(
+			[ 'auto_idle_days', 'auto_password' ],
+			\array_map( fn( string $text ) :string => $this->fixedBy( $text ), $row[ 'explanations' ] )
+		);
+	}
+
+	/**
+	 * The setting an explanation is shown on in a Configure panel, or '' when it is shown at the panel's top.
+	 */
+	private function fixedBy( string $explanation ) :string {
+		return ComponentBase::explanationFixLookup()[ \trim( $explanation ) ] ?? '';
 	}
 
 	/**
@@ -759,25 +1002,11 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		}
 	}
 
-	/**
-	 * @param array<int,array<string,mixed>> $signals
-	 * @return array<string,array<string,mixed>>
-	 */
-	private function indexSignalsBySlug( array $signals ) :array {
-		$indexed = [];
-		foreach ( $signals as $signal ) {
-			$slug = $signal[ 'slug' ] ?? null;
-			if ( \is_string( $slug ) && $slug !== '' ) {
-				$indexed[ $slug ] = $signal;
-			}
-		}
-		return $indexed;
-	}
-
 	private function installController(
 		array $optValues = [],
 		array $componentOverrides = [],
-		?array $configOptions = null
+		?array $configOptions = null,
+		bool $cacheDirExists = true
 	) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -826,6 +1055,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 					public function getFilesToLock() :array {
 						return [];
 					}
+
+					public function lastCipherCheckFoundNone() :bool {
+						return false;
+					}
 				},
 				'altcha'      => new class {
 					public function complexityLevel() :string {
@@ -841,11 +1074,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 						return [ 'index.php' ];
 					}
 				},
-				'forms_users' => new class {
-					public function getInstalled() :array {
-						return [];
-					}
-				},
+				'forms_users' => $this->formsUsersStub(),
 				'forms_spam'  => new class {
 					public function getInstalled() :array {
 						return [];
@@ -876,9 +1105,30 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 					}
 				},
 				'zones' => new SecurityZonesCon(),
+				'license' => new class {
+					public function hasValidWorkingLicense() :bool {
+						return false;
+					}
+				},
+				'shieldnet' => new class {
+					public function canHandshake() :bool {
+						return true;
+					}
+				},
 			],
 			$componentOverrides
 		);
+		$controller->cache_dir_handler = new class( $cacheDirExists ) {
+			private bool $exists;
+
+			public function __construct( bool $exists ) {
+				$this->exists = $exists;
+			}
+
+			public function exists() :bool {
+				return $this->exists;
+			}
+		};
 
 		PluginControllerInstaller::install( $controller );
 	}
@@ -915,6 +1165,14 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				return $this->overrides[ 'enabledSilentCaptchaCommentSpam' ] ?? true;
 			}
 
+			public function enabledSilentCaptcha() :bool {
+				return $this->overrides[ 'enabledSilentCaptcha' ] ?? true;
+			}
+
+			public function enabledIpAutoBlock() :bool {
+				return $this->overrides[ 'enabledIpAutoBlock' ] ?? true;
+			}
+
 			public function enabledHumanCommentSpam() :bool {
 				return $this->overrides[ 'enabledHumanCommentSpam' ] ?? true;
 			}
@@ -937,12 +1195,46 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		};
 	}
 
-	private function fileLockerForEnvironment(
-		bool $isWindows = true,
-		bool $themeFunctionsAccessible = true
-	) :FileLocker {
-		return new FileLocker(
-			new FileLockKeyApplicability( $isWindows, $themeFunctionsAccessible )
+	/**
+	 * @param list<string> $missingFileKeys supported files that don't exist on the site
+	 */
+	private function fileLockerForEnvironment( bool $isWindows = true, array $missingFileKeys = [] ) :FileLocker {
+		return new FileLocker( $this->fileLockApplicability( $isWindows, $missingFileKeys ) );
+	}
+
+	/**
+	 * @param array<string,string> $installed third-party providers installed
+	 * @param list<string>         $selected  providers ticked in User Forms Bot Detection
+	 */
+	private function formsUsersStub( array $installed = [], array $selected = [ 'wordpress' ] ) :object {
+		return new class( $installed, $selected ) {
+
+			private array $installed;
+
+			private array $selected;
+
+			public function __construct( array $installed, array $selected ) {
+				$this->installed = $installed;
+				$this->selected = $selected;
+			}
+
+			public function getInstalled() :array {
+				return $this->installed;
+			}
+
+			public function getSelectedProviders() :array {
+				return $this->selected;
+			}
+		};
+	}
+
+	/**
+	 * @param list<string> $missingFileKeys
+	 */
+	private function fileLockApplicability( bool $isWindows, array $missingFileKeys = [] ) :FileLockKeyApplicability {
+		return new FileLockKeyApplicability(
+			$isWindows,
+			\array_values( \array_diff( BuildFileFromFileKey::SUPPORTED_FILE_KEYS, $missingFileKeys ) )
 		);
 	}
 
@@ -984,6 +1276,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$settings = \array_merge(
 			[
 				'afsEnabled'             => false,
+				'fileScanAreas'          => [],
 				'malwareEnabled'         => false,
 				'wpCoreEnabled'          => false,
 				'pluginsEnabled'         => false,
@@ -1017,6 +1310,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 					public function isEnabled() :bool {
 						return $this->settings[ 'afsEnabled' ];
+					}
+
+					public function getFileScanAreas() :array {
+						return $this->settings[ 'fileScanAreas' ];
 					}
 
 					public function isEnabledMalwareScanPHP() :bool {

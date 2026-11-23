@@ -704,7 +704,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 	}
 
 	private function makeNonTmpCacheRoot( string $suffix ) :string {
-		$parent = $this->normaliseCacheStorePath( \dirname( __DIR__, 3 ) );
+		$parent = $this->normaliseCacheStorePath( \sys_get_temp_dir() );
 		if ( $parent === '/tmp' || \strpos( $parent, '/tmp/' ) === 0 ) {
 			$parent = '/var/tmp';
 		}

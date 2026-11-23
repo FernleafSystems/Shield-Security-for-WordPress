@@ -2,11 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TestRestFetchRequests extends BaseAction {
 
 	public const SLUG = 'test_rest_fetch_requests';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_REST => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 	public const OPT_KEY = 'test_rest_data';
 	public const DATA_MAYBE_TEST_AT = 'maybe_test_at';
 	public const DATA_SUCCESS_TEST_AT = 'success_test_at';

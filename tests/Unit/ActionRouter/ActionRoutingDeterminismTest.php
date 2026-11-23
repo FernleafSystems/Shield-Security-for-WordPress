@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueRefresh;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaLoginVerifyStep;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansAttemptRecovery;
@@ -12,7 +13,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetFileStatusDetail,
-	ActionsQueueDrillDownGroups,
 	ConfigureDrillDownDiagnosis
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ActionsMap;
@@ -34,6 +34,25 @@ class ActionRoutingDeterminismTest extends BaseUnitTest {
 		$this->assertSame( '', ActionsMap::ActionFromSlug( '' ) );
 	}
 
+	public function testRoutingFieldThatIsNotAStringReadsAsEmpty() :void {
+		$transport = [
+			'string' => 'ajax_render',
+			'list'   => [ 'ajax_render' ],
+			'map'    => [ 'a' => [ 'b' ] ],
+			'number' => 7,
+			'null'   => null,
+		];
+		$this->assertSame( 'ajax_render', ActionData::TransportField( $transport, 'string' ) );
+		foreach ( [ 'list', 'map', 'number', 'null', 'missing' ] as $field ) {
+			$this->assertSame( '', ActionData::TransportField( $transport, $field ), $field );
+		}
+	}
+
+	public function testClassNameThatIsNotAnActionIsUnresolved() :void {
+		$this->assertSame( '', ActionsMap::ActionFromSlug( \ArrayObject::class ) );
+		$this->assertSame( '', ActionsMap::ActionFromSlug( ActionsMap::class ) );
+	}
+
 	public function testActionFromKnownSlugResolvesExpectedClass() :void {
 		$this->assertSame( AjaxRender::class, ActionsMap::ActionFromSlug( 'ajax_render' ) );
 	}
@@ -48,7 +67,7 @@ class ActionRoutingDeterminismTest extends BaseUnitTest {
 		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, ActionsMap::ActionFromSlug( ActionsQueueAssetFileStatusDetail::SLUG ) );
 		$this->assertSame( Wordpress::class, ActionsMap::ActionFromSlug( Wordpress::SLUG ) );
 		$this->assertSame( Malware::class, ActionsMap::ActionFromSlug( Malware::SLUG ) );
-		$this->assertSame( ActionsQueueDrillDownGroups::class, ActionsMap::ActionFromSlug( ActionsQueueDrillDownGroups::SLUG ) );
+		$this->assertSame( ActionsQueueRefresh::class, ActionsMap::ActionFromSlug( ActionsQueueRefresh::SLUG ) );
 		$this->assertSame( ConfigureDrillDownDiagnosis::class, ActionsMap::ActionFromSlug( ConfigureDrillDownDiagnosis::SLUG ) );
 	}
 

@@ -14,6 +14,12 @@ export class ReportsTrendsController extends BaseAutoExecComponent {
 		this.renderer = null;
 		this.bindHandlers();
 		this.updateAllForms();
+		// The chart opens drawn for whatever is selected, so there's something to see without a click.
+		document.querySelectorAll( '[data-reports-trends-form="1"]' ).forEach( ( form ) => {
+			if ( this.getSelectedEvents( form ).length > 0 ) {
+				this.submit( form );
+			}
+		} );
 	}
 
 	bindHandlers() {

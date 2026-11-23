@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\LicenseLookup;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use MainWP\Dashboard\MainWP_Connect;
 
@@ -14,6 +13,7 @@ class SiteCustomAction extends BaseSiteMwpAction {
 	protected function fireClientSiteAction() {
 		$subActionParams = $this->action_data[ 'sub_action_params' ] ?? [];
 		$subActionParams = \is_array( $subActionParams ) ? $subActionParams : [];
+		// @deprecated 22.4.0 Makes sure the only override metadata sent is the fixed set below. Goes when that goes.
 		unset( $subActionParams[ 'action_overrides' ] );
 
 		return MainWP_Connect::fetch_url_authed(
@@ -23,8 +23,10 @@ class SiteCustomAction extends BaseSiteMwpAction {
 				self::con()->prefix( 'mwp-action' ) => $this->action_data[ 'sub_action_slug' ],
 				self::con()->prefix( 'mwp-params' ) => \array_merge(
 					[
+						// @deprecated 22.4.0 Child sites before 22.4.0 need this metadata to run the request; newer
+						// child sites discard it. See ClientActionRunner::LEGACY_ENABLE_SLUG for when this goes.
 						'action_overrides' => [
-							Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
+							'is_nonce_verify_required' => false,
 						],
 					],
 					$subActionParams

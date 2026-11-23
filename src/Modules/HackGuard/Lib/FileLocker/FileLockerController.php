@@ -61,16 +61,15 @@ class FileLockerController {
 		$this->setupCronHooks();
 	}
 
-	public function createFileDownloadLinks( FileLockerDB\Record $lock ): array {
-		$links = [];
-		foreach ( [ 'original', 'current' ] as $type ) {
-			$links[ $type ] = self::con()->plugin_urls->fileDownload( 'filelocker', [
-				'type' => $type,
-				'rid'  => $lock->id,
-				'rand' => PasswordGenerator::Gen( 6, false, true, false ),
-			] );
-		}
-		return $links;
+	/**
+	 * @param 'original'|'current' $type
+	 */
+	public function createFileDownloadLink( FileLockerDB\Record $lock, string $type ) :string {
+		return self::con()->plugin_urls->fileDownload( 'filelocker', [
+			'type' => $type,
+			'rid'  => $lock->id,
+			'rand' => PasswordGenerator::Gen( 6, false, true, false ),
+		] );
 	}
 
 	/**
@@ -120,11 +119,8 @@ class FileLockerController {
 	/**
 	 * @throws \Exception
 	 */
-	public function handleFileDownloadRequest(): array {
-		$req = Services::Request();
-
-		$lock = $this->getFileLock( (int)$req->query( 'rid', 0 ) );
-		$type = (string)$req->query( 'type' );
+	public function handleFileDownloadRequest( int $lockID, string $type ): array {
+		$lock = $this->getFileLock( $lockID );
 
 		// Note: Download what's on the disk if nothing is changed.
 		if ( $type == 'current' ) {
@@ -277,6 +273,15 @@ class FileLockerController {
 		}
 
 		return !empty( $state[ 'cipher' ] );
+	}
+
+	/**
+	 * Whether the last cipher check found none, without checking again, so it's safe to ask while rendering a
+	 * page. Before any check has run there's nothing to report.
+	 */
+	public function lastCipherCheckFoundNone(): bool {
+		$state = $this->getState();
+		return $state[ 'cipher_last_checked_at' ] > 0 && empty( $state[ 'cipher' ] );
 	}
 
 	public function runDailyCron() {

@@ -2,15 +2,13 @@
 
 <nav id="NavSideBar" class="d-flex flex-column flex-fill"
 	 aria-label="{{ strings.admin_shell_navigation_label|e('html_attr') }}"
-	 {% if sidebar.task_guide is not empty %}
-		 data-dashboard-task-guide="1"
-		 data-dashboard-task-guide-graph="{{ sidebar.task_guide.graph_json|e('html_attr') }}"
-	 {% endif %}>
+	 data-dashboard-task-guide="1"
+	 data-dashboard-task-guide-graph="{{ sidebar.task_guide.graph_json|e('html_attr') }}">
 
 	<div class="shield-mode-selector" data-shield-tour="sidebar-menu">
 		{% for nav_item in sidebar.navigation_links %}
 			<a href="{{ nav_item.href }}"
-			   class="mode-item {{ nav_item.kind == 'dashboard' ? 'sidebar-nav-dashboard' : '' }} {{ nav_item.active ? 'active' : '' }} {{ nav_item.classes|join(' ') }}"
+			   class="mode-item {{ nav_item.classes|join(' ') }}"
 			   data-kind="{{ nav_item.kind }}"
 			   {% if nav_item.kind == 'operator_mode' %}data-mode="{{ nav_item.mode }}"{% endif %}
 			   {% if nav_item.target is not empty %}target="{{ nav_item.target }}"{% endif %}
@@ -20,68 +18,44 @@
 			>
 				<span class="mode-icon"><i class="{{ nav_item.img }}" aria-hidden="true"></i></span>
 				<span class="mode-label">{{ nav_item.title }}</span>
-				{% if nav_item.badge is not empty %}
-					<span class="mode-badge status-{{ nav_item.badge.status }}">
-						{{ nav_item.badge.text }}
-					</span>
-				{% endif %}
+				{% include '/wpadmin/components/page/mode_badges.twig' with { badges: nav_item.badges } only %}
 			</a>
 			{% if nav_item.divider_after %}<div class="sidebar-sep"></div>{% endif %}
 		{% endfor %}
 	</div>
 
-	{% if sidebar.task_guide_item is not empty %}
-		{% set task_guide = sidebar.task_guide_item %}
+	{# One way to guidance: the setup guide while setup is unfinished, otherwise Guide Me. A divider goes
+	   above each group only, so groups that aren't shown leave no lines behind. #}
+	<div class="sidebar-guidance">
 		<div class="sidebar-sep"></div>
-		<button type="button"
-				class="mode-item {{ task_guide.classes|join(' ') }}"
-				data-dashboard-task-guide-launch="1"
-				aria-haspopup="dialog"
-				aria-controls="ShieldMainAccessibleDialog"
-		   {% for data_key,data_val in task_guide.data %}
-			   data-{{ data_key }}="{{ data_val }}"
-			{% endfor %}
-		>
-			<span class="mode-icon"><i class="{{ task_guide.img }}" aria-hidden="true"></i></span>
-			<span class="mode-label">{{ task_guide.title }}</span>
-		</button>
-		<div class="sidebar-sep"></div>
-	{% endif %}
-
-	{% set has_dynamic_sections = sidebar.task_guide_item is empty and (
-		sidebar.tool_items is not empty
-		or sidebar.home_license_item is not empty
-		or sidebar.home_connect_items is not empty
-	) %}
-
-	{% if has_dynamic_sections %}
-		<div class="sidebar-sep"></div>
-	{% endif %}
-
-	{% if sidebar.home_license_item is not empty %}
-		{% set license = sidebar.home_license_item %}
-		<a href="{{ license.href }}"
-		   class="sidebar-license-item {{ license.classes|join(' ') }}"
-		   {% if license.target is not empty %}target="{{ license.target }}"{% endif %}
-		   {% for data_key,data_val in license.data %}
-			   data-{{ data_key }}="{{ data_val }}"
-		   {% endfor %}
-		>
-			<span class="sidebar-license-icon"><i class="{{ license.img }}" aria-hidden="true"></i></span>
-			<span class="sidebar-license-content">
-				<span class="sidebar-license-title">{{ license.title }}</span>
-				<span class="sidebar-license-subtitle">{{ license.subtitle }}</span>
-			</span>
-			{% if license.badge is not empty %}
-				<span class="sidebar-license-badge status-{{ license.badge.status }}">{{ license.badge.text }}</span>
-			{% endif %}
-		</a>
-	{% endif %}
+		{% if vars.setup_guide.show %}
+			<button type="button" class="mode-item sidebar-setup-item" data-setup-guide-open="1" aria-controls="ShieldSetupGuide">
+				<span class="mode-icon"><i class="bi bi-shield-fill-check" aria-hidden="true"></i></span>
+				<span class="mode-label">{{ vars.setup_guide.strings.sidebar_label }}</span>
+				<span class="sidebar-setup-count" data-setup-guide-open-count="1">{{ vars.setup_guide.done_count }}/{{ vars.setup_guide.total }}</span>
+			</button>
+		{% else %}
+			{% set task_guide = sidebar.task_guide_item %}
+			<button type="button"
+					class="mode-item {{ task_guide.classes|join(' ') }}"
+					data-dashboard-task-guide-launch="1"
+					aria-haspopup="dialog"
+					aria-controls="ShieldMainAccessibleDialog"
+			   {% for data_key,data_val in task_guide.data %}
+				   data-{{ data_key }}="{{ data_val }}"
+				{% endfor %}
+			>
+				<span class="mode-icon"><i class="{{ task_guide.img }}" aria-hidden="true"></i></span>
+				<span class="mode-label">{{ task_guide.title }}</span>
+			</button>
+		{% endif %}
+	</div>
 
 	{% if sidebar.tool_items is not empty %}
+		<div class="sidebar-sep sidebar-tools-sep"></div>
 		<div class="sidebar-tools">
 			{% for tool in sidebar.tool_items %}
-				{% set tool_classes = "tool-item " ~ (tool.active ? 'active ' : '') ~ tool.classes|join(' ') %}
+				{% set tool_classes = 'tool-item ' ~ tool.classes|join(' ') %}
 				{% if tool.is_action %}
 					<button type="button"
 							class="{{ tool_classes }}"
@@ -112,7 +86,48 @@
 		</div>
 	{% endif %}
 
+	{# Bottom of the dashboard sidebar: the Live Monitor launcher and the licence / upgrade link. #}
+	{% if sidebar.home_live_monitor_item is not empty or sidebar.home_license_item is not empty %}
+		<div class="sidebar-home-footer">
+			{% if sidebar.home_live_monitor_item is not empty %}
+				{% set live_monitor = sidebar.home_live_monitor_item %}
+				<button type="button"
+						class="mode-item {{ live_monitor.classes|join(' ') }}"
+						aria-controls="ShieldDashboardLiveMonitor"
+						aria-expanded="false"
+						{% for data_key,data_val in live_monitor.data %}
+							data-{{ data_key }}="{{ data_val }}"
+						{% endfor %}
+				>
+					<span class="mode-icon"><i class="{{ live_monitor.img }}" aria-hidden="true"></i></span>
+					<span class="mode-label">{{ live_monitor.title }}</span>
+					<span class="sidebar-live-monitor-dot" aria-hidden="true"></span>
+				</button>
+			{% endif %}
+			{% if sidebar.home_license_item is not empty %}
+				{% set license = sidebar.home_license_item %}
+				<a href="{{ license.href }}"
+				   class="sidebar-license-item {{ license.classes|join(' ') }}"
+				   {% if license.target is not empty %}target="{{ license.target }}"{% endif %}
+				   {% for data_key,data_val in license.data %}
+					   data-{{ data_key }}="{{ data_val }}"
+				   {% endfor %}
+				>
+					<span class="sidebar-license-icon"><i class="{{ license.img }}" aria-hidden="true"></i></span>
+					<span class="sidebar-license-content">
+						<span class="sidebar-license-title">{{ license.title }}</span>
+						<span class="sidebar-license-subtitle">{{ license.subtitle }}</span>
+					</span>
+					{% if license.badge is not empty %}
+						<span class="sidebar-license-badge status-{{ license.badge.status }}">{{ license.badge.text }}</span>
+					{% endif %}
+				</a>
+			{% endif %}
+		</div>
+	{% endif %}
+
 	{% if sidebar.home_connect_items is not empty %}
+		<div class="sidebar-sep sidebar-connect-sep"></div>
 		<div class="sidebar-connect">
 			<div class="sidebar-connect-title">{{ sidebar.home_connect_title }}</div>
 			<div class="sidebar-connect-grid">

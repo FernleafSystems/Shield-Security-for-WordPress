@@ -2,15 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\NonceVerifyRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\RemoveSecAdmin;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
 
 class SecurityAdminRemove extends SecurityAdminBase {
 
-	use NonceVerifyRequired;
-
 	public const SLUG = 'secadmin_remove_confirm';
+
+	/**
+	 * The confirmation link is emailed, and the admin may have logged in again by the time they open it.
+	 */
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_ORDINARY => ExternalEntryGuard::PROOF_NONCE_ANY_SESSION,
+		];
+	}
 
 	protected function exec() {
 		( new RemoveSecAdmin() )->remove();

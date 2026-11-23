@@ -14,10 +14,6 @@ class CommentSpamBlockBot extends Base {
 		return __( 'Block the most common form of WordPress Comment SPAM.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Edit bot-SPAM comment settings', 'wp-simple-firewall' );
-	}
-
 	/**
 	 * @inheritDoc
 	 */
@@ -29,14 +25,13 @@ class CommentSpamBlockBot extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = sprintf( __( "%s isn't protecting your WP Comments against bot SPAM.", 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
+			$status[ 'exp' ][] = $this->explanationFixedBy(
+				sprintf( __( "%s isn't protecting your WP Comments against bot SPAM.", 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) ),
+				'enable_antibot_comments'
+			);
 		}
 
 		return $status;
-	}
-
-	protected function postureWeight() :int {
-		return 7;
 	}
 
 	protected function configureTreatsBadStatusAsWarning() :bool {

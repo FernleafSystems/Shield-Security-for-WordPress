@@ -1,0 +1,26 @@
+{#
+	The Search tab's home, under the search box: the goals that need attention, one row each, opening
+	that goal's tab. Each row carries its tab's icon, coloured the same way, so it's plain which tab it is.
+#}
+<section class="configure-home" aria-labelledby="ConfigureHomeAttention">
+	<h2 class="configure-home__heading" id="ConfigureHomeAttention">{{ strings.attention_heading }}</h2>
+	{% if goals is empty %}
+		<p class="configure-home__none"><i class="bi bi-check-circle-fill" aria-hidden="true"></i>{{ strings.attention_none }}</p>
+	{% else %}
+		<div class="configure-home__list">
+			{% for goal in goals %}
+				<button type="button"
+						class="configure-home__row status-{{ goal.status }}"
+						data-drill-target="diagnosis"
+						data-drill-zone-selection="{{ goal.selection_json|e('html_attr') }}">
+					<i class="configure-home__icon {{ goal.icon_class }}" aria-hidden="true"></i>
+					<span class="configure-home__copy">
+						<span class="configure-home__title">{{ goal.title }}</span>
+						<span class="configure-home__summary">{{ goal.summary }}</span>
+					</span>
+					<i class="bi bi-chevron-right configure-home__go" aria-hidden="true"></i>
+				</button>
+			{% endfor %}
+		</div>
+	{% endif %}
+</section>

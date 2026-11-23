@@ -2,77 +2,47 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScanProgressBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 
-class ScansStart extends ScansBase {
+/**
+ * Starts the scans chosen on Run Manual Scan. Once any start, the reply is their progress, as the polling reports it,
+ * with the scans to follow; otherwise it's the failure, with why.
+ */
+class ScansStart extends BaseAction {
 
 	public const SLUG = 'scans_start';
 
-	protected function exec() {
-		$con = self::con();
-		$success = false;
-		$reloadPage = false;
-		$startedScanIDs = [];
-		$errorCode = '';
-		$failures = [];
-		$msg = $con->comps->scans->getStartBlockedMessage();
-		if ( $msg !== '' ) {
-			$errorCode = StartScansResult::CODE_START_BLOCKED;
-		}
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
-		$params = FormParams::Retrieve();
-		if ( $con->comps->scans->canStartScans() ) {
-			$selectedScans = \array_intersect( \array_keys( $params ), $con->comps->scans->getScanSlugs() );
-			$resetIgnore = (bool)( $params[ 'opt_clear_ignore' ] ?? false );
-			$result = $con->comps->scans->startNewScans( $selectedScans, $resetIgnore );
-			$startedScanIDs = $result->getStartedScanIDs();
-			$failures = $result->getFailures();
+	protected function exec() {
+		$scans = self::con()->comps->scans;
+		$startedScanIDs = [];
+		$msg = $scans->getStartBlockedMessage();
+
+		if ( $scans->canStartScans() ) {
+			$selectedScans = \array_values( \array_intersect( \array_keys( $this->formParams() ), $scans->getScanSlugs() ) );
+			// A ticked checkbox sends "Y"; an unticked one sends nothing.
+			$result = $scans->startNewScans( $selectedScans, $this->formFields()->flag( 'opt_clear_ignore', 'Y', 'N', false ) );
 			$msg = $result->getMessage();
-			$errorCode = $result->getErrorCode();
-			if ( $result->hasStarted() ) {
-				$success = true;
-				$reloadPage = true;
-			}
+			$startedScanIDs = $result->getStartedScanIDs();
 		}
 		elseif ( $msg === '' ) {
 			$msg = __( 'Scans cannot execute right now.', 'wp-simple-firewall' );
 		}
 
-		$isScanRunning = $con->comps->scans_queue->hasRunningScans();
+		$hasStarted = !empty( $startedScanIDs );
+		$payload = $hasStarted
+			? \array_merge( $this->progress()->forScans( $startedScanIDs ), [ 'scan_ids' => $startedScanIDs ] )
+			: $this->progress()->forFailure( $msg );
+		$this->response()->setPayload( $payload )->setPayloadSuccess( $hasStarted );
+	}
 
-		$payload = [
-			'scans_running' => $isScanRunning,
-			'page_reload'   => $reloadPage && !$isScanRunning,
-			'scan_ids'      => $startedScanIDs,
-			'message'       => $msg,
-		];
-		if ( $payload[ 'page_reload' ] ) {
-			$payload[ 'redirect_url' ] = $con->plugin_urls->actionsQueueScans();
-		}
-		if ( $errorCode !== '' ) {
-			$payload[ 'error_code' ] = $errorCode;
-		}
-		if ( $errorCode === StartScansResult::CODE_START_BLOCKED ) {
-			$payload[ 'blocked_reasons' ] = $con->comps->scans->getReasonsScansCantExecute();
-		}
-		if ( !empty( $failures ) ) {
-			$payload[ 'start_failures' ] = $failures;
-		}
-
-		$modalState = $success
-			? ( $isScanRunning ? self::SCAN_MODAL_STATE_RUNNING : self::SCAN_MODAL_STATE_COMPLETED )
-			: self::SCAN_MODAL_STATE_FAILED;
-
-		$payload = \array_merge( $payload, $this->renderScanModalPayload( $modalState, [
-			'current_scan'    => $success
-				? ( $isScanRunning ? __( 'Preparing scans.', 'wp-simple-firewall' ) : __( 'Scans completed.', 'wp-simple-firewall' ) )
-				: __( 'Scan failed.', 'wp-simple-firewall' ),
-			'remaining_scans' => $msg,
-			'progress'        => $isScanRunning ? 5 : 100,
-			'scan_rows'       => [],
-		] ) );
-
-		$this->response()->setPayload( $payload )->setPayloadSuccess( $success );
+	protected function progress() :ScanProgressBuilder {
+		return new ScanProgressBuilder();
 	}
 }

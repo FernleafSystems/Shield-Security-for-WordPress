@@ -100,8 +100,4 @@ class RenderService {
 		$this->twigEnvVariables = $vars;
 		return $this;
 	}
-
-	public function templateExists( string $template ) :bool {
-		return $this->getTwigFileSystemLoader()->exists( $template );
-	}
 }

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PluginBadgeMode;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\ArrayOps;
 use FernleafSystems\Wordpress\Services\Services;
@@ -209,15 +210,32 @@ class OptsLookup {
 	}
 
 	public function getReportEmail() :string {
+		return $this->getReportEmailDetails()[ 'address' ];
+	}
+
+	/**
+	 * @return array{address:string,is_site_admin_fallback:bool}
+	 */
+	public function getReportEmailDetails() :array {
+		$chosen = $this->getChosenReportEmail();
+		return [
+			'address'                => $chosen === '' ? Services::WpGeneral()->getSiteAdminEmail() : $chosen,
+			'is_site_admin_fallback' => $chosen === '',
+		];
+	}
+
+	/**
+	 * The report email someone chose (the setting, or the shield/report_email filter), or nothing when reports
+	 * would fall back to the site admin email.
+	 */
+	public function getChosenReportEmail() :string {
 		$e = self::con()->opts->optGet( 'block_send_email_address' );
-		if ( self::con()->isPremiumActive() ) {
-			$filtered = apply_filters( 'shield/report_email', $e );
-			if ( \is_string( $filtered ) ) {
-				$e = $filtered;
-			}
+		$filtered = apply_filters( 'shield/report_email', $e );
+		if ( \is_string( $filtered ) ) {
+			$e = $filtered;
 		}
 		$e = \trim( $e );
-		return Services::Data()->validEmail( $e ) ? $e : Services::WpGeneral()->getSiteAdminEmail();
+		return Services::Data()->validEmail( $e ) ? $e : '';
 	}
 
 	public function getSecAdminPIN() :string {
@@ -306,6 +324,14 @@ class OptsLookup {
 
 	public function isPluginEnabled() :bool {
 		return self::con()->opts->optIs( 'global_enable_plugin_features', 'Y' );
+	}
+
+	/**
+	 * Whether the site owner has chosen to show this part of the plugin in the WordPress dashboard.
+	 * @param EnumDashboardDisplay::* $element
+	 */
+	public function showsInDashboard( string $element ) :bool {
+		return \in_array( $element, self::con()->opts->optGet( 'dashboard_display' ), true );
 	}
 
 	public function isPassPoliciesEnabled() :bool {

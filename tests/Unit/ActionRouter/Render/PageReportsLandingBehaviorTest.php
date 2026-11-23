@@ -11,8 +11,10 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ReportsTable;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\{
+	ChartsTrends,
+	ReportsTable
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageReportsLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -47,121 +49,64 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_workspace_contracts_include_three_cards_and_inline_settings_panel() :void {
-		$page = new PageReportsLanding();
-		$cards = $this->invokeNonPublicMethod( $page, 'getWorkspaceCards' );
-		$panels = $this->invokeNonPublicMethod( $page, 'getWorkspacePanels' );
+	public function test_tabs_open_with_charts_and_keep_their_workspace_links() :void {
+		$page = new PageReportsLandingUnitTestDouble();
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
-		$this->assertSame(
-			ReportsTable::class,
-			$this->renderCapture->calls[ 0 ][ 'action' ] ?? ''
-		);
-		$this->assertSame( [], $this->renderCapture->calls[ 0 ][ 'action_data' ] ?? null );
-		$this->assertSame( OptionsFormFor::class, $this->renderCapture->calls[ 1 ][ 'action' ] ?? '' );
-		$this->assertCount( 4, $this->renderCapture->calls[ 1 ][ 'action_data' ][ 'options' ] ?? [] );
-		$this->assertSame(
-			[ 'instant_alerts-opt-a', 'reporting-opt-a' ],
-			[
-				$this->renderCapture->calls[ 1 ][ 'action_data' ][ 'options' ][ 0 ] ?? '',
-				$this->renderCapture->calls[ 1 ][ 'action_data' ][ 'options' ][ 2 ] ?? '',
-			]
-		);
-		$this->assertCount( 3, $this->renderCapture->calls );
-
-		$this->assertCount( 3, $cards );
-		$this->assertCount( 3, $panels );
+		$this->assertSame( PluginNavs::SUBNAV_REPORTS_CHARTS, $vars[ 'reports_current_tab' ] ?? '' );
 		$this->assertSame(
 			[
+				PluginNavs::SUBNAV_REPORTS_CHARTS,
 				PluginNavs::SUBNAV_REPORTS_LIST,
 				PluginNavs::SUBNAV_REPORTS_SETTINGS,
-				PluginNavs::SUBNAV_REPORTS_CHARTS,
 			],
-			\array_column( $cards, 'key' )
+			\array_column( $vars[ 'reports_tabs' ][ 'tabs' ] ?? [], 'key' )
 		);
-		$this->assertSame( 'button', $cards[ 0 ][ 'tile' ][ 'tag' ] ?? '' );
-		$this->assertSame( 'neutral', $cards[ 0 ][ 'tile' ][ 'status' ] ?? '' );
-		$this->assertNotSame( '', $cards[ 0 ][ 'tile' ][ 'action_label' ] ?? '' );
-		$this->assertSame( 'workspace', $cards[ 0 ][ 'tile' ][ 'data_drill_target' ] ?? '' );
-		$this->assertSame( '', $cards[ 0 ][ 'tile' ][ 'data_drill_zone_selection' ] ?? null );
-		$this->assertSame( '', $cards[ 0 ][ 'tile' ][ 'data_drill_bucket_selection' ] ?? null );
-		$this->assertSame( '', $cards[ 0 ][ 'tile' ][ 'data_drill_group_selection' ] ?? null );
-		$this->assertSame( 'rendered-1', $panels[ 0 ][ 'body' ] ?? '' );
-		$this->assertSame( 'rendered-2', $panels[ 1 ][ 'body' ] ?? '' );
-		$this->assertSame( 'rendered-3', $panels[ 2 ][ 'body' ] ?? '' );
-		$this->assertTrue( (bool)( $panels[ 0 ][ 'is_default' ] ?? false ) );
-		$this->assertFalse( (bool)( $panels[ 1 ][ 'is_default' ] ?? true ) );
-		$this->assertFalse( (bool)( $panels[ 2 ][ 'is_default' ] ?? true ) );
-		$this->assertNotSame( '', $panels[ 0 ][ 'data_reports_workspace_selection' ] ?? '' );
-		$this->assertSame( '', $panels[ 2 ][ 'description' ] ?? '' );
-
-		$listSelection = \json_decode(
-			(string)( $cards[ 0 ][ 'tile' ][ 'data_reports_workspace_selection' ] ?? '' ),
-			true
-		);
-		$chartsSelection = \json_decode(
-			(string)( $cards[ 2 ][ 'tile' ][ 'data_reports_workspace_selection' ] ?? '' ),
-			true
-		);
-		$this->assertIsArray( $listSelection );
-		$this->assertIsArray( $chartsSelection );
-		$this->assertSame( PluginNavs::SUBNAV_REPORTS_LIST, $listSelection[ 'key' ] ?? '' );
-		$this->assertArrayHasKey( 'label', $listSelection );
-		$this->assertArrayHasKey( 'title', $listSelection[ 'header' ] ?? [] );
-		$this->assertSame( 'neutral', $listSelection[ 'header' ][ 'badge_status' ] ?? '' );
-		$this->assertSame( 'reports', $listSelection[ 'header' ][ 'color_key' ] ?? '' );
-		$this->assertSame( '', $chartsSelection[ 'header' ][ 'summary' ] ?? '' );
-		$this->assertArrayHasKey( 'next_step', $chartsSelection[ 'header' ] ?? [] );
-	}
-
-	public function test_render_workspaces_layer_is_not_clobbered_by_nested_action_renders() :void {
-		$this->installControllerStub( true );
-
-		$page = new PageReportsLanding();
-		$output = $this->invokeNonPublicMethod( $page, 'renderWorkspacesLayer' );
-
-		$this->assertSame( 'rendered-template:/wpadmin/components/reports/layer_workspaces.twig', $output );
 		$this->assertSame(
-			'/wpadmin/components/reports/layer_workspaces.twig',
-			$this->renderCapture->template_calls[ 0 ][ 'template' ] ?? ''
+			[ '/reports/charts', '/reports/list', '/reports/settings' ],
+			\array_column( $vars[ 'reports_tabs' ][ 'tabs' ] ?? [], 'href' )
 		);
+		$this->assertSame( [ true, false, false ], \array_column( $vars[ 'reports_tabs' ][ 'tabs' ] ?? [], 'is_current' ) );
 	}
 
-	public function test_render_data_exposes_drill_shell_and_clears_legacy_mode_panel_contract() :void {
-		$page = new PageReportsLanding();
+	public function test_a_workspace_link_opens_its_tab() :void {
+		$page = new PageReportsLandingUnitTestDouble();
+		$page->action_data = [ 'workspace' => PluginNavs::SUBNAV_REPORTS_SETTINGS ];
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+
+		$this->assertSame( PluginNavs::SUBNAV_REPORTS_SETTINGS, $vars[ 'reports_current_tab' ] ?? '' );
+		$this->assertSame( [ false, false, true ], \array_column( $vars[ 'reports_tabs' ][ 'tabs' ] ?? [], 'is_current' ) );
+	}
+
+	public function test_every_tab_is_on_the_page_with_the_settings_from_configure() :void {
+		$page = new PageReportsLandingUnitTestDouble();
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+
+		$this->assertSame(
+			[
+				[ 'key' => PluginNavs::SUBNAV_REPORTS_CHARTS, 'body' => 'rendered-1' ],
+				[ 'key' => PluginNavs::SUBNAV_REPORTS_LIST, 'body' => 'rendered-2' ],
+				[ 'key' => PluginNavs::SUBNAV_REPORTS_SETTINGS, 'body' => 'SETTINGS_HTML' ],
+			],
+			$vars[ 'reports_panels' ] ?? []
+		);
+		$this->assertSame( [ ChartsTrends::class, ReportsTable::class ], \array_column( $this->renderCapture->calls, 'action' ) );
+		$this->assertSame( 'alerts', PageReportsLanding::SETTINGS_GOAL );
+	}
+
+	public function test_render_data_uses_the_mode_shell_without_a_drill_shell() :void {
+		$page = new PageReportsLandingUnitTestDouble();
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$vars = $renderData[ 'vars' ] ?? [];
 
 		$this->assertSame( 'reports', $vars[ 'mode_shell' ][ 'mode' ] ?? '' );
-		$this->assertArrayNotHasKey( 'accent_status', $vars[ 'mode_shell' ] ?? [] );
-		$this->assertSame( 'compact', $vars[ 'mode_shell' ][ 'header_density' ] ?? '' );
 		$this->assertSame( '/admin/home', $vars[ 'mode_shell' ][ 'home_href' ] ?? '' );
-		$this->assertTrue( (bool)( $vars[ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
-		$this->assertFalse( (bool)( $vars[ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
 		$this->assertTrue( (bool)( $vars[ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
-		$this->assertArrayHasKey( 'title', $vars[ 'mode_shell' ][ 'root_step' ] ?? [] );
 		$this->assertSame( 'reports', $vars[ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
-		$this->assertSame( [], $vars[ 'mode_tiles' ] ?? [ 'unexpected' ] );
-		$this->assertSame( '', $vars[ 'mode_panel' ][ 'active_target' ] ?? 'unexpected' );
-		$this->assertFalse( (bool)( $vars[ 'mode_panel' ][ 'is_open' ] ?? true ) );
-		$this->assertSame( 'reports_drill_shell', $vars[ 'drill_shell' ][ 'id' ] ?? '' );
-		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
-		$this->assertSame( [ 'workspaces', 'workspace' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
-		$this->assertSame( 'rendered-template:/wpadmin/components/reports/layer_workspaces.twig', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] ?? '' );
-		$this->assertSame( 'rendered-template:/wpadmin/components/reports/layer_workspace.twig', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
-		$this->assertArrayHasKey( 'title', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
-		$this->assertArrayHasKey( 'badge', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
-		$this->assertSame( 'neutral', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'badge_status' ] ?? '' );
-		$this->assertSame( 'neutral', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'badge_status' ] ?? '' );
-		$this->assertSame(
-			[
-				'/wpadmin/components/reports/layer_workspaces.twig',
-				'/wpadmin/components/reports/layer_workspace.twig',
-			],
-			\array_column( $this->renderCapture->template_calls ?? [], 'template' )
-		);
+		$this->assertArrayNotHasKey( 'drill_shell', $vars );
 	}
 
-	private function installControllerStub( bool $simulateRenderStateLeak = false ) :void {
+	private function installControllerStub() :void {
 		$this->renderCapture = (object)[
 			'calls'          => [],
 			'template_calls' => [],
@@ -210,26 +155,19 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 			public function adminTopNav( string $nav, string $subnav = '' ) :string {
 				return '/admin/'.$nav.'/'.$subnav;
 			}
-		};
-		$controller->action_router = new class( $this->renderCapture, $renderStub, $simulateRenderStateLeak ) {
-			private object $capture;
-			private object $renderStub;
-			private bool $simulateRenderStateLeak;
 
-			public function __construct( object $capture, object $renderStub, bool $simulateRenderStateLeak ) {
+			public function reportsHome( string $workspace = '' ) :string {
+				return '/reports/'.$workspace;
+			}
+		};
+		$controller->action_router = new class( $this->renderCapture ) {
+			private object $capture;
+
+			public function __construct( object $capture ) {
 				$this->capture = $capture;
-				$this->renderStub = $renderStub;
-				$this->simulateRenderStateLeak = $simulateRenderStateLeak;
 			}
 
 			public function render( string $action, array $actionData = [] ) :string {
-				if ( $this->simulateRenderStateLeak ) {
-					$this->renderStub->forceTemplate(
-						$action === ReportsTable::class
-							? '/wpadmin/components/reports/table_reports.twig'
-							: '/components/config/options_form_for.twig'
-					);
-				}
 				$this->capture->calls[] = [
 					'action'     => $action,
 					'action_data' => $actionData,
@@ -265,5 +203,12 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		};
 
 		PluginControllerInstaller::install( $controller );
+	}
+}
+
+class PageReportsLandingUnitTestDouble extends PageReportsLanding {
+
+	protected function renderSettings() :string {
+		return 'SETTINGS_HTML';
 	}
 }

@@ -17,6 +17,10 @@ class AutoReportCoordinatorTest extends TestCase {
 		$coordinator = new class extends AutoReportCoordinator {
 			public array $calls = [];
 
+			protected function isReportEmailHoldActive() :bool {
+				return false;
+			}
+
 			protected function isReadyForScanResultNotifications() :bool {
 				$this->calls[] = 'ready';
 				return true;
@@ -63,6 +67,10 @@ class AutoReportCoordinatorTest extends TestCase {
 		$coordinator = new class extends AutoReportCoordinator {
 			public array $calls = [];
 
+			protected function isReportEmailHoldActive() :bool {
+				return false;
+			}
+
 			protected function isReadyForScanResultNotifications() :bool {
 				$this->calls[] = 'ready';
 				return true;
@@ -107,6 +115,10 @@ class AutoReportCoordinatorTest extends TestCase {
 	public function test_run_skips_alert_persistence_and_email_when_alert_build_fails_but_still_attempts_info() :void {
 		$coordinator = new class extends AutoReportCoordinator {
 			public array $calls = [];
+
+			protected function isReportEmailHoldActive() :bool {
+				return false;
+			}
 
 			protected function isReadyForScanResultNotifications() :bool {
 				$this->calls[] = 'ready';
@@ -154,6 +166,10 @@ class AutoReportCoordinatorTest extends TestCase {
 	public function test_run_checks_each_automatic_report_independently_before_construction() :void {
 		$coordinator = new class extends AutoReportCoordinator {
 			public array $calls = [];
+
+			protected function isReportEmailHoldActive() :bool {
+				return false;
+			}
 			private array $ready = [ false, false ];
 
 			protected function isReadyForScanResultNotifications() :bool {
@@ -170,5 +186,30 @@ class AutoReportCoordinatorTest extends TestCase {
 		$coordinator->run();
 
 		$this->assertSame( [ 'ready', 'ready' ], $coordinator->calls );
+	}
+
+	public function test_run_builds_no_reports_while_the_report_email_hold_is_active() :void {
+		$coordinator = new class extends AutoReportCoordinator {
+			public array $calls = [];
+
+			protected function isReportEmailHoldActive() :bool {
+				$this->calls[] = 'hold';
+				return true;
+			}
+
+			protected function isReadyForScanResultNotifications() :bool {
+				$this->calls[] = 'ready';
+				return true;
+			}
+
+			protected function createReport( string $reportType ) :ReportVO {
+				$this->calls[] = 'create:'.$reportType;
+				return new ReportVO();
+			}
+		};
+
+		$coordinator->run();
+
+		$this->assertSame( [ 'hold' ], $coordinator->calls );
 	}
 }

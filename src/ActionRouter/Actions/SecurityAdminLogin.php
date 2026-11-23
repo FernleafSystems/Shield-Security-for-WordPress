@@ -2,56 +2,69 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\QueryRemainingOffenses;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\{
 	ToggleSecAdminStatus,
 	VerifyPinRequest
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
 class SecurityAdminLogin extends SecurityAdminBase {
 
 	public const SLUG = 'sec_admin_login';
 
-	protected function exec() {
-		$resp = $this->response();
-		$success = false;
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
-		if ( self::con()->comps->sec_admin->isCurrentlySecAdmin() ) {
+	protected function exec() {
+		$con = self::con();
+		$reload = true;
+		if ( $con->comps->sec_admin->isCurrentlySecAdmin() ) {
 			$success = true;
-			$resp->message = __( "You're already a Security Admin.", 'wp-simple-firewall' )
-							 .' '.__( 'Please wait a moment', 'wp-simple-firewall' ).' ...';
+			$message = __( "You're already a Security Admin.", 'wp-simple-firewall' )
+					   .' '.__( 'Please wait a moment', 'wp-simple-firewall' ).' ...';
 		}
 		else {
-			$pin = $this->action_data[ 'sec_admin_key' ] ?? '';
-			if ( empty( $pin ) ) {
-				$pin = FormParams::Retrieve()[ 'sec_admin_key' ] ?? '';
+			// The PIN arrives as a field of its own. A page still open from before the PIN box was replaced sends it
+			// inside the submitted form, and its PIN is just as good.
+			$pin = $this->fields()->string( 'sec_admin_key', '' );
+			if ( $pin === '' ) {
+				$pin = $this->formFields()->string( 'sec_admin_key', '' );
 			}
 			$success = ( new VerifyPinRequest() )->run( $pin );
 
 			if ( $success ) {
 				( new ToggleSecAdminStatus() )->turnOn();
-				$resp->message = \implode( ' ', [
+				$message = \implode( ' ', [
 					__( 'Security Admin PIN Accepted.', 'wp-simple-firewall' ),
 					__( 'Reloading', 'wp-simple-firewall' ),
 					'...'
 				] );
 			}
 			else {
-				$remaining = ( new QueryRemainingOffenses() )
-					->setIP( self::con()->this_req->ip )
-					->run();
-				$resp->message = __( 'Security Admin PIN incorrect.', 'wp-simple-firewall' ).' ';
-				$resp->message .= $remaining > 0 ?
-					sprintf( __( 'Attempts remaining: %s.', 'wp-simple-firewall' ), $remaining )
-					: __( "No attempts remaining.", 'wp-simple-firewall' );
+				$message = __( 'Security Admin PIN incorrect.', 'wp-simple-firewall' );
+				// The PIN may be retried in place until the IP is about to be blocked; then reload to show the block.
+				// Only public IPs collect offenses (ProcessOffenses), so any other IP may always retry.
+				$reload = false;
+				if ( $con->comps->opts_lookup->enabledIpAutoBlock() && $con->this_req->ip_is_public ) {
+					$remaining = ( new QueryRemainingOffenses() )
+						->setIP( $con->this_req->ip )
+						->run();
+					$reload = $remaining < 1;
+					$message .= ' '.( $reload ?
+							__( "No attempts remaining.", 'wp-simple-firewall' )
+							: sprintf( __( 'Attempts remaining: %s.', 'wp-simple-firewall' ), $remaining ) );
+				}
 			}
 		}
 
-		$resp->setPayload( [
-			'html'         => '',
-			'page_reload'  => true,
-			'redirect_url' => self::con()->plugin_urls->adminRefererOrHome(),
+		// No redirect: the PIN is entered on the page it unlocks, so reloading that page is the outcome wanted.
+		$this->response()->setPayload( [
+			'message'     => $message,
+			'page_reload' => $reload,
 		] )->setPayloadSuccess( $success );
 	}
 }

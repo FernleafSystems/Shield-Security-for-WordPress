@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	CloakedPluginIgnore,
 	CloakedPluginUnignore
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\CloakedPluginDetails;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	CloakedPluginFinding,
 	CloakedPluginState,
@@ -15,62 +16,35 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
  * @phpstan-import-type AttentionItem from \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems
  * @phpstan-import-type AssessmentRow from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type CloakedPluginFindingState from CloakedPluginState
- * @phpstan-type CloakedPluginDetailAction array{
- *   href:string,
- *   label:string,
- *   type:'deactivate'|'navigate',
- *   icon:string,
- *   is_action:bool,
- *   tooltip:string,
- *   attributes:array<string,string>
- * }
- * @phpstan-type CloakedPluginDetailItem array{
+ * @phpstan-import-type CloakedPluginIgnoreRecord from CloakedPluginState
+ * @phpstan-import-type CompactSummaryAction from ActionsQueueCompactSummaryRowBuilder
+ * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
+ * @phpstan-type CloakedPluginDrawerItem array{
  *   label:string,
  *   value:string,
  *   style:'text'|'code'
  * }
- * @phpstan-type CloakedPluginDetailRow array{
- *   title:string,
- *   description:string,
- *   status:'critical'|'good',
- *   status_icon:null,
- *   status_label:string,
- *   count_badge:null,
- *   badge_status:'critical'|'good',
- *   expandable:false,
- *   expand_target:'',
- *   expand_cta_label:'',
- *   expand_accessible_label:'',
- *   expand_title:'',
- *   expansion:array{},
- *   detail_items:list<CloakedPluginDetailItem>,
- *   explanations:list<string>,
- *   show_gear:false,
- *   actions:list<CloakedPluginDetailAction>,
- *   attributes:array<string,string>,
- *   section_label:string
+ * @phpstan-type CloakedPluginDrawer array{
+ *   identifier:string,
+ *   name:string,
+ *   badges:list<string>,
+ *   is_ignored:bool,
+ *   finding:string,
+ *   reasons:list<string>,
+ *   file:list<CloakedPluginDrawerItem>,
+ *   claims:list<CloakedPluginDrawerItem>,
+ *   ignore_details:list<CloakedPluginDrawerItem>,
+ *   recommended:string,
+ *   actions:list<CompactSummaryAction>
  * }
- * @phpstan-type CloakedPluginsRailPane array{
- *   key:'hidden_plugins',
- *   label:string,
- *   status:string,
- *   icon_class:string,
- *   count_items:int,
- *   items:list<CloakedPluginDetailRow>,
- *   is_loaded:true,
- *   is_disabled:bool,
- *   disabled_message:string,
- *   disabled_status:string,
- *   disabled_actions:array{},
- *   render_action:array{},
- *   show_count_placeholder:false,
- *   pane_id:'actions-queue-cloaked-plugins'
+ * @phpstan-type CloakedPluginQueueRows array{
+ *   active:list<CompactSummaryRow>,
+ *   ignored:list<CompactSummaryRow>
  * }
  */
 class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvider {
@@ -80,6 +54,11 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 
 	public const KEY = 'hidden_plugins';
 	public const SOURCE = 'security_check';
+
+	/**
+	 * @var array<string,CloakedPluginIgnoreRecord>|null
+	 */
+	private ?array $loadedIgnoreRecords = null;
 
 	/**
 	 * @return list<AttentionItem>
@@ -132,45 +111,24 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 				'status'            => $status,
 				'status_label'      => $this->standardStatusLabel( $status ),
 				'status_icon_class' => $this->standardStatusIconClass( $status ),
-				'has_useful_detail' => $count > 0 || \count( $this->ignoredFindings() ) > 0,
 			],
 		];
 	}
 
 	/**
-	 * @return CloakedPluginsRailPane
+	 * Each cloaked plugin as a row of its own in the Actions Queue.
+	 * @return CloakedPluginQueueRows
 	 */
-	public function railPaneData() :array {
-		$availability = ( new ScansResultsRailTabAvailability() )->build( self::KEY );
-		$isDisabled = !$availability[ 'is_available' ];
-		$activeFindings = $isDisabled ? [] : $this->activeFindings();
-		$ignoredFindings = $isDisabled ? [] : $this->ignoredFindings();
-		$count = \count( $activeFindings );
-
+	public function queueRows() :array {
 		return [
-			'key'                    => self::KEY,
-			'label'                  => $this->label(),
-			'icon_class'             => $this->iconClass(),
-			'count_items'            => $count,
-			'status'                 => $isDisabled ? $availability[ 'disabled_status' ] : ( $count > 0 ? 'critical' : 'good' ),
-			'items'                  => \array_merge(
-				\array_map(
-					fn( CloakedPluginFinding $finding ) :array => $this->detailRow( $finding, false ),
-					$activeFindings
-				),
-				\array_map(
-					fn( CloakedPluginFinding $finding ) :array => $this->detailRow( $finding, true ),
-					$ignoredFindings
-				)
+			'active'  => \array_map(
+				fn( CloakedPluginFinding $finding ) :array => $this->queueRow( $finding, false ),
+				$this->activeFindings()
 			),
-			'is_loaded'              => true,
-			'is_disabled'            => $isDisabled,
-			'disabled_message'       => $availability[ 'disabled_message' ],
-			'disabled_status'        => $availability[ 'disabled_status' ],
-			'disabled_actions'       => [],
-			'render_action'          => [],
-			'show_count_placeholder' => false,
-			'pane_id'                => 'actions-queue-cloaked-plugins',
+			'ignored' => \array_map(
+				fn( CloakedPluginFinding $finding ) :array => $this->queueRow( $finding, true ),
+				$this->ignoredFindings()
+			),
 		];
 	}
 
@@ -195,6 +153,13 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 		return self::con()->comps->hidden_plugins->currentState();
 	}
 
+	/**
+	 * @return array<string,CloakedPluginIgnoreRecord>
+	 */
+	protected function ignoreRecords() :array {
+		return ( new CloakedPluginState() )->ignoreRecords();
+	}
+
 	private function label() :string {
 		return __( 'Cloaked Plugins', 'wp-simple-firewall' );
 	}
@@ -213,31 +178,92 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 	}
 
 	/**
-	 * @return CloakedPluginDetailRow
+	 * @return CompactSummaryRow
 	 */
-	private function detailRow( CloakedPluginFinding $finding, bool $isIgnored ) :array {
-		$status = $isIgnored ? 'good' : 'critical';
+	private function queueRow( CloakedPluginFinding $finding, bool $isIgnored ) :array {
+		return ( new ActionsQueueCompactSummaryRowBuilder() )->build(
+			'bi bi-plug',
+			$this->findingTitle( $finding ),
+			$finding->cloakReasonSummary(),
+			$isIgnored ? __( 'Ignored', 'wp-simple-firewall' ) : '',
+			$isIgnored,
+			$this->findingActions( $finding, $isIgnored ),
+			'',
+			// The row's name opens the plugin in a drawer, which holds everything else about it.
+			OperatorChromeContract::encodeJson( ActionData::BuildAjaxRender( CloakedPluginDetails::class, [
+				'identifier' => $finding->identityKey(),
+			] ) )
+		);
+	}
+
+	/**
+	 * Everything the drawer for one cloaked plugin shows; null when the plugin is no longer cloaked.
+	 * @return CloakedPluginDrawer|null
+	 */
+	public function drawerData( string $identifier ) :?array {
+		foreach ( [ [ $this->activeFindings(), false ], [ $this->ignoredFindings(), true ] ] as [ $findings, $isIgnored ] ) {
+			foreach ( $findings as $finding ) {
+				if ( $finding->identityKey() === $identifier ) {
+					return $this->drawerDataFor( $finding, $isIgnored );
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @return CloakedPluginDrawer
+	 */
+	private function drawerDataFor( CloakedPluginFinding $finding, bool $isIgnored ) :array {
+		$path = $finding->entry->path;
+		$isReadable = \is_file( $path ) && \is_readable( $path );
+
+		$file = [ $this->detailItem( __( 'Path', 'wp-simple-firewall' ), $finding->relativePath(), 'code' ) ];
+		if ( $finding->entry->version !== '' ) {
+			$file[] = $this->detailItem( __( 'Version', 'wp-simple-firewall' ), $finding->entry->version );
+		}
+		// A fact the filesystem won't give is left out.
+		$size = $isReadable ? \filesize( $path ) : false;
+		if ( $size !== false ) {
+			$file[] = $this->detailItem( __( 'Size', 'wp-simple-firewall' ), (string)size_format( $size ) );
+		}
+		$changedAt = $isReadable ? \filemtime( $path ) : false;
+		if ( $changedAt !== false ) {
+			$file[] = $this->detailItem(
+				__( 'Last changed', 'wp-simple-firewall' ),
+				(string)Services::WpGeneral()->getTimeStringForDisplay( $changedAt )
+			);
+		}
+		// What the file's own header says: none of it is checked, and it's shown as plain text.
+		$claims = [];
+		$header = $isReadable ? get_plugin_data( $path, false, false ) : [];
+		foreach ( [
+			'Author'      => __( 'Author', 'wp-simple-firewall' ),
+			'PluginURI'   => __( 'Plugin site', 'wp-simple-firewall' ),
+			'Description' => __( 'Description', 'wp-simple-firewall' ),
+		] as $key => $label ) {
+			$value = \trim( (string)( $header[ $key ] ?? '' ) );
+			if ( $value !== '' ) {
+				$claims[] = $this->detailItem( $label, $value );
+			}
+		}
 
 		return [
-			'title'                   => $this->findingTitle( $finding ),
-			'description'             => $this->findingDescription( $finding, $isIgnored ),
-			'status'                  => $status,
-			'status_icon'             => null,
-			'status_label'            => $isIgnored ? __( 'Ignored', 'wp-simple-firewall' ) : $this->standardStatusLabel( $status ),
-			'count_badge'             => null,
-			'badge_status'            => $status,
-			'expandable'              => false,
-			'expand_target'           => '',
-			'expand_cta_label'        => '',
-			'expand_accessible_label' => '',
-			'expand_title'            => '',
-			'expansion'               => [],
-			'detail_items'            => $this->findingDetailItems( $finding, $isIgnored ),
-			'explanations'            => [],
-			'show_gear'               => false,
-			'actions'                 => $this->findingActions( $finding, $isIgnored ),
-			'attributes'              => [],
-			'section_label'           => PluginType::label( $finding->entry->type ),
+			'identifier'     => $finding->identityKey(),
+			'name'           => $this->findingTitle( $finding ),
+			// A must-use plugin's type says all its status would.
+			'badges'         => $finding->entry->type === PluginType::MustUse
+				? [ PluginType::label( $finding->entry->type ) ]
+				: [ PluginType::label( $finding->entry->type ), $this->standardPluginStatusLabel( $finding ) ],
+			'is_ignored'     => $isIgnored,
+			'finding'        => $this->findingDescription( $finding ),
+			'reasons'        => $finding->cloakReasonLabels(),
+			'file'           => $file,
+			'claims'         => $claims,
+			'ignore_details' => $isIgnored ? $this->ignoreDetails( $finding ) : [],
+			'recommended'    => $isIgnored ? '' : $this->recommendedAction( $finding ),
+			// The row's own actions: a drawer button stands for the row's button of the same kind, which it presses.
+			'actions'        => $this->findingActions( $finding, $isIgnored ),
 		];
 	}
 
@@ -245,38 +271,44 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 		return \trim( $finding->entry->name ) !== '' ? $finding->entry->name : $finding->entry->file;
 	}
 
-	private function findingDescription( CloakedPluginFinding $finding, bool $isIgnored ) :string {
-		$description = \sprintf(
+	private function findingDescription( CloakedPluginFinding $finding ) :string {
+		return \sprintf(
 			__( '%s exists on disk, but WordPress is not listing it where expected.', 'wp-simple-firewall' ),
 			PluginType::label( $finding->entry->type )
 		);
-
-		return $isIgnored
-			? $description.' '.__( 'This result is currently ignored.', 'wp-simple-firewall' )
-			: $description;
 	}
 
 	/**
-	 * @return list<CloakedPluginDetailItem>
+	 * How, and since when, the user ignored it. Shield's own loader, ignored automatically, has neither.
+	 * @return list<CloakedPluginDrawerItem>
 	 */
-	private function findingDetailItems( CloakedPluginFinding $finding, bool $isIgnored ) :array {
-		$items = [
-			$this->detailItem( __( 'File', 'wp-simple-firewall' ), $finding->entry->file, 'code' ),
-			$this->detailItem( __( 'Path', 'wp-simple-firewall' ), $finding->relativePath(), 'code' ),
-			$this->detailItem( __( 'Status', 'wp-simple-firewall' ), $this->statusLabel( $finding ) ),
-			$this->detailItem( __( 'Reason', 'wp-simple-firewall' ), $finding->cloakReasonSummary() ),
-		];
-
-		if ( !$isIgnored ) {
-			$items[] = $this->detailItem( __( 'Recommended action', 'wp-simple-firewall' ), $this->recommendedAction( $finding ) );
+	private function ignoreDetails( CloakedPluginFinding $finding ) :array {
+		$this->loadedIgnoreRecords ??= $this->ignoreRecords();
+		$record = $this->loadedIgnoreRecords[ $finding->identityKey() ] ?? null;
+		if ( $record === null ) {
+			return [];
 		}
 
+		$items = [
+			$this->detailItem(
+				__( 'Ignored', 'wp-simple-firewall' ),
+				$record[ 'mode' ] === CloakedPluginState::IGNORE_MODE_CONTENTS
+					? __( 'Until its main file changes', 'wp-simple-firewall' )
+					: __( 'Always, whatever its file contains', 'wp-simple-firewall' )
+			),
+		];
+		if ( $record[ 'ignored_at' ] > 0 ) {
+			$items[] = $this->detailItem(
+				__( 'Ignored on', 'wp-simple-firewall' ),
+				(string)Services::WpGeneral()->getTimeStringForDisplay( $record[ 'ignored_at' ] )
+			);
+		}
 		return $items;
 	}
 
 	/**
 	 * @param 'text'|'code' $style
-	 * @return CloakedPluginDetailItem
+	 * @return CloakedPluginDrawerItem
 	 */
 	private function detailItem( string $label, string $value, string $style = 'text' ) :array {
 		return [
@@ -286,17 +318,11 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 		];
 	}
 
-	private function statusLabel( CloakedPluginFinding $finding ) :string {
-		switch ( $finding->status() ) {
-			case 'must-use':
-				return __( 'Must-Use', 'wp-simple-firewall' );
-			case 'network-active':
-				return __( 'Network Active', 'wp-simple-firewall' );
-			case 'active':
-				return __( 'Active', 'wp-simple-firewall' );
-			case 'inactive':
-				return __( 'Inactive', 'wp-simple-firewall' );
+	private function standardPluginStatusLabel( CloakedPluginFinding $finding ) :string {
+		if ( $finding->networkActive ) {
+			return __( 'Network Active', 'wp-simple-firewall' );
 		}
+		return $finding->active ? __( 'Active', 'wp-simple-firewall' ) : __( 'Inactive', 'wp-simple-firewall' );
 	}
 
 	private function recommendedAction( CloakedPluginFinding $finding ) :string {
@@ -310,93 +336,75 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 	}
 
 	/**
-	 * @return list<CloakedPluginDetailAction>
+	 * @return list<CompactSummaryAction>
 	 */
 	private function findingActions( CloakedPluginFinding $finding, bool $isIgnored ) :array {
-		if ( $isIgnored ) {
-			if ( $this->isShieldMuLoaderFinding( $finding ) ) {
-				return [];
-			}
-			return [ $this->ignoreToggleAction( $finding, true ) ];
-		}
-
-		$actions = [];
 		if ( $this->isShieldMuLoaderFinding( $finding ) ) {
-			return $actions;
+			return [];
+		}
+		if ( $isIgnored ) {
+			return [ $this->unignoreAction( $finding ) ];
 		}
 
-		if ( $finding->entry->type !== PluginType::MustUse ) {
-			if ( $finding->active || $finding->networkActive ) {
-				$actions = $this->actionList( $this->deactivateUrl( $finding->entry->file ), __( 'Deactivate Plugin', 'wp-simple-firewall' ), 'deactivate', 'bi bi-power' );
-			}
-			else {
-				$actions = $this->actionList( $this->pluginsSearchUrl( $finding->entry->file ), __( 'Manage Plugins', 'wp-simple-firewall' ), 'navigate', 'bi bi-arrow-right-circle-fill' );
-			}
+		// Ignoring is all that's done from here. Removing a plugin is left to whoever has its files: WordPress's own
+		// delete runs the plugin's uninstall code first, and takes everything in the plugin's folder.
+		// "Ignore all" takes only the "until it changes" ignores (kind 'ignore'). A file that can't be read can't be
+		// held to its contents, so it can only be ignored wherever it is.
+		$actions = [];
+		$contentsHash = $finding->contentsHash();
+		if ( $contentsHash !== '' ) {
+			$actions[] = $this->ignoreAction( $finding, CloakedPluginState::IGNORE_MODE_CONTENTS, $contentsHash );
 		}
-
-		$actions[] = $this->ignoreToggleAction( $finding, false );
+		$actions[] = $this->ignoreAction( $finding, CloakedPluginState::IGNORE_MODE_PATH, '' );
 		return $actions;
 	}
 
 	/**
-	 * @param 'deactivate'|'navigate' $type
-	 * @return list<CloakedPluginDetailAction>
+	 * @phpstan-param value-of<CloakedPluginState::IGNORE_MODES> $mode
+	 * @return CompactSummaryAction
 	 */
-	private function actionList( string $href, string $label, string $type, string $icon ) :array {
-		if ( \trim( $href ) === '' || \trim( $label ) === '' ) {
-			return [];
+	private function ignoreAction( CloakedPluginFinding $finding, string $mode, string $contentsHash ) :array {
+		$isUntilChanged = $mode === CloakedPluginState::IGNORE_MODE_CONTENTS;
+		$data = [
+			'identifier'  => $finding->identityKey(),
+			'ignore_mode' => $mode,
+		];
+		if ( $isUntilChanged ) {
+			$data[ 'contents_hash' ] = $contentsHash;
 		}
 
 		return [
-			[
-				'href'       => $href,
-				'label'      => $label,
-				'type'       => $type,
-				'icon'       => $icon,
-				'is_action'  => false,
-				'tooltip'    => '',
-				'attributes' => [],
-			],
+			'href'             => '',
+			'is_action'        => true,
+			'kind'             => $isUntilChanged ? 'ignore' : '',
+			'maintenance_key'  => self::KEY,
+			'label'            => $isUntilChanged ? __( 'Ignore', 'wp-simple-firewall' ) : __( 'Always ignore', 'wp-simple-firewall' ),
+			'icon'             => 'bi bi-eye-slash-fill',
+			'tooltip'          => $isUntilChanged
+				? __( 'Ignore this cloaked plugin until its main file changes.', 'wp-simple-firewall' )
+				: __( 'Ignore this cloaked plugin at this location, whatever its file contains.', 'wp-simple-firewall' ),
+			'target'           => '',
+			'ajax_action_json' => OperatorChromeContract::encodeJson( ActionData::Build( CloakedPluginIgnore::class, true, $data ) ),
 		];
 	}
 
 	/**
-	 * @return CloakedPluginDetailAction
+	 * @return CompactSummaryAction
 	 */
-	private function ignoreToggleAction( CloakedPluginFinding $finding, bool $isIgnored ) :array {
-		$actionClass = $isIgnored ? CloakedPluginUnignore::class : CloakedPluginIgnore::class;
-		$label = $isIgnored ? __( 'Stop Ignoring', 'wp-simple-firewall' ) : __( 'Ignore', 'wp-simple-firewall' );
-		$actionData = ActionData::Build( $actionClass, true, [
-			'finding_id' => $finding->identityKey(),
-		] );
-
+	private function unignoreAction( CloakedPluginFinding $finding ) :array {
 		return [
-			'href'       => '',
-			'label'      => $label,
-			'type'       => 'navigate',
-			'icon'       => $isIgnored ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill',
-			'is_action'  => true,
-			'tooltip'    => $isIgnored
-				? __( 'Stop ignoring this cloaked plugin result.', 'wp-simple-firewall' )
-				: __( 'Ignore this cloaked plugin result.', 'wp-simple-firewall' ),
-			'attributes' => [
-				'data-operator-context-action-ajax'       => '1',
-				'data-operator-context-action-json'       => OperatorChromeContract::encodeJson( $actionData ),
-				'data-operator-context-action-processing' => $isIgnored
-					? __( 'Stopping ignore...', 'wp-simple-firewall' )
-					: __( 'Ignoring cloaked plugin...', 'wp-simple-firewall' ),
-			],
+			'href'             => '',
+			'is_action'        => true,
+			'kind'             => 'unignore',
+			'maintenance_key'  => self::KEY,
+			'label'            => __( 'Stop ignoring', 'wp-simple-firewall' ),
+			'icon'             => 'bi bi-eye-fill',
+			'tooltip'          => __( 'Stop ignoring this cloaked plugin result.', 'wp-simple-firewall' ),
+			'target'           => '',
+			'ajax_action_json' => OperatorChromeContract::encodeJson( ActionData::Build( CloakedPluginUnignore::class, true, [
+				'identifier' => $finding->identityKey(),
+			] ) ),
 		];
-	}
-
-	protected function deactivateUrl( string $pluginFile ) :string {
-		return Services::WpPlugins()->getUrl_Deactivate( $pluginFile );
-	}
-
-	protected function pluginsSearchUrl( string $pluginFile ) :string {
-		return URL::Build( Services::WpGeneral()->getAdminUrl_Plugins(), [
-			's' => $pluginFile,
-		] );
 	}
 
 	protected function isShieldMuLoaderFinding( CloakedPluginFinding $finding ) :bool {

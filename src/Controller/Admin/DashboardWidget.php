@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Admin;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -15,7 +16,13 @@ class DashboardWidget {
 		$con = self::con();
 		return $con->isValidAdminArea() &&
 			   Services::WpUsers()->isUserAdmin() &&
-			   apply_filters( 'shield/show_dashboard_widget', $con->cfg->properties[ 'show_dashboard_widget' ] ?? true );
+			   // Shown by default only when the plugin property and the site's "dashboard_display" setting both allow it;
+			   // the filter has the final say either way.
+			   apply_filters(
+				   'shield/show_dashboard_widget',
+				   ( $con->cfg->properties[ 'show_dashboard_widget' ] ?? true )
+				   && $con->comps->opts_lookup->showsInDashboard( EnumDashboardDisplay::DASHBOARD_WIDGET )
+			   );
 	}
 
 	protected function run() {

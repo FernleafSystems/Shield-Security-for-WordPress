@@ -20,6 +20,10 @@ class UnitTestPluginUrls {
 		return $this->rootAdminPageSlug;
 	}
 
+	public function rootAdminPage() :string {
+		return '/wp-admin/admin.php?page='.$this->rootAdminPageSlug;
+	}
+
 	public function adminHome() :string {
 		return $this->adminHome;
 	}
@@ -33,8 +37,16 @@ class UnitTestPluginUrls {
 		return empty( $zone ) ? $url : $url.'?zone='.$zone;
 	}
 
+	public function setupGuide() :string {
+		return '/admin/zones/overview?setup_guide=open';
+	}
+
 	public function reportsHome( string $workspace = '' ) :string {
 		return '/admin/reports/overview'.( $workspace === '' ? '' : '?workspace='.$workspace );
+	}
+
+	public function investigateHome() :string {
+		return '/admin/activity/overview';
 	}
 
 	public function adminIpRules() :string {
@@ -69,10 +81,6 @@ class UnitTestPluginUrls {
 		return empty( $lookup ) ? '/admin/activity/by_user' : '/admin/activity/by_user?user_lookup='.$lookup;
 	}
 
-	public function investigateByCore() :string {
-		return '/admin/activity/by_core';
-	}
-
 	public function ipAnalysis( string $ip ) :string {
 		return '/admin/ips/rules?analyse_ip='.$ip;
 	}
@@ -82,8 +90,20 @@ class UnitTestPluginUrls {
 		return empty( $zone ) ? $url : $url.'?zone='.$zone;
 	}
 
-	public function cloakedPlugins() :string {
-		return '/wp-admin/plugins.php?plugin_status=cloaked';
+	public function pluginInPluginsScreen( string $pluginName, string $pluginStatus = 'all' ) :string {
+		return '/wp-admin/plugins.php?plugin_status='.$pluginStatus.'&s='.\rawurlencode( $pluginName );
+	}
+
+	public function vulnerablePlugins() :string {
+		return '/wp-admin/plugins.php?plugin_status=vulnerable';
+	}
+
+	public function themeInThemesScreen( string $stylesheet ) :string {
+		return '/wp-admin/themes.php?theme='.\rawurlencode( $stylesheet );
+	}
+
+	public function scansRun() :string {
+		return '/admin/scans/run';
 	}
 
 	public function noncedPluginAction( string $action, ?string $url = null, array $aux = [] ) :string {

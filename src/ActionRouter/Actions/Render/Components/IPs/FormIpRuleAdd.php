@@ -11,10 +11,8 @@ class FormIpRuleAdd extends BaseRender {
 	public const TEMPLATE = '/components/forms/ip_rule_add.twig';
 
 	protected function getRenderData() :array {
-		$con = self::con();
 		return [
 			'flags'   => [
-				'is_blacklist_allowed' => $con->isPremiumActive(),
 			],
 			'strings' => [
 				'add_to_list_block'       => __( 'Add To Block List', 'wp-simple-firewall' ),

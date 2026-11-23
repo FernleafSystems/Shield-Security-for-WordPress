@@ -1,0 +1,82 @@
+/* Tabs across the top of a mode's page (Investigate, Reports), underlined in the mode's colour */
+.shield-tabs {
+	--shield-tabs-accent: #{$mode-investigate};
+	border-bottom: 1px solid #dcdcde;
+	display: flex;
+	margin-bottom: 1.25rem;
+}
+
+.shield-tabs--reports {
+	--shield-tabs-accent: #{$mode-reports};
+}
+
+.shield-tabs--configure {
+	--shield-tabs-accent: #{$mode-configure};
+}
+
+.shield-tabs__list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+}
+
+.shield-tabs__tab {
+	align-items: center;
+	border-bottom: 3px solid transparent;
+	color: #50575e;
+	display: inline-flex;
+	font-size: $mode-tab-font-size;
+	font-weight: 500;
+	gap: 0.45rem;
+	margin-bottom: -1px;
+	padding: 0.6rem 0.85rem 0.55rem;
+	text-decoration: none;
+
+	&:hover,
+	&:focus-visible {
+		color: #1d2327;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--shield-tabs-accent);
+		outline-offset: -2px;
+	}
+
+	// A click shouldn't leave a ring; the keyboard still gets one.
+	&:focus:not(:focus-visible) {
+		box-shadow: none;
+		outline: none;
+	}
+
+	&.is-current {
+		border-bottom-color: var(--shield-tabs-accent);
+		color: #1d2327;
+		font-weight: 600;
+
+		i {
+			color: var(--shield-tabs-accent);
+		}
+	}
+}
+
+.shield-tabs__live-dot {
+	background: #d63638;
+	border-radius: 50%;
+	box-shadow: 0 0 0 3px rgba(214, 54, 56, 0.18);
+	display: inline-block;
+	height: 8px;
+	width: 8px;
+}
+
+/* On a narrow screen the tabs stay on one line and scroll sideways. */
+@media (max-width: 600px) {
+	.shield-tabs__list {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		scrollbar-width: thin;
+	}
+
+	.shield-tabs__tab {
+		white-space: nowrap;
+	}
+}

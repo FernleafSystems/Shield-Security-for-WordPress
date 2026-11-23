@@ -1,11 +1,21 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
+{#
+	Reports is one page with tabs, like Investigate. Every tab is on the page from the start, so switching is
+	instant; the settings tab is Configure's own "Reports and alerts" panels.
+#}
 {% block inner_page_body %}
-	<div class="reports-landing" data-reports-landing="1">
-		<div class="reports-landing__drilldown" data-reports-section="drilldown">
-			{% include '/wpadmin/components/page/drill_down_shell.twig' with {
-				shell: vars.drill_shell
-			} only %}
-		</div>
+	{% set current_tab = vars.reports_current_tab %}
+	<div class="reports-landing" data-reports-landing="1" data-reports-current-tab="{{ current_tab }}">
+		{% include '/wpadmin/components/page/mode_tabs.twig' with { tabs: vars.reports_tabs, key_attr: 'data-reports-tab', mode: 'reports' } only %}
+
+		{% for panel in vars.reports_panels %}
+			<div class="reports-landing__tabpanel"
+				 data-reports-tabpanel="{{ panel.key }}"
+				 {% if panel.key == 'settings' %}data-configure-embed="1"{% endif %}
+				 {% if current_tab != panel.key %}hidden{% endif %}>
+				{{ panel.body|raw }}
+			</div>
+		{% endfor %}
 	</div>
 {% endblock %}

@@ -1,0 +1,125 @@
+// ─── Action bar: a dark bar along the bottom of the screen for what's pending (unsaved changes, a
+// selection), lined up with the area it belongs to. The Reports selection uses it; Configure's save bar uses
+// the top variant below. ───
+.shield-actionbar {
+	align-items: center;
+	background: #1d2327;
+	border-radius: 10px;
+	bottom: 0.75rem;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+	color: #ffffff;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.6rem 0.9rem;
+	// The right padding keeps the buttons clear of the floating help-desk button in that corner.
+	padding: 0.7rem 5.5rem 0.7rem 1rem;
+	position: fixed;
+	z-index: 9990;
+
+	&[hidden] {
+		display: none;
+	}
+
+	.btn {
+		margin: 0;
+	}
+}
+
+.shield-actionbar__dot {
+	background: #f0b849;
+	border-radius: 50%;
+	box-shadow: 0 0 0 3px rgba(240, 184, 73, 0.25);
+	flex: 0 0 auto;
+	height: 10px;
+	width: 10px;
+}
+
+.shield-actionbar__copy {
+	display: flex;
+	flex: 1 1 14rem;
+	flex-wrap: wrap;
+	gap: 0.2rem 0.6rem;
+	min-width: 0;
+}
+
+.shield-actionbar__where {
+	color: #c3c4c7;
+	font-size: 0.82rem;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+// The quieter choice, light on the dark bar.
+.shield-actionbar__secondary {
+	background: transparent;
+	border: 1px solid rgba(255, 255, 255, 0.45);
+	color: #ffffff;
+
+	&:hover,
+	&:focus {
+		background: rgba(255, 255, 255, 0.12);
+		border-color: #ffffff;
+		color: #ffffff;
+	}
+}
+
+.shield-actionbar .btn:focus-visible {
+	outline: 2px solid #ffffff;
+	outline-offset: 2px;
+}
+
+// ─── A compact bar that drops in at the top of the screen, just below the WP admin bar. JS sets `left` to the
+// middle of the area it belongs to, and the clearance to keep it below the page head while that's in view.
+// Configure's save bar uses it, so unsaved changes can't be missed. ───
+.shield-actionbar--top {
+	animation: shield-actionbar-drop 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+	border-radius: 999px;
+	bottom: auto;
+	flex-wrap: wrap;
+	gap: 0.6rem;
+	justify-content: center;
+	max-width: calc(100vw - 2rem);
+	padding: 0.35rem 0.4rem 0.35rem 0.95rem;
+	top: calc(max(var(--wp-admin--admin-bar--height, 32px), var(--shield-actionbar-clearance, 0px)) + 0.6rem);
+	transform: translateX(-50%);
+	width: max-content;
+
+	.shield-actionbar__copy {
+		flex: 0 1 auto;
+		flex-wrap: nowrap;
+		min-width: 0;
+		white-space: nowrap;
+	}
+
+	.shield-actionbar__where {
+		max-width: 16rem;
+	}
+
+	.btn {
+		border-radius: 999px;
+		padding-inline: 0.85rem;
+		white-space: nowrap;
+	}
+
+	// Narrow screens drop the list of places and let the buttons wrap beneath the count if they must.
+	@media (max-width: 600px) {
+		border-radius: 14px;
+
+		.shield-actionbar__where {
+			display: none;
+		}
+	}
+}
+
+@keyframes shield-actionbar-drop {
+	from {
+		opacity: 0;
+		transform: translate(-50%, -150%);
+	}
+	to {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+}

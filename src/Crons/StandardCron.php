@@ -6,11 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 trait StandardCron {
 
-	/**
-	 * @var int
-	 */
-	private $nCronFirstRun;
-
 	protected $isSubSiteCron = false;
 
 	protected function setupCron() {
@@ -50,15 +45,7 @@ trait StandardCron {
 	abstract protected function getCronName() :string;
 
 	public function getFirstRunTimestamp() :int {
-		return empty( $this->nCronFirstRun ) ? Services::Request()->ts() + \MINUTE_IN_SECONDS : $this->nCronFirstRun;
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getNextCronRun() {
-		$next = wp_next_scheduled( $this->getCronName() );
-		return \is_numeric( $next ) ? $next : 0;
+		return Services::Request()->ts() + \MINUTE_IN_SECONDS;
 	}
 
 	public function deleteCron() {
@@ -72,10 +59,5 @@ trait StandardCron {
 
 	public function runCron() {
 		// Override to run the actual Cron activity
-	}
-
-	public function setFirstRun( int $firstRunAt ) :self {
-		$this->nCronFirstRun = $firstRunAt;
-		return $this;
 	}
 }

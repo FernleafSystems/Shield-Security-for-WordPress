@@ -164,28 +164,16 @@ class ModCon {
 		return $can;
 	}
 
+	/**
+	 * Records the install time the first time it's missing. A plugin reset clears it, so it then starts again.
+	 */
 	public function storeRealInstallDate(): int {
-		$key = self::con()->prefix( 'install_date', '_' );
-		$now = Services::Request()->ts();
-		$wpDate = (int)Services::WpGeneral()->getOption( $key );
-		if ( $wpDate === 0 ) {
-			$wpDate = $now;
+		$installedAt = self::con()->comps->opts_lookup->getInstalledAt();
+		if ( $installedAt === 0 ) {
+			$installedAt = Services::Request()->ts();
+			self::con()->opts->optSet( 'installation_time', $installedAt );
 		}
-
-		$date = (int)self::con()->comps->opts_lookup->getInstalledAt();
-		if ( $date === 0 ) {
-			$date = $now;
-		}
-
-		$finalDate = (int)\min( $date, $wpDate );
-		if ( (int)Services::WpGeneral()->getOption( $key ) !== $finalDate ) {
-			Services::WpGeneral()->updateOption( $key, $finalDate );
-		}
-		if ( (int)self::con()->opts->optGet( 'installation_time' ) !== $finalDate ) {
-			self::con()->opts->optSet( 'installation_time', $finalDate );
-		}
-
-		return $finalDate;
+		return $installedAt;
 	}
 
 	public function runDailyCron() {

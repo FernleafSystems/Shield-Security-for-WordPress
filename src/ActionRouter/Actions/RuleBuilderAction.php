@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\{
 	Ops as RulesDB,
 	RuleRecords
@@ -15,19 +16,26 @@ class RuleBuilderAction extends BaseAction {
 
 	public const SLUG = 'rule_builder_action';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
 		$con = self::con();
 
 		$success = false;
 		$record = null;
 
-		$rawForm = $this->action_data[ 'rule_form' ] ?? [];
+		$fields = $this->fields();
+		$rawForm = $fields->array( 'rule_form', [] );
 		if ( empty( $rawForm ) ) {
 			$msg = __( 'Please provide the builder form', 'wp-simple-firewall' );
 		}
 		else {
-			$action = $this->action_data[ 'builder_action' ] ?? '';
-			$editRuleID = (int)( $rawForm[ 'edit_rule_id' ] ?? -1 );
+			$action = $fields->string( 'builder_action', '' );
+			$editRuleID = ParseRuleBuilderForm::EditRuleIdFrom( $rawForm );
 
 			if ( $action === 'reset' ) {
 
@@ -54,10 +62,10 @@ class RuleBuilderAction extends BaseAction {
 				$parsed = ( new ParseRuleBuilderForm(
 					$rawForm,
 					$action,
-					$this->action_data[ 'builder_action_vars' ] ?? []
+					$fields->array( 'builder_action_vars', [] )
 				) )->parseForm();
 
-				$asDraft = !$parsed->ready_to_create || $this->action_data[ 'builder_action' ] !== 'create_rule';
+				$asDraft = !$parsed->ready_to_create || $action !== 'create_rule';
 				// if we're going to update/save the rule
 				if ( !$asDraft ) {
 					// purge any unset condition

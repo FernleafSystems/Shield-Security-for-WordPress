@@ -3,9 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureGoalPanels;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
+/**
+ * A settings form is always a Configure panel, and it saves exactly the settings that panel shows.
+ */
 class OptionsFormForRenderIntegrationTest extends ShieldIntegrationTestCase {
 
 	use PluginAdminRouteRenderAssertions;
@@ -16,107 +20,54 @@ class OptionsFormForRenderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireController()->this_req->wp_is_ajax = false;
 	}
 
-	private function renderOptionsFormPayload( array $options, array $extra = [] ) :array {
-		$payload = $this->processActionPayloadWithAdminBypass(
-			OptionsFormFor::SLUG,
-			\array_merge( [
-				'options' => $options,
-			], $extra )
+	public function test_form_saves_exactly_the_settings_its_panel_shows() :void {
+		$payload = $this->renderPanel( [ 'enable_core_file_integrity_scan', 'file_scan_areas' ], 'code:file_scanning' );
+		$this->assertSame(
+			[ 'enable_core_file_integrity_scan', 'file_scan_areas' ],
+			$payload[ 'render_data' ][ 'vars' ][ 'all_opts_keys' ]
 		);
+		$this->assertStringContainsString( 'name="file_scan_areas[]"', (string)$payload[ 'render_output' ] );
+	}
+
+	public function test_a_setting_the_panel_cannot_show_is_neither_shown_nor_saved() :void {
+		// File areas only appear beneath the file scanning switch, so on their own the panel has no place for them.
+		$payload = $this->renderPanel( [ 'file_scan_areas' ], 'code:file_scanning' );
+		$this->assertSame( [], $payload[ 'render_data' ][ 'vars' ][ 'all_opts_keys' ] );
+		$this->assertStringNotContainsString( 'name="file_scan_areas[]"', (string)$payload[ 'render_output' ] );
+	}
+
+	public function test_settings_outside_the_named_topic_are_not_saved() :void {
+		$topicKeys = ConfigureGoalPanels::topicOptionKeys( 'code', 'file_scanning' );
+		$payload = $this->renderPanel( [ 'enable_core_file_integrity_scan', 'session_lock' ], 'code:file_scanning' );
+		$saved = $payload[ 'render_data' ][ 'vars' ][ 'all_opts_keys' ];
+		$this->assertContains( 'enable_core_file_integrity_scan', $saved );
+		$this->assertNotContains( 'session_lock', $saved );
+		$this->assertSame( [], \array_diff( $saved, $topicKeys ) );
+	}
+
+	public function test_a_setting_with_more_to_say_offers_its_description_closed() :void {
+		$payload = $this->renderPanel( [ 'preferred_temp_dir' ], 'shield:advanced' );
+		$output = (string)$payload[ 'render_output' ];
+
+		$this->assertMatchesRegularExpression(
+			'#<button[^>]+class="shield-panel-details-toggle"[^>]+aria-expanded="false"[^>]+aria-controls="Details-preferred_temp_dir"#s',
+			$output
+		);
+		$this->assertMatchesRegularExpression( '#<div class="shield-panel-details" id="Details-preferred_temp_dir" hidden>\s*<p>#', $output );
+	}
+
+	public function test_panel_form_posts_to_the_standard_save_action() :void {
+		$payload = $this->renderPanel( [ 'enable_core_file_integrity_scan' ], 'code:file_scanning' );
+		$this->assertStringContainsString( 'data-options-save-action="form_save"', (string)$payload[ 'render_output' ] );
+	}
+
+	private function renderPanel( array $options, string $panel ) :array {
+		$payload = $this->processActionPayloadWithAdminBypass( OptionsFormFor::SLUG, [
+			'options'         => $options,
+			'configure_panel' => $panel,
+			'form_context'    => 'offcanvas',
+		] );
 		$this->assertRouteRenderOutputHealthy( $payload, 'options form render' );
 		return $payload;
-	}
-
-	public function test_option_render_data_preserves_requested_option_order_and_focus() :void {
-		$payload = $this->renderOptionsFormPayload(
-			[
-				'session_lock',
-				'session_idle_timeout_interval',
-			],
-			[
-				'config_item' => 'session_lock',
-			]
-		);
-
-		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
-		$sections = (array)( $renderData[ 'vars' ][ 'all_options' ] ?? [] );
-
-		$this->assertSame(
-			[ 'session_lock', 'session_idle_timeout_interval' ],
-			$renderData[ 'vars' ][ 'all_opts_keys' ] ?? []
-		);
-		$this->assertTrue( $this->containsFocusedOption( $sections, 'session_lock' ) );
-		$this->assertFalse( $this->containsFocusedOption( $sections, 'session_idle_timeout_interval' ) );
-	}
-
-	public function test_option_render_data_exposes_transfer_contract_when_requested() :void {
-		$payload = $this->renderOptionsFormPayload(
-			[
-				'admin_access_key',
-				'admin_access_restrict_plugins',
-			],
-			[
-				'show_transfer_switch' => true,
-				'transfer_action'      => 'profile_xfer_include_toggle',
-			]
-		);
-
-		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
-		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'show_transfer_switch' ] ?? false ) );
-		$this->assertSame( 'profile_xfer_include_toggle', (string)( $renderData[ 'vars' ][ 'transfer_action' ] ?? '' ) );
-		$this->assertIsArray( $renderData[ 'vars' ][ 'xferable_opts' ] ?? null );
-		$this->assertIsArray( $renderData[ 'vars' ][ 'xfer_excluded_opts' ] ?? null );
-		$this->assertSame( 'normal', (string)( $renderData[ 'vars' ][ 'form_context' ] ?? '' ) );
-	}
-
-	public function test_option_render_hides_transfer_controls_by_default() :void {
-		$payload = $this->renderOptionsFormPayload(
-			[
-				'admin_access_key',
-				'admin_access_restrict_plugins',
-			]
-		);
-
-		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
-		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'show_transfer_switch' ] ?? true ) );
-		$this->assertSame( 'form_save', (string)( $renderData[ 'vars' ][ 'options_save_action' ] ?? '' ) );
-		$this->assertStringContainsString(
-			'data-options-save-action="form_save"',
-			(string)( $payload[ 'render_output' ] ?? '' )
-		);
-		$this->assertStringNotContainsString(
-			'toggle-importexport-inclusion',
-			(string)( $payload[ 'render_output' ] ?? '' )
-		);
-	}
-
-	public function test_option_render_requires_transfer_action_to_show_transfer_controls() :void {
-		$payload = $this->renderOptionsFormPayload(
-			[
-				'admin_access_key',
-				'admin_access_restrict_plugins',
-			],
-			[
-				'show_transfer_switch' => true,
-			]
-		);
-
-		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
-		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'show_transfer_switch' ] ?? true ) );
-		$this->assertStringNotContainsString(
-			'toggle-importexport-inclusion',
-			(string)( $payload[ 'render_output' ] ?? '' )
-		);
-	}
-
-	private function containsFocusedOption( array $sections, string $optionKey ) :bool {
-		foreach ( $sections as $section ) {
-			foreach ( (array)( $section[ 'options' ] ?? [] ) as $option ) {
-				if ( (string)( $option[ 'key' ] ?? '' ) === $optionKey ) {
-					return (bool)( $option[ 'is_focus' ] ?? false );
-				}
-			}
-		}
-		return false;
 	}
 }

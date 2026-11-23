@@ -14,10 +14,6 @@ class WebApplicationFirewall extends Base {
 		return __( 'Block requests to the site that contain suspicious data.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Edit WAF settings', 'wp-simple-firewall' );
-	}
-
 	protected function configureStatus() :array {
 		$ruleStates = $this->firewallRuleStates();
 		$status = parent::status();
@@ -34,10 +30,7 @@ class WebApplicationFirewall extends Base {
 		}
 
 		foreach ( \array_keys( \array_filter( $ruleStates, static fn( bool $enabled ) :bool => !$enabled ) ) as $ruleKey ) {
-			$status[ 'exp' ][] = sprintf(
-				__( "Requests that trigger the firewall rule '%s' aren't intercepted.", 'wp-simple-firewall' ),
-				$this->firewallRuleName( $ruleKey )
-			);
+			$status[ 'exp' ][] = $this->ruleNotInterceptedExplanation( $ruleKey );
 		}
 
 		if ( $status[ 'level' ] !== EnumEnabledStatus::BAD ) {
@@ -66,33 +59,20 @@ class WebApplicationFirewall extends Base {
 		}
 
 		foreach ( \array_diff( \array_keys( $rules ), $enabled ) as $key ) {
-			$status[ 'exp' ][] = sprintf( "Requests that trigger the firewall rule '%s' aren't intercepted.", $this->firewallRuleName( $key ) );
+			$status[ 'exp' ][] = $this->ruleNotInterceptedExplanation( $key );
 		}
 
 		return $status;
 	}
 
-	public function postureSignals() :array {
-		$states = $this->firewallRuleStates();
-		$signals = [];
-		foreach ( $this->firewallRuleDefinitions() as $optKey => $definition ) {
-			$enabled = !empty( $states[ $optKey ] );
-			$name = $this->firewallRuleName( $optKey );
-			$signals[] = $this->buildPostureSignal(
-				$definition[ 'slug' ],
-				sprintf( __( 'WAF Rule: %s', 'wp-simple-firewall' ), $name ),
-				$definition[ 'weight' ],
-				$enabled ? $definition[ 'weight' ] : 0,
-				$enabled ? 'good' : 'critical',
-				$enabled,
-				[
-					$enabled
-						? sprintf( __( "Requests that trigger '%s' are intercepted.", 'wp-simple-firewall' ), $name )
-						: sprintf( __( "Requests that trigger '%s' are not intercepted.", 'wp-simple-firewall' ), $name ),
-				]
-			);
-		}
-		return $signals;
+	/**
+	 * Each rule is its own setting, so the reason is shown on that setting.
+	 */
+	private function ruleNotInterceptedExplanation( string $ruleKey ) :string {
+		return $this->explanationFixedBy( sprintf(
+			__( "Requests that trigger the firewall rule '%s' aren't intercepted.", 'wp-simple-firewall' ),
+			$this->firewallRuleDefinitions()[ $ruleKey ][ 'name' ]
+		), $ruleKey );
 	}
 
 	/**
@@ -107,20 +87,15 @@ class WebApplicationFirewall extends Base {
 	}
 
 	/**
-	 * @return array<string,array{name:string,slug:string,weight:int,primary:bool}>
+	 * @return array<string,array{name:string,primary:bool}>
 	 */
 	private function firewallRuleDefinitions() :array {
 		return [
-			'block_dir_traversal'    => [ 'name' => __( 'Directory Traversals', 'wp-simple-firewall' ), 'slug' => 'firewall_dir_traversal', 'weight' => 5, 'primary' => true ],
-			'block_sql_queries'      => [ 'name' => __( 'SQL Queries', 'wp-simple-firewall' ), 'slug' => 'firewall_sql_queries', 'weight' => 5, 'primary' => true ],
-			'block_field_truncation' => [ 'name' => __( 'Field Truncation', 'wp-simple-firewall' ), 'slug' => 'firewall_field_truncation', 'weight' => 3, 'primary' => false ],
-			'block_php_code'         => [ 'name' => __( 'PHP Code', 'wp-simple-firewall' ), 'slug' => 'firewall_php_code', 'weight' => 4, 'primary' => true ],
-			'block_aggressive'       => [ 'name' => __( 'Aggressive Scan', 'wp-simple-firewall' ), 'slug' => 'firewall_aggressive', 'weight' => 4, 'primary' => false ],
+			'block_dir_traversal'    => [ 'name' => __( 'Directory Traversals', 'wp-simple-firewall' ), 'primary' => true ],
+			'block_sql_queries'      => [ 'name' => __( 'SQL Queries', 'wp-simple-firewall' ), 'primary' => true ],
+			'block_field_truncation' => [ 'name' => __( 'Field Truncation', 'wp-simple-firewall' ), 'primary' => false ],
+			'block_php_code'         => [ 'name' => __( 'PHP Code', 'wp-simple-firewall' ), 'primary' => true ],
+			'block_aggressive'       => [ 'name' => __( 'Aggressive Scan', 'wp-simple-firewall' ), 'primary' => false ],
 		];
-	}
-
-	private function firewallRuleName( string $key ) :string {
-		$name = $this->firewallRuleDefinitions()[ $key ][ 'name' ] ?? '';
-		return empty( $name ) ? $key : $name;
 	}
 }

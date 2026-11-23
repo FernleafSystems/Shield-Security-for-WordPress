@@ -12,11 +12,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageModeLandingBase;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
-	PageActivityLogTable,
-	PageTrafficLogTable,
-	PageUserSessions
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
@@ -139,19 +134,6 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 		$this->assertSame( '', $data[ 'vars' ][ 'mode_panel' ][ 'active_target' ] );
 		$this->assertFalse( (bool)$data[ 'vars' ][ 'mode_panel' ][ 'is_open' ] );
 		$this->assertArrayHasKey( 'close_label', $data[ 'vars' ][ 'mode_panel' ] ?? [] );
-	}
-
-	public function test_investigation_pages_keep_parent_route_and_current_page_step() :void {
-		foreach ( [ PageActivityLogTable::class, PageTrafficLogTable::class, PageUserSessions::class ] as $pageClass ) {
-			$page = new $pageClass();
-			$vars = $this->invokeNonPublicMethod( $page, 'getModeContractVars' );
-			$this->assertSame( '/admin/activity/overview', $vars[ 'mode_shell' ][ 'parent_href' ] );
-			$this->assertSame( 'investigate', $vars[ 'mode_shell' ][ 'mode' ] );
-			$this->assertSame(
-				$this->invokeNonPublicMethod( $page, 'getLandingTitle' ),
-				$vars[ 'mode_shell' ][ 'root_step' ][ 'breadcrumb_label' ]
-			);
-		}
 	}
 
 	public function test_empty_optional_sections_are_not_added() :void {

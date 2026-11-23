@@ -14,10 +14,6 @@ class FileEditingBlock extends Base {
 		return __( 'Restrict the ability to edit files from within the WordPress admin area.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Switch on/off file editing within WP', 'wp-simple-firewall' );
-	}
-
 	/**
 	 * @inheritDoc
 	 */
@@ -33,10 +29,6 @@ class FileEditingBlock extends Base {
 		}
 
 		return $status;
-	}
-
-	protected function postureWeight() :int {
-		return 4;
 	}
 
 	protected function configureTreatsBadStatusAsWarning() :bool {

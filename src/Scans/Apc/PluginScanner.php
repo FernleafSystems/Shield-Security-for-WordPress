@@ -2,12 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginScanner {
 
+	use PluginControllerConsumer;
 	use ScanActionConsumer;
 
 	public function scan( string $pluginFile ) :array {
@@ -27,17 +29,40 @@ class PluginScanner {
 			return [];
 		}
 
-		$lastUpdatedAt = $this->getVerifiedWpOrgLastUpdatedAt( $installed[ 'slug' ], $installed[ 'version' ] );
-		if ( \is_null( $lastUpdatedAt )
-			 || Services::Request()->ts() - $lastUpdatedAt <= $action->abandoned_limit ) {
+		$api = $this->getApiPluginData( $this->queryWpOrgPluginInfo( $installed[ 'slug' ] ) );
+		if ( !\is_null( $api )
+			 && ( \strcasecmp( $installed[ 'slug' ], $api[ 'slug' ] ) !== 0
+				  || \version_compare( $installed[ 'version' ], $api[ 'version' ], '>' ) ) ) {
 			return [];
 		}
 
+		$lastUpdatedAt = \is_null( $api ) ? 0 : (int)\strtotime( $api[ 'last_updated' ] );
+		if ( $lastUpdatedAt < 1 ) {
+			// WordPress.org gave no usable answer, which says nothing about the plugin. An open finding stays open,
+			// because if it were resolved here it would come back as a new one and lose its ignore.
+			$lastUpdatedAt = $this->getOpenFindingLastUpdatedAt( $pluginFile );
+			return $lastUpdatedAt < 1 ? [] : $this->buildFinding( $pluginFile, $lastUpdatedAt );
+		}
+
+		return Services::Request()->ts() - $lastUpdatedAt <= $action->abandoned_limit
+			? []
+			: $this->buildFinding( $pluginFile, $lastUpdatedAt );
+	}
+
+	/**
+	 * @return array{slug:string,is_abandoned:true,last_updated_at:int}
+	 */
+	private function buildFinding( string $pluginFile, int $lastUpdatedAt ) :array {
 		return [
 			'slug'            => $pluginFile,
 			'is_abandoned'    => true,
 			'last_updated_at' => $lastUpdatedAt,
 		];
+	}
+
+	protected function getOpenFindingLastUpdatedAt( string $pluginFile ) :int {
+		$finding = self::con()->comps->scans->APC()->getAllResults()->getItemForSlug( $pluginFile );
+		return empty( $finding ) ? 0 : $finding->last_updated_at;
 	}
 
 	private function isEligibleForWpOrgScan( WpPluginVo $plugin, array $pluginData ) :bool {
@@ -90,23 +115,6 @@ class PluginScanner {
 		];
 	}
 
-	private function getVerifiedWpOrgLastUpdatedAt( string $slug, string $installedVersion ) :?int {
-		$pluginInfo = $this->queryWpOrgPluginInfo( $slug );
-		if ( \is_null( $pluginInfo ) ) {
-			return null;
-		}
-
-		$api = $this->getApiPluginData( $pluginInfo );
-		if ( \is_null( $api )
-			 || \strcasecmp( $slug, $api[ 'slug' ] ) !== 0
-			 || \version_compare( $installedVersion, $api[ 'version' ], '>' ) ) {
-			return null;
-		}
-
-		$lastUpdate = \strtotime( $api[ 'last_updated' ] );
-		return $lastUpdate !== false && $lastUpdate > 0 ? $lastUpdate : null;
-	}
-
 	private function queryWpOrgPluginInfo( string $slug ) :?object {
 		if ( !\function_exists( 'plugins_api' ) ) {
 			require_once path_join( ABSPATH, 'wp-admin/includes/plugin-install.php' );
@@ -124,7 +132,11 @@ class PluginScanner {
 	/**
 	 * @return null|array{slug:string,version:string,last_updated:string}
 	 */
-	private function getApiPluginData( object $pluginInfo ) :?array {
+	private function getApiPluginData( ?object $pluginInfo ) :?array {
+		if ( \is_null( $pluginInfo ) ) {
+			return null;
+		}
+
 		$public = \get_object_vars( $pluginInfo );
 		$data = [];
 		foreach ( [ 'slug', 'version', 'last_updated' ] as $key ) {

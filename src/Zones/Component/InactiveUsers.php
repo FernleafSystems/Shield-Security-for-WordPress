@@ -14,10 +14,6 @@ class InactiveUsers extends Base {
 		return __( 'Manually or automatically suspend user accounts to prevent login.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Edit settings on user suspension', 'wp-simple-firewall' );
-	}
-
 	/**
 	 * @inheritDoc
 	 */
@@ -37,24 +33,25 @@ class InactiveUsers extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
-			$status[ 'exp' ][] = $hasManualSuspend
-				? __( 'Only manual user suspension is available; users are not suspended automatically.', 'wp-simple-firewall' )
-				: __( 'No effective automatic user suspension rule is configured.', 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy(
+				$hasManualSuspend
+					? __( 'Only manual user suspension is available; users are not suspended automatically.', 'wp-simple-firewall' )
+					: __( 'No effective automatic user suspension rule is configured.', 'wp-simple-firewall' ),
+				'auto_idle_days'
+			);
 		}
 
+		// Said once, beside the expired-password setting: the Password Policies component already warns that
+		// policies are off, so this mustn't be shown against the policies switch as well.
 		if ( $autoPasswordEnabled && !$hasAutoPasswordSuspend ) {
 			if ( !$optsLookup->isPassPoliciesEnabled() ) {
-				$status[ 'exp' ][] = __( 'Expired-password suspension is enabled but password policies are turned off.', 'wp-simple-firewall' );
+				$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Expired-password suspension is enabled but password policies are turned off.', 'wp-simple-firewall' ), 'auto_password' );
 			}
-			if ( $optsLookup->getPassExpireTimeout() <= 0 ) {
-				$status[ 'exp' ][] = __( 'Expired-password suspension is enabled but password expiration is not configured.', 'wp-simple-firewall' );
+			elseif ( $optsLookup->getPassExpireTimeout() <= 0 ) {
+				$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Expired-password suspension is enabled but password expiration is not configured.', 'wp-simple-firewall' ), 'pass_expire' );
 			}
 		}
 
 		return $status;
-	}
-
-	protected function postureWeight() :int {
-		return 2;
 	}
 }

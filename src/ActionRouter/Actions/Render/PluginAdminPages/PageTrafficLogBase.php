@@ -19,12 +19,10 @@ abstract class PageTrafficLogBase extends PageModeLandingBase {
 	}
 
 	protected function getPageContextualHrefs() :array {
-		$con = self::con();
 		return [
 			[
-				'title'    => __( 'Download Request Logs', 'wp-simple-firewall' ),
-				'href'     => $con->plugin_urls->fileDownloadAsStream( 'traffic' ),
-				'disabled' => !$con->isPremiumActive(),
+				'title' => __( 'Download Request Logs', 'wp-simple-firewall' ),
+				'href'  => self::con()->plugin_urls->fileDownloadAsStream( 'traffic' ),
 			],
 		];
 	}

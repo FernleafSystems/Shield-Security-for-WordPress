@@ -22,13 +22,11 @@ class Controller {
 			$this->runServerSide();
 		}
 		catch ( \Exception $e ) {
-//			error_log( 'server side exception: '.$e->getMessage() );
 		}
 		try {
 			$this->runClientSide();
 		}
 		catch ( \Exception $e ) {
-//			error_log( 'client side exception: '.$e->getMessage() );
 		}
 	}
 

@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetFileLockCandidateDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FileLockExplanations;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
@@ -34,15 +35,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   status:string,
  *   icon_class:string,
  *   title:string,
- *   rail_title:string,
  *   stat_text:string,
  *   meta_text:string,
- *   show_meta_in_tile:bool,
  *   count_badge:int|null,
  *   body_notice:string,
- *   body_notice_variant:string,
  *   panel_data:QueueAssetPanelData,
- *   is_inactive:bool,
  *   enable_dialog_json:string,
  *   actions:list<QueueAssetAction>,
  *   table:array<string,mixed>
@@ -55,18 +52,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   status:string,
  *   icon_class:string,
  *   title:string,
- *   rail_title:string,
  *   stat_text:string,
  *   meta_text:string,
- *   show_meta_in_tile:bool,
  *   count_badge:int|null,
  *   body_notice:string,
- *   body_notice_variant:string,
  *   panel_data:QueueAssetPanelData,
- *   is_inactive:bool,
  *   enable_dialog_json:string,
  *   actions:list<QueueAssetAction>,
- *   table:array<string,mixed>
+ *   table:array<string,mixed>,
+ *   explanation:string
  * }
  * @phpstan-import-type PendingFileLockDisplay from GetPendingFileLockDisplays
  * @phpstan-import-type FileLockCandidateDisplay from GetFileLockCandidateDisplays
@@ -86,7 +80,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type VulnerabilityItem from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitySection from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
- * @phpstan-import-type CloakedPluginsRailPane from CloakedPluginsQueueIssueProvider
  * @phpstan-type QueueAssetPane array{
  *   is_disabled:bool,
  *   disabled_message:string,
@@ -149,6 +142,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * }
  */
 class ScansResultsViewBuilder {
+
+	private const DETAIL_ROW_STATUS_ICONS = [
+		'good'     => 'bi bi-check-circle-fill',
+		'warning'  => 'bi bi-exclamation-triangle-fill',
+		'critical' => 'bi bi-x-circle-fill',
+	];
+
+	private const DETAIL_ROW_ACTION_ICONS = [
+		'update'     => 'bi bi-arrow-up-circle-fill',
+		'deactivate' => 'bi bi-power',
+	];
 
 	use PluginControllerConsumer;
 
@@ -261,13 +265,6 @@ class ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @return CloakedPluginsRailPane
-	 */
-	public function buildActionsQueueCloakedPluginsPane() :array {
-		return ( new CloakedPluginsQueueIssueProvider() )->railPaneData();
-	}
-
-	/**
 	 * @return ScanResultAccessDetailPane
 	 */
 	public function buildActionsQueueDirectTablePane( string $areaKey, ?array $resultsDisplayOptions = null ) :array {
@@ -313,7 +310,6 @@ class ScansResultsViewBuilder {
 					$item[ 'stat_text' ],
 					$item[ 'status' ],
 					$item[ 'count_badge' ],
-					$item[ 'status' ],
 					$item[ 'actions' ]
 				),
 				$this->buildDetailExpansion(
@@ -377,10 +373,7 @@ class ScansResultsViewBuilder {
 					$item[ 'description' ],
 					$severity,
 					$item[ 'count' ],
-					$severity,
 					$item[ 'actions' ],
-					null,
-					null,
 					$sectionLabel
 				);
 			}
@@ -437,15 +430,7 @@ class ScansResultsViewBuilder {
 	 * @return list<FileLockCandidateDisplay>
 	 */
 	protected function getInactiveFileLockDisplays() :array {
-		$configuredFileKeys = \array_values( \array_map(
-			static fn( $fileKey ) :string => sanitize_key( (string)$fileKey ),
-			self::con()->comps->file_locker->getFilesToLock()
-		) );
-
-		return \array_values( \array_filter(
-			( new GetFileLockCandidateDisplays() )->run(),
-			static fn( array $display ) :bool => !\in_array( $display[ 'file_key' ], $configuredFileKeys, true )
-		) );
+		return ( new GetFileLockCandidateDisplays() )->notSelected();
 	}
 
 	protected function getProblemFileLocks() :array {
@@ -458,15 +443,11 @@ class ScansResultsViewBuilder {
 
 	/**
 	 * @param array{count?:int,status?:string,sections?:array<string,mixed>} $vulnerabilities
-	 * @return ScanResultsRailPane|CloakedPluginsRailPane
+	 * @return ScanResultsRailPane
 	 */
-	public function buildRailPaneData( string $tabKey, array $vulnerabilities = [], ?string $vulnerabilitySection = null ) :array {
+	public function buildRailPaneData( string $tabKey, array $vulnerabilities = [] ) :array {
 		$tabKey = \strtolower( \trim( $tabKey ) );
 		$availability = $this->getRailTabAvailability( $tabKey );
-		if ( $tabKey === 'hidden_plugins' && $availability[ 'is_available' ] ) {
-			return $this->buildActionsQueueCloakedPluginsPane();
-		}
-
 		$meta = $this->getRailTabMeta( $tabKey );
 		$items = [];
 		$count = 0;
@@ -476,8 +457,7 @@ class ScansResultsViewBuilder {
 		$disabledStatus = $availability[ 'disabled_status' ];
 		$disabledActions = [];
 
-		if ( !$availability[ 'is_available' ]
-			 && ( $tabKey === 'hidden_plugins' || $this->isProtectedScanResultsArea( $tabKey ) ) ) {
+		if ( !$availability[ 'is_available' ] && $this->isProtectedScanResultsArea( $tabKey ) ) {
 			$isDisabled = true;
 			$status = $disabledStatus;
 			$disabledMessage = $availability[ 'disabled_message' ];
@@ -500,15 +480,7 @@ class ScansResultsViewBuilder {
 
 				case 'vulnerabilities':
 					$vulnerabilities = empty( $vulnerabilities ) ? $this->buildVulnerabilities() : $vulnerabilities;
-					$sectionPayload = $this->vulnerabilityPanePayload( $vulnerabilities, $vulnerabilitySection ?? 'vulnerable' );
-					$items = $this->buildVulnerabilitiesRailItems( $sectionPayload );
-					$count = $sectionPayload[ 'count' ];
-					$status = $sectionPayload[ 'status' ];
-					break;
-
-				case 'abandoned':
-					$vulnerabilities = empty( $vulnerabilities ) ? $this->buildVulnerabilities() : $vulnerabilities;
-					$sectionPayload = $this->vulnerabilityPanePayload( $vulnerabilities, 'abandoned' );
+					$sectionPayload = $this->vulnerabilityPanePayload( $vulnerabilities, 'vulnerable' );
 					$items = $this->buildVulnerabilitiesRailItems( $sectionPayload );
 					$count = $sectionPayload[ 'count' ];
 					$status = $sectionPayload[ 'status' ];
@@ -726,18 +698,33 @@ class ScansResultsViewBuilder {
 			'panel_id'     => 'actions-queue-filelocker-card-'.$rid,
 			'panel_target' => 'actions-queue-filelocker-'.$rid,
 			'status'       => $status,
-			'icon_class'   => 'bi bi-file-lock2-fill',
+			'icon_class'   => $this->fileLockerIconClass( $path ),
 			'title'        => \basename( $path ),
-			'rail_title'   => $path,
 			'stat_text'    => $status === 'good'
 				? __( 'File integrity verified.', 'wp-simple-firewall' )
 				: $this->describeFileLockerRecord( $lock ),
 			'meta_text'          => $path,
-			'show_meta_in_tile'  => true,
+			// Why a file is worth locking only helps before it's locked.
+			'explanation'        => '',
 			'render_action'      => $this->buildAjaxRenderActionData( ScansFileLockerDiff::class, [
 				'rid' => $rid,
 			] ),
 		] );
+	}
+
+	/**
+	 * Each critical file's tab shows what kind of file it is: the site's configuration, the server's rules, or a
+	 * PHP file. Its colour gives the file's state.
+	 */
+	private function fileLockerIconClass( string $path ) :string {
+		$name = \strtolower( \basename( $path ) );
+		if ( $name === 'wp-config.php' ) {
+			return 'bi bi-gear-fill';
+		}
+		if ( $name === '.htaccess' || $name === 'web.config' ) {
+			return 'bi bi-server';
+		}
+		return \substr( $name, -4 ) === '.php' ? 'bi bi-filetype-php' : 'bi bi-file-lock2-fill';
 	}
 
 	/**
@@ -753,14 +740,12 @@ class ScansResultsViewBuilder {
 			'panel_id'           => 'actions-queue-filelocker-card-pending-'.$fileKey,
 			'panel_target'       => 'actions-queue-filelocker-pending-'.$fileKey,
 			'status'             => 'neutral',
-			'icon_class'         => 'bi bi-file-lock2-fill',
+			'icon_class'         => $this->fileLockerIconClass( $path ),
 			'title'              => $pendingLock[ 'title' ],
-			'rail_title'         => $path,
 			'stat_text'          => __( 'Initial lock is still being created.', 'wp-simple-firewall' ),
 			'meta_text'          => $path,
-			'show_meta_in_tile'  => true,
+			'explanation'        => '',
 			'body_notice'        => __( 'Shield is still creating the first lock for this file. Check back in about a minute for the full lock details.', 'wp-simple-firewall' ),
-			'body_notice_variant' => 'info',
 		] );
 	}
 
@@ -772,39 +757,41 @@ class ScansResultsViewBuilder {
 		$fileKey = sanitize_key( $inactiveLock[ 'file_key' ] );
 		$path = $inactiveLock[ 'path' ];
 
+		// Each file's tab opens its own panel, so every file needs a panel of its own to name, locked or not.
 		return $this->normalizeQueueAssetCard( [
 			'key'                => 'inactive:'.$fileKey,
+			'panel_id'           => 'actions-queue-filelocker-card-inactive-'.$fileKey,
+			'panel_target'       => 'actions-queue-filelocker-inactive-'.$fileKey,
 			'status'             => 'neutral',
-			'icon_class'         => 'bi bi-file-lock2-fill',
+			'icon_class'         => $this->fileLockerIconClass( $path ),
 			'title'              => $inactiveLock[ 'title' ],
-			'rail_title'         => $path,
 			'stat_text'          => __( 'This file is not currently protected.', 'wp-simple-firewall' ),
 			'meta_text'          => $path,
-			'show_meta_in_tile'  => true,
-			'is_inactive'        => true,
+			'explanation'        => ( new FileLockExplanations() )->forFileKey( $fileKey ),
 			'enable_dialog_json' => ( new ProtectionEnableDialogBuilder() )->forFile( $fileKey, $path ),
 		] );
 	}
 
+	/**
+	 * @param list<array<string,mixed>> $actions
+	 * @return array<string,mixed>
+	 */
 	protected function buildDetailRow(
 		string $title,
 		string $description,
 		string $status,
 		?int $countBadge = null,
-		?string $badgeStatus = null,
 		array $actions = [],
-		?string $statusIcon = null,
-		?string $statusLabel = null,
 		?string $sectionLabel = null
 	) :array {
 		return [
 			'title'        => $title,
 			'description'  => $description,
 			'status'       => $status,
-			'status_icon'  => $statusIcon,
-			'status_label' => $statusLabel,
+			'status_icon'  => self::DETAIL_ROW_STATUS_ICONS[ $status ] ?? 'bi bi-dash-circle',
+			'status_label' => $this->detailRowStatusLabel( $status ),
 			'count_badge'  => $countBadge,
-			'badge_status' => $badgeStatus,
+			'badge_status' => $status,
 			'expandable'   => false,
 			'expand_target' => '',
 			'expand_cta_label' => '',
@@ -812,10 +799,41 @@ class ScansResultsViewBuilder {
 			'expand_title' => '',
 			'expansion'    => [],
 			'explanations' => [],
-			'show_gear'    => false,
-			'actions'      => $actions,
+			'explanation_actions' => [],
+			'actions'      => \array_map( fn( array $action ) :array => $this->normalizeDetailRowAction( $action ), $actions ),
 			'attributes'   => [],
 			'section_label' => $sectionLabel ?? '',
+		];
+	}
+
+	private function detailRowStatusLabel( string $status ) :string {
+		switch ( $status ) {
+			case 'critical':
+				return __( 'Critical', 'wp-simple-firewall' );
+			case 'warning':
+				return __( 'Warning', 'wp-simple-firewall' );
+			case 'good':
+				return __( 'Good', 'wp-simple-firewall' );
+			default:
+				return __( 'Status', 'wp-simple-firewall' );
+		}
+	}
+
+	/**
+	 * @param array<string,mixed> $action
+	 * @return array{type:string,label:string,href:string,is_action:bool,icon:string,tooltip:string,attributes:array<string,string>}
+	 */
+	private function normalizeDetailRowAction( array $action ) :array {
+		$type = (string)$action[ 'type' ];
+
+		return [
+			'type'       => $type,
+			'label'      => (string)$action[ 'label' ],
+			'href'       => (string)( $action[ 'href' ] ?? '' ),
+			'is_action'  => (bool)( $action[ 'is_action' ] ?? false ),
+			'icon'       => (string)( $action[ 'icon' ] ?? self::DETAIL_ROW_ACTION_ICONS[ $type ] ?? 'bi bi-arrow-right-circle-fill' ),
+			'tooltip'    => \trim( (string)( $action[ 'tooltip' ] ?? '' ) ),
+			'attributes' => $action[ 'attributes' ] ?? [],
 		];
 	}
 
@@ -879,15 +897,11 @@ class ScansResultsViewBuilder {
 			'status'            => 'good',
 			'icon_class'        => '',
 			'title'             => '',
-			'rail_title'        => '',
 			'stat_text'         => '',
 			'meta_text'         => '',
-			'show_meta_in_tile' => true,
 			'count_badge'       => null,
 			'body_notice'       => '',
-			'body_notice_variant' => '',
 			'panel_data'        => [],
-			'is_inactive'       => false,
 			'enable_dialog_json' => '',
 			'actions'           => [],
 			'table'             => [],
@@ -955,38 +969,6 @@ class ScansResultsViewBuilder {
 			}
 		}
 		return $normalized;
-	}
-
-	/**
-	 * @return list<array<string,mixed>>
-	 */
-	protected function buildActionsForHref(
-		string $label,
-		string $href,
-		string $type = 'navigate',
-		string $target = ''
-	) :array {
-		if ( $label === '' || $href === '' ) {
-			return [];
-		}
-
-		$attributes = [];
-		if ( $target !== '' ) {
-			$attributes[ 'target' ] = $target;
-		}
-
-		return [
-			[
-				'type'      => $type,
-				'label'     => $label,
-				'href'      => $href,
-				'is_action' => false,
-				'icon'       => $type === 'update'
-					? 'bi bi-arrow-up-circle-fill'
-					: 'bi bi-arrow-right-circle-fill',
-				'attributes' => $attributes,
-			],
-		];
 	}
 
 	private function describeFileLockerRecord( object $lock ) :string {

@@ -2,40 +2,32 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Search\SearchResultsList;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 
 /**
- * @phpstan-import-type ConfigureSearchResult from ConfigureLandingRenderContracts
+ * Configure's search results, as the shared results list: one plain list, each result opening its goal in place.
  */
 class ConfigureSearchResults extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 	use SecurityAdminRequired;
 
 	public const SLUG = 'render_configure_search_results';
-	public const TEMPLATE = '/wpadmin/components/configure/search_results.twig';
+	public const TEMPLATE = SearchResultsList::TEMPLATE;
 
-	/**
-	 * @return array{
-	 *   flags:array{has_results:bool},
-	 *   strings:array{no_results:string,zone_label:string,option_label:string},
-	 *   vars:array{results:list<ConfigureSearchResult>}
-	 * }
-	 */
 	protected function getRenderData() :array {
-		$results = ( new ConfigureSearchResultsBuilder() )->build( (string)( $this->action_data[ 'search' ] ?? '' ) );
-
-		return [
-			'flags'   => [
-				'has_results' => !empty( $results ),
+		$results = ( new ConfigureSearchResultsBuilder() )->build( $this->fields()->string( 'search', '' ) );
+		return SearchResultsList::renderData(
+			[
+				[
+					'heading' => '',
+					'results' => \array_map(
+						fn( array $result ) :array => SearchResultsList::fromConfigureResult( $result, true ),
+						$results
+					),
+				],
 			],
-			'strings' => [
-				'no_results'   => __( 'No Configure results matched this search.', 'wp-simple-firewall' ),
-				'zone_label'   => __( 'Zone', 'wp-simple-firewall' ),
-				'option_label' => __( 'Option', 'wp-simple-firewall' ),
-			],
-			'vars'    => [
-				'results' => $results,
-			],
-		];
+			__( 'No Configure results matched this search.', 'wp-simple-firewall' )
+		);
 	}
 }

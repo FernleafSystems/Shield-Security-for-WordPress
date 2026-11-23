@@ -314,10 +314,6 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		);
 	}
 
-	protected function getColumnContent_File( ResultItem $item ): string {
-		return sprintf( '<div>%s</div>', $this->getColumnContent_FileAction( $item ) );
-	}
-
 	protected function getColumnContent_FileStatus( ResultItem $item ): string {
 		$FS = Services::WpFs();
 		$carbon = Services::Request()->carbon( true );

@@ -19,13 +19,14 @@ type AccessibleDialogProcessingHandle = {
 };
 
 type AccessibleDialogService = {
-	content( config: AccessibleDialogConfig & { content: HTMLElement; footer: HTMLElement } ) :{
+	content( config: AccessibleDialogConfig & { content: HTMLElement; footer?: HTMLElement } ) :{
 		closed: Promise<void>;
 		close(): void;
 		setBusy( busy: boolean ): void;
 		setTitle( title: string ): void;
 	}|null;
 	confirm( config?: AccessibleDialogConfig ) :Promise<boolean>;
+	isOpen() :boolean;
 	message( config?: AccessibleDialogConfig ) :Promise<void>;
 	prompt( config?: AccessibleDialogConfig ) :Promise<string|null>;
 	processing( config?: AccessibleDialogConfig ) :AccessibleDialogProcessingHandle;
@@ -52,7 +53,6 @@ declare const shieldAppMain: {
 declare const shieldEventsHandler_Main: {
 	add_Click( selector: string, callback: ( targetEl: Element, evt: Event ) => void, suppress?: boolean ) :void;
 	add_Change( selector: string, callback: ( targetEl: Element, evt: Event ) => void, suppress?: boolean ) :void;
-	add_Mouseover( selector: string, callback: ( targetEl: Element, evt: Event ) => void, suppress?: boolean ) :void;
 	add_Submit( selector: string, callback: ( targetEl: Element, evt: Event ) => void, suppress?: boolean ) :void;
 	addHandler( eventName: string, selector: string, callback: ( targetEl: Element, evt: Event ) => void, suppress?: boolean ) :void;
 };

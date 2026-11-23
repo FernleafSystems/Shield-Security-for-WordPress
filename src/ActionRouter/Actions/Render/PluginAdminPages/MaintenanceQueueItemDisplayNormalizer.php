@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
 	WpThemeVo
@@ -29,8 +30,8 @@ use FernleafSystems\Wordpress\Services\Services;
  *   icon:string,
  *   tooltip:string,
  *   target:string,
- *   ajax_action?:array<string,mixed>,
- *   ajax_action_json:string
+ *   ajax_action_json:string,
+ *   maintenance_key:string
  * }
  * @phpstan-type MaintenancePrimaryAction array{
  *   href:string,
@@ -52,16 +53,8 @@ use FernleafSystems\Wordpress\Services\Services;
  *   ignored_label:string,
  *   secondary_actions:list<MaintenanceUiAction>
  * }
- * @phpstan-type MaintenanceExpansionTable array{
- *   columns:array{item:string,details:string,action:string},
- *   rows:list<MaintenanceExpansionRow>,
- *   empty_text:string
- * }
  * @phpstan-type MaintenanceItemExpansion array{
- *   id:string,
- *   type:string,
- *   status:string,
- *   table:MaintenanceExpansionTable
+ *   table:array{rows:list<MaintenanceExpansionRow>}
  * }
  * @phpstan-type QueueItem array{
  *   key:string,
@@ -110,6 +103,8 @@ use FernleafSystems\Wordpress\Services\Services;
  * }
  */
 class MaintenanceQueueItemDisplayNormalizer {
+
+	use PluginControllerConsumer;
 
 	/**
 	 * @param list<QueueItem> $items
@@ -214,6 +209,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 		$target = $item[ 'target' ];
 
 		switch ( $item[ 'key' ] ) {
+			case 'report_email':
 			case 'default_admin_user':
 				return $this->buildMappedCta( $href, $item[ 'action' ], $target );
 
@@ -282,9 +278,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 				break;
 		}
 
-		return $rows === []
-			? []
-			: $this->buildSimpleTableExpansion( $item, $rows );
+		return $rows === [] ? [] : [ 'table' => [ 'rows' => $rows ] ];
 	}
 
 	/**
@@ -388,7 +382,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 				$this->buildVersionContext( $plugin->Version ),
 				$plugin->file,
 				$this->buildRowAction(
-					$this->buildPluginSearchHref( $plugin->file ),
+					self::con()->plugin_urls->pluginInPluginsScreen( $plugin->Title ),
 					__( 'Manage this plugin', 'wp-simple-firewall' ),
 					'bi bi-arrow-right-circle-fill',
 					__( 'Manage this plugin', 'wp-simple-firewall' ),
@@ -434,28 +428,6 @@ class MaintenanceQueueItemDisplayNormalizer {
 		}
 
 		return $this->sortExpansionRows( $rows );
-	}
-
-	/**
-	 * @param QueueItem $item
-	 * @param list<MaintenanceExpansionRow> $rows
-	 * @return MaintenanceItemExpansion
-	 */
-	private function buildSimpleTableExpansion( array $item, array $rows ) :array {
-		return [
-			'id'     => 'maintenance-expand-'.sanitize_key( $item[ 'key' ] ),
-			'type'   => DetailExpansionType::SIMPLE_TABLE,
-			'status' => $item[ 'severity' ],
-			'table'  => [
-				'columns'    => [
-					'item'    => __( 'Item', 'wp-simple-firewall' ),
-					'details' => __( 'Details', 'wp-simple-firewall' ),
-					'action'  => __( 'Action', 'wp-simple-firewall' ),
-				],
-				'rows'       => $rows,
-				'empty_text' => __( 'No items are currently available.', 'wp-simple-firewall' ),
-			],
-		];
 	}
 
 	/**
@@ -522,7 +494,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 	 */
 	private function buildToggleAction( array $item, array $state ) :array {
 		if ( $state[ 'supports_sub_items' ]
-			|| ( $state[ 'count' ] === 0 && $state[ 'ignored_count' ] === 0 ) ) {
+			|| ( $state[ 'count' ] === 0 && $state[ 'ignored_count' ] === 0 )
+			|| !$this->buildMaintenanceIssueStateProvider()->canBeIgnored( $item[ 'key' ] ) ) {
 			return [];
 		}
 
@@ -587,8 +560,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 			'icon'             => $isIgnored ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill',
 			'tooltip'          => $tooltip,
 			'target'           => '',
-			'ajax_action'      => $ajaxAction,
 			'ajax_action_json' => $this->encodeActionData( $ajaxAction ),
+			'maintenance_key'  => $maintenanceKey,
 		];
 	}
 
@@ -684,10 +657,6 @@ class MaintenanceQueueItemDisplayNormalizer {
 
 	protected function buildMaintenanceIssueStateProvider() :MaintenanceIssueStateProvider {
 		return new MaintenanceIssueStateProvider();
-	}
-
-	private function buildPluginSearchHref( string $pluginFile ) :string {
-		return Services::WpGeneral()->getAdminUrl_Plugins().'?s='.rawurlencode( $pluginFile );
 	}
 
 	/**

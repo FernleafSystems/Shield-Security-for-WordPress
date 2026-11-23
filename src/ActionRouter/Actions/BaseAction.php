@@ -4,17 +4,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionNonce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\RoutedResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
-	InvalidActionNonceException,
 	IpBlockedException,
 	SecurityAdminRequiredException,
 	UserAuthRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\{
+	ExternalEntryGuard,
+	RequestFields
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -28,8 +29,6 @@ abstract class BaseAction extends DynPropertiesClass {
 	public const SLUG = '';
 
 	private ActionResponse $response;
-
-	private RoutedResponse $routedResponse;
 
 	public function __construct( array $data = [], ?ActionResponse $response = null ) {
 		$this->action_data = $data;
@@ -52,7 +51,6 @@ abstract class BaseAction extends DynPropertiesClass {
 
 	/**
 	 * @throws ActionException
-	 * @throws InvalidActionNonceException
 	 * @throws IpBlockedException
 	 * @throws SecurityAdminRequiredException
 	 * @throws UserAuthRequiredException
@@ -66,7 +64,8 @@ abstract class BaseAction extends DynPropertiesClass {
 	}
 
 	/**
-	 * @throws InvalidActionNonceException
+	 * Whether the current user may run this action. Whether the request itself is genuine is decided by the
+	 * entry point before the action is reached; see ExternalEntryGuard.
 	 * @throws IpBlockedException
 	 * @throws SecurityAdminRequiredException
 	 * @throws UserAuthRequiredException
@@ -86,10 +85,6 @@ abstract class BaseAction extends DynPropertiesClass {
 
 		if ( !$thisReq->is_security_admin && $this->isSecurityAdminRequired() ) {
 			throw new SecurityAdminRequiredException( sprintf( __( 'Security admin required for action: %s', 'wp-simple-firewall' ), static::SLUG ) );
-		}
-
-		if ( $this->isNonceVerifyRequired() && !$this->verifyNonce() ) {
-			throw new InvalidActionNonceException( __( 'Invalid Action Nonce Exception.', 'wp-simple-firewall' ) );
 		}
 	}
 
@@ -111,8 +106,30 @@ abstract class BaseAction extends DynPropertiesClass {
 	}
 
 	public function setResponse( RoutedResponse $response ) {
-		$this->routedResponse = $response;
-		$this->response = $this->routedResponse->actionResponse();
+		$this->response = $response->actionResponse();
+	}
+
+	/**
+	 * The request's form, as decoded by the entry point that admitted this action.
+	 */
+	protected function formParams() :array {
+		$form = $this->action_data[ ActionData::FIELD_FORM ] ?? [];
+		return \is_array( $form ) ? $form : [];
+	}
+
+	/**
+	 * Typed reads of this action's data. When an action is reached from outside, its data is request input, so
+	 * read fields through this rather than casting them.
+	 */
+	protected function fields() :RequestFields {
+		return new RequestFields( $this->action_data );
+	}
+
+	/**
+	 * Typed reads of the request's decoded form.
+	 */
+	protected function formFields() :RequestFields {
+		return new RequestFields( $this->formParams() );
 	}
 
 	protected function getDefaults() :array {
@@ -127,55 +144,12 @@ abstract class BaseAction extends DynPropertiesClass {
 		return false;
 	}
 
-	protected function isNonceVerifyRequired() :bool {
-		return (bool)( $this->getActionOverrides()[ Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED ] ?? self::con()->this_req->wp_is_ajax );
-	}
-
-	protected function verifyNonce() :bool {
-		return self::con()->this_req->wp_is_ajax
-			? ActionNonce::Verify( static::SLUG, (string)( $this->action_data[ ActionData::FIELD_NONCE ] ?? '' ) )
-			: ActionNonce::VerifyFromRequest();
-	}
-
 	protected function isUserAuthRequired() :bool {
 		return !empty( $this->getMinimumUserAuthCapability() );
 	}
 
 	protected function isSecurityAdminRequired() :bool {
 		return $this->getMinimumUserAuthCapability() === 'manage_options';
-	}
-
-	protected function getActionOverrides() :array {
-		return $this->action_data[ 'action_overrides' ] ?? [];
-	}
-
-	/**
-	 * Set action override programmatically (for trusted integrations like MainWP)
-	 *
-	 * This method allows trusted integrations to set action overrides AFTER action creation,
-	 * ensuring security controls never come from user input paths.
-	 *
-	 * SECURITY NOTE: This method should ONLY be called in trusted contexts where:
-	 * - The caller has verified authentication (e.g., MainWP authenticated requests)
-	 * - The override is set programmatically, not from user input
-	 * - The action object has already been created via ActionProcessor::getAction()
-	 *
-	 * @param string $overrideKey Override key constant (e.g., Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED)
-	 * @param mixed  $value       Override value (typically boolean for is_nonce_verify_required)
-	 * @return self For method chaining
-	 */
-	public function setActionOverride( string $overrideKey, $value ) :self {
-		$actionData = $this->getRawData()[ 'action_data' ] ?? [];
-		if ( !\is_array( $actionData ) ) {
-			$actionData = [];
-		}
-		$overrides = \array_merge(
-			\is_array( $actionData[ 'action_overrides' ] ?? null ) ? $actionData[ 'action_overrides' ] : [],
-			[ $overrideKey => $value ]
-		);
-		$actionData[ 'action_overrides' ] = $overrides;
-		$this->action_data = $actionData;
-		return $this;
 	}
 
 	/**
@@ -192,10 +166,14 @@ abstract class BaseAction extends DynPropertiesClass {
 		return [];
 	}
 
-	public static function NonceCfg() :array {
-		return [
-			'ip'  => false,
-			'ttl' => 12,
-		];
+	/**
+	 * Entry points from which this action may be reached, each mapped to the proof the entry point must
+	 * verify before the action runs: ['ordinary' => 'nonce', ...]. Only honoured when declared on the
+	 * concrete class itself; the default makes an action unreachable from outside.
+	 * @see ExternalEntryGuard
+	 * @return array<string,string>
+	 */
+	public static function ExternalAccess() :array {
+		return [];
 	}
 }

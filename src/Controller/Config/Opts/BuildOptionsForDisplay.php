@@ -14,15 +14,17 @@ class BuildOptionsForDisplay {
 
 	use PluginControllerConsumer;
 
-	private string $focusOption = '';
-
-	private string $focusSection = '';
-
 	private array $options;
 
 	private array $sections;
 
 	private array $values = [];
+
+	/**
+	 * False when the values come from elsewhere, such as a sync profile, so this site's files and server mustn't
+	 * limit them.
+	 */
+	private bool $valuesAreThisSite = true;
 
 	public function __construct( array $options = [], array $sections = [] ) {
 		$this->options = $options;
@@ -31,16 +33,7 @@ class BuildOptionsForDisplay {
 
 	public function setValues( array $values ) :self {
 		$this->values = $values;
-		return $this;
-	}
-
-	public function setFocusOption( string $optKey ) :self {
-		$this->focusOption = $optKey;
-		return $this;
-	}
-
-	public function setFocusSection( string $sectionKey ) :self {
-		$this->focusSection = $sectionKey;
+		$this->valuesAreThisSite = false;
 		return $this;
 	}
 
@@ -64,26 +57,15 @@ class BuildOptionsForDisplay {
 					foreach ( $section[ 'options' ] as $optKey => $opt ) {
 						$opt[ 'is_value_default' ] = $opt[ 'value' ] === $opt[ 'default' ];
 						$section[ 'options' ][ $optKey ] = $this->buildOptionForUi( $opt );
-						$section[ 'options' ][ $optKey ][ 'is_focus' ] = $opt[ 'key' ] === $this->focusOption;
 					}
 
-					$notices = new SectionNotices();
 					$section = \array_merge( $section, ( new StringsSections() )->getFor( $section[ 'slug' ] ) );
-					$section[ 'is_focus' ] = $section[ 'slug' ] === $this->focusSection;
-					$section[ 'notices' ] = $notices->notices( $section[ 'slug' ] );
-					$section[ 'warnings' ] = $notices->warnings( $section[ 'slug' ] );
-					$section[ 'critical_warnings' ] = $notices->critical( $section[ 'slug' ] );
 				}
 
 				return $section;
 			},
 			$this->buildAvailableSections()
 		) );
-
-		$hasFocus = \count( \array_filter( $sections, fn( array $section ) => $section[ 'is_focus' ] ) ) > 0;
-		if ( !$hasFocus ) {
-			$sections[ \key( $sections ) ][ 'is_focus' ] = true;
-		}
 
 		return $sections;
 	}
@@ -121,8 +103,6 @@ class BuildOptionsForDisplay {
 		$con = self::con();
 		$opts = $con->opts;
 
-		$isPremiumActive = $con->isPremiumActive();
-
 		$allOptions = [];
 
 		foreach ( $section === 'section_hidden' ? [] : $con->cfg->configuration->optsForSection( $section ) as $optDef ) {
@@ -148,10 +128,13 @@ class BuildOptionsForDisplay {
 				$available = [];
 				$converted = [];
 				foreach ( $optDef[ 'value_options' ] as $valueOpt ) {
+					$hasAccess = $opts->optValueHasAccess( $optDef[ 'key' ], (string)$valueOpt[ 'value_key' ] );
 
 					$converted[ $valueOpt[ 'value_key' ] ] = [
-						'name'         => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
-						'is_available' => $opts->optHasAccess( $optDef[ 'key' ] ),
+						'name'              => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
+						'is_available'      => $hasAccess,
+						// Why a choice is unavailable, as a hover title: '' when there's nothing to add.
+						'unavailable_title' => $hasAccess ? '' : sprintf( __( 'Available with %s', 'wp-simple-firewall' ), $con->labels->Name ),
 					];
 
 					if ( $converted[ $valueOpt[ 'value_key' ] ][ 'is_available' ] ) {
@@ -215,20 +198,69 @@ class BuildOptionsForDisplay {
 				'value'       => \is_scalar( $value ) ? esc_attr( $value ) : $value,
 				'unavailable' => !$isOptAvailable,
 				'disabled'    => !$isOptAvailable,
-			]
+				'unit_label'  => $this->unitLabel( (string)( $option[ 'unit' ] ?? '' ) ),
+			],
+			$this->buildDefaultForUi( $option )
 		);
 
 		try {
-			$optStrings = ( new StringsOptions() )->getFor( $option[ 'key' ] );
-			if ( !\is_array( $optStrings[ 'description' ] ) ) {
-				$optStrings[ 'description' ] = [ $optStrings[ 'description' ] ];
-			}
-			$option = Services::DataManipulation()->mergeArraysRecursive( $option, $optStrings );
+			$option = Services::DataManipulation()->mergeArraysRecursive( $option, ( new StringsOptions() )->getFor( $option[ 'key' ] ) );
 		}
 		catch ( \Exception $e ) {
 		}
+		// A description is lines of text, whether the plugin's strings or the spec supplied it, or none at all.
+		$option[ 'description' ] = \is_array( $option[ 'description' ] ?? null )
+			? \array_values( $option[ 'description' ] )
+			: \array_filter( [ (string)( $option[ 'description' ] ?? '' ) ] );
 
 		return $this->addPerOptionCustomisation( $option );
+	}
+
+	private function unitLabel( string $unit ) :string {
+		$labels = [
+			'seconds'  => __( 'seconds', 'wp-simple-firewall' ),
+			'minutes'  => __( 'minutes', 'wp-simple-firewall' ),
+			'hours'    => __( 'hours', 'wp-simple-firewall' ),
+			'days'     => __( 'days', 'wp-simple-firewall' ),
+			'comments' => __( 'comments', 'wp-simple-firewall' ),
+			'offenses' => __( 'offenses', 'wp-simple-firewall' ),
+			'requests' => __( 'requests', 'wp-simple-firewall' ),
+		];
+		return $labels[ $unit ] ?? '';
+	}
+
+	/**
+	 * Single-value options get a readable default and the raw value that "Reset to default" restores.
+	 * List-style options and passwords have no meaningful one-line default, so they get neither.
+	 * @return array{default_label:string,default_value:string}
+	 */
+	private function buildDefaultForUi( array $option ) :array {
+		$default = $option[ 'default' ] ?? null;
+		$label = '';
+
+		if ( \is_scalar( $default ) ) {
+			$default = (string)$default;
+			switch ( $option[ 'type' ] ) {
+				case 'checkbox':
+					$label = $default === 'Y' ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' );
+					break;
+				case 'select':
+					$label = wp_strip_all_tags( \html_entity_decode( (string)( $option[ 'value_options' ][ $default ][ 'name' ] ?? '' ) ) );
+					break;
+				case 'integer':
+				case 'text':
+				case 'email':
+					$label = $default === '' ? __( 'Blank', 'wp-simple-firewall' ) : $default;
+					break;
+				default:
+					break;
+			}
+		}
+
+		return [
+			'default_label' => $label,
+			'default_value' => $label === '' ? '' : $default,
+		];
 	}
 
 	private function optionValue( string $key ) {
@@ -239,16 +271,25 @@ class BuildOptionsForDisplay {
 		switch ( $option[ 'key' ] ) {
 
 			case 'file_locker':
+				if ( !$this->valuesAreThisSite ) {
+					break;
+				}
 				$applicability = FileLockKeyApplicability::fromCurrentEnvironment();
 				/** @var array<array-key,mixed> $fileLockerValue */
 				$fileLockerValue = $option[ 'value' ];
-				$option[ 'value' ] = $applicability->removeNonApplicableKnownKeys( $fileLockerValue );
-				if ( !$applicability->isApplicable( 'root_webconfig' ) ) {
-					$option[ 'value_options' ][ 'root_webconfig' ][ 'name' ] .= sprintf( ' (%s)', __( 'IIS only', 'wp-simple-firewall' ) );
-					$option[ 'value_options' ][ 'root_webconfig' ][ 'is_available' ] = false;
-				}
-				if ( !$applicability->isApplicable( 'theme_functions' ) ) {
-					$option[ 'value_options' ][ 'theme_functions' ][ 'is_available' ] = false;
+				$option[ 'value' ] = $applicability->removeServerUnsupportedKeys( $fileLockerValue );
+				foreach ( \array_map( 'strval', \array_keys( $option[ 'value_options' ] ) ) as $fileKey ) {
+					if ( !$applicability->isServerSupported( $fileKey ) ) {
+						$option[ 'value_options' ][ $fileKey ][ 'name' ] .= sprintf( ' (%s)', __( 'IIS only', 'wp-simple-firewall' ) );
+						$option[ 'value_options' ][ $fileKey ][ 'is_available' ] = false;
+					}
+					elseif ( !$applicability->isApplicable( $fileKey ) ) {
+						$option[ 'value_options' ][ $fileKey ][ 'name' ] .= sprintf( ' (%s)', __( 'not found', 'wp-simple-firewall' ) );
+						// A selected file that's gone missing stays tickable, so saving keeps it (and its lock).
+						if ( !\in_array( $fileKey, $option[ 'value' ], true ) ) {
+							$option[ 'value_options' ][ $fileKey ][ 'is_available' ] = false;
+						}
+					}
 				}
 				break;
 

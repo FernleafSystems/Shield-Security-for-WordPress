@@ -2,9 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rest;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionNonce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	DashboardLiveMonitorSetState,
 	FullPageDisplay\FullPageDisplayDynamic,
-	OperatorModeSwitch,
 	Render,
 	Render\Components\Reports\Components\ReportAreaChanges,
 	Render\Components\Scans\Results\Wordpress,
@@ -14,8 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	Render\FullPage\Report\SecurityReport,
 	TestRestFetchRequests
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\OperatorModePreference;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process\ShieldPluginAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
@@ -31,6 +31,7 @@ class ShieldPluginActionProcessContractIntegrationTest extends ShieldIntegration
 		$process = new ShieldPluginActionProcessTestDouble();
 		$result = $process->processForTest( [
 			'ex'      => TestRestFetchRequests::SLUG,
+			'exnonce' => ActionNonce::Create( TestRestFetchRequests::class ),
 			'payload' => [],
 		] );
 
@@ -50,23 +51,48 @@ class ShieldPluginActionProcessContractIntegrationTest extends ShieldIntegration
 		$this->assertGreaterThan( 0, (int)( $restData[ TestRestFetchRequests::DATA_SUCCESS_TEST_AT ] ?? 0 ) );
 	}
 
-	public function test_process_rejects_unlisted_rest_action_without_mutating_state() :void {
-		$userID = \get_current_user_id();
-		\update_user_meta( $userID, OperatorModePreference::META_KEY_DEFAULT_MODE, PluginNavs::MODE_ACTIONS );
+	public function test_process_rejects_listed_action_without_its_nonce_without_mutating_state() :void {
+		$this->requireController()->opts->optSet( TestRestFetchRequests::OPT_KEY, [] );
 
 		$result = ( new ShieldPluginActionProcessTestDouble() )->processForTest( [
-			'ex'      => OperatorModeSwitch::SLUG,
+			'ex'      => TestRestFetchRequests::SLUG,
+			'payload' => [],
+		] );
+
+		$this->assertFalse( (bool)$result[ 'success' ] );
+		$restData = $this->requireController()->opts->optGet( TestRestFetchRequests::OPT_KEY );
+		$this->assertSame( 0, (int)( $restData[ TestRestFetchRequests::DATA_SUCCESS_TEST_AT ] ?? 0 ) );
+	}
+
+	public function test_process_reports_failure_when_security_admin_is_required_without_running_the_action() :void {
+		$this->requireController()->opts->optSet( TestRestFetchRequests::OPT_KEY, [] );
+		$this->requireController()->this_req->is_security_admin = false;
+
+		$result = ( new ShieldPluginActionProcessTestDouble() )->processForTest( [
+			'ex'      => TestRestFetchRequests::SLUG,
+			'exnonce' => ActionNonce::Create( TestRestFetchRequests::class ),
+			'payload' => [],
+		] );
+
+		$this->assertFalse( (bool)$result[ 'success' ] );
+		$this->assertFalse( (bool)( $result[ 'data' ][ 'success' ] ?? true ) );
+		$restData = $this->requireController()->opts->optGet( TestRestFetchRequests::OPT_KEY );
+		$this->assertSame( 0, (int)( $restData[ TestRestFetchRequests::DATA_SUCCESS_TEST_AT ] ?? 0 ) );
+	}
+
+	public function test_process_rejects_unlisted_rest_action_without_mutating_state() :void {
+		( new DashboardLiveMonitorPreference() )->setCollapsed( false );
+
+		$result = ( new ShieldPluginActionProcessTestDouble() )->processForTest( [
+			'ex'      => DashboardLiveMonitorSetState::SLUG,
 			'payload' => [
-				'mode' => PluginNavs::MODE_REPORTS,
+				'is_collapsed' => true,
 			],
 		] );
 
 		$this->assertFalse( (bool)$result[ 'success' ] );
 		$this->assertFalse( (bool)( $result[ 'data' ][ 'success' ] ?? true ) );
-		$this->assertSame(
-			PluginNavs::MODE_ACTIONS,
-			\get_user_meta( $userID, OperatorModePreference::META_KEY_DEFAULT_MODE, true )
-		);
+		$this->assertFalse( ( new DashboardLiveMonitorPreference() )->isCollapsed() );
 	}
 
 	public function test_process_returns_failure_envelope_for_action_exception() :void {

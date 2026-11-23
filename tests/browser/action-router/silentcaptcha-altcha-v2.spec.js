@@ -1,5 +1,5 @@
 const { test } = require( './support/shield-test' );
-const { expect, CYCLE_TIMEOUT, TEST_TIMEOUT } = require( './support/silentcaptcha' );
+const { expect, CYCLE_TIMEOUT, TEST_TIMEOUT, simulateVisitorInput } = require( './support/silentcaptcha' );
 const {
 	collectRuntimeErrors,
 	collectShieldAjaxActionUrls,
@@ -26,6 +26,7 @@ async function withAnonymousContext( browser, lane, publicVisitorIp, runScenario
 	} );
 	context.setDefaultTimeout( CYCLE_TIMEOUT );
 	try {
+		await simulateVisitorInput( context );
 		return await runScenario( context );
 	}
 	finally {

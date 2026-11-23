@@ -27,7 +27,6 @@ class MfaLoginCode extends EmailBase {
 				'code' => $this->action_data[ 'otp' ],
 			],
 			'hrefs'   => [
-				'login_link' => 'https://clk.shldscrty.com/96',
 				'auto_login' => esc_url( $this->action_data[ 'url_auto_login' ] ), // Internally generated via noncedPluginAction(); template uses |raw
 			],
 			'strings' => [

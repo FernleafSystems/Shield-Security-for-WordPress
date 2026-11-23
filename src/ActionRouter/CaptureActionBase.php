@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalActionTransportPolicy;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -24,27 +24,28 @@ class CaptureActionBase {
 	protected function transportData() :array {
 		$req = Services::Request();
 		return \array_merge(
-			\is_array( $req->query ) ? $req->query : [],
-			\is_array( $req->post ) ? $req->post : []
+			$req->query,
+			$req->post
 		);
 	}
 
 	protected function isRunnableShieldTransport( array $transport ) :bool {
-		$action = (string)( $transport[ ActionData::FIELD_ACTION ] ?? '' );
-		$slug = (string)( $transport[ ActionData::FIELD_EXECUTE ] ?? '' );
-
-		return $action === ActionData::FIELD_SHIELD
-			   && $slug !== ''
-			   && ActionData::isValidActionSlug( $slug )
-			   && ( new ExternalActionTransportPolicy() )->isAllowed( $slug, $transport, $this->actionType() );
+		return ActionData::TransportField( $transport, ActionData::FIELD_ACTION ) === ActionData::FIELD_SHIELD
+			   && ( new ExternalEntryGuard() )->admit( $this->requestedSlug( $transport ), $this->guardedEntry() );
 	}
 
-	protected function actionType() :int {
-		return ActionRoutingController::ACTION_SHIELD;
+	/**
+	 * The ExternalEntryGuard entry this capture enforces. Without one, nothing is admitted.
+	 */
+	protected function guardedEntry() :string {
+		return '';
 	}
 
-	protected function extractActionSlugFromTransport( array $transport ) :string {
-		return ActionData::extractActionSlug( (string)( $transport[ ActionData::FIELD_EXECUTE ] ?? '' ) );
+	/**
+	 * The slug of the action the request names, as the request gave it. The guard decides what it means.
+	 */
+	protected function requestedSlug( array $transport ) :string {
+		return ActionData::TransportField( $transport, ActionData::FIELD_EXECUTE );
 	}
 
 	protected function run() {

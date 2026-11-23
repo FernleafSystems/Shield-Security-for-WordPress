@@ -15,10 +15,6 @@ class WordpressUpdates extends Base {
 		return __( 'A high-level overview of your WordPress updates status.', 'wp-simple-firewall' );
 	}
 
-	protected function hasConfigAction() :bool {
-		return false;
-	}
-
 	/**
 	 * @inheritDoc
 	 */

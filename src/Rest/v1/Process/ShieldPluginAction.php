@@ -2,38 +2,44 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalActionTransportPolicy;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ResponseEnvelopeNormalizer;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	ActionRoutingController,
+	Exceptions,
+	ResponseAdapter\ResponseAdapterFactory,
+	Utility\ExternalEntryGuard,
+	Utility\ResponseEnvelopeNormalizer
+};
 
 class ShieldPluginAction extends Base {
 
 	protected function process() :array {
 		$req = $this->getWpRestRequest();
 		$params = $req->get_params();
-		$actionSlug = (string)( $params[ 'ex' ] ?? '' );
+		$actionSlug = ActionData::TransportField( $params, ActionData::FIELD_EXECUTE );
 		$payload = \is_array( $params[ 'payload' ] ?? null ) ? $params[ 'payload' ] : [];
 
 		try {
-			if ( !( new ExternalActionTransportPolicy() )->isAllowed( $actionSlug, $payload, ActionRoutingController::ACTION_REST ) ) {
-				throw new Exceptions\ActionException( __( 'Action transport is not allowed.', 'wp-simple-firewall' ) );
-			}
-			$routed = self::con()
-				->action_router
-				->action( $actionSlug, $payload, ActionRoutingController::ACTION_REST );
-			$data = $routed->payload();
+			$data = ( new ResponseAdapterFactory() )
+				->forActionType( ActionRoutingController::ACTION_REST )
+				->adapt( ( new ExternalEntryGuard() )->dispatch(
+					ExternalEntryGuard::ENTRY_REST,
+					$actionSlug,
+					// The action nonce travels in the REST URL query, outside the payload.
+					\array_merge( $payload, [
+						ActionData::FIELD_NONCE => ActionData::TransportField( $params, ActionData::FIELD_NONCE ),
+					] )
+				) )
+				->payload();
 		}
-//		catch ( ActionDoesNotExistException $e ) {
-//		}
-//		catch ( ActionTypeDoesNotExistException $e ) {
-//		}
-//		catch ( InvalidActionNonceException $e ) {
-//		}
-//		catch ( SecurityAdminRequiredException $e ) {
-//		}
 		catch ( Exceptions\ActionException $e ) {
-//			error_log( $e->getMessage() );
+			$data = [
+				'success' => false,
+			];
+		}
+		catch ( \Throwable $e ) {
+			// A fault in the action, not a refusal. The request still gets a controlled response.
+			\error_log( \sprintf( 'Shield REST action %s failed: %s', $actionSlug, $e->getMessage() ) );
 			$data = [
 				'success' => false,
 			];

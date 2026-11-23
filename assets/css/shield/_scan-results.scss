@@ -1,0 +1,170 @@
+// ─── Scan results tables ───
+// The table's own controls (select all, display, reload) sit above it with the search. Everything that changes
+// results sits in a column beside it that stays in view as the table scrolls, and wakes up once something is
+// selected.
+.scan-results-layout {
+	container-type: inline-size;
+
+	// A selected result is tinted rather than flooded, so its text and links stay readable.
+	table.dataTable > tbody > tr.selected > * {
+		box-shadow: inset 0 0 0 9999px #dbe9f7 !important;
+		color: #1d2327 !important;
+	}
+
+	table.dataTable > tbody > tr.selected a {
+		color: #135e96 !important;
+	}
+}
+
+// Without room for both, the actions sit in a row above the table.
+.scan-results-layout__grid {
+	display: grid;
+	gap: 1rem 1.5rem;
+	grid-template-columns: minmax(0, 1fr);
+
+	> :first-child {
+		min-width: 0;
+	}
+}
+
+// The table's own controls on the left, its search on the right, one row.
+.scan-results-toolbar {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
+	justify-content: space-between;
+	margin-bottom: 0.75rem;
+
+	> .dt-buttons {
+		display: inline-flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+
+		// DataTables wraps a collection button (Display results) in a group of its own, which squared its
+		// corners; every button here looks the same.
+		> .btn,
+		> .btn-group > .btn {
+			border-radius: 6px !important;
+			margin: 0 !important;
+		}
+
+		> .btn-group {
+			margin: 0;
+		}
+	}
+
+	> .dt-search,
+	> .dataTables_filter {
+		align-items: center;
+		display: flex;
+		gap: 0.4rem;
+		margin: 0;
+
+		label {
+			margin: 0;
+		}
+
+		input {
+			display: inline-block;
+			margin: 0 !important;
+			width: 220px !important;
+		}
+	}
+}
+
+.scan-results-actions {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem 0.75rem;
+	order: -1;
+}
+
+.scan-results-actions__status {
+	color: #50575e;
+	font-size: 12.5px;
+	margin: 0;
+}
+
+.scan-results-actions__buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+
+	// Spacing comes from the gap alone; margins other admin styles put between adjacent buttons would
+	// otherwise push every button after the first out of line.
+	> .btn {
+		border-radius: 6px;
+		margin: 0 !important;
+	}
+
+	> .btn-link {
+		color: #2271b1;
+		padding-left: 0;
+		padding-right: 0;
+		text-decoration: underline;
+	}
+
+	> .btn.disabled,
+	> .btn:disabled {
+		opacity: 0.45;
+	}
+}
+
+// Group headings only belong in the column; in a row above the table the groups simply sit side by side.
+.scan-results-actions__heading {
+	display: none;
+}
+
+// With room, they're a column beside the table that stays in view as the table scrolls: what acts on the
+// selection, then all results, then the scan's own tools, each a little apart.
+@container (min-width: 820px) {
+	.scan-results-layout__grid {
+		align-items: start;
+		grid-template-columns: minmax(0, 1fr) 200px;
+	}
+
+	.scan-results-actions {
+		align-items: stretch;
+		display: grid;
+		gap: 0.5rem;
+		order: 0;
+		position: sticky;
+		top: calc(var(--wp-admin--admin-bar--height, 32px) + 1rem);
+	}
+
+	.scan-results-actions__buttons {
+		display: grid;
+
+		> .btn {
+			text-align: left;
+			width: 100%;
+		}
+
+		> .btn-link {
+			justify-self: start;
+			width: auto;
+		}
+
+	}
+
+	.scan-results-actions__heading {
+		color: #646970;
+		display: block;
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		margin: 0.85rem 0 0;
+		text-transform: uppercase;
+
+		&:first-child {
+			margin-top: 0.25rem;
+		}
+	}
+}
+
+// Results opened over the Actions Queue scroll inside their panel, so the column sticks to its top.
+.drill-layer__body .scan-results-actions {
+	top: 0;
+}

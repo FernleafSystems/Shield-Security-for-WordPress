@@ -15,10 +15,6 @@ class SilentCaptcha extends Base {
 		return sprintf( __( '%s is our WordPress Bad Bot Detection technology.', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
 	}
 
-	protected function tooltip() :string {
-		return sprintf( __( 'Edit settings that control how %s detects bots', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
-	}
-
 	protected function configureStatus() :array {
 		$state = $this->silentCaptchaState();
 		$status = parent::status();
@@ -79,46 +75,12 @@ class SilentCaptcha extends Base {
 		return $status;
 	}
 
-	public function postureSignals() :array {
-		$state = $this->silentCaptchaState();
-
-		return [
-			$this->buildPostureSignal(
-				'ip_ade_threshold',
-				self::con()->labels->getBrandName( 'silentcaptcha' ),
-				3,
-				$state[ 'threshold_enabled' ] ? 3 : 0,
-				$state[ 'threshold_enabled' ] ? 'good' : 'critical',
-				$state[ 'threshold_enabled' ],
-				[
-					$state[ 'threshold_enabled' ]
-						? __( 'A minimum bot-score threshold is configured.', 'wp-simple-firewall' )
-						: __( 'No minimum bot-score threshold is configured.', 'wp-simple-firewall' ),
-				]
-			),
-			$this->buildPostureSignal(
-				'silentcaptcha_complexity',
-				__( 'Bot Challenge Complexity', 'wp-simple-firewall' ),
-				2,
-				$state[ 'challenge_strong' ] ? 2 : 0,
-				$state[ 'challenge_strong' ] ? 'good' : 'critical',
-				$state[ 'challenge_strong' ],
-				[
-					$state[ 'challenge_strong' ]
-						? __( 'Bot challenge complexity is set above the low level.', 'wp-simple-firewall' )
-						: __( 'Bot challenge complexity is too low to be considered reliable.', 'wp-simple-firewall' ),
-				]
-			),
-		];
-	}
-
 	/**
 	 * @return array{
 	 *   threshold_enabled:bool,
 	 *   threshold_weak:bool,
 	 *   challenge_disabled:bool,
 	 *   challenge_weak:bool,
-	 *   challenge_strong:bool,
 	 *   threshold_disabled_message:string,
 	 *   threshold_warning_message:string,
 	 *   challenge_disabled_message:string,
@@ -135,11 +97,10 @@ class SilentCaptcha extends Base {
 			'threshold_weak'             => $minimum > 0 && $minimum < 30,
 			'challenge_disabled'         => $complexity === SilentCaptchaComplexity::NONE,
 			'challenge_weak'             => $complexity === SilentCaptchaComplexity::LOW,
-			'challenge_strong'           => !\in_array( $complexity, [ SilentCaptchaComplexity::NONE, SilentCaptchaComplexity::LOW ], true ),
-			'threshold_disabled_message' => sprintf( __( "%s bot detection isn't running because the minimum score is set to 0.", 'wp-simple-firewall' ), $silentCaptcha ),
-			'threshold_warning_message'  => sprintf( __( '%1$s bot minimum score is quite low (%2$s).', 'wp-simple-firewall' ), $silentCaptcha, '< 30' ),
-			'challenge_disabled_message' => sprintf( __( "%s bot detection isn't running, as bots aren't currently being challenged.", 'wp-simple-firewall' ), $silentCaptcha ),
-			'challenge_warning_message'  => sprintf( __( "%s bot challenge complexity is too low - consider increasing it.", 'wp-simple-firewall' ), $silentCaptcha ),
+			'threshold_disabled_message' => $this->explanationFixedBy( sprintf( __( "%s bot detection isn't running because the minimum score is set to 0.", 'wp-simple-firewall' ), $silentCaptcha ), 'antibot_minimum' ),
+			'threshold_warning_message'  => $this->explanationFixedBy( sprintf( __( '%1$s bot minimum score is quite low (%2$s).', 'wp-simple-firewall' ), $silentCaptcha, '< 30' ), 'antibot_minimum' ),
+			'challenge_disabled_message' => $this->explanationFixedBy( sprintf( __( "%s bot detection isn't running, as bots aren't currently being challenged.", 'wp-simple-firewall' ), $silentCaptcha ), 'silentcaptcha_complexity' ),
+			'challenge_warning_message'  => $this->explanationFixedBy( sprintf( __( "%s bot challenge complexity is too low - consider increasing it.", 'wp-simple-firewall' ), $silentCaptcha ), 'silentcaptcha_complexity' ),
 		];
 	}
 }

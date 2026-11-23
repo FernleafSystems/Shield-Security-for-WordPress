@@ -59,8 +59,12 @@ class ResolveSubmittedOptionValues {
 				$optValue = \hash( 'md5', $tempValue );
 			}
 			elseif ( $optType === 'array' ) {
+				// A list arrives as textarea lines, or as ticked choices (such as roles) from a Configure panel.
+				$lines = \is_array( $optValue )
+					? \array_map( static fn( $value ) :string => sanitize_text_field( (string)$value ), $optValue )
+					: \explode( "\n", esc_textarea( (string)$optValue ) );
 				$optValue = \array_values( \array_filter(
-					\array_map( '\trim', \explode( "\n", esc_textarea( (string)$optValue ) ) ),
+					\array_map( '\trim', $lines ),
 					static fn( string $value ) :bool => $value !== ''
 				) );
 			}

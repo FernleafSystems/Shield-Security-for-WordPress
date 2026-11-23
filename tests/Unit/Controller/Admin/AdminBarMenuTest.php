@@ -23,8 +23,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Admin {
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\OptsLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Admin\AdminBarMenu;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumDashboardDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\AdminBarScanSummaryCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -46,6 +48,12 @@ class AdminBarMenuTest extends BaseUnitTest {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static fn( $value ) => \is_array( $value ) ? \array_map( 'rawurlencode', $value ) : \rawurlencode( (string)$value )
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static fn( array $params, string $url ) :string => $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\http_build_query( $params )
+		);
 		Functions\when( 'add_action' )->alias( function ( string $hook, callable $callback ) :bool {
 			$this->actions[ $hook ][] = $callback;
 			return true;
@@ -81,6 +89,27 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$this->assertSame( 0, $cache->refreshCalls );
 	}
 
+	public function test_admin_bar_menu_is_not_registered_when_not_chosen_for_the_dashboard() :void {
+		$cache = new AdminBarSummaryCacheSpy( null );
+		$counts = new AdminBarCountsSpy( $this->emptySummary() );
+		$this->installGateEnvironment( false, $counts, $cache, [ EnumDashboardDisplay::NOTICES, EnumDashboardDisplay::DASHBOARD_WIDGET ] );
+
+		( new AdminBarMenu() )->execute();
+
+		$this->assertSame( [], $this->actions[ 'admin_bar_menu' ] ?? [] );
+		$this->assertSame( 0, $cache->readCalls );
+	}
+
+	public function test_admin_bar_menu_filter_can_show_menu_not_chosen_for_the_dashboard() :void {
+		$cache = new AdminBarSummaryCacheSpy( null );
+		$counts = new AdminBarCountsSpy( $this->emptySummary() );
+		$this->installGateEnvironment( true, $counts, $cache, [] );
+
+		( new AdminBarMenu() )->execute();
+
+		$this->assertCount( 1, $this->actions[ 'admin_bar_menu' ] ?? [] );
+	}
+
 	public function test_security_admin_uses_cached_scan_summary_on_non_plugin_pages() :void {
 		$cache = new AdminBarSummaryCacheSpy( $this->exactSummary() );
 		$counts = new AdminBarCountsSpy( [
@@ -104,6 +133,10 @@ class AdminBarMenuTest extends BaseUnitTest {
 			[ 'shield-problems-scan-malware', 'shield-problems-scan-wp', 'shield-problems-scan-wpv' ],
 			$this->scanChildNodeIds( $adminBar )
 		);
+		$hrefs = \array_column( $adminBar->nodes, 'href', 'id' );
+		$this->assertSame( '/admin/scans/overview?zone=scans&aq_focus=malware', $hrefs[ 'shield-problems-scan-malware' ] );
+		$this->assertSame( '/admin/scans/overview?zone=scans&aq_focus=wordpress', $hrefs[ 'shield-problems-scan-wp' ] );
+		$this->assertSame( '/admin/scans/overview?zone=scans&aq_focus=vulnerabilities', $hrefs[ 'shield-problems-scan-wpv' ] );
 	}
 
 	public function test_admin_bar_uses_same_cached_scan_summary_on_plugin_pages() :void {
@@ -539,30 +572,48 @@ class AdminBarMenuTest extends BaseUnitTest {
 		PluginControllerInstaller::install( $controller );
 	}
 
+	/**
+	 * The filter is expected to be given the site's own choice as its default, and returns $showMenu.
+	 * @param string[] $dashboardDisplay
+	 */
 	private function installGateEnvironment(
 		bool $showMenu,
 		AdminBarCountsSpy $counts,
-		AdminBarSummaryCacheSpy $cache
+		AdminBarSummaryCacheSpy $cache,
+		array $dashboardDisplay = [ EnumDashboardDisplay::NOTICES, EnumDashboardDisplay::ADMIN_BAR, EnumDashboardDisplay::DASHBOARD_WIDGET ]
 	) :void {
 		Functions\expect( 'apply_filters' )
 			->once()
-			->with( 'shield/show_admin_bar_menu', true )
+			->with( 'shield/show_admin_bar_menu', \in_array( EnumDashboardDisplay::ADMIN_BAR, $dashboardDisplay, true ) )
 			->andReturn( $showMenu );
 
 		ServicesState::mergeItems( [
 			'service_wpusers' => new AdminBarGateUsersSpy(),
 		] );
 
-		$controller = new class( $counts, $cache ) extends Controller {
+		$controller = new class( $counts, $cache, $dashboardDisplay ) extends Controller {
 			public object $comps;
+			public object $opts;
 			public object $this_req;
 
-			public function __construct( AdminBarCountsSpy $counts, AdminBarSummaryCacheSpy $cache ) {
+			public function __construct( AdminBarCountsSpy $counts, AdminBarSummaryCacheSpy $cache, array $dashboardDisplay ) {
 				$this->this_req = (object)[
 					'is_force_off' => false,
 					'wp_is_ajax'   => false,
 				];
+				$this->opts = new class( $dashboardDisplay ) {
+					private array $dashboardDisplay;
+
+					public function __construct( array $dashboardDisplay ) {
+						$this->dashboardDisplay = $dashboardDisplay;
+					}
+
+					public function optGet( string $key ) {
+						return $key === 'dashboard_display' ? $this->dashboardDisplay : null;
+					}
+				};
 				$this->comps = (object)[
+					'opts_lookup' => new OptsLookup(),
 					'scans' => new class( $counts, $cache ) {
 						private AdminBarCountsSpy $counts;
 						private AdminBarSummaryCacheSpy $cache;

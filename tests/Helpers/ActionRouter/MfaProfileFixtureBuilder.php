@@ -178,7 +178,6 @@ class MfaProfileFixtureBuilder {
 			if ( $user instanceof \WP_User ) {
 				$meta = RuntimeTestState::controller()->user_metas->for( $user );
 				unset( $meta->ga_temp_secret );
-				$meta->sms_registration = [];
 				$originalRecordIDs = \is_array( $state[ 'original_user_mfa_record_ids' ] ?? null )
 					? \array_map( static fn( $recordID ) :int => (int)$recordID, $state[ 'original_user_mfa_record_ids' ] )
 					: [];

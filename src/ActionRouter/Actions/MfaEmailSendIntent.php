@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Email;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -11,18 +12,26 @@ class MfaEmailSendIntent extends MfaUserConfigBase {
 
 	public const SLUG = 'mfa_email_intent_code_send';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
 		$success = false;
 		$msg = __( 'There was a problem sending the One-Time Password email.', 'wp-simple-firewall' );
-		$userID = $this->action_data[ 'wp_user_id' ];
-		$plainNonce = $this->action_data[ 'login_nonce' ];
-		if ( !empty( $userID ) && !empty( $plainNonce ) ) {
+		$fields = $this->fields();
+		$userID = $fields->positiveInt( 'wp_user_id' );
+		$plainNonce = $fields->string( 'login_nonce' );
+		$redirectTo = $fields->string( 'redirect_to', '' );
+		if ( !empty( $plainNonce ) ) {
 			$user = Services::WpUsers()->getUserById( $userID );
 			if ( $user instanceof \WP_User ) {
 				/** @var ?Email $p */
 				$p = self::con()->comps->mfa->getProvidersActiveForUser( $user )[ Email::ProviderSlug() ] ?? null;
 				try {
-					if ( !empty( $p ) && $p->sendEmailTwoFactorVerify( $plainNonce, $this->action_data[ 'redirect_to' ] ?? '' ) ) {
+					if ( !empty( $p ) && $p->sendEmailTwoFactorVerify( $plainNonce, $redirectTo ) ) {
 						$success = true;
 						$msg = \implode( " \n", [
 							__( 'A new One-Time Password was sent to your email address.', 'wp-simple-firewall' ),

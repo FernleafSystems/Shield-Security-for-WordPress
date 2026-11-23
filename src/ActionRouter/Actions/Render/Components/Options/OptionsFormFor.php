@@ -2,79 +2,97 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureGoalPanels;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\BuildOptionsForDisplay;
 
+/**
+ * A settings form, always laid out as a Configure topic's panel. The form saves exactly the settings the
+ * panel shows: a setting that was asked for but has no place in the panel is neither shown nor saved.
+ */
 class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 	public const SLUG = 'render_options_form_for';
-	public const TEMPLATE = '/components/config/options_form_for.twig';
+	public const TEMPLATE = '/components/config/panel_form.twig';
 
+	/**
+	 * @throws ActionException
+	 */
 	protected function getRenderData() :array {
-		$con = self::con();
-		$options = $this->action_data[ 'options' ];
-		$configItem = (string)( $this->action_data[ 'config_item' ] ?? '' );
-		$transferAction = (string)( $this->action_data[ 'transfer_action' ] ?? '' );
-		$optionsBuilder = empty( $options ) ? null : ( new BuildOptionsForDisplay( $options, [] ) )
-			->setValues( \is_array( $this->action_data[ 'values' ] ?? null ) ? $this->action_data[ 'values' ] : [] )
-			->setFocusOption( $configItem );
-
-		if ( $optionsBuilder instanceof BuildOptionsForDisplay ) {
-			$configItemDef = $con->cfg->configuration->options[ $configItem ] ?? [];
-			if ( !empty( $configItemDef[ 'section' ] ) ) {
-				$optionsBuilder->setFocusSection( (string)$configItemDef[ 'section' ] );
-			}
+		$ref = ConfigurePanelBuilder::parsePanelRef( $this->action_data[ 'configure_panel' ] );
+		if ( $ref === null ) {
+			throw new ActionException( 'A settings form must name the Configure panel that lays it out.' );
 		}
 
-		$allOptions = $optionsBuilder instanceof BuildOptionsForDisplay ? $optionsBuilder->standard() : [];
+		$panel = ( new ConfigurePanelBuilder() )->build(
+			$ref[ 'goal' ],
+			$ref[ 'topic' ],
+			$this->buildDisplayOptions( $this->action_data[ 'options' ] )
+		);
+
+		$shownKeys = [];
+		foreach ( $panel[ 'blocks' ] as $block ) {
+			$shownKeys = \array_merge( $shownKeys, ConfigureGoalPanels::flattenItemKeys( $block[ 'items' ] ) );
+		}
 
 		return [
 			'strings' => [
-				'inner_page_title'          => __( 'Edit Settings', 'wp-simple-firewall' ),
-				'import_export'             => __( 'Import/Export', 'wp-simple-firewall' ),
-				'is_opt_importexport'       => __( 'Include this setting during import/export', 'wp-simple-firewall' ),
-				'toggle_importexport'       => __( 'Toggle whether this setting is included in import and export operations', 'wp-simple-firewall' ),
-				'namespaces_added_by_filter' => __( 'Namespaces added by the filter', 'wp-simple-firewall' ),
-			],
-			'flags'   => [
-				'show_section_navigation' => \count( $allOptions ) > 1,
-				'show_transfer_switch'    => (bool)( $this->action_data[ 'show_transfer_switch' ] ?? false ) && $transferAction !== '',
-			],
-			'imgs'    => [
-				'svgs' => [
-					'importexport' => $con->svgs->iconClass( 'arrow-down-up' )
-				],
+				'opt_unsaved'               => __( 'Unsaved', 'wp-simple-firewall' ),
+				'opt_pro'                   => __( 'Pro', 'wp-simple-firewall' ),
+				'opt_edit'                  => __( 'Edit', 'wp-simple-firewall' ),
+				'opt_none_selected'         => __( 'None selected', 'wp-simple-firewall' ),
+				'opt_help'                  => __( 'Display help for this configuration option', 'wp-simple-firewall' ),
+				'opt_details'               => __( 'View details for this option', 'wp-simple-firewall' ),
+				'supply_password'           => __( 'Enter a new value', 'wp-simple-firewall' ),
+				'confirm_password'          => __( 'Confirm the new value', 'wp-simple-firewall' ),
+				'supply_pin'                => __( 'Enter a new PIN', 'wp-simple-firewall' ),
+				'confirm_pin'               => __( 'Confirm your new PIN', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'all_opts_keys'                    => $options,
-				'all_options'                      => $allOptions,
-				'filtered_api_namespace_exclusions' => \in_array( 'api_namespace_exclusions', $options, true )
-					? $this->getFilteredApiNamespaceExclusions()
-					: [],
-				'form_context'                     => $this->action_data[ 'form_context' ] ?? 'normal',
-				'options_save_action'              => (string)( $this->action_data[ 'options_save_action' ] ?? 'form_save' ),
-				'transfer_action'                  => $transferAction,
-				'xferable_opts'                    => \is_array( $this->action_data[ 'xferable_opts' ] ?? null )
-					? $this->action_data[ 'xferable_opts' ]
-					: \array_keys( $con->cfg->configuration->transferableOptions() ),
-				'xfer_excluded_opts'               => \is_array( $this->action_data[ 'xfer_excluded_opts' ] ?? null )
-					? $this->action_data[ 'xfer_excluded_opts' ]
-					: $con->comps->opts_lookup->getXferExcluded(),
+				'all_opts_keys' => $shownKeys,
+				'panel'         => $panel,
+				'form_context'  => $this->action_data[ 'form_context' ],
 			],
 		];
 	}
 
-	private function getFilteredApiNamespaceExclusions() :array {
-		$lookup = self::con()->comps->opts_lookup;
-
-		return \array_values( \array_diff(
-			$lookup->getAnonymousRestApiExclusions(),
-			$lookup->getAnonymousRestApiExclusions( false )
-		) );
+	/**
+	 * Display data for each requested setting, by key. The REST namespaces that other plugins add through the
+	 * filter aren't part of the saved setting, so they're described with it rather than listed in it.
+	 * @param list<string> $optionKeys
+	 * @return array<string,array<string,mixed>>
+	 */
+	private function buildDisplayOptions( array $optionKeys ) :array {
+		$displayOptions = [];
+		// No keys would mean every option to the builder, so an empty request shows nothing.
+		if ( !empty( $optionKeys ) ) {
+			foreach ( ( new BuildOptionsForDisplay( $optionKeys, [] ) )->standard() as $section ) {
+				foreach ( $section[ 'options' ] as $option ) {
+					$displayOptions[ $option[ 'key' ] ] = $option;
+				}
+			}
+		}
+		if ( isset( $displayOptions[ 'api_namespace_exclusions' ] ) ) {
+			$lookup = self::con()->comps->opts_lookup;
+			$added = \array_values( \array_diff(
+				$lookup->getAnonymousRestApiExclusions(),
+				$lookup->getAnonymousRestApiExclusions( false )
+			) );
+			if ( !empty( $added ) ) {
+				$displayOptions[ 'api_namespace_exclusions' ][ 'description' ][] = sprintf( '%s: %s',
+					__( 'Namespaces added by the filter', 'wp-simple-firewall' ),
+					\implode( ', ', \array_map( static fn( string $ns ) :string => '<code>'.esc_html( $ns ).'</code>', $added ) )
+				);
+			}
+		}
+		return $displayOptions;
 	}
 
 	protected function getRequiredDataKeys() :array {
 		return [
 			'options',
+			'configure_panel',
+			'form_context',
 		];
 	}
 }

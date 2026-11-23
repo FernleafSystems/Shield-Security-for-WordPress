@@ -1,5 +1,9 @@
 import { ShieldTableBase } from "./ShieldTableBase";
 
+/**
+ * The security reports: just the table and its pages. Selecting reports brings up the action bar along the
+ * bottom of the screen, as Configure's unsaved changes do, with Delete selected.
+ */
 export class ShieldTableReports extends ShieldTableBase {
 
 	getTableSelector() {
@@ -8,23 +12,54 @@ export class ShieldTableReports extends ShieldTableBase {
 
 	buildDatatableConfig() {
 		let cfg = super.buildDatatableConfig();
-		cfg.dom = 'Brftip';
+		cfg.dom = 'rtip';
 		return cfg;
 	}
 
 	getButtons() {
-		let buttons = super.getButtons();
-		buttons.push( {
-			text: 'Delete Selected',
-			name: 'selected-delete',
-			className: 'action selected-action delete btn-outline-warning mb-2',
-			action: async ( e, dt, node ) => {
-				if ( await confirmReportDelete( shieldServices.dialog().resolveLauncher( e, node ) ) ) {
-					this.bulkTableAction( 'delete' );
-				}
+		return [];
+	}
+
+	setupDatatable() {
+		super.setupDatatable();
+		this.selectionBar = this.buildSelectionBar();
+		window.addEventListener( 'resize', () => this.alignSelectionBar() );
+	}
+
+	buildSelectionBar() {
+		const bar = document.createElement( 'div' );
+		bar.className = 'shield-actionbar';
+		bar.setAttribute( 'role', 'region' );
+		bar.setAttribute( 'aria-label', 'Selected reports' );
+		bar.hidden = true;
+		bar.innerHTML = `<span class="shield-actionbar__dot" aria-hidden="true"></span>
+			<span class="shield-actionbar__copy" aria-live="polite"><strong data-reports-selection-count="1"></strong></span>
+			<button type="button" class="btn btn-sm shield-actionbar__secondary" data-reports-selection-clear="1">Clear selection</button>
+			<button type="button" class="btn btn-sm btn-danger" data-reports-selection-delete="1">Delete selected</button>`;
+
+		bar.querySelector( '[data-reports-selection-clear="1"]' ).addEventListener( 'click', () => {
+			this.$table.rows().deselect();
+		} );
+		bar.querySelector( '[data-reports-selection-delete="1"]' ).addEventListener( 'click', async ( evt ) => {
+			if ( await confirmReportDelete( evt.currentTarget ) ) {
+				this.bulkTableAction( 'delete' );
 			}
 		} );
-		return buttons;
+
+		this.resolveTableContainer().after( bar );
+		return bar;
+	}
+
+	/**
+	 * The bar is fixed to the bottom of the screen, lined up with the table.
+	 */
+	alignSelectionBar() {
+		if ( !this.selectionBar || this.selectionBar.hidden ) {
+			return;
+		}
+		const rect = this.resolveTableContainer().getBoundingClientRect();
+		this.selectionBar.style.left = `${Math.max( 0, rect.left )}px`;
+		this.selectionBar.style.width = `${rect.width}px`;
 	}
 
 	bindEvents() {
@@ -46,13 +81,18 @@ export class ShieldTableReports extends ShieldTableBase {
 		);
 	}
 
+	/**
+	 * Called as rows are drawn and selected, before the bar exists on the first draw.
+	 */
 	rowSelectionChanged() {
-		if ( this.$table.rows( { selected: true } ).count() > 0 ) {
-			this.$table.buttons( 'selected-delete:name' ).enable();
+		if ( !this.selectionBar ) {
+			return;
 		}
-		else {
-			this.$table.buttons( 'selected-delete:name' ).disable();
-		}
+		const count = this.$table.rows( { selected: true } ).count();
+		this.selectionBar.hidden = count === 0;
+		this.selectionBar.querySelector( '[data-reports-selection-count="1"]' ).textContent =
+			count === 1 ? '1 report selected' : `${count} reports selected`;
+		this.alignSelectionBar();
 	}
 }
 

@@ -1,5 +1,5 @@
 {% if flags.has_results %}
-	<p style="font-size: 0.85rem; color: #777;">{{ strings.scan_summary_note|default('Scan results summary as of the time this report was generated: '~vars.generation_date) }}</p>
+	<p style="font-size: 0.85rem; color: #777;">Scan results summary as of the time this report was generated: {{ vars.generation_date }}</p>
 
 	<div class="row g-3 mt-1">
 		{% for slug,data in vars.scan_counts %}

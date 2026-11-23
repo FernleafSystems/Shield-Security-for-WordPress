@@ -24,6 +24,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\MU\MUHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -32,6 +33,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 };
 
 class CloakedPluginActionsTest extends BaseUnitTest {
+
+	use TempDirLifecycleTrait;
 
 	private CloakedPluginActionOptionsStub $opts;
 	private array $servicesSnapshot = [];
@@ -50,25 +53,147 @@ class CloakedPluginActionsTest extends BaseUnitTest {
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
-	public function test_ignore_stores_current_finding_identity() :void {
-		$finding = $this->finding( 'cloaked/cloaked.php' );
+	public function test_ignore_defaults_to_until_changed_with_the_reviewed_contents() :void {
+		$finding = $this->findingOnDisk( 'cloaked/cloaked.php' );
 		$action = new CloakedPluginIgnoreActionTestDouble(
 			$this->state( [ $finding ], [] ),
 			[
-				'finding_id' => $finding->identityKey(),
+				'identifier'    => $finding->identityKey(),
+				'contents_hash' => $finding->contentsHash(),
 			]
 		);
 
 		$action->process();
 
 		$this->assertTrue( (bool)( $action->response()->payload()[ 'success' ] ?? false ) );
-		$this->assertSame(
-			[ $finding->identityKey() ],
-			$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ]
+		$record = $this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ][ $finding->identityKey() ];
+		$this->assertSame( CloakedPluginState::IGNORE_MODE_CONTENTS, $record[ 'mode' ] );
+		$this->assertSame( $finding->contentsHash(), $record[ 'contents_hash' ] );
+	}
+
+	public function test_ignore_refuses_contents_changed_since_they_were_reviewed() :void {
+		$finding = $this->findingOnDisk( 'cloaked/cloaked.php' );
+		$reviewed = $finding->contentsHash();
+		$this->assertNotFalse( \file_put_contents( $finding->entry->path, "<?php\nrun_payload();\n" ) );
+		$action = new CloakedPluginIgnoreActionTestDouble(
+			$this->state( [ $finding ], [] ),
+			[
+				'identifier'    => $finding->identityKey(),
+				'ignore_mode'   => CloakedPluginState::IGNORE_MODE_CONTENTS,
+				'contents_hash' => $reviewed,
+			]
 		);
+
+		$action->process();
+
+		$this->assertFalse( (bool)( $action->response()->payload()[ 'success' ] ?? true ) );
+		$this->assertSame( CloakedPluginIgnore::ERROR_IDENTIFIER_UNAVAILABLE, $action->response()->payload()[ 'error_code' ] ?? '' );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+	}
+
+	public function test_always_ignore_stores_the_plugin_whatever_it_contains() :void {
+		$finding = $this->finding( 'cloaked/cloaked.php' );
+		$action = new CloakedPluginIgnoreActionTestDouble(
+			$this->state( [ $finding ], [] ),
+			[
+				'identifier'  => $finding->identityKey(),
+				'ignore_mode' => CloakedPluginState::IGNORE_MODE_PATH,
+			]
+		);
+
+		$action->process();
+
+		$this->assertTrue( (bool)( $action->response()->payload()[ 'success' ] ?? false ) );
+		$record = $this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ][ $finding->identityKey() ];
+		$this->assertSame( CloakedPluginState::IGNORE_MODE_PATH, $record[ 'mode' ] );
+		$this->assertSame( '', $record[ 'contents_hash' ] );
+	}
+
+	public function test_ignore_all_stores_every_identity_with_its_own_contents_in_one_request() :void {
+		$first = $this->findingOnDisk( 'first/first.php', "<?php\nfirst();\n" );
+		$second = $this->findingOnDisk( 'second/second.php', "<?php\nsecond();\n" );
+		$action = new CloakedPluginIgnoreActionTestDouble(
+			$this->state( [ $first, $second ], [] ),
+			[
+				'identifiers'     => [ $first->identityKey(), $second->identityKey() ],
+				'ignore_mode'     => CloakedPluginState::IGNORE_MODE_CONTENTS,
+				'contents_hashes' => [
+					$first->identityKey()  => $first->contentsHash(),
+					$second->identityKey() => $second->contentsHash(),
+				],
+			]
+		);
+
+		$action->process();
+
+		$this->assertTrue( $action->response()->payload()[ 'success' ] );
+		$records = $this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ];
+		$this->assertSame( $first->contentsHash(), $records[ $first->identityKey() ][ 'contents_hash' ] );
+		$this->assertSame( $second->contentsHash(), $records[ $second->identityKey() ][ 'contents_hash' ] );
+	}
+
+	public function test_ignore_all_still_applies_when_one_plugin_has_gone() :void {
+		$missing = $this->findingOnDisk( 'missing/missing.php' );
+		$present = $this->findingOnDisk( 'present/present.php' );
+		$missingHash = $missing->contentsHash();
+		$this->assertTrue( \unlink( $missing->entry->path ) );
+		$action = new CloakedPluginIgnoreActionTestDouble(
+			$this->state( [ $present ], [] ),
+			[
+				'identifiers'     => [ $missing->identityKey(), $present->identityKey() ],
+				'ignore_mode'     => CloakedPluginState::IGNORE_MODE_CONTENTS,
+				'contents_hashes' => [
+					$missing->identityKey() => $missingHash,
+					$present->identityKey() => $present->contentsHash(),
+				],
+			]
+		);
+
+		$action->process();
+
+		$this->assertTrue( $action->response()->payload()[ 'success' ] );
+		$this->assertSame( [ $present->identityKey() ], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+	}
+
+	public function test_ignore_all_takes_each_plugin_only_on_its_own_reviewed_contents() :void {
+		// Identical files, so one plugin's hash would pass for the other's if it were allowed to stand in.
+		$reviewed = $this->findingOnDisk( 'reviewed/reviewed.php' );
+		$unreviewed = $this->findingOnDisk( 'unreviewed/unreviewed.php' );
+		$action = new CloakedPluginIgnoreActionTestDouble(
+			$this->state( [ $reviewed, $unreviewed ], [] ),
+			[
+				'identifiers'     => [ $reviewed->identityKey(), $unreviewed->identityKey() ],
+				'ignore_mode'     => CloakedPluginState::IGNORE_MODE_CONTENTS,
+				'contents_hash'   => $reviewed->contentsHash(),
+				'contents_hashes' => [ $reviewed->identityKey() => $reviewed->contentsHash() ],
+			]
+		);
+
+		$action->process();
+
+		$this->assertTrue( $action->response()->payload()[ 'success' ] );
+		$this->assertSame( [ $reviewed->identityKey() ], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+	}
+
+	public function test_stop_ignoring_all_removes_every_identity_in_one_request() :void {
+		$first = $this->finding( 'first/first.php' );
+		$second = $this->finding( 'second/second.php' );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [ $first->identityKey(), $second->identityKey() ];
+		$action = new CloakedPluginUnignoreActionTestDouble(
+			$this->state( [], [ $first, $second ] ),
+			[
+				'identifiers' => [ $first->identityKey(), $second->identityKey() ],
+			]
+		);
+
+		$action->process();
+
+		$this->assertTrue( $action->response()->payload()[ 'success' ] );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
 	}
 
 	public function test_ignore_rejects_shield_mu_loader_identity_without_mutating_state() :void {
@@ -82,7 +207,8 @@ class CloakedPluginActionsTest extends BaseUnitTest {
 		$action = new CloakedPluginIgnoreActionTestDouble(
 			$this->state( [ $finding ], [] ),
 			[
-				'finding_id' => $finding->identityKey(),
+				'identifier'  => $finding->identityKey(),
+				'ignore_mode' => CloakedPluginState::IGNORE_MODE_PATH,
 			]
 		);
 
@@ -98,7 +224,8 @@ class CloakedPluginActionsTest extends BaseUnitTest {
 		$action = new CloakedPluginIgnoreActionTestDouble(
 			$this->state( [], [] ),
 			[
-				'finding_id' => \str_repeat( 'a', 40 ),
+				'identifier'  => \str_repeat( 'a', 40 ),
+				'ignore_mode' => CloakedPluginState::IGNORE_MODE_PATH,
 			]
 		);
 
@@ -114,7 +241,7 @@ class CloakedPluginActionsTest extends BaseUnitTest {
 		$action = new CloakedPluginIgnoreActionTestDouble(
 			$this->state( [], [] ),
 			[
-				'finding_id' => '',
+				'identifier' => '',
 			]
 		);
 
@@ -131,7 +258,7 @@ class CloakedPluginActionsTest extends BaseUnitTest {
 		$action = new CloakedPluginUnignoreActionTestDouble(
 			$this->state( [], [ $finding ] ),
 			[
-				'finding_id' => $finding->identityKey(),
+				'identifier' => $finding->identityKey(),
 			]
 		);
 
@@ -145,6 +272,18 @@ class CloakedPluginActionsTest extends BaseUnitTest {
 	private function finding( string $file ) :CloakedPluginFinding {
 		return new CloakedPluginFinding(
 			new PluginEntry( PluginType::Standard, $file, 'Cloaked', '1.0', '/plugins/'.$file ),
+			[ CloakReason::AllPlugins ],
+			false,
+			false,
+			123
+		);
+	}
+
+	private function findingOnDisk( string $file, string $contents = "<?php\nrun();\n" ) :CloakedPluginFinding {
+		$path = $this->createTrackedTempDir( 'shield-cloaked-action-' ).'/'.\basename( $file );
+		$this->assertNotFalse( \file_put_contents( $path, $contents ) );
+		return new CloakedPluginFinding(
+			new PluginEntry( PluginType::Standard, $file, 'Cloaked', '1.0', $path ),
 			[ CloakReason::AllPlugins ],
 			false,
 			false,
@@ -188,10 +327,6 @@ class CloakedPluginIgnoreActionTestDouble extends CloakedPluginIgnore {
 		return '';
 	}
 
-	protected function isNonceVerifyRequired() :bool {
-		return false;
-	}
-
 	protected function currentFindingState() :array {
 		return $this->state;
 	}
@@ -208,10 +343,6 @@ class CloakedPluginUnignoreActionTestDouble extends CloakedPluginUnignore {
 
 	protected function getMinimumUserAuthCapability() :string {
 		return '';
-	}
-
-	protected function isNonceVerifyRequired() :bool {
-		return false;
 	}
 
 	protected function currentFindingState() :array {

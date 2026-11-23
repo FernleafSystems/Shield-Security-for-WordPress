@@ -2,20 +2,29 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\{
 	BuildChartData,
 	ChartRequestVO
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\UiPreferences;
 
 class ReportingChartTrends extends BaseAction {
 
 	public const SLUG = 'render_chart_trends';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
 		try {
-			$chart = ( new BuildChartData() )
-				->build( ( new ChartRequestVO() )->applyFromArray( FormParams::Retrieve() ) );
+			$request = ( new ChartRequestVO() )->applyFromArray( $this->formParams() );
+			$chart = ( new BuildChartData() )->build( $request );
+			// The page opens on the chart last drawn.
+			( new UiPreferences() )->setReportsTrends( $request->period_key, $request->event_keys );
 
 			$this->response()
 				 ->setPayload( [

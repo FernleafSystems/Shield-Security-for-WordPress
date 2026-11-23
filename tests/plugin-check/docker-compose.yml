@@ -1,0 +1,34 @@
+# Disposable WordPress.org Plugin Check environment.
+# Driven by the repository's test:plugin-check runner; every run starts from scratch.
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: testpass
+      MYSQL_DATABASE: wordpress
+    tmpfs:
+      - /var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysql -uroot -ptestpass -e 'SELECT 1' >/dev/null 2>&1"]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+  wp-cli:
+    image: wordpress:cli-php8.2
+    user: "0:0"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PLUGIN_CHECK_SLUG: ${PLUGIN_CHECK_SLUG:?PLUGIN_CHECK_SLUG must be set}
+      PLUGIN_CHECK_VERSION: ${PLUGIN_CHECK_VERSION:-2.2.0}
+      PLUGIN_CHECK_MODE: ${PLUGIN_CHECK_MODE:?PLUGIN_CHECK_MODE must be set}
+      PLUGIN_CHECK_UPDATE_BASELINE: ${PLUGIN_CHECK_UPDATE_BASELINE:?PLUGIN_CHECK_UPDATE_BASELINE must be set}
+    volumes:
+      - type: bind
+        source: ${PLUGIN_CHECK_PACKAGE_DIR:?PLUGIN_CHECK_PACKAGE_DIR must be set}
+        target: /var/www/html/wp-content/plugins/${PLUGIN_CHECK_SLUG}
+        read_only: true
+      - ./:/plugin-check
+      - ${PLUGIN_CHECK_OUTPUT_DIR:?PLUGIN_CHECK_OUTPUT_DIR must be set}:/plugin-check-output

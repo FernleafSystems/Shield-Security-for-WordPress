@@ -32,15 +32,17 @@ class File extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return string[]
+	 * The possible paths that exist, nearest first, so the first is the file in use wherever it sits (e.g. a
+	 * wp-config.php one level above the WordPress root).
+	 * @return list<string>
 	 */
 	public function getExistingPossiblePaths() :array {
-		return \array_filter(
+		return \array_values( \array_filter(
 			$this->getPossiblePaths(),
 			function ( $path ) {
 				return !empty( $path ) && Services::WpFs()->isAccessibleFile( $path );
 			}
-		);
+		) );
 	}
 
 	/**

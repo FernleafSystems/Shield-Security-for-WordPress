@@ -50,3 +50,15 @@ Key notes: Dropped `personas` from the repo topic categories and added `plans` f
 Pages created: `wiki/analyses/wordpress-7-1-plugin-compatibility.md`
 Pages updated: `wiki/index.md`, `wiki/log.md`, `wiki/overview.md`
 Key notes: Recorded official WordPress 7.1 compatibility changes, a vendor-confirmed WP Rocket hook-callback fatal, and the source/runtime assessment for Shield.
+
+## [2026-11-11] plan | First-install report email hold
+
+Pages created: `wiki/plans/first-install-report-email-hold.md`
+Pages updated: `wiki/index.md`, `wiki/log.md`
+Key notes: Planned a 24-hour hold on scan-driven alert and report emails for new installs with no report email set, released by choosing an address from a top-of-queue Actions Queue item.
+
+## [2026-11-11] update | Record the implemented report email hold
+
+Pages created: none
+Pages updated: `wiki/plans/first-install-report-email-hold.md`, `wiki/index.md`, `wiki/log.md`
+Key notes: Aligned the plan with the implementation: `getChosenReportEmail()` and `ReportEmailHold` own the rule, alert handlers declare holds through `isSendHeld()`, the queue link uses `setup_step`, and the test coverage list.

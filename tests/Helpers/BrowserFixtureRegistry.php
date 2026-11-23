@@ -17,9 +17,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MainwpSit
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MerlinWelcomeFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MfaProfileFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\NotBotAltchaFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PluginDisabledFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PublicBlockRecoveryFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ReportEmailHoldFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityAdminFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityHeadersFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SetupGuideDismissedFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\UserUiStateFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\CustomRulesTerminalFinalizationFixtureBuilder;
 
@@ -65,12 +68,18 @@ class BrowserFixtureRegistry {
 				return self::runMfaProfileFixture( $action );
 			case 'notbot-altcha':
 				return self::runNotBotAltchaFixture( $action, $args );
+			case 'plugin-disabled':
+				return self::runPluginDisabledFixture( $action );
 			case 'public-block-recovery':
 				return self::runPublicBlockRecoveryFixture( $action, $args );
+			case 'report-email-hold':
+				return self::runReportEmailHoldFixture( $action );
 			case 'security-admin':
 				return self::runSecurityAdminFixture( $action, $args );
 			case 'security-headers':
 				return self::runSecurityHeadersFixture( $action );
+			case 'setup-guide-dismissed':
+				return self::runSetupGuideDismissedFixture( $action );
 			case 'custom-rules-terminal-finalization':
 				return self::runCustomRulesTerminalFinalizationFixture( $action, $args );
 			case 'user-ui-state':
@@ -102,9 +111,12 @@ class BrowserFixtureRegistry {
 		self::runMerlinWelcomeFixture( 'cleanup' );
 		self::runMfaProfileFixture( 'cleanup' );
 		self::runNotBotAltchaFixture( 'cleanup', [] );
+		self::runPluginDisabledFixture( 'cleanup' );
 		self::runPublicBlockRecoveryFixture( 'cleanup', [] );
+		self::runReportEmailHoldFixture( 'cleanup' );
 		self::runSecurityAdminFixture( 'cleanup', [] );
 		self::runSecurityHeadersFixture( 'cleanup' );
+		self::runSetupGuideDismissedFixture( 'cleanup' );
 		self::runCustomRulesTerminalFinalizationFixture( 'cleanup', [] );
 		return [ 'cleaned' => true ];
 	}
@@ -122,21 +134,46 @@ class BrowserFixtureRegistry {
 
 	/** @param list<string> $args */
 	private static function renderScanProgress( string $action, array $args ) :array {
-		$progress = [ 'initiating' => 0, 'running' => 37, 'completed' => 100, 'failed' => 100 ];
 		$state = self::requireScenario( $args );
-		if ( $action !== 'render' || !isset( $progress[ $state ] ) ) {
+		if ( $action !== 'render' || !\in_array( $state, [ ScansProgress::STATE_RUNNING, ScansProgress::STATE_COMPLETED, ScansProgress::STATE_FAILED ], true ) ) {
 			throw new \RuntimeException( 'Unknown scan progress render scenario.' );
 		}
 		RuntimeTestState::loginAsSecurityAdmin();
 		return [
-			'modal_state' => $state,
-			'modal_html' => RuntimeTestState::controller()->action_router->render( ScansProgress::SLUG, [
-				'modal_state' => $state,
-				'current_scan' => 'Browser fixture scan',
-				'remaining_scans' => 'Browser fixture progress',
-				'progress' => $progress[ $state ],
-				'scan_rows' => [],
+			'progress_state' => $state,
+			'progress_html'  => RuntimeTestState::controller()->action_router->render( ScansProgress::SLUG, [
+				'state'           => $state,
+				'scan_rows'       => $state === ScansProgress::STATE_RUNNING ? self::scanProgressFixtureRows() : [],
+				'scan_slugs'      => [ 'afs', 'wpv', 'apc' ],
+				'failure_message' => $state === ScansProgress::STATE_FAILED ? 'Browser fixture failure' : '',
 			] ),
+		];
+	}
+
+	/**
+	 * One scan running part way through a plugin, the others waiting their turn.
+	 * @return list<array<string,mixed>>
+	 */
+	private static function scanProgressFixtureRows() :array {
+		$row = fn( int $id, string $scan, string $name, string $status, int $progress, string $scopeType = 'full', string $scopeKey = '' ) :array => [
+			'id' => $id,
+			'scan' => $scan,
+			'name' => $name,
+			'scope_type' => $scopeType,
+			'scope_key' => $scopeKey,
+			'raw_status' => $status === 'running' ? 'running' : 'built',
+			'display_status' => $status,
+			'is_current' => $status === 'running',
+			'is_stale' => false,
+			'can_attempt_recovery' => false,
+			'progress' => $progress,
+			'total_items' => 100,
+			'unfinished' => 100 - $progress,
+		];
+		return [
+			$row( 31, 'afs', 'WordPress Filesystem Scan', 'running', 42, 'plugin', 'akismet' ),
+			$row( 32, 'wpv', 'Vulnerabilities', 'waiting', 0 ),
+			$row( 33, 'apc', 'Abandoned Plugins', 'waiting', 0 ),
 		];
 	}
 
@@ -211,6 +248,66 @@ class BrowserFixtureRegistry {
 	/**
 	 * @return array<string,mixed>
 	 */
+	private static function runReportEmailHoldFixture( string $action ) :array {
+		$builder = new ReportEmailHoldFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'report-email-hold' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'inspect':
+				return $builder->inspect( $state );
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	private static function runPluginDisabledFixture( string $action ) :array {
+		$builder = new PluginDisabledFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'plugin-disabled' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'inspect':
+				return $builder->inspect();
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
 	private static function runLiveTrafficToggleFixture( string $action ) :array {
 		$builder = new LiveTrafficToggleFixtureBuilder();
 		$optionKey = self::fixtureOptionKey( 'live-traffic-toggle' );
@@ -720,6 +817,36 @@ class BrowserFixtureRegistry {
 	private static function runSecurityHeadersFixture( string $action ) :array {
 		$builder = new SecurityHeadersFixtureBuilder();
 		$optionKey = self::fixtureOptionKey( 'security-headers' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private static function runSetupGuideDismissedFixture( string $action ) :array {
+		$builder = new SetupGuideDismissedFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'setup-guide-dismissed' );
 		$state = \get_option( $optionKey, [] );
 		$state = \is_array( $state ) ? $state : [];
 

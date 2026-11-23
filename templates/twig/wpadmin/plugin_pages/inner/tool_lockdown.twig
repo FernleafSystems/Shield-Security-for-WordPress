@@ -1,88 +1,146 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
+{#
+	Site Lockdown: where things stand first, then who still gets in, and while it's off, the four
+	confirmations and the one button that locks the site down.
+#}
 {% block inner_page_body %}
+	<div class="shield-tool-page" data-shield-lockdown="1">
 
 	{% if flags.blockdown_active %}
-		<div class="alert alert-danger d-inline-block" role="alert">
-			<h2 class="alert-heading h4">{{ strings.lockdown_active_title }}</h2>
-			<p>{{ strings.lockdown_active_description }}</p>
-			<ul class="mb-0">
-				<li>{{ strings.lockdown_started_label }} {{ vars.active_since }}</li>
-				<li>{{ strings.lockdown_activated_label }} {{ vars.active_by }}</li>
-			</ul>
-		</div>
-		<form class="form" id="FormBlockdownDisable" autocomplete="off">
-			<button type="submit" class="btn btn-success mb-3">{{ strings.button_disable }}</button>
-		</form>
+		<p class="shield-tool-page__lede">{{ strings.lede_active }}</p>
+
+		<section class="shield-tool-status is-critical" aria-labelledby="LockdownStatusTitle">
+			<span class="shield-tool-status__badge"><i class="bi bi-lock-fill" aria-hidden="true"></i></span>
+			<div class="shield-tool-status__copy">
+				<h2 class="shield-tool-status__title" id="LockdownStatusTitle">{{ strings.status_on_title }}</h2>
+				<p class="shield-tool-status__desc">{{ strings.status_on_desc }}</p>
+			</div>
+			<form id="FormBlockdownDisable" autocomplete="off">
+				<button type="submit" class="shield-tool-btn">
+					<i class="bi bi-unlock" aria-hidden="true"></i>{{ strings.button_disable }}
+				</button>
+			</form>
+		</section>
+
+		<dl class="shield-tool-facts">
+			<div><dt>{{ strings.started_label }}</dt><dd>{{ vars.active_since }}</dd></div>
+			<div><dt>{{ strings.activated_by_label }}</dt><dd>{{ vars.active_by }}</dd></div>
+			<div>
+				<dt>{{ strings.your_address_label }}</dt>
+				<dd><code>{{ vars.your_ip }}</code> · {{ flags.is_your_ip_whitelisted ? strings.allowed : strings.not_allowed }}</dd>
+			</div>
+		</dl>
+
+		<section class="shield-tool-box" aria-labelledby="LockdownWhoHeading">
+			<h3 class="shield-tool-box__head" id="LockdownWhoHeading"><i class="bi bi-people" aria-hidden="true"></i>{{ strings.who_heading }}</h3>
+			{{ _self.you_row( strings, flags, vars, false ) }}
+			{{ _self.bypass_row( strings, hrefs, vars ) }}
+			<div class="shield-tool-row">
+				<span class="shield-tool-row__icon is-warning"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i></span>
+				<div><div class="shield-tool-row__title">{{ strings.after_title }}</div><div class="shield-tool-row__desc">{{ strings.after_desc }}</div></div>
+				<span></span>
+			</div>
+		</section>
 	{% else %}
+		<p class="shield-tool-page__lede">{{ strings.lede }}</p>
 
-		<div class="row">
+		<section class="shield-tool-status" aria-labelledby="LockdownStatusTitle">
+			<span class="shield-tool-status__badge"><i class="bi bi-unlock" aria-hidden="true"></i></span>
+			<div class="shield-tool-status__copy">
+				<h2 class="shield-tool-status__title" id="LockdownStatusTitle">{{ strings.status_off_title }}</h2>
+				<p class="shield-tool-status__desc">{{ strings.status_off_desc }}</p>
+			</div>
+			<span class="shield-tool-status__pill">{{ strings.status_off_pill }}</span>
+		</section>
 
-			<div class="col-6">
-				<form class="form" id="FormBlockdown" autocomplete="off">
-
-					<div class="mb-3">
-						<h2 class="h6 mb-2">{{ strings.whitelist_heading }}</h2>
-						<div class="form-check shield-option-multiple-item">
-							<input type="checkbox" class="form-check-input" id="whitelist_me" name="whitelist_me" value="Y"
-									{% if flags.is_your_ip_whitelisted %} disabled="disabled"{% endif %}>
-							<label class="form-check-label" for="whitelist_me">
-								{{ strings.whitelist_label|format('<code>' ~ vars.your_ip ~ '</code>')|raw }}
-								<br><small>{{ strings.whitelist_label_note }}</small>
-							</label>
-						</div>
+		<form id="FormBlockdown" autocomplete="off" data-lockdown-form="1">
+			<div class="shield-tool-grid">
+				<section class="shield-tool-box" aria-labelledby="LockdownWhoHeading">
+					<h3 class="shield-tool-box__head" id="LockdownWhoHeading"><i class="bi bi-people" aria-hidden="true"></i>{{ strings.who_heading }}</h3>
+					{{ _self.you_row( strings, flags, vars, true ) }}
+					<div class="shield-tool-row">
+						<span class="shield-tool-row__icon is-good"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+						<div><div class="shield-tool-row__title">{{ strings.host_title }}</div><div class="shield-tool-row__desc">{{ strings.host_desc }}</div></div>
+						<span></span>
 					</div>
-
-					<div class="mb-3">
-						<h2 class="h6 mb-2">{{ strings.confirm_heading }}</h2>
-						<div class="form-check shield-option-multiple-item">
-							<input type="checkbox" class="form-check-input" id="confirm_cache" name="confirm[]"
-								   value="cache">
-							<label class="form-check-label" for="confirm_cache">
-								{{ strings.confirm_cache }}</label>
-						</div>
-						<div class="form-check shield-option-multiple-item">
-							<input type="checkbox" class="form-check-input" id="confirm_access" name="confirm[]"
-								   value="access">
-							<label class="form-check-label" for="confirm_access">
-								{{ strings.confirm_access }}</label>
-						</div>
-						<div class="form-check shield-option-multiple-item">
-							<input type="checkbox" class="form-check-input" id="confirm_consequences" name="confirm[]"
-								   value="consequences">
-							<label class="form-check-label"
-								   for="confirm_consequences">{{ strings.confirm_consequences }}</label>
-						</div>
-						<div class="form-check shield-option-multiple-item">
-							<input type="checkbox" class="form-check-input" id="confirm_authority" name="confirm[]"
-								   value="authority">
-							<label class="form-check-label"
-								   for="confirm_authority">{{ strings.confirm_authority }}</label>
-						</div>
+					{{ _self.bypass_row( strings, hrefs, vars ) }}
+					<div class="shield-tool-row">
+						<span class="shield-tool-row__icon is-warning"><i class="bi bi-slash-circle" aria-hidden="true"></i></span>
+						<div><div class="shield-tool-row__title">{{ strings.everyone_title }}</div><div class="shield-tool-row__desc">{{ strings.everyone_desc }}</div></div>
+						<span></span>
 					</div>
+				</section>
 
-					{% if flags.can_blockdown %}
-						<button type="submit" class="btn btn-danger mb-3">{{ strings.button_lockdown }}</button>
-					{% else %}
-						<button class="btn btn-danger mb-3" disabled="disabled">{{ strings.button_upgrade }}</button>
-					{% endif %}
-
-				</form>
+				<fieldset class="shield-tool-box">
+					<legend class="shield-tool-box__head"><i class="bi bi-check2-square" aria-hidden="true"></i>{{ strings.confirm_heading }}</legend>
+					{% for key in [ 'consequences', 'access', 'cache', 'authority' ] %}
+						<label class="shield-tool-check">
+							<input type="checkbox" name="confirm[]" value="{{ key }}" id="confirm_{{ key }}" data-lockdown-confirm="1">
+							<span>{{ attribute( strings, 'confirm_' ~ key ) }}</span>
+						</label>
+					{% endfor %}
+					<div class="shield-tool-row is-muted">
+						<span class="shield-tool-row__icon"><i class="bi bi-key" aria-hidden="true"></i></span>
+						<div>
+							<div class="shield-tool-row__title">{{ strings.locked_out_title }}</div>
+							<div class="shield-tool-row__desc">{{ strings.locked_out_desc }} <a href="{{ hrefs.further_help }}" target="_blank" rel="noopener">{{ strings.further_help }}</a></div>
+						</div>
+						<span></span>
+					</div>
+				</fieldset>
 			</div>
 
-			<div class="col-6">
-				<div class="alert alert-warning d-inline-block" role="alert">
-					<h2 class="alert-heading h4">{{ strings.warning_title }}</h2>
-					<p>{{ strings.warning_block_all }}</p>
-					<p>{{ strings.warning_whitelist_only }}</p>
-					{% if not flags.is_your_ip_whitelisted %}
-						<p class="fw-bold">{{ strings.warning_ip_not_whitelisted }}</p>
-					{% endif %}
-					<p>{{ strings.warning_note_security_admin }}</p>
-					<p class="mb-0">{{ strings.warning_more_help_html|raw }}</p>
-				</div>
+			<div class="shield-tool-bar">
+				{% if flags.can_blockdown %}
+					<span class="shield-tool-bar__msg" role="status" aria-live="polite" data-lockdown-message="1"
+						  data-needs="{{ strings.bar_needs|e('html_attr') }}"
+						  data-needs-ip="{{ strings.bar_needs_ip|e('html_attr') }}"
+						  data-ready="{{ strings.bar_ready|e('html_attr') }}"
+						  data-ip-bypassed="{{ flags.is_your_ip_whitelisted ? '1' : '0' }}">{{ flags.is_your_ip_whitelisted ? strings.bar_needs : strings.bar_needs_ip }}</span>
+					<button type="submit" class="shield-tool-btn shield-tool-btn--danger" data-lockdown-submit="1" disabled>
+						<i class="bi bi-lock-fill" aria-hidden="true"></i>{{ strings.button_lockdown }}
+					</button>
+				{% else %}
+					<span class="shield-tool-bar__msg">{{ strings.pro_note }}</span>
+					<a class="shield-tool-btn" href="{{ hrefs.compare_plans }}"><i class="bi bi-stars" aria-hidden="true"></i>{{ strings.compare_plans }}</a>
+				{% endif %}
+			</div>
+		</form>
+		<p class="shield-tool-note">{{ strings.security_admin_html|raw }}</p>
+	{% endif %}
+
+	</div>
+{% endblock %}
+
+{% macro you_row( strings, flags, vars, can_add ) %}
+	<div class="shield-tool-row">
+		{% if flags.is_your_ip_whitelisted %}
+			<span class="shield-tool-row__icon is-good"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+		{% else %}
+			<span class="shield-tool-row__icon is-critical"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i></span>
+		{% endif %}
+		<div>
+			<div class="shield-tool-row__title">{{ strings.you_at|format( '<code>' ~ vars.your_ip|e ~ '</code>' )|raw }}</div>
+			<div class="shield-tool-row__desc">
+				{{ flags.your_ip_added ? strings.you_added : ( flags.is_your_ip_whitelisted ? strings.you_bypassed : strings.you_not_bypassed ) }}
 			</div>
 		</div>
+		{% if can_add and not flags.is_your_ip_whitelisted %}
+			<label class="shield-tool-btn">
+				<input type="checkbox" name="whitelist_me" value="Y" data-lockdown-whitelist-me="1" aria-label="{{ strings.add_my_ip_label|e('html_attr') }}">
+				{{ strings.add_my_ip }}
+			</label>
+		{% else %}
+			<span></span>
+		{% endif %}
+	</div>
+{% endmacro %}
 
-	{% endif %}
-{% endblock %}
+{% macro bypass_row( strings, hrefs, vars ) %}
+	<div class="shield-tool-row">
+		<span class="shield-tool-row__icon{{ vars.others_bypassed > 0 ? ' is-good' : '' }}"><i class="bi {{ vars.others_bypassed > 0 ? 'bi-check-lg' : 'bi-dash-lg' }}" aria-hidden="true"></i></span>
+		<div><div class="shield-tool-row__title">{{ vars.others_bypassed > 0 ? strings.bypass_title|format( vars.others_bypassed ) : strings.bypass_none }}</div><div class="shield-tool-row__desc">{{ strings.bypass_desc }}</div></div>
+		<a class="shield-tool-btn shield-tool-btn--quiet" href="{{ hrefs.ip_rules }}"><i class="bi bi-arrow-right" aria-hidden="true"></i>{{ strings.bypass_review }}</a>
+	</div>
+{% endmacro %}

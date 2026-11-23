@@ -15,10 +15,6 @@ class BotActions extends Base {
 			self::con()->labels->Name );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Control the response to specific bot requests', 'wp-simple-firewall' );
-	}
-
 	protected function configureStatus() :array {
 		$signalStates = $this->botSignalStates();
 		$status = parent::status();
@@ -35,10 +31,13 @@ class BotActions extends Base {
 		}
 
 		foreach ( \array_keys( \array_filter( $signalStates, static fn( bool $enabled ) :bool => !$enabled ) ) as $signalKey ) {
-			$status[ 'exp' ][] = sprintf(
-				__( "Visitors that repeatedly trigger the signal '%s' aren't penalised.", 'wp-simple-firewall' ),
-				$this->botSignalName( $signalKey )
-			);
+			$status[ 'exp' ][] = $this->signalNotPenalisedExplanation( $signalKey );
+		}
+
+		// Offenses only lead to a block once they reach the limit, so a limit of 0 leaves them doing nothing. The
+		// limit is set in another topic, so this is said about these settings as a whole.
+		if ( !self::con()->comps->opts_lookup->enabledIpAutoBlock() ) {
+			$status[ 'exp' ][] = __( "Responses that record an offense have no effect while the offense limit is 0.", 'wp-simple-firewall' );
 		}
 
 		if ( $status[ 'level' ] !== EnumEnabledStatus::BAD ) {
@@ -67,32 +66,20 @@ class BotActions extends Base {
 		}
 
 		foreach ( \array_diff( \array_keys( $signals ), $enabledSignals ) as $key ) {
-			$status[ 'exp' ][] = sprintf( "Visitors that repeatedly trigger the signal '%s' aren't penalised", $this->botSignalName( $key ) );
+			$status[ 'exp' ][] = $this->signalNotPenalisedExplanation( $key );
 		}
 
 		return $status;
 	}
 
-	public function postureSignals() :array {
-		$states = $this->botSignalStates();
-		$signals = [];
-		foreach ( $this->botSignalDefinitions() as $optKey => $definition ) {
-			$enabled = !empty( $states[ $optKey ] );
-			$signals[] = $this->buildPostureSignal(
-				'bot_signal_'.$optKey,
-				sprintf( __( 'Bot Signal: %s', 'wp-simple-firewall' ), $this->botSignalName( $optKey ) ),
-				$definition[ 'weight' ],
-				$enabled ? $definition[ 'weight' ] : 0,
-				$enabled ? 'good' : 'critical',
-				$enabled,
-				[
-					$enabled
-						? sprintf( __( "Visitors that repeatedly trigger '%s' are penalised.", 'wp-simple-firewall' ), $this->botSignalName( $optKey ) )
-						: sprintf( __( "Visitors that repeatedly trigger '%s' aren't penalised.", 'wp-simple-firewall' ), $this->botSignalName( $optKey ) ),
-				]
-			);
-		}
-		return $signals;
+	/**
+	 * Each signal is its own setting, so the reason is shown on that setting.
+	 */
+	private function signalNotPenalisedExplanation( string $signalKey ) :string {
+		return $this->explanationFixedBy( sprintf(
+			__( "Visitors that repeatedly trigger the signal '%s' aren't penalised.", 'wp-simple-firewall' ),
+			$this->botSignalDefinitions()[ $signalKey ][ 'name' ]
+		), $signalKey );
 	}
 
 	/**
@@ -107,23 +94,18 @@ class BotActions extends Base {
 	}
 
 	/**
-	 * @return array<string,array{name:string,weight:int,primary:bool}>
+	 * @return array<string,array{name:string,primary:bool}>
 	 */
 	private function botSignalDefinitions() :array {
 		return [
-			'track_logininvalid'   => [ 'name' => __( 'Invalid Usernames', 'wp-simple-firewall' ), 'weight' => 6, 'primary' => true ],
-			'track_loginfailed'    => [ 'name' => __( 'Failed Login', 'wp-simple-firewall' ), 'weight' => 5, 'primary' => true ],
-			'track_xmlrpc'         => [ 'name' => __( 'XML-RPC Access', 'wp-simple-firewall' ), 'weight' => 6, 'primary' => true ],
-			'track_fakewebcrawler' => [ 'name' => __( 'Fake Web Crawler', 'wp-simple-firewall' ), 'weight' => 3, 'primary' => false ],
-			'track_404'            => [ 'name' => __( '404 Detect', 'wp-simple-firewall' ), 'weight' => 2, 'primary' => false ],
-			'track_linkcheese'     => [ 'name' => __( 'Link Cheese', 'wp-simple-firewall' ), 'weight' => 2, 'primary' => false ],
-			'track_invalidscript'  => [ 'name' => __( 'Invalid Script Load', 'wp-simple-firewall' ), 'weight' => 2, 'primary' => false ],
-			'track_useragent'      => [ 'name' => __( 'Empty User Agents', 'wp-simple-firewall' ), 'weight' => 2, 'primary' => false ],
+			'track_logininvalid'   => [ 'name' => __( 'Invalid Usernames', 'wp-simple-firewall' ), 'primary' => true ],
+			'track_loginfailed'    => [ 'name' => __( 'Failed Login', 'wp-simple-firewall' ), 'primary' => true ],
+			'track_xmlrpc'         => [ 'name' => __( 'XML-RPC Access', 'wp-simple-firewall' ), 'primary' => true ],
+			'track_fakewebcrawler' => [ 'name' => __( 'Fake Web Crawler', 'wp-simple-firewall' ), 'primary' => false ],
+			'track_404'            => [ 'name' => __( '404 Detect', 'wp-simple-firewall' ), 'primary' => false ],
+			'track_linkcheese'     => [ 'name' => __( 'Link Cheese', 'wp-simple-firewall' ), 'primary' => false ],
+			'track_invalidscript'  => [ 'name' => __( 'Invalid Script Load', 'wp-simple-firewall' ), 'primary' => false ],
+			'track_useragent'      => [ 'name' => __( 'Empty User Agents', 'wp-simple-firewall' ), 'primary' => false ],
 		];
-	}
-
-	private function botSignalName( string $key ): string {
-		$name = $this->botSignalDefinitions()[ $key ][ 'name' ] ?? '';
-		return empty( $name ) ? $key : $name;
 	}
 }

@@ -15,7 +15,7 @@
 		<title>{{ strings.page_title }}</title>
 
 		{% block head_stylesheets %}
-			{% for headstyle_key,headstyle in head.styles|default([]) %}
+			{% for headstyle_key,headstyle in head.styles %}
 				<link id="{{ headstyle.id }}-css" rel="stylesheet" href="{{ headstyle.href }}" />
 			{% endfor %}
 		{% endblock %}
@@ -29,8 +29,8 @@
 		{% endblock %}
 
 		{% block scripts_head %}
-			{% for script_key,script in head.scripts|default([]) %}
-				{% if not script.footer|default(false) %}
+			{% for script_key,script in head.scripts %}
+				{% if not script.footer %}
 					<script id="{{ script.id }}-js" type="text/javascript" src="{{ script.src }}"></script>
 				{% endif %}
 			{% endfor %}
@@ -85,15 +85,15 @@
 	{% endblock %}
 
 	{% block scripts_footer %}
-		{% for script_key,script in head.scripts|default([]) %}
-			{% if script.footer|default(false) %}
+		{% for script_key,script in head.scripts %}
+			{% if script.footer %}
 				<script id="{{ script.id }}-js" type="text/javascript" src="{{ script.src }}"></script>
 			{% endif %}
 		{% endfor %}
 	{% endblock %}
 
 	{% block inline_js %}
-		{% if vars.inline_js|default([]) is not empty %}
+		{% if vars.inline_js is not empty %}
 			<script type="text/javascript">
 				{% for ijs in vars.inline_js %}
 				{{ ijs|raw }}

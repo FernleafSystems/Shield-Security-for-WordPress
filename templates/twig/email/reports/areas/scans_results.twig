@@ -6,8 +6,8 @@
 	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
 		{% for item in scan_counts %}
 			{% set is_clear = item.count == 0 %}
-			{% set dot_color = item.colour|default('success') == 'success' ? '#008000' : '#edb41d' %}
-			{% set count_color = item.colour|default('success') == 'success' ? '#008000' : '#cc7a00' %}
+			{% set dot_color = item.colour == 'success' ? '#008000' : '#edb41d' %}
+			{% set count_color = item.colour == 'success' ? '#008000' : '#cc7a00' %}
 			{% set border_color = loop.last ? '#d9dfd9' : '#f0f0f0' %}
 			<tr>
 				<td style="padding: 8px 4px; border-bottom: 1px solid {{ border_color }}; font-size: 13px; color: #333333; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
@@ -43,10 +43,10 @@
 				{% for entry in item.items %}
 					<tr>
 						<td style="padding: 3px 4px 3px 12px; font-family: monospace; font-size: 11px; color: #555555;
-							{% if entry.is_new|default(false) %} border-left: 3px solid #edb41d; background: #fdfcf8;{% endif %}
+							{% if entry.is_new %} border-left: 3px solid #edb41d; background: #fdfcf8;{% endif %}
 							{% if loop.last and (item.items_total is not defined or item.items_total <= item.items|length) %} border-bottom: 1px solid #f0f0f0;{% endif %}">
 							{{ entry.label }}
-							{% if entry.is_new|default(false) %}
+							{% if entry.is_new %}
 								<span style="display: inline-block; padding: 0px 5px; font-size: 9px; font-weight: 700; background: #fff3cd; color: #856404; border-radius: 6px; margin-left: 4px; font-family: sans-serif;">{{ strings.new_badge }}</span>
 							{% endif %}
 						</td>

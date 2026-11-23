@@ -13,11 +13,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	ActionNonce,
 	Actions\BaseAction,
-	CaptureAjaxAction
+	CaptureAjaxAction,
+	Utility\ExternalEntryGuard
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\InvalidActionNonceException;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\RegistersTestActions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -28,6 +28,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 use FernleafSystems\Wordpress\Services\Core\Request;
 
 class AjaxTransportBindingTest extends BaseUnitTest {
+
+	use RegistersTestActions;
 
 	private array $servicesSnapshot = [];
 
@@ -47,12 +49,14 @@ class AjaxTransportBindingTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
+		$this->unregisterTestActions();
 		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 
 	public function test_ajax_capture_runnable_check_uses_post_transport_only() :void {
+		$this->registerTestActions( AjaxTransportBindingNonceActionTestDouble::class );
 		$transport = [
 			ActionData::FIELD_ACTION  => ActionData::FIELD_SHIELD,
 			ActionData::FIELD_EXECUTE => AjaxTransportBindingNonceActionTestDouble::SLUG,
@@ -63,49 +67,6 @@ class AjaxTransportBindingTest extends BaseUnitTest {
 
 		$this->installRequest( [], $transport );
 		$this->assertTrue( ( new AjaxTransportBindingCaptureAjaxActionTestDouble() )->canRunForTest() );
-	}
-
-	public function test_ajax_action_uses_action_data_nonce_instead_of_query_nonce() :void {
-		$this->installRequest( [], [] );
-		$validNonce = ActionNonce::Create( AjaxTransportBindingNonceActionTestDouble::class );
-		$this->installRequest(
-			[
-				ActionData::FIELD_ACTION  => ActionData::FIELD_SHIELD,
-				ActionData::FIELD_EXECUTE => AjaxTransportBindingNonceActionTestDouble::SLUG,
-				ActionData::FIELD_NONCE   => $validNonce,
-			],
-			[
-				ActionData::FIELD_ACTION  => ActionData::FIELD_SHIELD,
-				ActionData::FIELD_EXECUTE => AjaxTransportBindingNonceActionTestDouble::SLUG,
-			]
-		);
-
-		$this->expectException( InvalidActionNonceException::class );
-		( new AjaxTransportBindingNonceActionTestDouble() )->process();
-	}
-
-	public function test_ajax_action_accepts_payload_nonce_even_when_query_nonce_is_invalid() :void {
-		$this->installRequest( [], [] );
-		$validNonce = ActionNonce::Create( AjaxTransportBindingNonceActionTestDouble::class );
-		$this->installRequest(
-			[
-				ActionData::FIELD_ACTION  => ActionData::FIELD_SHIELD,
-				ActionData::FIELD_EXECUTE => AjaxTransportBindingNonceActionTestDouble::SLUG,
-				ActionData::FIELD_NONCE   => 'invalid_nonce',
-			],
-			[
-				ActionData::FIELD_ACTION  => ActionData::FIELD_SHIELD,
-				ActionData::FIELD_EXECUTE => AjaxTransportBindingNonceActionTestDouble::SLUG,
-				ActionData::FIELD_NONCE   => $validNonce,
-			]
-		);
-
-		$action = new AjaxTransportBindingNonceActionTestDouble( [
-			ActionData::FIELD_NONCE => $validNonce,
-		] );
-		$action->process();
-
-		$this->assertTrue( (bool)( $action->response()->payload()[ 'success' ] ?? false ) );
 	}
 
 	private function installControllerStub() :void {
@@ -154,6 +115,12 @@ class AjaxTransportBindingCaptureAjaxActionTestDouble extends CaptureAjaxAction 
 class AjaxTransportBindingNonceActionTestDouble extends BaseAction {
 
 	public const SLUG = 'ajax_transport_binding_test_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function getMinimumUserAuthCapability() :string {
 		return '';

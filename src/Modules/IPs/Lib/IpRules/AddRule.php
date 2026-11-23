@@ -66,13 +66,6 @@ class AddRule {
 	/**
 	 * @throws \Exception
 	 */
-	public function toCrowdsecBlocklist() :IpRulesDB\Record {
-		return $this->add( IpRulesDB\Handler::T_CROWDSEC );
-	}
-
-	/**
-	 * @throws \Exception
-	 */
 	private function add( string $type, array $data = [] ) :IpRulesDB\Record {
 		$dbh = self::con()->db_con->ip_rules;
 

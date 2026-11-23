@@ -52,7 +52,7 @@ class ActionsQueueAllClearDataBuilderTest extends BaseUnitTest {
 
 		$topLevelKeys = \array_keys( $data );
 		\sort( $topLevelKeys );
-		$this->assertSame( [ 'checks', 'icon_class', 'subtitle', 'title', 'zone_chips' ], $topLevelKeys );
+		$this->assertSame( [ 'checks', 'icon_class', 'subtitle', 'title' ], $topLevelKeys );
 		$this->assertCount( 2, $data[ 'checks' ] );
 		foreach ( $data[ 'checks' ] as $check ) {
 			$checkKeys = \array_keys( $check );
@@ -62,13 +62,5 @@ class ActionsQueueAllClearDataBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $data[ 'checks' ], 'slug' ) );
 		$this->assertSame( [ 'Scans clear', 'Maintenance clear' ], \array_column( $data[ 'checks' ], 'label' ) );
 		$this->assertSame( [ 'good', 'good' ], \array_column( $data[ 'checks' ], 'severity' ) );
-		$this->assertCount( 2, $data[ 'zone_chips' ] );
-		foreach ( $data[ 'zone_chips' ] as $chip ) {
-			$chipKeys = \array_keys( $chip );
-			\sort( $chipKeys );
-			$this->assertSame( [ 'icon_class', 'label', 'severity', 'slug' ], $chipKeys );
-		}
-		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $data[ 'zone_chips' ], 'slug' ) );
-		$this->assertSame( [ 'good', 'good' ], \array_column( $data[ 'zone_chips' ], 'severity' ) );
 	}
 }

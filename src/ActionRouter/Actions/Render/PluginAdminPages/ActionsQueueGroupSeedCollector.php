@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 /**
@@ -13,6 +14,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type VulnerabilitySection from ScansVulnerabilitiesBuilder
  */
 class ActionsQueueGroupSeedCollector {
+
+	use PluginControllerConsumer;
 
 	private ActionsQueueGroupDefinitions $groupDefinitions;
 	private ScanResultsDisplayOptions $queueScanResultsOptions;
@@ -91,6 +94,14 @@ class ActionsQueueGroupSeedCollector {
 					}
 					continue 2;
 
+				case 'cloaked_plugins':
+					$this->mergeCloakedPluginsSeed( $seeds, $definitionKey, $item );
+					continue 2;
+
+				case 'file_locker_unlocked':
+					$seeds[ $definitionKey ] = $this->buildUnlockedFileLockerSeed( $definitionKey, $item );
+					continue 2;
+
 				case 'maintenance':
 					if ( $maintenanceItemsByGroupKey === null ) {
 						$maintenanceItemsByGroupKey = $this->groupMaintenanceItemsByGroupKey(
@@ -135,9 +146,7 @@ class ActionsQueueGroupSeedCollector {
 				'status'           => 'good',
 				'narrative'        => '',
 				'detail_shell'     => $definition[ 'detail_shell' ],
-				'links'            => [],
 				'management_link'  => [],
-				'detail_table'     => [],
 				'attention_items'  => [],
 				'maintenance_rows' => [],
 				'summary_row'      => [],
@@ -151,7 +160,56 @@ class ActionsQueueGroupSeedCollector {
 		], 'good' );
 		$seeds[ $seedKey ][ 'attention_items' ][] = $item;
 		unset( $seeds[ $seedKey ][ 'render_action_data_override' ] );
-		unset( $seeds[ $seedKey ][ 'context_actions_override' ] );
+	}
+
+	/**
+	 * Critical files left unlocked: File Locker's row manages the locks, rather than listing changes to look at.
+	 * @phpstan-param AttentionItem $item
+	 * @return GroupSeed
+	 */
+	private function buildUnlockedFileLockerSeed( string $definitionKey, array $item ) :array {
+		$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
+		$statusLabel = __( 'Not all locked', 'wp-simple-firewall' );
+
+		return [
+			'key'                          => $definitionKey,
+			'definition_key'               => $definitionKey,
+			'label'                        => $definition[ 'label' ],
+			'item_count'                   => $item[ 'count' ],
+			'status'                       => $item[ 'severity' ],
+			'narrative'                    => $item[ 'description' ],
+			'detail_shell'                 => $definition[ 'detail_shell' ],
+			'management_link'              => [],
+			'is_interactive_override'      => true,
+			'attention_items'              => [ $item ],
+			'maintenance_rows'             => [],
+			'summary_row'                  => [],
+			'status_label_override'        => $statusLabel,
+			'header_summary_override'      => $item[ 'description' ],
+			'header_focus_override'        => __( 'Lock each critical file so any change to it is caught.', 'wp-simple-firewall' ),
+			'header_next_step_override'    => __( 'Open File Locker and lock the files that are not locked yet.', 'wp-simple-firewall' ),
+			'header_badge_override'        => $statusLabel,
+			'header_badge_status_override' => 'neutral',
+			'header_color_key_override'    => 'neutral',
+		];
+	}
+
+	/**
+	 * Each cloaked plugin is listed in the queue itself, with its actions.
+	 * @param array<int|string,GroupSeed> $seeds
+	 * @phpstan-param AttentionItem $item
+	 */
+	private function mergeCloakedPluginsSeed( array &$seeds, string $definitionKey, array $item ) :void {
+		$rows = $this->scanSource->cloakedPluginRows();
+		if ( $rows[ 'active' ] === [] ) {
+			return;
+		}
+
+		$this->mergeAttentionSeed( $seeds, $definitionKey, $item );
+		$seeds[ $definitionKey ] = \array_merge( $seeds[ $definitionKey ], [
+			'maintenance_rows' => $rows[ 'active' ],
+			'ignored_rows'     => $rows[ 'ignored' ],
+		] );
 	}
 
 	/**
@@ -215,6 +273,21 @@ class ActionsQueueGroupSeedCollector {
 		$item[ 'severity' ] = $section[ 'status' ];
 		$seeds = [];
 		$this->mergeAttentionSeed( $seeds, $definitionKey, $item );
+		// Each affected plugin or theme is listed in the queue itself, with its actions, rather than
+		// behind a page that holds the same list.
+		$rowBuilder = new ActionsQueueCompactSummaryRowBuilder();
+		$seeds[ $definitionKey ][ 'maintenance_rows' ] = $rowBuilder->buildForAssets( $section[ 'items' ] );
+		$seeds[ $definitionKey ][ 'ignored_rows' ] = $rowBuilder->buildForAssets( $section[ 'ignored_items' ] );
+		if ( $definitionKey === 'vulnerabilities'
+			 && \in_array( 'plugin', \array_column( $section[ 'items' ], 'asset_type' ), true ) ) {
+			$seeds[ $definitionKey ][ 'management_link' ] = [
+				'label'      => __( 'Manage Vulnerable Plugins', 'wp-simple-firewall' ),
+				'href'       => self::con()->plugin_urls->vulnerablePlugins(),
+				'target'     => '_blank',
+				'rel'        => 'noopener noreferrer',
+				'icon_class' => 'bi-box-arrow-up-right',
+			];
+		}
 		return \array_values( $seeds );
 	}
 
@@ -230,8 +303,6 @@ class ActionsQueueGroupSeedCollector {
 		array $renderActionData,
 		array $attentionItems
 	) :array {
-		$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
-
 		return [
 			'key'              => $definitionKey.':'.$summary[ 'key' ],
 			'definition_key'   => $definitionKey,
@@ -240,9 +311,7 @@ class ActionsQueueGroupSeedCollector {
 			'status'           => $status,
 			'narrative'        => $summary[ 'stat_text' ],
 			'detail_shell'     => 'direct_table',
-			'links'            => [],
 			'management_link'  => [],
-			'detail_table'     => [],
 			'render_action_class_override' => ActionsQueueAssetFileStatusDetail::class,
 			'render_action_data_override'  => $renderActionData,
 			'attention_items'  => $attentionItems,

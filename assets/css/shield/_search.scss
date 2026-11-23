@@ -1,0 +1,298 @@
+// ─── Search: one search box and one results list, used by Configure's search and the search dialog. ───
+// The box is a single text field; the results float under it, the best match set apart, then the rest.
+
+.shield-search {
+	display: grid;
+	gap: 0.75rem;
+}
+
+// Nothing typed yet, so no results list; the dialog's hints show instead.
+.shield-search[data-search-state="idle"] .shield-search__results,
+.shield-search:not([data-search-state="idle"]) .shield-search__hints {
+	display: none;
+}
+
+.shield-search-box {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid #8c8f94;
+	border-radius: 8px;
+	display: flex;
+	gap: 0.6rem;
+	padding: 0 0.9rem;
+
+	> .bi {
+		color: #50575e;
+		font-size: 17px;
+	}
+
+	&:focus-within {
+		border-color: $mode-configure;
+		box-shadow: 0 0 0 2px rgba($mode-configure, 0.18);
+	}
+}
+
+.shield-search-box__input,
+.shield-search-box__input[type="search"],
+.shield-search-box__input[type="text"] {
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	color: #1d2327;
+	flex: 1 1 auto;
+	font-size: 15px;
+	min-height: 48px;
+	min-width: 0;
+	padding: 0;
+
+	&:focus {
+		box-shadow: none;
+		outline: none;
+	}
+}
+
+.shield-search-box__close {
+	background: none;
+	border: 0;
+	border-radius: 4px;
+	color: #50575e;
+	flex: 0 0 auto;
+	font-size: 16px;
+	line-height: 1;
+	padding: 0.35rem;
+
+	&:hover {
+		color: #1d2327;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring(0);
+	}
+}
+
+.shield-search-results {
+	background: #ffffff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	box-shadow: 0 14px 28px rgba($mode-configure, 0.12), 0 4px 10px rgba(15, 23, 42, 0.08);
+	max-height: min(24rem, 52vh);
+	overflow-x: hidden;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+
+.shield-search-results__list {
+	display: grid;
+}
+
+.shield-search-results__item {
+	align-items: center;
+	color: #1d2327;
+	display: grid;
+	gap: 1px 12px;
+	grid-template-columns: minmax(0, 1fr) auto;
+	padding: 8px 14px;
+	text-decoration: none;
+
+	&:hover,
+	&:focus-visible {
+		background: #f6f2fd;
+		color: #1d2327;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring(-3px);
+	}
+
+	&.is-best {
+		background: #f6f2fd;
+		border-bottom: 1px solid $border-color-neutral-subtle;
+		padding-bottom: 10px;
+		padding-top: 10px;
+	}
+}
+
+.shield-search-results__copy {
+	display: grid;
+	gap: 1px;
+	min-width: 0;
+}
+
+.shield-search-results__best,
+.shield-search-results__heading {
+	color: $mode-configure;
+	font-size: 10.5px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.shield-search-results__heading {
+	color: #646970;
+	line-height: inherit;
+	margin: 0;
+	padding: 8px 14px 2px;
+}
+
+.shield-search-results__name {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.shield-search-results__type {
+	color: #646970;
+	font-size: 10.5px;
+	font-weight: 600;
+}
+
+.shield-search-results__label {
+	color: #1d2327;
+	font-size: 13.5px;
+	font-weight: 600;
+}
+
+.shield-search-results__summary,
+.shield-search-results__empty {
+	color: #646970;
+	font-size: 12px;
+}
+
+.shield-search-results__summary {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.shield-search-results__path {
+	color: #50575e;
+}
+
+.shield-search-results__value {
+	color: #646970;
+	font-size: 12px;
+	max-width: 13rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.shield-search-results mark {
+	background: #fff1b8;
+	border-radius: 2px;
+	color: inherit;
+	padding: 0 1px;
+}
+
+.shield-search-results__foot {
+	background: #fafafa;
+	border-top: 1px solid $border-color-neutral-subtle;
+	bottom: 0;
+	color: #646970;
+	display: flex;
+	font-size: 11.5px;
+	justify-content: space-between;
+	padding: 7px 14px;
+	position: sticky;
+
+	kbd {
+		background: #ffffff;
+		border: 1px solid $border-color-neutral-subtle;
+		border-bottom-width: 2px;
+		border-radius: 4px;
+		box-shadow: none;
+		color: #1d2327;
+		font-size: 10.5px;
+		padding: 0 5px;
+	}
+}
+
+.shield-search-results__empty {
+	margin: 0;
+	padding: 0.95rem 1rem;
+}
+
+.shield-search-results__status {
+	align-items: center;
+	color: #5f6974;
+	display: flex;
+	gap: 0.7rem;
+	padding: 0.95rem 1rem;
+}
+
+.shield-search-results__status-text {
+	font-size: 0.8rem;
+}
+
+.shield-search-results__spinner {
+	align-items: center;
+	display: inline-flex;
+	flex: 0 0 auto;
+	justify-content: center;
+
+	.spinner-border {
+		height: 1rem;
+		margin: 0;
+		width: 1rem;
+	}
+}
+
+// What can be searched, shown in the dialog before anything is typed.
+.shield-search-results__hints {
+	color: #50575e;
+	display: grid;
+	font-size: 13px;
+	gap: 0.35rem;
+	list-style: none;
+	margin: 0;
+	padding: 0.25rem 1rem 0.85rem;
+
+	li {
+		margin: 0;
+	}
+
+	.bi {
+		color: $status-color-good;
+	}
+}
+
+// ─── The search dialog: just the box, floating, with the results under it ───
+.shield-search-modal {
+	.modal-dialog {
+		margin-top: 12vh;
+		max-width: min(46rem, calc(100vw - 2rem));
+	}
+
+	.modal-content {
+		background: transparent;
+		border: 0;
+		box-shadow: none;
+	}
+
+	.shield-search-box {
+		border-color: transparent;
+		box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+
+		&:focus-within {
+			border-color: $mode-configure;
+		}
+	}
+
+	.shield-search-results {
+		max-height: min(30rem, 60vh);
+	}
+
+	// The dialog has its own close button, so the field's own clear button would be a second cross.
+	.shield-search-box__input::-webkit-search-cancel-button {
+		-webkit-appearance: none;
+		display: none;
+	}
+}
+
+@media (max-width: 640px) {
+	.shield-search-results__item {
+		gap: 0.65rem;
+		padding: 0.8rem 0.85rem;
+	}
+}

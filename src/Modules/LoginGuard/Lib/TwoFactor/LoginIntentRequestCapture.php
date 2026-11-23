@@ -8,7 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\FullPage\Mfa\WpReplicaLoginIntentPage,
 	Exceptions\ActionDoesNotExistException,
 	Exceptions\ActionException,
-	Exceptions\ActionTypeDoesNotExistException
+	Exceptions\ActionTypeDoesNotExistException,
+	Utility\RequestFields
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\{
 	CouldNotValidate2FA,
@@ -35,7 +36,7 @@ class LoginIntentRequestCapture {
 		$req = Services::Request();
 
 		try {
-			$userID = LoginRequestValues::positiveUserId( $req->post( 'wp_user_id' ) );
+			$userID = RequestFields::PositiveIntFrom( $req->post( 'wp_user_id' ) );
 			$loginNonce = LoginRequestValues::nonEmptyString( $req->post( 'login_nonce' ) );
 			if ( $userID === null || $loginNonce === null ) {
 				throw new NotValidUserException();
@@ -118,9 +119,15 @@ class LoginIntentRequestCapture {
 		$con = self::con();
 		$req = Services::Request();
 
+		// The login form is read here, and only here: providers receive its fields rather than reading the request.
+		// A posted field takes precedence over the same field in the query.
+		$submitted = \array_merge(
+			$req->query,
+			$req->post
+		);
 		$validatedSlug = ( new LoginIntentRequestValidate() )
 			->setWpUser( $this->user )
-			->run( $this->loginNonce, LoginRequestValues::isToken( $req->post( 'cancel' ), '1' ) );
+			->run( $this->loginNonce, $submitted, LoginRequestValues::isToken( $req->post( 'cancel' ), '1' ) );
 
 		if ( $validatedSlug ) {
 			wp_set_auth_cookie( $this->user->ID, LoginRequestValues::isToken( $req->post( 'rememberme' ), 'forever' ) );

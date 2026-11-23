@@ -14,10 +14,6 @@ class CommentSpamBlockHuman extends Base {
 		return __( 'Block human Comment SPAM with dictionary-based scanning that preserves your privacy.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Edit human-SPAM comment settings', 'wp-simple-firewall' );
-	}
-
 	/**
 	 * @inheritDoc
 	 */
@@ -29,14 +25,13 @@ class CommentSpamBlockHuman extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "There is no protection against WP Comment SPAM posted by humans.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy(
+				__( "There is no protection against WP Comment SPAM posted by humans.", 'wp-simple-firewall' ),
+				'enable_comments_human_spam_filter'
+			);
 		}
 
 		return $status;
-	}
-
-	protected function postureWeight() :int {
-		return 2;
 	}
 
 	protected function configureTreatsBadStatusAsWarning() :bool {

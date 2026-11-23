@@ -9,6 +9,10 @@ class AutoReportCoordinator {
 	use PluginControllerConsumer;
 
 	public function run() :void {
+		// Held reports aren't built at all; their next run after the hold picks up what's pending.
+		if ( $this->isReportEmailHoldActive() ) {
+			return;
+		}
 		$this->attemptAlert();
 		$this->attempt( Constants::REPORT_TYPE_INFO );
 	}
@@ -63,5 +67,9 @@ class AutoReportCoordinator {
 
 	protected function isReadyForScanResultNotifications() :bool {
 		return self::con()->comps->scans->isReadyForScanResultNotifications();
+	}
+
+	protected function isReportEmailHoldActive() :bool {
+		return ( new ReportEmailHold() )->isActive();
 	}
 }

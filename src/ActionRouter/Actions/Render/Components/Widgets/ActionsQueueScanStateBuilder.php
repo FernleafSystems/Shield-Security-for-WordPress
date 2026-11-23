@@ -309,16 +309,33 @@ class ActionsQueueScanStateBuilder {
 	 * @param list<string> $accentStatuses
 	 */
 	private function appendFileLockerState( array &$rows, array &$tabs, array &$accentStatuses ) :void {
-		$availability = $this->getTabAvailability( 'file_locker' );
-		if ( !$availability[ 'show_in_actions_queue' ] ) {
-			return;
+		$changedCount = 0;
+		if ( $this->getTabAvailability( 'file_locker' )[ 'show_in_actions_queue' ] ) {
+			$changedCount = $this->appendLockedFilesState( $rows, $tabs, $accentStatuses );
 		}
 
-		if ( !$availability[ 'is_available' ] ) {
-			$tabs[ 'file_locker' ] = $this->buildDisabledTabMetrics();
-			return;
+		// Critical files left unlocked are for review, but changes to locked files come first.
+		$unlocked = $changedCount === 0 ? $this->getTabAvailabilityBuilder()->fileLockerReviewState() : null;
+		$row = $unlocked === null ? null : $this->buildScanRow(
+			'file_locker_unlocked',
+			$this->scanSectionLabel( 'file_locker_unlocked', __( 'File Locker', 'wp-simple-firewall' ) ),
+			$unlocked[ 'not_locked_count' ],
+			'warning',
+			$unlocked[ 'message' ],
+			__( 'Review', 'wp-simple-firewall' )
+		);
+		if ( $row !== null ) {
+			$rows[] = $row;
 		}
+	}
 
+	/**
+	 * @param list<ActionsQueueScanRow> $rows
+	 * @param array<string,ActionsQueueScanTabMetrics> $tabs
+	 * @param list<string> $accentStatuses
+	 * @return int how many locked files have changed
+	 */
+	private function appendLockedFilesState( array &$rows, array &$tabs, array &$accentStatuses ) :int {
 		$count = $this->getProblemFileLockerCount();
 		$pendingCount = $this->getPendingFileLockerCount();
 		$status = $this->statusForProblemCount( $count );
@@ -347,6 +364,7 @@ class ActionsQueueScanStateBuilder {
 		if ( $row !== null ) {
 			$rows[] = $row;
 		}
+		return $count;
 	}
 
 	/**

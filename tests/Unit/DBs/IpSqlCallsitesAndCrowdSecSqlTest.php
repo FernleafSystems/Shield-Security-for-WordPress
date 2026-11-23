@@ -18,7 +18,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\{
 	SqlBackend
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotSignalsRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\Scopes\V1\ProcessIPs as ProcessIPsV1;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\Scopes\V2\ProcessIPs as ProcessIPsV2;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Traffic\BuildTrafficTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -192,7 +191,7 @@ class IpSqlCallsitesAndCrowdSecSqlTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( "ips.ip=X'7f000001'", $db->lastGetVarSql );
 	}
 
-	public function testCrowdsecV1AndV2GenerateValidSqlForMixedValidInvalidIpsInSqliteMode() :void {
+	public function testCrowdsecV2GeneratesValidSqlForMixedValidInvalidIpsInSqliteMode() :void {
 		$this->installController();
 		$decisions = [
 			'127.0.0.1' => [ 'expires_at' => 2000 ],
@@ -200,25 +199,6 @@ class IpSqlCallsitesAndCrowdSecSqlTest extends BaseUnitTest {
 		];
 
 		SqlBackend::setSqliteOverrideForTests( true );
-
-		$dbV1 = new CapturingDb();
-		$this->injectServices( $dbV1 );
-		( new class extends ProcessIPsV1 {
-			public function exposeProcessNew( array $newDecisions ) :int {
-				$this->newDecisions = $newDecisions;
-				return $this->processNew();
-			}
-
-			protected function removeDuplicatesFromNewStream() {
-			}
-		} )->exposeProcessNew( $decisions );
-
-		$this->assertNotEmpty( $dbV1->doSqlQueries );
-		$this->assertNotEmpty( $dbV1->selectCustomQueries );
-		$this->assertStringContainsString( "X'7f000001'", $dbV1->doSqlQueries[ 0 ] );
-		$this->assertStringContainsString( 'NULL', $dbV1->doSqlQueries[ 0 ] );
-		$this->assertStringNotContainsString( ',,', $dbV1->doSqlQueries[ 0 ] );
-		$this->assertStringContainsString( "IN (X'7f000001', NULL)", $dbV1->selectCustomQueries[ 0 ] );
 
 		$dbV2 = new CapturingDb();
 		$this->injectServices( $dbV2 );

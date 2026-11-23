@@ -13,7 +13,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Zones\Component;
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	InvokesNonPublicMethods,
+	PluginControllerInstaller
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	Base as ComponentBase,
 	PasswordPolicies,
@@ -24,6 +27,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 };
 
 class ConfigActionOwnershipTest extends BaseUnitTest {
+
+	use InvokesNonPublicMethods;
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -36,34 +41,21 @@ class ConfigActionOwnershipTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_components_route_config_actions_to_real_owner_forms() :void {
-		$scanSchedulingAction = ( new ScanScheduling() )->getActions()[ 'config' ] ?? [];
-		$this->assertSame( ScanScheduling::Slug(), $scanSchedulingAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertSame( 'scan_frequency', $scanSchedulingAction[ 'data' ][ 'config_item' ] ?? '' );
-		$this->assertSame( 'scan_frequency', $scanSchedulingAction[ 'data' ][ 'option_keys' ] );
-
-		$trustedCommentersAction = ( new TrustedCommenters() )->getActions()[ 'config' ] ?? [];
-		$this->assertSame( TrustedCommenters::Slug(), $trustedCommentersAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertSame( 'trusted_commenter_minimum', $trustedCommentersAction[ 'data' ][ 'config_item' ] ?? '' );
-		$this->assertSame( 'trusted_commenter_minimum', $trustedCommentersAction[ 'data' ][ 'option_keys' ] );
-
-		$passwordPoliciesAction = ( new PasswordPolicies() )->getActions()[ 'config' ] ?? [];
-		$this->assertSame( PasswordPolicies::Slug(), $passwordPoliciesAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertSame( 'enable_password_policies', $passwordPoliciesAction[ 'data' ][ 'config_item' ] ?? '' );
-		$this->assertSame( 'enable_password_policies', $passwordPoliciesAction[ 'data' ][ 'option_keys' ] );
-
-		$pwnedPasswordsAction = ( new PwnedPasswords() )->getActions()[ 'config' ] ?? [];
-		$this->assertSame( PwnedPasswords::Slug(), $pwnedPasswordsAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertSame( 'pass_prevent_pwned', $pwnedPasswordsAction[ 'data' ][ 'config_item' ] ?? '' );
-		$this->assertSame( 'enable_password_policies,pass_prevent_pwned', $pwnedPasswordsAction[ 'data' ][ 'option_keys' ] );
-
-		$passwordStrengthAction = ( new PasswordStrength() )->getActions()[ 'config' ] ?? [];
-		$this->assertSame( PasswordStrength::Slug(), $passwordStrengthAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertSame( 'pass_min_strength', $passwordStrengthAction[ 'data' ][ 'config_item' ] ?? '' );
-		$this->assertSame( 'enable_password_policies,pass_min_strength', $passwordStrengthAction[ 'data' ][ 'option_keys' ] );
+	public function test_components_own_the_settings_their_configure_rows_point_to() :void {
+		$expected = [
+			[ new ScanScheduling(), [ 'scan_frequency' ], 'scan_frequency' ],
+			[ new TrustedCommenters(), [ 'trusted_commenter_minimum' ], 'trusted_commenter_minimum' ],
+			[ new PasswordPolicies(), [ 'enable_password_policies' ], 'enable_password_policies' ],
+			[ new PwnedPasswords(), [ 'enable_password_policies', 'pass_prevent_pwned' ], 'pass_prevent_pwned' ],
+			[ new PasswordStrength(), [ 'enable_password_policies', 'pass_min_strength' ], 'pass_min_strength' ],
+		];
+		foreach ( $expected as [ $component, $options, $configItem ] ) {
+			$this->assertSame( $options, $component->getOptions(), \get_class( $component ) );
+			$this->assertSame( $configItem, $this->invokeNonPublicMethod( $component, 'configItem' ), \get_class( $component ) );
+		}
 	}
 
-	public function test_components_do_not_emit_config_actions_without_owned_options() :void {
+	public function test_components_without_settings_own_none() :void {
 		PluginControllerInstaller::reset();
 		$this->installControllerStub( [] );
 
@@ -71,13 +63,9 @@ class ConfigActionOwnershipTest extends BaseUnitTest {
 			public static function Slug() :string {
 				return 'empty_component';
 			}
-
-			protected function hasConfigAction() :bool {
-				return true;
-			}
 		};
 
-		$this->assertSame( [], $component->getActions() );
+		$this->assertSame( [], $component->getOptions() );
 	}
 
 	private function installControllerStub( ?array $options = null ) :void {

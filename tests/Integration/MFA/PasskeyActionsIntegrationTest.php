@@ -2,7 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\MFA;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MfaPasskeyAuthenticationStart,
 	MfaPasskeyRegistrationStart,
@@ -106,6 +108,46 @@ class PasskeyActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$payload = $routed->payload();
 
 		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+		$this->assertEmpty(
+			$this->requireController()->db_con->mfa->getQuerySelector()->filterByUserID( $userId )->queryWithResult()
+		);
+	}
+
+	public function test_remove_source_action_refuses_a_source_id_that_is_not_text_and_keeps_the_passkey() :void {
+		$userId = $this->loginAsAdministrator();
+		$this->insertLegacyPasskeyActionRecord( $userId );
+
+		try {
+			( new ActionProcessor() )->processAction( MfaPasskeyRemoveSource::class, [
+				'wan_source_id' => [ PasskeyFixtureLoader::credentialUniqueId() ],
+			] );
+			$this->fail( 'Expected the malformed passkey ID to be refused.' );
+		}
+		catch ( ActionException $e ) {
+			$this->assertSame( 'Invalid request field: wan_source_id', $e->getMessage() );
+		}
+
+		$this->assertCount(
+			1,
+			$this->requireController()->db_con->mfa->getQuerySelector()->filterByUserID( $userId )->queryWithResult()
+		);
+	}
+
+	public function test_registration_verify_action_refuses_a_response_that_is_not_text() :void {
+		$userId = $this->loginAsAdministrator();
+		$this->seedPasskeyRegistrationOptions( \get_user_by( 'id', $userId ) );
+
+		try {
+			( new ActionProcessor() )->processAction( MfaPasskeyRegistrationVerify::class, [
+				'reg'   => [ PasskeyFixtureLoader::registrationResponse() ],
+				'label' => 'Desk Key',
+			] );
+			$this->fail( 'Expected the malformed registration response to be refused.' );
+		}
+		catch ( ActionException $e ) {
+			$this->assertSame( 'Invalid request field: reg', $e->getMessage() );
+		}
+
 		$this->assertEmpty(
 			$this->requireController()->db_con->mfa->getQuerySelector()->filterByUserID( $userId )->queryWithResult()
 		);

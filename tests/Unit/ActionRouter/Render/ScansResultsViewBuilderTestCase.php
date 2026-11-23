@@ -10,6 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	PluginUrlsControllerInstaller,
 	ServicesState,
 	UnitTestGeneral
 };
@@ -80,9 +82,11 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 				}
 			},
 		] );
+		PluginUrlsControllerInstaller::install();
 	}
 
 	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
 		unset( $GLOBALS[ 'wp_version' ] );
 		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
@@ -123,25 +127,21 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 			'status'            => 'warning',
 			'icon_class'        => $assetType === 'plugin' ? 'bi bi-plug-fill' : 'bi bi-palette-fill',
 			'title'             => $title,
-			'rail_title'        => '',
 			'stat_text'         => $countBadge.' files need review',
 			'meta_text'         => $subjectId,
-			'show_meta_in_tile' => true,
 			'count_badge'       => $countBadge,
 			'body_notice'         => '',
-			'body_notice_variant' => '',
 			'panel_data'          => [
 				'actions-queue-asset-panel-loaded' => '1',
 				'actions-queue-asset-panel-lazy'   => '0',
 			],
-			'is_inactive'       => false,
 			'actions'           => [
 				[
 					'type'         => 'deactivate',
 					'label'        => 'Deactivate',
 					'href'         => '/wp-admin/plugins.php',
 					'icon_class'   => 'bi bi-power',
-					'tooltip_attr' => 'Go to plugins',
+					'tooltip_attr' => 'Go to plugin',
 					'attributes'   => [],
 				],
 			],

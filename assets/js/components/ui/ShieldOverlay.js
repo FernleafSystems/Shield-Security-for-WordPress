@@ -12,7 +12,6 @@ export class ShieldOverlay {
 
 	static Hide() {
 		JsLoadingOverlay.hide();
-		// document.querySelector( 'body' ).classList.remove( 'shield-busy' );
 	}
 
 	/**
@@ -45,6 +44,5 @@ export class ShieldOverlay {
 			"overlayZIndex": 100001,
 			"spinnerZIndex": 100002
 		} );
-		// document.querySelector( 'body' ).classList.add( 'shield-busy' );
 	}
 }

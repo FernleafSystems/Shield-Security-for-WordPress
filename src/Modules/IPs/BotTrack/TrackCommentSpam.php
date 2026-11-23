@@ -24,7 +24,6 @@ class TrackCommentSpam {
 			if ( $comment instanceof \WP_Comment && !empty( $comment->comment_author_IP ) ) {
 
 				try {
-					// self::con()->comps->events->fireEvent( 'comment_markspam' );
 					( new ProcessOffense() )
 						->setIp( $comment->comment_author_IP )
 						->incrementOffenses( 1, false, false );

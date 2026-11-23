@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtensionPageContainer;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage\TabSitesListing;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -21,8 +22,10 @@ class MwpExtensionLoader {
 		add_filter( 'mainwp_header_title', fn() => self::con()->labels->Name, 100, 0 );
 
 		// Render the main extension page content
+		// The tab comes from the page URL; it's checked here and passed down, so the pages don't read the request.
+		$tab = ActionData::TransportField( $req->query, 'tab' );
 		echo self::con()->action_router->render( ExtensionPageContainer::class, [
-			'current_tab' => empty( $req->query( 'tab' ) ) ? TabSitesListing::TAB : $req->query( 'tab' )
+			'current_tab' => $tab === '' ? TabSitesListing::TAB : $tab,
 		] );
 	}
 }

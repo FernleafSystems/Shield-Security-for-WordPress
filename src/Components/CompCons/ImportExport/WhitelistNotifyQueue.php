@@ -22,12 +22,4 @@ class WhitelistNotifyQueue extends BackgroundProcess {
 	protected function task( $item ) {
 		return false;
 	}
-
-	/**
-	 * Override if applicable, but ensure that the below actions are
-	 * performed, or, call parent::complete().
-	 */
-	protected function complete() {
-		parent::complete();
-	}
 }

@@ -553,6 +553,12 @@ class PageInvestigateByThemeTestThemeVo extends WpThemeVo {
 }
 
 class PageInvestigateByThemeUnitTestDouble extends PageInvestigateByTheme {
+	/**
+	 * Stands in for the admin page route, which passes the page URL's values to the page as its data.
+	 */
+	protected function getDefaults() :array {
+		return \FernleafSystems\Wordpress\Services\Services::Request()->query;
+	}
 
 	private $subject;
 

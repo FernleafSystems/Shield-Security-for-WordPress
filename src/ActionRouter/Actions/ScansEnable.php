@@ -2,9 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-class ScansEnable extends ScansBase {
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
+
+class ScansEnable extends BaseAction {
 
 	public const SLUG = 'scans_enable';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	/** @var array<string,array{option:string,value:string}> */
 	public const SCANS = [
@@ -19,7 +27,7 @@ class ScansEnable extends ScansBase {
 	protected function exec() {
 		$key = $this->action_data[ 'scan' ];
 		$scan = \is_string( $key ) ? ( self::SCANS[ $key ] ?? null ) : null;
-		$success = $scan !== null && self::con()->isPremiumActive();
+		$success = $scan !== null;
 		if ( $success ) {
 			switch ( $key ) {
 				case 'malware':

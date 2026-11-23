@@ -33,10 +33,6 @@
 	width: 25px;
 }
 
-.investigate-landing__subject-section + .investigate-landing__subject-section {
-	margin-top: 1.4rem;
-}
-
 .investigate-landing__subject-grid {
 	align-items: start;
 	display: grid;
@@ -49,21 +45,24 @@
 	pointer-events: none;
 }
 
+// A subject sits flat beneath the lookup: its name heads it, and its tabs are underlined like the page's.
+.investigate-landing__subject-panel {
+	padding-top: 0.5rem;
+}
+
 .investigate-subject-header {
 	align-items: flex-start;
-	border-bottom: 1px solid $border-color-neutral-subtle;
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.65rem 1rem;
 	justify-content: space-between;
-	margin-bottom: 1rem;
-	padding-bottom: 0.7rem;
+	margin-bottom: 0.6rem;
 }
 
 .investigate-subject-header__title {
 	color: #1d2327;
-	font-size: 1rem;
-	font-weight: 700;
+	font-size: 1.15rem;
+	font-weight: 600;
 	line-height: 1.35;
 }
 
@@ -73,24 +72,12 @@
 	margin-top: 0.1rem;
 }
 
-.investigate-subject-header__change-link {
-	font-size: 0.8rem;
-	font-weight: 600;
-	text-decoration: none;
-	white-space: nowrap;
-}
-
-.investigate-subject-header__change-link:hover {
-	text-decoration: underline;
-}
-
 .investigate-panel__tabs {
-	border-bottom: 1px solid #e8f0f4;
+	border-bottom: 1px solid #dcdcde;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.3rem;
-	margin-bottom: 0.9rem;
-	padding-bottom: 0.5rem;
+	gap: 0.25rem;
+	margin-bottom: 1rem;
 }
 
 .investigate-panel__tabs:empty {
@@ -99,17 +86,19 @@
 
 .investigate-panel__tab {
 	background: transparent;
-	border: 1px solid transparent;
-	border-radius: 20px;
-	color: #555;
+	border: 0;
+	border-bottom: 3px solid transparent;
+	border-radius: 0;
+	color: #50575e;
 	cursor: pointer;
-	font-size: 0.82rem;
-	padding: 0.3rem 0.8rem;
+	font-size: 13px;
+	font-weight: 500;
+	margin-bottom: -1px;
+	padding: 0.5rem 0.75rem 0.45rem;
 }
 
 .investigate-panel__tab:hover {
-	background: $mode-investigate-light;
-	color: $mode-investigate;
+	color: #1d2327;
 }
 
 .investigate-panel__tab:focus-visible {
@@ -118,9 +107,9 @@
 
 .investigate-panel__tab.is-active,
 .investigate-panel__tab.active {
-	background: $mode-investigate;
-	border-color: $mode-investigate;
-	color: #fff;
+	border-bottom-color: $mode-investigate;
+	color: #1d2327;
+	font-weight: 600;
 }
 
 .investigate-landing__subject-panel [data-investigate-panel-content="1"] .shield-options-layout.has-rail {
@@ -277,3 +266,207 @@
 		width: 100%;
 	}
 }
+
+/* The lookup */
+.investigate-lookup {
+	display: grid;
+	gap: 0.85rem;
+	max-width: 880px;
+}
+
+.investigate-lookup__box {
+	align-items: center;
+	background: #fff;
+	border: 1px solid #8c8f94;
+	border-radius: 8px;
+	display: flex;
+	gap: 0.6rem;
+	padding: 0 0.9rem;
+
+	> .bi {
+		color: #50575e;
+		font-size: 17px;
+	}
+
+	&:focus-within {
+		border-color: $mode-investigate;
+		box-shadow: 0 0 0 2px rgba(10, 88, 202, 0.18);
+	}
+}
+
+.investigate-lookup__input,
+.investigate-lookup__input[type="search"] {
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	color: #1d2327;
+	flex: 1 1 auto;
+	font-size: 15px;
+	min-height: 48px;
+	min-width: 0;
+	padding: 0;
+
+	&:focus {
+		box-shadow: none;
+		outline: none;
+	}
+}
+
+.investigate-lookup__kinds {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+}
+
+.investigate-lookup__kind {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 999px;
+	color: #1d2327;
+	cursor: pointer;
+	font-size: 12.5px;
+	line-height: 1.2;
+	padding: 0.35rem 0.8rem;
+
+	&:hover {
+		border-color: #8c8f94;
+	}
+
+	&:focus-visible {
+		outline: 2px solid $mode-investigate;
+		outline-offset: 1px;
+	}
+
+	&[aria-pressed="true"] {
+		background: $mode-investigate;
+		border-color: $mode-investigate;
+		color: #fff;
+		font-weight: 600;
+	}
+}
+
+.investigate-lookup__intro {
+	color: #50575e;
+	font-size: 13px;
+	margin: 0;
+}
+
+.investigate-lookup__status {
+	color: #50575e;
+	font-size: 12.5px;
+
+	&:empty {
+		display: none;
+	}
+}
+
+.investigate-lookup__results {
+	display: grid;
+	gap: 1rem;
+
+	&[aria-busy="true"] {
+		opacity: 0.6;
+	}
+}
+
+.investigate-lookup__group {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.investigate-lookup__group-head {
+	align-items: center;
+	background: #f6f7f7;
+	border-bottom: 1px solid #dcdcde;
+	color: #50575e;
+	display: flex;
+	font-size: 11px;
+	font-weight: 700;
+	gap: 0.45rem;
+	letter-spacing: 0.06em;
+	margin: 0;
+	padding: 0.5rem 0.9rem;
+	text-transform: uppercase;
+}
+
+.investigate-lookup__group-count {
+	background: #dcdcde;
+	border-radius: 999px;
+	color: #1d2327;
+	font-size: 10.5px;
+	letter-spacing: 0;
+	padding: 0 0.45rem;
+}
+
+.investigate-lookup__row {
+	align-items: center;
+	background: none;
+	border: 0;
+	color: #1d2327;
+	cursor: pointer;
+	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: 20px minmax(0, 1fr) auto;
+	padding: 0.65rem 0.9rem;
+	text-align: left;
+	width: 100%;
+
+	& + & {
+		border-top: 1px solid #f0f0f1;
+	}
+
+	> .bi {
+		color: #50575e;
+	}
+
+	&:hover,
+	&:focus-visible {
+		background: #f0f6fc;
+	}
+
+	&:focus-visible {
+		outline: 2px solid $mode-investigate;
+		outline-offset: -2px;
+	}
+
+	mark {
+		background: #fcf0c3;
+		color: inherit;
+		padding: 0;
+	}
+}
+
+.investigate-lookup__row-copy {
+	display: grid;
+	gap: 0.1rem;
+	min-width: 0;
+}
+
+.investigate-lookup__row-title {
+	font-size: 13.5px;
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+
+.investigate-lookup__row-meta {
+	color: #50575e;
+	font-size: 12.5px;
+	overflow-wrap: anywhere;
+}
+
+.investigate-lookup__row-go {
+	color: #8c8f94;
+}
+
+/* On a narrow screen the tabs stay on one line and scroll sideways. */
+@media (max-width: 600px) {
+}
+
+/* The lookup sits above the subject it opens. */
+.investigate-landing__tabpanel[data-investigate-tabpanel="lookup"] {
+	margin-bottom: 1.25rem;
+}
+

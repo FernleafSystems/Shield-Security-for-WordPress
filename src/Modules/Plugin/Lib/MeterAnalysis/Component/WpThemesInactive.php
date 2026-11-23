@@ -17,8 +17,12 @@ class WpThemesInactive extends Base {
 		return Services::WpGeneral()->getAdminUrl_Themes( true );
 	}
 
+	/**
+	 * One spare theme is commonly kept, such as a default Twenty-something theme to fall back on, so only
+	 * more than one inactive theme needs attention.
+	 */
 	protected function testIfProtected() :bool {
-		return $this->countInactive() === 0;
+		return $this->countInactive() <= 1;
 	}
 
 	public function title() :string {
@@ -26,7 +30,9 @@ class WpThemesInactive extends Base {
 	}
 
 	public function descProtected() :string {
-		return __( 'All installed themes appear to be active and in-use.', 'wp-simple-firewall' );
+		return $this->countInactive() === 1
+			? __( 'There is one inactive theme, which is fine to keep as a fallback.', 'wp-simple-firewall' )
+			: __( 'There are no inactive themes.', 'wp-simple-firewall' );
 	}
 
 	public function descUnprotected() :string {

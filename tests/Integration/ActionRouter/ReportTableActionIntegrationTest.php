@@ -2,21 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ExternalEntryRefusalAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
 	Actions\FullPageDisplay\DisplayReportAdmin,
-	Actions\ReportTableAction,
-	Exceptions\InvalidActionNonceException
+	Actions\ReportTableAction
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForReports;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 
 class ReportTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ActionRequestNonceFixture;
+	use CurrentRequestFixture;
+	use ExternalEntryRefusalAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -106,22 +107,11 @@ class ReportTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_delete_sub_action_requires_valid_nonce_before_deleting_report() :void {
 		$reportId = $this->insertReport( 'Nonce Protected Delete' );
-		$snapshot = $this->seedActionNonceContext( ReportTableAction::class );
-		$this->mergeCurrentRequestTransport( [
-			ActionData::FIELD_NONCE => '',
+		$this->assertAjaxRequestRefused( ReportTableAction::class, [
+			'sub_action' => 'delete',
+			'rids'       => [ $reportId ],
 		] );
-
-		try {
-			$this->expectException( InvalidActionNonceException::class );
-			$this->processor()->processAction( ReportTableAction::SLUG, [
-				'sub_action' => 'delete',
-				'rids'       => [ $reportId ],
-			] );
-		}
-		finally {
-			$this->assertNotEmpty( self::con()->db_con->reports->getQuerySelector()->byId( $reportId ) );
-			$this->restoreActionNonceContext( $snapshot );
-		}
+		$this->assertNotEmpty( self::con()->db_con->reports->getQuerySelector()->byId( $reportId ) );
 	}
 
 	public function test_retrieve_table_data_clamps_excessive_length() :void {

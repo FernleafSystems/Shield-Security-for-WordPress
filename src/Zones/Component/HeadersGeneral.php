@@ -12,10 +12,6 @@ class HeadersGeneral extends Base {
 		return __( 'Configure some basic HTTP Headers to protect your visitors and site content.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Adjust deployment of HTTP security headers', 'wp-simple-firewall' );
-	}
-
 	/**
 	 * @inheritDoc
 	 */
@@ -23,9 +19,5 @@ class HeadersGeneral extends Base {
 		$status = parent::status();
 		$status[ 'exp' ][] = __( "Certain headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section.", 'wp-simple-firewall' );
 		return $status;
-	}
-
-	protected function postureWeight() :int {
-		return 1;
 	}
 }

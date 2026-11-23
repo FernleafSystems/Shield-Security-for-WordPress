@@ -14,10 +14,6 @@ class SecadminWpAdmins extends Base {
 		return __( 'Prevent creation, deletion, or demotion of WordPress administrator accounts.', 'wp-simple-firewall' );
 	}
 
-	protected function tooltip() :string {
-		return __( 'Switch on/off ability of admins to manage other admin accounts', 'wp-simple-firewall' );
-	}
-
 	/**
 	 * @inheritDoc
 	 */
@@ -30,18 +26,14 @@ class SecadminWpAdmins extends Base {
 			}
 			else {
 				$status[ 'level' ] = EnumEnabledStatus::OKAY;
-				$status[ 'exp' ][] = __( "A PIN needs to be set to enable the Security Admin.", 'wp-simple-firewall' );
+				$status[ 'exp' ][] = $this->explanationFixedBy( __( "A PIN needs to be set to enable the Security Admin.", 'wp-simple-firewall' ), 'admin_access_key' );
 			}
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "Turn on the option to restrict access to WordPress admin accounts.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( "Turn on the option to restrict access to WordPress admin accounts.", 'wp-simple-firewall' ), 'admin_access_restrict_admin_users' );
 		}
 
 		return $status;
-	}
-
-	protected function postureWeight() :int {
-		return 3;
 	}
 }

@@ -9,7 +9,7 @@
 	{# Note: When customizing this template, always output the variable below: body.vars.code #}
 	<p>{{ body.strings.verification }}: <strong>{{ body.vars.code }}</strong></p>
 
-	{% if body.flags.can_auto_login|default(false) %}
+	{% if body.flags.can_auto_login %}
 		<p>{{ body.strings.auto_login }}:
 			<br /><a href="{{ body.hrefs.auto_login|raw }}" target="_blank">{{ body.hrefs.auto_login|raw }}</a>
 		</p>

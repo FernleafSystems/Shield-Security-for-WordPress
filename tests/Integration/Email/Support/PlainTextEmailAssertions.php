@@ -14,26 +14,4 @@ trait PlainTextEmailAssertions {
 			$this->assertSame( \trim( $line ), $line, $label.' contains an untrimmed line.' );
 		}
 	}
-
-	protected function assertContainsTokens( string $text, array $tokens, string $label ) :void {
-		foreach ( $tokens as $token ) {
-			$this->assertStringContainsString(
-				(string)$token,
-				$text,
-				\sprintf( '%s missing token "%s" (head="%s")', $label, (string)$token, $this->compactSnippet( $text ) )
-			);
-		}
-	}
-
-	protected function assertTokensAppearInOrder( string $text, array $tokens, string $label ) :void {
-		$offset = 0;
-		foreach ( $tokens as $token ) {
-			$position = \strpos( $text, (string)$token, $offset );
-			$this->assertNotFalse(
-				$position,
-				\sprintf( '%s missing ordered token "%s" after offset %d (head="%s")', $label, (string)$token, $offset, $this->compactSnippet( $text ) )
-			);
-			$offset = (int)$position + \strlen( (string)$token );
-		}
-	}
 }

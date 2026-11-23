@@ -16,10 +16,9 @@ class BuildForChanges extends BuildBase {
 					$reporter->setFrom( $this->report->start_at );
 					$reporter->setUntil( $this->report->end_at );
 					$data[ $reporter::Slug() ] = [
-						'title'       => $reporter->getZoneName(),
-						'description' => $reporter->getZoneDescription(),
-						'detailed'    => $reporter->buildChangeReportData( false ),
-						'total'       => $reporter->countChanges(),
+						'title'    => $reporter->getZoneName(),
+						'detailed' => $reporter->buildChangeReportData( false ),
+						'total'    => $reporter->countChanges(),
 					];
 				}
 				catch ( \Exception $e ) {

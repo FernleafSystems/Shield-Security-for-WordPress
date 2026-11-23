@@ -15,6 +15,7 @@ const {
 } = require( './support/security-assertions' );
 const {
 	assertSecurityAdminContract,
+	expectPinInputIgnoredByPasswordManagers,
 	expectSecurityAdminLocalisation,
 	sendSecurityAdminAjax,
 } = require( './support/security-admin-assertions' );
@@ -31,8 +32,12 @@ async function expectRestrictedOverlay( page, contract ) {
 	await expectConnectedNonEmptyReference( page, overlay, 'aria-labelledby' );
 	await expectConnectedNonEmptyReference( page, overlay, 'aria-describedby' );
 
-	await expect( page.locator( contract.selectors.overlay_form ) ).toBeVisible();
-	await expect( page.locator( contract.selectors.overlay_pin_input ) ).toBeVisible();
+	await expect( overlay.locator( contract.selectors.pin_form ) ).toBeVisible();
+	const pinInput = overlay.locator( contract.selectors.pin_input );
+	await expect( pinInput ).toBeVisible();
+	// The PIN is the only thing to do here, so it's ready to be typed without clicking into the field first.
+	await expect( pinInput ).toBeFocused();
+	await expectPinInputIgnoredByPasswordManagers( pinInput );
 	return overlay;
 }
 
@@ -54,8 +59,9 @@ async function openFocusedConfigureForm( page, contract ) {
 
 async function submitOverlayPin( page, contract, pin ) {
 	const response = waitForShieldAjaxAction( page, contract.action_slugs.sec_admin_login );
-	await page.locator( contract.selectors.overlay_pin_input ).fill( pin );
-	await page.locator( contract.selectors.overlay_form ).locator( 'button[type="submit"]' ).click();
+	const overlay = page.locator( contract.selectors.overlay );
+	await overlay.locator( contract.selectors.pin_input ).fill( pin );
+	await overlay.locator( contract.selectors.pin_form ).locator( 'button[type="submit"]' ).click();
 	const payload = parseShieldAjaxJson( await ( await response ).text() );
 	return payload;
 }
@@ -92,18 +98,81 @@ test( 'Security Admin zone contract locks protected routes and restores cleanup 
 	expect( inspection.current.selected_options ).toEqual( originalOptions );
 } );
 
+test( 'Security Admin PIN can be typed as soon as the restricted page is shown, and is kept until it can be sent', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withSecurityAdminFixture( 'locked', async ( rawContract ) => {
+		const contract = assertSecurityAdminContract( rawContract, 'locked' );
+		await openShieldRoute( page, contract.routes.protected );
+		await expectRestrictedOverlay( page, contract );
+
+		const overlay = page.locator( contract.selectors.overlay );
+		const pinInput = overlay.locator( contract.selectors.pin_input );
+		const unlock = overlay.locator( contract.selectors.pin_form ).locator( 'button[type="submit"]' );
+		const forgotPin = overlay.locator( contract.selectors.pin_form ).locator( 'a' );
+
+		// The page again, with Shield's script held back: the field can't be waiting on it for focus.
+		let release;
+		const held = new Promise( ( resolve ) => {
+			release = resolve;
+		} );
+		let isHeldBack = false;
+		const holdBack = async ( route ) => {
+			isHeldBack = true;
+			await held;
+			await route.continue();
+		};
+		await page.route( '**/shield-main.bundle.js*', holdBack );
+		try {
+			await page.reload( { waitUntil: 'commit' } );
+			await expect( pinInput ).toBeVisible( { timeout: 30_000 } );
+			await expect.poll( () => isHeldBack ).toBe( true );
+			await expect( pinInput ).toBeFocused();
+
+			// Entered before the script is listening, the PIN stays put: sending it now would only draw the page
+			// again and lose it.
+			await page.keyboard.type( contract.pins.valid );
+			await page.keyboard.press( 'Enter' );
+			await expect( unlock ).toBeDisabled();
+			await expect( pinInput ).toHaveValue( contract.pins.valid );
+
+			// Moving on from the field is the user's choice, and it holds when the script arrives. Unlock can't be
+			// reached yet, so the next stop is the link for a forgotten PIN.
+			await page.keyboard.press( 'Tab' );
+			await expect( forgotPin ).toBeFocused();
+		}
+		finally {
+			release();
+			await page.unrouteAll( { behavior: 'wait' } );
+		}
+
+		await expect( unlock ).toBeEnabled( { timeout: 30_000 } );
+		await expect( pinInput ).toHaveValue( contract.pins.valid );
+		await expect( forgotPin ).toBeFocused();
+	} );
+} );
+
 test( 'Security Admin PIN is set through configure and verified through login', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withSecurityAdminFixture( 'pin-unset', async ( rawContract ) => {
 		const contract = assertSecurityAdminContract( rawContract, 'pin-unset' );
 
-		const { row, form } = await openFocusedConfigureForm( page, contract );
+		const { form } = await openFocusedConfigureForm( page, contract );
 		await form.locator( contract.selectors.pin_option ).fill( contract.pins.new );
 		await form.locator( contract.selectors.pin_option_confirm ).fill( contract.pins.new );
 
+		const leavePrompts = [];
+		page.on( 'dialog', async ( dialog ) => {
+			leavePrompts.push( dialog.type() );
+			await dialog.accept();
+		} );
+
 		const saveResponse = waitForShieldAjaxAction( page, contract.action_slugs.module_options_save );
-		await row.locator( '.shield-detail-expansion__btn-save' ).click();
+		const reloaded = page.waitForEvent( 'load' );
+		await page.locator( '[data-configure-diagnosis="1"] [data-configure-savebar-save="1"]' ).click();
 		const savePayload = await expectShieldAjaxSuccess( await saveResponse );
 		expect( savePayload.data.page_reload ).toBe( true );
+
+		// The page reloads itself once the PIN is saved. The change is saved, so leaving needs no warning.
+		await reloaded;
+		expect( leavePrompts, 'Saving must not raise the unsaved-changes warning when the page reloads.' ).toEqual( [] );
 
 		const afterSave = await fixtureApi.inspectSecurityAdminFixture();
 		expect( afterSave.current.enabled ).toBe( true );

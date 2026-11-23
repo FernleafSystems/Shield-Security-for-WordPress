@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices\PhpFutureMinimum;
 
 class DismissAdminNotice extends BaseAction {
@@ -9,6 +10,12 @@ class DismissAdminNotice extends BaseAction {
 	use Traits\SecurityAdminNotRequired;
 
 	public const SLUG = 'dismiss_admin_notice';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$noticeID = sanitize_key( $this->action_data[ 'notice_id' ] ?? '' );

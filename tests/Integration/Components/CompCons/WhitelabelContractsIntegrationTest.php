@@ -119,6 +119,66 @@ class WhitelabelContractsIntegrationTest extends ShieldIntegrationTestCase {
 			->store();
 	}
 
+	public function test_markup_saved_in_whitelabel_names_is_removed_before_anything_shows_them() :void {
+		$this->enablePremiumCapabilities( [ 'whitelabel' ] );
+		$this->configureWhitelabelOptions();
+		$this->requireController()->opts
+			->optSet( 'wl_pluginnamemain', 'Acme <img src=x onerror=alert(1)>Guard' )
+			->optSet( 'wl_companyname', '<script>alert(2)</script>Acme Co' )
+			->optSet( 'wl_namemenu', 'Acme <b>Menu</b>' )
+			->optSet( 'wl_description', 'Managed <a href="https://evil.example">here</a>' )
+			->store();
+		$this->resetWhitelabelRuntime();
+
+		$labels = $this->requireController()->labels;
+		foreach ( [ $labels->Name, $labels->Title, $labels->Author, $labels->AuthorName, $labels->MenuTitle, $labels->Description ] as $text ) {
+			$this->assertStringNotContainsString( '<', $text );
+		}
+		$this->assertSame( 'Acme Guard', $labels->Name );
+
+		// The plugin name reaches settings descriptions, which are shown as HTML.
+		$panel = $this->requireController()->action_router->render(
+			\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor::class,
+			[ 'options' => [ 'autoupdate_plugin_self' ], 'configure_panel' => 'shield:advanced', 'form_context' => 'offcanvas' ]
+		);
+		$this->assertStringContainsString( 'Details-autoupdate_plugin_self', $panel );
+		$this->assertStringNotContainsString( 'onerror', $panel );
+		$this->assertStringNotContainsString( '<img', $panel );
+	}
+
+	public function test_saving_hostile_white_label_values_leaves_the_public_badge_text_only() :void {
+		$this->enablePremiumCapabilities( [ 'whitelabel' ] );
+		$this->configureWhitelabelOptions();
+		$opts = $this->requireController()->opts;
+		$opts->optSet( 'wl_pluginnamemain', 'Acme <img src=x onerror=alert(1)>Guard' )
+			 ->optSet( 'wl_homeurl', 'javascript:alert(document.domain)' )
+			 ->store();
+		$this->resetWhitelabelRuntime();
+
+		// Saving a home URL that isn't a web address puts the setting back to its default.
+		$this->assertSame( $opts->optDefault( 'wl_homeurl' ), $opts->optGet( 'wl_homeurl' ) );
+
+		$badge = $this->renderDataFor( RenderPluginBadge::class, [ 'is_floating' => false ] );
+		$this->assertSame( 'Acme Guard', $badge[ 'strings' ][ 'name' ] ?? '' );
+		$this->assertStringNotContainsString( '<img', $badge[ 'strings' ][ 'protected' ] ?? '' );
+	}
+
+	public function test_a_home_url_that_is_not_a_web_address_is_never_used_as_a_link() :void {
+		$this->enablePremiumCapabilities( [ 'whitelabel' ] );
+		$this->configureWhitelabelOptions();
+		// Set without saving, as a value stored before saving was validated would be.
+		$this->requireController()->opts->optSet( 'wl_homeurl', 'javascript:alert(1)' );
+		$this->resetWhitelabelRuntime();
+
+		$this->assertSame( '', $this->requireController()->comps->whitelabel->homeUrl() );
+		$labels = $this->requireController()->labels;
+		foreach ( [ $labels->PluginURI, $labels->AuthorURI, $labels->url_secadmin_forgotten_key ] as $url ) {
+			$this->assertStringNotContainsString( 'javascript:', (string)$url );
+		}
+		$badge = $this->renderDataFor( RenderPluginBadge::class, [ 'is_floating' => false ] );
+		$this->assertSame( '', $badge[ 'hrefs' ][ 'badge' ] ?? null );
+	}
+
 	/**
 	 * @param class-string $renderClass
 	 */

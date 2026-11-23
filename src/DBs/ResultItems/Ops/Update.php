@@ -18,13 +18,6 @@ class Update extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Updat
 		return $this->resolveItem( $recordID, 'asset_replaced' );
 	}
 
-	public function clearResolution( int $recordID ) :bool {
-		return $this->updateById( $recordID, [
-			'resolved_at'       => 0,
-			'resolution_reason' => '',
-		] );
-	}
-
 	private function resolveItem( int $recordID, string $reason ) :bool {
 		return $this->updateById( $recordID, [
 			'resolved_at'       => Services::Request()->ts(),

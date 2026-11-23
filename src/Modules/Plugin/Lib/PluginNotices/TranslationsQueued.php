@@ -10,7 +10,7 @@ class TranslationsQueued extends Base {
 	public function check() :?array {
 		$con = self::con();
 		if ( !$con->comps->translation_downloads->isQueueRelevantToLocale(
-			\function_exists( 'determine_locale' ) ? determine_locale() : get_locale()
+			determine_locale()
 		) ) {
 			return null;
 		}

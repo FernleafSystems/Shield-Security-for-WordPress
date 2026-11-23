@@ -39,14 +39,5 @@
         "plugin_admin": "no",
         "type": "warning",
         "per_user": true
-    },
-    "email-verification-sent": {
-        "id": "email-verification-sent",
-        "schedule": "conditions",
-        "plugin_page_only": true,
-        "can_dismiss": false,
-        "type": "warning",
-        "plugin_admin": "yes",
-        "valid_admin": true
     }
 }

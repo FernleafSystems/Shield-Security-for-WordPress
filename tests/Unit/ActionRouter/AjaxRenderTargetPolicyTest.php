@@ -52,16 +52,12 @@ class AjaxRenderTargetPolicyTest extends BaseUnitTest {
 			[ Actions\Render\Components\OffCanvas\ZoneComponentConfig::class ],
 			[ Actions\Render\Components\OffCanvas\FormReportCreate::class ],
 			[ Actions\Render\Components\UserMfa\ConfigForm::class ],
-			[ Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups::class ],
 			[ Actions\Render\PluginAdminPages\ActionsQueueAssetFileStatusDetail::class ],
 			[ Actions\Render\Components\Scans\Results\Wordpress::class ],
 			[ Actions\Render\Components\Scans\Results\Plugins::class ],
 			[ Actions\Render\Components\Scans\Results\Themes::class ],
-			[ Actions\Render\Components\Scans\Results\Vulnerabilities::class ],
 			[ Actions\Render\Components\Scans\Results\Malware::class ],
 			[ Actions\Render\Components\Scans\Results\FileLocker::class ],
-			[ Actions\Render\Components\Scans\Results\CloakedPlugins::class ],
-			[ Actions\Render\Components\Scans\Results\Maintenance::class ],
 			[ Actions\Render\PluginAdminPages\ConfigureDrillDownDiagnosis::class ],
 			[ Actions\Render\PluginAdminPages\ConfigureSearchResults::class ],
 			[ Actions\Render\PluginAdminPages\InvestigateByUserPanelBody::class ],
@@ -72,6 +68,7 @@ class AjaxRenderTargetPolicyTest extends BaseUnitTest {
 			[ Actions\Render\PluginAdminPages\TrafficLogLivePanelBody::class ],
 			[ Actions\Render\Components\Scans\ItemAnalysis\Container::class ],
 			[ Actions\Render\Components\Scans\ItemAnalysis\Diff::class ],
+			[ Actions\Render\Components\SetupGuideBar::class ],
 		];
 	}
 

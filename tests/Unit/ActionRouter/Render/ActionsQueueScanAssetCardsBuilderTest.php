@@ -9,6 +9,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueScanResultsTableBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	PluginUrlsControllerInstaller
+};
 
 class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 
@@ -22,6 +26,12 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
 		);
 		Functions\when( 'admin_url' )->alias( static fn( string $path = '' ) :string => '/wp-admin/'.\ltrim( $path, '/' ) );
+		PluginUrlsControllerInstaller::install();
+	}
+
+	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
+		parent::tearDown();
 	}
 
 	public function test_build_summary_records_uses_grouped_asset_rows_without_building_tables() :void {
@@ -80,8 +90,6 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'plugin', $records[ 0 ][ 'table' ][ 'route' ] );
 		$this->assertSame( 'example-plugin/example-plugin.php', $records[ 0 ][ 'table' ][ 'subject_id' ] );
 		$this->assertSame( [ 'update', 'deactivate' ], \array_column( $records[ 0 ][ 'actions' ], 'type' ) );
-		$this->assertSame( '', $records[ 0 ][ 'body_notice' ] );
-		$this->assertSame( '', $records[ 0 ][ 'body_notice_variant' ] );
 		$this->assertSame( '1', $records[ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] );
 		$this->assertSame( '0', $records[ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] );
 		$this->assertSame( 1, $builder->tableBuildCalls() );

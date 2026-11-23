@@ -2,10 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\FullPageDisplayDynamic;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\MainwpSitePageDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\MainWP\TabManageSitePage;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TabSiteManage extends BaseSubPage {
@@ -19,13 +17,10 @@ class TabSiteManage extends BaseSubPage {
 		return [
 			'hrefs'   => [
 				'page' => $con->plugin_urls->noncedPluginAction(
-					FullPageDisplayDynamic::class,
+					MainwpSitePageDisplay::class,
 					Services::WpGeneral()->getAdminUrl(),
 					[
-						'render_slug' => TabManageSitePage::SLUG,
-						'render_data' => [
-							'site_id' => $this->getActiveSiteID()
-						],
+						'site_id' => $this->getActiveSiteID(),
 					]
 				)
 			],

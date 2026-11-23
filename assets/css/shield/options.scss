@@ -21,10 +21,6 @@ $options-rail-width-max: 260px;
   align-items: start;
 }
 
-.options_form_for--modern .shield-options-layout.no-rail {
-  grid-template-columns: 1fr;
-}
-
 .options_form_for--modern .shield-options-rail {
   border: none;
   border-radius: $card-border-radius;
@@ -105,44 +101,6 @@ $options-rail-width-max: 260px;
   background: $accent-color-salt-green;
 }
 
-.options_form_for--modern .shield-options-panel-header {
-  padding: 0.875rem 1.125rem;
-  border-bottom: 1px solid $options-border-subtle;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  background: $options-surface-0;
-}
-
-.options_form_for--modern .shield-options-panel-title {
-  color: $options-text-strong;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-.options_form_for--modern .shield-options-panel-header-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.options_form_for--modern .shield-options-summary-collapse {
-  padding: 0.75rem 1.125rem 0;
-}
-
-.options_form_for--modern .shield-options-summary-collapse .card {
-  border: 1px solid $options-border-subtle;
-  border-radius: 8px;
-  box-shadow: none;
-  background: #fcfdfc;
-}
-
-.options_form_for--modern .shield-options-summary-collapse .card-text:last-child {
-  margin-bottom: 0;
-}
-
 .options_form_for--modern .shield-options-panel-body {
   padding: 0.95rem 1.125rem 1.1rem;
 }
@@ -152,46 +110,46 @@ $options-rail-width-max: 260px;
   font-size: 0.85rem;
 }
 
-.options_form_for--modern .shield-options-option-list {
-  margin-top: 0.5rem;
-}
-
 // ─── Option Item (row + description wrapper) ───
 .options_form_for--modern .shield-option-item {
   border-bottom: 1px solid $options-border-subtle;
 }
 
-.options_form_for--modern .shield-options-option-list .shield-option-item:last-child {
-  border-bottom: 0;
-}
-
-.options_form_for--modern .shield-option-item.shield-option-item-expanded {
-  background: $options-surface-1;
-}
-
 // ─── Option Row (flex: label-zone | control) ───
-.options_form_for--modern .shield-option-row {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  padding: 0.85rem 1rem 0.8rem;
+.options_form_for--modern .shield-option-item {
+  position: relative;
+}
+
+// Unsaved edits get a blue edge until the form is saved or reset.
+.options_form_for--modern .shield-option-item.is-dirty::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  bottom: 0.55rem;
+  width: 3px;
+  border-radius: 2px;
+  background: #2271b1;
+}
+
+// Briefly marks the setting a "Show me" link jumped to.
+.options_form_for--modern .shield-option-item.is-highlighted {
+  animation: shield-option-highlight 2.5s ease-out;
+}
+
+@keyframes shield-option-highlight {
+  0%, 40% { background: #fff1b8; }
+  100% { background: transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .options_form_for--modern .shield-option-item.is-highlighted {
+    animation: none;
+    background: #fff1b8;
+  }
 }
 
 // ─── Label Zone ───
-.options_form_for--modern .shield-option-label-zone {
-  display: flex;
-  flex-direction: column;
-  gap: 0.28rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.options_form_for--modern .shield-option-label-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
 
 .options_form_for--modern .option_label_name {
   color: $options-text-strong;
@@ -200,11 +158,31 @@ $options-rail-width-max: 260px;
   white-space: nowrap;
 }
 
-// ─── Helper Icon Pills ───
-.options_form_for--modern .shield-option-helpers {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
+// ─── Label Pills (Pro, Unsaved) ───
+.options_form_for--modern .shield-option-pill {
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  padding: 0.22rem 0.5rem;
+  white-space: nowrap;
+}
+
+.options_form_for--modern .shield-option-pill--pro {
+  background: #f2ebfc;
+  color: #6a3fb0;
+}
+
+.options_form_for--modern .shield-option-pill--unsaved {
+  background: #e8f1fa;
+  color: #2271b1;
+}
+
+.options_form_for--modern .shield-option-unit {
+  color: $options-text-muted;
+  font-size: 0.8rem;
+  white-space: nowrap;
 }
 
 .options_form_for--modern .shield-config-icon-action {
@@ -261,10 +239,6 @@ $options-rail-width-max: 260px;
   vertical-align: 0;
 }
 
-.options_form_for--modern .shield-config-icon-action--upgrade {
-  color: $primary;
-}
-
 // ─── Summary ───
 .options_form_for--modern .options-summary {
   margin: 0;
@@ -278,8 +252,8 @@ $options-rail-width-max: 260px;
 .options_form_for--modern .shield-option-control-col {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 0.5rem;
-  flex-shrink: 0;
   min-width: 0;
 }
 
@@ -289,16 +263,22 @@ $options-rail-width-max: 260px;
 .options_form_for--modern .shield-option-control-col input[type='text'],
 .options_form_for--modern .shield-option-control-col input[type='password'] {
   border: 1px solid $options-border-strong;
-  border-radius: 8px;
-  font-size: 0.84rem;
-  padding: 0.35rem 0.5rem;
-  width: 220px;
+  border-radius: 6px;
+  font-size: 13px;
+  padding: 0.35rem 0.55rem;
+  width: 100%;
+}
+
+.options_form_for--modern .shield-option-control-col input.shield-option-number {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  width: 6.5rem;
 }
 
 .options_form_for--modern .shield-option-stacked-control {
   display: grid;
   gap: 0.45rem;
-  width: 220px;
+  width: 100%;
 }
 
 .options_form_for--modern .shield-option-stacked-control .form-control {
@@ -318,6 +298,138 @@ $options-rail-width-max: 260px;
   display: grid;
   gap: 0.4rem;
   width: min(100%, 280px);
+}
+
+// ─── Chips (multi-selects with up to six choices) ───
+// An even grid: every chip the same width, with room kept for its tick so choosing one never
+// reflows the row.
+.shield-option-chipset {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  width: 100%;
+}
+
+.shield-option-chip {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #c3c4c7;
+  border-radius: 6px;
+  color: #1d2327;
+  cursor: pointer;
+  display: flex;
+  font-size: 12.5px;
+  font-weight: 500;
+  gap: 8px;
+  line-height: 1.3;
+  margin: 0;
+  min-height: 34px;
+  padding: 6px 10px;
+  position: relative;
+}
+
+.shield-option-chip:hover {
+  border-color: #8c8f94;
+}
+
+// The tick is its own flex item, centred against the label however many lines it wraps to. Checking a
+// chip only changes colours, never the text weight, so the label keeps its width and the row never moves.
+.shield-option-chip::before {
+  border: 1.5px solid #a7aaad;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: #ffffff;
+  content: "";
+  flex: none;
+  font-size: 10px;
+  font-weight: 700;
+  height: 14px;
+  line-height: 11px;
+  text-align: center;
+  width: 14px;
+}
+
+.shield-option-chip__text {
+  min-width: 0;
+}
+
+.shield-option-chip__input {
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.shield-option-chip:has(.shield-option-chip__input:checked) {
+  background: #e6f5e6;
+  border-color: #9fd09f;
+  color: #005c00;
+}
+
+.shield-option-chip:has(.shield-option-chip__input:checked)::before {
+  background: #008000;
+  border-color: #008000;
+  content: "\2713";
+}
+
+.shield-option-chip:has(.shield-option-chip__input:focus-visible) {
+  @include shield-focus-ring();
+}
+
+.shield-option-chip.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+// ─── Long lists (more than eight choices) ───
+.shield-option-long-list {
+  max-width: 100%;
+  width: 360px;
+}
+
+.shield-option-long-list__summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  list-style: none;
+}
+
+.shield-option-long-list__summary::-webkit-details-marker {
+  display: none;
+}
+
+.shield-option-long-list__selected {
+  color: $options-text-muted;
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shield-option-long-list__edit {
+  border: 1px solid #c3c4c7;
+  border-radius: 6px;
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+}
+
+.shield-option-long-list__summary:focus-visible {
+  @include shield-focus-ring();
+}
+
+.shield-option-long-list__body {
+  margin-top: 0.6rem;
+}
+
+.options_form_for--modern .shield-option-multiple-list.shield-option-multiple-list--grid,
+.shield-option-multiple-list.shield-option-multiple-list--grid {
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  width: 100%;
 }
 
 .form-check.shield-option-multiple-item {
@@ -388,62 +500,6 @@ $options-rail-width-max: 260px;
   font-weight: 500;
 }
 
-// ─── Description Block ───
-.options_form_for--modern .option-description {
-  padding: 0 1rem 0.7rem;
-}
-
-.options_form_for--modern .option-description-content {
-  padding: 0.58rem 0.85rem 0.42rem;
-  border: 1px solid #e1e6e1;
-  border-left: 3px solid $accent-color-salt-green;
-  background: $surface-color-neutral-raised;
-  border-radius: 8px;
-}
-
-.options_form_for--modern .option-description-content p {
-  margin-bottom: 0.35rem;
-  color: #556170;
-  font-size: 0.8rem;
-  line-height: 1.5;
-}
-
-.options_form_for--modern .option-description-content p:last-child {
-  margin-bottom: 0;
-}
-
-// ─── Import/Export Toggle ───
-.options_form_for--modern .option-description .toggle-importexport-container {
-  margin-top: 0.5rem;
-  cursor: pointer;
-}
-
-.options_form_for--modern .option-description .toggle-importexport-inclusion {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.78rem;
-  color: #5f6a63;
-  cursor: pointer;
-  margin: 0;
-}
-
-.options_form_for--modern .option-description .toggle-importexport-inclusion input[type="checkbox"] {
-  cursor: pointer;
-}
-
-.options_form_for--modern .shield-options-save-row {
-  margin-top: 0.85rem;
-}
-
-.options_form_for--modern .shield-options-save-row .btn.icwp-form-button {
-  margin: 0;
-}
-
-.options_form_for--modern .shield-options-save-row-inline {
-  padding-left: 0.1rem;
-}
-
 // Stack the section rail before it leaves too little room for the options.
 @container (max-width: 800px) {
   .options_form_for--modern .shield-options-layout {
@@ -475,12 +531,7 @@ $options-rail-width-max: 260px;
   }
 }
 
-@container (max-width: 600px) {
-  .options_form_for--modern .shield-option-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.7rem;
-  }
+@container (max-width: 460px) {
 
   .options_form_for--modern .shield-option-control-col {
     width: 100%;
@@ -497,11 +548,23 @@ $options-rail-width-max: 260px;
     width: 100%;
     max-width: 100%;
   }
+
+  .options_form_for--modern .shield-option-control-col input.shield-option-number {
+    width: 6.5rem;
+  }
+
+  .shield-option-chipset,
+  .shield-option-long-list__summary {
+    justify-content: flex-start;
+  }
+
+  .shield-option-long-list__selected {
+    text-align: left;
+  }
 }
 
 // Embedded expansion mode: strip all chrome
 .options_form_for--modern[data-context="expansion"] {
-
   .shield-options-layout {
     grid-template-columns: 1fr;
   }
@@ -520,18 +583,9 @@ $options-rail-width-max: 260px;
     display: none;
   }
 
-  .shield-options-panel-header {
-    display: none;
-  }
-
   .shield-options-panel-body {
     padding: 0.85rem;
   }
-
-  .shield-options-save-row {
-    display: none;
-  }
-
   // When rail is hidden, show all tab panes
   .tab-pane {
     display: block !important;

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build,
 	Conditions,

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base as MeterComponentBase;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\ReportEmailChoice;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -31,7 +32,17 @@ class MaintenanceIssueStateProvider {
 	use PluginControllerConsumer;
 
 	public const OPT_KEY = 'ignored_maintenance_items';
+	public const OPT_KEY_REPORTED_KINDS = 'maintenance_alert_items';
 	public const SINGLETON_TOKEN = '__self__';
+	/**
+	 * The choices of the Review Next Items setting.
+	 */
+	public const KINDS_THAT_CAN_BE_LEFT_OUT = [
+		'wp_plugins_updates',
+		'wp_themes_updates',
+		'wp_plugins_inactive',
+		'wp_themes_inactive',
+	];
 
 	/**
 	 * @return array<string,array{
@@ -59,13 +70,28 @@ class MaintenanceIssueStateProvider {
 		);
 
 		foreach ( $contexts as $context ) {
-			$states[ $context[ 'key' ] ] = $this->buildStateFromContext(
-				$context,
-				$ignoredByKey[ $context[ 'key' ] ]
-			);
+			// A kind that's been left out of Review next isn't reported at all, here or anywhere that reads these.
+			if ( $this->isReported( $context[ 'key' ] ) ) {
+				$states[ $context[ 'key' ] ] = $this->buildStateFromContext(
+					$context,
+					$ignoredByKey[ $context[ 'key' ] ]
+				);
+			}
 		}
 
 		return $states;
+	}
+
+	/**
+	 * Plugin and theme housekeeping (updates waiting, inactive ones) never ends on a busy site, so each kind can
+	 * be left out of Review next with the Review Next Items setting. Everything else is always reported.
+	 */
+	public function canBeLeftOut( string $key ) :bool {
+		return \in_array( $key, self::KINDS_THAT_CAN_BE_LEFT_OUT, true );
+	}
+
+	private function isReported( string $key ) :bool {
+		return !$this->canBeLeftOut( $key ) || \in_array( $key, $this->getReportedOptionalKinds(), true );
 	}
 
 	/**
@@ -88,6 +114,13 @@ class MaintenanceIssueStateProvider {
 		return \in_array( $key, $this->maintenanceKeys(), true );
 	}
 
+	/**
+	 * Choosing a report email is the only way to end the report email hold, so it can't be ignored.
+	 */
+	public function canBeIgnored( string $key ) :bool {
+		return $this->isKnownMaintenanceKey( $key ) && $key !== ReportEmailChoice::SLUG;
+	}
+
 	public function supportsSubItems( string $key ) :bool {
 		return \in_array( $key, [
 			'wp_plugins_updates',
@@ -95,6 +128,13 @@ class MaintenanceIssueStateProvider {
 			'wp_plugins_inactive',
 			'wp_themes_inactive',
 		], true );
+	}
+
+	/**
+	 * @return list<string> the kinds that can be left out and are currently reported
+	 */
+	protected function getReportedOptionalKinds() :array {
+		return self::con()->opts->optGet( self::OPT_KEY_REPORTED_KINDS );
 	}
 
 	/**

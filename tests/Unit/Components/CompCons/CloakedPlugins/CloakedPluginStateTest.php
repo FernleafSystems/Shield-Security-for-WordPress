@@ -10,13 +10,15 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\CloakedPlugins;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPluginsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	AdminPluginVisibilitySnapshot,
 	CloakedPluginFinding,
 	CloakedPluginState,
 	CloakReason,
 	PluginEntry,
-	PluginType
+	PluginType,
+	RawPluginInventory
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\MU\{
 	GeneratedMuLoaderContent,
@@ -53,12 +55,12 @@ class CloakedPluginStateTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function testRememberNewReturnsFindingOnlyOncePerFingerprint() :void {
+	public function testFindingIsNewOnlyOncePerFingerprint() :void {
 		$state = new CloakedPluginState();
 		$finding = $this->finding( 'cloaked/cloaked.php' );
 
-		$this->assertSame( [ $finding ], $state->rememberNew( [ $finding ] ) );
-		$this->assertSame( [], $state->rememberNew( [ $finding ] ) );
+		$this->assertSame( [ $finding ], $state->classify( [ $finding ] )[ 'new_active' ] );
+		$this->assertSame( [], $state->classify( [ $finding ] )[ 'new_active' ] );
 		$this->assertCount( 1, $this->opts->values[ CloakedPluginState::OPT_KEY ] );
 	}
 
@@ -66,10 +68,10 @@ class CloakedPluginStateTest extends BaseUnitTest {
 		$state = new CloakedPluginState();
 		$finding = $this->finding( 'cloaked/cloaked.php' );
 
-		$state->rememberNew( [ $finding ] );
-		$state->rememberNew( [] );
+		$state->classify( [ $finding ] );
+		$state->classify( [] );
 
-		$this->assertSame( [ $finding ], $state->rememberNew( [ $finding ] ) );
+		$this->assertSame( [ $finding ], $state->classify( [ $finding ] )[ 'new_active' ] );
 	}
 
 	public function testReconcilePersistsCanonicalEvidenceAndRehydratesFromCurrentInventory() :void {
@@ -139,11 +141,7 @@ class CloakedPluginStateTest extends BaseUnitTest {
 		$finding = $this->findingForEntry( $entry );
 
 		$state->reconcile( [ $finding ], [ $entry ], $this->visibility() );
-		$cleared = $state->reconcile( [], [ $entry ], new AdminPluginVisibilitySnapshot(
-				[ $entry->file => [] ], [ $entry->file => [] ], [], true,
-				[ 'all' => [ $entry->file => [] ], 'active' => [], 'inactive' => [ $entry->file => [] ],
-					'recently_activated' => [], 'upgrade' => [], 'paused' => [], 'mustuse' => [] ], [], [], true
-			) );
+		$cleared = $state->reconcile( [], [ $entry ], $this->authoritativeVisibility( $entry ) );
 
 		$this->assertSame( [], $cleared[ 'all' ] );
 		$this->assertSame( [], $this->opts->values[ CloakedPluginState::FINDINGS_OPT_KEY ] );
@@ -243,7 +241,7 @@ class CloakedPluginStateTest extends BaseUnitTest {
 		$finding = $this->findingForEntry( $entry );
 		$initial = $state->reconcile( [ $finding ], [ $entry ], $this->visibility() );
 
-		$this->assertTrue( $state->ignoreIdentity( $finding->identityKey(), $initial[ 'all' ] ) );
+		$this->assertTrue( $state->ignoreIdentity( $finding->identityKey(), $initial[ 'all' ], CloakedPluginState::IGNORE_MODE_PATH ) );
 		$ignored = $state->reconcile( [], [ $entry ], $this->visibility() );
 		$this->assertSame( [], $ignored[ 'active' ] );
 		$this->assertCount( 1, $ignored[ 'ignored' ] );
@@ -406,7 +404,6 @@ class CloakedPluginStateTest extends BaseUnitTest {
 
 		$result = $state->classify( [ $finding ] );
 
-		$this->assertTrue( $state->isAutoIgnored( $finding ) );
 		$this->assertSame( [], $result[ 'active' ] );
 		$this->assertSame( [ $finding ], $result[ 'ignored' ] );
 		$this->assertSame( [], $result[ 'new_active' ] );
@@ -435,7 +432,7 @@ class CloakedPluginStateTest extends BaseUnitTest {
 		$path = $this->writeShieldMuLoader();
 		$finding = $this->shieldMuFinding( $path );
 
-		$this->assertFalse( $state->ignoreIdentity( $finding->identityKey(), [ $finding ] ) );
+		$this->assertFalse( $state->ignoreIdentity( $finding->identityKey(), [ $finding ], CloakedPluginState::IGNORE_MODE_PATH ) );
 		$this->assertFalse( $state->unignoreIdentity( $finding->identityKey(), [ $finding ] ) );
 		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
 	}
@@ -458,7 +455,6 @@ class CloakedPluginStateTest extends BaseUnitTest {
 
 		$result = $state->classify( [ $finding ] );
 
-		$this->assertFalse( $state->isAutoIgnored( $finding ) );
 		$this->assertSame( [ $finding ], $result[ 'active' ] );
 		$this->assertSame( [], $result[ 'ignored' ] );
 		$this->assertSame( [ $finding ], $result[ 'new_active' ] );
@@ -520,7 +516,6 @@ class CloakedPluginStateTest extends BaseUnitTest {
 
 		$result = $state->classify( [ $finding ] );
 
-		$this->assertFalse( $state->isAutoIgnored( $finding ) );
 		$this->assertSame( [ $finding ], $result[ 'active' ] );
 		$this->assertSame( [], $result[ 'ignored' ] );
 		$this->assertSame( [ $finding ], $result[ 'new_active' ] );
@@ -565,8 +560,8 @@ class CloakedPluginStateTest extends BaseUnitTest {
 			123
 		);
 
-		$this->assertTrue( $state->ignoreIdentity( $standard->identityKey(), [ $standard, $mustUse ] ) );
-		$this->assertTrue( $state->ignoreIdentity( $mustUse->identityKey(), [ $standard, $mustUse ] ) );
+		$this->assertTrue( $state->ignoreIdentity( $standard->identityKey(), [ $standard, $mustUse ], CloakedPluginState::IGNORE_MODE_PATH ) );
+		$this->assertTrue( $state->ignoreIdentity( $mustUse->identityKey(), [ $standard, $mustUse ], CloakedPluginState::IGNORE_MODE_PATH ) );
 		$this->assertSame(
 			[ $standard->identityKey(), $mustUse->identityKey() ],
 			$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ]
@@ -577,8 +572,329 @@ class CloakedPluginStateTest extends BaseUnitTest {
 		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
 	}
 
+	public function testLegacyIgnoreListIsCarriedOverSoNothingIgnoredComesBack() :void {
+		$state = new CloakedPluginState();
+		$entry = $this->pluginEntryOnDisk( 'legacy/legacy.php', "<?php\nrun();\n" );
+		$finding = $this->findingForEntry( $entry );
+		$absentIdentity = $this->finding( 'absent/absent.php' )->identityKey();
+		// As a site upgrading from before ignore modes holds it: a plain list of identities.
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [
+			$finding->identityKey(),
+			\strtoupper( $absentIdentity ),
+			'not-an-identity',
+		];
+
+		$result = $state->classify( [ $finding ] );
+
+		$this->assertSame( [], $result[ 'active' ] );
+		$this->assertSame( [ $finding ], $result[ 'ignored' ] );
+		$this->assertSame( [], $result[ 'new_active' ] );
+		// The list keeps its shape, every ignore in it held as "always", and nothing is added beside it.
+		$this->assertSame(
+			[ $finding->identityKey(), $absentIdentity ],
+			$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ]
+		);
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ] ?? [] );
+		$this->assertSame(
+			[
+				$finding->identityKey() => $this->alwaysRecord( 0 ),
+				$absentIdentity         => $this->alwaysRecord( 0 ),
+			],
+			$state->ignoreRecords()
+		);
+
+		// Those ignores held wherever the file was, whatever it contained, and still do.
+		$this->rewrite( $entry, "<?php\nrun_something_else();\n" );
+		$changed = $state->classify( [ $finding ] );
+		$this->assertSame( [ $finding ], $changed[ 'ignored' ] );
+		$this->assertSame( [], $changed[ 'new_active' ] );
+	}
+
+	public function testLegacyIgnoredPluginStaysIgnoredThroughAnUpdate() :void {
+		$state = new CloakedPluginState();
+		$entry = $this->pluginEntry( 'legacy/legacy.php' );
+		$finding = $this->findingForEntry( $entry );
+		$state->reconcile( [ $finding ], [ $entry ], $this->visibility() );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [ $finding->identityKey() ];
+
+		// Part way through an update the file is missing, then it's back as a new version.
+		$state->reconcile( [], [], $this->visibility() );
+		$updatedEntry = $this->pluginEntry( $entry->file, $entry->name, '2.0' );
+		$updated = $this->findingForEntry( $updatedEntry );
+		$result = $state->reconcile( [ $updated ], [ $updatedEntry ], $this->visibility() );
+
+		$this->assertSame( [], $result[ 'active' ] );
+		$this->assertSame( [ $updated ], $result[ 'ignored' ] );
+		$this->assertSame( [], $result[ 'new_active' ] );
+	}
+
+	public function testIgnoreHoldsWhenItsPluginIsBrieflyVisible() :void {
+		$state = new CloakedPluginState();
+		$entry = $this->pluginEntry( 'cloaked/cloaked.php' );
+		$finding = $this->findingForEntry( $entry );
+		$initial = $state->reconcile( [ $finding ], [ $entry ], $this->visibility() );
+		$this->assertTrue( $state->ignoreIdentity( $finding->identityKey(), $initial[ 'all' ], CloakedPluginState::IGNORE_MODE_PATH ) );
+
+		$cleared = $state->reconcile( [], [ $entry ], $this->authoritativeVisibility( $entry ) );
+		$this->assertSame( [], $cleared[ 'all' ] );
+		$result = $state->reconcile( [ $finding ], [ $entry ], $this->visibility() );
+
+		$this->assertSame( [], $result[ 'active' ] );
+		$this->assertSame( [ $finding ], $result[ 'ignored' ] );
+		$this->assertSame( [], $result[ 'new_active' ] );
+	}
+
+	public function testContentsIgnoreHoldsUntilTheMainFileChangesThenAlertsOnce() :void {
+		$state = new CloakedPluginState();
+		$entry = $this->pluginEntryOnDisk( 'cloaked/cloaked.php', "<?php\nrun();\n" );
+		$finding = $this->findingForEntry( $entry );
+		$initial = $state->reconcile( [ $finding ], [ $entry ], $this->visibility() );
+		$this->assertSame( [ $finding ], $initial[ 'new_active' ] );
+		$this->assertTrue( $state->ignoreIdentity(
+			$finding->identityKey(), $initial[ 'all' ], CloakedPluginState::IGNORE_MODE_CONTENTS, $finding->contentsHash()
+		) );
+
+		$unchanged = $state->reconcile( [ $finding ], [ $entry ], $this->visibility() );
+		$this->assertSame( [ $finding ], $unchanged[ 'ignored' ] );
+		$this->assertSame( [], $unchanged[ 'new_active' ] );
+
+		$this->rewrite( $entry, "<?php\nrun_payload();\n" );
+		$changed = $state->reconcile( [ $finding ], [ $entry ], $this->visibility() );
+		$this->assertSame( [ $finding ], $changed[ 'active' ] );
+		$this->assertSame( [], $changed[ 'ignored' ] );
+		$this->assertSame( [ $finding ], $changed[ 'new_active' ] );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+
+		$again = $state->reconcile( [ $finding ], [ $entry ], $this->visibility() );
+		$this->assertSame( [ $finding ], $again[ 'active' ] );
+		$this->assertSame( [], $again[ 'new_active' ] );
+	}
+
+	public function testAlwaysIgnoreHoldsWhateverTheFileContains() :void {
+		$state = new CloakedPluginState();
+		$entry = $this->pluginEntryOnDisk( 'cloaked/cloaked.php', "<?php\nrun();\n" );
+		$finding = $this->findingForEntry( $entry );
+		$state->classify( [ $finding ] );
+		$this->assertTrue( $state->ignoreIdentity( $finding->identityKey(), [ $finding ], CloakedPluginState::IGNORE_MODE_PATH ) );
+
+		$this->rewrite( $entry, "<?php\nrun_payload();\n" );
+		$result = $state->classify( [ $finding ] );
+
+		$this->assertSame( [ $finding ], $result[ 'ignored' ] );
+		$this->assertSame( [], $result[ 'new_active' ] );
+	}
+
+	public function testContentsIgnoreNeedsTheContentsTheUserReviewed() :void {
+		$state = new CloakedPluginState();
+		$entry = $this->pluginEntryOnDisk( 'cloaked/cloaked.php', "<?php\nrun();\n" );
+		$finding = $this->findingForEntry( $entry );
+		$reviewed = $finding->contentsHash();
+		$this->rewrite( $entry, "<?php\nrun_payload();\n" );
+		$unreadable = $this->finding( 'missing/missing.php' );
+
+		$this->assertFalse( $state->ignoreIdentity( $finding->identityKey(), [ $finding ], CloakedPluginState::IGNORE_MODE_CONTENTS, $reviewed ) );
+		$this->assertFalse( $state->ignoreIdentity( $finding->identityKey(), [ $finding ], CloakedPluginState::IGNORE_MODE_CONTENTS ) );
+		$this->assertFalse( $state->ignoreIdentity(
+			$unreadable->identityKey(), [ $unreadable ], CloakedPluginState::IGNORE_MODE_CONTENTS, \hash( 'sha256', '' )
+		) );
+		$this->assertFalse( $state->ignoreIdentity( $finding->identityKey(), [ $finding ], 'forever' ) );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+	}
+
+	public function testIgnoresStayReadableByEarlierVersionsAndSurviveGoingBackAndForth() :void {
+		$state = new CloakedPluginState();
+		$entry = $this->pluginEntryOnDisk( 'cloaked/cloaked.php', "<?php\nrun();\n" );
+		$finding = $this->findingForEntry( $entry );
+		$other = $this->finding( 'other/other.php' );
+		$this->assertTrue( $state->ignoreIdentity(
+			$finding->identityKey(), [ $finding ], CloakedPluginState::IGNORE_MODE_CONTENTS, $finding->contentsHash()
+		) );
+		$this->assertTrue( $state->ignoreIdentity( $other->identityKey(), [ $other ], CloakedPluginState::IGNORE_MODE_PATH ) );
+
+		// What an earlier version reads is still a plain list of identities.
+		$this->assertSame(
+			[ $finding->identityKey(), $other->identityKey() ],
+			$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ]
+		);
+
+		// Back on an earlier version for a while, one ignore was stopped and another added.
+		$added = $this->finding( 'added/added.php' );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [ $finding->identityKey(), $added->identityKey() ];
+
+		$records = $state->ignoreRecords();
+		$this->assertSame( [ $finding->identityKey(), $added->identityKey() ], \array_keys( $records ) );
+		$this->assertSame( CloakedPluginState::IGNORE_MODE_CONTENTS, $records[ $finding->identityKey() ][ 'mode' ] );
+		$this->assertSame( $this->alwaysRecord( 0 ), $records[ $added->identityKey() ] );
+		$this->assertSame(
+			[ $finding->identityKey() ],
+			\array_keys( $this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ] )
+		);
+	}
+
+	public function testContentsIgnoreHoldsWhileTheFileCannotBeRead() :void {
+		$state = new CloakedPluginState();
+		$entry = $this->pluginEntryOnDisk( 'cloaked/cloaked.php', "<?php\nrun();\n" );
+		$finding = $this->findingForEntry( $entry );
+		$state->classify( [ $finding ] );
+		$this->assertTrue( $state->ignoreIdentity(
+			$finding->identityKey(), [ $finding ], CloakedPluginState::IGNORE_MODE_CONTENTS, $finding->contentsHash()
+		) );
+
+		$this->assertTrue( \unlink( $entry->path ) );
+		$unreadable = $state->classify( [ $finding ] );
+		$this->assertSame( [ $finding ], $unreadable[ 'ignored' ] );
+		$this->assertSame( [], $unreadable[ 'new_active' ] );
+
+		$this->rewrite( $entry, "<?php\nrun();\n" );
+		$this->assertSame( [ $finding ], $state->classify( [ $finding ] )[ 'ignored' ] );
+
+		$this->rewrite( $entry, "<?php\nrun_payload();\n" );
+		$changed = $state->classify( [ $finding ] );
+		$this->assertSame( [ $finding ], $changed[ 'active' ] );
+		$this->assertSame( [ $finding ], $changed[ 'new_active' ] );
+	}
+
+	public function testDamagedAndStrayIgnoreModesAreDropped() :void {
+		$finding = $this->finding( 'cloaked/cloaked.php' );
+		$legacy = \str_repeat( 'a', 40 );
+		$badHash = \str_repeat( 'b', 40 );
+		$badMode = \str_repeat( 'c', 40 );
+		$stray = \str_repeat( 'd', 40 );
+		$notAnArray = \str_repeat( 'e', 40 );
+		$null = \str_repeat( '0', 40 );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [
+			$finding->identityKey(), $legacy, $badHash, $badMode, $notAnArray, $null, 7, 'not-an-identity'
+		];
+		$this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ] = [
+			$finding->identityKey() => $this->alwaysRecord( 5 ),
+			$badHash                => [ 'mode' => CloakedPluginState::IGNORE_MODE_CONTENTS, 'contents_hash' => \str_repeat( 'b', 64 )."\n", 'ignored_at' => 1 ],
+			$badMode                => [ 'mode' => 'forever', 'contents_hash' => '', 'ignored_at' => 1 ],
+			$notAnArray             => 'path',
+			$null                   => null,
+			$stray                  => $this->alwaysRecord( 5 ),
+		];
+
+		$this->assertSame(
+			[
+				$finding->identityKey() => $this->alwaysRecord( 5 ),
+				$legacy                 => $this->alwaysRecord( 0 ),
+			],
+			( new CloakedPluginState() )->ignoreRecords()
+		);
+		$this->assertSame( [ $finding->identityKey(), $legacy ], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+		$this->assertSame(
+			[ $finding->identityKey() => $this->alwaysRecord( 5 ) ],
+			$this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ]
+		);
+	}
+
+	public function testPluginWithADamagedIgnoreIsFlaggedAgain() :void {
+		$state = new CloakedPluginState();
+		$finding = $this->finding( 'cloaked/cloaked.php' );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [ $finding->identityKey() ];
+		$this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ] = [
+			$finding->identityKey() => [ 'mode' => CloakedPluginState::IGNORE_MODE_CONTENTS, 'contents_hash' => 'damaged', 'ignored_at' => 1 ],
+		];
+
+		$result = $state->classify( [ $finding ] );
+
+		$this->assertSame( [ $finding ], $result[ 'active' ] );
+		$this->assertSame( [], $result[ 'ignored' ] );
+	}
+
+	public function testReadingIgnoresKeepsStoredMapOrderAndLegacyListOrder() :void {
+		$first = \str_repeat( 'f', 40 );
+		$second = \str_repeat( 'a', 40 );
+		$modes = [ $second => $this->alwaysRecord( 6 ), $first => $this->alwaysRecord( 5 ) ];
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [ $first, $second ];
+		$this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ] = $modes;
+
+		$records = ( new CloakedPluginState() )->ignoreRecords();
+
+		$this->assertSame( [ $first, $second ], \array_keys( $records ) );
+		$this->assertSame( [ $first, $second ], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+		$this->assertSame( $modes, $this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ] );
+	}
+
+	public function testHourlyCheckForgetsTheIgnoresOfPluginsWhoseFilesHaveGoneHoweverTheyWent() :void {
+		$pluginsDir = $this->createTrackedTempDir( 'shield-cloaked-plugins-dir-' );
+		$muDir = $this->createTrackedTempDir( 'shield-cloaked-mu-dir-' );
+		$this->writePluginFile( $pluginsDir.'/wp-simple-firewall/icwp-wpsf.php', "<?php\n/*\nPlugin Name: Shield\n*/\n" );
+		$this->writePluginFile( $pluginsDir.'/kept/kept.php', "<?php\n/*\nPlugin Name: Kept\n*/\nrun();\n" );
+		$this->writePluginFile( $muDir.'/kept-mu.php', "<?php\nrun();\n" );
+		$kept = $this->findingForEntry( $this->pluginEntry( 'kept/kept.php', 'Kept', '', $pluginsDir.'/kept/kept.php' ) );
+		$keptMuIdentity = CloakedPluginFinding::IdentityFor( PluginType::MustUse, 'kept-mu.php' );
+		$goneMuIdentity = CloakedPluginFinding::IdentityFor( PluginType::MustUse, 'gone-mu.php' );
+		$state = new CloakedPluginState();
+		$this->assertTrue( $state->ignoreIdentity(
+			$kept->identityKey(), [ $kept ], CloakedPluginState::IGNORE_MODE_CONTENTS, $kept->contentsHash()
+		) );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = \array_merge(
+			$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ],
+			[ $this->finding( 'gone/gone.php' )->identityKey(), $keptMuIdentity, $goneMuIdentity ]
+		);
+		$keptMode = $this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ];
+
+		( new CloakedPluginsConTestDouble( $pluginsDir, $muDir ) )->forgetIgnoresOfRemovedPlugins();
+
+		$this->assertSame( [ $kept->identityKey(), $keptMuIdentity ], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+		$this->assertSame( $keptMode, $this->opts->values[ CloakedPluginState::IGNORE_MODES_OPT_KEY ] );
+
+		// A plugin later put where an ignored one was is reviewed afresh.
+		$this->assertTrue( \unlink( $pluginsDir.'/kept/kept.php' ) );
+		( new CloakedPluginsConTestDouble( $pluginsDir, $muDir ) )->forgetIgnoresOfRemovedPlugins();
+		$this->writePluginFile( $pluginsDir.'/kept/kept.php', "<?php\n/*\nPlugin Name: Kept\n*/\nrun();\n" );
+		$this->assertSame( [ $kept ], $state->classify( [ $kept ] )[ 'active' ] );
+	}
+
+	public function testHourlyCheckForgetsNothingWhenThePluginsFolderCannotBeRead() :void {
+		$ignored = [ $this->finding( 'cloaked/cloaked.php' )->identityKey() ];
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = $ignored;
+
+		( new CloakedPluginsConTestDouble( $this->createTrackedTempDir( 'shield-cloaked-plugins-dir-' ).'/missing' ) )
+			->forgetIgnoresOfRemovedPlugins();
+
+		$this->assertSame( $ignored, $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+	}
+
+	private function writePluginFile( string $path, string $contents ) :void {
+		if ( !\is_dir( \dirname( $path ) ) ) {
+			$this->assertTrue( \mkdir( \dirname( $path ), 0777, true ) );
+		}
+		$this->assertNotFalse( \file_put_contents( $path, $contents ) );
+	}
+
 	private function finding( string $file ) :CloakedPluginFinding {
 		return $this->findingForEntry( $this->pluginEntry( $file ) );
+	}
+
+	private function pluginEntryOnDisk( string $file, string $contents ) :PluginEntry {
+		$path = $this->createTrackedTempDir( 'shield-cloaked-plugin-' ).'/'.\basename( $file );
+		$this->assertNotFalse( \file_put_contents( $path, $contents ) );
+		return $this->pluginEntry( $file, 'Cloaked', '1.0', $path );
+	}
+
+	private function rewrite( PluginEntry $entry, string $contents ) :void {
+		$this->assertNotFalse( \file_put_contents( $entry->path, $contents ) );
+	}
+
+	private function alwaysRecord( int $ignoredAt ) :array {
+		return [
+			'mode'          => CloakedPluginState::IGNORE_MODE_PATH,
+			'contents_hash' => '',
+			'ignored_at'    => $ignoredAt,
+		];
+	}
+
+	/**
+	 * A complete Plugins page observation on which the plugin is listed, so isn't cloaked.
+	 */
+	private function authoritativeVisibility( PluginEntry $entry ) :AdminPluginVisibilitySnapshot {
+		return new AdminPluginVisibilitySnapshot(
+			[ $entry->file => [] ], [ $entry->file => [] ], [], true,
+			[ 'all' => [ $entry->file => [] ], 'active' => [], 'inactive' => [ $entry->file => [] ],
+				'recently_activated' => [], 'upgrade' => [], 'paused' => [], 'mustuse' => [] ], [], [], true
+		);
 	}
 
 	private function findingForEntry( PluginEntry $entry, array $reasons = [ CloakReason::AllPlugins ] ) :CloakedPluginFinding {
@@ -644,6 +960,26 @@ class CloakedPluginStateTest extends BaseUnitTest {
 			'PluginURI' => 'https://example.test/shield',
 			'Author'    => 'Shield',
 		];
+	}
+}
+
+class CloakedPluginsConTestDouble extends CloakedPluginsCon {
+
+	private string $pluginDir;
+
+	private string $muPluginDir;
+
+	public function __construct( string $pluginDir, string $muPluginDir = '' ) {
+		$this->pluginDir = $pluginDir;
+		$this->muPluginDir = $muPluginDir;
+	}
+
+	protected function canRun() :bool {
+		return true;
+	}
+
+	protected function inventory() :RawPluginInventory {
+		return new RawPluginInventory( $this->pluginDir, $this->muPluginDir );
 	}
 }
 

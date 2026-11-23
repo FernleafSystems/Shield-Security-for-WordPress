@@ -76,6 +76,7 @@ class WpContentUnidentified extends BaseScan {
 		];
 		$wpContentPathsRegex = [
 			'/uploads/siteground\-optimizer\-assets/siteground\-optimizer\-combined\-js\-[a-zA-Z\d]{32}\.js$',
+			'/litespeed/js/(\d+/)?[a-f\d]{32}\.js$',
 			'/uploads/.*/backupbuddy_dat\.php$',
 			'/.*settings_backup\-.*\.php$',
 			'/uploads/.*\.ufm.php$',

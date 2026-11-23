@@ -44,6 +44,17 @@ export class DashboardLiveMonitor extends BaseComponent {
 			this.toggleCollapsed();
 		} );
 
+		// The monitor isn't docked by default; the dashboard sidebar button opens and closes it.
+		this.launchButton = document.querySelector( '[data-live-monitor-launch="1"]' );
+		this.launchButton?.addEventListener( 'click', ( evt ) => {
+			evt.preventDefault();
+			this.toggleCollapsed();
+			if ( !this.isCollapsed() ) {
+				this.toggleButton.focus();
+			}
+		} );
+		this.syncLaunchButton();
+
 		this.poller = new LiveTrafficPoller( {
 			requestData: this.buildBatchRequestData(),
 			intervalMs: Number.parseInt( this._base_data?.vars?.poll_interval_ms || 5000, 10 ),
@@ -104,6 +115,7 @@ export class DashboardLiveMonitor extends BaseComponent {
 
 		this.rootEl.dataset.isCollapsed = isCollapsed ? '1' : '0';
 		this.rootEl.classList.toggle( 'is-collapsed', isCollapsed );
+		this.syncLaunchButton();
 		this.toggleButton.setAttribute( 'aria-expanded', isCollapsed ? 'false' : 'true' );
 		this.bodyEl.setAttribute( 'aria-hidden', isCollapsed ? 'true' : 'false' );
 
@@ -121,6 +133,13 @@ export class DashboardLiveMonitor extends BaseComponent {
 		}
 
 		this.scheduleDockingUpdate();
+	}
+
+	syncLaunchButton() {
+		if ( this.launchButton instanceof HTMLElement ) {
+			this.launchButton.setAttribute( 'aria-expanded', this.isCollapsed() ? 'false' : 'true' );
+			this.launchButton.classList.toggle( 'active', !this.isCollapsed() );
+		}
 	}
 
 	setupDockingLayout() {

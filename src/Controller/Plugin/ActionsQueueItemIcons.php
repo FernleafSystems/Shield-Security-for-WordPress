@@ -10,6 +10,7 @@ class ActionsQueueItemIcons {
 		'bug'                     => 'bi bi-bug-fill',
 		'code-slash'              => 'bi bi-code-slash',
 		'database-fill-lock'      => 'bi bi-database-fill-lock',
+		'envelope'                => 'bi bi-envelope-fill',
 		'eye-slash-fill'          => 'bi bi-eye-slash-fill',
 		'file-lock2'              => 'bi bi-file-lock2-fill',
 		'key-fill'                => 'bi bi-key-fill',
@@ -38,6 +39,7 @@ class ActionsQueueItemIcons {
 	];
 
 	private const MAINTENANCE_ICONS = [
+		'report_email'           => 'envelope',
 		'wp_updates'             => 'wordpress',
 		'default_admin_user'     => 'person-fill-exclamation',
 		'wp_plugins_updates'     => 'plug',

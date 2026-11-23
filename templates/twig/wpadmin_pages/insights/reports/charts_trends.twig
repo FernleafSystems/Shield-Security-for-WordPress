@@ -1,19 +1,19 @@
 <div class="shield-reports-trends" data-reports-trends="1">
-	<form id="ShieldReportsTrendsForm" class="card shield-reports-trends__card" data-reports-trends-form="1">
-		<div class="card-header shield-reports-trends__card-header">
+	<form id="ShieldReportsTrendsForm" class="shield-reports-trends__form" data-reports-trends-form="1">
+		<div class="shield-reports-trends__controls">
 			<div class="shield-reports-trends__toolbar">
 				<div class="shield-reports-trends__toolbar-main">
 					<div class="shield-reports-trends__period-field">
 						<label class="shield-reports-trends__field-label" for="ShieldReportsTrendsPeriod">{{ strings.period }}</label>
 						<select id="ShieldReportsTrendsPeriod" class="form-select" name="period_key">
 							{% for period in vars.periods %}
-								<option value="{{ period.key }}"{% if period.is_default %} selected{% endif %}>{{ period.label }}</option>
+								<option value="{{ period.key }}"{% if period.is_selected %} selected{% endif %}>{{ period.label }}</option>
 							{% endfor %}
 						</select>
 					</div>
 
 					<div class="shield-reports-trends__actions">
-						<button class="btn btn-primary" type="submit" data-reports-chart-submit="1" disabled>{{ strings.update_chart }}</button>
+						<button class="btn btn-primary" type="submit" data-reports-chart-submit="1">{{ strings.update_chart }}</button>
 						<p class="shield-reports-trends__selection-note mb-0" data-reports-chart-selection-note="1">{{ strings.selection_none }}</p>
 					</div>
 				</div>
@@ -24,7 +24,7 @@
 						{% for event in vars.events %}
 							{% set event_input_id = 'ShieldReportsTrendsEvent-' ~ loop.index %}
 							<div class="shield-reports-trends__event-chip">
-								<input id="{{ event_input_id }}" class="shield-reports-trends__event-input" type="checkbox" name="event_keys[]" value="{{ event.key }}">
+								<input id="{{ event_input_id }}" class="shield-reports-trends__event-input" type="checkbox" name="event_keys[]" value="{{ event.key }}"{% if event.is_selected %} checked{% endif %}>
 								<label
 									class="shield-reports-trends__event-label"
 									for="{{ event_input_id }}"
@@ -40,7 +40,7 @@
 			</div>
 		</div>
 
-		<div class="card-body shield-reports-trends__card-body">
+		<div class="shield-reports-trends__chart-area">
 			<div class="shield-reports-trends__chart-placeholder" data-reports-chart-empty="1">{{ strings.empty_state }}</div>
 			<div class="alert alert-warning d-none mb-0" data-reports-chart-error="1"></div>
 

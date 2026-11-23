@@ -10,15 +10,11 @@ export class ShieldTableIpRules extends ShieldTableBase {
 	getButtons() {
 		return [
 			{
+				// The IP rules component opens the new rule form for anything with this class.
 				text: 'Create New IP Rule',
 				name: 'create-ip-rule',
-				className: 'action create-ip-rule btn-outline-primary mb-2',
-				action: () => {
-					const triggerEl = document.querySelector( '.offcanvas_form_create_ip_rule' );
-					if ( triggerEl instanceof HTMLElement ) {
-						triggerEl.click();
-					}
-				}
+				className: 'action create-ip-rule offcanvas_form_create_ip_rule btn-outline-primary mb-2',
+				action: () => {},
 			},
 			...super.getButtons()
 		];

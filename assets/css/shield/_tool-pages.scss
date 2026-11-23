@@ -1,0 +1,494 @@
+// ─── Tool pages (Site Lockdown, White Label, Hide Login) ───
+// Each follows the same shape: a status line saying where things stand, then the few choices that matter in
+// boxes like the Actions Queue's, then one clear action.
+$tool-line: #dcdcde;
+$tool-soft-line: #eef0f1;
+$tool-muted: #50575e;
+
+.shield-tool-page {
+	color: #1d2327;
+	font-size: 13px;
+	max-width: 1100px;
+}
+
+// Links within running text are underlined, so they stand apart from the words around them.
+.shield-tool-page {
+	p a,
+	.shield-tool-row__desc a {
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+}
+
+.shield-tool-page__lede {
+	color: $tool-muted;
+	font-size: 13.5px;
+	margin: 0 0 1.1rem;
+	max-width: 68ch;
+}
+
+// Where things stand, in one line with a badge.
+.shield-tool-status {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid $tool-line;
+	border-radius: 8px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 14px 16px;
+	margin-bottom: 16px;
+	padding: 16px 18px;
+
+	&__badge {
+		align-items: center;
+		background: #eef0f2;
+		border-radius: 50%;
+		color: $tool-muted;
+		display: inline-flex;
+		flex: none;
+		font-size: 18px;
+		height: 40px;
+		justify-content: center;
+		width: 40px;
+	}
+
+	&__copy {
+		flex: 1 1 280px;
+		min-width: 0;
+	}
+
+	&__title {
+		font-size: 15px;
+		font-weight: 600;
+		margin: 0;
+	}
+
+	&__desc {
+		color: $tool-muted;
+		margin: 3px 0 0;
+	}
+
+	&__pill {
+		background: #eef0f2;
+		border-radius: 999px;
+		color: $tool-muted;
+		font-size: 11.5px;
+		font-weight: 700;
+		padding: 3px 10px;
+	}
+
+	&.is-good {
+		.shield-tool-status__badge { background: #e6f5e6; color: #008000; }
+		.shield-tool-status__pill { background: #e6f5e6; color: #006400; }
+	}
+
+	&.is-critical {
+		background: #fdeaec;
+		border-color: #f5c6cb;
+		box-shadow: inset 4px 0 0 #c62f3e;
+
+		.shield-tool-status__badge { background: #c62f3e; color: #ffffff; }
+		.shield-tool-status__title { color: #8a1f2a; }
+		.shield-tool-status__desc { color: #5c1820; }
+	}
+}
+
+.shield-tool-grid {
+	display: grid;
+	gap: 16px;
+	grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+}
+
+.shield-tool-box {
+	background: #ffffff;
+	border: 1px solid $tool-line;
+	border-radius: 8px;
+	margin: 0;
+	overflow: hidden;
+
+	&__head {
+		align-items: center;
+		background: #f6f7f7;
+		border-bottom: 1px solid $tool-line;
+		color: $tool-muted;
+		display: flex;
+		font-size: 11px;
+		font-weight: 700;
+		gap: 8px;
+		letter-spacing: 0.06em;
+		margin: 0;
+		padding: 8px 14px;
+		text-transform: uppercase;
+	}
+}
+
+fieldset.shield-tool-box {
+	min-width: 0;
+	padding: 0;
+
+	> legend.shield-tool-box__head {
+		float: none;
+		width: 100%;
+	}
+}
+
+.shield-tool-row {
+	align-items: center;
+	border-top: 1px solid $tool-soft-line;
+	display: grid;
+	gap: 4px 12px;
+	grid-template-columns: 26px minmax(0, 1fr) auto;
+	padding: 12px 14px;
+
+	.shield-tool-box__head + &,
+	&:first-child {
+		border-top: 0;
+	}
+
+	&__icon {
+		align-items: center;
+		background: #eef0f2;
+		border-radius: 6px;
+		color: $tool-muted;
+		display: inline-flex;
+		height: 26px;
+		justify-content: center;
+		width: 26px;
+
+		&.is-good { background: #e6f5e6; color: #008000; }
+		&.is-warning { background: #fef6e6; color: #946200; }
+		&.is-critical { background: #fdeaec; color: #c62f3e; }
+	}
+
+	&__title {
+		font-weight: 600;
+	}
+
+	&__desc {
+		color: $tool-muted;
+		font-size: 12.5px;
+		margin-top: 2px;
+	}
+
+	&.is-muted {
+		background: #fbfbfc;
+	}
+}
+
+.shield-tool-check {
+	align-items: flex-start;
+	border-top: 1px solid $tool-soft-line;
+	cursor: pointer;
+	display: flex;
+	gap: 10px;
+	margin: 0;
+	padding: 10px 14px;
+
+	.shield-tool-box__head + & {
+		border-top: 0;
+	}
+
+	&:hover {
+		background: #f6f7f7;
+	}
+
+	input[type="checkbox"] {
+		flex: none;
+		margin: 2px 0 0;
+	}
+}
+
+// Buttons match the Actions Queue's: one style, an icon first; the quiet kind for lesser actions.
+.shield-tool-btn {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid #8c8f94;
+	border-radius: 5px;
+	color: #1d2327;
+	cursor: pointer;
+	display: inline-flex;
+	font-size: 12.5px;
+	font-weight: 600;
+	gap: 6px;
+	line-height: 1.3;
+	padding: 5px 11px;
+	text-decoration: none;
+	white-space: nowrap;
+
+	&:hover,
+	&:focus {
+		background: #f6f7f7;
+		border-color: #50575e;
+		color: #1d2327;
+		text-decoration: none;
+	}
+
+	&:focus-visible,
+	&:focus-within {
+		@include shield-focus-ring();
+	}
+
+	&--quiet {
+		border-color: $tool-line;
+		color: $tool-muted;
+		font-size: 12px;
+		padding: 4px 9px;
+	}
+
+	&--danger {
+		background: #c62f3e;
+		border-color: #c62f3e;
+		color: #ffffff;
+		font-size: 13.5px;
+		padding: 9px 16px;
+
+		&:hover,
+		&:focus {
+			background: #a52633;
+			border-color: #a52633;
+			color: #ffffff;
+		}
+	}
+
+	&--primary {
+		background: #008000;
+		border-color: #008000;
+		color: #ffffff;
+		font-size: 13px;
+		padding: 7px 14px;
+
+		&:hover,
+		&:focus {
+			background: #006400;
+			border-color: #006400;
+			color: #ffffff;
+		}
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.45;
+	}
+
+	// A checkbox shown as a toggle button, such as "Add my IP".
+	input[type="checkbox"] {
+		margin: 0;
+	}
+
+	&:has(input:checked) {
+		background: #e6f5e6;
+		border-color: #008000;
+		color: #006400;
+	}
+}
+
+// The one action at the end, with what it needs said beside it.
+.shield-tool-bar {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid $tool-line;
+	border-radius: 8px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px 14px;
+	margin-top: 16px;
+	padding: 14px 18px;
+
+	&__msg {
+		color: $tool-muted;
+		flex: 1 1 240px;
+	}
+}
+
+.shield-tool-note {
+	color: $tool-muted;
+	font-size: 12.5px;
+	margin: 12px 0 0;
+}
+
+.shield-tool-facts {
+	display: grid;
+	gap: 16px;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	margin-bottom: 16px;
+
+	> div {
+		background: #ffffff;
+		border: 1px solid $tool-line;
+		border-radius: 8px;
+		padding: 12px 14px;
+	}
+
+	dt {
+		color: #646970;
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+
+	dd {
+		font-size: 15px;
+		font-weight: 600;
+		margin: 4px 0 0;
+	}
+}
+
+// A warning that must not be missed, in the warning colours.
+.shield-tool-warning {
+	align-items: flex-start;
+	background: #fef6e6;
+	border: 1px solid #f0c96b;
+	border-radius: 8px;
+	box-shadow: inset 4px 0 0 #dba617;
+	color: #3b2a00;
+	display: flex;
+	gap: 12px;
+	margin-bottom: 16px;
+	padding: 14px 18px;
+
+	> .bi {
+		color: #946200;
+		flex: none;
+		font-size: 18px;
+		line-height: 1.2;
+	}
+
+	&__title {
+		font-size: 14px;
+		font-weight: 700;
+		margin: 0;
+	}
+
+	p {
+		margin: 4px 0 0;
+		max-width: 80ch;
+	}
+}
+
+// A field that completes an address, with the address's start shown before it.
+.shield-option-prefixed {
+	align-items: stretch;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	display: flex;
+	overflow: hidden;
+
+	&__prefix {
+		align-items: center;
+		background: #f6f7f7;
+		border-right: 1px solid $tool-line;
+		color: $tool-muted;
+		display: inline-flex;
+		padding: 0 9px;
+		white-space: nowrap;
+	}
+
+	> input.form-control {
+		border: 0 !important;
+		border-radius: 0 !important;
+		box-shadow: none;
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	&:focus-within {
+		@include shield-focus-ring();
+	}
+}
+
+// Settings beside a live preview, when there's room for both.
+.shield-tool-split {
+	align-items: flex-start;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
+
+	> :first-child {
+		flex: 999 1 480px;
+		min-width: 0;
+	}
+
+	> :last-child {
+		flex: 1 1 280px;
+		min-width: 0;
+		position: sticky;
+		top: calc(var(--wp-admin--admin-bar--height, 32px) + 16px);
+	}
+}
+
+.shield-tool-preview {
+	display: grid;
+	gap: 12px;
+
+	&__menu {
+		background: #1d2327;
+		padding: 6px 0;
+
+		> div {
+			align-items: center;
+			color: #c3c4c7;
+			display: flex;
+			gap: 9px;
+			padding: 7px 12px;
+		}
+
+		> .is-current {
+			background: #2271b1;
+			color: #ffffff;
+		}
+
+		img {
+			height: 16px;
+			width: 16px;
+		}
+	}
+
+	&__body {
+		padding: 12px 14px;
+	}
+
+	&__login {
+		align-items: center;
+		background: #f0f0f1;
+		display: grid;
+		gap: 10px;
+		justify-items: center;
+		padding: 16px;
+
+		img {
+			max-height: 64px;
+			max-width: 220px;
+		}
+
+		> span {
+			background: #ffffff;
+			border: 1px solid $tool-line;
+			border-radius: 4px;
+			height: 26px;
+			width: 220px;
+		}
+
+		> span:last-child {
+			background: #2271b1;
+			border-color: #2271b1;
+		}
+	}
+}
+
+// White Label's own switch heads its settings, as everything under it applies only while it's on.
+[data-shield-whitelabel="1"] .shield-panel-block:first-of-type {
+	border-bottom: 1px solid $tool-soft-line;
+	margin-bottom: 4px;
+	padding-bottom: 6px;
+
+	.option_label_name {
+		font-size: 14.5px;
+		font-weight: 600;
+	}
+
+	// The switch sits beside its name, however narrow the form.
+	.shield-option-item.shield-panel-item {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
+}

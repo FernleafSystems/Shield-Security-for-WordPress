@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportEmailHold;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\ResultItem;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -31,8 +32,17 @@ class AlertHandlerVulnerabilities extends AlertHandlerBase {
 		add_action( ScansController::HOOK_SCAN_RESULT_NOTIFICATION_READINESS_OPENED, [ $this, 'collectScanResultAlerts' ], 10, 0 );
 	}
 
+	public function isSendHeld() :bool {
+		return !self::con()->comps->scans->isReadyForScanResultNotifications();
+	}
+
+	/**
+	 * The alert names each asset's current version when it's sent, so findings aren't queued during the report
+	 * email hold: they stay not yet notified and are collected from the scan state at the time, after the hold.
+	 */
 	public function collectScanResultAlerts() :void {
-		if ( !self::con()->comps->scans->isReadyForScanResultNotifications() ) {
+		if ( !self::con()->comps->scans->isReadyForScanResultNotifications()
+			 || ( new ReportEmailHold() )->isActive() ) {
 			return;
 		}
 

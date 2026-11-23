@@ -2,12 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\DeleteSession;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Sessions\BuildSessionsTableData;
 
 class SessionsTableAction extends TableActionBase {
 
 	public const SLUG = 'sessionstable_action';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 	private const SUB_ACTION_DELETE = 'delete';
 
 	protected function getSubActionHandlers() :array {
@@ -30,7 +37,7 @@ class SessionsTableAction extends TableActionBase {
 	}
 
 	protected function deleteSelectedSessions() :array {
-		( new DeleteSession() )->byShieldIDs( $this->action_data[ 'rids' ] );
+		( new DeleteSession() )->byShieldIDs( $this->fields()->stringList( 'rids' ) );
 		return [
 			'success'     => true,
 			'page_reload' => false,

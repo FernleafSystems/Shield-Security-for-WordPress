@@ -41,7 +41,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$lookup = $this->getTextInputFromRequestOrActionData( 'user_lookup' );
+		$lookup = $this->getTextInputFromActionData( 'user_lookup' );
 		$userLookupBuilder = $this->getUserLookupBuilder();
 		$subject = $this->resolveSubject( $lookup );
 		$hasLookup = !empty( $lookup );
@@ -84,21 +84,16 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 			'hrefs'   => [
 				'by_user' => $con->plugin_urls->investigateByUser(),
 			],
-			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->iconClass( 'person-lines-fill' ),
-			],
 			'strings' => [
-				'inner_page_title'    => __( 'Investigate By User', 'wp-simple-firewall' ),
-				'inner_page_subtitle' => __( 'Select a user to review recent sessions, activity, and requests.', 'wp-simple-firewall' ),
-				'lookup_label'        => __( 'User Lookup', 'wp-simple-firewall' ),
-				'lookup_placeholder'  => __( 'Search for a user...', 'wp-simple-firewall' ),
-				'lookup_submit'       => __( 'Load User Context', 'wp-simple-firewall' ),
-				'lookup_helper'       => __( 'Type at least 1 character to search by username, display name, email, or user ID.', 'wp-simple-firewall' ),
-				'change_subject'      => __( 'Change user', 'wp-simple-firewall' ),
-				'not_found_title'     => __( 'No Matching User Found', 'wp-simple-firewall' ),
-				'not_found_text'      => __( 'No WordPress user matched your lookup value. Try a different search term.', 'wp-simple-firewall' ),
-				'related_ips_title'   => __( 'Related IP Addresses', 'wp-simple-firewall' ),
-				'related_ips_empty'   => __( 'No related IP addresses were found.', 'wp-simple-firewall' ),
+				'inner_page_title'   => __( 'Investigate By User', 'wp-simple-firewall' ),
+				'lookup_label'       => __( 'User Lookup', 'wp-simple-firewall' ),
+				'lookup_placeholder' => __( 'Search for a user...', 'wp-simple-firewall' ),
+				'lookup_submit'      => __( 'Load User Context', 'wp-simple-firewall' ),
+				'lookup_helper'      => __( 'Type at least 1 character to search by username, display name, email, or user ID.', 'wp-simple-firewall' ),
+				'not_found_title'    => __( 'No Matching User Found', 'wp-simple-firewall' ),
+				'not_found_text'     => __( 'No WordPress user matched your lookup value. Try a different search term.', 'wp-simple-firewall' ),
+				'related_ips_title'  => __( 'Related IP Addresses', 'wp-simple-firewall' ),
+				'related_ips_empty'  => __( 'No related IP addresses were found.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'user_lookup'      => $lookup,

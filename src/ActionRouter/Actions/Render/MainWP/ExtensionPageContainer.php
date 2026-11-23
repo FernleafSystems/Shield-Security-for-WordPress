@@ -67,7 +67,9 @@ class ExtensionPageContainer extends BaseMWP {
 
 		return [
 			'content' => [
-				'page_body' => $con->action_router->render( $bodyToRender ),
+				'page_body' => $con->action_router->render( $bodyToRender, [
+					'current_tab' => $this->action_data[ 'current_tab' ],
+				] ),
 			],
 		];
 	}

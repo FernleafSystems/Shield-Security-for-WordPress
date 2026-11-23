@@ -1,4 +1,4 @@
-{% set preferred_order = [ 'email', 'passkey', 'ga', 'yubi', 'sms', 'u2f', 'backupcode' ] %}
+{% set preferred_order = [ 'email', 'passkey', 'ga', 'yubi', 'u2f', 'backupcode' ] %}
 {% set ordered_login_fields = [] %}
 
 {% for preferred_slug in preferred_order %}

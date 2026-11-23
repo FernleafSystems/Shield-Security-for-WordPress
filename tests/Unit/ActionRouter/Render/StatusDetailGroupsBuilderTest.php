@@ -162,6 +162,7 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 				'zone_component_slug'   => $componentSlug,
 				'option_keys'           => $optionKeys,
 				'form_context'          => 'offcanvas',
+				'configure_panel'       => 'code:file_scanning',
 			],
 		];
 	}

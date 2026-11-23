@@ -7,13 +7,15 @@ const {
 
 test.setTimeout( 180_000 );
 
-test( 'legacy live traffic URL reaches the canonical active investigation panel', async ( { page, fixtureApi } ) => {
+test( 'the live traffic link opens Investigate on its Live Traffic tab, keeping its own address', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withLiveTrafficToggleFixture( async ( contract ) => {
 		await openShieldRoute( page, contract.legacy_route );
+		// Investigate's tabs each keep a lasting link of their own, so this one isn't redirected.
 		const params = new URL( page.url() ).searchParams;
-		for ( const [ key, value ] of Object.entries( contract.route ) ) {
+		for ( const [ key, value ] of Object.entries( contract.legacy_route ) ) {
 			expect( params.get( key ) ).toBe( value );
 		}
+		await expect( page.locator( '[data-investigate-tab="live"]' ) ).toHaveAttribute( 'aria-current', /\S/ );
 		await expect( page.locator( contract.selectors.toggle ) ).toBeVisible();
 		await expect( page.locator( contract.selectors.toggle ) ).toBeEnabled();
 		await expect( page.locator( '#SectionTrafficLiveLogs' ) ).toHaveAttribute( 'data-traffic-live-log-owner', 'investigate_panel' );

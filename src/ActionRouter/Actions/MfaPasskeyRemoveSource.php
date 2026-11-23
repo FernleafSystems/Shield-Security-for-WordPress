@@ -2,18 +2,27 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Passkey;
 
 class MfaPasskeyRemoveSource extends MfaUserConfigBase {
 
 	public const SLUG = 'mfa_passkey_remove_source';
 
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
+
 	protected function exec() {
+		$sourceID = $this->fields()->string( 'wan_source_id', '' );
+
 		$success = false;
 		/** @var ?Passkey $provider */
 		$provider = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() )[ Passkey::ProviderSlug() ] ?? null;
 		if ( $provider ) {
-			$success = $provider->deleteSource( $this->action_data[ 'wan_source_id' ] ?? '' );
+			$success = $provider->deleteSource( $sourceID );
 		}
 
 		$this->response()->setPayload( [

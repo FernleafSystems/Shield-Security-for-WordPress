@@ -1,0 +1,19 @@
+{#
+	A row at the foot of a group that does one thing to all of its items of one kind together, in one request:
+	"Ignore all" for the items still listed, "Stop ignoring all" for a group whose items are all ignored. It's
+	offered when several of the rows have that action for the same kind of item.
+#}
+{% set keys = [] %}
+{% for row in rows %}
+	{% for action in row.actions|filter( a => a.kind == kind ) %}
+		{% set keys = keys|merge( [ action.maintenance_key ] ) %}
+	{% endfor %}
+{% endfor %}
+{% if keys|length > 1 and keys|reduce( ( carry, k ) => carry and k == keys|first, true ) %}
+	<div class="actions-queue-row-group__foot">
+		<button type="button" class="actions-queue-row__ignore" data-actions-queue-maintenance-all="{{ kind }}">
+			<i class="bi {{ kind == 'unignore' ? 'bi-eye-fill' : 'bi-eye-slash-fill' }}" aria-hidden="true"></i>
+			{{ label }}
+		</button>
+	</div>
+{% endif %}

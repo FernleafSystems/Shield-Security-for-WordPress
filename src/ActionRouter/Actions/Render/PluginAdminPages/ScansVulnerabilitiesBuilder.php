@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
@@ -17,6 +19,13 @@ use FernleafSystems\Wordpress\Services\Services;
  *   icon?:string,
  *   attributes?:array<string,string>
  * }
+ * @phpstan-type IgnoreToggleAction array{
+ *   kind:'ignore'|'unignore',
+ *   label:string,
+ *   icon:string,
+ *   tooltip:string,
+ *   ajax_action:array<string,mixed>
+ * }
  * @phpstan-type VulnerabilityItem array{
  *   key:string,
  *   asset_key:string,
@@ -25,13 +34,15 @@ use FernleafSystems\Wordpress\Services\Services;
  *   description:string,
  *   count:int,
  *   severity:string,
- *   actions:list<VulnerabilityAction>
+ *   actions:list<VulnerabilityAction>,
+ *   ignore_action?:IgnoreToggleAction
  * }
  * @phpstan-type VulnerabilitySection array{
  *   label:string,
  *   count:int,
  *   status:string,
- *   items:list<VulnerabilityItem>
+ *   items:list<VulnerabilityItem>,
+ *   ignored_items:list<VulnerabilityItem>
  * }
  * @phpstan-type VulnerabilitiesPayload array{
  *   count:int,
@@ -86,7 +97,8 @@ class ScansVulnerabilitiesBuilder {
 				),
 				'abandoned'  => $this->buildSection(
 					__( 'Abandoned Assets', 'wp-simple-firewall' ),
-					$abandonedItems
+					$abandonedItems,
+					$this->buildIgnoredAbandonedItems( $assetType )
 				),
 			],
 		];
@@ -159,8 +171,34 @@ class ScansVulnerabilitiesBuilder {
 			return [];
 		}
 
+		return $this->buildAbandonedRows( $results->getAllItems(), $assetType, false );
+	}
+
+	/**
+	 * Abandoned results the user chose to ignore. These count towards nothing; they're listed only so that
+	 * the user can see them and stop ignoring them.
+	 * @param 'plugin'|'theme'|'' $assetType
+	 * @return list<VulnerabilityItem>
+	 */
+	protected function buildIgnoredAbandonedItems( string $assetType = '' ) :array {
+		try {
+			$results = self::con()->comps->scans->APC()->getAllResults()->getIgnored();
+		}
+		catch ( \Throwable $e ) {
+			return [];
+		}
+
+		return $this->buildAbandonedRows( $results->getAllItems(), $assetType, true );
+	}
+
+	/**
+	 * @param list<\FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc\ResultItem> $results
+	 * @param 'plugin'|'theme'|'' $assetType
+	 * @return list<VulnerabilityItem>
+	 */
+	private function buildAbandonedRows( array $results, string $assetType, bool $isIgnored ) :array {
 		$items = [];
-		foreach ( $results->getAllItems() as $item ) {
+		foreach ( $results as $item ) {
 			$asset = $this->resolveAssetForScanItem(
 				(string)( $item->VO->item_id ?? '' ),
 				(string)( $item->VO->item_type ?? '' )
@@ -172,16 +210,45 @@ class ScansVulnerabilitiesBuilder {
 				continue;
 			}
 
-			$items[] = $this->buildAssetRow(
-				'abandoned',
-				$asset,
-				1,
-				$this->buildAbandonedAssetActions( $asset ),
-				__( 'This asset appears to be abandoned and should be reviewed.', 'wp-simple-firewall' )
+			$items[] = \array_merge(
+				$this->buildAssetRow(
+					'abandoned',
+					$asset,
+					1,
+					$this->buildAbandonedAssetActions( $asset ),
+					__( 'This asset appears to be abandoned and should be reviewed.', 'wp-simple-firewall' )
+				),
+				[ 'ignore_action' => $this->buildIgnoreToggleAction( (int)$item->VO->resultitem_id, $isIgnored, $asset instanceof WpPluginVo ) ]
 			);
 		}
 
 		return $this->sortItems( $items );
+	}
+
+	/**
+	 * @return IgnoreToggleAction
+	 */
+	private function buildIgnoreToggleAction( int $resultItemID, bool $isIgnored, bool $isPlugin ) :array {
+		if ( $isPlugin ) {
+			$tooltip = $isIgnored
+				? __( 'Stop ignoring this abandoned plugin', 'wp-simple-firewall' )
+				: __( 'Ignore this abandoned plugin', 'wp-simple-firewall' );
+		}
+		else {
+			$tooltip = $isIgnored
+				? __( 'Stop ignoring this abandoned theme', 'wp-simple-firewall' )
+				: __( 'Ignore this abandoned theme', 'wp-simple-firewall' );
+		}
+		return [
+			'kind'        => $isIgnored ? 'unignore' : 'ignore',
+			'label'       => $isIgnored ? __( 'Stop ignoring', 'wp-simple-firewall' ) : __( 'Ignore', 'wp-simple-firewall' ),
+			'icon'        => $isIgnored ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill',
+			'tooltip'     => $tooltip,
+			'ajax_action' => ActionData::Build( ScanResultsTableAction::class, true, [
+				'sub_action' => $isIgnored ? 'unignore' : 'ignore',
+				'rids'       => [ $resultItemID ],
+			] ),
+		];
 	}
 
 	/**
@@ -207,14 +274,16 @@ class ScansVulnerabilitiesBuilder {
 
 	/**
 	 * @param list<VulnerabilityItem> $items
+	 * @param list<VulnerabilityItem> $ignoredItems never counted, and never affect the status
 	 * @return VulnerabilitySection
 	 */
-	private function buildSection( string $label, array $items ) :array {
+	private function buildSection( string $label, array $items, array $ignoredItems = [] ) :array {
 		return [
-			'label'  => $label,
-			'count'  => \count( $items ),
-			'status' => empty( $items ) ? 'good' : 'critical',
-			'items'  => $items,
+			'label'         => $label,
+			'count'         => \count( $items ),
+			'status'        => empty( $items ) ? 'good' : 'critical',
+			'items'         => $items,
+			'ignored_items' => $ignoredItems,
 		];
 	}
 
@@ -275,7 +344,7 @@ class ScansVulnerabilitiesBuilder {
 	 */
 	private function buildVulnerableAssetActions( $asset ) :array {
 		return [
-			$this->buildNativeAction( $asset ),
+			$this->buildNativeAction( $asset, true ),
 			[
 				'href'       => $asset instanceof WpPluginVo
 					? self::con()->plugin_urls->vulnerabilityLookupByPlugin( $asset->slug, $asset->Version )
@@ -297,7 +366,7 @@ class ScansVulnerabilitiesBuilder {
 	 */
 	private function buildAbandonedAssetActions( $asset ) :array {
 		return [
-			$this->buildNativeAction( $asset ),
+			$this->buildNativeAction( $asset, false ),
 		];
 	}
 
@@ -305,7 +374,7 @@ class ScansVulnerabilitiesBuilder {
 	 * @param WpPluginVo|WpThemeVo $asset
 	 * @return array{href:string,label:string,type:string}
 	 */
-	private function buildNativeAction( $asset ) :array {
+	private function buildNativeAction( $asset, bool $isVulnerable ) :array {
 		$isPlugin = $asset instanceof WpPluginVo;
 
 		if ( $asset->hasUpdate() ) {
@@ -318,11 +387,11 @@ class ScansVulnerabilitiesBuilder {
 
 		return [
 			'href'  => $isPlugin
-				? Services::WpGeneral()->getAdminUrl_Plugins()
-				: Services::WpGeneral()->getAdminUrl_Themes(),
+				? self::con()->plugin_urls->pluginInPluginsScreen( $asset->Title, $isVulnerable ? 'vulnerable' : 'all' )
+				: self::con()->plugin_urls->themeInThemesScreen( $asset->stylesheet ),
 			'label' => $isPlugin
-				? __( 'Go to plugins', 'wp-simple-firewall' )
-				: __( 'Go to themes', 'wp-simple-firewall' ),
+				? __( 'Go to plugin', 'wp-simple-firewall' )
+				: __( 'Go to theme', 'wp-simple-firewall' ),
 			'type'  => 'navigate',
 		];
 	}

@@ -5,6 +5,7 @@ import { NoticeHandler } from "../components/notices/NoticeHandler";
 import { SecurityAdmin } from "../components/general/SecurityAdmin";
 import { ShieldServicesWpAdmin } from "../services/ShieldServicesWpAdmin";
 import { ShieldEventsHandler } from "../services/ShieldEventsHandler";
+import { ShieldStrings } from "../services/ShieldStrings";
 import { TestRest } from "../components/general/TestRest";
 
 export class AppWpAdmin extends AppBase {
@@ -15,6 +16,7 @@ export class AppWpAdmin extends AppBase {
 
 	initEvents() {
 		global.shieldServices = ShieldServicesWpAdmin.Instance();
+		global.shieldStrings = new ShieldStrings( window.shield_vars_wpadmin.strings );
 		global.shieldEventsHandler_Main = new ShieldEventsHandler( {
 			events_container_selector: 'body'
 		} );

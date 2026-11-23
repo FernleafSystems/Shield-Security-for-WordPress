@@ -1,16 +1,8 @@
 {% extends '/components/modals/base_modal_content.twig' %}
-{% import '/common/macros.twig' as icwp_macros %}
 
 {% block modal_body %}
 	{% include '/wpadmin_pages/insights/scans/modal/scan_item_analysis/tabpanel.twig' %}
 {% endblock %}
 
-{% block modal_footer %}
-
-	{% set download_label %}
-		<i class="{{ imgs.svgs.file_download }}" aria-hidden="true"></i>
-		{{ strings.file_download }}
-	{% endset %}
-	{{ icwp_macros.tagAnchor(hrefs.file_download, download_label, '', ['btn', 'btn-dark', 'href-download'], false, [], not flags.can_download) }}
-
-{% endblock %}
+{# Every action on the file sits in the Overview's "Next actions", so there's no footer. #}
+{% block modal_footer_container %}{% endblock %}

@@ -103,7 +103,6 @@ abstract class BaseForm extends Base {
 			'ga'         => 'bi-phone',
 			'passkey'    => 'bi-fingerprint',
 			'yubi'       => 'bi-key-fill',
-			'sms'        => 'bi-chat-left-dots',
 			'u2f'        => 'bi-usb-symbol',
 			'backupcode' => 'bi-shield-lock',
 		][ $slug ] ?? 'bi-shield-lock';
@@ -115,7 +114,6 @@ abstract class BaseForm extends Base {
 			'ga'         => __( 'Authenticator', 'wp-simple-firewall' ),
 			'passkey'    => __( 'Passkey', 'wp-simple-firewall' ),
 			'yubi'       => __( 'YubiKey', 'wp-simple-firewall' ),
-			'sms'        => __( 'SMS', 'wp-simple-firewall' ),
 			'u2f'        => __( 'Security Key', 'wp-simple-firewall' ),
 			'backupcode' => __( 'Backup code', 'wp-simple-firewall' ),
 		][ $slug ] ?? $fallback;

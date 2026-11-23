@@ -9,8 +9,6 @@ import { PageQueryParam } from "../../util/PageQueryParam";
 /**
  * @typedef {Record<string, any> & {
  *   ajaxurl?: string,
- *   _wpnonce?: string,
- *   _rest_url?: string,
  *   altcha_solution?: string
  * }} SilentCaptchaRequestData
  *
@@ -23,6 +21,10 @@ import { PageQueryParam } from "../../util/PageQueryParam";
  * @typedef {{mode: 'cookie'|'cookie_free', required: Array<'notbot'|'altcha'>, exchange_valid: boolean, server_ts?: number}} SilentCaptchaResponseState
  * @typedef {{data: Record<string, any>, state: SilentCaptchaResponseState|null, modeChanged: boolean}} SilentCaptchaExchange
  */
+
+const START_EVENTS = [ 'pointerdown', 'pointermove', 'keydown', 'touchstart', 'wheel', 'scroll' ];
+const START_FALLBACK_MS = 10000;
+const START_LISTENER = { capture: true, passive: true };
 
 export class SilentCaptcha extends BaseAutoExecComponent {
 
@@ -47,6 +49,9 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 		this.answered = false;
 		this.timer = 0;
 		this.formSeen = false;
+		this.started = false;
+		this.startTimer = 0;
+		this.startOnInput = () => this.start();
 
 		/** @type {SilentCaptchaRequestData|null} */
 		this.silentCaptchaAjaxData = this.resolveSilentCaptchaAjaxData();
@@ -59,15 +64,41 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 	}
 
 	run() {
-		if ( this.mode === 'cookie' ) this.clearFreshness();
-		this.observeForms();
 		window.addEventListener( 'focus', () => {
 			this.window_focus_at = Date.now();
-			if ( this.mode === 'cookie_free' ) this.evaluate();
+			if ( this.started && this.mode === 'cookie_free' ) this.evaluate();
 		} );
 		window.addEventListener( 'blur', () => {
 			this.window_blur_at = Date.now();
 		} );
+		if ( this.mode === 'cookie' ) this.clearFreshness();
+		this.observeForms();
+		if ( this.config?.is_login === true || this.formSeen || this.isForceNotbotRequested() ) {
+			this.start();
+		}
+		else {
+			this.awaitVisitor();
+		}
+	};
+
+	/**
+	 * Bot decisions are made when forms are submitted, so a page without a form waits for the visitor's first input,
+	 * or START_FALLBACK_MS at most. A page load that ends sooner, e.g. a performance test, then sends no request.
+	 * Other uses of these signals, such as reputation scores and CrowdSec's notbotfail report, accept this short delay.
+	 */
+	awaitVisitor() {
+		for ( const event of START_EVENTS ) window.addEventListener( event, this.startOnInput, START_LISTENER );
+		this.startTimer = window.setTimeout( this.startOnInput, START_FALLBACK_MS );
+	}
+
+	/**
+	 * @returns {boolean} Whether this call started the checks.
+	 */
+	start() {
+		if ( this.started ) return false;
+		this.started = true;
+		window.clearTimeout( this.startTimer );
+		for ( const event of START_EVENTS ) window.removeEventListener( event, this.startOnInput, START_LISTENER );
 
 		for ( const event of [ 'pageshow', 'storage' ] ) {
 			window.addEventListener( event, () => {
@@ -78,7 +109,8 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 			if ( this.mode === 'cookie_free' ) this.evaluate();
 		} );
 		this.fire();
-	};
+		return true;
+	}
 
 	fire() {
 		if ( this.mode === 'cookie_free' ) {
@@ -316,8 +348,6 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 		this.answered = false;
 		const reqData = /** @type {SilentCaptchaRequestData} */ ( ObjectOps.ObjClone( requestData ) );
 		delete reqData.ajaxurl;
-		delete reqData._rest_url;
-		delete reqData._wpnonce;
 		const response = await fetch( this.silentCaptchaAjaxData.ajaxurl, this.constructFetchRequestData( reqData ) );
 		const body = await response.text();
 		this.answered = true;
@@ -453,23 +483,32 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 
 	observeForms() {
 		if ( this.config?.is_login ) return;
-		if ( document.querySelector( 'form' ) ) {
+		if ( this.hasRealForm( document.documentElement ) ) {
 			this.formSeen = true;
 			return;
 		}
 		const observer = new window.MutationObserver( records => {
 			for ( const record of records ) {
 				for ( const node of record.addedNodes ) {
-					if ( node instanceof Element && ( node.matches( 'form' ) || node.querySelector( 'form' ) ) ) {
+					if ( node instanceof Element && this.hasRealForm( node ) ) {
 						this.formSeen = true;
 						observer.disconnect();
-						if ( this.mode === 'cookie_free' ) this.evaluate();
+						if ( !this.start() && this.mode === 'cookie_free' ) this.evaluate();
 						return;
 					}
 				}
 			}
 		} );
 		observer.observe( document, { childList: true, subtree: true } );
+	}
+
+	/**
+	 * Search forms never reach a bot decision, so they don't count.
+	 * @param {Element} root
+	 */
+	hasRealForm( root ) {
+		const forms = root.matches( 'form' ) ? [ root ] : Array.from( root.querySelectorAll( 'form' ) );
+		return forms.some( form => !form.matches( '[role="search"]' ) && form.querySelector( 'input[name="s"]' ) === null );
 	}
 
 	/**

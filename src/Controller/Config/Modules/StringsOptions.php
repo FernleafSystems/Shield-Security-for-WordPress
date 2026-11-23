@@ -142,6 +142,15 @@ class StringsOptions {
 					__( 'To improve security, increase the number of scans per day.', 'wp-simple-firewall' )
 				];
 				break;
+			case 'maintenance_alert_items':
+				$name = __( 'Review Next Items', 'wp-simple-firewall' );
+				$summary = __( 'Plugin And Theme Maintenance Items To Include In Review Next', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Choose which plugin and theme maintenance items the Actions Queue asks you to review.', 'wp-simple-firewall' ),
+					__( "Items you leave out are no longer counted or reported anywhere, including the Actions Queue, the WordPress dashboard widget and reports.", 'wp-simple-firewall' ),
+					__( 'Vulnerable and abandoned plugins are always reported.', 'wp-simple-firewall' ),
+				];
+				break;
 			case 'enable_plugin_vulnerabilities_scan':
 				$name = __( 'Vulnerabilities Scanner', 'wp-simple-firewall' );
 				$summary = sprintf( __( 'Daily Cron - %s', 'wp-simple-firewall' ), __( 'Scans Plugins For Known Vulnerabilities', 'wp-simple-firewall' ) );
@@ -300,7 +309,7 @@ class StringsOptions {
 					__( 'Directories should be provided with a trailing slash (/).', 'wp-simple-firewall' ),
 					__( "If a path matches any core WordPress directories, it'll be removed automatically.", 'wp-simple-firewall' ),
 					__( "These aren't regular expression, but you can use asterisk (*) as a wildcard.", 'wp-simple-firewall' ),
-					sprintf( '%s: <code>%s</code>', __( 'WordPress Installation Directory', 'wp-simple-firewall' ), ABSPATH ),
+					sprintf( '%s: <code>%s</code>', __( 'WordPress Installation Directory', 'wp-simple-firewall' ), esc_html( ABSPATH ) ),
 				];
 				break;
 			case 'enabled_scan_apc':
@@ -490,7 +499,7 @@ class StringsOptions {
 					__( "Care should be taken to ensure that your website doesn't generate 404 errors for normal visitors.", 'wp-simple-firewall' ),
 					sprintf( '%s: <br/><strong>%s</strong>',
 						__( "404 errors generated for the following file types won't trigger an offense", 'wp-simple-firewall' ),
-						\implode( ', ', $con->comps->bot_signals->getAllowableExt404s() )
+						esc_html( \implode( ', ', $con->comps->bot_signals->getAllowableExt404s() ) )
 					),
 					$con->caps->canBotsAdvancedBlocking() ? '' : $this->getNoteForBots()
 				];
@@ -524,7 +533,7 @@ class StringsOptions {
 					sprintf( '%s: %s',
 						__( "Currently permitted scripts", 'wp-simple-firewall' ),
 						sprintf( '<ul><li><code>%s</code></li></ul>',
-							\implode( '</code></li><li><code>', $con->comps->bot_signals->getAllowableScripts() ) )
+							\implode( '</code></li><li><code>', \array_map( 'esc_html', $con->comps->bot_signals->getAllowableScripts() ) ) )
 					),
 					$con->caps->canBotsAdvancedBlocking() ? '' : $this->getNoteForBots()
 				];
@@ -713,7 +722,7 @@ class StringsOptions {
 						/* translators: %1$s: example path, %2$s: example URL */
 							__( 'Use relative paths from your homepage URL e.g. %1$s redirects to your homepage (%2$s).', 'wp-simple-firewall' ),
 							'<code>/</code>',
-							sprintf( '<code>%s</code>', Services::WpGeneral()->getHomeUrl() )
+							sprintf( '<code>%s</code>', esc_html( Services::WpGeneral()->getHomeUrl() ) )
 						)
 					),
 				];
@@ -757,12 +766,11 @@ class StringsOptions {
 				];
 				break;
 			case 'enable_google_authenticator':
-				$name = __( 'Google Authenticator', 'wp-simple-firewall' );
-				$summary = __( 'Allow Users To Use Google Authenticator', 'wp-simple-firewall' );
+				$name = __( 'TOTP Authenticator Apps', 'wp-simple-firewall' );
+				$summary = __( 'Allow Users To Use Google Authenticator, LastPass Authenticator, Microsoft Authenticator And Other TOTP Apps', 'wp-simple-firewall' );
 				$desc = [
-					__( 'When enabled, users will have the option to add Google Authenticator to their WordPress user profile', 'wp-simple-firewall' ),
-					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
-						sprintf( __( "Google Authenticator, LastPass Authenticator & Microsoft Authenticator are all supported by this option, but it is referred to as Google Authenticator for simplicity.", 'wp-simple-firewall' ), 'WooCommerce' ) ),
+					__( 'When enabled, users will have the option to add an authenticator app to their WordPress user profile.', 'wp-simple-firewall' ),
+					__( 'Any app that generates time-based one-time passwords (TOTP) is supported, including Google Authenticator, LastPass Authenticator, Microsoft Authenticator and Authy.', 'wp-simple-firewall' ),
 				];
 				break;
 			case 'enable_email_authentication':
@@ -805,10 +813,10 @@ class StringsOptions {
 				];
 				break;
 			case 'login_limit_interval':
-				$name = __( 'Cooldown Period', 'wp-simple-firewall' );
-				$summary = __( 'Limit account access requests to every X seconds', 'wp-simple-firewall' );
+				$name = __( 'Login Cooldown Period', 'wp-simple-firewall' );
+				$summary = __( 'Limit login attempts to one every X seconds', 'wp-simple-firewall' );
 				$desc = [
-					__( 'WordPress will process only ONE account access attempt per number of seconds specified.', 'wp-simple-firewall' ),
+					__( 'WordPress will process only ONE login attempt per number of seconds specified.', 'wp-simple-firewall' ),
 					__( 'Zero (0) turns this off.', 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $con->opts->optDefault( 'login_limit_interval' ) )
 				];
@@ -953,12 +961,17 @@ class StringsOptions {
 				];
 				break;
 
-			case 'enable_upgrade_admin_notice':
-				$name = __( 'In-Plugin Notices', 'wp-simple-firewall' );
-				$summary = __( 'Display Non-Essential Plugin Notices And Admin Bar Menu', 'wp-simple-firewall' );
+			case 'dashboard_display':
+				/* translators: %s: plugin name */
+				$name = sprintf( __( '%s In Your Dashboard', 'wp-simple-firewall' ), $pluginName );
+				/* translators: %s: plugin name */
+				$summary = sprintf( __( 'Choose Where %s Appears In The WordPress Dashboard', 'wp-simple-firewall' ), $pluginName );
 				$desc = [
-					sprintf( __( 'By default %s displays non-essential notices in the admin area and admin bar.', 'wp-simple-firewall' ), $pluginName ),
-					__( 'These notices can be hidden by switching off this option.', 'wp-simple-firewall' ),
+					/* translators: %s: plugin name */
+					sprintf( __( 'Choose which parts of %s appear in the WordPress dashboard: its non-essential notices, the admin bar menu, the dashboard widget, and the top-level admin menu.', 'wp-simple-firewall' ), $pluginName ),
+					/* translators: %s: plugin name */
+					sprintf( __( 'Without the top-level admin menu, %s is listed under the Tools menu instead. A network admin always keeps the top-level menu.', 'wp-simple-firewall' ), $pluginName ),
+					__( 'Security warnings and errors are always shown; only non-essential notices can be hidden.', 'wp-simple-firewall' ),
 				];
 				break;
 
@@ -990,7 +1003,7 @@ class StringsOptions {
 						.' '.sprintf( __( "It'll find a suitable location automatically, but if this fails, you may see PHP warnings on your site and certain %s functionality won't be available.", 'wp-simple-firewall' ), $pluginName ),
 						sprintf( __( "If you use the %s directive, this automatic process may fail and you'll need to use this option to specify a directory that WordPress can write to.", 'wp-simple-firewall' ),
 							sprintf( '<code>%s</code>', 'open_basedir' ) ),
-						sprintf( '<code>%s</code>: <code>%s</code>', __( 'ABSPATH', 'wp-simple-firewall' ), ABSPATH ),
+						sprintf( '<code>%s</code>: <code>%s</code>', __( 'ABSPATH', 'wp-simple-firewall' ), esc_html( ABSPATH ) ),
 					];
 				}
 				else {
@@ -1000,7 +1013,7 @@ class StringsOptions {
 						sprintf(
 						/* translators: %1$s: plugin name, %2$s: directory path */
 							__( '%1$s has successfully chosen the following location to create its temporary directory: %2$s', 'wp-simple-firewall' ), $pluginName,
-							sprintf( '<code>%s</code>', \dirname( $tmpDir ) ) ),
+							sprintf( '<code>%s</code>', esc_html( \dirname( $tmpDir ) ) ) ),
 						sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( 'You should only provide a value for this configuration option if you experience any trouble.', 'wp-simple-firewall' ) ),
 					];
 				}

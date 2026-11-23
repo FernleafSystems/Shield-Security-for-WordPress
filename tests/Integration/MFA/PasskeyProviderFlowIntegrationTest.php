@@ -246,11 +246,11 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$this->seedLoginIntent( $user, 'fixture-passkey-login' );
 
 		$provider = $this->assertPasskeyProviderActiveFor( $user );
-		$this->setPasskeyLoginOtpRequest( $provider, PasskeyFixtureLoader::authenticationResponse() );
+		$submitted = $this->passkeyLoginSubmission( $provider, PasskeyFixtureLoader::authenticationResponse() );
 
 		$validatedSlug = ( new LoginIntentRequestValidate() )
 			->setWpUser( $user )
-			->run( 'fixture-passkey-login' );
+			->run( 'fixture-passkey-login', $submitted );
 
 		$this->assertSame( Passkey::ProviderSlug(), $validatedSlug );
 		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
@@ -294,14 +294,14 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 
 			$emailProvider = new Email( $user );
 			$passkeyProvider = $this->assertPasskeyProviderActiveFor( $user );
-			$this->mergeCurrentRequestTransport( [
+			$submitted = [
 				$emailProvider->getLoginIntentFormParameter()   => 'ZZ99YY',
 				$passkeyProvider->getLoginIntentFormParameter() => \base64_encode( PasskeyFixtureLoader::authenticationResponse() ),
-			] );
+			];
 
 			$validatedSlug = ( new LoginIntentRequestValidate() )
 				->setWpUser( $user )
-				->run( 'fixture-email-passkey-login' );
+				->run( 'fixture-email-passkey-login', $submitted );
 
 			$this->assertSame( Passkey::ProviderSlug(), $validatedSlug );
 			$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
@@ -341,11 +341,11 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 			$this->seedLoginIntent( $user, 'fixture-passkey-login' );
 
 			$provider = $this->assertPasskeyProviderActiveFor( $user );
-			$this->setPasskeyLoginOtpRequest( $provider, PasskeyFixtureLoader::authenticationResponse() );
+			$submitted = $this->passkeyLoginSubmission( $provider, PasskeyFixtureLoader::authenticationResponse() );
 
 			$validatedSlug = ( new LoginIntentRequestValidate() )
 				->setWpUser( $user )
-				->run( 'fixture-passkey-login' );
+				->run( 'fixture-passkey-login', $submitted );
 
 			$this->assertSame( Passkey::ProviderSlug(), $validatedSlug );
 			$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
@@ -374,13 +374,13 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$this->seedLoginIntent( $user, 'fixture-passkey-login' );
 
 		$provider = $this->assertPasskeyProviderActiveFor( $user );
-		$this->setPasskeyLoginOtpRequest( $provider, PasskeyFixtureLoader::authenticationResponse() );
+		$submitted = $this->passkeyLoginSubmission( $provider, PasskeyFixtureLoader::authenticationResponse() );
 
 		$validatedSlug = ( new LoginIntentRequestValidate() )
 			->setWpUser( $user )
-			->run( 'fixture-passkey-login' );
+			->run( 'fixture-passkey-login', $submitted );
 
-		$record = $this->requireController()->db_con->mfa->getQuerySelector()->byId( $recordId );
+		$record =$this->requireController()->db_con->mfa->getQuerySelector()->byId( $recordId );
 		$this->assertSame( Passkey::ProviderSlug(), $validatedSlug );
 		$this->assertSame( 'empty', $record->data[ 'trustPath' ][ 'type' ] ?? '' );
 		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
@@ -398,7 +398,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$this->seedLoginIntent( $user, 'fixture-passkey-login' );
 
 		$provider = $this->assertPasskeyProviderActiveFor( $user );
-		$this->setPasskeyLoginOtpRequest(
+		$submitted = $this->passkeyLoginSubmission(
 			$provider,
 			PasskeyFixtureLoader::authenticationResponse( [], [
 				'origin' => 'https://evil.example',
@@ -410,7 +410,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		try {
 			( new LoginIntentRequestValidate() )
 				->setWpUser( $user )
-				->run( 'fixture-passkey-login' );
+				->run( 'fixture-passkey-login', $submitted );
 		}
 		finally {
 			$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_verify_fail' ) );

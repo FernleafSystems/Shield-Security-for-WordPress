@@ -2,14 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utilities\ThemeReinstaller;
 
-class ThemeReinstall extends ScansBase {
+class ThemeReinstall extends BaseAction {
 
 	use SecurityAdminRequired;
 
 	public const SLUG = 'theme_reinstall';
+
+	public static function ExternalAccess() :array {
+		return [
+			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
+		];
+	}
 
 	protected function exec() {
 		$stylesheet = sanitize_text_field( wp_unslash( $this->action_data[ 'stylesheet' ] ?? '' ) );

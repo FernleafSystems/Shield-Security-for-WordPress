@@ -14,12 +14,11 @@ trait MaintenanceAssetFixtures {
 	 */
 	protected function buildMaintenanceAssetServiceItems( array $pluginFixture = [], array $themeFixture = [] ) :array {
 		$pluginFixture = \array_merge( [
-			'updates'       => [],
-			'plugins'       => [],
-			'active'        => [],
-			'plugin_vos'    => [],
-			'activate_urls' => [],
-			'upgrade_urls'  => [],
+			'updates'      => [],
+			'plugins'      => [],
+			'active'       => [],
+			'plugin_vos'   => [],
+			'upgrade_urls' => [],
 		], $pluginFixture );
 		$themeFixture = \array_merge( [
 			'updates'        => [],

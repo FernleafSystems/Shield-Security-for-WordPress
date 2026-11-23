@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetFileLockCandidateDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
@@ -25,6 +25,45 @@ class ScansResultsRailTabAvailability {
 	 * }>
 	 */
 	private array $states = [];
+
+	/**
+	 * On Pro, the critical files left unlocked, which are something to review: how many, and what to say about
+	 * them. Null when every file is locked or the plan doesn't include File Locker.
+	 * @return array{not_locked_count:int,message:string}|null
+	 */
+	public function fileLockerReviewState() :?array {
+		if ( !self::con()->caps->hasCap( 'scan_file_locker' ) ) {
+			return null;
+		}
+
+		// Only the critical files this site has, and that apply to how it runs, count; those still to lock are
+		// the ones File Locker's panel offers to lock.
+		$candidates = new GetFileLockCandidateDisplays();
+		$notLocked = \count( $candidates->notSelected() );
+		if ( $notLocked < 1 ) {
+			return null;
+		}
+		$lockable = \count( $candidates->run() );
+		$locked = $lockable - $notLocked;
+
+		// A warning says what's wrong: the files left unlocked, rather than the ones that are locked.
+		return [
+			'not_locked_count' => $notLocked,
+			'message'          => $locked > 0
+				? \sprintf(
+					/* translators: %1$s: files not locked, %2$s: files that can be locked */
+					_n(
+						'%1$s of your %2$s critical files is not locked yet.',
+						'%1$s of your %2$s critical files are not locked yet.',
+						$notLocked,
+						'wp-simple-firewall'
+					),
+					$notLocked,
+					$lockable
+				)
+				: __( 'None of your critical files are locked yet.', 'wp-simple-firewall' ),
+		];
+	}
 
 	/**
 	 * @return array{
@@ -81,12 +120,7 @@ class ScansResultsRailTabAvailability {
 						'not_enabled',
 						__( 'Detect changes to WordPress core files', 'wp-simple-firewall' ),
 						[
-							$this->buildZoneComponentAction(
-								__( 'Turn On Scanning', 'wp-simple-firewall' ),
-								'file_scanning',
-								[ 'enable_core_file_integrity_scan', 'file_scan_areas' ],
-								'enable_core_file_integrity_scan'
-							),
+							$this->buildEnableAction( __( 'Turn On Scanning', 'wp-simple-firewall' ), 'wordpress' ),
 						]
 					) );
 				}
@@ -109,12 +143,7 @@ class ScansResultsRailTabAvailability {
 							'not_enabled',
 							__( 'Detect changes to plugin files', 'wp-simple-firewall' ),
 							[
-								$this->buildZoneComponentAction(
-									__( 'Turn On Scanning', 'wp-simple-firewall' ),
-									'file_scanning',
-									[ 'enable_core_file_integrity_scan', 'file_scan_areas' ],
-									'file_scan_areas'
-								),
+								$this->buildEnableAction( __( 'Turn On Scanning', 'wp-simple-firewall' ), 'plugins' ),
 							]
 						) );
 				}
@@ -137,12 +166,7 @@ class ScansResultsRailTabAvailability {
 							'not_enabled',
 							__( 'Detect changes to theme files', 'wp-simple-firewall' ),
 							[
-								$this->buildZoneComponentAction(
-									__( 'Turn On Scanning', 'wp-simple-firewall' ),
-									'file_scanning',
-									[ 'enable_core_file_integrity_scan', 'file_scan_areas' ],
-									'file_scan_areas'
-								),
+								$this->buildEnableAction( __( 'Turn On Scanning', 'wp-simple-firewall' ), 'themes' ),
 							]
 						) );
 				}
@@ -165,12 +189,7 @@ class ScansResultsRailTabAvailability {
 							'not_enabled',
 							__( 'Detect vulnerabilities in plugins and themes', 'wp-simple-firewall' ),
 							[
-								$this->buildZoneComponentAction(
-									__( 'Turn On Scanning', 'wp-simple-firewall' ),
-									'vulnerability_scanning',
-									[ 'enable_wpvuln_scan' ],
-									'enable_wpvuln_scan'
-								),
+								$this->buildEnableAction( __( 'Turn On Scanning', 'wp-simple-firewall' ), 'vulnerabilities' ),
 							]
 						) );
 				}
@@ -185,12 +204,7 @@ class ScansResultsRailTabAvailability {
 						'not_enabled',
 						__( 'Identify abandoned plugins and themes', 'wp-simple-firewall' ),
 						[
-							$this->buildZoneComponentAction(
-								__( 'Turn On Checks', 'wp-simple-firewall' ),
-								'vulnerability_scanning',
-								[ 'enabled_scan_apc' ],
-								'enabled_scan_apc'
-							),
+							$this->buildEnableAction( __( 'Turn On Checks', 'wp-simple-firewall' ), 'abandoned' ),
 						]
 					) );
 				}
@@ -213,12 +227,7 @@ class ScansResultsRailTabAvailability {
 							'not_enabled',
 							__( 'Detect malicious code in PHP files', 'wp-simple-firewall' ),
 							[
-								$this->buildZoneComponentAction(
-									__( 'Turn On Scanning', 'wp-simple-firewall' ),
-									'file_scanning',
-									[ 'enable_core_file_integrity_scan', 'file_scan_areas' ],
-									'file_scan_areas'
-								),
+								$this->buildEnableAction( __( 'Turn On Scanning', 'wp-simple-firewall' ), 'malware' ),
 							]
 						) );
 				}
@@ -226,11 +235,11 @@ class ScansResultsRailTabAvailability {
 
 			case 'file_locker':
 				$state[ 'show_in_fix_now' ] = true;
-				$state[ 'is_available' ] = self::con()->comps->file_locker->isEnabled()
-					&& self::con()->isPremiumActive();
+				$hasFileLocker = self::con()->caps->hasCap( 'scan_file_locker' );
+				$state[ 'is_available' ] = self::con()->comps->file_locker->isEnabled() && $hasFileLocker;
 				$state[ 'show_in_actions_queue' ] = $state[ 'is_available' ];
 				if ( !$state[ 'is_available' ] ) {
-					$state = \array_replace( $state, self::con()->isPremiumActive()
+					$state = \array_replace( $state, $hasFileLocker
 						? $this->buildDisabledState(
 							'not_enabled',
 							__( 'Detect changes to critical files', 'wp-simple-firewall' ),
@@ -290,42 +299,28 @@ class ScansResultsRailTabAvailability {
 	}
 
 	private function isPluginThemeScanRestricted() :bool {
-		return !self::con()->isPremiumActive() || !self::con()->caps->canScanPluginsThemesLocal();
+		return !self::con()->caps->canScanPluginsThemesLocal();
 	}
 
 	/**
-	 * @param list<string> $optionKeys
+	 * Switching a scan on opens the same one-switch dialog wherever it's offered.
 	 * @return DisabledPaneAction
 	 */
-	private function buildZoneComponentAction(
-		string $label,
-		string $zoneComponentSlug,
-		array $optionKeys = [],
-		string $configItem = ''
-	) :array {
-		$attributes = [
-			'data-zone_component_action' => ZoneComponentConfig::SLUG,
-			'data-zone_component_slug'   => $zoneComponentSlug,
-			'data-form_context'          => 'offcanvas',
-		];
-		if ( !empty( $optionKeys ) ) {
-			$attributes[ 'data-option_keys' ] = \implode( ',', $optionKeys );
-		}
-		if ( $configItem !== '' ) {
-			$attributes[ 'data-config_item' ] = $configItem;
-		}
-
+	private function buildEnableAction( string $label, string $scanKey ) :array {
 		return [
 			'type'         => 'navigate',
 			'label'        => $label,
 			'href'         => '',
 			'is_action'    => true,
-			'icon_class'   => 'bi bi-gear-fill',
+			'icon_class'   => 'bi bi-toggle-on',
 			'tooltip_attr' => '',
-			'class_name'   => 'zone_component_action',
+			'class_name'   => '',
 			'target'       => '',
 			'rel'          => '',
-			'attributes'   => $attributes,
+			'attributes'   => [
+				'data-enable-protection' => ( new ProtectionEnableDialogBuilder() )->forScan( $scanKey, 'bi bi-shield-check' ),
+				'aria-haspopup'          => 'dialog',
+			],
 		];
 	}
 

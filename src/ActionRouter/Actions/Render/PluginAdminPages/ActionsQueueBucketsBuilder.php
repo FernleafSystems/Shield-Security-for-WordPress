@@ -10,8 +10,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
+ * @phpstan-import-type CompactSummaryAction from ActionsQueueCompactSummaryRowBuilder
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
  * @phpstan-import-type GroupDefinition from ActionsQueueGroupDefinitions
+ * @phpstan-type HealthyRow array{
+ *   icon_class:string,
+ *   title:string,
+ *   inline_meta:string,
+ *   summary:string,
+ *   badge_label:string,
+ *   is_ignored:bool,
+ *   actions:list<CompactSummaryAction>,
+ *   drawer_json:string,
+ *   group_key:string,
+ *   zone:'scans'|'maintenance'
+ * }
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
  *   item_count:int,
@@ -32,7 +45,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   key:string,
  *   label:string,
  *   status:string,
- *   state_label:string,
  *   item_count:int,
  *   display_count:int,
  *   is_interactive:bool,
@@ -87,14 +99,12 @@ class ActionsQueueBucketsBuilder {
 				$definition[ 'icon_class' ],
 				$bucketSource[ 'item_count' ],
 				$summary,
-				[],
 				$headerOverrides
 			);
 			$buckets[] = [
 				'key'            => $bucketKey,
 				'label'          => $definition[ 'label' ],
 				'status'         => $status,
-				'state_label'    => $this->buildBucketStateLabel( $status, $bucketSource ),
 				'item_count'     => $bucketSource[ 'item_count' ],
 				'display_count'  => $this->buildBucketDisplayCount( $bucketSource ),
 				'is_interactive' => $bucketSource[ 'item_count' ] > 0
@@ -113,21 +123,24 @@ class ActionsQueueBucketsBuilder {
 	}
 
 	/**
+	 * A passing check as a row, with the group it belongs to, so the landing lists it once, and its zone.
 	 * @param AssessmentRowsByZone $assessmentRowsByZone
-	 * @return list<CompactSummaryRow>
+	 * @return list<HealthyRow>
 	 */
 	public function buildHealthyRows( array $assessmentRowsByZone ) :array {
 		$rows = [];
 
-		foreach ( $assessmentRowsByZone[ 'scans' ] as $row ) {
-			if ( $row[ 'status' ] === 'good' ) {
-				$rows[] = $this->buildHealthyRow( $row );
-			}
-		}
-
-		foreach ( $assessmentRowsByZone[ 'maintenance' ] as $row ) {
-			if ( $row[ 'status' ] === 'good' ) {
-				$rows[] = $this->buildHealthyRow( $row );
+		foreach ( [ 'scans', 'maintenance' ] as $zone ) {
+			foreach ( $assessmentRowsByZone[ $zone ] as $row ) {
+				if ( $row[ 'status' ] === 'good' ) {
+					// The group the row belongs to, so the landing lists it once, and which block it goes in.
+					$rows[] = $this->buildHealthyRow( $row ) + [
+						'group_key' => $zone === 'scans'
+							? $this->groupDefinitions()->groupKeyForSummaryKey( (string)$row[ 'key' ] )
+							: (string)$row[ 'key' ],
+						'zone'      => $zone,
+					];
+				}
 			}
 		}
 
@@ -201,6 +214,11 @@ class ActionsQueueBucketsBuilder {
 			if ( empty( $availability[ 'show_in_fix_now' ] ) || !empty( $availability[ 'is_available' ] ) ) {
 				continue;
 			}
+			// File Locker is switched on by locking files, which Review next asks for, so it's never listed as
+			// switched off; only as an upgrade.
+			if ( $groupKey === 'file_locker' && $availability[ 'disabled_reason' ] === 'not_enabled' ) {
+				continue;
+			}
 
 			$sources[ 'critical' ][ 'disabled_item_count' ]++;
 			$sources[ 'critical' ][ 'disabled_groups' ][ $groupKey ] = $availability;
@@ -236,7 +254,7 @@ class ActionsQueueBucketsBuilder {
 	 * @param BucketSource $bucketSource
 	 */
 	private function buildSummaryText( array $bucketSource ) :string {
-		$summaryParts = $this->buildAttentionSummaryParts( $bucketSource[ 'attention_items' ] );
+		$summaryParts = $this->buildSummaryParts( $bucketSource );
 
 		if ( empty( $summaryParts ) ) {
 			if ( $bucketSource[ 'healthy_item_count' ] > 0 ) {
@@ -252,15 +270,18 @@ class ActionsQueueBucketsBuilder {
 	}
 
 	/**
-	 * @param list<AttentionItem> $items
+	 * @param BucketSource $bucketSource
 	 * @return list<string>
 	 */
-	private function buildAttentionSummaryParts( array $items ) :array {
-		$counts = \array_fill_keys( \array_keys( $this->getGroupDefinitions() ), 0 );
+	private function buildSummaryParts( array $bucketSource ) :array {
+		// Files left unlocked aren't changes to look at, so they're named apart from File Locker's changes.
+		$counts = \array_fill_keys( \array_merge( \array_keys( $this->getGroupDefinitions() ), [ 'file_locker_unlocked' ] ), 0 );
 
-		foreach ( $items as $item ) {
-			$groupKey = $this->groupDefinitions()->groupKeyForSummaryKey( $item[ 'key' ] );
-			$counts[ $groupKey ] += $item[ 'count' ];
+		foreach ( $bucketSource[ 'attention_items' ] as $item ) {
+			$countKey = $item[ 'key' ] === 'file_locker_unlocked'
+				? $item[ 'key' ]
+				: $this->groupDefinitions()->groupKeyForSummaryKey( $item[ 'key' ] );
+			$counts[ $countKey ] += $item[ 'count' ];
 		}
 
 		return $this->buildOrderedSummaryParts( $counts, false );
@@ -331,6 +352,12 @@ class ActionsQueueBucketsBuilder {
 			case 'file_locker':
 				return \sprintf(
 					_n( '%s file change', '%s file changes', $count, 'wp-simple-firewall' ),
+					$count
+				);
+
+			case 'file_locker_unlocked':
+				return \sprintf(
+					_n( '%s critical file not locked', '%s critical files not locked', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
@@ -410,23 +437,6 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		return __( 'There is nothing to review here right now.', 'wp-simple-firewall' );
-	}
-
-	private function buildBucketStateLabel( string $status, array $bucketSource ) :string {
-		if ( $status === 'neutral' && $bucketSource[ 'disabled_item_count' ] > 0 ) {
-			return __( 'Needs Setup', 'wp-simple-firewall' );
-		}
-
-		switch ( $status ) {
-			case 'critical':
-				return __( 'Critical', 'wp-simple-firewall' );
-			case 'warning':
-				return __( 'Review', 'wp-simple-firewall' );
-			case 'good':
-				return __( 'Looking good', 'wp-simple-firewall' );
-			default:
-				return __( 'Unavailable', 'wp-simple-firewall' );
-		}
 	}
 
 	/**

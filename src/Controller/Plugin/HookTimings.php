@@ -6,7 +6,6 @@ class HookTimings {
 
 	public const INIT_DEFAULT_RULES_HOOK = -2000;
 	public const INIT_MAIN_CONTROLLER = -1000;
-	public const INIT_ANTIBOT_SETUP = -100;
 	public const INIT_USER_FORMS_SETUP = -100;
 	public const INIT_RULES_RESPONSE_IP_BLOCK_REQUEST_SHIELD = 3;
 	public const INIT_RULES_RESPONSE_IP_BLOCK_REQUEST_CROWDSEC = 4;
@@ -15,5 +14,4 @@ class HookTimings {
 	public const INIT_LOGIN_INTENT_REQUEST_CAPTURE = 9;
 	public const INIT_LOGIN_RENAME = 9;
 	public const TEMPLATE_REDIRECT_AFTER_WORDPRESS_REDIRECTS = 1001;
-	public const WPLOADED_ADMIN_PAGE_HANDLER = 5;
 }

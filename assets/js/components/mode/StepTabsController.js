@@ -165,6 +165,13 @@ export class StepTabsController extends BaseAutoExecComponent {
 		} );
 
 		const currentStep = this.extendInvestigatePath( shell, steps );
+		// Investigate's subjects open beneath its lookup, and Configure's goals open as tabs, so the trail
+		// stays at the mode itself; what's open still sets the context beside it.
+		if ( shell.querySelector( '[data-investigate-lookup="1"], [data-configure-tabs="1"]' ) !== null ) {
+			rootVisual.isCurrent = true;
+			rootVisual.target = null;
+			return { steps: steps.slice( 0, 2 ), currentStep };
+		}
 		return { steps, currentStep };
 	}
 

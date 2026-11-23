@@ -1,0 +1,30 @@
+{#
+ # The Security Admin PIN form, shared by the WP admin unlock dialog and Shield's restricted page.
+ #}
+
+{# The dialog header's icon, for both the dialog (built by JS) and the restricted page (rendered here). #}
+{% macro icon_class() %}dashicons dashicons-lock{% endmacro %}
+
+{# with_cancel: the dialog offers Cancel; the restricted page has nothing to cancel to. #}
+{% macro form( strings, hrefs, with_cancel ) %}
+	{% import '/common/macros.twig' as icwp_macros %}
+	<form id="ShieldSecAdminUnlockForm" class="shield-secadmin-unlock" method="post" novalidate>
+		<label for="ShieldSecAdminUnlockPin" class="screen-reader-text">{{ strings.aar_enter_access_key }}</label>
+		<div class="shield-secadmin-unlock__row">
+			{# The PIN is what this form is for, so the field asks for focus: the browser normally gives it as the
+			   restricted page is drawn, and the dialog gives it as it opens. #}
+			<input id="ShieldSecAdminUnlockPin" name="sec_admin_key" autofocus
+				   {{ icwp_macros.pinEntryAttributes( 'shield-secadmin-unlock__pin' ) }} />
+			{# Unlocking is sent by script, which enables this once it's listening. Until then the PIN can be typed,
+			   but pressing Enter doesn't send the form, where sending it would only draw the page again and lose it. #}
+			<button type="submit" class="button button-primary" disabled>{{ strings.aar_unlock }}</button>
+			{% if with_cancel %}
+				<button type="button" class="button" data-shield-secadmin-unlock-cancel>{{ strings.cancel }}</button>
+			{% endif %}
+		</div>
+		<p id="ShieldSecAdminUnlockMessage" class="shield-accessible-dialog__validation shield-secadmin-unlock__message"
+		   role="alert"></p>
+		<a class="shield-secadmin-unlock__forgot" href="{{ hrefs.aar_forget_key }}" target="_blank"
+		   rel="noopener noreferrer">{{ strings.aar_forget_key }}?</a>
+	</form>
+{% endmacro %}

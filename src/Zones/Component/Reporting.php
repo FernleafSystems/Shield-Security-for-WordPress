@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Reporting extends Base {
 
@@ -35,8 +34,7 @@ class Reporting extends Base {
 
 	protected function status() :array {
 		$status = parent::status();
-		$email = (string)self::con()->opts->optGet( 'block_send_email_address' );
-		if ( Services::Data()->validEmail( $email ) ) {
+		if ( self::con()->comps->opts_lookup->getChosenReportEmail() !== '' ) {
 			$status[ 'level' ] = EnumEnabledStatus::GOOD;
 			$status[ 'exp' ][] = __( 'A valid report email address is configured for security reporting.', 'wp-simple-firewall' );
 		}

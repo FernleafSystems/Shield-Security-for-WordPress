@@ -11,7 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	PhpFileActivity,
 	PhpFileActivityClassifier,
 	PluginEntry,
-	PluginPageView,
 	PluginVisibilityComparator,
 	RawPluginInventory
 };
@@ -47,18 +46,42 @@ class CloakedPluginsCon {
 		add_filter( 'all_plugins', [ $this->visibility, 'observeAllPlugins' ], \PHP_INT_MAX );
 		add_filter( 'show_advanced_plugins', [ $this->visibility, 'observeAdvancedPlugins' ], \PHP_INT_MAX, 2 );
 		add_action( 'activated_plugin', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
+		add_action( 'deleted_plugin', [ $this, 'forgetIgnoresOfRemovedPlugins' ], \PHP_INT_MAX - 1, 0 );
 		add_action( 'deleted_plugin', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
 		add_action( 'pre_uninstall_plugin', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
 		add_action( 'upgrader_process_complete', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
 		add_action( 'update_option_active_plugins', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 3 );
 		add_action( 'update_site_option_active_sitewide_plugins', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 4 );
 		add_filter( 'plugins_list', [ $this, 'observePluginsList' ], \PHP_INT_MAX );
-		( new PluginPageView() )->addHooks();
 	}
 
 	public function triggerDetection( ...$args ) :void {
 		unset( $args );
 		$this->detect();
+	}
+
+	/**
+	 * A plugin whose file has gone loses its ignore however it was removed: run from the hourly cron, before detect(),
+	 * and straight after WordPress deletes a plugin, so one reinstalled at the same place within the hour is reviewed
+	 * afresh. Not run during ordinary detection, which can fire part way through an update; cron events run one at a
+	 * time, and WordPress deletes plugins outside its updates.
+	 */
+	public function forgetIgnoresOfRemovedPlugins() :void {
+		if ( !$this->canRun() ) {
+			return;
+		}
+		$inventory = $this->inventory();
+		$standard = $inventory->scanStandardPlugins();
+		// Shield is a standard plugin itself, so finding none means the plugins folder couldn't be read.
+		if ( !empty( $standard ) ) {
+			( new CloakedPluginState() )->forgetIgnoresOfPluginsNotIn(
+				\array_merge( $standard, $inventory->scanMustUsePlugins() )
+			);
+		}
+	}
+
+	protected function inventory() :RawPluginInventory {
+		return new RawPluginInventory();
 	}
 
 	public function observePluginsList( $plugins ) {
@@ -104,7 +127,7 @@ class CloakedPluginsCon {
 		try {
 			$classifier = new PhpFileActivityClassifier();
 			$entries = \array_values( \array_filter(
-				( new RawPluginInventory() )->scan(),
+				$this->inventory()->scan(),
 				static fn( PluginEntry $entry ) :bool => PhpFileActivity::isAlertable( $classifier->classify( $entry->path ) )
 			) );
 

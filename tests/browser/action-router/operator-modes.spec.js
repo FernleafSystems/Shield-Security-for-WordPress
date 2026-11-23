@@ -150,8 +150,9 @@ test( 'configure sidebar zone actions are buttons that open accessible offcanvas
 	await dismissBlockingDialogs( page );
 
 	const originalUrl = page.url();
+	// Integrations opens in a side panel; White Label and Hide Login are pages of their own.
 	const whitelabelAction = page.locator(
-		'#NavSideBar button[data-zone_component_action="offcanvas_zone_component_config"][data-zone_component_slug="whitelabel"]'
+		'#NavSideBar button[data-zone_component_action="offcanvas_zone_component_config"][data-configure_panel="integrations:integrations"]'
 	).first();
 
 	await expect( whitelabelAction ).toBeVisible();
@@ -178,7 +179,12 @@ test( 'dashboard overview renders stable dashboard shell contracts without runti
 	await openShieldRoute( page, dashboardRoute );
 
 	await expect( page.locator( '[data-mode-shell="1"][data-mode="dashboard"]' ) ).toBeVisible();
-	await expect( page.locator( '[data-dashboard-live-monitor="1"]' ) ).toBeVisible();
+	// The Live Monitor starts closed unless the user left it open; the sidebar launcher opens it.
+	const monitor = page.locator( '[data-dashboard-live-monitor="1"]' );
+	if ( await monitor.getAttribute( 'data-is-collapsed' ) === '1' ) {
+		await page.locator( '[data-live-monitor-launch="1"]' ).click();
+	}
+	await expect( monitor ).toBeVisible();
 	await expectStatusLiveRegion( page.locator( '[data-dashboard-live-monitor="1"] [data-shield-status-region="1"]' ) );
 	await expectNoRuntimeErrors( runtimeErrors, 'dashboard overview shell render' );
 } );
@@ -193,7 +199,13 @@ test( 'dashboard overview exposes status summaries and destination cards as acce
 	await expect( status ).toHaveRole( 'region' );
 	await expect( status ).toHaveAccessibleName( /\S/ );
 	await expect( status ).not.toHaveAttribute( 'href' );
-	await expect( status.locator( 'a' ) ).toHaveCount( 2 );
+	await expect( status.locator( '[data-summary-id]' ) ).toHaveCount( 2 );
+	// With queued items the Launchpad adds one "Open Actions Queue" link, and no link per item.
+	const queueCta = status.locator( 'a.operator-mode-overview__queue-cta' );
+	await expect( status.locator( 'a' ) ).toHaveCount( 2 + await queueCta.count() );
+	for ( const cta of await queueCta.all() ) {
+		await expect( cta ).toHaveAttribute( 'href', /nav=scans/ );
+	}
 
 	for ( const summary of await status.locator( '[data-summary-id]' ).all() ) {
 		await expect( summary ).toHaveRole( 'link' );
@@ -328,8 +340,9 @@ test( 'dashboard overview wraps cards at narrow widths without horizontal overfl
 		return { top: box.top };
 	} ) );
 	expect( observedOverview ).not.toBeNull();
-	expect( boxes[ 1 ].top ).toBeGreaterThan( boxes[ 0 ].top );
-	expect( boxes[ 2 ].top ).toBeGreaterThan( boxes[ 1 ].top );
+	// The three destinations stay in one compact row at a normal desktop width.
+	expect( boxes[ 1 ].top ).toBe( boxes[ 0 ].top );
+	expect( boxes[ 2 ].top ).toBe( boxes[ 0 ].top );
 	expect( await overview.evaluate( ( element ) => element.scrollWidth <= element.clientWidth ) ).toBe( true );
 
 	await page.setViewportSize( { width: 375, height: 1000 } );
@@ -487,4 +500,15 @@ test( 'dashboard live monitor persists explicit collapsed state changes', async 
 	await dismissBlockingDialogs( page );
 	await expect( liveMonitor ).toHaveAttribute( 'data-is-collapsed', '0' );
 	await expect( liveMonitorToggle ).toHaveAttribute( 'aria-expanded', 'true' );
+
+	// The dashboard sidebar button closes and reopens the monitor; closed, the dock is gone.
+	const launcher = page.locator( '[data-live-monitor-launch="1"]' );
+	await expect( launcher ).toHaveAttribute( 'aria-expanded', 'true' );
+	await launcher.click();
+	await expect( liveMonitor ).toHaveAttribute( 'data-is-collapsed', '1' );
+	await expect( liveMonitor ).toBeHidden();
+	await expect( launcher ).toHaveAttribute( 'aria-expanded', 'false' );
+	await launcher.click();
+	await expect( liveMonitor ).toHaveAttribute( 'data-is-collapsed', '0' );
+	await expect( liveMonitor ).toBeVisible();
 } );

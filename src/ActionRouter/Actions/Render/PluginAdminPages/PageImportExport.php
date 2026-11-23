@@ -282,7 +282,7 @@ class PageImportExport extends PageModeLandingBase {
 				'summary'      => __( 'Upload a Shield export file.', 'wp-simple-firewall' ),
 				'form_id'      => 'ImportExportFileForm',
 				'form_action'  => '#',
-				'action_data'  => ActionData::Build( PluginImportFromFileUpload::class, true, [
+				'action_data'  => ActionData::Build( PluginImportFromFileUpload::class, false, [
 					'notification_type' => 'wp_admin_notice'
 				] ),
 				'file_input'   => [

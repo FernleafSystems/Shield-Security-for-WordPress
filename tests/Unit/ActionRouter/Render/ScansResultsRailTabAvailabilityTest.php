@@ -62,6 +62,18 @@ class ScansResultsRailTabAvailabilityTest extends BaseUnitTest {
 		$this->assertSame( [], $state[ 'disabled_actions' ] );
 	}
 
+	public function test_file_locker_is_nothing_to_review_without_the_file_locker_capability() :void {
+		UnitTestControllerFactory::install( null, null, (object)[
+			'caps' => new class {
+				public function hasCap( string $cap ) :bool {
+					return $cap !== 'scan_file_locker';
+				}
+			},
+		] );
+
+		$this->assertNull( ( new ScansResultsRailTabAvailability() )->fileLockerReviewState() );
+	}
+
 	public static function availabilityProvider() :array {
 		return [ 'available' => [ true ], 'unavailable' => [ false ] ];
 	}

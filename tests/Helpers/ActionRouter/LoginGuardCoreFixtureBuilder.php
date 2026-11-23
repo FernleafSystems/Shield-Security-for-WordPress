@@ -47,7 +47,9 @@ class LoginGuardCoreFixtureBuilder {
 		'enable_email_auto_login',
 		'enable_email_authentication',
 		'enable_google_authenticator',
+		'enable_user_login_email_notification',
 		'global_enable_plugin_features',
+		'instant_alert_admin_login',
 		'license_activated_at',
 		'license_data',
 		'license_deactivated_at',
@@ -489,6 +491,9 @@ class LoginGuardCoreFixtureBuilder {
 			->optSet( 'enable_google_authenticator', $enableGoogleAuthOpt )
 			->optSet( 'allow_backupcodes', $allowBackupCodesOpt )
 			->optSet( 'suresend_emails', [] )
+			// These scenarios count the emails sent, so a login may send no notification of its own.
+			->optSet( 'instant_alert_admin_login', 'disabled' )
+			->optSet( 'enable_user_login_email_notification', 'N' )
 			->optSet( 'mfa_skip', 0 )
 			->optSet( 'mfa_verify_page', MfaController::LOGIN_INTENT_PAGE_FORMAT_SHIELD )
 			->store();

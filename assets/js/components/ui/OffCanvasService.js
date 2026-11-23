@@ -53,11 +53,7 @@ export class OffCanvasService extends BaseComponent {
 		} );
 	}
 
-	renderConfig( config_item ) {
-		this.renderCanvas( this._base_data.mod_config, {
-			config_item: config_item
-		} ).finally();
-	};
+;
 
 	static RenderCanvas( canvasProperties = {}, options = {} ) {
 		const request = ObjectOps.ObjClone( canvasProperties );

@@ -425,16 +425,17 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function manualEmailAuthSave( string $enabled ) :bool {
+		$form = [
+			'all_opts_keys'               => 'enable_email_authentication',
+			'enable_email_authentication' => $enabled,
+		];
 		$this->applyCurrentRequestState(
 			[
 				'REQUEST_METHOD' => 'POST',
 				'REQUEST_URI'    => '/wp-admin/admin-ajax.php',
 			],
 			[],
-			[
-				'all_opts_keys'               => 'enable_email_authentication',
-				'enable_email_authentication' => $enabled,
-			],
+			$form,
 			[
 				'path'              => '/wp-admin/admin-ajax.php',
 				'is_security_admin' => true,
@@ -444,7 +445,7 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$bypass = static fn() :bool => true;
 		\add_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), $bypass, 1000 );
 		try {
-			return ( new HandleOptionsSaveRequest() )->handleSave();
+			return ( new HandleOptionsSaveRequest( $form ) )->handleSave();
 		}
 		finally {
 			\remove_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), $bypass, 1000 );

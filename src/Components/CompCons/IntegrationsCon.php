@@ -34,22 +34,43 @@ class IntegrationsCon {
 				$trk[ 'profile_hash' ] = $currentHash;
 				$opts->optSet( 'auto_integrations_track', $trk );
 
-				$ints = $this->buildIntegrationsStates();
-				/** @var BaseBotDetectionController $formCon */
-				foreach ( [ self::con()->comps->forms_users, self::con()->comps->forms_spam ] as $formCon ) {
-					$selected = $formCon->getSelectedProviders();
-					foreach ( \array_keys( $formCon->getInstalled() ) as $slug ) {
-						if ( ( $ints[ $slug ][ 'state' ] ?? '' ) === 'available' && $ints[ $slug ][ 'has_cap' ] ) {
-							$selected[] = $slug;
-						}
-					}
-					$opts->optSet( $formCon->getSelectedProvidersOptKey(), \array_values( \array_unique( $selected ) ) );
-				}
+				$this->switchOn();
 				if ( $opts->hasChanges() ) {
 					$opts->store();
 				}
 			}
 		}
+	}
+
+	/**
+	 * Switches on the integrations that are waiting to be: installed, not yet on, and covered by the plan.
+	 * Given a list, only those in it; anything else asked for is left as it is. The caller stores the options.
+	 * @param list<string>|null $slugs the integrations to switch on, or null for every one that's waiting
+	 * @return list<string> the names of the integrations switched on
+	 */
+	public function switchOn( ?array $slugs = null ) :array {
+		$states = $this->buildIntegrationsStates();
+		$switchedOn = [];
+		/** @var BaseBotDetectionController $formCon */
+		foreach ( [ self::con()->comps->forms_users, self::con()->comps->forms_spam ] as $formCon ) {
+			$adding = [];
+			foreach ( \array_keys( $formCon->getInstalled() ) as $slug ) {
+				if ( ( $slugs === null || \in_array( $slug, $slugs, true ) )
+					 && $states[ $slug ][ 'state' ] === 'available' && $states[ $slug ][ 'has_cap' ] ) {
+					$adding[] = $slug;
+				}
+			}
+			self::con()->opts->optSet(
+				$formCon->getSelectedProvidersOptKey(),
+				\array_values( \array_unique( \array_merge( $formCon->getSelectedProviders(), $adding ) ) )
+			);
+			// The option has the last word: it takes a list whole or not at all, so an integration counts as
+			// switched on only once it's in the list the option now holds.
+			foreach ( \array_intersect( $adding, $formCon->getSelectedProviders() ) as $slug ) {
+				$switchedOn[] = $states[ $slug ][ 'name' ];
+			}
+		}
+		return $switchedOn;
 	}
 
 	/**

@@ -11,6 +11,16 @@ abstract class BaseAutoUnblock {
 
 	use PluginControllerConsumer;
 
+	/**
+	 * The form submitted with the unblock request, as decoded by the entry point.
+	 */
+	protected array $submission = [];
+
+	public function setSubmission( array $submission ) :self {
+		$this->submission = $submission;
+		return $this;
+	}
+
 	public function canRunAutoUnblockProcess() :bool {
 		return $this->isUnblockAvailable();
 	}
@@ -87,7 +97,6 @@ abstract class BaseAutoUnblock {
 			error_log( 'Error updating bot signal with column problem: '.$e->getMessage() );
 		}
 		catch ( \Exception $e ) {
-//					error_log( 'Error updating bot signal: '.$e->getMessage() );
 		}
 
 		$unblocked = self::con()->db_con->ip_rules->getQueryUpdater()->updateById( $record->id, [
