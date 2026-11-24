@@ -1,7 +1,7 @@
 {
-    "version": "22.4.2",
-    "release_timestamp": 1795433000,
-    "build": "202611.2301",
+    "version": "22.4.3",
+    "release_timestamp": 1795510000,
+    "build": "202611.2401",
     "slug_parent": "icwp",
     "slug_plugin": "wpsf",
     "text_domain": "wp-simple-firewall",

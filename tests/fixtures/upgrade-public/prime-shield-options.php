@@ -51,6 +51,10 @@ $excludedPatterns = [
 $safetyResetPatterns = [
 	'/admin_access|rename_wplogin|hide_login|sec_admin|security_admin/i',
 ];
+// Legacy settings primed switched off, so the update runs the migrations that carry that state over.
+$legacyOffValues = [
+	'enable_upgrade_admin_notice' => 'N',
+];
 
 foreach ( $options as $key => $definition ) {
 	$optionKey = is_string( $key ) ? $key : (string)( is_array( $definition ) ? ( $definition[ 'key' ] ?? $definition[ 'name' ] ?? '' ) : '' );
@@ -79,7 +83,7 @@ foreach ( $options as $key => $definition ) {
 			continue;
 		}
 
-		$value = shield_upgrade_test_value_for_option( $definition );
+		$value = $legacyOffValues[ $optionKey ] ?? shield_upgrade_test_value_for_option( $definition );
 		if ( $value === null ) {
 			$report[ 'skipped' ][] = $optionKey;
 			continue;

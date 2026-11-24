@@ -204,7 +204,21 @@
         ]
       }
     ],
-    "patches":     []
+    "patches":     [
+      {
+        "version":     "3",
+        "released_at": 1795510000,
+        "items":       [
+          {
+            "type":        "fix",
+            "title":       "Prevent an fatal error notice during upgrade",
+            "description": [
+              "The Fatal error does no harm, but this release prevents it to remove any concerns clients may have."
+            ]
+          }
+        ]
+      }
+    ]
   },
   "22.3": {
     "version":     "22.3",
