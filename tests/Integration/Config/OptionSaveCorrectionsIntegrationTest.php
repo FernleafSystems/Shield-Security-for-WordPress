@@ -533,6 +533,31 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'Y', $con->opts->optGet( 'enable_upgrade_admin_notice' ) );
 	}
 
+	/**
+	 * Mid-update, the outgoing release's config is still loaded and has no dashboard display option.
+	 */
+	public function test_legacy_plugin_notices_wait_for_a_config_with_dashboard_display() :void {
+		$con = $this->requireController();
+		$current = $con->cfg->configuration;
+		$this->replaceStoredOptionValues( [ 'enable_upgrade_admin_notice' => 'N' ] );
+
+		$outgoing = $con->cfg->configuration;
+		$options = $outgoing->options;
+		unset( $options[ 'dashboard_display' ] );
+		$outgoing->options = $options;
+		$con->cfg->configuration = $outgoing;
+		try {
+			$con->opts = new OptsHandler();
+			$con->opts->store();
+		}
+		finally {
+			$con->cfg->configuration = $current;
+		}
+
+		$con->opts = new OptsHandler();
+		$this->assertSame( 'N', $con->opts->optGet( 'enable_upgrade_admin_notice' ) );
+	}
+
 	public function test_legacy_backup_codes_pro_option_migrates_to_free_during_store() :void {
 		$con = $this->requireController();
 
