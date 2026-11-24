@@ -1,9 +1,14 @@
 // Setup guide bar: fixed along the bottom of Shield admin pages, clear of the WordPress admin menu.
-// Follows the approved concept: one clear bar that opens into a fixed-height panel of steps.
+// Follows the approved concept: one clear bar that opens upwards into a fixed-height panel of steps. Opened,
+// the panel takes most of the window and the page behind it is dimmed.
 $setup-guide-line: #dcdcde;
 $setup-guide-soft-line: #eef0f1;
 $setup-guide-muted: #646970;
-$setup-guide-sheet-height: 640px;
+$setup-guide-link: #2271b1;
+$setup-guide-sheet-height: 820px;
+// What the opened panel leaves of the window: the admin bar, the guide's own bar, and a strip of the dimmed
+// page above it, which shows the page is still there and takes the click that minimises the guide.
+$setup-guide-sheet-clearance: calc(var(--wp-admin--admin-bar--height, 32px) + 100px);
 
 // Slides up into view; no fade, so the bar is never shown half-transparent.
 @keyframes shield-setup-guide-rise {
@@ -45,21 +50,40 @@ $setup-guide-sheet-height: 640px;
 	}
 }
 
+// The page behind the opened guide, dimmed. It sits under the admin menu and admin bar, and a click on it
+// minimises the guide.
+.shield-setup-guide-backdrop {
+	background: rgba(29, 35, 39, 0.45);
+	inset: 0;
+	position: fixed;
+	z-index: 9979;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
 .shield-setup-guide__bar {
 	align-items: center;
-	cursor: pointer;
 	display: flex;
 	flex-wrap: nowrap;
 	gap: 0.5rem 1rem;
 	padding: 0.8rem 5.5rem 0.8rem 1.25rem; // the right padding keeps clear of the floating help-desk button
 	transition: background-color 0.15s ease;
 
-	&:hover {
-		background: #f6fbf6;
+	// Minimised, the whole bar opens the guide.
+	.shield-setup-guide:not(.is-expanded) & {
+		cursor: pointer;
+
+		&:hover {
+			background: #f6fbf6;
+		}
 	}
 
+	// Opened, the bar is the panel's title bar, up clear of the help-desk button.
 	.is-expanded & {
 		border-bottom: 1px solid $setup-guide-line;
+		padding-right: 1.25rem;
 	}
 }
 
@@ -108,7 +132,7 @@ $setup-guide-sheet-height: 640px;
 
 .shield-setup-guide__title,
 .shield-setup-guide__count,
-.shield-setup-guide__link,
+.shield-setup-guide__leave,
 .shield-setup-guide__continue {
 	flex: none;
 }
@@ -125,15 +149,32 @@ $setup-guide-sheet-height: 640px;
 	flex: 1 1 auto;
 }
 
-// Collapsed, the bar is just progress and Continue; "Don't show again" appears once it's open, where
+// Minimised, the bar is just progress and Continue. Opened, it has the ways to leave the guide instead, and
 // the step list makes "Next" redundant.
-.shield-setup-guide:not(.is-expanded) .shield-setup-guide__bar .shield-setup-guide__link,
+.shield-setup-guide:not(.is-expanded) .shield-setup-guide__leave,
+.shield-setup-guide.is-expanded .shield-setup-guide__continue,
 .shield-setup-guide.is-expanded .shield-setup-guide__next {
 	display: none;
 }
 
+// "Minimise", with a menu beside it that also offers closing the guide for good: Bootstrap's own split
+// button and menu, only brought to the guide's text size.
+.shield-setup-guide__leave {
+	.btn,
+	.dropdown-item {
+		font-size: 13px;
+	}
+
+	.dropdown-item {
+		cursor: pointer;
+		padding-bottom: 0.4rem;
+		padding-top: 0.4rem;
+	}
+}
+
+// Every main button in the guide is the same button: the bar's, a step's own, and the guide's between steps.
 .shield-setup-guide__continue,
-.shield-setup-guide__close,
+.shield-setup-guide__button,
 .shield-setup-guide .merlin-form [type="submit"]:not(.btn-link) {
 	align-items: center;
 	background: $status-color-good;
@@ -147,7 +188,7 @@ $setup-guide-sheet-height: 640px;
 	gap: 0.45rem;
 	justify-content: center;
 	line-height: 1.3;
-	padding: 0.55rem 1.1rem;
+	padding: 0.55rem 1.1rem !important; // over the padding some of the wizard's own buttons carry
 	white-space: nowrap;
 
 	&:hover,
@@ -161,47 +202,26 @@ $setup-guide-sheet-height: 640px;
 	}
 }
 
-.shield-setup-guide__continue .bi {
-	transition: transform 0.15s ease;
-}
-
-.shield-setup-guide__continue[aria-expanded="true"] .bi {
-	transform: rotate(180deg);
-}
-
-.shield-setup-guide__link {
-	background: none;
-	border: 0;
-	color: $setup-guide-muted;
-	cursor: pointer;
-	font-size: 12px;
-	padding: 0;
-	text-decoration: underline;
-	text-underline-offset: 2px;
-
-	&:hover {
-		color: #1d2327;
-	}
-
-	&:focus-visible {
-		@include shield-focus-ring();
-	}
-}
-
-// A step's second choice (the report email step's "use the site admin email") reads as a link beside its button.
+// Every link in the guide looks the same, whatever it is underneath (a link, a button, a step's second way
+// of saving such as "use the site admin email"): the admin's own link blue, at the button's size, underlined.
+// Skipping a step is offered this way beside the step's main button, where it can't be missed.
+.shield-setup-guide__link,
 .shield-setup-guide .merlin-form .btn-link[type="submit"] {
 	background: none;
 	border: 0;
-	color: $status-text-color-good;
+	color: $setup-guide-link;
+	cursor: pointer;
 	font-size: 13px;
 	font-weight: 600;
+	line-height: 1.3;
 	padding: 0;
 	text-decoration: underline;
 	text-underline-offset: 2px;
 
 	&:hover,
 	&:focus {
-		color: #1d2327;
+		color: darken($setup-guide-link, 12%);
+		text-decoration: underline;
 	}
 
 	&:focus-visible {
@@ -209,12 +229,13 @@ $setup-guide-sheet-height: 640px;
 	}
 }
 
-// One fixed height whichever step is showing; long steps scroll inside the panel.
+// One fixed height whichever step is showing; long steps scroll inside the panel. The panel takes most of
+// the window, up from the bottom, and always leaves the admin bar and a strip of the page above it.
 .shield-setup-guide__sheet {
 	position: relative;
 	display: grid;
 	grid-template-columns: 260px minmax(0, 1fr);
-	height: min(#{$setup-guide-sheet-height}, calc(100vh - 110px));
+	height: min(#{$setup-guide-sheet-height}, calc(100vh - #{$setup-guide-sheet-clearance}));
 
 	&[hidden] {
 		display: none;
@@ -290,13 +311,46 @@ $setup-guide-sheet-height: 640px;
 		background: #ffffff;
 	}
 
+	// The step that's showing can't be mistaken for the others: tinted, barred, and its name in full weight.
 	&[aria-current="step"] {
-		background: #ffffff;
-		box-shadow: inset 3px 0 0 $status-color-good;
+		background: $status-bg-good-light;
+		box-shadow: inset 4px 0 0 $status-color-good;
+
+		.shield-setup-guide__step-name {
+			color: #1d2327;
+			font-weight: 700;
+		}
+
+		.shield-setup-guide__step-hint {
+			color: #3c434a;
+		}
 	}
 
 	&:focus-visible {
 		@include shield-focus-ring();
+	}
+}
+
+// The guide's last frame is in the list with the steps: a flag rather than a tick, and faint until every step
+// has been decided and it can be opened.
+.shield-setup-guide__step--summary {
+	.shield-setup-guide__check {
+		border-color: transparent;
+		color: $setup-guide-muted;
+		font-size: 0.95rem;
+	}
+
+	&[aria-current="step"] .shield-setup-guide__check {
+		color: $status-color-good;
+	}
+
+	&:disabled {
+		cursor: default;
+		opacity: 0.55;
+
+		&:hover {
+			background: none;
+		}
 	}
 }
 
@@ -306,11 +360,13 @@ $setup-guide-sheet-height: 640px;
 	min-width: 0;
 }
 
+// A step that has been decided, either way, steps back; the ones still to do stand out.
 .shield-setup-guide__step-name {
 	font-size: 13px;
 	font-weight: 600;
 
-	.is-done & {
+	.is-done &,
+	.is-skipped & {
 		color: $setup-guide-muted;
 	}
 }
@@ -331,10 +387,34 @@ $setup-guide-sheet-height: 640px;
 	justify-content: center;
 	width: 20px;
 
+	.bi-dash-lg {
+		display: none;
+	}
+
 	.is-done & {
 		background: $status-color-good;
 		border-color: $status-color-good;
 		color: #ffffff;
+	}
+
+	// In place without being saved here: a tick, but not the filled one a saved step gets.
+	.is-already & {
+		background: #ffffff;
+		color: $status-color-good;
+	}
+
+	// Skipped: decided, but not set up.
+	.is-skipped & {
+		border-style: dashed;
+		color: $setup-guide-muted;
+
+		.bi-check-lg {
+			display: none;
+		}
+
+		.bi-dash-lg {
+			display: inline;
+		}
 	}
 }
 
@@ -342,12 +422,16 @@ $setup-guide-sheet-height: 640px;
 	min-width: 0;
 	overflow-y: auto;
 	overscroll-behavior: contain;
-	padding: 1.25rem 5.5rem 1.5rem 1.5rem;
+	padding: 1.25rem 5.5rem 1.5rem 1.5rem; // the right padding keeps clear of the floating help-desk button
 }
 
 @media (max-width: 782px) {
 	.shield-setup-guide__panes {
 		padding: 1rem;
+	}
+
+	.shield-setup-guide__step-body .merlin-form-footer.shield-setup-guide__actions {
+		bottom: -1rem;
 	}
 }
 
@@ -431,13 +515,103 @@ $setup-guide-sheet-height: 640px;
 	margin: 0;
 }
 
-.shield-setup-guide__skip {
-	padding-top: 0.25rem;
-}
-
 .shield-setup-guide__done-note {
 	color: $status-text-color-good;
 	font-weight: 600;
+
+	.bi {
+		color: $status-color-good;
+	}
+}
+
+// A step's main button with its links beside it, level with each other, the same distance under every step.
+.shield-setup-guide__actions {
+	align-items: center;
+	display: flex !important;
+	flex-wrap: wrap;
+	gap: 0.6rem 1.1rem;
+	margin-top: 1rem !important;
+
+	[type="submit"] {
+		margin-top: 0 !important;
+	}
+}
+
+// A long step's buttons stay in view at the bottom of the panel while the step scrolls above them. A line and
+// a soft shadow set them apart from what scrolls underneath.
+.shield-setup-guide__step-body .merlin-form-footer.shield-setup-guide__actions {
+	background: #ffffff;
+	border-top: 1px solid $setup-guide-line;
+	bottom: -1.5rem; // the panel's own bottom padding, so the row sits flush with the bottom of the panel
+	box-shadow: 0 -14px 14px -14px rgba(29, 35, 39, 0.28);
+	padding: 1.1rem 0;
+	position: sticky;
+	z-index: 1;
+}
+
+// What the guide comes to: one table of its steps, each with how it was left and a way back to it. It's
+// drawn as the protection level step draws its list of settings.
+.shield-setup-guide__summary-table {
+	border: 1px solid $setup-guide-line;
+	border-collapse: separate;
+	border-radius: 6px;
+	border-spacing: 0;
+	font-size: 13px;
+	overflow: hidden;
+	width: 100%;
+
+	th,
+	td {
+		padding: 0.55rem 0.85rem;
+		text-align: left;
+		vertical-align: middle;
+	}
+
+	th {
+		background: #f6f7f7;
+		color: $setup-guide-muted;
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	td {
+		border-top: 1px solid $setup-guide-soft-line;
+	}
+
+	.shield-setup-guide__summary-step {
+		align-items: center;
+		color: #1d2327;
+		display: flex;
+		font-weight: 600;
+		gap: 0.75rem;
+	}
+
+	.shield-setup-guide__check {
+		flex: none;
+	}
+
+	.shield-setup-guide__summary-back {
+		text-align: right;
+		white-space: nowrap;
+	}
+}
+
+.shield-setup-guide__summary-status {
+	background: #f0f0f1;
+	border-radius: 999px;
+	color: $setup-guide-muted;
+	display: inline-block;
+	font-size: 11.5px;
+	font-weight: 600;
+	padding: 1px 9px;
+	white-space: nowrap;
+
+	.is-done & {
+		background: #e6f5e6;
+		color: $status-color-good;
+	}
 }
 
 // The wizard's step forms are laid out for a full-width wizard page. Inside the guide, stack
@@ -446,43 +620,44 @@ $setup-guide-sheet-height: 640px;
 	display: grid;
 	gap: 0.75rem;
 
-	h4.mb-3 {
-		display: none; // the pane already has the step's title
+	// The pane already has the step's title, so the wizard's own headings inside a step would only repeat it.
+	// They go with the row that holds them, so no gap is left where they were.
+	h4,
+	h6,
+	.row:has(> .col > h4, > .col > h6) {
+		display: none !important;
 	}
 
-	h6 {
-		border: 0 !important;
-		color: #1d2327;
-		font-size: 13px;
-		font-weight: 700;
-		margin: 0.25rem 0 0;
-		padding: 0 !important;
+	// The wizard's wording offers its own way to skip a step; the guide has one, beside the step's button.
+	p:has(> .skip-step) {
+		display: none;
+	}
+
+	// The badge step is one drop-down under a title that already names it, so its label is for screen readers only.
+	label[for="SecurityPluginBadge"] {
+		border: 0;
+		clip: rect(0, 0, 0, 0);
+		height: 1px;
+		margin: -1px;
+		overflow: hidden;
+		padding: 0;
+		position: absolute;
+		white-space: nowrap;
+		width: 1px;
 	}
 
 	ul {
 		margin: 0 0 0 1.1rem;
 	}
 
-	.merlin-form {
-		display: grid;
-		gap: 0.75rem;
-
-		&[hidden] {
-			display: none;
-		}
+	.merlin-form[hidden] {
+		display: none;
 	}
 
-	.merlin-report-email-actions {
-		margin-top: 0.6rem;
-
-		[type="submit"] {
-			margin-top: 0 !important;
-		}
-	}
-
+	// Rows keep no spacing of the wizard's own, so every step's fields and buttons are spaced alike.
 	.row {
 		display: block;
-		margin: 0;
+		margin: 0 !important;
 	}
 
 	[class*="col-"],
@@ -493,15 +668,9 @@ $setup-guide-sheet-height: 640px;
 		width: auto;
 	}
 
-	.form-group {
-		display: grid;
-		gap: 4px;
-		margin: 0;
-
-		+ .form-group,
-		+ .row {
-			margin-top: 0.85rem;
-		}
+	// A field is its label, its box, and any note under it. Fields sit the same distance apart.
+	.form-group + .form-group {
+		margin-top: 0.85rem !important;
 	}
 
 	.col-form-label,
@@ -513,24 +682,45 @@ $setup-guide-sheet-height: 640px;
 		padding: 0;
 	}
 
+	// Text boxes and drop-downs are one size.
 	.form-control,
 	.form-select {
 		border: 1px solid #8c8f94;
 		border-radius: 4px;
 		font-size: 13px;
+		height: 34px;
+		line-height: 1.5;
+		margin: 0 !important;
 		max-width: 360px;
 		min-height: 34px;
 		padding: 5px 9px;
 	}
 
+	.form-select {
+		padding-right: 2rem;
+	}
+
 	.form-text,
 	small {
 		color: $setup-guide-muted;
+		display: block;
 		font-size: 12px;
+		margin-top: 4px;
+
+		&[hidden] {
+			display: none;
+		}
+	}
+
+	// A step's row of buttons sits the same distance under whatever is above it, in every step.
+	.shield-setup-guide__actions,
+	.merlin-report-email-actions {
+		gap: 0.6rem 1.1rem;
+		margin-top: 1rem !important;
 	}
 
 	[type="submit"] {
-		margin-top: 0.25rem !important;
+		margin: 0 !important;
 	}
 
 	.merlin-form-footer {
@@ -539,6 +729,14 @@ $setup-guide-sheet-height: 640px;
 		justify-content: flex-start;
 		padding: 0;
 	}
+}
+
+// A step's "saved" message shows in the bottom corner of the opened guide, clear of the guide's own buttons
+// and of the help-desk button.
+body:has(.shield-setup-guide.is-expanded) .shield-toaster {
+	bottom: 1.5rem;
+	right: 6.5rem;
+	top: auto;
 }
 
 // Leave room below page content inside the content column, so the sidebar runs all the way down

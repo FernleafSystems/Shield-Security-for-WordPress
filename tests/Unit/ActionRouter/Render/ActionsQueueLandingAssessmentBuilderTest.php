@@ -111,7 +111,7 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 			[
 				'system_php_version' => [
 					'label'       => 'PHP Version',
-					'description' => 'This maintenance item is currently ignored.',
+					'description' => 'This to-do is currently ignored.',
 					'severity'    => 'good',
 				],
 			]

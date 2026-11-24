@@ -364,8 +364,8 @@ class ActionsQueueBucketsBuilder {
 			case 'maintenance':
 				return \sprintf(
 					$useChecksLabel
-						? _n( '%s maintenance check', '%s maintenance checks', $count, 'wp-simple-firewall' )
-						: _n( '%s maintenance item', '%s maintenance items', $count, 'wp-simple-firewall' ),
+						? _n( '%s check', '%s checks', $count, 'wp-simple-firewall' )
+						: _n( '%s to-do', '%s to-dos', $count, 'wp-simple-firewall' ),
 					$count
 				);
 

@@ -93,6 +93,17 @@ class PhpFutureMinimumTest extends BaseUnitTest {
 		$this->assertTrue( (bool)$payload[ 'can_dismiss' ] );
 	}
 
+	public function test_the_recommendation_waits_out_a_new_installs_first_day_but_the_warning_does_not() :void {
+		$this->installEnvironment( '8.2.20', 0, self::NOW - 3600 );
+		$this->assertNull( ( new PhpFutureMinimum() )->check() );
+
+		$this->installEnvironment( '8.2.20', 0, self::NOW - 2 * 86400 );
+		$this->assertSame( 'info', ( new PhpFutureMinimum() )->check()[ 'type' ] ?? '' );
+
+		$this->installEnvironment( '8.1.29', 0, self::NOW - 3600 );
+		$this->assertSame( 'danger', ( new PhpFutureMinimum() )->check()[ 'type' ] ?? '' );
+	}
+
 	/**
 	 * @dataProvider providerHiddenPhpVersions
 	 */
@@ -109,7 +120,10 @@ class PhpFutureMinimumTest extends BaseUnitTest {
 		];
 	}
 
-	private function installEnvironment( string $phpVersion, int $snoozedAt = 0 ) :PhpFutureMinimumUserMetaStub {
+	/**
+	 * @param int $installedAt when the plugin was installed; long ago unless a test is about a new install
+	 */
+	private function installEnvironment( string $phpVersion, int $snoozedAt = 0, int $installedAt = 1600000000 ) :PhpFutureMinimumUserMetaStub {
 		$meta = new PhpFutureMinimumUserMetaStub( $snoozedAt );
 		ServicesState::installItems( [
 			'service_data'    => new PhpFutureMinimumDataStub( $phpVersion ),
@@ -117,7 +131,8 @@ class PhpFutureMinimumTest extends BaseUnitTest {
 		] );
 		PluginControllerInstaller::install(
 			new PhpFutureMinimumControllerStub(
-				new PhpFutureMinimumUserMetasStub( $meta )
+				new PhpFutureMinimumUserMetasStub( $meta ),
+				$installedAt
 			)
 		);
 
@@ -127,8 +142,22 @@ class PhpFutureMinimumTest extends BaseUnitTest {
 
 class PhpFutureMinimumControllerStub extends Controller {
 
-	public function __construct( object $userMetas ) {
+	public function __construct( object $userMetas, int $installedAt ) {
 		$this->user_metas = $userMetas;
+		$this->comps = (object)[
+			'opts_lookup' => new class( $installedAt ) {
+
+				private int $installedAt;
+
+				public function __construct( int $installedAt ) {
+					$this->installedAt = $installedAt;
+				}
+
+				public function getInstalledAt() :int {
+					return $this->installedAt;
+				}
+			},
+		];
 	}
 }
 

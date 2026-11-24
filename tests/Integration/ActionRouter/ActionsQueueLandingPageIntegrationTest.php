@@ -574,7 +574,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 			$zoneTiles = $this->landingZoneTiles();
 
-			$this->assertModeShellPayload( $vars, 'actions', 'actions', false );
+			// With nothing in the queue its breadcrumb is drawn as all clear.
+			$this->assertModeShellPayload( $vars, 'actions', 'good', false );
 			$this->assertModePanelPayload( $vars, '', false );
 			$this->assertSame( 'good', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge_status' ] ?? '' ) );
 			$this->assertIsString( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? null );
@@ -605,7 +606,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$maintenance = $this->findZoneTile( $zoneTiles, 'maintenance' );
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
 
-		$this->assertModeShellPayload( $vars, 'actions', 'actions', false );
+		// The queue's breadcrumb takes the status of the queue's most severe item.
+		$this->assertModeShellPayload(
+			$vars,
+			'actions',
+			$this->requireController()->comps->site_query->attention()[ 'summary' ][ 'severity' ],
+			false
+		);
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertSame( '', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? '' ) );
@@ -745,7 +752,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'queue_is_empty', $payload[ 'landing_refresh' ] ?? [] );
 		$this->assertTrue( (bool)( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] ?? false ) );
 		$rootStep = \json_decode( (string)( $payload[ 'landing_refresh' ][ 'root_step_json' ] ?? '' ), true );
-		$this->assertSame( 'actions', (string)( $rootStep[ 'color_key' ] ?? '' ) );
+		// The queue's breadcrumb chip takes the queue's own status, rather than one fixed colour.
+		$this->assertSame( (string)( $rootStep[ 'badge_status' ] ?? '' ), (string)( $rootStep[ 'color_key' ] ?? '' ) );
+		$this->assertNotSame( 'actions', (string)( $rootStep[ 'color_key' ] ?? '' ) );
 		$this->assertArrayHasKey( 'buckets_html', $payload[ 'landing_refresh' ] ?? [] );
 		$this->assertIsString( $payload[ 'landing_refresh' ][ 'buckets_html' ] );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );

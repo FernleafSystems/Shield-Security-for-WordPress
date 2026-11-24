@@ -257,14 +257,25 @@
   }
 }
 
-.protection-levels__closest {
-  background: #e8f0fb;
+.protection-levels__recommended {
+  background: $status-color-good;
   border-radius: 999px;
-  color: #0a4b8f;
+  color: #ffffff;
   font-size: 11px;
   font-weight: 600;
   padding: 1px 8px;
   white-space: nowrap;
+}
+
+// A level that would loosen what the site has says so on its card, before it's chosen.
+.protection-levels__loosens {
+  background: #fcf0e3;
+  border-radius: 4px;
+  color: #8a4b00;
+  font-size: 12px;
+  font-weight: 600;
+  justify-self: start;
+  padding: 1px 7px;
 }
 
 .protection-levels__subtitle {
@@ -312,6 +323,35 @@
   &.is-looser {
     background: #fef6e6;
     color: #946200;
+  }
+}
+
+// The count of settings a level leaves alone shows and hides them.
+.protection-levels__chip--toggle {
+  align-items: center;
+  border: 1px solid #c3c4c7;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 5px;
+  line-height: inherit;
+
+  .bi {
+    font-size: 0.7rem;
+    transition: transform 0.15s ease;
+  }
+
+  &:hover {
+    background: #e2e4e7;
+    color: #1d2327;
+  }
+
+  &[aria-pressed="true"] {
+    background: #e2e4e7;
+    color: #1d2327;
+
+    .bi {
+      transform: rotate(180deg);
+    }
   }
 }
 
@@ -441,16 +481,6 @@
   flex-wrap: wrap;
   gap: 0.6rem 1.25rem;
   text-align: left;
-}
-
-.protection-levels__only-changes {
-  align-items: center;
-  color: #646970;
-  cursor: pointer;
-  display: inline-flex;
-  font-size: 12.5px;
-  gap: 6px;
-  margin: 0;
 }
 
 @media (max-width: 782px) {

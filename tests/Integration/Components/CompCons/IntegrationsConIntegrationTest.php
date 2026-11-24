@@ -276,8 +276,7 @@ class IntegrationsConIntegrationTest extends ShieldIntegrationTestCase {
 
 	/**
 	 * In the setup guide a finished Integrations step can be gone over again while something is waiting to be
-	 * switched on. Once nothing is, the link goes, and the step counts as changed so a page showing it draws it
-	 * again.
+	 * switched on. Once nothing is, the step leaves the guide.
 	 */
 	public function test_setup_guide_offers_to_go_over_integrations_only_while_something_is_waiting() :void {
 		$this->enablePremiumCapabilities( [ 'thirdparty_scan_spam', 'thirdparty_scan_users' ] );
@@ -288,8 +287,8 @@ class IntegrationsConIntegrationTest extends ShieldIntegrationTestCase {
 
 		try {
 			( new SetupGuideState() )->markDone( 'integrations' );
-			$whileWaiting = $this->setupGuideStep( 'integrations' );
-			$this->assertTrue( $whileWaiting[ 'is_done' ] );
+			$whileWaiting = $this->setupGuideSteps()[ 'integrations' ];
+			$this->assertTrue( $whileWaiting[ 'is_set_up' ] );
 			$this->assertSame( '', $whileWaiting[ 'body' ] );
 			$this->assertNotSame( '', $whileWaiting[ 'redo_href' ] );
 
@@ -297,11 +296,7 @@ class IntegrationsConIntegrationTest extends ShieldIntegrationTestCase {
 			$con->opts->store();
 			$this->resetProviderCaches();
 
-			$withNoneWaiting = $this->setupGuideStep( 'integrations' );
-			$this->assertTrue( $withNoneWaiting[ 'is_done' ] );
-			$this->assertSame( '', $withNoneWaiting[ 'body' ] );
-			$this->assertSame( '', $withNoneWaiting[ 'redo_href' ] );
-			$this->assertNotSame( $whileWaiting[ 'version' ], $withNoneWaiting[ 'version' ] );
+			$this->assertArrayNotHasKey( 'integrations', $this->setupGuideSteps() );
 		}
 		finally {
 			\remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
@@ -309,8 +304,11 @@ class IntegrationsConIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
-	private function setupGuideStep( string $slug ) :array {
-		return \array_column( ( new SetupGuideDataBuilder() )->build()[ 'steps' ], null, 'slug' )[ $slug ];
+	/**
+	 * @return array<string,array<string,mixed>> the guide's steps, by slug
+	 */
+	private function setupGuideSteps() :array {
+		return \array_column( ( new SetupGuideDataBuilder() )->build()[ 'steps' ], null, 'slug' );
 	}
 
 	/**

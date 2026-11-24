@@ -61,8 +61,21 @@ test( 'with every abandoned plugin ignored, the group is passing and they can st
 		await openQueue( page );
 		await openSection( page, 'critical' );
 
+		const queueItem = page.locator( '#NavSideBar a[data-mode="actions"]' );
+		const queueIcon = queueItem.locator( '.mode-icon > i' );
+		await expect( queueItem ).toHaveAttribute( 'data-queue-status', 'critical' );
+		const alertIcon = await queueIcon.getAttribute( 'class' );
+		const queueChip = page.locator( '[data-operator-step-tabs-list="1"] .operator-step-tabs__tab.is-active' );
+		await expect( queueChip ).toHaveAttribute( 'data-color-key', 'critical' );
+
 		await abandonedGroup( page ).locator( '[data-actions-queue-maintenance-all="ignore"]' ).click();
 		await expect( section( page, 'passing' ).locator( '[data-actions-queue-group-key="abandoned"]' ) ).toHaveCount( 1, { timeout: 30_000 } );
+
+		// With nothing critical left, the sidebar's queue item and the queue's breadcrumb stop being drawn as an
+		// alert, on the same page.
+		await expect( queueItem ).not.toHaveAttribute( 'data-queue-status', 'critical' );
+		await expect( queueIcon ).not.toHaveClass( alertIcon );
+		await expect( queueChip ).not.toHaveAttribute( 'data-color-key', 'critical' );
 
 		// Ignored results count for nothing, in the sidebar or the admin bar. A fresh page also has to refresh in
 		// place once it restores one, without an earlier action in the same page having prepared the queue.

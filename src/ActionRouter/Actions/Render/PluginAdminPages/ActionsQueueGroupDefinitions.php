@@ -431,7 +431,7 @@ class ActionsQueueGroupDefinitions {
 				return __( 'Critical File Locker', 'wp-simple-firewall' );
 
 			case 'maintenance':
-				return __( 'Maintenance Items', 'wp-simple-firewall' );
+				return __( 'To-dos', 'wp-simple-firewall' );
 
 			default:
 				return '';

@@ -545,8 +545,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 		$actionClass = $isIgnored ? MaintenanceItemUnignore::class : MaintenanceItemIgnore::class;
 		$label = $isIgnored ? __( 'Stop ignoring', 'wp-simple-firewall' ) : __( 'Ignore', 'wp-simple-firewall' );
 		$tooltip = $isIgnored
-			? __( 'Stop ignoring this maintenance item', 'wp-simple-firewall' )
-			: __( 'Ignore this maintenance item', 'wp-simple-firewall' );
+			? __( 'Stop ignoring this to-do', 'wp-simple-firewall' )
+			: __( 'Ignore this to-do', 'wp-simple-firewall' );
 		$ajaxAction = ActionData::Build( $actionClass, true, \array_filter( [
 			'maintenance_key' => $maintenanceKey,
 			'identifier'      => $identifier,

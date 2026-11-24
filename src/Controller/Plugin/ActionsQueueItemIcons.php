@@ -38,6 +38,17 @@ class ActionsQueueItemIcons {
 		'abandoned'         => 'archive',
 	];
 
+	/**
+	 * The queue's own icon follows its most severe item: an alert for anything critical, a ticked shield when
+	 * there's nothing to do, and otherwise a to-do list, as everything that isn't critical is a to-do.
+	 */
+	private const QUEUE_STATUS_ICON_CLASSES = [
+		'critical' => 'bi bi-exclamation-triangle-fill',
+		'good'     => 'bi bi-shield-fill-check',
+	];
+
+	private const QUEUE_TODO_ICON_CLASS = 'bi bi-clipboard-check-fill';
+
 	private const MAINTENANCE_ICONS = [
 		'report_email'           => 'envelope',
 		'wp_updates'             => 'wordpress',
@@ -51,6 +62,10 @@ class ActionsQueueItemIcons {
 		'system_lib_openssl'     => 'key-fill',
 		'wp_db_password'         => 'database-fill-lock',
 	];
+
+	public function iconClassForQueueStatus( string $status ) :string {
+		return self::QUEUE_STATUS_ICON_CLASSES[ $status ] ?? self::QUEUE_TODO_ICON_CLASS;
+	}
 
 	public function iconClassForKey( string $key ) :string {
 		return $this->iconClassForIcon( $this->iconForKey( $key ) );

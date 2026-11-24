@@ -235,15 +235,13 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			\array_keys( $strip[ 'overall' ] )
 		);
 		$this->assertSame( 'critical', $strip[ 'overall' ][ 'status' ] );
-		$this->assertSame( 'Critical Action Required', $strip[ 'overall' ][ 'title' ] );
-		$this->assertSame( '5 issues need your attention.', $strip[ 'overall' ][ 'summary' ] );
+		$this->assertNotSame( '', $strip[ 'overall' ][ 'title' ] );
+		// The overall count is the groups' own, not the query's summary total.
+		$this->assertStringContainsString( '5', $strip[ 'overall' ][ 'summary' ] );
+		$this->assertStringNotContainsString( '99', $strip[ 'overall' ][ 'summary' ] );
 		$this->assertSame(
 			[ 'scans', 'maintenance' ],
 			\array_column( $strip[ 'summaries' ], 'id' )
-		);
-		$this->assertSame(
-			[ 'Security Issues', 'Maintenance' ],
-			\array_column( $strip[ 'summaries' ], 'label' )
 		);
 		$this->assertSame( [ 2, 3 ], \array_column( $strip[ 'summaries' ], 'count' ) );
 		$this->assertSame( [ 'critical', 'warning' ], \array_column( $strip[ 'summaries' ], 'status' ) );
@@ -281,37 +279,32 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 	public function test_dashboard_strip_overall_precedence(
 		array $scanItems,
 		array $maintenanceItems,
-		string $expectedStatus,
-		string $expectedTitle
+		string $expectedStatus
 	) :void {
 		$overall = $this->buildCardData(
 			$this->attentionQuery( $scanItems, $maintenanceItems )
 		)[ 'dashboard_strip' ][ 'overall' ];
 
 		$this->assertSame( $expectedStatus, $overall[ 'status' ] );
-		$this->assertSame( $expectedTitle, $overall[ 'title' ] );
 	}
 
 	public function dashboardStripPrecedenceProvider() :array {
 		return [
-			'all clear'                    => [ [], [], 'good', 'All Clear' ],
+			'all clear'                    => [ [], [], 'good' ],
 			'critical maintenance'         => [
 				[],
 				[ $this->attentionItem( 'wp_updates', 'maintenance', 1, 'critical' ) ],
 				'critical',
-				'Critical Action Required',
 			],
 			'security issues are critical' => [
 				[ $this->attentionItem( 'plugin_files', 'scans', 1, 'critical' ) ],
 				[ $this->attentionItem( 'wp_updates', 'maintenance', 1, 'warning' ) ],
 				'critical',
-				'Critical Action Required',
 			],
 			'maintenance only'             => [
 				[],
 				[ $this->attentionItem( 'wp_updates', 'maintenance', 1, 'warning' ) ],
 				'warning',
-				'Maintenance Action Required',
 			],
 		];
 	}

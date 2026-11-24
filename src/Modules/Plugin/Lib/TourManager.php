@@ -70,14 +70,14 @@ class TourManager {
 		return ( !empty( $meta ) && \is_array( $meta->tours ) ) ? $meta->tours : [];
 	}
 
-	public function userSeenTour( string $tour ): bool {
-		return ( $this->getUserTourStates()[ $tour ] ?? 0 ) > 0;
-	}
-
+	/**
+	 * A tour runs when it's asked for (the setup guide's summary and the dashboard's guide card link to it),
+	 * never by itself: a new install opens on the setup guide, and one thing at a time is enough.
+	 */
 	private function isTourAvailable( string $tourKey ): bool {
 		return \in_array( $tourKey, $this->getAllTours(), true )
 		       && $this->isLaunchAllowed()
-		       && ( $this->isForcedTour( $tourKey ) || !$this->userSeenTour( $tourKey ) );
+		       && $this->isAskedFor( $tourKey );
 	}
 
 	private function isLaunchAllowed(): bool {
@@ -101,7 +101,7 @@ class TourManager {
 		return $subNav === PluginNavs::SUBNAV_DASHBOARD_OVERVIEW;
 	}
 
-	private function isForcedTour( string $tourKey ): bool {
+	private function isAskedFor( string $tourKey ): bool {
 		$forceTour = sanitize_key( (string)Services::Request()->query( 'force_tour' ) );
 		return $forceTour === '1' || $forceTour === $tourKey;
 	}
@@ -182,23 +182,16 @@ class TourManager {
 			[
 				'selector' => '[data-shield-tour="sidebar-menu"]',
 				'title'    => __( 'Sidebar Menu', 'wp-simple-firewall' ),
-				'intro'    => __( 'The sidebar menu helps you move between operator areas.', 'wp-simple-firewall' ),
+				'intro'    => __( "The sidebar menu takes you between Shield's main areas.", 'wp-simple-firewall' ),
 				'position' => 'right',
 				'required' => true,
 			],
 			[
 				'selector' => '[data-shield-tour="dashboard-actions"]',
-				'title'    => __( 'Actions Queue', 'wp-simple-firewall' ),
-				'intro'    => __( 'This is the place to start when you are alerted to issues that need your attention.', 'wp-simple-firewall' ),
+				'title'    => __( 'What Needs You', 'wp-simple-firewall' ),
+				'intro'    => __( 'This card sums up anything that needs your attention. Open the Actions Queue from here to deal with it.', 'wp-simple-firewall' ),
 				'position' => 'bottom',
 				'required' => true,
-			],
-			[
-				'selector' => '[data-shield-tour="dashboard-queue"]',
-				'title'    => __( 'Queue Details', 'wp-simple-firewall' ),
-				'intro'    => __( 'All important actions queue items are grouped here as a high-level summary.', 'wp-simple-firewall' ),
-				'position' => 'bottom',
-				'required' => false,
 			],
 			[
 				'selector' => '[data-shield-tour="dashboard-investigate"]',
@@ -222,27 +215,6 @@ class TourManager {
 				'title'    => __( 'Reports', 'wp-simple-firewall' ),
 				'intro'    => __( 'Use Reports to review delivered reports, alert settings, and view security trends.', 'wp-simple-firewall' ),
 				'position' => 'left',
-				'required' => true,
-			],
-			[
-				'selector' => '[data-shield-tour="dashboard-live-monitor"]',
-				'title'    => __( 'Live Monitor', 'wp-simple-firewall' ),
-				'intro'    => __( 'The live monitor shows recent WordPress activity and traffic while you work.', 'wp-simple-firewall' ),
-				'position' => 'top',
-				'required' => true,
-			],
-			[
-				'selector' => '[data-shield-tour="context-box"]',
-				'title'    => __( 'Context Box', 'wp-simple-firewall' ),
-				'intro'    => __( 'The context box explains the current viewing area, actions, and next steps.', 'wp-simple-firewall' ),
-				'position' => 'left',
-				'required' => true,
-			],
-			[
-				'selector' => '[data-shield-tour="breadcrumbs"]',
-				'title'    => __( 'Breadcrumbs', 'wp-simple-firewall' ),
-				'intro'    => __( 'Breadcrumbs show where you are and help you easily move through dashboard layers.', 'wp-simple-firewall' ),
-				'position' => 'bottom',
 				'required' => true,
 			],
 		];

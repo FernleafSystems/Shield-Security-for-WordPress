@@ -7,10 +7,9 @@
 					{% for warning in strings.top_page_warnings %}
 						<div class="col apto-top_page_warning bg-{{ warning.type }} py-1 border-bottom shield-notice-container"
 							 data-notice_id="{{ warning.id }}">
-					{% for each_line in warning.text %}<p class="my-1 text-center">{{ each_line|raw }}</p>{% endfor %}
-					{% if warning.can_dismiss %}
-						<p class="my-1 text-center"><button type="button" class="shield-topwarning-dismiss shield-button-link text-reset">{{ strings.dismiss_notice }}</button></p>
-					{% endif %}
+					{# Dismissing a notice is offered at the end of its last line, so a one-line notice stays on one line. #}
+					{% for each_line in warning.text %}<p class="my-1 text-center">{{ each_line|raw }}{% if loop.last and warning.can_dismiss %}
+						<button type="button" class="shield-topwarning-dismiss shield-button-link text-reset text-decoration-underline ms-2">{{ strings.dismiss_notice }}</button>{% endif %}</p>{% endfor %}
 				</div>
 			{% endfor %}
 		</div>

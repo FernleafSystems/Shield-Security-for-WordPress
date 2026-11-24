@@ -22,8 +22,8 @@ class MaintenanceItemIgnore extends MaintenanceItemIgnoreBase {
 			return '';
 		}
 		return $hasSubItems
-			? __( 'The specified maintenance item cannot be ignored right now.', 'wp-simple-firewall' )
-			: __( 'This maintenance item cannot be ignored right now.', 'wp-simple-firewall' );
+			? __( 'The specified to-do cannot be ignored right now.', 'wp-simple-firewall' )
+			: __( 'This to-do cannot be ignored right now.', 'wp-simple-firewall' );
 	}
 
 	protected function changeIgnored( array $ignored, array $identifiers ) :array {
@@ -31,6 +31,6 @@ class MaintenanceItemIgnore extends MaintenanceItemIgnoreBase {
 	}
 
 	protected function successMessage() :string {
-		return __( 'Maintenance item ignored.', 'wp-simple-firewall' );
+		return __( 'To-do ignored.', 'wp-simple-firewall' );
 	}
 }

@@ -94,7 +94,7 @@ test( 'the sidebar offers the setup guide while it shows, and Guide Me in its pl
 	await expect( sidebarSetup ).toHaveCount( 1 );
 	await expect( page.locator( '#NavSideBar .sidebar-task-guide-link' ) ).toHaveCount( 0 );
 
-	await fixtureApi.withSetupGuideDismissedFixture( async () => {
+	await fixtureApi.withSetupGuideStateFixture( 'dismissed', async () => {
 		await openShieldRoute( page, { nav: 'reports', nav_sub: 'overview' } );
 		await dismissBlockingDialogs( page );
 		await expect( page.locator( '#ShieldSetupGuide' ) ).toHaveCount( 0 );

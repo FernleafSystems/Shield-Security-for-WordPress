@@ -193,14 +193,14 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			default:
 				$pattern = $isHealthy
 					? _n(
-						'%s maintenance item is currently looking good.',
-						'%s maintenance items are currently looking good.',
+						'%s item is currently looking good.',
+						'%s items are currently looking good.',
 						$itemCount,
 						'wp-simple-firewall'
 					)
 					: _n(
-						'%s maintenance item needs review.',
-						'%s maintenance items need review.',
+						'%s to-do needs review.',
+						'%s to-dos need review.',
 						$itemCount,
 						'wp-simple-firewall'
 					);

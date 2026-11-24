@@ -16,7 +16,7 @@ class ReportEmail extends Base {
 			? Services::WpGeneral()->getSiteAdminEmail()
 			: \trim( $form[ 'ReportEmail' ] ?? '' );
 		if ( !Services::Data()->validEmail( $email ) ) {
-			throw new \Exception( __( 'Please provide a valid email address, or skip this step.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Please provide a valid email address.', 'wp-simple-firewall' ) );
 		}
 
 		self::con()->opts->optSet( 'block_send_email_address', $email )->store();
@@ -40,13 +40,14 @@ class ReportEmail extends Base {
 				'report_email_text'   => __( 'Shield sends security reports and instant alerts by email. Use an inbox someone reads; a shared address works well if several people look after the site.', 'wp-simple-firewall' ),
 				'hold_notice'         => $hold->isActive() ? $hold->explanation() : '',
 				'report_email_label'  => __( 'Report email', 'wp-simple-firewall' ),
-				'report_email_button' => __( 'Save Report Email', 'wp-simple-firewall' ),
+				'report_email_placeholder' => __( 'e.g. you@example.com', 'wp-simple-firewall' ),
+				'report_email_invalid' => __( "That doesn't look like an email address yet.", 'wp-simple-firewall' ),
+				'report_email_button' => __( 'Save report email', 'wp-simple-firewall' ),
 				/* translators: %s: the site admin email address */
 				'use_admin_button'    => sprintf( __( 'Use the site admin email (%s)', 'wp-simple-firewall' ), $adminEmail ),
 			],
 			'vars'    => [
 				'report_email' => (string)self::con()->opts->optGet( 'block_send_email_address' ),
-				'admin_email'  => $adminEmail,
 			],
 		];
 	}

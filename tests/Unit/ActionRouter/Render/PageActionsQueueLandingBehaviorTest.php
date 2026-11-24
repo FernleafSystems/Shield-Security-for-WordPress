@@ -137,7 +137,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'title', $vars[ 'mode_shell' ][ 'root_step' ] ?? [] );
 		$this->assertArrayHasKey( 'badge', $vars[ 'mode_shell' ][ 'root_step' ] ?? [] );
 		$this->assertArrayHasKey( 'focus', $vars[ 'mode_shell' ][ 'root_step' ] ?? [] );
-		$this->assertSame( 'actions', $vars[ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
+		$this->assertSame( 'critical', $vars[ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
 		$this->assertSame( 'actions_drill_shell', $vars[ 'drill_shell' ][ 'id' ] );
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] );
 		$this->assertSame( [ 'buckets', 'detail' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ], 'key' ) );
@@ -207,7 +207,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'title', $rootStep );
 		$this->assertArrayHasKey( 'badge', $rootStep );
 		$this->assertArrayHasKey( 'focus', $rootStep );
-		$this->assertSame( 'actions', $rootStep[ 'color_key' ] ?? '' );
+		$this->assertSame( 'warning', $rootStep[ 'color_key' ] ?? '' );
 	}
 
 	public function test_landing_hrefs_reuse_existing_scan_and_wp_admin_routes() :void {

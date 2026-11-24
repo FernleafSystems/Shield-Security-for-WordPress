@@ -196,6 +196,23 @@ class AdminBarMenuTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_on_the_plugins_pages_a_clear_scan_count_gives_way_to_what_needs_attention() :void {
+		$this->installController( true, true, new AdminBarCountsSpy( $this->exactSummary() ), new AdminBarSummaryCacheSpy( $this->emptySummary() ), null, [ 'critical' => 0, 'todo' => 4 ] );
+		$this->assertTopNode( $this->buildAdminBar(), '/admin/scans/overview?zone=scans', '4', 'shield-counter--todo' );
+	}
+
+	public function test_on_the_plugins_pages_critical_issues_come_before_to_dos() :void {
+		$this->installController( true, true, new AdminBarCountsSpy( $this->exactSummary() ), new AdminBarSummaryCacheSpy( $this->emptySummary() ), null, [ 'critical' => 2, 'todo' => 4 ] );
+		$this->assertTopNode( $this->buildAdminBar(), '/admin/scans/overview?zone=scans', '2', 'shield-counter--issue' );
+	}
+
+	public function test_elsewhere_in_the_admin_the_counter_stays_the_scan_count() :void {
+		// Asking what needs attention here would throw.
+		$this->installController( true, false, new AdminBarCountsSpy( $this->exactSummary() ), new AdminBarSummaryCacheSpy( $this->emptySummary() ), null, null );
+
+		$this->assertTopNode( $this->buildAdminBar(), '/admin/scans/overview?zone=scans', '0', 'shield-counter--ok' );
+	}
+
 	public function test_admin_bar_shows_top_node_only_when_cached_summary_is_empty() :void {
 		$cache = new AdminBarSummaryCacheSpy( $this->emptySummary() );
 		$counts = new AdminBarCountsSpy( $this->exactSummary() );
@@ -495,12 +512,17 @@ class AdminBarMenuTest extends BaseUnitTest {
 		return $node;
 	}
 
+	/**
+	 * @param array{critical:int,todo:int}|null $attentionCounts what the plugin's own pages count out as needing
+	 *                                                           attention; null where it must never be asked for
+	 */
 	private function installController(
 		bool $isPluginAdmin,
 		bool $isPluginAdminPageRequest,
 		AdminBarCountsSpy $counts,
 		?object $cache = null,
-		?AdminBarUsersDbSpy $usersDb = null
+		?AdminBarUsersDbSpy $usersDb = null,
+		?array $attentionCounts = [ 'critical' => 0, 'todo' => 0 ]
 	) :void {
 		$usersDb = $usersDb ?? new AdminBarUsersDbSpy( [] );
 		ServicesState::mergeItems( [
@@ -508,7 +530,7 @@ class AdminBarMenuTest extends BaseUnitTest {
 			'service_wpusers' => new AdminBarUsersServiceSpy(),
 		] );
 
-		$controller = new class( $isPluginAdmin, $isPluginAdminPageRequest, $counts, $cache ) extends Controller {
+		$controller = new class( $isPluginAdmin, $isPluginAdminPageRequest, $counts, $cache, $attentionCounts ) extends Controller {
 			public UnitTestPluginUrls $plugin_urls;
 			public object $comps;
 			public object $db_con;
@@ -522,7 +544,8 @@ class AdminBarMenuTest extends BaseUnitTest {
 				bool $pluginAdmin,
 				bool $pluginAdminPageRequest,
 				AdminBarCountsSpy $counts,
-				?object $cache
+				?object $cache,
+				?array $attentionCounts
 			) {
 				$this->pluginAdmin = $pluginAdmin;
 				$this->pluginAdminPageRequest = $pluginAdminPageRequest;
@@ -535,6 +558,20 @@ class AdminBarMenuTest extends BaseUnitTest {
 					'ips'       => new AdminBarTableSpy( 'shield_ips' ),
 				];
 				$this->comps = (object)[
+					'site_query' => new class( $attentionCounts ) {
+						private ?array $attentionCounts;
+
+						public function __construct( ?array $attentionCounts ) {
+							$this->attentionCounts = $attentionCounts;
+						}
+
+						public function attentionCounts() :array {
+							if ( $this->attentionCounts === null ) {
+								throw new \LogicException( 'What needs attention was worked out where only the scan count should be.' );
+							}
+							return $this->attentionCounts;
+						}
+					},
 					'scans' => new class( $this->counts, $this->cache ) {
 						private AdminBarCountsSpy $counts;
 						private object $cache;

@@ -751,12 +751,15 @@
 	text-align: right;
 }
 
-.dashboard-recent-events__unrecorded {
-	border-top: 1px solid #eef0f1;
+// A dashboard section with nothing to show yet says so in a line, rather than counting out zeros.
+.dashboard-empty-note {
+	background: #ffffff;
+	border: 1px dashed #dcdcde;
+	border-radius: 8px;
 	color: #646970;
-	font-size: 12px;
+	font-size: 13px;
 	margin: 0;
-	padding: 8px 12px;
+	padding: 12px 14px;
 }
 
 @container (max-width: 560px) {

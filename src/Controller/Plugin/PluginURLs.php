@@ -48,6 +48,16 @@ class PluginURLs {
 		] ) );
 	}
 
+	/**
+	 * The dashboard, with its tour started. The tour only ever runs when asked for like this.
+	 */
+	public function dashboardTour() :string {
+		return URL::Build(
+			$this->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ),
+			[ 'force_tour' => '1' ]
+		);
+	}
+
 	public function investigateHome() :string {
 		return $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW );
 	}

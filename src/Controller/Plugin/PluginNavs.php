@@ -458,7 +458,7 @@ class PluginNavs {
 			],
 			'maintenance' => [
 				'slug'  => 'maintenance',
-				'label' => __( 'Maintenance', 'wp-simple-firewall' ),
+				'label' => __( 'To-dos', 'wp-simple-firewall' ),
 				'icon'  => 'wrench',
 			],
 		];

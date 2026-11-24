@@ -89,8 +89,8 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_plugin_onboarding_asset_is_enqueued_when_dashboard_tour_available() :void {
-		$this->installEnvironment();
+	public function test_plugin_onboarding_asset_is_enqueued_when_the_dashboard_tour_is_asked_for() :void {
+		$this->installEnvironment( [ 'force_tour' => '1' ] );
 
 		$assets = $this->buildCustomEnqueueAssets();
 
@@ -98,10 +98,8 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertNotContains( 'shield/tp/vimeo_player', $assets );
 	}
 
-	public function test_plugin_onboarding_asset_is_not_enqueued_when_dashboard_tour_completed() :void {
-		$this->installEnvironment( [], [
-			TourManager::TOUR_DASHBOARD => 1700000000,
-		] );
+	public function test_plugin_onboarding_asset_is_not_enqueued_when_the_dashboard_tour_is_not_asked_for() :void {
+		$this->installEnvironment();
 
 		$assets = $this->buildCustomEnqueueAssets();
 
@@ -110,6 +108,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 
 	public function test_plugin_onboarding_asset_is_not_enqueued_outside_dashboard_route() :void {
 		$this->installEnvironment( [
+			'force_tour'             => '1',
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_REPORTS,
 			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_REPORTS_OVERVIEW,
 		] );
@@ -120,7 +119,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 	}
 
 	public function test_plugin_onboarding_data_is_localized_for_plugin_onboarding_handle() :void {
-		$this->installEnvironment();
+		$this->installEnvironment( [ 'force_tour' => '1' ] );
 
 		$onboardingComps = $this->getLocalisedCompsForHandle( 'plugin_onboarding' );
 
@@ -133,9 +132,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 	}
 
 	public function test_plugin_onboarding_data_is_not_localized_when_tour_unavailable() :void {
-		$this->installEnvironment( [], [
-			TourManager::TOUR_DASHBOARD => 1700000000,
-		] );
+		$this->installEnvironment();
 
 		$this->assertSame( [], $this->getLocalisedCompsForHandle( 'plugin_onboarding' ) );
 	}

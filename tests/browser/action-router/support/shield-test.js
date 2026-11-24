@@ -266,6 +266,22 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 			async prepareDashboardMaintenanceWarningFixture() {
 				return runFixture( 'dashboard-defaults', 'prepare-maintenance-warning' );
 			},
+			/**
+			 * One offence recorded just now, so the dashboard has an activity stat to show.
+			 */
+			async withDashboardActivityFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'dashboard-activity', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'dashboard-activity', 'cleanup' );
+					}
+				}
+			},
 			async withDashboardDefaultsFixture( runScenario ) {
 				let seeded = false;
 				try {
@@ -553,16 +569,19 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 					}
 				}
 			},
-			async withSetupGuideDismissedFixture( runScenario ) {
+			/**
+			 * @param {'dismissed'|'first_run'} scenario the guide closed for good, or untouched on a site installed just now
+			 */
+			async withSetupGuideStateFixture( scenario, runScenario ) {
 				let seeded = false;
 				try {
-					const contract = await runFixture( 'setup-guide-dismissed', 'seed' );
+					const contract = await runFixture( 'setup-guide-state', 'seed', [ scenario ] );
 					seeded = true;
 					return await runScenario( contract );
 				}
 				finally {
 					if ( seeded ) {
-						await runFixture( 'setup-guide-dismissed', 'cleanup' );
+						await runFixture( 'setup-guide-state', 'cleanup' );
 					}
 				}
 			},

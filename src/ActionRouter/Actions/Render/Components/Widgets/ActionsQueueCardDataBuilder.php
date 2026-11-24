@@ -142,11 +142,12 @@ class ActionsQueueCardDataBuilder {
 			);
 		}
 		else {
+			// Only to-dos: nothing is wrong, and the card says so first rather than calling for action.
 			$status = 'warning';
-			$title = __( 'Maintenance Action Required', 'wp-simple-firewall' );
+			$title = __( 'No Security Issues', 'wp-simple-firewall' );
 			$summary = $this->buildDashboardOverallSummary(
 				sprintf(
-					_n( '%s maintenance item needs review.', '%s maintenance items need review.', $maintenanceCount, 'wp-simple-firewall' ),
+					_n( '%s to-do to review when you have time.', '%s to-dos to review when you have time.', $maintenanceCount, 'wp-simple-firewall' ),
 					$maintenanceCount
 				)
 			);
@@ -176,7 +177,7 @@ class ActionsQueueCardDataBuilder {
 				),
 				$this->buildDashboardStripSummary(
 					'maintenance',
-					__( 'Maintenance', 'wp-simple-firewall' ),
+					__( 'To-dos', 'wp-simple-firewall' ),
 					$maintenanceCount,
 					$this->localDashboardStatus( $maintenance ),
 					$href
@@ -236,15 +237,15 @@ class ActionsQueueCardDataBuilder {
 		}
 
 		return $status === 'critical'
-			? sprintf( _n( '%s critical maintenance item', '%s critical maintenance items', $count, 'wp-simple-firewall' ), $count )
-			: sprintf( _n( '%s item due', '%s items due', $count, 'wp-simple-firewall' ), $count );
+			? sprintf( _n( '%s critical to-do', '%s critical to-dos', $count, 'wp-simple-firewall' ), $count )
+			: sprintf( _n( '%s to-do', '%s to-dos', $count, 'wp-simple-firewall' ), $count );
 	}
 
 	private function buildDashboardStripSummaryDetail( string $id, int $count, string $status ) :string {
 		if ( $count < 1 ) {
 			return $id === 'scans'
-				? __( 'No active critical or warning items.', 'wp-simple-firewall' )
-				: __( 'No maintenance items require review.', 'wp-simple-firewall' );
+				? __( 'Nothing needs urgent action.', 'wp-simple-firewall' )
+				: __( 'Nothing to review.', 'wp-simple-firewall' );
 		}
 
 		if ( $id === 'scans' ) {
@@ -254,8 +255,8 @@ class ActionsQueueCardDataBuilder {
 		}
 
 		return $status === 'critical'
-			? __( 'Critical maintenance work needs review.', 'wp-simple-firewall' )
-			: __( 'Routine maintenance items require review.', 'wp-simple-firewall' );
+			? __( 'Critical to-dos need review.', 'wp-simple-firewall' )
+			: __( 'Routine items to review when you have time.', 'wp-simple-firewall' );
 	}
 
 	/**
@@ -402,7 +403,7 @@ class ActionsQueueCardDataBuilder {
 
 		return [
 			'key'        => 'maintenance',
-			'label'      => __( 'Maintenance Items', 'wp-simple-firewall' ),
+			'label'      => __( 'To-dos', 'wp-simple-firewall' ),
 			'icon_class' => self::con()->svgs->iconClass( 'wrench' ),
 			'severity'   => $count > 0 ? 'warning' : 'good',
 			'count'      => $count,
@@ -431,7 +432,7 @@ class ActionsQueueCardDataBuilder {
 			$parts[] = sprintf( _n( '%s critical', '%s critical', $counts[ 'critical' ], 'wp-simple-firewall' ), $counts[ 'critical' ] );
 		}
 		if ( $counts[ 'warning' ] > 0 ) {
-			$parts[] = sprintf( _n( '%s warning', '%s warnings', $counts[ 'warning' ], 'wp-simple-firewall' ), $counts[ 'warning' ] );
+			$parts[] = sprintf( _n( '%s to-do', '%s to-dos', $counts[ 'warning' ], 'wp-simple-firewall' ), $counts[ 'warning' ] );
 		}
 
 		return empty( $parts ) ? '' : implode( ' - ', $parts );

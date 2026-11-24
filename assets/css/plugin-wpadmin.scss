@@ -110,6 +110,12 @@ tr.shield-plugin-vulnerability dd {
   color: #ffffff;
 }
 
+// To-dos: things to review in time, as the sidebar counts them out.
+#wpadminbar .shield-counter.shield-counter--todo {
+  background-color: #dba617;
+  color: #1d2327;
+}
+
 #wp-admin-bar-icwp-wpsf-adminbarmenu .ab-submenu > li {
   padding: 0 0 5px;
 }

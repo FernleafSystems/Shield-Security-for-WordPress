@@ -389,7 +389,7 @@ class ActionsQueueGroupContractBuilder {
 
 			case 'maintenance':
 				return \sprintf(
-					_n( '%s maintenance item needs review.', '%s maintenance items need review.', $itemCount, 'wp-simple-firewall' ),
+					_n( '%s to-do needs review.', '%s to-dos need review.', $itemCount, 'wp-simple-firewall' ),
 					$itemCount
 				);
 

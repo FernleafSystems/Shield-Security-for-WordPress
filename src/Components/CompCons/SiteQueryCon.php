@@ -44,6 +44,25 @@ class SiteQueryCon {
 	}
 
 	/**
+	 * How many things need attention, as every counter of them splits it: critical issues, and everything else,
+	 * which are to-dos. One source, so that the counters on a page can't disagree.
+	 * @return array{critical:int,todo:int}
+	 */
+	public function attentionCounts() :array {
+		$attention = $this->attention();
+		$critical = 0;
+		foreach ( $attention[ 'items' ] as $item ) {
+			if ( $item[ 'severity' ] === 'critical' ) {
+				$critical += (int)$item[ 'count' ];
+			}
+		}
+		return [
+			'critical' => $critical,
+			'todo'     => \max( 0, $attention[ 'summary' ][ 'total' ] - $critical ),
+		];
+	}
+
+	/**
 	 * @return OverviewQuery
 	 */
 	public function overview() :array {

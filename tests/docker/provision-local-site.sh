@@ -71,26 +71,13 @@ if [ "${PROVISION_MODE}" != "core-only" ] && [ "${SITE_PROFILE}" = "test" ]; the
 			$all[ "values" ] = ( is_array( $all[ "values" ] ) ) ? $all[ "values" ] : [];
 		}
 
-		$now = time();
 		update_option( $optionName, $all );
 
-		$adminUser = get_user_by( "login", getenv( "SHIELD_LOCAL_SITE_ADMIN_USER" ) ?: "admin" );
-		if ( $adminUser instanceof WP_User ) {
-			$metaKeys = [
-				"icwp-wpsf-meta",
-				"icwp_wpsf-meta",
-				"icwp-meta",
-			];
-			foreach ( $metaKeys as $metaKey ) {
-				$userMeta = get_user_meta( (int)$adminUser->ID, $metaKey, true );
-				if ( !is_array( $userMeta ) ) {
-					$userMeta = [];
-				}
-				$userMeta[ "tours" ] = [ "dashboard_v22" => $now ];
-				update_user_meta( (int)$adminUser->ID, $metaKey, $userMeta );
-			}
-		}
-
 		shield_security_get_plugin()->getController()->db_con->loadAll();
+
+		// A test site is a new install, on which the setup guide would open over the dashboard by itself.
+		// Tests open pages to work with the page, so the guide starts minimised.
+		( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SetupGuideState() )->minimise();
+		shield_security_get_plugin()->getController()->opts->store();
 	' --allow-root
 fi

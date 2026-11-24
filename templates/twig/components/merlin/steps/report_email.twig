@@ -3,7 +3,7 @@
 {% block slide_body_video_section_blurb %}
 	<p>{{ strings.report_email_text }}</p>
 	{% if strings.hold_notice is not empty %}
-		<p class="text-body-secondary">{{ strings.hold_notice }}</p>
+		<p>{{ strings.hold_notice }}</p>
 	{% endif %}
 {% endblock %}
 
@@ -15,16 +15,22 @@
 		<div class="row">
 			<div class="col">
 				<label class="form-label" for="ReportEmail-{{ vars.step_slug }}">{{ strings.report_email_label }}</label>
+				{# The placeholder is plainly an example: a real address there would look like one already filled in. #}
 				<input type="email"
 					   class="form-control"
 					   id="ReportEmail-{{ vars.step_slug }}"
 					   name="ReportEmail"
 					   autocomplete="email"
+					   required
+					   data-report-email-input="1"
 					   value="{{ vars.report_email }}"
-					   placeholder="{{ vars.admin_email }}">
-				{# The second button belongs to the form below, so the two choices sit side by side. #}
+					   placeholder="{{ strings.report_email_placeholder }}">
+				<small class="form-text" data-report-email-invalid="1" role="status" hidden>{{ strings.report_email_invalid }}</small>
+				{# Saving waits for an address that can be saved. The second button belongs to the form below, so the
+				   two choices sit side by side. #}
 				<div class="merlin-report-email-actions">
-					<button type="submit" class="btn btn-secondary">{{ strings.report_email_button }}</button>
+					<button type="submit" class="btn btn-secondary" data-report-email-save="1"
+							{% if vars.report_email is empty %}disabled{% endif %}>{{ strings.report_email_button }}</button>
 					<button type="submit" class="btn btn-link" form="ReportEmailUseAdmin-{{ vars.step_slug }}">{{ strings.use_admin_button }}</button>
 				</div>
 			</div>

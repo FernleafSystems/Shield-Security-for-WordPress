@@ -481,7 +481,7 @@ class MaintenanceIssueStateProvider {
 				),
 				$ignoredCount
 			)
-			: __( 'This maintenance item is currently ignored.', 'wp-simple-firewall' );
+			: __( 'This to-do is currently ignored.', 'wp-simple-firewall' );
 	}
 
 	/**

@@ -197,10 +197,10 @@ trait BuildsActionsQueueLandingData {
 	 */
 	private function buildMaintenanceAlertSwitches() :array {
 		$confirmations = [
-			'wp_plugins_updates'  => __( 'Are you sure you want to turn off maintenance alerts for plugin updates?', 'wp-simple-firewall' ),
-			'wp_themes_updates'   => __( 'Are you sure you want to turn off maintenance alerts for theme updates?', 'wp-simple-firewall' ),
-			'wp_plugins_inactive' => __( 'Are you sure you want to turn off maintenance alerts for inactive plugins?', 'wp-simple-firewall' ),
-			'wp_themes_inactive'  => __( 'Are you sure you want to turn off maintenance alerts for inactive themes?', 'wp-simple-firewall' ),
+			'wp_plugins_updates'  => __( 'Are you sure you want to turn off alerts for plugin updates?', 'wp-simple-firewall' ),
+			'wp_themes_updates'   => __( 'Are you sure you want to turn off alerts for theme updates?', 'wp-simple-firewall' ),
+			'wp_plugins_inactive' => __( 'Are you sure you want to turn off alerts for inactive plugins?', 'wp-simple-firewall' ),
+			'wp_themes_inactive'  => __( 'Are you sure you want to turn off alerts for inactive themes?', 'wp-simple-firewall' ),
 		];
 		$wayBack = __( 'They will no longer be counted or reported. You can turn them back on in the Configure section, under Scans.', 'wp-simple-firewall' );
 
@@ -238,7 +238,8 @@ trait BuildsActionsQueueLandingData {
 				)
 				: __( 'All Clear', 'wp-simple-firewall' ),
 			'badge_status'     => $summary[ 'severity' ],
-			'color_key'        => 'actions',
+			// The queue's chip in the breadcrumb is drawn after the queue's most severe item, as its sidebar item is.
+			'color_key'        => $summary[ 'severity' ],
 		];
 	}
 

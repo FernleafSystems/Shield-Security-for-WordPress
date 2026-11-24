@@ -49,6 +49,14 @@ export class PluginOnboarding extends BaseComponent {
 			return;
 		}
 
+		// The tour runs because its link asked for it: tidy the request off the address, so that loading the
+		// page again doesn't start the tour again.
+		const url = new URL( window.location.href );
+		if ( url.searchParams.has( 'force_tour' ) ) {
+			url.searchParams.delete( 'force_tour' );
+			window.history.replaceState( window.history.state, '', url.toString() );
+		}
+
 		const steps = this.buildStepsForTour( tour.steps );
 		if ( steps === null || steps.length < 1 ) {
 			return;

@@ -117,6 +117,14 @@ class DismissAdminNoticeControllerStub extends Controller {
 	public function __construct( object $adminNotices, object $userMetas ) {
 		$this->admin_notices = $adminNotices;
 		$this->user_metas = $userMetas;
+		// A site installed long ago: a new install's first day, when advice isn't shown, is the notice's own test.
+		$this->comps = (object)[
+			'opts_lookup' => new class {
+				public function getInstalledAt() :int {
+					return 1600000000;
+				}
+			},
+		];
 	}
 }
 

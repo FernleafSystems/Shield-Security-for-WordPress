@@ -49,16 +49,18 @@ class SecurityAdmin extends Base {
 			'strings' => [
 				/* translators: %s: plugin name */
 				'step_title'                 => sprintf( __( 'Protect Your %s Plugin From Tampering', 'wp-simple-firewall' ), $pluginName ),
-				'security_admin_text_1'      => __( 'Security Admin provides an additional authentication layer that ensures only vetted admins may make changes to your site security.', 'wp-simple-firewall' ),
-				'security_admin_text_2'      => __( 'It also helps lockdown critical WordPress settings.', 'wp-simple-firewall' ),
+				// What the PIN protects on any site, whoever its admins are; what it's like to live with; and the way back.
 				/* translators: %s: plugin name */
-				'security_admin_text_3'      => sprintf( __( 'This feature relies on a secret PIN (which you create below), that you will use to verify your identity with the %s plugin.', 'wp-simple-firewall' ), $pluginName ),
-				'pin_heading'                => __( 'Choose Your Security Admin PIN', 'wp-simple-firewall' ),
+				'security_admin_text_1'      => sprintf( __( "A Security Admin PIN locks your security settings. If someone gets into an admin account, yours included, they can't change %s's settings without the PIN.", 'wp-simple-firewall' ), $pluginName ),
+				'security_admin_text_2'      => __( 'It can lock key WordPress settings too.', 'wp-simple-firewall' ),
+				/* translators: %1$s: plugin name, %2$s: number of minutes */
+				'security_admin_text_3'      => sprintf( __( "You'll be asked for the PIN when you change %1\$s's settings. It then stays unlocked for %2\$s minutes.", 'wp-simple-firewall' ), $pluginName, (int)self::con()->opts->optGet( 'admin_access_timeout' ) ),
+				'pin_heading'                => __( 'Choose your Security Admin PIN', 'wp-simple-firewall' ),
 				'pin_label'                  => __( 'PIN', 'wp-simple-firewall' ),
 				'pin_placeholder'            => __( 'Create a new secret PIN', 'wp-simple-firewall' ),
-				'pin_help'                   => __( "Don't forget this PIN", 'wp-simple-firewall' ),
+				'pin_help'                   => __( 'If you forget the PIN, a link emailed to your report address turns Security Admin off, so you can set a new one.', 'wp-simple-firewall' ),
 				'pin_confirm'                => __( 'Confirm PIN', 'wp-simple-firewall' ),
-				'security_admin_text_button' => __( 'Turn On Security Admin', 'wp-simple-firewall' ),
+				'security_admin_text_button' => __( 'Turn on Security Admin', 'wp-simple-firewall' ),
 			],
 		];
 	}

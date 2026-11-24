@@ -144,9 +144,9 @@ class StringsOptions {
 				break;
 			case 'maintenance_alert_items':
 				$name = __( 'Review Next Items', 'wp-simple-firewall' );
-				$summary = __( 'Plugin And Theme Maintenance Items To Include In Review Next', 'wp-simple-firewall' );
+				$summary = __( 'Plugin And Theme To-dos To Include In Review Next', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Choose which plugin and theme maintenance items the Actions Queue asks you to review.', 'wp-simple-firewall' ),
+					__( 'Choose which plugin and theme to-dos the Actions Queue asks you to review.', 'wp-simple-firewall' ),
 					__( "Items you leave out are no longer counted or reported anywhere, including the Actions Queue, the WordPress dashboard widget and reports.", 'wp-simple-firewall' ),
 					__( 'Vulnerable and abandoned plugins are always reported.', 'wp-simple-firewall' ),
 				];

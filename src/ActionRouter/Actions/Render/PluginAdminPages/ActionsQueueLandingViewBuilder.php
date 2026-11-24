@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -97,7 +98,9 @@ class ActionsQueueLandingViewBuilder {
 			'has_items'   => $hasItems,
 			'total_items' => $attentionQuery[ 'summary' ][ 'total' ],
 			'severity'    => $attentionQuery[ 'summary' ][ 'severity' ],
-			'icon_class'  => self::con()->svgs->iconClass( $hasItems ? 'exclamation-triangle-fill' : 'shield-check' ),
+			'icon_class'  => ( new ActionsQueueItemIcons() )->iconClassForQueueStatus(
+				$hasItems ? $attentionQuery[ 'summary' ][ 'severity' ] : 'good'
+			),
 			'subtext'     => $summarySubtext,
 		];
 	}
@@ -222,7 +225,7 @@ class ActionsQueueLandingViewBuilder {
 			'icon_class'     => $summary[ 'icon_class' ],
 			'summary_text'   => $summary[ 'has_items' ]
 				? sprintf(
-					__( '%1$s critical - %2$s warnings - %3$s items total', 'wp-simple-firewall' ),
+					__( '%1$s critical - %2$s to-dos - %3$s items total', 'wp-simple-firewall' ),
 					$criticalCount,
 					$warningCount,
 					$summary[ 'total_items' ]

@@ -36,11 +36,12 @@ class PhpFutureMinimum extends Base {
 			);
 		}
 
-		return $this->isSnoozed() ? null : $this->buildIssue(
+		// Advice rather than a problem, so it waits out a new install's first day as well as a snooze.
+		return ( $this->isSnoozed() || $this->isNewInstall() ) ? null : $this->buildIssue(
 			'info',
 			sprintf(
 				/* translators: %s: recommended PHP version */
-				__( 'Your site meets the next Shield PHP requirement, but we recommend upgrading to PHP %s or newer.', 'wp-simple-firewall' ),
+				__( 'We recommend updating your site to PHP %s or newer.', 'wp-simple-firewall' ),
 				self::RECOMMENDED_PHP
 			),
 			true
