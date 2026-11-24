@@ -71,6 +71,69 @@ PHP
 		$this->assertSame( 'shield/v1/probe', \trim( $output ) );
 	}
 
+	public function testReportingCorrectionsDoNotRequireV224ReportFrequencyInfoMethod() :void {
+		$output = $this->runPhp( <<<'PHP'
+namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts {
+	class ReportFrequency {
+		public static function normaliseLegacy( $value ) {
+			return $value === 'hourly' ? 'daily' : $value;
+		}
+	}
+}
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Controller {
+	class Controller {
+		public object $opts;
+	}
+}
+
+namespace {
+	require 'vendor/autoload.php';
+
+	$opts = new class() {
+		public array $values = [
+			'frequency_alert' => 'hourly',
+			'frequency_info'  => 'monthly',
+		];
+
+		public function optGet( string $key ) {
+			return $this->values[ $key ];
+		}
+
+		public function optSet( string $key, $value ) :self {
+			$this->values[ $key ] = $value;
+			return $this;
+		}
+	};
+	$con = new \FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller();
+	$con->opts = $opts;
+
+	function shield_security_get_plugin() {
+		return new class() {
+			public function getController() {
+				return $GLOBALS[ 'con' ];
+			}
+		};
+	}
+
+	$corrections = new \FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\OptionsCorrections();
+	$method = new \ReflectionMethod( $corrections, 'reporting' );
+	$method->setAccessible( true );
+	$method->invoke( $corrections );
+	echo \json_encode( $opts->values );
+}
+PHP
+		);
+
+		$this->assertSame(
+			[
+				'frequency_alert' => 'daily',
+				'frequency_info'  => 'monthly',
+			],
+			\json_decode( \trim( $output ), true )
+		);
+	}
+
 	private function runPhp( string $code ) :string {
 		$process = new Process( [ \PHP_BINARY, '-r', $code ], $this->projectRoot() );
 		$process->run();

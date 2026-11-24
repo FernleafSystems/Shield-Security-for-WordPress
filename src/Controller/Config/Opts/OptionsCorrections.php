@@ -234,11 +234,17 @@ class OptionsCorrections {
 		}
 	}
 
+	/**
+	 * During an in-place update the outgoing release's ReportFrequency can still be loaded, without normaliseInfo().
+	 * Longer info periods then wait for a request running this release.
+	 */
 	private function reporting() :void {
 		$opts = self::con()->opts;
+		// @phpstan-ignore function.alreadyNarrowedType
+		$canNormaliseInfo = \method_exists( ReportFrequency::class, 'normaliseInfo' );
 		foreach ( [ 'frequency_alert', 'frequency_info' ] as $key ) {
 			$current = $opts->optGet( $key );
-			$normalised = $key === 'frequency_info'
+			$normalised = $key === 'frequency_info' && $canNormaliseInfo
 				? ReportFrequency::normaliseInfo( $current )
 				: ReportFrequency::normaliseLegacy( $current );
 			if ( $normalised !== $current ) {
@@ -362,11 +368,14 @@ class OptionsCorrections {
 	/**
 	 * The legacy "In-Plugin Notices" switch only ever hid non-essential notices. Once carried over it's put back to its
 	 * default so this never runs twice.
+	 *
+	 * During an in-place update the outgoing release's config can still be loaded, and it has no dashboard display
+	 * option. The carry-over then waits for a request running this release.
 	 */
 	private function dashboardDisplay() :void {
 		$opts = self::con()->opts;
 
-		if ( $opts->optIs( 'enable_upgrade_admin_notice', 'N' ) ) {
+		if ( $opts->optExists( 'dashboard_display' ) && $opts->optIs( 'enable_upgrade_admin_notice', 'N' ) ) {
 			$opts->optSet( 'dashboard_display', \array_values( \array_diff( $opts->optGet( 'dashboard_display' ), [ EnumDashboardDisplay::NOTICES ] ) ) )
 				 ->optSet( 'enable_upgrade_admin_notice', 'Y' );
 		}
