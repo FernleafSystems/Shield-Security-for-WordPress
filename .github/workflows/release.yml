@@ -23,10 +23,26 @@ jobs:
       contents: write
 
     steps:
+    # This step runs seconds after the upload, and GitHub can take a moment to list a new artifact, so one miss
+    # gets a short wait and a second attempt before the release fails.
     - name: Download release ZIP
+      id: download-zip
+      continue-on-error: true
       uses: actions/download-artifact@v8
       with:
-        name: ${{ needs.build-zip.outputs.artifact_name }}
+        artifact-ids: ${{ needs.build-zip.outputs.artifact_id }}
+        path: ${{ github.workspace }}
+        skip-decompress: true
+
+    - name: Wait before retrying the download
+      if: steps.download-zip.outcome == 'failure'
+      run: sleep 15
+
+    - name: Retry downloading release ZIP
+      if: steps.download-zip.outcome == 'failure'
+      uses: actions/download-artifact@v8
+      with:
+        artifact-ids: ${{ needs.build-zip.outputs.artifact_id }}
         path: ${{ github.workspace }}
         skip-decompress: true
 
