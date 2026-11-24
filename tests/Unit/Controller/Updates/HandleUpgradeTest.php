@@ -761,6 +761,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			return $this->changed;
 		}
 
+		public function optExists( string $key ) :bool {
+			return \array_key_exists( $key, $this->values );
+		}
+
 		public function optGet( string $key ) {
 			return $this->values[ $key ] ?? null;
 		}
