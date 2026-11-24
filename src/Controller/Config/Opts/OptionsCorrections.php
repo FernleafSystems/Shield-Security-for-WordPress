@@ -234,11 +234,17 @@ class OptionsCorrections {
 		}
 	}
 
+	/**
+	 * During an in-place update the outgoing release's ReportFrequency can still be loaded, without normaliseInfo().
+	 * Longer info periods then wait for a request running this release.
+	 */
 	private function reporting() :void {
 		$opts = self::con()->opts;
+		// @phpstan-ignore function.alreadyNarrowedType
+		$canNormaliseInfo = \method_exists( ReportFrequency::class, 'normaliseInfo' );
 		foreach ( [ 'frequency_alert', 'frequency_info' ] as $key ) {
 			$current = $opts->optGet( $key );
-			$normalised = $key === 'frequency_info'
+			$normalised = $key === 'frequency_info' && $canNormaliseInfo
 				? ReportFrequency::normaliseInfo( $current )
 				: ReportFrequency::normaliseLegacy( $current );
 			if ( $normalised !== $current ) {
