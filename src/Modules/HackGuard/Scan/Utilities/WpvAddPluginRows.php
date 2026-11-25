@@ -44,10 +44,12 @@ class WpvAddPluginRows {
 
 		foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $file ) {
 			add_action( "after_plugin_row_$file", function ( $pluginFile ) {
+				// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by the action router, whose Twig templates escape their values.
 				echo self::con()->action_router->render( PluginVulnerabilityWarning::class, [
 					'plugin_file'   => $pluginFile,
 					'columns_count' => $this->colsCount
 				] );
+				// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 			}, 100 );
 		}
 	}

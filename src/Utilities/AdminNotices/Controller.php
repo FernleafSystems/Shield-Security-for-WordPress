@@ -71,9 +71,11 @@ class Controller {
 
 	protected function displayNotices() {
 		foreach ( $this->buildNotices() as $notice ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by the action router, whose Twig templates escape their values.
 			echo self::con()->action_router->render( AdminNotice::class, [
 				'raw_notice_data' => $notice->getRawData()
 			] );
+			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 	}
 
@@ -372,10 +374,10 @@ class Controller {
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
-					$con->plugin_urls->zone( Secadmin::Slug() ),
-					__( 'Admin Access Login', 'wp-simple-firewall' ),
+					esc_url( $con->plugin_urls->zone( Secadmin::Slug() ) ),
+					esc_attr__( 'Admin Access Login', 'wp-simple-firewall' ),
 					/* translators: %s: plugin name */
-					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->labels->Name )
+					esc_html( sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->labels->Name ) )
 				)
 			]
 		];

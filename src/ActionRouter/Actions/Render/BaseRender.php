@@ -71,7 +71,7 @@ abstract class BaseRender extends BaseAction {
 		}
 		catch ( \Exception $e ) {
 			$this->renderErrorCode = self::RENDER_ERROR_EXCEPTION;
-			$output = sprintf( 'Exception during render for %s: "%s"', static::SLUG, $e->getMessage() );
+			$output = sprintf( 'Exception during render for %s: "%s"', static::SLUG, esc_html( $e->getMessage() ) );
 		}
 		return $output;
 	}

@@ -199,6 +199,6 @@ class SecurityAdminController {
 	}
 
 	public function printPinLoginForm() {
-		echo self::con()->action_router->render( FormSecurityAdminLoginBox::class );
+		echo self::con()->action_router->render( FormSecurityAdminLoginBox::class ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by the action router, whose Twig templates escape their values.
 	}
 }

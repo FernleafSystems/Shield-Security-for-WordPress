@@ -22,8 +22,8 @@ class PluginsPageSupplements {
 		add_action( 'in_plugin_update_message-'.self::con()->base_file, function () {
 			echo sprintf(
 				' <span class="%s plugin_update_message">%s</span>',
-				self::con()->getPluginPrefix(),
-				__( 'Update Now To Keep Your Security Current With The Latest Features.', 'wp-simple-firewall' )
+				esc_attr( self::con()->getPluginPrefix() ),
+				esc_html__( 'Update Now To Keep Your Security Current With The Latest Features.', 'wp-simple-firewall' )
 			);
 		} );
 	}

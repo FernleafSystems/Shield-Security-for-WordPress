@@ -132,7 +132,7 @@ class WpLoginReplicaHeader extends Base {
 		// Sanitize output to prevent XSS from URL input or malicious filter callbacks
 		$message = esc_html( $message );
 		if ( !empty( $message ) ) {
-			echo $message."\n";
+			echo $message."\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped with esc_html() above.
 		}
 
 		$loginErrors = '';

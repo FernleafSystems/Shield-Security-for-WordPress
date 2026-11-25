@@ -190,7 +190,7 @@ class ModCon {
 
 		add_action( 'admin_footer', function () {
 			if ( self::con()->isPluginAdminPageRequest() ) {
-				echo self::con()->action_router->render( Actions\Render\Components\ToastPlaceholder::class );
+				echo self::con()->action_router->render( Actions\Render\Components\ToastPlaceholder::class ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by the action router, whose Twig templates escape their values.
 			}
 		}, 100, 0 );
 	}

@@ -63,7 +63,7 @@ catch ( Controller\Exceptions\PluginConfigInvalidException $e ) {
 	add_action( 'admin_notices', function () use ( $e ) {
 		echo sprintf( '<div class="notice error"><p>%s</p><p>%s</p></div>',
 			'Shield Security: Could not load the plugin modules configuration. Please refresh and if the problem persists, please reinstall the Shield plugin.',
-			$e->getMessage()
+			esc_html( $e->getMessage() )
 		);
 	} );
 }

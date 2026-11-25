@@ -30,12 +30,14 @@ class BadgeWidget extends \WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 		if ( \is_array( $args ) ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- The before/after arguments are the theme's widget wrapper markup, which WordPress passes to be printed as is; the badge is a Twig render whose values are escaped, apart from the badge text, which is markup that Shield and the badge filters supply on purpose.
 			echo sprintf( '%s%s%s%s',
 				$args[ 'before_widget' ],
-				!empty( $title ) ? ( $args[ 'before_title' ] ?? '' ).__( 'Site Secured', 'wp-simple-firewall' ).( $args[ 'after_title' ] ?? '' ) : '',
+				!empty( $title ) ? ( $args[ 'before_title' ] ?? '' ).esc_html__( 'Site Secured', 'wp-simple-firewall' ).( $args[ 'after_title' ] ?? '' ) : '',
 				$this->renderBadge(),
 				$args[ 'after_widget' ]
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 	}
 

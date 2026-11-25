@@ -49,7 +49,7 @@ abstract class BaseFullPageDisplay extends BaseAction {
 
 	protected function pushContent() {
 		$payload = $this->response()->payload();
-		echo (string)( $payload[ 'render_output' ] ?? '' );
+		echo (string)( $payload[ 'render_output' ] ?? '' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Full page rendered by the action router, whose Twig templates escape their values.
 	}
 
 	protected function isCacheDisabled() :bool {

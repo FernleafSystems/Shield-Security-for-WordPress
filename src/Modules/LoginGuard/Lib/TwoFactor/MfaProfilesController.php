@@ -52,7 +52,7 @@ class MfaProfilesController {
 			'read',
 			'shield-login-security',
 			function () {
-				echo self::con()->action_router->render( Actions\Render\Components\UserMfa\ConfigPage::class );
+				echo self::con()->action_router->render( Actions\Render\Components\UserMfa\ConfigPage::class ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by the action router, whose Twig templates escape their values.
 			},
 			4
 		) );
@@ -61,15 +61,17 @@ class MfaProfilesController {
 	private function provideUserProfileSections() {
 		// Standard WordPress User Editing their OWN profile.
 		add_action( 'show_user_profile', function () {
-			echo $this->renderUserProfileMFA();
+			echo $this->renderUserProfileMFA(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fixed placeholder markup with no variable content.
 		}, 7, 0 );
 
 		// WordPress Admin Editing OTHER user profile.
 		add_action( 'edit_user_profile', function ( $user ) {
 			if ( $user instanceof \WP_User ) {
+				// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by the action router, whose Twig templates escape their values.
 				echo self::con()->action_router->render( Actions\Render\Components\UserMfa\ConfigEdit::class, [
 					'user_id' => $user->ID
 				] );
+				// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 		} );
 	}

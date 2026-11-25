@@ -18,17 +18,17 @@ function icwp_wpsf_unsupported_php() {
 		'/ <a href="%s">%s</a></p></div>',
 
 		sprintf( 'Shield Security Plugin - Unsupported PHP Version: %s', PHP_VERSION ),
-		implode( '<br/>', $text ),
+		implode( '<br/>', $text ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fixed sentences above, joined with line-break markup.
 		'https://clk.shldscrty.com/dl',
 		'Click here for more info',
-		add_query_arg(
+		esc_url( add_query_arg(
 			array(
 				'action'   => 'deactivate',
 				'plugin'   => urlencode( $sIcwpWpsfPluginFile ),
 				'_wpnonce' => wp_create_nonce( 'deactivate-plugin_'.$sIcwpWpsfPluginFile )
 			),
 			self_admin_url( 'plugins.php' )
-		),
+		) ),
 		'Or, deactivate the Shield Security plugin for now'
 	);
 }

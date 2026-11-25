@@ -187,9 +187,11 @@ class UserSuspendController {
 	}
 
 	public function addUserBlockOption( \WP_User $user ) {
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by the action router, whose Twig templates escape their values.
 		echo self::con()->action_router->render( ProfileSuspend::class, [
 			'user_id' => $user->ID,
 		] );
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	public function handleUserSuspendOptionSubmit( int $uid ) {

@@ -16,7 +16,7 @@ class PluginDumpTelemetry extends BaseAction {
 	}
 
 	protected function exec() {
-		echo sprintf( '<pre><code>%s</code></pre>', \print_r( ( new PluginTelemetry() )->collectTrackingData(), true ) );
+		echo sprintf( '<pre><code>%s</code></pre>', esc_html( \print_r( ( new PluginTelemetry() )->collectTrackingData(), true ) ) );
 		die();
 	}
 }

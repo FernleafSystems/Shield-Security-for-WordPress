@@ -159,9 +159,11 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	}
 
 	public function displayModuleAdminPage() {
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by the action router, whose Twig templates escape their values.
 		echo self::con()->action_router->render(
 			Actions\Render\PageAdminPlugin::class,
 			( new Actions\Render\PageAdminPluginRouteResolver() )->buildAdminPageActionData( $this->action_data )
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
