@@ -68,6 +68,11 @@ class ParamsVO extends DynPropertiesClass {
 
 	use ThisRequestConsumer;
 
+	/**
+	 * A string parameter containing this is replaced, as a whole, by the named property of the request when read.
+	 */
+	private const REQUEST_PLACEHOLDER = '#\{\{request\.([a-z0-9]+)}}#';
+
 	private array $def;
 
 	public function __construct( array $def ) {
@@ -93,10 +98,18 @@ class ParamsVO extends DynPropertiesClass {
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 
-		if ( \is_string( $value ) && \preg_match( '#\{\{request\.([a-z0-9]+)}}#', $value, $matches ) ) {
+		if ( \is_string( $value ) && \preg_match( self::REQUEST_PLACEHOLDER, $value, $matches ) ) {
 			$value = $this->req->{$matches[ 1 ]} ?? $value;
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Whether the parameter is filled in from the request when read, so a visitor may control its value.
+	 */
+	public function isFilledFromRequest( string $key ) :bool {
+		$value = $this->getRawData()[ $key ] ?? null;
+		return \is_string( $value ) && \preg_match( self::REQUEST_PLACEHOLDER, $value ) === 1;
 	}
 }
