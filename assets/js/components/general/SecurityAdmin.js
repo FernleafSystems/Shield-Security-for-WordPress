@@ -157,6 +157,14 @@ export class SecurityAdmin extends BaseComponent {
 		if ( document.activeElement === null || document.activeElement === document.body ) {
 			focusElement( pinInput );
 		}
+
+		// Enter was pressed on a typed PIN before this script was listening (the restricted page notes it): send it.
+		if ( form.dataset.shieldSubmitAsked === '1' ) {
+			delete form.dataset.shieldSubmitAsked;
+			if ( pinInput.value.length > 0 ) {
+				form.requestSubmit();
+			}
+		}
 	}
 
 	handleSecAdminCheck( resp ) {

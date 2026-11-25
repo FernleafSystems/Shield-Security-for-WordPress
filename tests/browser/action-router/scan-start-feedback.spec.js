@@ -56,10 +56,11 @@ async function withTimeout( promise, label, timeout = 10000 ) {
 	}
 }
 
-// The test site has no running scans, so pages that should poll are told to.
+// The test site has no running scans, so pages that should poll are told to. Shield starts once the page is parsed,
+// and this is listening before Shield's script is, so it's told first.
 async function pollOnLoad( page ) {
 	await page.addInitScript( () => {
-		window.addEventListener( 'load', () => {
+		document.addEventListener( 'DOMContentLoaded', () => {
 			const flags = window.shield_vars_main?.comps?.scans?.flags;
 			if ( flags ) {
 				flags.initial_check = true;
