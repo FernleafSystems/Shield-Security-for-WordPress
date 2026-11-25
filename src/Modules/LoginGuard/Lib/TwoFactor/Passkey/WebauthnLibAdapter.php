@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Passkey;
 
+use Base64Url\Base64Url;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeySourcesHandler;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
@@ -81,11 +82,16 @@ class WebauthnLibAdapter implements PasskeyAdapterInterface {
 			new ExtensionOutputCheckerHandler()
 		);
 
-		return $validator->check(
+		$source = $validator->check(
 			$authenticatorAttestationResponse,
 			$this->creationOptionsFromArray( $registrationOptions ),
 			$this->createServerRequest()
-		)->jsonSerialize();
+		);
+
+		// Never store a key that sign-in would refuse.
+		$this->assertKeyAccepted( $source );
+
+		return $source->jsonSerialize();
 	}
 
 	public function verifyAuthentication(
@@ -94,12 +100,37 @@ class WebauthnLibAdapter implements PasskeyAdapterInterface {
 		PasskeyAdapterContext $context,
 		PasskeySourcesHandler $sourceRepo
 	) :array {
+		$this->assertStoredKeyAccepted( $rawResponseJson, $sourceRepo );
+
 		return $this->getServer( $context, $sourceRepo )->loadAndCheckAssertionResponse(
 			$rawResponseJson,
 			$this->requestOptionsFromArray( $authenticationOptions ),
 			$this->getUserEntity( $context ),
 			$this->createServerRequest()
 		)->jsonSerialize();
+	}
+
+	/**
+	 * Refuses the stored key before the library verifies a signature with it. The library looks the passkey up by
+	 * rawId, so the same passkey is checked here. A response without a usable rawId is left for the library to reject.
+	 */
+	private function assertStoredKeyAccepted( string $rawResponseJson, PasskeySourcesHandler $sourceRepo ) :void {
+		$response = \json_decode( $rawResponseJson, true );
+		$rawId = \is_array( $response ) && \is_string( $response[ 'rawId' ] ?? null ) ? Base64Url::decode( $response[ 'rawId' ] ) : '';
+		$source = $rawId === '' ? null : $sourceRepo->findOneByCredentialId( $rawId );
+		if ( $source !== null ) {
+			$this->assertKeyAccepted( $source );
+		}
+	}
+
+	/**
+	 * Temporary hardening for the cose-lib 3.x RSA advisories, see CredentialPublicKeyPolicy. Remove with it.
+	 * @throws \InvalidArgumentException
+	 */
+	private function assertKeyAccepted( PublicKeyCredentialSource $source ) :void {
+		if ( !( new CredentialPublicKeyPolicy() )->accepts( $source ) ) {
+			throw new \InvalidArgumentException( 'This passkey uses a key that is not accepted.' );
+		}
 	}
 
 	private function creationOptionsFromArray( array $options ) :PublicKeyCredentialCreationOptions {

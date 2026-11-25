@@ -5,6 +5,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\LoginGuard\
 use Assert\AssertionFailedException;
 use Base64Url\Base64Url;
 use Brain\Monkey\Functions;
+use CBOR\{
+	ByteStringObject,
+	Decoder,
+	MapObject,
+	OtherObject\OtherObjectManager,
+	StringStream,
+	Tag\TagObjectManager,
+	TextStringObject
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Passkey\{
 	PasskeyAdapterContext,
 	WebauthnLibAdapter
@@ -12,12 +21,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Pas
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeySourcesHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\MFA\Support\PasskeyFixtureLoader;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\LoginGuard\Lib\TwoFactor\Passkey\Support\BuildsPasskeyKeys;
 use Webauthn\{
 	PublicKeyCredentialSource,
 	PublicKeyCredentialUserEntity
 };
 
 class WebauthnLibAdapterTest extends BaseUnitTest {
+
+	use BuildsPasskeyKeys;
+
+	private const ALG_RS256 = -257;
+	private const EXPONENT_65537 = "\x01\x00\x01";
 
 	private array $serverSnapshot = [];
 
@@ -77,6 +92,51 @@ class WebauthnLibAdapterTest extends BaseUnitTest {
 		} );
 	}
 
+	public function test_registration_refuses_an_out_of_bounds_rsa_key_that_the_library_accepts() :void {
+		$result = $this->makeAdapter()->verifyRegistration(
+			$this->registrationResponseWithKey( $this->rsaCoseKey( self::ALG_RS256, $this->modulus( 256 ), self::EXPONENT_65537 ) ),
+			PasskeyFixtureLoader::registrationOptions(),
+			$this->makeContext(),
+			new InMemoryPasskeySourcesHandler()
+		);
+		$this->assertSame( PasskeyFixtureLoader::registrationCredentialId(), $result[ 'publicKeyCredentialId' ] ?? '' );
+
+		$this->expectException( \InvalidArgumentException::class );
+		$this->makeAdapter()->verifyRegistration(
+			$this->registrationResponseWithKey( $this->rsaCoseKey( self::ALG_RS256, $this->modulus( 1024 ), self::EXPONENT_65537 ) ),
+			PasskeyFixtureLoader::registrationOptions(),
+			$this->makeContext(),
+			new InMemoryPasskeySourcesHandler()
+		);
+	}
+
+	/**
+	 * Refused before the library's own credential lookup: an in-bounds key gets as far as the library, which looks
+	 * the passkey up again before failing on the signature.
+	 */
+	public function test_authentication_refuses_an_out_of_bounds_stored_key_before_the_library_verifies_it() :void {
+		$lookups = function ( int $modulusBytes ) :int {
+			$repo = new InMemoryPasskeySourcesHandler( [
+				$this->fixtureSourceWithKey( $this->rsaCoseKey( self::ALG_RS256, $this->modulus( $modulusBytes ), self::EXPONENT_65537 ) ),
+			] );
+			try {
+				$this->makeAdapter()->verifyAuthentication(
+					PasskeyFixtureLoader::authenticationResponse(),
+					PasskeyFixtureLoader::authenticationOptions(),
+					$this->makeContext(),
+					$repo
+				);
+				$this->fail( 'Expected verification with a key that did not sign the response to fail.' );
+			}
+			catch ( \InvalidArgumentException $e ) {
+			}
+			return $repo->lookups;
+		};
+
+		$this->assertSame( 2, $lookups( 256 ) );
+		$this->assertSame( 1, $lookups( 1024 ) );
+	}
+
 	public function test_authentication_replay_succeeds() :void {
 		$result = $this->makeAdapter()->verifyAuthentication(
 			PasskeyFixtureLoader::authenticationResponse(),
@@ -127,6 +187,31 @@ class WebauthnLibAdapterTest extends BaseUnitTest {
 		} );
 	}
 
+	/**
+	 * The fixture registration with its credential public key replaced. The fixture uses attestation "none" and its
+	 * authenticator data ends with the key, so the result is a registration the library accepts as genuine.
+	 */
+	private function registrationResponseWithKey( string $coseKey ) :string {
+		$response = PasskeyFixtureLoader::load()[ 'registration' ][ 'response' ];
+		$decoder = new Decoder( new TagObjectManager(), new OtherObjectManager() );
+		$attestation = $decoder->decode( new StringStream( Base64Url::decode( $response[ 'response' ][ 'attestationObject' ] ) ) )
+							   ->getNormalizedData();
+
+		$authData = $attestation[ 'authData' ];
+		$credentialIdLength = \unpack( 'n', \substr( $authData, 53, 2 ) )[ 1 ];
+
+		$rebuilt = MapObject::create()
+							->add( TextStringObject::create( 'fmt' ), TextStringObject::create( $attestation[ 'fmt' ] ) )
+							->add( TextStringObject::create( 'attStmt' ), MapObject::create() )
+							->add( TextStringObject::create( 'authData' ), ByteStringObject::create(
+								\substr( $authData, 0, 55 + $credentialIdLength ).$coseKey
+							) );
+
+		return PasskeyFixtureLoader::registrationResponse( [
+			'response' => [ 'attestationObject' => Base64Url::encode( (string)$rebuilt ) ],
+		] );
+	}
+
 	private function makeAdapter() :WebauthnLibAdapter {
 		return new WebauthnLibAdapter();
 	}
@@ -169,11 +254,14 @@ class InMemoryPasskeySourcesHandler extends PasskeySourcesHandler {
 	 */
 	private array $sources;
 
+	public int $lookups = 0;
+
 	public function __construct( array $sources = [] ) {
 		$this->sources = $sources;
 	}
 
 	public function findOneByCredentialId( string $publicKeyCredentialId ) :?PublicKeyCredentialSource {
+		$this->lookups++;
 		foreach ( $this->sources as $source ) {
 			if ( $source->getPublicKeyCredentialId() === $publicKeyCredentialId ) {
 				return $source;

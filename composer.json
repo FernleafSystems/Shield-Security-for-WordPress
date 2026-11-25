@@ -14,10 +14,6 @@
     "optimize-autoloader": true,
     "audit":               {
       "ignore": {
-        "PKSA-n72g-8zd8-6dm2": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support remains and a long-term passkey library strategy is finalized."
-        },
         "PKSA-8zx5-v2nz-58pb": {
           "apply":  "block",
           "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing and creates a fresh Twig Environment for each render."
@@ -77,6 +73,70 @@
         "PKSA-xx6c-6d96-db2w": {
           "apply":  "block",
           "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing for untrusted templates."
+        },
+        "PKSA-tfq6-ydd8-dhbf": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3 (fixed in 3.31.1, PHP 8.1+). CVE-2026-133764 is a sandbox bypass through custom tests; Shield does not enable Twig sandboxing."
+        },
+        "PKSA-v6ry-d7gg-9dnc": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3 (fixed in 3.31.1, PHP 8.1+). CVE-2026-133770 lets sandboxed templates rewrite Markup objects; Shield does not enable Twig sandboxing."
+        },
+        "PKSA-szz8-81wy-3x8z": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3 (fixed in 3.31.1, PHP 8.1+). CVE-2026-133768 is a sandbox property bypass through the join filter; Shield does not enable Twig sandboxing."
+        },
+        "PKSA-hjpc-r7p2-zyfx": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3 (fixed in 3.31.1, PHP 8.1+). CVE-2026-133767 is a sandbox bypass through a dynamic embed parent; Shield does not enable Twig sandboxing."
+        },
+        "PKSA-hs2m-ms65-2zgg": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3 (fixed in 3.31.0, PHP 8.1+). CVE-2026-133771 skips autoescaping for a variable that shares its name with a macro import alias anywhere in the same template. Shield templates use import aliases only to call macros and never reuse an alias name as an ordinary variable, so no output loses escaping. Keep it that way when editing templates."
+        },
+        "PKSA-mstn-ywch-n48d": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on web-auth/webauthn-lib 3.3 (fixed in 5.3.13, PHP 8.2+). GHSA-rxc4-cg58-jrpw: a CBOR length in a passkey response can end the request with a memory fatal error. Shield only parses passkey responses after the correct password (login_nonce) or from a logged-in user registering a passkey, and on per-request PHP the fatal ends only that one request."
+        },
+        "PKSA-2h5m-mtv3-857q": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on web-auth/webauthn-lib 3.3 (fixed in 5.3.13, PHP 8.2+). GHSA-p8cj-mmjr-5c2m: metadata status reports are misread. Shield requests attestation 'none' and never enables metadata statement support, so status reports are never read."
+        },
+        "PKSA-2j9c-3mdb-h2kj": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on web-auth/metadata-service 3.3 (no longer flagged from 4.9.0; fully fixed with webauthn-lib 5.3.13, PHP 8.2+). GHSA-p8cj-mmjr-5c2m: metadata status reports are misread. Shield requests attestation 'none' and never enables metadata statement support, so status reports are never read."
+        },
+        "PKSA-f652-rtjq-ksry": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on web-auth/webauthn-lib 3.3 (fixed in 5.3.13, PHP 8.2+). GHSA-2jv3-c2vg-rhc4: the attestation trust path isn't verified for the null AAGUID. Shield requests attestation 'none' and registers only the 'none' attestation format, so it never relies on attestation."
+        },
+        "PKSA-w7hg-g8g6-knnh": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on web-auth/cose-lib 3.3 (fixed in 4.7.2, PHP 8.1+). GHSA-rh56-4rc8-hj58: RSA verification accepts forged signatures under a public exponent of 1. Only a key the attacker registered on their own account is affected, and CredentialPublicKeyPolicy refuses RSA passkey keys whose exponent is not odd and at least 3, at registration and sign-in."
+        },
+        "PKSA-56hc-n44r-kn1v": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on web-auth/cose-lib 3.3 (fixed in 4.7.2, PHP 8.1+). GHSA-9v8c-2mgr-qvx3: an oversized RSA key makes each signature check cost seconds of CPU. It needs a key the attacker registered on their own account, and CredentialPublicKeyPolicy refuses RSA passkey keys over 4096 bits, at registration and sign-in."
+        },
+        "PKSA-p9yd-17ns-8fmj": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on web-auth/cose-lib 3.3 (fixed in 4.7.2, PHP 8.1+). GHSA-h7p4-6f74-7w4g affects Ed25519 signing only; Shield only verifies passkey signatures and never signs with cose-lib."
+        },
+        "PKSA-jy43-r7wq-rrvj": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on spomky-labs/cbor-php 2.1 through webauthn-lib 3.3 (fixed in 3.3.5, PHP 8.0+, through webauthn-lib 5.3.13 for PHP 8.2+). GHSA-jfrf-557c-963v: hostile CBOR can cost CPU or memory, or raise an unexpected error, for one request. Shield only decodes passkey CBOR after the correct password (login_nonce) or from a logged-in user registering a passkey."
+        },
+        "PKSA-nf11-tzdy-csc5": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on spomky-labs/cbor-php 2.1 through webauthn-lib 3.3 (fixed in 3.3.4, PHP 8.0+, through webauthn-lib 5.3.13 for PHP 8.2+). GHSA-pjwm-422x-vvh5: hostile CBOR raises exceptions outside the library's error contract. Shield catches every Throwable from passkey verification, and only decodes passkey CBOR after the correct password (login_nonce) or from a logged-in user registering a passkey."
+        },
+        "PKSA-92zd-2szp-yd79": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on spomky-labs/cbor-php 2.1 through webauthn-lib 3.3 (fixed in 3.3.4, PHP 8.0+, through webauthn-lib 5.3.13 for PHP 8.2+). GHSA-388j-mw2g-rx5f: some CBOR map keys raise a TypeError or collide. An error fails only that request, and a collision only changes the attacker's own passkey data; signatures are verified over the raw bytes."
+        },
+        "PKSA-cqwb-x2mv-br99": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on spomky-labs/cbor-php 2.1 through webauthn-lib 3.3 (fixed in 3.3.4, PHP 8.0+, through webauthn-lib 5.3.13 for PHP 8.2+). GHSA-pf28-pvhp-7mm5: an unbounded CBOR exponent can end one request with a memory fatal error. Shield only decodes passkey CBOR after the correct password (login_nonce) or from a logged-in user registering a passkey."
         }
       }
     },
