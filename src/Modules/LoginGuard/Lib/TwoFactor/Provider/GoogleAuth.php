@@ -112,6 +112,9 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 			$r->success = ( new GoogleAuthenticator() )->authenticate( $meta->ga_temp_secret, $otp )
 			              && $this->createNewSecretRecord( $meta->ga_temp_secret, 'Google Auth' );
 			if ( $r->success ) {
+				// Only now is the pending secret finished with. After a wrong code it's kept, so the code for the
+				// same QR code can be tried again; it's replaced the next time the form is drawn.
+				unset( $meta->ga_temp_secret );
 				$r->msg_text = sprintf(
 					__( '%s was successfully added to your account.', 'wp-simple-firewall' ),
 					__( 'Google Authenticator', 'wp-simple-firewall' )
@@ -125,9 +128,6 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 		catch ( \Exception|InvalidArgumentException $e ) {
 			$r->success = false;
 			$r->error_text = sprintf( '%s %s', __( 'Failed to register.', 'wp-simple-firewall' ), $e->getMessage() );
-		}
-		finally {
-			unset( $meta->ga_temp_secret );
 		}
 
 		return $r;
