@@ -74,10 +74,19 @@ if [ "${PROVISION_MODE}" != "core-only" ] && [ "${SITE_PROFILE}" = "test" ]; the
 		update_option( $optionName, $all );
 
 		shield_security_get_plugin()->getController()->db_con->loadAll();
-
-		// A test site is a new install, on which the setup guide would open over the dashboard by itself.
-		// Tests open pages to work with the page, so the guide starts minimised.
-		( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SetupGuideState() )->minimise();
-		shield_security_get_plugin()->getController()->opts->store();
 	' --allow-root
+fi
+
+# A site that tests drive is a new install, on which the setup guide would open over the dashboard by itself and
+# take the clicks meant for the page. Tests open pages to work with the page, so the guide starts minimised on the
+# local test site and on every browser lane. Other profiles can run a Shield from before there was a setup guide.
+if [ "${PROVISION_MODE}" != "core-only" ]; then
+	case "${SITE_PROFILE}" in
+		test|browser-lane-*)
+			wp eval '
+				( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SetupGuideState() )->minimise();
+				shield_security_get_plugin()->getController()->opts->store();
+			' --allow-root
+			;;
+	esac
 fi
