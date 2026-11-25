@@ -166,6 +166,7 @@ class ActionsQueueBucketsBuilder {
 
 	/**
 	 * @param AttentionQuery $attentionQuery
+	 * @param AssessmentRowsByZone $assessmentRowsByZone
 	 * @return array<string,BucketSource>
 	 */
 	public function classify( array $attentionQuery, array $assessmentRowsByZone = [ 'scans' => [], 'maintenance' => [] ] ) :array {
@@ -198,21 +199,16 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		foreach ( [ 'scans', 'maintenance' ] as $zone ) {
-			foreach ( $assessmentRowsByZone[ $zone ] ?? [] as $row ) {
-				if ( ( $row[ 'status' ] ?? '' ) !== 'good' ) {
-					continue;
-				}
-
-				$bucketKey = \trim( (string)( $row[ 'drill_bucket' ] ?? '' ) );
-				if ( isset( $sources[ $bucketKey ] ) ) {
-					$sources[ $bucketKey ][ 'healthy_item_count' ]++;
+			foreach ( $assessmentRowsByZone[ $zone ] as $row ) {
+				if ( $row[ 'status' ] === 'good' ) {
+					$sources[ $row[ 'drill_bucket' ] ][ 'healthy_item_count' ]++;
 				}
 			}
 		}
 
 		foreach ( $this->groupDefinitions()->criticalScanGroupKeys() as $groupKey ) {
 			$availability = $this->scanAvailability()->build( $groupKey );
-			if ( empty( $availability[ 'show_in_fix_now' ] ) || !empty( $availability[ 'is_available' ] ) ) {
+			if ( !$availability[ 'show_in_fix_now' ] || $availability[ 'is_available' ] ) {
 				continue;
 			}
 			// File Locker is switched on by locking files, which Review next asks for, so it's never listed as
@@ -223,7 +219,7 @@ class ActionsQueueBucketsBuilder {
 
 			$sources[ 'critical' ][ 'disabled_item_count' ]++;
 			$sources[ 'critical' ][ 'disabled_groups' ][ $groupKey ] = $availability;
-			if ( ( $availability[ 'disabled_reason' ] ?? '' ) === 'upgrade_required' ) {
+			if ( $availability[ 'disabled_reason' ] === 'upgrade_required' ) {
 				$sources[ 'critical' ][ 'disabled_upgrade_count' ]++;
 			}
 		}
@@ -248,7 +244,7 @@ class ActionsQueueBucketsBuilder {
 	 * @phpstan-param AttentionItem $item
 	 */
 	private function bucketKeyForAttentionItem( array $item ) :string {
-		return $this->bucketKeyForStatus( (string)( $item[ 'severity' ] ?? '' ) );
+		return $this->bucketKeyForStatus( $item[ 'severity' ] );
 	}
 
 	/**

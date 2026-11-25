@@ -501,7 +501,8 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	 *     item_icon_class:string,
 	 *     status:string,
 	 *     status_label:string,
-	 *     status_icon_class:string
+	 *     status_icon_class:string,
+	 *     is_ignored:bool
 	 *   }>,
 	 *   maintenance:list<array{
 	 *     key:string,
@@ -511,7 +512,8 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	 *     item_icon_class:string,
 	 *     status:string,
 	 *     status_label:string,
-	 *     status_icon_class:string
+	 *     status_icon_class:string,
+	 *     is_ignored:bool
 	 *   }>
 	 * }|null $assessmentRowsByZone
 	 */
@@ -544,7 +546,8 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	 *   item_icon_class:string,
 	 *   status:string,
 	 *   status_label:string,
-	 *   status_icon_class:string
+	 *   status_icon_class:string,
+	 *   is_ignored:bool
 	 * }>>
 	 */
 	private function buildDefaultAssessmentRowsByZone() :array {
@@ -567,7 +570,8 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	 *   item_icon_class:string,
 	 *   status:string,
 	 *   status_label:string,
-	 *   status_icon_class:string
+	 *   status_icon_class:string,
+	 *   is_ignored:bool
 	 * }
 	 */
 	private function buildAssessmentRow(
@@ -589,6 +593,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			'status'            => $status,
 			'status_label'      => $statusLabel,
 			'status_icon_class' => $statusIconClass,
+			'is_ignored'        => false,
 		];
 	}
 
@@ -768,7 +773,8 @@ class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
 	 *     item_icon_class:string,
 	 *     status:string,
 	 *     status_label:string,
-	 *     status_icon_class:string
+	 *     status_icon_class:string,
+	 *     is_ignored:bool
 	 *   }>,
 	 *   maintenance:list<array{
 	 *     key:string,
@@ -777,7 +783,8 @@ class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
 	 *     item_icon_class:string,
 	 *     status:string,
 	 *     status_label:string,
-	 *     status_icon_class:string
+	 *     status_icon_class:string,
+	 *     is_ignored:bool
 	 *   }>
 	 * } $assessmentRowsByZone
 	 */

@@ -80,6 +80,7 @@ class ActionsQueueSecurityCheckProviderTestDouble implements ActionsQueueSecurit
 				'status'            => $this->status,
 				'status_label'      => $this->status,
 				'status_icon_class' => '',
+				'is_ignored'        => false,
 			],
 		];
 	}

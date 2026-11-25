@@ -57,6 +57,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'status' => 'good',
 						'status_label' => 'Good',
 						'status_icon_class' => 'bi bi-check-circle-fill',
+						'is_ignored' => false,
 					],
 					[
 						'key' => 'system_lib_openssl',
@@ -67,6 +68,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'status' => 'neutral',
 						'status_label' => 'Neutral',
 						'status_icon_class' => 'bi bi-info-circle-fill',
+						'is_ignored' => false,
 					],
 				],
 			]
@@ -121,6 +123,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'status' => 'good',
 						'status_label' => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored' => false,
 					],
 				],
 				'maintenance' => [
@@ -133,6 +136,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'status' => 'good',
 						'status_label' => 'Good',
 						'status_icon_class' => 'bi bi-check-circle-fill',
+						'is_ignored' => false,
 					],
 				],
 			]
@@ -184,6 +188,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'status' => 'good',
 						'status_label' => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored' => false,
 					],
 				],
 				'maintenance' => [],
@@ -379,6 +384,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 			'status'            => 'good',
 			'status_label'      => 'Good',
 			'status_icon_class' => 'bi bi-check-circle-fill',
+			'is_ignored'        => false,
 		];
 		$assessmentRows = [ 'scans' => [], 'maintenance' => [ $healthyReviewRow ] ];
 

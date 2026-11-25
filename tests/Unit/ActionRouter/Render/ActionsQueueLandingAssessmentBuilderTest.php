@@ -313,6 +313,7 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 					'status'            => 'good',
 					'status_label'      => 'Good',
 					'status_icon_class' => 'bi bi-patch-check-fill',
+					'is_ignored'        => false,
 				],
 			]
 		);

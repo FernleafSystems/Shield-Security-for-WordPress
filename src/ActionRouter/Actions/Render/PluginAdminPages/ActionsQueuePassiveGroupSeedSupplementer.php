@@ -72,7 +72,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 			$existingGroupKeys[ $seed[ 'key' ] ] = true;
 		}
 
-		foreach ( $this->buildHealthyScanSeedsForBucket( $bucketKey, $assessmentRowsByZone[ 'scans' ] ?? [] ) as $seed ) {
+		foreach ( $this->buildHealthyScanSeedsForBucket( $bucketKey, $assessmentRowsByZone[ 'scans' ] ) as $seed ) {
 			if ( isset( $existingGroupKeys[ $seed[ 'key' ] ] ) ) {
 				continue;
 			}
@@ -127,7 +127,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		$seeds = [];
 		foreach ( $this->groupDefinitions->ignoredOnlyDirectTableGroupKeys() as $definitionKey ) {
 			$availability = $this->scanAvailability->build( $definitionKey );
-			if ( empty( $availability[ 'is_available' ] ) || empty( $availability[ 'show_in_actions_queue' ] ) ) {
+			if ( !$availability[ 'is_available' ] || !$availability[ 'show_in_actions_queue' ] ) {
 				continue;
 			}
 
