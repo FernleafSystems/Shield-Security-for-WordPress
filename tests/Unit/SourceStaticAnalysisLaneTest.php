@@ -50,6 +50,37 @@ class SourceStaticAnalysisLaneTest extends TestCase {
 		$this->assertSame( 'plugin_init.php', $command[ \count( $command ) - 1 ] );
 	}
 
+	public function testLongPathListsAreAnalysedInBatchesThatFitTheWindowsCommandLine() :void {
+		$paths = \array_map(
+			static fn( int $i ) :string => \sprintf( 'src/Modules/Example/Lib/Deeply/Nested/Component/File%03d.php', $i ),
+			\range( 1, 300 )
+		);
+		$processRunner = new RecordingProcessRunner( \array_fill( 0, 10, 0 ) );
+		$lane = new SourceStaticAnalysisLane( $processRunner, $this->createSetupCoordinator( false, 'fingerprint-batches' ) );
+
+		$this->assertSame( 0, $this->runLaneSilencedWithPaths( $lane, false, $paths ) );
+
+		$this->assertGreaterThan( 1, \count( $processRunner->calls ) );
+		$analysed = [];
+		foreach ( $processRunner->calls as $call ) {
+			$this->assertLessThan( 8191, \strlen( \implode( ' ', $call[ 'command' ] ) ) + 2*\count( $call[ 'command' ] ) );
+			$analysed = \array_merge( $analysed, \array_slice( $call[ 'command' ], 7 ) );
+		}
+		$this->assertSame( $paths, $analysed );
+	}
+
+	public function testBatchedAnalysisStopsAtTheFirstFailingBatch() :void {
+		$paths = \array_map(
+			static fn( int $i ) :string => \sprintf( 'src/Modules/Example/Lib/Deeply/Nested/Component/File%03d.php', $i ),
+			\range( 1, 300 )
+		);
+		$processRunner = new RecordingProcessRunner( [ 0, 1, 0, 0, 0 ] );
+		$lane = new SourceStaticAnalysisLane( $processRunner, $this->createSetupCoordinator( false, 'fingerprint-fail' ) );
+
+		$this->assertSame( 1, $this->runLaneSilencedWithPaths( $lane, false, $paths ) );
+		$this->assertCount( 2, $processRunner->calls );
+	}
+
 	public function testCacheMissRunsBuildConfigThenPhpStan() :void {
 		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$setupCoordinator = $this->createSetupCoordinator( true, 'fingerprint-b' );
