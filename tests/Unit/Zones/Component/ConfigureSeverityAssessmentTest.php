@@ -162,6 +162,39 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->assertSame( [], $row[ 'explanations' ] );
 	}
 
+	public function test_file_scanning_only_asks_for_the_areas_the_plan_includes() :void {
+		$scanning = [
+			'afsEnabled'    => true,
+			'fileScanAreas' => [ 'wp' ],
+			'wpCoreEnabled' => true,
+		];
+		$outsidePlan = [
+			'file_repair_areas',
+			'file_scan_areas:malware_php',
+			'file_scan_areas:plugins',
+			'file_scan_areas:themes',
+			'file_scan_areas:wpcontent',
+			'file_scan_areas:wproot',
+		];
+
+		$this->optionsOutsidePlan = $outsidePlan;
+		$this->installController( [], [ 'scans' => $this->buildScansComponent( $scanning ) ] );
+		$onlyCoreAvailable = $this->firstConfigureRow( new FileScanning() );
+
+		$this->optionsOutsidePlan = [];
+		$this->installController( [ 'file_repair_areas' => [ 'wp', 'plugin', 'theme' ] ], [
+			'scans' => $this->buildScansComponent( \array_merge( $scanning, [ 'repairWp' => true ] ) ),
+		] );
+		$everythingAvailable = $this->firstConfigureRow( new FileScanning() );
+
+		$this->assertSame( EnumEnabledStatus::GOOD, $onlyCoreAvailable[ 'enabled_status' ] );
+		$this->assertSame( [], $onlyCoreAvailable[ 'explanations' ] );
+		// One recommendation for the unscanned areas together, and one for each repair that can't run.
+		$this->assertSame( EnumEnabledStatus::OKAY, $everythingAvailable[ 'enabled_status' ] );
+		$this->assertCount( 3, $everythingAvailable[ 'explanations' ] );
+		$this->assertSame( 'file_scan_areas', $this->fixedBy( $everythingAvailable[ 'explanations' ][ 0 ] ) );
+	}
+
 	public function test_scan_scheduling_downgrades_once_daily_to_warning() :void {
 		$this->installController( [ 'scan_frequency' => 1 ] );
 
