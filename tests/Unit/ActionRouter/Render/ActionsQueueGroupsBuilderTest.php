@@ -393,6 +393,36 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 	public function test_build_surfaces_disabled_fix_now_scan_groups_as_neutral_clickable_cards() :void {
 		$controller = $this->createMock( \FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller::class );
 		$controller->method( 'isPremiumActive' )->willReturn( false );
+		// A scan that is switched off carries the dialog that turns it on, which reads what is scanned now and
+		// what the plan includes.
+		$parts = [
+			'comps'  => (object)[
+				'scans' => new class {
+					public function AFS() :object {
+						return new class {
+							public function isEnabled() :bool {
+								return false;
+							}
+
+							public function getFileScanAreas() :array {
+								return [];
+							}
+						};
+					}
+				},
+			],
+			'caps'   => new class {
+				public function canScanMalwareLocal() :bool {
+					return false;
+				}
+
+				public function canScanPluginsThemesLocal() :bool {
+					return false;
+				}
+			},
+			'labels' => (object)[ 'Name' => 'Plugin' ],
+		];
+		$controller->method( '__get' )->willReturnCallback( static fn( string $key ) => $parts[ $key ] ?? null );
 		PluginControllerInstaller::install( $controller );
 		$builder = $this->createBuilder(
 			[],

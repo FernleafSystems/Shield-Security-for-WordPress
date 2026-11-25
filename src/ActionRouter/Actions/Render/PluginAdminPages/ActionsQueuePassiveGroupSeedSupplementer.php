@@ -211,7 +211,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				$seed[ 'is_pro_upsell' ] = true;
 			}
 			if ( $availability[ 'disabled_reason' ] === 'not_enabled' ) {
-				$seed[ 'enable_dialog_json' ] = ( new ProtectionEnableDialogBuilder() )->forScan( $definitionKey, $definition[ 'icon_class' ] );
+				$seed[ 'enable_dialog_json' ] = ( new ProtectionEnableDialogBuilder() )->forScan( $definitionKey );
 			}
 			$seeds[] = $seed;
 		}

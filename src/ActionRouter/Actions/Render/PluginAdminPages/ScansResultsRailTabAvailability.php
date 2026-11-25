@@ -307,7 +307,7 @@ class ScansResultsRailTabAvailability {
 	}
 
 	/**
-	 * Switching a scan on opens the same one-switch dialog wherever it's offered.
+	 * Switching a scan on opens the same dialog wherever it's offered.
 	 * @return DisabledPaneAction
 	 */
 	private function buildEnableAction( string $label, string $scanKey ) :array {
@@ -322,7 +322,7 @@ class ScansResultsRailTabAvailability {
 			'target'       => '',
 			'rel'          => '',
 			'attributes'   => [
-				'data-enable-protection' => ( new ProtectionEnableDialogBuilder() )->forScan( $scanKey, 'bi bi-shield-check' ),
+				'data-enable-protection' => ( new ProtectionEnableDialogBuilder() )->forScan( $scanKey ),
 				'aria-haspopup'          => 'dialog',
 			],
 		];

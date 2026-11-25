@@ -12,12 +12,15 @@ async function openQueue( page, fixture ) {
 	await queue.showSectionsView();
 	return queue;
 }
-async function openProtection( page, tile ) {
+// Opened for a scan, the dialog lists others like it too, so the scan's own switch is picked out by its key.
+async function openProtection( page, tile, key = '' ) {
 	const config = JSON.parse( await tile.getAttribute( 'data-enable-protection' ) );
 	await tile.focus(); await page.keyboard.press( 'Enter' );
 	const dialog = page.locator( '#ShieldMainAccessibleDialog' );
 	await expectNamedDialog( page, dialog ); await expectFocusWithin( dialog );
-	return { dialog, config, toggle: dialog.getByRole( 'switch' ),
+	return { dialog, config,
+		toggle: key === '' ? dialog.getByRole( 'switch' )
+			: dialog.getByRole( 'switch', { name: config.settings.find( setting => setting.key === key ).label, exact: true } ),
 		save: dialog.getByRole( 'button', { name: config.save_label, exact: true } ),
 		cancel: dialog.getByRole( 'button', { name: config.cancel_label, exact: true } ) };
 }
@@ -45,18 +48,31 @@ function failureResponse() {
 test( 'premium protection tiles enable individual scans and files with accessible completion', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'scan_enablement', async fixture => {
 		const queue = await openQueue( page, fixture );
-		for ( const key of [ 'malware', 'plugins', 'themes', 'wordpress', 'vulnerabilities', 'abandoned' ] ) {
+		const launcherFor = key => page.locator( '[data-actions-queue-group-key="' + key + '"][data-enable-protection]' );
+		// Theme files are turned on along with plugin files, from the one dialog.
+		for ( const key of [ 'malware', 'plugins', 'wordpress', 'vulnerabilities', 'abandoned' ] ) {
 			const tile = await queue.waitForLandingGroupOuter( key );
-			let c = await openProtection( page, tile );
-			await expect( c.save ).toBeDisabled();
+			let c = await openProtection( page, tile, key );
+			// One dialog serves every scan of a kind, each shown as it is now: this one is off, with nothing to save yet.
+			await expect( c.toggle ).not.toBeChecked(); await expect( c.save ).toBeDisabled();
 			if ( key === 'malware' ) {
+				// The file scanner is off here, so its own switch is listed. Turning on a kind of file turns it on too, and
+				// nothing is saved while it's off.
+				const scanner = c.dialog.getByRole( 'switch', { name: c.config.settings.find( setting => setting.is_required ).label, exact: true } );
+				await expect( scanner ).not.toBeChecked();
+				await c.toggle.check(); await expect( scanner ).toBeChecked(); await expect( c.save ).toBeEnabled();
+				await scanner.uncheck(); await expect( c.save ).toBeDisabled();
 				await expectNoAxeViolationsInDialog( page, { dialog: 'ShieldMainAccessibleDialog' } );
 				await page.keyboard.press( 'Escape' ); await expect( tile ).toBeFocused();
-				c = await openProtection( page, tile ); await c.cancel.click(); await expect( tile ).toBeFocused();
-				c = await openProtection( page, tile );
+				c = await openProtection( page, tile, key ); await c.cancel.click(); await expect( tile ).toBeFocused();
+				c = await openProtection( page, tile, key );
+			}
+			const together = key === 'plugins' ? [ 'themes' ] : [];
+			for ( const other of together ) {
+				await c.dialog.getByRole( 'switch', { name: c.config.settings.find( setting => setting.key === other ).label, exact: true } ).check();
 			}
 			await c.toggle.check(); await c.save.click(); await expect( c.dialog ).not.toBeVisible();
-			await expect( page.locator( '[data-actions-queue-group-key="' + key + '"][data-enable-protection]' ) ).toHaveCount( 0 );
+			for ( const turnedOn of [ key, ...together ] ) await expect( launcherFor( turnedOn ) ).toHaveCount( 0 );
 			await expect( page.locator( landing ) ).toBeFocused();
 		}
 		await ( await queue.waitForLandingGroupOuter( 'file_locker' ) ).click();
@@ -78,10 +94,25 @@ test( 'free plan protection tiles enable the scans it includes from the same dia
 		const queue = await openQueue( page, fixture );
 		for ( const key of [ 'wordpress', 'abandoned' ] ) {
 			const tile = await queue.waitForLandingGroupOuter( key );
-			const c = await openProtection( page, tile );
+			const c = await openProtection( page, tile, key );
 			await c.toggle.check(); await c.save.click(); await expect( c.dialog ).not.toBeVisible();
 			await expect( page.locator( '[data-actions-queue-group-key="' + key + '"][data-enable-protection]' ) ).toHaveCount( 0 );
 		}
+	} );
+} );
+
+test( 'a scan outside the plan is listed locked, and its upgrade prompt takes the place of the dialog', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'pro_upsell', async fixture => {
+		const queue = await openQueue( page, fixture );
+		const c = await openProtection( page, await queue.waitForLandingGroupOuter( 'wordpress' ), 'wordpress' );
+		const upgrades = c.dialog.locator( '[data-pro-upsell="1"]' );
+		// Plugin files, theme files and PHP malware.
+		await expect( upgrades ).toHaveCount( 3 );
+		await upgrades.first().click();
+		await expect( c.dialog ).not.toBeVisible();
+		const prompt = page.locator( '#ShieldModalContainer' );
+		await expect( prompt ).toBeVisible();
+		await expectFocusWithin( prompt );
 	} );
 } );
 
@@ -89,7 +120,7 @@ for ( const failure of [ 'rejected', 'network' ] ) {
 	test( 'protection save retains busy/error focus and permits retry: ' + failure, async ( { page, fixtureApi } ) => {
 		await fixtureApi.withActionsQueueFixture( 'scan_enablement', async fixture => {
 			const queue = await openQueue( page, fixture );
-			const c = await openProtection( page, await queue.waitForLandingGroupOuter( 'malware' ) );
+			const c = await openProtection( page, await queue.waitForLandingGroupOuter( 'malware' ), 'malware' );
 			let release;
 			const held = new Promise( resolve => { release = resolve; } );
 			let requests = 0;
@@ -129,7 +160,7 @@ for ( const outcome of [ 'removed', 'refresh_failure', 'focus_moved' ] ) {
 	test( 'protection refresh preserves a connected focus destination: ' + outcome, async ( { page, fixtureApi } ) => {
 		await fixtureApi.withActionsQueueFixture( 'scan_enablement', async fixture => {
 			const queue = await openQueue( page, fixture );
-			const c = await openProtection( page, await queue.waitForLandingGroupOuter( 'malware' ) );
+			const c = await openProtection( page, await queue.waitForLandingGroupOuter( 'malware' ), 'malware' );
 			let release;
 			const held = new Promise( resolve => { release = resolve; } );
 			let started = false;

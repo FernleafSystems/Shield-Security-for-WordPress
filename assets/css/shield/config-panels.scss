@@ -16,9 +16,6 @@ $panel-warn: #996800;
 $panel-crit: #b32d2e;
 $panel-hover: #f3f5f6;
 $panel-unsaved: #f0f6fc;
-$panel-pro: #5b2fb5;
-$panel-pro-edge: #c9b8ee;
-$panel-pro-tint: #f2ebfc;
 
 .options_form_for--panel {
 	.shield-panel {
@@ -303,40 +300,12 @@ $panel-pro-tint: #f2ebfc;
 		}
 	}
 
+	// The "Pro only" button itself is styled where every use of it shares it; this places it over the control.
 	.shield-panel-pro-only {
-		align-items: center;
-		background: #fff;
-		border: 1px solid $panel-pro-edge;
-		border-radius: 999px;
-		box-shadow: 0 1px 3px rgba($panel-pro, 0.12);
-		color: $panel-pro;
-		cursor: pointer;
-		display: inline-flex;
-		font-family: inherit;
-		font-size: 12px;
-		font-weight: 600;
-		gap: 0.35rem;
 		left: 0;
-		line-height: 1;
-		padding: 0.35rem 0.75rem;
 		position: absolute;
 		top: 50%;
 		transform: translateY(-50%);
-		white-space: nowrap;
-
-		.bi {
-			font-size: 11px;
-		}
-
-		&:hover {
-			background: $panel-pro-tint;
-			border-color: $panel-pro;
-		}
-
-		&:focus-visible {
-			outline: 2px solid #0b57a4;
-			outline-offset: 2px;
-		}
 	}
 
 	// Under a list of choices it sits in the middle of them.

@@ -1,0 +1,36 @@
+// ─── "Pro only": the way to the upgrade dialog from something outside the site's plan, such as a setting in a
+// Configure panel or a scan in the dialog that switches scans on. Each place it's used positions it. ───
+$pro-only: #5b2fb5;
+$pro-only-edge: #c9b8ee;
+$pro-only-tint: #f2ebfc;
+
+.shield-pro-only-button {
+	align-items: center;
+	background: #fff;
+	border: 1px solid $pro-only-edge;
+	border-radius: 999px;
+	box-shadow: 0 1px 3px rgba($pro-only, 0.12);
+	color: $pro-only;
+	cursor: pointer;
+	display: inline-flex;
+	font-family: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	gap: 0.35rem;
+	line-height: 1;
+	padding: 0.35rem 0.75rem;
+	white-space: nowrap;
+
+	.bi {
+		font-size: 11px;
+	}
+
+	&:hover:not(:disabled) {
+		background: $pro-only-tint;
+		border-color: $pro-only;
+	}
+
+	&:focus-visible {
+		@include shield-focus-ring();
+	}
+}

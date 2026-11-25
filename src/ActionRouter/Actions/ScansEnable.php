@@ -8,50 +8,78 @@ class ScansEnable extends BaseAction {
 
 	public const SLUG = 'scans_enable';
 
+	/**
+	 * The file scanner itself, switched off, stops every kind of file being scanned whatever is chosen below it.
+	 */
+	public const FILE_SCANNING = 'file_scanning';
+
 	public static function ExternalAccess() :array {
 		return [
 			ExternalEntryGuard::ENTRY_AJAX => ExternalEntryGuard::PROOF_NONCE,
 		];
 	}
 
-	/** @var array<string,array{option:string,value:string}> */
+	/**
+	 * What can be switched on, and the setting that does it.
+	 * @var array<string,array{option:string,value:string}>
+	 */
 	public const SCANS = [
-		'malware' => [ 'option' => 'file_scan_areas', 'value' => 'malware_php' ],
+		self::FILE_SCANNING => [ 'option' => 'enable_core_file_integrity_scan', 'value' => 'Y' ],
+		'wordpress' => [ 'option' => 'file_scan_areas', 'value' => 'wp' ],
 		'plugins' => [ 'option' => 'file_scan_areas', 'value' => 'plugins' ],
 		'themes' => [ 'option' => 'file_scan_areas', 'value' => 'themes' ],
-		'wordpress' => [ 'option' => 'file_scan_areas', 'value' => 'wp' ],
+		'malware' => [ 'option' => 'file_scan_areas', 'value' => 'malware_php' ],
 		'vulnerabilities' => [ 'option' => 'enable_wpvuln_scan', 'value' => 'Y' ],
 		'abandoned' => [ 'option' => 'enabled_scan_apc', 'value' => 'Y' ],
 	];
 
+	/**
+	 * Whether the site's plan includes one of them.
+	 */
+	public static function isInPlan( string $key ) :bool {
+		$caps = self::con()->caps;
+		switch ( $key ) {
+			case 'malware':
+				$inPlan = $caps->canScanMalwareLocal();
+				break;
+			case 'plugins':
+			case 'themes':
+				$inPlan = $caps->canScanPluginsThemesLocal();
+				break;
+			case 'vulnerabilities':
+				$inPlan = $caps->canScanVulnerabilities();
+				break;
+			default:
+				$inPlan = isset( self::SCANS[ $key ] );
+				break;
+		}
+		return $inPlan;
+	}
+
+	/**
+	 * Switches on everything asked for, or nothing: one that is unknown or outside the plan refuses them all.
+	 */
 	protected function exec() {
-		$key = $this->action_data[ 'scan' ];
-		$scan = \is_string( $key ) ? ( self::SCANS[ $key ] ?? null ) : null;
-		$success = $scan !== null;
-		if ( $success ) {
-			switch ( $key ) {
-				case 'malware':
-					$success = self::con()->caps->canScanMalwareLocal();
-					break;
-				case 'plugins':
-				case 'themes':
-					$success = self::con()->caps->canScanPluginsThemesLocal();
-					break;
-				case 'vulnerabilities':
-					$success = self::con()->caps->canScanVulnerabilities();
-					break;
-			}
+		$asked = $this->action_data[ 'enable' ];
+		$keys = \is_array( $asked ) ? $asked : [];
+		$success = !empty( $keys );
+		foreach ( $keys as $key ) {
+			$success = $success && \is_string( $key ) && isset( self::SCANS[ $key ] ) && self::isInPlan( $key );
 		}
 		if ( $success ) {
 			$opts = self::con()->opts;
-			if ( $scan[ 'option' ] === 'file_scan_areas' ) {
-				$areas = $opts->optGet( 'file_scan_areas' );
-				$areas[] = $scan[ 'value' ];
-				$opts->optSet( 'file_scan_areas', \array_values( \array_unique( $areas ) ) );
-				$opts->optSet( 'enable_core_file_integrity_scan', 'Y' );
-			}
-			else {
-				$opts->optSet( $scan[ 'option' ], $scan[ 'value' ] );
+			foreach ( $keys as $key ) {
+				$scan = self::SCANS[ $key ];
+				if ( $scan[ 'option' ] === 'file_scan_areas' ) {
+					$opts->optSet( 'file_scan_areas', \array_values( \array_unique(
+						\array_merge( $opts->optGet( 'file_scan_areas' ), [ $scan[ 'value' ] ] )
+					) ) );
+					// A kind of file is only scanned while the file scanner is on.
+					$opts->optSet( 'enable_core_file_integrity_scan', 'Y' );
+				}
+				else {
+					$opts->optSet( $scan[ 'option' ], $scan[ 'value' ] );
+				}
 			}
 			$opts->store();
 		}
@@ -63,6 +91,6 @@ class ScansEnable extends BaseAction {
 	}
 
 	protected function getRequiredDataKeys() :array {
-		return [ 'scan' ];
+		return [ 'enable' ];
 	}
 }

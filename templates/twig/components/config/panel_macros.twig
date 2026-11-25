@@ -50,7 +50,7 @@
 			{{ panel.control( item, strings ) }}
 			{% if is_pro_only %}
 				{# Opens the same "what Pro adds" dialog as the plugin's other upgrade prompts. #}
-				<button type="button" class="shield-panel-pro-only" data-pro-upsell="1" aria-haspopup="dialog" aria-controls="ShieldModalContainer"
+				<button type="button" class="shield-pro-only-button shield-panel-pro-only" data-pro-upsell="1" aria-haspopup="dialog" aria-controls="ShieldModalContainer"
 						aria-label="{{ strings.opt_pro_only }}: {{ option.name }}">
 					<i class="bi bi-lock-fill" aria-hidden="true"></i>{{ strings.opt_pro_only }}
 				</button>
