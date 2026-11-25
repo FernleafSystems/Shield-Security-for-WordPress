@@ -28,6 +28,14 @@ class WpCoreFile extends BaseScan {
 		return true;
 	}
 
+	/**
+	 * Whether the scan accepts this file as WordPress's original copy. Scan exclusions apply, as the scan doesn't
+	 * verify an excluded file as core even when it's in WordPress's checksums.
+	 */
+	public function isOriginalCoreFile() :bool {
+		return !$this->isFileExcluded() && Services::CoreFileHashes()->isCoreFileHashValid( $this->pathFull );
+	}
+
 	protected function isFileExcluded() :bool {
 		$exclusionsRegex = $this->getScanFileExclusions();
 		return !empty( $exclusionsRegex ) && \preg_match( $exclusionsRegex, $this->pathFragment );
