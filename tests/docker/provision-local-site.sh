@@ -79,13 +79,17 @@ fi
 
 # A site that tests drive is a new install, on which the setup guide would open over the dashboard by itself and
 # take the clicks meant for the page. Tests open pages to work with the page, so the guide starts minimised on the
-# local test site and on every browser lane. Other profiles can run a Shield from before there was a setup guide.
+# local test site and on every browser lane. A new install is also scanned within minutes, which would change what
+# those pages show partway through a run, so that scan is called off. Other profiles can run a Shield from before
+# there was either.
 if [ "${PROVISION_MODE}" != "core-only" ]; then
 	case "${SITE_PROFILE}" in
 		test|browser-lane-*)
 			wp eval '
+				$con = shield_security_get_plugin()->getController();
 				( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SetupGuideState() )->minimise();
-				shield_security_get_plugin()->getController()->opts->store();
+				$con->opts->store();
+				wp_clear_scheduled_hook( $con->prefix( \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController::HOOK_FIRST_SCAN ) );
 			' --allow-root
 			;;
 	esac
