@@ -13,13 +13,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Plugin\Lib;
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SelectSearchData;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrainMonkeyWordPressWrapperFunctions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 
 class SelectSearchDataConfigSearchTest extends BaseUnitTest {
 
+	use BrainMonkeyWordPressWrapperFunctions;
+
 	protected function setUp() :void {
 		parent::setUp();
+		$this->registerWordPressWrapperFunctions();
 		Functions\when( '__' )->alias(
 			fn( string $text ) :string => $text
 		);

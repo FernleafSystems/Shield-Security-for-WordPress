@@ -182,7 +182,7 @@
             "code": "WordPress.Security.EscapeOutput.ExceptionNotEscaped",
             "file": "src/ActionRouter/Actions/FullPageDisplay/DisplayReportAdmin.php",
             "message": "All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found '__'.",
-            "count": 2
+            "count": 1
         },
         {
             "type": "ERROR",
@@ -1631,20 +1631,6 @@
             "code": "WordPress.Security.EscapeOutput.OutputNotEscaped",
             "file": "src/Modules/Integrations/Lib/Bots/UserForms/Handlers/Buddypress.php",
             "message": "All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found '$this'.",
-            "count": 1
-        },
-        {
-            "type": "ERROR",
-            "code": "WordPress.Security.EscapeOutput.OutputNotEscaped",
-            "file": "src/Modules/Integrations/Lib/MainWP/Server/MwpExtensionLoader.php",
-            "message": "All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found 'TabSitesListing'.",
-            "count": 1
-        },
-        {
-            "type": "ERROR",
-            "code": "WordPress.Security.EscapeOutput.OutputNotEscaped",
-            "file": "src/Modules/Integrations/Lib/MainWP/Server/MwpExtensionLoader.php",
-            "message": "All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found 'self'.",
             "count": 1
         },
         {

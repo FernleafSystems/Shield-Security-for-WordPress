@@ -20,6 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Traffic
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrainMonkeyWordPressWrapperFunctions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -29,12 +30,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 
 class IpAnalyseContainerRendererTest extends BaseUnitTest {
 
+	use BrainMonkeyWordPressWrapperFunctions;
+
 	private object $capture;
 
 	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->registerWordPressWrapperFunctions();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'esc_html' )->alias( static fn( $text ) :string => \htmlspecialchars( (string)$text, \ENT_QUOTES ) );
 		$this->servicesSnapshot = ServicesState::snapshot();
@@ -160,7 +164,9 @@ class IpAnalyseContainerRendererTest extends BaseUnitTest {
 
 		$data = $container->exposeRenderData();
 
-		$this->assertStringContainsString( 'alert(1)Bad', $data[ 'content' ][ 'general' ] );
+		$this->assertStringContainsString( 'Bad', $data[ 'content' ][ 'general' ] );
+		// The script's contents go with its tags, not just the tags.
+		$this->assertStringNotContainsString( 'alert(1)', $data[ 'content' ][ 'general' ] );
 		$this->assertStringNotContainsString( '<script>', $data[ 'content' ][ 'general' ] );
 		$this->assertStringNotContainsString( '<b>', $data[ 'content' ][ 'general' ] );
 	}

@@ -39,7 +39,7 @@ class ShieldPluginAction extends Base {
 		}
 		catch ( \Throwable $e ) {
 			// A fault in the action, not a refusal. The request still gets a controlled response.
-			\error_log( \sprintf( 'Shield REST action %s failed: %s', $actionSlug, $e->getMessage() ) );
+			\error_log( \sprintf( 'Shield REST action %s failed: %s', $actionSlug, $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Deliberate: records an unexpected fault for the site owner's error log.
 			$data = [
 				'success' => false,
 			];

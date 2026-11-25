@@ -28,7 +28,7 @@ class DisplayReportAdmin extends FullPageDisplayStatic {
 		}
 		$reportID = $this->fields()->string( 'report_unique_id', '' );
 		if ( $reportID === '' ) {
-			throw new ActionException( __( 'Report could not be found.', 'wp-simple-firewall' ) );
+			throw new ActionException( esc_html__( 'Report could not be found.', 'wp-simple-firewall' ) );
 		}
 
 		/** @var ReportDB\Select $select */
@@ -36,7 +36,7 @@ class DisplayReportAdmin extends FullPageDisplayStatic {
 		/** @var ?ReportDB\Record $report */
 		$report = $select->filterByReportID( $reportID )->first();
 		if ( empty( $report ) ) {
-			throw new ActionException( __( 'Report could not be found.', 'wp-simple-firewall' ) );
+			throw new ActionException( esc_html__( 'Report could not be found.', 'wp-simple-firewall' ) );
 		}
 		return \gzinflate( $report->content );
 	}

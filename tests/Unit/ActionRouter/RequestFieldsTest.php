@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 
+use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\RequestFields;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -11,6 +12,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
  * text, the ID 1, or "yes".
  */
 class RequestFieldsTest extends BaseUnitTest {
+
+	protected function setUp() :void {
+		parent::setUp();
+		Functions\stubEscapeFunctions();
+	}
 
 	public function test_string_returns_text_and_defaults_only_when_missing() :void {
 		$fields = new RequestFields( [ 'text' => 'abc', 'empty' => '', 'null' => null ] );

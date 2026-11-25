@@ -103,7 +103,7 @@ class MainwpServerClientActionHandler extends MainwpBase {
 	protected function fireActionOnClientSite() :array {
 		$operation = self::Operations()[ $this->fields()->string( self::FIELD_OPERATION ) ] ?? null;
 		if ( $operation === null ) {
-			throw new ActionException( __( 'Unsupported site action.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'Unsupported site action.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX and MainWP consumers display it as text, and escaping would show entities from translations.
 		}
 
 		$params = $operation[ 'site_action_params' ] ?? [];

@@ -116,7 +116,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 		}
 		catch ( \Throwable $e ) {
 			// A fault in the action, not a refusal. The request still gets a controlled response.
-			\error_log( \sprintf( 'Shield AJAX action %s failed: %s', $slug, $e->getMessage() ) );
+			\error_log( \sprintf( 'Shield AJAX action %s failed: %s', $slug, $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Deliberate: records an unexpected fault for the site owner's error log.
 			$statusCode = 500;
 			$msg = __( 'An unexpected error occurred.', 'wp-simple-firewall' );
 			$response = [

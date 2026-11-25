@@ -66,7 +66,7 @@ class Init {
 					}
 					catch ( \Throwable $e ) {
 						// A fault in the action, not a refusal. The dashboard still gets a controlled response.
-						\error_log( \sprintf( 'Shield MainWP action %s failed: %s', $actionSlug, $e->getMessage() ) );
+						\error_log( \sprintf( 'Shield MainWP action %s failed: %s', $actionSlug, $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Deliberate: records an unexpected fault for the site owner's error log.
 						$response = [
 							'success' => false,
 							'message' => 'Client site action failed.',
