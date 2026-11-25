@@ -147,6 +147,10 @@ class ConfigurePanelBuilder {
 			if ( !\is_array( $option ) ) {
 				continue;
 			}
+			// A switch outside the site's plan isn't running anything, whatever its default, so it's drawn off.
+			if ( $option[ 'unavailable' ] && $option[ 'type' ] === 'checkbox' ) {
+				$option[ 'value' ] = 'N';
+			}
 			$control = $layoutItem[ 'control' ];
 			if ( $control === 'segmented' && !$this->segmentsFitOneLine( $option ) ) {
 				$control = 'radios';
@@ -305,7 +309,8 @@ class ConfigurePanelBuilder {
 	/**
 	 * Editable WordPress roles, plus any saved role no longer registered so saving keeps it.
 	 * Labels are escaped here: the chips template prints a label as HTML, as it does for choices from the spec.
-	 * @return list<array{value:string,label:string,is_on:bool}>
+	 * Every role can be chosen, so each carries the same availability a choice from the spec does.
+	 * @return list<array{value:string,label:string,is_on:bool,is_available:true,unavailable_title:''}>
 	 */
 	private function roleChoices( string $optionKey ) :array {
 		$selected = \array_map( 'strval', (array)self::con()->opts->optGet( $optionKey ) );
@@ -313,16 +318,20 @@ class ConfigurePanelBuilder {
 		$choices = [];
 		foreach ( $names as $role => $name ) {
 			$choices[] = [
-				'value' => (string)$role,
-				'label' => esc_html( translate_user_role( $name ) ),
-				'is_on' => \in_array( (string)$role, $selected, true ),
+				'value'             => (string)$role,
+				'label'             => esc_html( translate_user_role( $name ) ),
+				'is_on'             => \in_array( (string)$role, $selected, true ),
+				'is_available'      => true,
+				'unavailable_title' => '',
 			];
 		}
 		foreach ( \array_diff( $selected, \array_keys( $names ) ) as $role ) {
 			$choices[] = [
-				'value' => $role,
-				'label' => esc_html( $role ),
-				'is_on' => true,
+				'value'             => $role,
+				'label'             => esc_html( $role ),
+				'is_on'             => true,
+				'is_available'      => true,
+				'unavailable_title' => '',
 			];
 		}
 		return $choices;

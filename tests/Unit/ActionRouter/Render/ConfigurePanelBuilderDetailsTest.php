@@ -8,7 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 
 /**
- * A setting offers its fuller description only when that says more than the summary already shown with it.
+ * A setting offers its fuller description only when that says more than the summary already shown with it, and a
+ * switch the site's plan doesn't include is shown as off.
  */
 class ConfigurePanelBuilderDetailsTest extends BaseUnitTest {
 
@@ -40,6 +41,24 @@ class ConfigurePanelBuilderDetailsTest extends BaseUnitTest {
 	public function test_a_setting_without_a_description_offers_nothing() :void {
 		$this->assertSame( [], $this->details( [ 'summary' => 'Anything', 'description' => [] ] ) );
 		$this->assertSame( [], $this->details( [ 'summary' => 'Anything', 'description' => [ '', '  ' ] ] ) );
+	}
+
+	public function test_a_switch_outside_the_plan_is_drawn_off_whatever_its_default() :void {
+		$switchedOn = [ 'type' => 'checkbox', 'value' => 'Y', 'summary' => '', 'description' => [] ];
+
+		$items = $this->invokeNonPublicMethod( new ConfigurePanelBuilder(), 'buildItems', [
+			[
+				[ 'key' => 'in_plan', 'control' => 'toggle' ],
+				[ 'key' => 'outside_plan', 'control' => 'toggle' ],
+			],
+			[
+				'in_plan'      => $switchedOn + [ 'key' => 'in_plan', 'unavailable' => false ],
+				'outside_plan' => $switchedOn + [ 'key' => 'outside_plan', 'unavailable' => true ],
+			],
+		] );
+
+		$this->assertTrue( $items[ 0 ][ 'is_on' ] );
+		$this->assertFalse( $items[ 1 ][ 'is_on' ] );
 	}
 
 	private function details( array $option ) :array {

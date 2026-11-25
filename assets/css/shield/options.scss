@@ -158,7 +158,7 @@ $options-rail-width-max: 260px;
   white-space: nowrap;
 }
 
-// ─── Label Pills (Pro, Unsaved) ───
+// ─── Label Pill (Unsaved) ───
 .options_form_for--modern .shield-option-pill {
   border-radius: 999px;
   font-size: 0.66rem;
@@ -167,11 +167,6 @@ $options-rail-width-max: 260px;
   line-height: 1;
   padding: 0.22rem 0.5rem;
   white-space: nowrap;
-}
-
-.options_form_for--modern .shield-option-pill--pro {
-  background: #f2ebfc;
-  color: #6a3fb0;
 }
 
 .options_form_for--modern .shield-option-pill--unsaved {

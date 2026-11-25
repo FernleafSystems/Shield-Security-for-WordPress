@@ -8,7 +8,9 @@
 	{% import _self as panel %}
 	{% set option = item.option %}
 	{% set severity = item.issues|map( i => i.severity )|filter( s => s == 'critical' )|length > 0 ? 'critical' : 'warning' %}
-	<div class="shield-option-item shield-panel-item shield-panel-item--{{ item.control }} {{ item.stacked ? 'is-stacked' : 'is-inline' }}{{ item.issues is not empty ? ' has-panel-issue has-panel-issue--'~severity : '' }}"
+	{# A setting outside the site's plan is faded, with "Pro only" where its control is. Its help stays in reach. #}
+	{% set is_pro_only = option.disabled and option.unavailable %}
+	<div class="shield-option-item shield-panel-item shield-panel-item--{{ item.control }} {{ item.stacked ? 'is-stacked' : 'is-inline' }}{{ item.issues is not empty ? ' has-panel-issue has-panel-issue--'~severity : '' }}{{ is_pro_only ? ' is-pro-only' : '' }}"
 		 data-option-key="{{ option.key }}">
 		<div class="shield-panel-item__text">
 			<div class="shield-panel-item__name">
@@ -17,9 +19,6 @@
 					<span class="option_label_name" id="Label-{{ option.key }}">{{ option.name }}</span>
 				{% else %}
 					<label class="option_label_name" id="Label-{{ option.key }}" for="Opt-{{ option.key }}">{{ option.name }}</label>
-				{% endif %}
-				{% if option.disabled and option.unavailable %}
-					<span class="shield-option-pill shield-option-pill--pro">{{ strings.opt_pro }}</span>
 				{% endif %}
 				{{ panel.help( option, strings ) }}
 				{% if item.details is not empty %}
@@ -49,6 +48,13 @@
 		</div>
 		<div class="shield-option-control-col shield-panel-item__control">
 			{{ panel.control( item, strings ) }}
+			{% if is_pro_only %}
+				{# Opens the same "what Pro adds" dialog as the plugin's other upgrade prompts. #}
+				<button type="button" class="shield-panel-pro-only" data-pro-upsell="1" aria-haspopup="dialog" aria-controls="ShieldModalContainer"
+						aria-label="{{ strings.opt_pro_only }}: {{ option.name }}">
+					<i class="bi bi-lock-fill" aria-hidden="true"></i>{{ strings.opt_pro_only }}
+				</button>
+			{% endif %}
 		</div>
 		{% if item.details is not empty %}
 			{# Spans the whole row beneath the setting, so the control stays level with its name. #}
@@ -161,12 +167,15 @@
 		{% endif %}
 		{% set choices = item.control == 'roles'
 			? item.roles
-			: option.value_options|map( ( c, v ) => { value: v, label: c.name, is_on: v in option.value, is_available: c.is_available } ) %}
+			: option.value_options|map( ( c, v ) => { value: v, label: c.name, is_on: v in option.value, is_available: c.is_available, unavailable_title: c.unavailable_title } ) %}
 		<div class="shield-option-chipset shield-panel-chips" role="group" aria-labelledby="Label-{{ option.key }}"
 			 {% if described_by %}aria-describedby="{{ described_by }}"{% endif %}>
 			{% for choice in choices %}
-				{% set chip_disabled = is_disabled or not ( choice.is_available ?? true ) %}
-				<label class="shield-option-chip{% if chip_disabled %} is-disabled{% endif %}" for="Opt-{{ option.key }}_{{ choice.value }}">
+				{% set chip_disabled = is_disabled or not choice.is_available %}
+				{# A choice outside the site's plan says so when hovered, unless the whole setting already does. #}
+				{% set chip_title = is_disabled ? '' : choice.unavailable_title %}
+				<label class="shield-option-chip{% if chip_disabled %} is-disabled{% endif %}" for="Opt-{{ option.key }}_{{ choice.value }}"
+					   {% if chip_title is not empty %}data-bs-toggle="tooltip" data-bs-title="{{ chip_title }}"{% endif %}>
 					<input type="checkbox"
 						   class="shield-option-chip__input"
 						   id="Opt-{{ option.key }}_{{ choice.value }}"

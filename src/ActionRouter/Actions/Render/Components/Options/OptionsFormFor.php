@@ -38,7 +38,7 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 		return [
 			'strings' => [
 				'opt_unsaved'               => __( 'Unsaved', 'wp-simple-firewall' ),
-				'opt_pro'                   => __( 'Pro', 'wp-simple-firewall' ),
+				'opt_pro_only'              => BuildOptionsForDisplay::outsidePlanLabel(),
 				'opt_edit'                  => __( 'Edit', 'wp-simple-firewall' ),
 				'opt_none_selected'         => __( 'None selected', 'wp-simple-firewall' ),
 				'opt_help'                  => __( 'Display help for this configuration option', 'wp-simple-firewall' ),

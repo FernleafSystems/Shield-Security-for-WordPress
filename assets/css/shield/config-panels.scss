@@ -3,8 +3,8 @@
 // and its control on the right, and a readable maximum width so the eye doesn't travel across a wide screen
 // to find a control. Space, not rules or coloured edges, separates settings, and the one under the pointer
 // is lightly shaded so it's clear which name goes with which control. Settings that only apply when the one
-// above is on are indented beneath it. Nothing is faded. A setting that needs attention says why, right under
-// its name.
+// above is on are indented beneath it. Only a setting outside the site's plan is faded. A setting that needs
+// attention says why, right under its name.
 
 $panel-text: #1d2327;
 $panel-muted: #50575e;
@@ -15,6 +15,9 @@ $panel-warn: #996800;
 $panel-crit: #b32d2e;
 $panel-hover: #f3f5f6;
 $panel-unsaved: #f0f6fc;
+$panel-pro: #5b2fb5;
+$panel-pro-edge: #c9b8ee;
+$panel-pro-tint: #f2ebfc;
 
 .options_form_for--panel {
 	.shield-panel {
@@ -278,6 +281,66 @@ $panel-unsaved: #f0f6fc;
 	// A list of choices sits beside its name too, starting level with it.
 	.shield-option-item.shield-panel-item.shield-panel-item--radios {
 		align-items: start;
+	}
+
+	// ─── A setting outside the site's plan: faded, with "Pro only" where its control is ───
+	// Its help and details stay as they are, so what the setting does can still be read.
+	.shield-panel-item.is-pro-only {
+		.option_label_name,
+		.options-summary {
+			opacity: 0.5;
+		}
+
+		.shield-panel-item__control {
+			position: relative;
+
+			> *:not(.shield-panel-pro-only) {
+				filter: grayscale(1);
+				opacity: 0.35;
+			}
+		}
+	}
+
+	.shield-panel-pro-only {
+		align-items: center;
+		background: #fff;
+		border: 1px solid $panel-pro-edge;
+		border-radius: 999px;
+		box-shadow: 0 1px 3px rgba($panel-pro, 0.12);
+		color: $panel-pro;
+		cursor: pointer;
+		display: inline-flex;
+		font-family: inherit;
+		font-size: 12px;
+		font-weight: 600;
+		gap: 0.35rem;
+		left: 0;
+		line-height: 1;
+		padding: 0.35rem 0.75rem;
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		white-space: nowrap;
+
+		.bi {
+			font-size: 11px;
+		}
+
+		&:hover {
+			background: $panel-pro-tint;
+			border-color: $panel-pro;
+		}
+
+		&:focus-visible {
+			outline: 2px solid #0b57a4;
+			outline-offset: 2px;
+		}
+	}
+
+	// Under a list of choices it sits in the middle of them.
+	.is-stacked .shield-panel-pro-only {
+		left: 50%;
+		transform: translate(-50%, -50%);
 	}
 
 	// Settings that only apply when the one above is on, indented beneath it.

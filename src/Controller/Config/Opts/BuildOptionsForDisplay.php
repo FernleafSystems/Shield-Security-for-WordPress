@@ -31,6 +31,13 @@ class BuildOptionsForDisplay {
 		$this->sections = $sections;
 	}
 
+	/**
+	 * What a setting, a choice or a whole topic is labelled when the site's plan doesn't include it.
+	 */
+	public static function outsidePlanLabel() :string {
+		return __( 'Pro only', 'wp-simple-firewall' );
+	}
+
 	public function setValues( array $values ) :self {
 		$this->values = $values;
 		$this->valuesAreThisSite = false;
@@ -134,8 +141,7 @@ class BuildOptionsForDisplay {
 						'name'              => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
 						'is_available'      => $hasAccess,
 						// Why a choice is unavailable, as a hover title: '' when there's nothing to add.
-						/* translators: %s: plugin name */
-						'unavailable_title' => $hasAccess ? '' : sprintf( __( 'Available with %s', 'wp-simple-firewall' ), $con->labels->Name ),
+						'unavailable_title' => $hasAccess ? '' : self::outsidePlanLabel(),
 					];
 
 					if ( $converted[ $valueOpt[ 'value_key' ] ][ 'is_available' ] ) {
