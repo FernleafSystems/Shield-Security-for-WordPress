@@ -56,9 +56,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
 
 class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
+	/**
+	 * Option keys the site's plan doesn't include, and "option:choice" for single choices it doesn't.
+	 * @var list<string>
+	 */
+	private array $optionsOutsidePlan = [];
+
 	protected function setUp() :void {
 		parent::setUp();
 		$_SERVER[ 'HTTP_USER_AGENT' ] = 'Unit Test Agent';
+		$this->optionsOutsidePlan = [];
 
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( '_n' )->alias(
@@ -126,6 +133,33 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			$row = $this->firstConfigureRow( $factory() );
 			$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] ?? null, $label.' should remain critical in Configure' );
 		}
+	}
+
+	public function test_a_reason_only_a_setting_outside_the_plan_fixes_is_not_raised() :void {
+		$this->optionsOutsidePlan = [ 'pass_min_strength' ];
+		$this->installController(
+			[ 'pass_min_strength' => 2 ],
+			[ 'opts_lookup' => $this->buildOptsLookupStub( [ 'isPassPoliciesEnabled' => false ] ) ]
+		);
+
+		$row = $this->firstConfigureRow( new PasswordStrength() );
+
+		// The component still has a setting the site can change, and nothing left to say about it.
+		$this->assertSame( EnumEnabledStatus::GOOD, $row[ 'enabled_status' ] );
+		$this->assertSame( [], $row[ 'explanations' ] );
+	}
+
+	public function test_a_component_wholly_outside_the_plan_says_nothing() :void {
+		$this->optionsOutsidePlan = [ 'reg_email_validate', 'email_checks' ];
+		$this->installController(
+			[],
+			[ 'opts_lookup' => $this->buildOptsLookupStub( [ 'getEmailValidateChecks' => [] ] ) ]
+		);
+
+		$row = $this->firstConfigureRow( new SpamUserRegisterBlock() );
+
+		$this->assertSame( EnumEnabledStatus::NEUTRAL, $row[ 'enabled_status' ] );
+		$this->assertSame( [], $row[ 'explanations' ] );
 	}
 
 	public function test_scan_scheduling_downgrades_once_daily_to_warning() :void {
@@ -1033,11 +1067,14 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				'sections' => [],
 			],
 		];
-		$controller->opts = new class( $optValues ) {
+		$controller->opts = new class( $optValues, $this->optionsOutsidePlan ) {
 			private array $values;
 
-			public function __construct( array $values ) {
+			private array $outsidePlan;
+
+			public function __construct( array $values, array $outsidePlan ) {
 				$this->values = $values;
+				$this->outsidePlan = $outsidePlan;
 			}
 
 			public function optGet( string $key ) {
@@ -1046,6 +1083,14 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 			public function optIs( string $key, $value ) :bool {
 				return $this->optGet( $key ) == $value;
+			}
+
+			public function optHasAccess( string $key ) :bool {
+				return !\in_array( $key, $this->outsidePlan, true );
+			}
+
+			public function optValueHasAccess( string $key, string $valueKey ) :bool {
+				return $this->optHasAccess( $key ) && !\in_array( $key.':'.$valueKey, $this->outsidePlan, true );
 			}
 		};
 		$controller->comps = (object)\array_merge(

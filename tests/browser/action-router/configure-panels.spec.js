@@ -152,7 +152,7 @@ test( 'open panels pass the accessibility checks', async ( { page } ) => {
 test( 'needs attention leaves only the settings that need attention, each saying why', async ( { page } ) => {
 	await openGoal( page, 'accounts' );
 	await diagnosis( page ).locator( '[data-configure-zone-show="attention"]' ).click();
-	const form = await openTopic( page, 'sessions' );
+	const form = await openTopic( page, 'passwords' );
 
 	const flagged = form.locator( '.shield-panel-item.has-panel-issue' );
 	await expect( flagged.first() ).toBeVisible();

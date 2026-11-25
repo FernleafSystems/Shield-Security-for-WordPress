@@ -34,7 +34,7 @@ class RateLimiting extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "There's no limit to the number of requests that a single visitor may make against your site.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( "There's no limit to the number of requests that a single visitor may make against your site.", 'wp-simple-firewall' ), 'enable_limiter' );
 		}
 
 		return $status;

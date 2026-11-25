@@ -289,6 +289,25 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertDiagnosisRowScope( $diagnoses[ 'shield' ] ?? [], 'general', 'plugin_general', [ 'visitor_address_source' ] );
 	}
 
+	public function test_a_topic_outside_the_plan_needs_no_attention_until_the_plan_includes_it() :void {
+		try {
+			$this->disablePremiumCapabilities();
+			$onFree = $this->findDiagnosisRowByKey( ( new ConfigureLandingViewBuilder() )->build()[ 'diagnoses' ][ 'code' ], 'file_locker' );
+
+			$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
+			$onPro = $this->findDiagnosisRowByKey( ( new ConfigureLandingViewBuilder() )->build()[ 'diagnoses' ][ 'code' ], 'file_locker' );
+		}
+		finally {
+			$this->disablePremiumCapabilities();
+		}
+
+		$this->assertNotNull( $onFree );
+		$this->assertNotNull( $onPro );
+		$this->assertSame( 'neutral', $onFree[ 'status' ] );
+		// No files are locked, which is a problem once the site could lock them.
+		$this->assertContains( $onPro[ 'status' ], [ 'warning', 'critical' ] );
+	}
+
 	public function test_own_page_settings_have_no_configure_topic() :void {
 		$diagnoses = ( new ConfigureLandingViewBuilder() )->build()[ 'diagnoses' ];
 		foreach ( $diagnoses as $goalKey => $diagnosis ) {

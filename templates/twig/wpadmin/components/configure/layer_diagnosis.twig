@@ -81,17 +81,18 @@
 	{% set problem_rows = diagnosis.problem_rows|filter( r => r.key != 'advanced' ) %}
 	{% set review_rows = diagnosis.review_rows|filter( r => r.key != 'advanced' ) %}
 	{% set healthy_rows = diagnosis.healthy_rows|filter( r => r.key != 'advanced' ) %}
+	{# Topics with nothing to report, among them those outside the site's plan, follow the ones that have. #}
 	<div class="configure-diagnosis__components">
 		{% if problem_rows is not empty %}
 			{{ render_rows(problem_rows, diagnosis_id) }}
 		{% endif %}
 
-		{% if review_rows is not empty %}
-			{{ render_rows(review_rows, diagnosis_id) }}
-		{% endif %}
-
 		{% if healthy_rows is not empty %}
 			{{ render_rows(healthy_rows, diagnosis_id) }}
+		{% endif %}
+
+		{% if review_rows is not empty %}
+			{{ render_rows(review_rows, diagnosis_id) }}
 		{% endif %}
 
 		{% if advanced_rows is not empty %}
