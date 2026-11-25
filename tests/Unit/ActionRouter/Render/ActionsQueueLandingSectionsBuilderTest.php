@@ -100,12 +100,39 @@ class ActionsQueueLandingSectionsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'Server Config' ], \array_column( $passing[ 'boxes' ][ 1 ][ 'rows' ], 'title' ) );
 	}
 
-	public function test_not_covered_gathers_upsells_and_turned_off_protections() :void {
+	public function test_not_covered_lists_what_is_switched_off_apart_from_and_ahead_of_what_needs_an_upgrade() :void {
 		$notCovered = $this->build()[ 3 ];
+		$labelsByBox = \array_map(
+			fn( array $box ) :array => \array_map( fn( array $entry ) :string => $entry[ 'group' ][ 'label' ], $box[ 'entries' ] ),
+			$notCovered[ 'boxes' ]
+		);
 
+		// The upsell arrived first, from an earlier lane, but what can be turned on here leads.
+		$this->assertSame( [ [ 'File Scan' ], [ 'Vulnerabilities' ] ], $labelsByBox );
+		$this->assertSame( 'File Scan, Vulnerabilities', $notCovered[ 'summary' ] );
+		$this->assertSame( 2, $notCovered[ 'count' ] );
+		$this->assertNotSame( $notCovered[ 'boxes' ][ 0 ][ 'heading' ], $notCovered[ 'boxes' ][ 1 ][ 'heading' ] );
+		// Holding something that isn't a matter of upgrading, the section doesn't present itself as Pro's.
+		$this->assertSame( 'neutral', $notCovered[ 'status' ] );
+	}
+
+	public function test_not_covered_is_pros_section_when_it_holds_only_what_needs_an_upgrade() :void {
+		$sections = ( new ActionsQueueLandingSectionsBuilder() )->build(
+			[ $this->bucket( 'critical' ) ],
+			[
+				'critical' => $this->layer( 'critical', [
+					$this->section( [ $this->group( 'vulnerabilities', 'Vulnerabilities', 'neutral', [ 'is_pro_upsell' => true ] ) ] ),
+				], [] ),
+			],
+			[],
+			[]
+		);
+		$notCovered = $sections[ 1 ];
+
+		$this->assertSame( 'not_covered', $notCovered[ 'key' ] );
 		$this->assertSame( 'pro', $notCovered[ 'status' ] );
-		$this->assertSame( 'Vulnerabilities, File Scan', $notCovered[ 'summary' ] );
-		$this->assertSame( [ 'plain' ], \array_column( $notCovered[ 'boxes' ], 'type' ) );
+		$this->assertCount( 1, $notCovered[ 'boxes' ] );
+		$this->assertCount( 1, $notCovered[ 'boxes' ][ 0 ][ 'entries' ] );
 	}
 
 	public function test_a_lane_with_nothing_to_do_stays_folded_in_green_with_a_zero_and_says_so() :void {

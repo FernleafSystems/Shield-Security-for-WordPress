@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\BuildOptionsForDisplay;
+
 /**
  * Lays out the Actions Queue landing: a section for each lane (Fix now, Review next), whether or not anything in
  * it needs action, then one for what's passing and one for what the plan doesn't cover or is turned off. Each
@@ -23,7 +25,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   icon_class:string
  * }
  * @phpstan-type LandingBox array{
- *   type:'shared'|'group'|'passing'|'plain',
+ *   type:'shared'|'group'|'passing',
  *   kind:string,
  *   heading:string,
  *   icon_class:string,
@@ -185,23 +187,7 @@ class ActionsQueueLandingSectionsBuilder {
 			$sections[] = $passingSection;
 		}
 		if ( !empty( $notCovered ) ) {
-			$sections[] = [
-				'key'            => 'not_covered',
-				'status'         => 'pro',
-				'label'          => __( 'Not covered', 'wp-simple-firewall' ),
-				'tab_label'      => __( 'Not covered', 'wp-simple-firewall' ),
-				'icon_class'     => 'bi bi-lock-fill',
-				'count'          => \count( $notCovered ),
-				'show_count'     => true,
-				'summary'        => \implode( ', ', \array_map( fn( array $e ) :string => $e[ 'group' ][ 'label' ], $notCovered ) ),
-				'breakdown'      => [],
-				'selection_json' => '',
-				'is_open'        => false,
-				'empty_text'     => '',
-				'ignored_count'  => 0,
-				'boxes'          => [ $this->box( 'plain', '', '', '', false, $this->entries( $notCovered ) ) ],
-				'is_selected_tab' => false,
-			];
+			$sections[] = $this->buildNotCoveredSection( $notCovered );
 		}
 
 		// With nothing to do in any lane, none starts open, and the first section is the tab showing.
@@ -375,6 +361,43 @@ class ActionsQueueLandingSectionsBuilder {
 	}
 
 	/**
+	 * What isn't being checked, in a box for each reason: what's switched off, which can be turned on from here,
+	 * then what the site's plan doesn't include. Only the second is a matter of upgrading, so the section takes
+	 * Pro's padlock and colour only when that is all it holds.
+	 * @param non-empty-list<HeadedEntry> $notCovered
+	 * @return LandingSection
+	 */
+	private function buildNotCoveredSection( array $notCovered ) :array {
+		$isSwitchedOff = fn( array $entry ) :bool => $entry[ 'group' ][ 'enable_dialog_json' ] !== '';
+		$switchedOff = \array_values( \array_filter( $notCovered, $isSwitchedOff ) );
+		$outsidePlan = \array_values( \array_filter( $notCovered, fn( array $entry ) :bool => !$isSwitchedOff( $entry ) ) );
+
+		return [
+			'key'            => 'not_covered',
+			'status'         => empty( $switchedOff ) ? 'pro' : 'neutral',
+			'label'          => __( 'Not covered', 'wp-simple-firewall' ),
+			'tab_label'      => __( 'Not covered', 'wp-simple-firewall' ),
+			'icon_class'     => empty( $switchedOff ) ? 'bi bi-lock-fill' : 'bi bi-slash-circle',
+			'count'          => \count( $notCovered ),
+			'show_count'     => true,
+			'summary'        => \implode( ', ', \array_map(
+				fn( array $entry ) :string => $entry[ 'group' ][ 'label' ],
+				\array_merge( $switchedOff, $outsidePlan )
+			) ),
+			'breakdown'      => [],
+			'selection_json' => '',
+			'is_open'        => false,
+			'empty_text'     => '',
+			'ignored_count'  => 0,
+			'boxes'          => \array_values( \array_filter( [
+				$this->box( 'shared', '', __( 'Switched off', 'wp-simple-firewall' ), 'bi bi-toggle-off', false, $this->entries( $switchedOff ) ),
+				$this->box( 'shared', '', BuildOptionsForDisplay::outsidePlanLabel(), 'bi bi-lock-fill', false, $this->entries( $outsidePlan ) ),
+			], fn( array $box ) :bool => !empty( $box[ 'entries' ] ) ) ),
+			'is_selected_tab' => false,
+		];
+	}
+
+	/**
 	 * @param GroupData $group
 	 */
 	private function listsItsItems( array $group ) :bool {
@@ -397,7 +420,7 @@ class ActionsQueueLandingSectionsBuilder {
 	}
 
 	/**
-	 * @param 'shared'|'group'|'passing'|'plain' $type
+	 * @param 'shared'|'group'|'passing' $type
 	 * @param list<LandingEntry> $entries
 	 * @param list<HealthyRow>   $rows
 	 * @return LandingBox

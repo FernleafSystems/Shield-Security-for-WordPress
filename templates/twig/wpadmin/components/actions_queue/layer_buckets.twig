@@ -102,20 +102,7 @@
 					so a heading never stands over nothing of its own.
 				#}
 				{% for box in section.boxes %}
-					{% if box.type == 'plain' %}
-						<div class="actions-queue-box">
-							{% for entry in box.entries %}
-								{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
-									group: entry.group,
-									bucket_selection: entry.bucket_selection,
-									strings: strings,
-									collapsible: false,
-									two_columns: false,
-									alert_switch: null
-								} only %}
-							{% endfor %}
-						</div>
-					{% elseif box.type == 'group' %}
+					{% if box.type == 'group' %}
 						{# Only the kinds that can be left out of the queue have an alerts switch. #}
 						<div class="actions-queue-box" data-actions-queue-kind="{{ box.kind }}">
 							{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
