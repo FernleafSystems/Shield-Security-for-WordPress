@@ -78,7 +78,7 @@ class CreateFileLocks {
 		$inserter = $dbh->getQueryInserter();
 		if ( !$inserter->insert( $record ) ) {
 			/* translators: %s: file path */
-			throw new LockDbInsertFailure( sprintf( __( "Failed to insert file locker record for path: '%s'", 'wp-simple-firewall' ), $path ) );
+			throw new LockDbInsertFailure( sprintf( __( "Failed to insert file locker record for path: '%s'", 'wp-simple-firewall' ), $path ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by FileLockerController::runLocksCreation(), which stores it in the file locker state; nothing prints it.
 		}
 
 		self::con()->comps->file_locker->clearLocks();

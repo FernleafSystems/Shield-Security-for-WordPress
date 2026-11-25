@@ -21,7 +21,7 @@ class InvestigationSubjectResolver {
 		$subjectType = \strtolower( \trim( $subjectType ) );
 
 		if ( !InvestigationTableRegistry::hasTableType( $tableType ) ) {
-			throw new UnsupportedInvestigationTableTypeException( 'Unsupported investigation table type: '.$tableType );
+			throw new UnsupportedInvestigationTableTypeException( 'Unsupported investigation table type: '.$tableType ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: InvestigationTableAction returns it as the AJAX JSON message, which the page shows as text.
 		}
 
 		if ( !\in_array( $subjectType, InvestigationTableRegistry::getAllowedSubjectTypes( $tableType ), true ) ) {

@@ -21,7 +21,7 @@ class ConfigEdit extends UserMfaBase {
 		$currentUser = $WPU->getCurrentWpUser();
 		$requestedUserID = (int)( $this->action_data[ 'user_id' ] ?? 0 );
 		if ( $requestedUserID > 0 && $currentUser->ID !== $requestedUserID && !$WPU->isUserAdmin( $currentUser ) ) {
-			throw new ActionException( __( 'Invalid profile request.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'Invalid profile request.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Shown only through the action router (the user profile calls action_router->render()), which escapes exception messages when printing.
 		}
 
 		$user = $requestedUserID > 0 ? $WPU->getUserById( $requestedUserID ) : $currentUser;

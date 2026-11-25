@@ -324,7 +324,7 @@ class Controller {
 				$this->buildNotice_CertainOptionsRestricted( $notice );
 				break;
 			default:
-				throw new \Exception( 'Unsupported Notice ID: '.$notice->id );
+				throw new \Exception( 'Unsupported Notice ID: '.$notice->id ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: processNotice() is only called by buildNotices(), which swallows it; never shown.
 		}
 	}
 

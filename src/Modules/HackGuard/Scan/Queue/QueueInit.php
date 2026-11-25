@@ -39,7 +39,7 @@ class QueueInit {
 	private function loadQueuedScan( int $scanID ) :?ScansDB\Record {
 		$scanRecord = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
 		if ( empty( $scanRecord ) ) {
-			throw new \Exception( sprintf( 'Scan record %d could not be loaded.', $scanID ) );
+			throw new \Exception( sprintf( 'Scan record %d could not be loaded.', $scanID ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message holds only an integer scan ID; QueueBuilder::task() and ProcessQueueWpcli record it as the scan failure text.
 		}
 
 		if ( $scanRecord->status !== ScanStatus::QUEUED || (int)$scanRecord->finished_at > 0 ) {

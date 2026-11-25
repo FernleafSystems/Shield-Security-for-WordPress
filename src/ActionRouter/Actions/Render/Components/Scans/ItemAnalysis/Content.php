@@ -16,12 +16,12 @@ class Content extends BaseComponent {
 		$path = \path_join( ABSPATH, $this->getScanItem()->path_fragment );
 		$FS = Services::WpFs();
 		if ( !$FS->isAccessibleFile( $path ) ) {
-			throw new ActionException( __( 'File does not exist.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'File does not exist.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Shown only through ActionRoutingController::render(), which escapes it into the HTML fragment that the AJAX response carries.
 		}
 
 		$contents = $FS->getFileContent( $path );
 		if ( empty( $contents ) ) {
-			throw new ActionException( __( 'File is empty or could not be read.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'File is empty or could not be read.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Shown only through ActionRoutingController::render(), which escapes it into the HTML fragment that the AJAX response carries.
 		}
 
 		return [

@@ -156,7 +156,7 @@ class Store {
 
 		if ( $this->isReady() && !$this->getSnapStoreExists() ) {
 			/* translators: %s: folder path */
-			throw new \Exception( sprintf( __( "Snapshot store does not exist: '%s'", 'wp-simple-firewall' ), $this->getSnapStorePath() ) );
+			throw new \Exception( sprintf( __( "Snapshot store does not exist: '%s'", 'wp-simple-firewall' ), $this->getSnapStorePath() ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: swallowed by the Store getters and snapshot callers, which ignore or log it with error_log; never shown.
 		}
 
 		$encoded = $FS->getFileContent( $this->getSnapStorePath(), true );
@@ -173,7 +173,7 @@ class Store {
 			}
 		}
 		if ( empty( $snap ) ) {
-			throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: swallowed by the Store getters and snapshot callers, which ignore or log it with error_log; never shown.
 		}
 
 		return $snap;
@@ -186,12 +186,12 @@ class Store {
 	private function readSnapDataStrict() :array {
 		$FS = Services::WpFs();
 		if ( !$FS->exists( $this->getSnapStorePath() ) ) {
-			throw new \Exception( __( 'Snapshot store does not exist.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Snapshot store does not exist.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: swallowed by the Store getters and snapshot callers, which ignore or log it with error_log; never shown.
 		}
 
 		$encoded = $FS->getFileContent( $this->getSnapStorePath(), true );
 		if ( !\is_string( $encoded ) || trim( $encoded ) === '' ) {
-			throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: swallowed by the Store getters and snapshot callers, which ignore or log it with error_log; never shown.
 		}
 
 		$snap = [];
@@ -201,18 +201,18 @@ class Store {
 				continue;
 			}
 			if ( \substr_count( $line, self::SEPARATOR ) !== 1 ) {
-				throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) );
+				throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: swallowed by the Store getters and snapshot callers, which ignore or log it with error_log; never shown.
 			}
 
 			[ $file, $hash ] = \explode( self::SEPARATOR, $line, 2 );
 			if ( $file === '' || $hash === '' || \array_key_exists( $file, $snap ) ) {
-				throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) );
+				throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: swallowed by the Store getters and snapshot callers, which ignore or log it with error_log; never shown.
 			}
 			$snap[ $file ] = $hash;
 		}
 
 		if ( empty( $snap ) ) {
-			throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: swallowed by the Store getters and snapshot callers, which ignore or log it with error_log; never shown.
 		}
 
 		return $snap;
@@ -224,13 +224,13 @@ class Store {
 	private function readSnapMetaStrict() :array {
 		$FS = Services::WpFs();
 		if ( !$FS->exists( $this->getSnapStoreMetaPath() ) ) {
-			throw new \Exception( __( 'Snapshot metadata does not exist.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Snapshot metadata does not exist.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: swallowed by the Store getters and snapshot callers, which ignore or log it with error_log; never shown.
 		}
 
 		$encoded = $FS->getFileContent( $this->getSnapStoreMetaPath(), true );
 		$meta = \is_string( $encoded ) ? \json_decode( $encoded, true ) : null;
 		if ( !\is_array( $meta ) || empty( $meta ) ) {
-			throw new \Exception( __( 'Snapshot metadata could not be decoded.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Snapshot metadata could not be decoded.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: swallowed by the Store getters and snapshot callers, which ignore or log it with error_log; never shown.
 		}
 		return $meta;
 	}
@@ -251,7 +251,7 @@ class Store {
 
 		if ( $this->isReady() && !$this->getSnapStoreExists() ) {
 			/* translators: %s: folder path */
-			throw new \Exception( sprintf( __( "Snapshot store does not exist: '%s'", 'wp-simple-firewall' ), $this->getSnapStorePath() ) );
+			throw new \Exception( sprintf( __( "Snapshot store does not exist: '%s'", 'wp-simple-firewall' ), $this->getSnapStorePath() ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: swallowed by the Store getters and snapshot callers, which ignore or log it with error_log; never shown.
 		}
 
 		$encoded = $FS->getFileContent( $this->getSnapStoreMetaPath(), true );
@@ -259,7 +259,7 @@ class Store {
 			$data = \json_decode( $encoded, true );
 		}
 		if ( empty( $data ) || !\is_array( $data ) ) {
-			throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: swallowed by the Store getters and snapshot callers, which ignore or log it with error_log; never shown.
 		}
 
 		return $data;
@@ -305,15 +305,15 @@ class Store {
 		$dir = \dirname( $this->getSnapStorePath() );
 
 		if ( \strlen( $this->getContext() ) < 1 ) {
-			throw new \Exception( __( 'Context has not been specified.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Context has not been specified.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: swallowed by the Store getters and snapshot callers, which ignore or log it with error_log; never shown.
 		}
 		if ( !$FS->mkdir( $dir ) ) {
 			/* translators: %s: folder path */
-			throw new \Exception( sprintf( __( 'Store directory could not be created: %s', 'wp-simple-firewall' ), $dir ) );
+			throw new \Exception( sprintf( __( 'Store directory could not be created: %s', 'wp-simple-firewall' ), $dir ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: swallowed by the Store getters and snapshot callers, which ignore or log it with error_log; never shown.
 		}
 		if ( !$FS->exists( $dir ) ) {
 			/* translators: %s: folder path */
-			throw new \Exception( sprintf( __( 'Store directory path does not exist: %s', 'wp-simple-firewall' ), $dir ) );
+			throw new \Exception( sprintf( __( 'Store directory path does not exist: %s', 'wp-simple-firewall' ), $dir ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: swallowed by the Store getters and snapshot callers, which ignore or log it with error_log; never shown.
 		}
 		return true;
 	}

@@ -40,18 +40,18 @@ class SiteCustomAction extends BaseSiteMwpAction {
 		$key = self::con()->prefix( 'mwp-action-response' );
 		if ( empty( $response ) || !\is_array( $response ) || !isset( $response[ $key ] ) ) {
 			/* translators: %s: plugin name */
-			throw new ActionException( sprintf( __( 'Empty response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) );
+			throw new ActionException( sprintf( __( 'Empty response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: BaseSiteMwpAction::exec() returns it in the MainWP response, which is JSON text.
 		}
 
 		if ( !\is_string( $response[ $key ] ) ) {
 			/* translators: %s: plugin name */
-			throw new ActionException( sprintf( __( 'Invalid response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) );
+			throw new ActionException( sprintf( __( 'Invalid response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: BaseSiteMwpAction::exec() returns it in the MainWP response, which is JSON text.
 		}
 
 		$result = \json_decode( $response[ $key ], true );
 		if ( empty( $result ) || !\is_array( $result ) ) {
 			/* translators: %s: plugin name */
-			throw new ActionException( sprintf( __( 'Invalid response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) );
+			throw new ActionException( sprintf( __( 'Invalid response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: BaseSiteMwpAction::exec() returns it in the MainWP response, which is JSON text.
 		}
 
 		return (bool)( $result[ 'success' ] ?? false );

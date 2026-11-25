@@ -40,7 +40,7 @@ abstract class Base {
 	) :?string {
 		$normalized = self::normalizeChannel( $channel );
 		if ( !self::isValidChannel( $normalized ) ) {
-			throw new \InvalidArgumentException( \sprintf( $messageTemplate, (string)$normalized ) );
+			throw new \InvalidArgumentException( \sprintf( $messageTemplate, (string)$normalized ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: developer-error guard; callers pass only the CHANNEL_* constants, never request input.
 		}
 		return $normalized;
 	}

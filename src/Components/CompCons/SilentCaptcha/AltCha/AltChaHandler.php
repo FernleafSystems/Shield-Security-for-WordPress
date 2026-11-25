@@ -46,7 +46,7 @@ class AltChaHandler {
 	private function hmacKey() :string {
 		$key = wp_salt( 'shield-altcha' );
 		if ( empty( $key ) ) {
-			throw new \Exception( __( "Can't generate HMAC Key", 'wp-simple-firewall' ) );
+			throw new \Exception( __( "Can't generate HMAC Key", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: callers (reqsMet, CaptureNotBot, CaptureNotBotAltcha) swallow it or write it to the error log; never shown.
 		}
 		return $key;
 	}

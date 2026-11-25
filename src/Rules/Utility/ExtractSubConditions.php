@@ -42,11 +42,11 @@ class ExtractSubConditions {
 			if ( !isset( self::$ConditionDeps[ $conditionClass ] ) ) {
 
 				if ( \in_array( $conditionClass, self::$AllConditions ) ) {
-					throw new \Exception( sprintf( 'Found condition which may have a mutual dependency: %s', $conditionClass ) );
+					throw new \Exception( sprintf( 'Found condition which may have a mutual dependency: %s', $conditionClass ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by AssignMinimumHooks::run() and logged with error_log; never shown.
 				}
 
 				if ( empty( $conditionClass ) || !\class_exists( $conditionClass ) ) {
-					throw new \Exception( sprintf( 'A Condition class is referenced but does not exist: %s', $conditionClass ) );
+					throw new \Exception( sprintf( 'A Condition class is referenced but does not exist: %s', $conditionClass ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by AssignMinimumHooks::run() and logged with error_log; never shown.
 				}
 
 				self::$AllConditions[] = $conditionClass;

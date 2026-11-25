@@ -245,9 +245,11 @@ class ConfigureZoneDiagnosisBuilder {
 	private function assertConfigureExpandActionData( array $dataAttributes ) :void {
 		foreach ( [ 'zone_component_action', 'zone_component_slug', 'option_keys', 'configure_panel' ] as $attribute ) {
 			if ( empty( $dataAttributes[ $attribute ] ) ) {
+				// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Developer-contract check on plugin-defined rows: never shown by Shield (AJAX actions log it and answer generically).
 				throw new \LogicException(
 					\sprintf( 'Expandable configure diagnosis rows require action data %s.', $attribute )
 				);
+				// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 			}
 		}
 	}
@@ -299,9 +301,11 @@ class ConfigureZoneDiagnosisBuilder {
 	private function requireRowKey( array $row ) :string {
 		$rowKey = $row[ 'key' ];
 		if ( $rowKey === '' ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Developer-contract check on plugin-defined rows: never shown by Shield (AJAX actions log it and answer generically).
 			throw new \LogicException(
 				'Configure diagnosis rows require a non-empty producer-owned row key: '.$row[ 'title' ]
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 		return $rowKey;
 	}

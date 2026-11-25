@@ -34,7 +34,7 @@ class Base {
 	 * @throws \Exception
 	 */
 	public function getReporter() {
-		throw new \Exception( __( 'No reporter defined', 'wp-simple-firewall' ) );
+		throw new \Exception( __( 'No reporter defined', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: callers catch it and skip the auditor, never shown.
 	}
 
 	/**
@@ -42,7 +42,7 @@ class Base {
 	 * @throws \Exception
 	 */
 	public function getSnapper() {
-		throw new \Exception( __( 'No snapper defined', 'wp-simple-firewall' ) );
+		throw new \Exception( __( 'No snapper defined', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: callers catch it and skip the auditor, never shown.
 	}
 
 	protected function fireAuditEvent( string $event, array $params ) {

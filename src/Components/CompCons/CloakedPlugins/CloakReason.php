@@ -42,7 +42,7 @@ final class CloakReason {
 	 */
 	public static function assertValid( string $reason ) :void {
 		if ( !\in_array( $reason, self::ALL, true ) ) {
-			throw new \InvalidArgumentException( \sprintf( 'Unsupported cloaked plugin reason: %s', $reason ) );
+			throw new \InvalidArgumentException( \sprintf( 'Unsupported cloaked plugin reason: %s', $reason ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal invariant guard: reasons come from CloakReason constants or validated state, so this is never raised from input or shown.
 		}
 	}
 }

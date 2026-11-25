@@ -25,7 +25,7 @@ class SnapThemes extends SnapBasePluginsThemes {
 			 * the snapshot from being stored/used.
 			 */
 			if ( $theme->wp_theme->get( 'Version' ) === false || $theme->wp_theme->get( 'Name' ) === false ) {
-				throw new InconsistentDataException( sprintf( 'Name/Version for theme "%s" is set to false.', $stylesheet ) );
+				throw new InconsistentDataException( sprintf( 'Name/Version for theme "%s" is set to false.', $stylesheet ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by AuditCon::getCurrentDiff() and discarded; never shown.
 			}
 
 			$items[ $theme->stylesheet ] = [

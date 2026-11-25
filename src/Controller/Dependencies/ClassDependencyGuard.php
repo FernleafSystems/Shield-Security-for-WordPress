@@ -15,6 +15,7 @@ class ClassDependencyGuard {
 		$this->includePrefixedVendorIfAvailable();
 
 		if ( !@\class_exists( $fqcn ) ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Fixed library and class names only: callers log it with error_log() or escape it with esc_html() (RenderService), and the CrowdSec signal-push cron leaves it uncaught for PHP to handle as a fatal error.
 			throw new Exceptions\LibraryNotFoundException(
 				\sprintf(
 					/* translators: %1$s: library name, %2$s: class name */
@@ -23,6 +24,7 @@ class ClassDependencyGuard {
 					$fqcn
 				)
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 	}
 

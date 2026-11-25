@@ -88,7 +88,7 @@ abstract class Base {
 			}
 		}
 		if ( empty( $col ) ) {
-			throw new \Exception( 'Column Definition does not exist for slug: '.$columnSlug );
+			throw new \Exception( 'Column Definition does not exist for slug: '.$columnSlug ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Developer-configuration guard: the slug comes from the table's own column lists. Table actions return it as plain text (TableActionBase::exec()) and IpAnalyse sections escape it (SectionRenderFallback).
 		}
 		return $col;
 	}

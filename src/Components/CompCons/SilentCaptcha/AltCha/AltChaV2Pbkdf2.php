@@ -198,12 +198,12 @@ class AltChaV2Pbkdf2 {
 		$parameters = $challenge[ 'parameters' ];
 		foreach ( [ 'algorithm', 'keyPrefix', 'keySignature', 'nonce', 'salt' ] as $key ) {
 			if ( !\is_string( $parameters[ $key ] ?? null ) || \trim( $parameters[ $key ] ) === '' ) {
-				throw new \Exception( 'ALTCHA challenge is missing '.$key.'.' );
+				throw new \Exception( 'ALTCHA challenge is missing '.$key.'.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: message names a fixed field; caught by CaptureNotBotAltcha::verifyAltChaSolution(), which treats it as an unverified solution.
 			}
 		}
 		foreach ( [ 'cost', 'expiresAt', 'keyLength' ] as $key ) {
 			if ( !\is_int( $parameters[ $key ] ?? null ) ) {
-				throw new \Exception( 'ALTCHA challenge has invalid '.$key.'.' );
+				throw new \Exception( 'ALTCHA challenge has invalid '.$key.'.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: message names a fixed field; caught by CaptureNotBotAltcha::verifyAltChaSolution(), which treats it as an unverified solution.
 			}
 		}
 		if ( (string)$parameters[ 'algorithm' ] !== self::ALGORITHM ) {
@@ -249,12 +249,12 @@ class AltChaV2Pbkdf2 {
 	 */
 	private function hexToBinary( string $hex, string $field ) :string {
 		if ( $hex === '' || \strlen( $hex ) % 2 !== 0 || !\preg_match( '/\A[0-9a-f]+\z/i', $hex ) ) {
-			throw new \Exception( 'ALTCHA '.$field.' is not valid hex.' );
+			throw new \Exception( 'ALTCHA '.$field.' is not valid hex.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: message names a fixed field; caught by CaptureNotBotAltcha::verifyAltChaSolution(), which treats it as an unverified solution.
 		}
 
 		$binary = \hex2bin( $hex );
 		if ( !\is_string( $binary ) ) {
-			throw new \Exception( 'ALTCHA '.$field.' is not valid hex.' );
+			throw new \Exception( 'ALTCHA '.$field.' is not valid hex.' ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: message names a fixed field; caught by CaptureNotBotAltcha::verifyAltChaSolution(), which treats it as an unverified solution.
 		}
 		return $binary;
 	}

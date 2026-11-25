@@ -44,7 +44,7 @@ class ReportIntervalWindowResolver {
 
 	private function assertScheduledInterval( string $interval ) :void {
 		if ( !$this->isSupportedScheduledInterval( $interval ) ) {
-			throw new \InvalidArgumentException( 'Unsupported scheduled report interval: '.$interval );
+			throw new \InvalidArgumentException( 'Unsupported scheduled report interval: '.$interval ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: developer-error guard; CreateReportVO validates the interval with isSupportedScheduledInterval() first, so it isn't shown.
 		}
 	}
 

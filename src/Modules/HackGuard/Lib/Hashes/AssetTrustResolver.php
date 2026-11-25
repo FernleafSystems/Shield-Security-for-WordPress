@@ -77,7 +77,7 @@ class AssetTrustResolver {
 		$hash = $hashSource[ 'hashes' ][ $context->relativePath ]
 				?? ( $hashSource[ 'hashes' ][ \strtolower( $context->relativePath ) ] ?? null );
 		if ( empty( $hash ) ) {
-			throw new UnrecognisedAssetFile( sprintf( 'No hashes exist for file: %s', $path ) );
+			throw new UnrecognisedAssetFile( sprintf( 'No hashes exist for file: %s', $path ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by Query::fileExistsInHash() and Scan\Controller\Afs, which treat it as "unrecognised file", never shown.
 		}
 
 		return [
@@ -376,7 +376,7 @@ class AssetTrustResolver {
 			}
 		}
 		if ( self::$plugins[ $cacheKey ] === self::AMBIGUOUS_PLUGIN ) {
-			throw new AmbiguousAssetFileException( \sprintf( 'Multiple installed plugin headers found for directory: %s', $dir ) );
+			throw new AmbiguousAssetFileException( \sprintf( 'Multiple installed plugin headers found for directory: %s', $dir ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by FileScanner, or swallowed by the other scan and repair callers, never shown.
 		}
 		return self::$plugins[ $cacheKey ] instanceof WpPluginVo ? self::$plugins[ $cacheKey ] : null;
 	}

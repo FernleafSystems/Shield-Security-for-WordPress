@@ -94,7 +94,7 @@ class PreSetOptSanitize {
 
 		if ( !$valid ) {
 			/* translators: %s: option key */
-			throw new \Exception( sprintf( __( 'Invalid value scope for %s', 'wp-simple-firewall' ), $this->key ) );
+			throw new \Exception( sprintf( __( 'Invalid value scope for %s', 'wp-simple-firewall' ), $this->key ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: callers (OptsHandler::optSet(), ProfileRepository) catch it and discard the message, never shown.
 		}
 	}
 
@@ -110,7 +110,7 @@ class PreSetOptSanitize {
 	public function exists() :void {
 		if ( !isset( self::con()->cfg->configuration->options[ $this->key ] ) ) {
 			/* translators: %s: option key */
-			throw new \Exception( sprintf( __( 'Not a valid option key for module: %s', 'wp-simple-firewall' ), $this->key ) );
+			throw new \Exception( sprintf( __( 'Not a valid option key for module: %s', 'wp-simple-firewall' ), $this->key ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: callers (OptsHandler::optSet(), ProfileRepository) catch it and discard the message, never shown.
 		}
 	}
 
@@ -174,7 +174,7 @@ class PreSetOptSanitize {
 
 		if ( !$valid ) {
 			/* translators: %s: option key */
-			throw new \Exception( sprintf( __( 'Invalid value type for %s', 'wp-simple-firewall' ), $this->key ) );
+			throw new \Exception( sprintf( __( 'Invalid value type for %s', 'wp-simple-firewall' ), $this->key ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: callers (OptsHandler::optSet(), ProfileRepository) catch it and discard the message, never shown.
 		}
 	}
 }

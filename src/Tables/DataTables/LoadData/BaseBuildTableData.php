@@ -211,7 +211,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				$user = Services::WpUsers()->getUserById( $searchValue );
 			}
 			if ( empty( $user ) ) {
-				throw new ImpossibleQueryException( $searchParam );
+				throw new ImpossibleQueryException( $searchParam ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by BaseBuildTableData::build(), which ignores the message.
 			}
 			$where = \sprintf( "`req`.`uid`=%d", $user->ID );
 		}

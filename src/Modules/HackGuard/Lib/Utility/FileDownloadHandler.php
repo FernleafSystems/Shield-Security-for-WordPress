@@ -18,16 +18,16 @@ class FileDownloadHandler {
 		$item = ( new RetrieveItems() )->byID( $resultID );
 
 		if ( $item->VO->item_type !== Handler::ITEM_TYPE_FILE || empty( $item->VO->item_id ) ) {
-			throw new \Exception( __( 'Invalid download item data.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Invalid download item data.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught by FileDownload::exec(), which returns it as a plain-text response message.
 		}
 
 		$path = path_join( ABSPATH, $item->VO->item_id );
 		$FS = Services::WpFs();
 		if ( !$FS->isAccessibleFile( $path ) ) {
-			throw new \Exception( __( "File doesn't exist.", 'wp-simple-firewall' ) );
+			throw new \Exception( __( "File doesn't exist.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught by FileDownload::exec(), which returns it as a plain-text response message.
 		}
 		if ( $FS->getFileSize( $path ) === 0 ) {
-			throw new \Exception( __( 'File appears to be empty.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'File appears to be empty.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught by FileDownload::exec(), which returns it as a plain-text response message.
 		}
 
 		return [

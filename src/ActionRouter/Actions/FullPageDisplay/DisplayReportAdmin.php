@@ -24,7 +24,7 @@ class DisplayReportAdmin extends FullPageDisplayStatic {
 	 */
 	protected function retrieveContent() :string {
 		if ( !\is_admin() && !\is_network_admin() ) {
-			throw new ActionException( __( 'Reports can only be viewed from the WordPress admin.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'Reports can only be viewed from the WordPress admin.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- ActionException from an ordinary-entry action: CapturePluginAction swallows it, so it is never shown.
 		}
 		$reportID = $this->fields()->string( 'report_unique_id', '' );
 		if ( $reportID === '' ) {

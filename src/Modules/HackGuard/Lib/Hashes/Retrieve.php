@@ -51,7 +51,7 @@ class Retrieve {
 		if ( empty( $vo ) ) {
 			$vo = Services::WpThemes()->getThemeAsVo( $slug, true );
 			if ( empty( $vo ) ) {
-				throw new \Exception( sprintf( 'Plugin or theme not installed for slug: %s', $slug ) );
+				throw new \Exception( sprintf( 'Plugin or theme not installed for slug: %s', $slug ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: scan callers catch it and ignore or log it with error_log; never shown.
 			}
 		}
 		return $this->byVO( $vo );
@@ -89,7 +89,7 @@ class Retrieve {
 		$source = self::$sources[ $cacheKey ] ?? $this->byVOFromStoredSnapshot( $vo );
 		if ( \is_null( $source ) ) {
 			/* translators: %s: plugin or theme slug */
-			throw new AssetHashesNotFound( sprintf( __( 'Could not locate hashes for VO: %s', 'wp-simple-firewall' ), $vo->slug ) );
+			throw new AssetHashesNotFound( sprintf( __( 'Could not locate hashes for VO: %s', 'wp-simple-firewall' ), $vo->slug ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: Scan\Controller\Afs ignores it and ProcessQueueItem logs it with error_log; never shown.
 		}
 		return $source;
 	}
@@ -195,7 +195,7 @@ class Retrieve {
 			( $vo->asset_type == 'plugin' ? new Query\Plugin() : new Query\Theme() )->getHashesFromVO( $vo )
 		);
 		if ( empty( $hashes ) ) {
-			throw new \Exception( __( 'No crowd-sourced hashes available.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'No crowd-sourced hashes available.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by Retrieve::byVOWithSource(), which falls back to the stored snapshot.
 		}
 		return $hashes;
 	}

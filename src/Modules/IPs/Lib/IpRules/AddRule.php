@@ -72,10 +72,10 @@ class AddRule {
 		$ip = $this->getIP();
 		$parsedRange = Factory::parseRangeString( $ip );
 		if ( empty( $parsedRange ) ) {
-			throw new \Exception( sprintf( "Invalid IP address or IP Range: %s", $ip ) );
+			throw new \Exception( sprintf( "Invalid IP address or IP Range: %s", $ip ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX responses and WP-CLI show it as text; other callers discard it.
 		}
 		if ( !\in_array( $parsedRange->getRangeType(), [ Type::T_PUBLIC, Type::T_PRIVATENETWORK ] ) ) {
-			throw new \Exception( sprintf( "A non-public/private IP address provided: %s", $ip ) );
+			throw new \Exception( sprintf( "A non-public/private IP address provided: %s", $ip ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX responses and WP-CLI show it as text; other callers discard it.
 		}
 		if ( $parsedRange->getSize() > 1 && $type === $dbh::T_AUTO_BLOCK ) {
 			throw new \Exception( "Automatic blocking of IP ranges isn't supported at this time." );
@@ -97,7 +97,7 @@ class AddRule {
 
 			case $dbh::T_MANUAL_BYPASS:
 				if ( $ruleStatus->isBypass() ) {
-					throw new \Exception( sprintf( 'IP (%s) is already on the bypass list.', $ip ) );
+					throw new \Exception( sprintf( 'IP (%s) is already on the bypass list.', $ip ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX responses and WP-CLI show it as text; other callers discard it.
 				}
 				if ( $ruleStatus->isAutoBlacklisted() ) {
 					( new DeleteRule() )->byRecord( $ruleStatus->getRuleForAutoBlock() );
@@ -116,13 +116,13 @@ class AddRule {
 
 			case $dbh::T_CROWDSEC:
 				if ( $ruleStatus->isBypass() ) {
-					throw new \Exception( sprintf( "Not allowed to add CrowdSec rule for IP (%s) when it's whitelisted.", $ip ) );
+					throw new \Exception( sprintf( "Not allowed to add CrowdSec rule for IP (%s) when it's whitelisted.", $ip ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- CrowdSec branch: add() is never called with the CrowdSec type, so this isn't reached or shown.
 				}
 				if ( $ruleStatus->hasManualBlock() ) {
-					throw new \Exception( sprintf( "IP (%s) is already manually blocked so we don't duplicate.", $ip ) );
+					throw new \Exception( sprintf( "IP (%s) is already manually blocked so we don't duplicate.", $ip ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- CrowdSec branch: add() is never called with the CrowdSec type, so this isn't reached or shown.
 				}
 				if ( $ruleStatus->hasCrowdsecRule() ) {
-					throw new \Exception( sprintf( 'IP (%s) is already on the CrowdSec list.', $ip ) );
+					throw new \Exception( sprintf( 'IP (%s) is already on the CrowdSec list.', $ip ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- CrowdSec branch: add() is never called with the CrowdSec type, so this isn't reached or shown.
 				}
 				if ( $ruleStatus->isAutoBlacklisted() ) {
 					( new DeleteRule() )->byRecord( $ruleStatus->getRuleForAutoBlock() );
@@ -132,25 +132,25 @@ class AddRule {
 			// An IP can never be added unless it doesn't exist on any other list.
 			case $dbh::T_AUTO_BLOCK:
 				if ( $ruleStatus->isBypass() ) {
-					throw new \Exception( sprintf( 'IP (%s) is already on the bypass list.', $ip ) );
+					throw new \Exception( sprintf( 'IP (%s) is already on the bypass list.', $ip ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Auto-block branch: only toAutoBlacklist() reaches it, and it catches the exception and discards the message.
 				}
 				if ( $ruleStatus->hasCrowdsecBlock() ) {
-					throw new \Exception( sprintf( 'IP (%s) is currently on the crowdsec list.', $ip ) );
+					throw new \Exception( sprintf( 'IP (%s) is currently on the crowdsec list.', $ip ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Auto-block branch: only toAutoBlacklist() reaches it, and it catches the exception and discards the message.
 				}
 				if ( $ruleStatus->hasManualBlock() ) {
-					throw new \Exception( sprintf( 'IP (%s) is already manually blocked.', $ip ) );
+					throw new \Exception( sprintf( 'IP (%s) is already manually blocked.', $ip ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Auto-block branch: only toAutoBlacklist() reaches it, and it catches the exception and discards the message.
 				}
 				if ( $ruleStatus->isAutoBlacklisted() ) {
-					throw new \Exception( sprintf( 'IP (%s) is already on the auto-blocklist.', $ip ) );
+					throw new \Exception( sprintf( 'IP (%s) is already on the auto-blocklist.', $ip ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Auto-block branch: only toAutoBlacklist() reaches it, and it catches the exception and discards the message.
 				}
 				break;
 
 			case $dbh::T_MANUAL_BLOCK:
 				if ( $ruleStatus->isBypass() ) {
-					throw new \Exception( sprintf( 'IP (%s) is on the bypass list and cannot be manually blocked.', $ip ) );
+					throw new \Exception( sprintf( 'IP (%s) is on the bypass list and cannot be manually blocked.', $ip ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX responses and WP-CLI show it as text; other callers discard it.
 				}
 				if ( $ruleStatus->hasManualBlock() ) {
-					throw new \Exception( sprintf( 'IP (%s) is already manually blocked.', $ip ) );
+					throw new \Exception( sprintf( 'IP (%s) is already manually blocked.', $ip ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX responses and WP-CLI show it as text; other callers discard it.
 				}
 				if ( $ruleStatus->hasCrowdsecRule() ) {
 					$this->deleteExactCrowdsecRules( $ruleStatus, $parsedRange );
@@ -167,7 +167,7 @@ class AddRule {
 
 						// 2. If you're manually adding a range and an existing range is covered by that range => no action taken.
 						if ( $parsedExistingRange->asSubnet()->toString() === $parsedRange->asSubnet()->toString() ) {
-							throw new \Exception( sprintf( 'IP Range (%s) is already manually blocked.', $ip ) );
+							throw new \Exception( sprintf( 'IP Range (%s) is already manually blocked.', $ip ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX responses and WP-CLI show it as text; other callers discard it.
 						}
 
 						// 3. If you're manually adding a range and an existing single entry or range is covered by that range, it is replaced.
@@ -180,7 +180,7 @@ class AddRule {
 				break;
 
 			default:
-				throw new \Exception( sprintf( "An invalid list type provided: %s", $type ) );
+				throw new \Exception( sprintf( "An invalid list type provided: %s", $type ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX responses and WP-CLI show it as text; other callers discard it.
 		}
 
 		$ipRecord = ( new IPRecords() )->loadIP( $this->getIP() );

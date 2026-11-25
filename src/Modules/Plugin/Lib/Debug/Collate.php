@@ -75,7 +75,7 @@ class Collate {
 		}
 		catch ( \Exception $e ) {
 			/* translators: %s: error message */
-			$diff = sprintf( __( 'Failed: %s', 'wp-simple-firewall' ), $e->getMessage() );
+			$diff = sprintf( __( 'Failed: %s', 'wp-simple-firewall' ), esc_html( $e->getMessage() ) );
 		}
 
 		return [

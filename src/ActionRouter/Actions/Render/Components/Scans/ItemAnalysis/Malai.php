@@ -21,7 +21,7 @@ class Malai extends BaseComponent {
 			( new MalaiFileQueryEligibility() )->assertCanOfferQuery( $item );
 		}
 		catch ( \Exception $e ) {
-			throw new ActionException( $e->getMessage() );
+			throw new ActionException( $e->getMessage() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Shown only through ActionRoutingController::render(), which escapes it into the HTML fragment that the AJAX response carries.
 		}
 
 		return [

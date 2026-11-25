@@ -30,7 +30,7 @@ class AutoUnblockCrowdsec extends BaseAutoUnblock {
 
 		if ( empty( $theRecord ) ) {
 			/* translators: %s: CrowdSec service name */
-			throw new \Exception( sprintf( __( "IP isn't on the %s block list.", 'wp-simple-firewall' ), 'CrowdSec' ) );
+			throw new \Exception( sprintf( __( "IP isn't on the %s block list.", 'wp-simple-firewall' ), 'CrowdSec' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by BaseAutoUnblock::isUnblockAvailable() and processAutoUnblockRequest(), which return false, never shown.
 		}
 		return $theRecord;
 	}

@@ -41,12 +41,12 @@ class Import {
 		if ( $delete ) {
 			$FS->deleteFile( $path );
 			if ( $FS->exists( $path ) ) {
-				throw new \Exception( __( 'Not importing a file that cannot be deleted', 'wp-simple-firewall' ) );
+				throw new \Exception( __( 'Not importing a file that cannot be deleted', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: shown as text by the import AJAX action and WP-CLI; the flag-file import ignores it.
 			}
 		}
 
 		if ( empty( $content ) ) {
-			throw new \Exception( __( 'Import file was empty', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Import file was empty', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: shown as text by the import AJAX action and WP-CLI; the flag-file import ignores it.
 		}
 
 		{//filter any comment lines
@@ -57,13 +57,13 @@ class Import {
 				}
 			);
 			if ( empty( $parts ) ) {
-				throw new \Exception( __( 'Options data could not be found in uploaded file', 'wp-simple-firewall' ) );
+				throw new \Exception( __( 'Options data could not be found in uploaded file', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: shown as text by the import AJAX action and WP-CLI; the flag-file import ignores it.
 			}
 		}
 		{//parse the options json
 			$data = @\json_decode( \array_shift( $parts ), true );
 			if ( empty( $data ) || !\is_array( $data ) ) {
-				throw new \Exception( __( "Options data in the file wasn't of the correct format.", 'wp-simple-firewall' ) );
+				throw new \Exception( __( "Options data in the file wasn't of the correct format.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: shown as text by the import AJAX action and WP-CLI; the flag-file import ignores it.
 			}
 		}
 
@@ -75,10 +75,10 @@ class Import {
 	 */
 	public function fromFileUpload( array $form ) {
 		if ( !self::con()->isPluginAdmin() ) {
-			throw new \Exception( __( 'Not currently logged-in as security admin.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Not currently logged-in as security admin.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: only the file upload import action reaches these checks, and its AJAX response shows the message as text.
 		}
 		if ( ( $form[ 'confirm' ] ?? '' ) !== 'Y' ) {
-			throw new \Exception( __( 'Please check the box to confirm.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Please check the box to confirm.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: only the file upload import action reaches these checks, and its AJAX response shows the message as text.
 		}
 
 		$FS = Services::WpFs();
@@ -86,7 +86,7 @@ class Import {
 		if ( !\is_array( $upload )
 			 || !\is_string( $upload[ 'tmp_name' ] ?? null )
 			 || \trim( $upload[ 'tmp_name' ] ) === '' ) {
-			throw new \Exception( __( 'Please select a file to upload', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Please select a file to upload', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: only the file upload import action reaches these checks, and its AJAX response shows the message as text.
 		}
 		$path = $upload[ 'tmp_name' ];
 
@@ -95,11 +95,11 @@ class Import {
 			 || !\is_int( $upload[ 'size' ] ?? null )
 			 || $upload[ 'size' ] < 0
 			 || !$FS->isAccessibleFile( $path ) ) {
-			throw new \Exception( __( 'Uploading of file failed', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Uploading of file failed', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: only the file upload import action reaches these checks, and its AJAX response shows the message as text.
 		}
 
 		if ( $upload[ 'size' ] === 0 || filesize( $path ) === 0 ) {
-			throw new \Exception( __( "The file appears to be empty or couldn't be uploaded properly", 'wp-simple-firewall' ) );
+			throw new \Exception( __( "The file appears to be empty or couldn't be uploaded properly", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: only the file upload import action reaches these checks, and its AJAX response shows the message as text.
 		}
 
 		$this->fromFile( $path );
@@ -328,19 +328,19 @@ class Import {
 		$options = $data[ 'options' ] ?? [];
 		$ipRules = $data[ 'ip_rules' ] ?? [];
 		if ( !\is_array( $options ) ) {
-			throw new \Exception( __( "Imported options weren't of the correct format.", 'wp-simple-firewall' ) );
+			throw new \Exception( __( "Imported options weren't of the correct format.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: shown as text by the import AJAX actions and WP-CLI; never printed as HTML.
 		}
 		if ( !\is_array( $ipRules ) ) {
-			throw new \Exception( __( "Imported IP rules weren't of the correct format.", 'wp-simple-firewall' ) );
+			throw new \Exception( __( "Imported IP rules weren't of the correct format.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: shown as text by the import AJAX actions and WP-CLI; never printed as HTML.
 		}
 
 		foreach ( $ipRules as $rule ) {
 			if ( !\is_array( $rule ) ) {
-				throw new \Exception( __( "An imported IP rule wasn't of the correct format.", 'wp-simple-firewall' ) );
+				throw new \Exception( __( "An imported IP rule wasn't of the correct format.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: shown as text by the import AJAX actions and WP-CLI; never printed as HTML.
 			}
 			if ( ( $rule[ 'type' ] ?? '' ) === IpRulesDB::T_MANUAL_BYPASS
 				 && ( !\is_string( $rule[ 'ip' ] ?? null ) || !\is_string( $rule[ 'label' ] ?? null ) ) ) {
-				throw new \Exception( __( "An imported manual bypass rule wasn't of the correct format.", 'wp-simple-firewall' ) );
+				throw new \Exception( __( "An imported manual bypass rule wasn't of the correct format.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: shown as text by the import AJAX actions and WP-CLI; never printed as HTML.
 			}
 		}
 
@@ -370,7 +370,7 @@ class Import {
 					: $validator->validateTrustedSyncUrl( $masterURL );
 			}
 			catch ( \Throwable $e ) {
-				throw new \Exception( $e->getMessage(), 4, $e );
+				throw new \Exception( $e->getMessage(), 4, $e ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Carries the URL validator's message unchanged; the import AJAX actions and WP-CLI show it as text.
 			}
 		}
 

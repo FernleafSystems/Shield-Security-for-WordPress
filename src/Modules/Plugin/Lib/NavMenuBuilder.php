@@ -264,7 +264,7 @@ class NavMenuBuilder {
 		return \array_map(
 			function ( string $toolId ) use ( $toolItemsById ) :array {
 				if ( !isset( $toolItemsById[ $toolId ] ) ) {
-					throw new \LogicException( sprintf( 'Missing configure sidebar tool definition: %s', $toolId ) );
+					throw new \LogicException( sprintf( 'Missing configure sidebar tool definition: %s', $toolId ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Developer-contract check on plugin-defined menu items: never shown by Shield (AJAX actions log it and answer generically).
 				}
 				return $toolItemsById[ $toolId ];
 			},
@@ -509,7 +509,7 @@ class NavMenuBuilder {
 
 		if ( empty( $item[ 'sub_items' ] ) ) {
 			if ( !$item[ 'is_action' ] && \trim( (string)$item[ 'href' ] ) === '' ) {
-				throw new \LogicException( sprintf( 'Sidebar link item requires a non-empty href: %s', $item[ 'slug' ] ) );
+				throw new \LogicException( sprintf( 'Sidebar link item requires a non-empty href: %s', $item[ 'slug' ] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Developer-contract check on plugin-defined menu items: never shown by Shield (AJAX actions log it and answer generically).
 			}
 			$item[ 'classes' ][] = 'body_content_link';
 		}
@@ -531,7 +531,7 @@ class NavMenuBuilder {
 					$sub[ 'target' ] = '';
 				}
 				if ( !$sub[ 'is_action' ] && \trim( (string)$sub[ 'href' ] ) === '' ) {
-					throw new \LogicException( sprintf( 'Sidebar sub-link item requires a non-empty href: %s', $sub[ 'slug' ] ) );
+					throw new \LogicException( sprintf( 'Sidebar sub-link item requires a non-empty href: %s', $sub[ 'slug' ] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Developer-contract check on plugin-defined menu items: never shown by Shield (AJAX actions log it and answer generically).
 				}
 				if ( $sub[ 'active' ] ) {
 					$sub[ 'classes' ][] = 'active';

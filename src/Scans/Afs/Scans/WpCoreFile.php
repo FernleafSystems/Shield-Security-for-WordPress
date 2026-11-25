@@ -18,11 +18,11 @@ class WpCoreFile extends BaseScan {
 	protected function runScan() :bool {
 		if ( !Services::WpFs()->isAccessibleFile( $this->pathFull ) ) {
 			if ( !$this->isExcludedMissing() ) {
-				throw new Exceptions\WpCoreFileMissingException( $this->pathFull );
+				throw new Exceptions\WpCoreFileMissingException( $this->pathFull ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the message is a file path, caught by FileScanner and turned into a scan result item, never shown.
 			}
 		}
 		elseif ( !Services::CoreFileHashes()->isCoreFileHashValid( $this->pathFull ) ) {
-			throw new Exceptions\WpCoreFileChecksumFailException( $this->pathFull );
+			throw new Exceptions\WpCoreFileChecksumFailException( $this->pathFull ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the message is a file path, caught by FileScanner and turned into a scan result item, never shown.
 		}
 
 		return true;

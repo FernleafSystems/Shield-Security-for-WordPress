@@ -27,7 +27,7 @@ class ConfigForm extends UserMfaBase {
 		$currentUser = $WPU->getCurrentWpUser();
 		$requestedUserID = $this->fields()->positiveInt( 'user_id', 0 );
 		if ( $requestedUserID > 0 && $currentUser->ID !== $requestedUserID && !self::con()->this_req->is_security_admin ) {
-			throw new ActionException( __( 'Invalid profile request.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'Invalid profile request.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Shown only through the action router: AJAX responses show it as text, and render() escapes it when printing.
 		}
 
 		$user = $requestedUserID > 0 ? $WPU->getUserById( $requestedUserID ) : $currentUser;

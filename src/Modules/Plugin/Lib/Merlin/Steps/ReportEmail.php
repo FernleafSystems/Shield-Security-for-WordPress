@@ -16,7 +16,7 @@ class ReportEmail extends Base {
 			? Services::WpGeneral()->getSiteAdminEmail()
 			: \trim( $form[ 'ReportEmail' ] ?? '' );
 		if ( !Services::Data()->validEmail( $email ) ) {
-			throw new \Exception( __( 'Please provide a valid email address.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Please provide a valid email address.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: MerlinAction (AJAX) returns it as the response message, shown as text.
 		}
 
 		self::con()->opts->optSet( 'block_send_email_address', $email )->store();

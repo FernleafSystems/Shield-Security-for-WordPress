@@ -29,7 +29,7 @@ class IpAutoUnblockShieldUserLinkRequest extends BaseAction {
 				] )->setPayloadSuccess( true );
 			}
 			catch ( \Exception $e ) {
-				throw new ActionException( $e->getMessage() );
+				throw new ActionException( $e->getMessage() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX-only action, and the response shows it as text.
 			}
 		}
 	}

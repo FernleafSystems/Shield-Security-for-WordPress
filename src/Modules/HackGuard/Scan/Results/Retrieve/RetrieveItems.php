@@ -100,7 +100,7 @@ class RetrieveItems extends RetrieveBase {
 		) );
 		if ( empty( $scan ) ) {
 			/* translators: %s: ID of the scan result item */
-			throw new \Exception( sprintf( __( 'Could not determine scan type from the result item ID %s.', 'wp-simple-firewall' ), $resultItemID ) );
+			throw new \Exception( sprintf( __( 'Could not determine scan type from the result item ID %s.', 'wp-simple-firewall' ), $resultItemID ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: callers swallow it or return it as text (ScansMalaiFileQuery AJAX JSON message), and the ID is an integer.
 		}
 		$this->setScanController( self::con()->comps->scans->getScanCon( $scan ) );
 
@@ -115,7 +115,7 @@ class RetrieveItems extends RetrieveBase {
 		$resultSet = $this->convertToResultsSet( $rawResults );
 		if ( $resultSet->countItems() !== 1 ) {
 			/* translators: %s: ID of the scan result item */
-			throw new \Exception( sprintf( __( 'Scan result with ID %s does not exist.', 'wp-simple-firewall' ), $resultItemID ) );
+			throw new \Exception( sprintf( __( 'Scan result with ID %s does not exist.', 'wp-simple-firewall' ), $resultItemID ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: callers swallow it or return it as text (ScansMalaiFileQuery AJAX JSON message), and the ID is an integer.
 		}
 		$items = $resultSet->getAllItems();
 		return \array_shift( $items );

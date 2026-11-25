@@ -60,9 +60,11 @@ abstract class TableActionBase extends BaseAction {
 	protected function assertRequiredActionDataKeys( array $requiredKeys ) :void {
 		$missingKeys = \array_diff( $requiredKeys, \array_keys( $this->action_data ) );
 		if ( !empty( $missingKeys ) ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message of developer-defined key names: exec() returns it as the AJAX response message.
 			throw new MissingTableActionDataException(
 				'Missing required action data keys: '.\implode( ', ', $missingKeys )
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 	}
 

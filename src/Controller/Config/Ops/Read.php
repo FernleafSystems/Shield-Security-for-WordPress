@@ -22,7 +22,7 @@ class Read {
 				return self::FromString( $content );
 			}
 		}
-		throw new \LogicException( 'No config file present for slug: '.basename( $path ) );
+		throw new \LogicException( 'No config file present for slug: '.basename( $path ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: raised while Controller::boot() loads plugin.json; plugin_init.php logs it with error_log, never shown.
 	}
 
 	/**
@@ -36,7 +36,7 @@ class Read {
 			$spec = \json_decode( $def, true );
 		}
 		if ( empty( $spec ) || !\is_array( $spec ) ) {
-			throw new \Exception( __( 'Could not parse the definition file.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Could not parse the definition file.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: raised while Controller::boot() loads plugin.json; plugin_init.php logs it with error_log, never shown.
 		}
 
 		return $spec;

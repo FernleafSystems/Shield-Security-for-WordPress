@@ -143,12 +143,12 @@ class ConfigureSearchResultsBuilder {
 	private function requireZoneSummary( string $zoneKey ) :string {
 		$tile = $this->getConfigureLandingViewData()[ 'tile_lookup' ][ $zoneKey ] ?? null;
 		if ( !\is_array( $tile ) ) {
-			throw new \LogicException( 'Configure search zone results require a landing tile for every diagnosis: '.$zoneKey );
+			throw new \LogicException( 'Configure search zone results require a landing tile for every diagnosis: '.$zoneKey ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: LogicException for a broken zone definition; the AJAX capture logs it and shows a generic message.
 		}
 
 		$summary = \trim( (string)( $tile[ 'summary' ] ?? '' ) );
 		if ( $summary === '' ) {
-			throw new \LogicException( 'Configure search zone results require a non-empty tile summary: '.$zoneKey );
+			throw new \LogicException( 'Configure search zone results require a non-empty tile summary: '.$zoneKey ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: LogicException for a broken zone definition; the AJAX capture logs it and shows a generic message.
 		}
 
 		return $summary;

@@ -14,7 +14,7 @@ class RetrievePublicKey {
 	public function retrieve() :array {
 		$key = $this->buildGetter()->retrieve();
 		if ( $key === null ) {
-			throw new PublicKeyRetrievalFailure( __( 'Failed to obtain public key from API.', 'wp-simple-firewall' ) );
+			throw new PublicKeyRetrievalFailure( __( 'Failed to obtain public key from API.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught by FileLockerController, UpgradeLocks and ScansFileLockerAction, which log it, store it or replace it with a generic message.
 		}
 
 		return $key;

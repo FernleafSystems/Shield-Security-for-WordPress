@@ -15,7 +15,7 @@ class WpContentUnidentified extends BaseScan {
 	 */
 	protected function runScan() :bool {
 		if ( Services::WpFs()->isAccessibleFile( $this->pathFull ) && $this->inWpContentDir() ) {
-			throw new Exceptions\WpContentFileUnidentifiedException( $this->pathFull );
+			throw new Exceptions\WpContentFileUnidentifiedException( $this->pathFull ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: FileScanner catches it to flag the file; the message is never shown.
 		}
 		return false;
 	}

@@ -24,17 +24,17 @@ trait LoginWpUserConsumer {
 		$loginNonce = $fields->string( 'login_nonce', '' );
 
 		if ( $userID < 1 || empty( $loginNonce ) ) {
-			throw new ActionException( __( 'Invalid login session.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'Invalid login session.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: caught in MfaPasskeyAuthenticationStart and returned as an AJAX JSON message.
 		}
 
 		$user = Services::WpUsers()->getUserById( $userID );
 		if ( !$user instanceof \WP_User ) {
-			throw new ActionException( __( 'User not found.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'User not found.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: caught in MfaPasskeyAuthenticationStart and returned as an AJAX JSON message.
 		}
 
 		// Validate the login_nonce belongs to this user
 		if ( !self::con()->comps->mfa->verifyLoginNonce( $user, $loginNonce ) ) {
-			throw new ActionException( __( 'Invalid or expired login session.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'Invalid or expired login session.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: caught in MfaPasskeyAuthenticationStart and returned as an AJAX JSON message.
 		}
 
 		return $user;

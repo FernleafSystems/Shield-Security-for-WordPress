@@ -44,7 +44,7 @@ class ScanResultsScopeResolver {
 					'file' => $subjectId,
 				];
 			default:
-				throw new \InvalidArgumentException( \sprintf( 'Unsupported scan result scope type "%s".', $subjectType ) );
+				throw new \InvalidArgumentException( \sprintf( 'Unsupported scan result scope type "%s".', $subjectType ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: ScanResultsTableAction::exec() returns it as AJAX JSON text; render and table builders ignore or log it.
 		}
 	}
 
@@ -77,7 +77,7 @@ class ScanResultsScopeResolver {
 			case self::SCOPE_TYPE_WORDPRESS:
 				return InvestigationSubjectWheres::forCoreResults( $metaTableAbbr );
 			default:
-				throw new \InvalidArgumentException( \sprintf( 'Unsupported scan result scope type "%s".', $type ) );
+				throw new \InvalidArgumentException( \sprintf( 'Unsupported scan result scope type "%s".', $type ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Not reached: normalizeActionScope() has already rejected unknown types, through the throw above.
 		}
 	}
 }

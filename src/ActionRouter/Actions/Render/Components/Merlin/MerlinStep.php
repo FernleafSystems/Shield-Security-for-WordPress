@@ -23,7 +23,7 @@ class MerlinStep extends BaseRender {
 
 		$slug = $this->action_data[ 'vars' ][ 'step_slug' ] ?? null;
 		if ( !\preg_match( '#^[a-z0-9_]+$#', (string)$slug ) ) {
-			throw new ActionException( __( 'Invalid Step Slug', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'Invalid Step Slug', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Shown only through the action router's render(), which escapes exception messages when printing.
 		}
 	}
 

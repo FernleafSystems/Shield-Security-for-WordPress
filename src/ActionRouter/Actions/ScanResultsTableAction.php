@@ -154,7 +154,7 @@ class ScanResultsTableAction extends BaseAction {
 		$type = \trim( $this->fields()->string( 'type', '' ) );
 		$file = \trim( $this->fields()->string( 'file', '' ) );
 		if ( $type === '' || $file === '' ) {
-			throw new \Exception( __( 'No scan results scope was provided.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'No scan results scope was provided.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: ScanResultsTableAction::exec() returns it as the AJAX JSON message.
 		}
 
 		$results = ( new RetrieveItems() )
@@ -234,7 +234,7 @@ class ScanResultsTableAction extends BaseAction {
 	private function getItemIDs() :array {
 		$itemIDs = $this->fields()->positiveIntList( 'rids', [] );
 		if ( empty( $itemIDs ) ) {
-			throw new \Exception( __( 'No items selected.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'No items selected.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: ScanResultsTableAction::exec() returns it as the AJAX JSON message.
 		}
 		return $itemIDs;
 	}

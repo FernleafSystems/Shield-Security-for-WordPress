@@ -27,7 +27,7 @@ class MergeAutoBlockRules {
 		$dbh = self::con()->db_con->ip_rules;
 
 		if ( \count( $records ) < 2 ) {
-			throw new \Exception( __( 'At least two records are required to merge.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'At least two records are required to merge.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught and ignored or logged by CleanIpRules::duplicates_AutoBlock() and IpRuleStatus; never shown.
 		}
 
 		$workingIP = null;
@@ -42,7 +42,7 @@ class MergeAutoBlockRules {
 				$workingIP = $record->ip;
 			}
 			elseif ( $workingIP !== $record->ip ) {
-				throw new \Exception( __( 'The records do not pertain to the same IP address.', 'wp-simple-firewall' ) );
+				throw new \Exception( __( 'The records do not pertain to the same IP address.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught and ignored or logged by CleanIpRules::duplicates_AutoBlock() and IpRuleStatus; never shown.
 			}
 
 			if ( !isset( $toKeep ) ) {

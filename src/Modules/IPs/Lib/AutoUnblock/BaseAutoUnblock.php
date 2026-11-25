@@ -66,10 +66,10 @@ abstract class BaseAutoUnblock {
 		$carbon = Services::Request()->carbon();
 		$ipRecord = $this->getIpRecord();
 		if ( $carbon->subMinute()->timestamp < $ipRecord->last_unblock_attempt_at ) {
-			throw new \Exception( __( 'IP has recently attempted an unblock.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'IP has recently attempted an unblock.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by processAutoUnblockRequest() and isUnblockAvailable(), which ignore the message.
 		}
 		if ( $carbon->subHour()->timestamp < $ipRecord->unblocked_at ) {
-			throw new \Exception( __( 'IP has already been unblocked recently.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'IP has already been unblocked recently.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by processAutoUnblockRequest() and isUnblockAvailable(), which ignore the message.
 		}
 	}
 

@@ -68,7 +68,7 @@ class Diff {
 			] );
 		}
 		catch ( \Throwable $e ) {
-			throw new DiffUnavailableException( $e );
+			throw new DiffUnavailableException( $e ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the exception sets its own fixed message and wraps $e; ScansFileLockerDiff catches it and shows a "diff unavailable" notice instead.
 		}
 
 		return $diff;

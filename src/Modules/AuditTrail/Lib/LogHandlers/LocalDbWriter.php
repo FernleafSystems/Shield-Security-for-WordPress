@@ -118,7 +118,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$requestRecord = self::con()->comps->requests_log->createDependentLog()
 						 ?? $this->loadCurrentRequestRecordFromUpgradeCompatibilityPath();
 		if ( empty( $requestRecord ) ) {
-			throw new \Exception( __( 'No dependent request record found or created.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'No dependent request record found or created.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by write(); isDependentRequestRecordException() compares this exact message, so it must not be escaped.
 		}
 
 		$record->req_ref = $requestRecord->id;
@@ -127,7 +127,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$inserter = $dbh->getQueryInserter();
 		$log = $inserter->insertGetRecord( $record );
 		if ( empty( $log ) ) {
-			throw new \Exception( __( 'Failed to insert.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Failed to insert.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by write() and logged with error_log; never shown.
 		}
 		return $log;
 	}

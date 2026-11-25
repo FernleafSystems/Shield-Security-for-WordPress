@@ -33,7 +33,7 @@ final class PhpFileActivity {
 	 */
 	public static function assertValid( string $activity ) :void {
 		if ( !\in_array( $activity, self::ALL, true ) ) {
-			throw new \InvalidArgumentException( \sprintf( 'Unsupported PHP file activity: %s', $activity ) );
+			throw new \InvalidArgumentException( \sprintf( 'Unsupported PHP file activity: %s', $activity ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal invariant guard: the only caller (CloakedPluginsCon::detect()) passes PhpFileActivityClassifier output, so it's never raised from input or shown.
 		}
 	}
 }

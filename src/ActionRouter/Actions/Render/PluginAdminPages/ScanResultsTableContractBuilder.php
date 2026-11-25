@@ -85,7 +85,7 @@ class ScanResultsTableContractBuilder {
 				$datatablesInit = ( new ForPluginTheme() )->buildRaw();
 				break;
 			default:
-				throw new \InvalidArgumentException( \sprintf( 'Unsupported scan result scope type "%s".', $scope[ 'type' ] ) );
+				throw new \InvalidArgumentException( \sprintf( 'Unsupported scan result scope type "%s".', $scope[ 'type' ] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Programming-error guard on a type ScanResultsScopeResolver has already validated, not an ActionException: AJAX handlers log it and show a generic message, and the plugin never prints it.
 		}
 
 		return $this->buildTableContract(

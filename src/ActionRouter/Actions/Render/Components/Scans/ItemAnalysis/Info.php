@@ -60,7 +60,7 @@ class Info extends BaseComponent {
 			];
 		}
 		catch ( \Exception $e ) {
-			throw new ActionException( $e->getMessage() );
+			throw new ActionException( $e->getMessage() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Rethrows the caught message as an ActionException; Info is rendered only through the action router, which escapes exception messages when printing.
 		}
 
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), $data );

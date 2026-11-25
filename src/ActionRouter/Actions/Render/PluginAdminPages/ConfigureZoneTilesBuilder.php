@@ -270,7 +270,7 @@ class ConfigureZoneTilesBuilder {
 		foreach ( $rows as $row ) {
 			$key = $row[ 'key' ];
 			if ( isset( $seenKeys[ $key ] ) ) {
-				throw new \LogicException( 'Configure row keys must be unique within a zone: '.$key );
+				throw new \LogicException( 'Configure row keys must be unique within a zone: '.$key ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Developer assertion on row keys defined in code, never user input; the plugin does not print it.
 			}
 			$seenKeys[ $key ] = true;
 		}

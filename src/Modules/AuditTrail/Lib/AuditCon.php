@@ -185,7 +185,7 @@ class AuditCon {
 	public function getSnapshot( string $slug ): Record {
 		if ( empty( $this->getSnapshots()[ $slug ] ) ) {
 			/* translators: %s: snapshot slug */
-			throw new \Exception( sprintf( __( 'Snapshot could not be loaded for %s', 'wp-simple-firewall' ), $slug ) );
+			throw new \Exception( sprintf( __( 'Snapshot could not be loaded for %s', 'wp-simple-firewall' ), $slug ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: every caller (AuditCon, Debug Collate) catches it and carries on; never shown.
 		}
 		return $this->getSnapshots()[ $slug ];
 	}

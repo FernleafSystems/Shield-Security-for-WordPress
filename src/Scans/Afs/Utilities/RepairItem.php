@@ -67,7 +67,7 @@ class RepairItem {
 
 			if ( $item->is_in_core ) {
 				if ( !Services::CoreFileHashes()->isCoreFile( $pathFragment ) ) {
-					throw new \Exception( __( 'Not a WordPress Core file', 'wp-simple-firewall' ) );
+					throw new \Exception( __( 'Not a WordPress Core file', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: canRepair() failures are caught by RepairItem::repairItem(), LoadFileScanResultsTableData and the scan item action callers, never shown.
 				}
 				$canRepair = !( new WordpressReleaseChannel() )->isDevelopmentBuild();
 			}
@@ -75,21 +75,25 @@ class RepairItem {
 				$asset = Services::WpPlugins()->getPluginAsVo( $item->ptg_slug );
 
 				if ( empty( $asset ) ) {
+					// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: canRepair() failures are caught by RepairItem::repairItem(), LoadFileScanResultsTableData and the scan item action callers, never shown.
 					throw new \Exception( sprintf(
 						/* translators: %s: plugin slug */
 						__( "Couldn't load plugin for slug '%s'.", 'wp-simple-firewall' ),
 						$item->ptg_slug
 					) );
+					// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 				}
 				if ( !$asset->isWpOrg() ) {
+					// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: canRepair() failures are caught by RepairItem::repairItem(), LoadFileScanResultsTableData and the scan item action callers, never shown.
 					throw new \Exception( sprintf(
 						/* translators: %s: type of asset, such as Plugin */
 						__( '%s not installed from WordPress.org.', 'wp-simple-firewall' ),
 						__( 'Plugin', 'wp-simple-firewall' )
 					) );
+					// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 				}
 				if ( !$asset->svn_uses_tags ) {
-					throw new \Exception( __( "Plugin developer doesn't use SVN tags for official releases.", 'wp-simple-firewall' ) );
+					throw new \Exception( __( "Plugin developer doesn't use SVN tags for official releases.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: canRepair() failures are caught by RepairItem::repairItem(), LoadFileScanResultsTableData and the scan item action callers, never shown.
 				}
 
 				try {
@@ -102,30 +106,36 @@ class RepairItem {
 				$asset = Services::WpThemes()->getThemeAsVo( $item->ptg_slug );
 
 				if ( empty( $asset ) ) {
+					// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: canRepair() failures are caught by RepairItem::repairItem(), LoadFileScanResultsTableData and the scan item action callers, never shown.
 					throw new \Exception( sprintf(
 						/* translators: %s: theme slug */
 						__( "Couldn't load theme for slug '%s'.", 'wp-simple-firewall' ),
 						$item->ptg_slug
 					) );
+					// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 				}
 				if ( $asset->is_child ) {
+					// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: canRepair() failures are caught by RepairItem::repairItem(), LoadFileScanResultsTableData and the scan item action callers, never shown.
 					throw new \Exception( sprintf(
 						/* translators: %s: type of asset, such as Theme */
 						__( "%s is a child of another theme.", 'wp-simple-firewall' ),
 						__( 'Theme', 'wp-simple-firewall' )
 					) );
+					// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 				}
 				if ( !$asset->isWpOrg() ) {
+					// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: canRepair() failures are caught by RepairItem::repairItem(), LoadFileScanResultsTableData and the scan item action callers, never shown.
 					throw new \Exception( sprintf(
 						/* translators: %s: type of asset, such as Theme */
 						__( '%s not installed from WordPress.org.', 'wp-simple-firewall' ),
 						__( 'Theme', 'wp-simple-firewall' )
 					) );
+					// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 				}
 				if ( !( new WpOrg\Theme\Versions() )
 					->setWorkingSlug( $asset->stylesheet )
 					->exists( $asset->version, true ) ) {
-					throw new \Exception( __( "Theme version doesn't appear to exist.", 'wp-simple-firewall' ) );
+					throw new \Exception( __( "Theme version doesn't appear to exist.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: canRepair() failures are caught by RepairItem::repairItem(), LoadFileScanResultsTableData and the scan item action callers, never shown.
 				}
 
 				try {

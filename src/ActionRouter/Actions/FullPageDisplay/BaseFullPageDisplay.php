@@ -105,7 +105,7 @@ abstract class BaseFullPageDisplay extends BaseAction {
 	 */
 	protected function checkRenderTarget() :void {
 		if ( !$this->isAllowedRenderSlug( $this->fields()->string( 'render_slug' ) ) ) {
-			throw new ActionException( __( 'Invalid full page render target.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'Invalid full page render target.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Fixed text thrown only when the plugin's own code names a disallowed render target; callers escape it (esc_html) or discard it (CapturePluginAction).
 		}
 	}
 

@@ -32,7 +32,7 @@ final class PluginType {
 	 */
 	public static function assertValid( string $type ) :void {
 		if ( !\in_array( $type, self::ALL, true ) ) {
-			throw new \InvalidArgumentException( \sprintf( 'Unsupported cloaked plugin type: %s', $type ) );
+			throw new \InvalidArgumentException( \sprintf( 'Unsupported cloaked plugin type: %s', $type ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the type is always a fixed PluginType constant, and the message is never printed.
 		}
 	}
 }

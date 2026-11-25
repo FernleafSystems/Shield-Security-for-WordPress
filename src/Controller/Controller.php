@@ -84,7 +84,7 @@ class Controller extends DynPropertiesClass {
 	public static function GetInstance( ?string $rootFile = null ) :Controller {
 		if ( !isset( static::$oInstance ) ) {
 			if ( empty( $rootFile ) ) {
-				throw new \Exception( __( 'Empty root file provided for instantiation', 'wp-simple-firewall' ) );
+				throw new \Exception( __( 'Empty root file provided for instantiation', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught in plugin_init.php, which logs it with error_log(); never shown.
 			}
 			static::$oInstance = new static( $rootFile );
 		}
@@ -314,7 +314,7 @@ class Controller extends DynPropertiesClass {
 				$this->reqs_not_met = $reqsMsg;
 				add_action( 'admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
 				add_action( 'network_admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
-				throw new \Exception( __( 'Plugin does not meet minimum requirements', 'wp-simple-firewall' ) );
+				throw new \Exception( __( 'Plugin does not meet minimum requirements', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught in plugin_init.php, which logs it with error_log(); the admin notice uses the separate requirements list.
 			}
 
 			if ( !$FS->isDir( $this->paths->forFlag() ) ) {
@@ -647,7 +647,7 @@ class Controller extends DynPropertiesClass {
 	public function includePrefixedVendor() :void {
 		$auto = path_join( $this->getRootDir(), 'vendor_prefixed/autoload.php' );
 		if ( !Services::WpFs()->isAccessibleFile( $auto ) ) {
-			throw new Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException( __( 'Prefixed autoload missing', 'wp-simple-firewall' ) );
+			throw new Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException( __( 'Prefixed autoload missing', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by ClassDependencyGuard::includePrefixedVendorIfAvailable(), which ignores it.
 		}
 		require_once( $auto );
 	}

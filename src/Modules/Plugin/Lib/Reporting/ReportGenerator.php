@@ -88,7 +88,8 @@ class ReportGenerator {
 			$report->content = (string)( $payload[ 'render_output' ] ?? '' );
 		}
 		catch ( ActionException $e ) {
-			$report->content = $e->getMessage();
+			// The report's content is HTML, so the message is escaped to go in its place.
+			$report->content = esc_html( $e->getMessage() );
 		}
 
 		/** @var ReportsDB\Record $record */

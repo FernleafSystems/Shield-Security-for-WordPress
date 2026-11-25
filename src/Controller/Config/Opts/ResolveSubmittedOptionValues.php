@@ -53,7 +53,7 @@ class ResolveSubmittedOptionValues {
 
 				$confirm = $form[ $optKey.'_confirm' ] ?? null;
 				if ( $tempValue !== $confirm ) {
-					throw new \Exception( __( 'Password values do not match.', 'wp-simple-firewall' ) );
+					throw new \Exception( __( 'Password values do not match.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by HandleOptionsSaveRequest::handleSave() (boolean result) and ImportExportProfileOptionsSave::exec() (generic message); never shown.
 				}
 
 				$optValue = \hash( 'md5', $tempValue );

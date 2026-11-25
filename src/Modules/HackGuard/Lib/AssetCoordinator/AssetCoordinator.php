@@ -717,7 +717,7 @@ class AssetCoordinator {
 			$rows = Services::WpDb()->selectCustom( $query );
 		}
 		catch ( \Throwable $e ) {
-			throw new \RuntimeException( 'Asset coordinator readiness state query failed.', 0, $e );
+			throw new \RuntimeException( 'Asset coordinator readiness state query failed.', 0, $e ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: fixed message wrapping the DB error; callers catch it and log it (e.g. ScansController::isReadyForScanResultNotifications()).
 		}
 
 		if ( !\is_array( $rows )

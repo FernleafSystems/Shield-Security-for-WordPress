@@ -51,7 +51,7 @@ class PerformConditionMatch {
 				$matched = $this->matchGreaterThan();
 				break;
 			default:
-				throw new \Exception( 'No handling for match type: '.$this->matchType );
+				throw new \Exception( 'No handling for match type: '.$this->matchType ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by ProcessConditions and Conditions\Base::run(), which treat it as no match; never shown.
 		}
 		return $matched;
 	}
@@ -76,7 +76,7 @@ class PerformConditionMatch {
 			$match = \in_array( \strval( $this->matchAgainst ), \array_map( '\strval', $this->incomingValue ) );
 		}
 		else {
-			throw new \Exception( sprintf( 'Invalid type for incoming value: %s', var_export( $this->incomingValue, true ) ) );
+			throw new \Exception( sprintf( 'Invalid type for incoming value: %s', var_export( $this->incomingValue, true ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by ProcessConditions and Conditions\Base::run(), which treat it as no match; never shown.
 		}
 		return $match;
 	}

@@ -26,7 +26,7 @@ class CreateNewScan {
 	) :?ScansDB\Record {
 		$existingScanID = $this->existingActiveScanID( $slug, $scopeType, $scopeKey );
 		if ( $existingScanID > 0 ) {
-			throw new ScanExistsException( $slug, $existingScanID );
+			throw new ScanExistsException( $slug, $existingScanID ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is built inside ScanExistsException; ScansController stores it in StartScansResult as plain text and never prints it.
 		}
 
 		$dbh = self::con()->db_con->scans;
@@ -46,7 +46,7 @@ class CreateNewScan {
 		$record->meta = [];
 		$success = $dbh->getQueryInserter()->insert( $record );
 		if ( !$success ) {
-			throw new ScanCreateException( $slug );
+			throw new ScanCreateException( $slug ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is built inside ScanCreateException; ScansController stores it in StartScansResult as plain text and never prints it.
 		}
 
 		$record->id = $this->lastInsertID();

@@ -15,13 +15,13 @@ class GeneratedMuLoaderContent {
 		$templateFile = \rtrim( __DIR__, '/\\' ).'/mu-template.txt';
 		if ( !\is_readable( $templateFile ) ) {
 			/* translators: %s: file path */
-			throw new \Exception( sprintf( __( "Couldn't read MU plugin template from %s", 'wp-simple-firewall' ), $templateFile ) );
+			throw new \Exception( sprintf( __( "Couldn't read MU plugin template from %s", 'wp-simple-firewall' ), $templateFile ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by MUHandler::run() and ShieldGeneratedMuPlugin, which never show the message.
 		}
 
 		$template = \file_get_contents( $templateFile );
 		if ( !\is_string( $template ) || $template === '' ) {
 			/* translators: %s: file path */
-			throw new \Exception( sprintf( __( "Couldn't read MU plugin template from %s", 'wp-simple-firewall' ), $templateFile ) );
+			throw new \Exception( sprintf( __( "Couldn't read MU plugin template from %s", 'wp-simple-firewall' ), $templateFile ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by MUHandler::run() and ShieldGeneratedMuPlugin, which never show the message.
 		}
 
 		// strtr() replaces each placeholder once, so a value that contains another placeholder's name stays as it is.

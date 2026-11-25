@@ -101,7 +101,7 @@ class PopulateScanItems {
 			$newRecord->items = $chunk;
 			$newRecord->item_count = \count( $chunk );
 			if ( !$dbhItems->getQueryInserter()->insert( $newRecord ) ) {
-				throw new \RuntimeException( \sprintf( 'Failed to persist queue items for scan "%s".', $scanRecord->scan ) );
+				throw new \RuntimeException( \sprintf( 'Failed to persist queue items for scan "%s".', $scanRecord->scan ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: QueueBuilder::task() and ProcessQueueWpcli catch it and record the scan as failed (logged); not shown directly.
 			}
 			$scanAction->tickProgress();
 		}
@@ -121,10 +121,12 @@ class PopulateScanItems {
 			 || empty( $persisted )
 			 || $persisted->status !== ScanStatus::BUILT
 			 || ( $persisted->getRawData()[ 'meta' ] ?? null ) !== $rawMeta ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: QueueBuilder::task() and ProcessQueueWpcli catch it and record the scan as failed (logged); not shown directly.
 			throw new \RuntimeException( \sprintf(
 				'Failed to persist built scan state for scan "%s".',
 				$scanRecord->scan
 			) );
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 	}
 }

@@ -13,15 +13,15 @@ class ScansStart extends ScanBase {
 	protected function process() :array {
 		$blocked = self::con()->comps->scans->getStartBlockedMessage();
 		if ( $blocked !== '' ) {
-			throw new ApiException( $blocked, 503, self::SUBCODE_START_BLOCKED );
+			throw new ApiException( $blocked, 503, self::SUBCODE_START_BLOCKED ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- REST response message, sent as JSON text.
 		}
 
 		$result = self::con()->comps->scans->startNewScans( (array)$this->getWpRestRequest()->get_param( 'scan_slugs' ) );
 		if ( !$result->hasRequestedScans() ) {
-			throw new ApiException( $result->getMessage(), 400, self::SUBCODE_NO_SELECTION );
+			throw new ApiException( $result->getMessage(), 400, self::SUBCODE_NO_SELECTION ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- REST response message, sent as JSON text.
 		}
 		if ( !$result->hasStarted() ) {
-			throw new ApiException( $result->getMessage(), 409, self::SUBCODE_START_FAILED );
+			throw new ApiException( $result->getMessage(), 409, self::SUBCODE_START_FAILED ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- REST response message, sent as JSON text.
 		}
 
 		$status = $this->getScansStatus();
