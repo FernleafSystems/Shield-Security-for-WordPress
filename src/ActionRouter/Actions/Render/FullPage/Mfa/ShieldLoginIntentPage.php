@@ -13,6 +13,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 		$con = self::con();
 		return [
 			'strings' => [
+				/* translators: %s: plugin name */
 				'page_title'   => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $con->labels->Name ),
 			],
 			'imgs'    => [

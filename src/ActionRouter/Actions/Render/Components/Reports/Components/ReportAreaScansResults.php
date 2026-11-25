@@ -29,6 +29,7 @@ class ReportAreaScansResults extends ReportAreaBase {
 			'strings' => [
 				'view_scan_results' => __( 'View Scan Results In-Full', 'wp-simple-firewall' ),
 				'new_badge'         => __( 'NEW', 'wp-simple-firewall' ),
+				/* translators: %s: number of additional items not shown */
 				'and_x_more'        => __( '... and %s more', 'wp-simple-firewall' ),
 			],
 			'vars'    => [

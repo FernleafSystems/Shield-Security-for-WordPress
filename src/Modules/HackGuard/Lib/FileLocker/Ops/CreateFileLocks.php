@@ -77,6 +77,7 @@ class CreateFileLocks {
 		/** @var FileLockerDB\Insert $inserter */
 		$inserter = $dbh->getQueryInserter();
 		if ( !$inserter->insert( $record ) ) {
+			/* translators: %s: file path */
 			throw new LockDbInsertFailure( sprintf( __( "Failed to insert file locker record for path: '%s'", 'wp-simple-firewall' ), $path ) );
 		}
 

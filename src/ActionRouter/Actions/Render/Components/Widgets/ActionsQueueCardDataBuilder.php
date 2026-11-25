@@ -139,6 +139,7 @@ class ActionsQueueCardDataBuilder {
 			$title = __( 'Critical Action Required', 'wp-simple-firewall' );
 			$summary = $this->buildDashboardOverallSummary(
 				sprintf(
+					/* translators: %s: number of issues */
 					_n( '%s issue needs your attention.', '%s issues need your attention.', $totalCount, 'wp-simple-firewall' ),
 					$totalCount
 				)
@@ -149,6 +150,7 @@ class ActionsQueueCardDataBuilder {
 			$title = __( 'Review Recommended', 'wp-simple-firewall' );
 			$summary = $this->buildDashboardOverallSummary(
 				sprintf(
+					/* translators: %s: number of items */
 					_n( '%s item needs review.', '%s items need review.', $totalCount, 'wp-simple-firewall' ),
 					$totalCount
 				)
@@ -160,6 +162,7 @@ class ActionsQueueCardDataBuilder {
 			$title = __( 'No Security Issues', 'wp-simple-firewall' );
 			$summary = $this->buildDashboardOverallSummary(
 				sprintf(
+					/* translators: %s: number of to-dos */
 					_n( '%s to-do to review when you have time.', '%s to-dos to review when you have time.', $maintenanceCount, 'wp-simple-firewall' ),
 					$maintenanceCount
 				)
@@ -260,11 +263,14 @@ class ActionsQueueCardDataBuilder {
 		// Security issues can be critical findings or items to review, such as critical files left unlocked; the
 		// status says which.
 		if ( $id === 'scans' ) {
+			/* translators: %s: number of issues */
 			return sprintf( _n( '%s issue', '%s issues', $count, 'wp-simple-firewall' ), $count );
 		}
 
 		return $status === 'critical'
+			/* translators: %s: number of critical to-dos */
 			? sprintf( _n( '%s critical to-do', '%s critical to-dos', $count, 'wp-simple-firewall' ), $count )
+			/* translators: %s: number of to-dos */
 			: sprintf( _n( '%s to-do', '%s to-dos', $count, 'wp-simple-firewall' ), $count );
 	}
 
@@ -324,6 +330,7 @@ class ActionsQueueCardDataBuilder {
 
 		return $queueSummary[ 'has_items' ]
 			? sprintf(
+				/* translators: %s: number of issues */
 				_n( '%s issue needs your attention.', '%s issues need your attention.', $queueSummary[ 'total_items' ], 'wp-simple-firewall' ),
 				$queueSummary[ 'total_items' ]
 			)
@@ -354,6 +361,7 @@ class ActionsQueueCardDataBuilder {
 		];
 		$indicatorText = $queueSummary[ 'has_items' ]
 			? sprintf(
+				/* translators: %s: number of issues */
 				_n( '%s issue needs attention', '%s issues need attention', $queueSummary[ 'total_items' ], 'wp-simple-firewall' ),
 				$queueSummary[ 'total_items' ]
 			)
@@ -456,9 +464,11 @@ class ActionsQueueCardDataBuilder {
 
 		$parts = [];
 		if ( $counts[ 'critical' ] > 0 ) {
+			/* translators: %s: number of critical items */
 			$parts[] = sprintf( _n( '%s critical', '%s critical', $counts[ 'critical' ], 'wp-simple-firewall' ), $counts[ 'critical' ] );
 		}
 		if ( $counts[ 'warning' ] > 0 ) {
+			/* translators: %s: number of to-dos */
 			$parts[] = sprintf( _n( '%s to-do', '%s to-dos', $counts[ 'warning' ], 'wp-simple-firewall' ), $counts[ 'warning' ] );
 		}
 

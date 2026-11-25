@@ -182,6 +182,7 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 	private function descriptionForCount( int $count ) :string {
 		return $count > 0
 			? \sprintf(
+				/* translators: %s: number of cloaked plugins */
 				_n( '%s cloaked plugin detected.', '%s cloaked plugins detected.', $count, 'wp-simple-firewall' ),
 				$count
 			)
@@ -284,6 +285,7 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 
 	private function findingDescription( CloakedPluginFinding $finding ) :string {
 		return \sprintf(
+			/* translators: %s: plugin name or type */
 			__( '%s exists on disk, but WordPress is not listing it where expected.', 'wp-simple-firewall' ),
 			PluginType::label( $finding->entry->type )
 		);

@@ -28,6 +28,7 @@ class ServerSoftwareStatus extends Base {
 
 		if ( !Services::Data()->getPhpVersionIsAtLeast( '7.4' ) ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
+			/* translators: %s: PHP version number */
 			$status[ 'exp' ][] = sprintf( __( "PHP version should ideally be at least %s.", 'wp-simple-firewall' ), '7.4' );
 		}
 		if ( SslStatus::Check() !== 'ssl_valid' ) {

@@ -19,6 +19,7 @@ class TranslationsQueued extends Base {
 		$count = \count( $queue );
 
 		$translationsQueued = \sprintf(
+			/* translators: %d: number of translations */
 			_n(
 				'%d translation is queued for download',
 				'%d translations are queued for download',
@@ -32,6 +33,7 @@ class TranslationsQueued extends Base {
 		if ( !empty( $nextScheduled ) ) {
 			$minsRemaining = \max( 1, (int)\ceil( ( $nextScheduled - Services::Request()->ts() )/60 ) );
 			$message = $translationsQueued.' '.\sprintf(
+					/* translators: %d: number of minutes */
 					_n(
 						'and will be processed automatically in approximately %d minute.',
 						'and will be processed automatically in approximately %d minutes.',

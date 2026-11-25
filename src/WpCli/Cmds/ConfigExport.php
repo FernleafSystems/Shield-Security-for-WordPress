@@ -54,6 +54,7 @@ class ConfigExport extends BaseCmd {
 			}
 			$FS->mkdir( $file );
 			if ( $FS->mkdir( $file ) && !$FS->isDir( $dir ) ) {
+				/* translators: %s: directory path */
 				\WP_CLI::error( sprintf( __( "Couldn't create the directory: %s", 'wp-simple-firewall' ), $dir ) );
 			}
 		}

@@ -29,6 +29,7 @@ class MalaiFileQueryEligibility {
 		$extension = \strtolower( Paths::Ext( $pathFull ) );
 		if ( !\in_array( $extension, self::SUPPORTED_EXTENSIONS, true ) ) {
 			throw new \Exception( sprintf(
+				/* translators: %s: file extension, such as php */
 				__( "The file type/extension (%s) isn't supported by the MAL{ai} engine.", 'wp-simple-firewall' ),
 				Paths::Ext( $pathFull )
 			) );

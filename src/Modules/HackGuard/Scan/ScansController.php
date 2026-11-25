@@ -76,6 +76,7 @@ class ScansController {
 			self::con()->prefix( sprintf( 'per-day-%s', $freq ) ),
 			[
 				'interval' => \DAY_IN_SECONDS/$freq,
+				/* translators: %s: number of scans per day */
 				'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )
 			]
 		);
@@ -215,6 +216,7 @@ class ScansController {
 			}
 		}
 		else {
+			/* translators: %s: plugin name */
 			error_log( sprintf( __( '%s scans cannot execute.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 	}

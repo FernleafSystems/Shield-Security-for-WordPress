@@ -7,6 +7,7 @@ class ShieldConfigIsLiveLoggingEnabled extends Base {
 	use Traits\TypeShield;
 
 	public function getDescription() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( 'Is %s live logging enabled.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

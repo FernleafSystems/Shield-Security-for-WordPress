@@ -22,6 +22,7 @@ class EmailInstantAlertAdminLogin extends EmailInstantAlertBase {
 						$this->displayText( $alertData[ 'role_name' ] )
 					),
 					sprintf(
+						/* translators: %s: the important notice message */
 						__( 'Important: %s', 'wp-simple-firewall' ),
 						__( 'This user may now be subject to additional Two-Factor Authentication before completing their login.', 'wp-simple-firewall' )
 					),

@@ -230,11 +230,13 @@ class MfaController {
 				$provider->removeFromProfile();
 			}
 			$result->success = true;
+			/* translators: %s: user ID number */
 			$result->msg_text = sprintf( __( 'All MFA providers removed from user with ID %s.', 'wp-simple-firewall' ),
 				$userID );
 		}
 		else {
 			$result->success = false;
+			/* translators: %s: user ID number */
 			$result->error_text = sprintf( __( "User doesn't exist with ID %s.", 'wp-simple-firewall' ),
 				$userID );
 		}

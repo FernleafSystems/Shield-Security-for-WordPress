@@ -100,8 +100,10 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Int
 		return $this->isCoolDownBlockRequired() ?
 			\implode( ' ', [
 				__( 'Cooldown in effect.', 'wp-simple-firewall' ),
+				/* translators: %s: number of seconds */
 				sprintf( __( 'Please wait %s seconds before attempting this action again.', 'wp-simple-firewall' ), self::con()->comps->cool_down->cooldownRemaining( $this->getCooldownContext() ) )
 			] )
+			/* translators: %s: plugin name */
 			: sprintf( __( '%s Bot Check Failed.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 }

@@ -57,6 +57,7 @@ class PageDebug extends PageModeLandingBase {
 	}
 
 	protected function getLandingTitle() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( '%s Debug Information', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

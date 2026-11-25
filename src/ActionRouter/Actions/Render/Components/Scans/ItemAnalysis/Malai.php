@@ -35,7 +35,9 @@ class Malai extends BaseComponent {
 				]
 			],
 			'strings' => [
+				/* translators: %s: product name */
 				'title'           => sprintf( __( '%s Lookup', 'wp-simple-firewall' ), 'MAL{ai}' ),
+				/* translators: %s: product name */
 				'subtitle'        => sprintf( __( '%s is our exclusive AI-powered Malware Scanning and Detection engine.', 'wp-simple-firewall' ), 'MAL{ai}' ),
 				'introduction'    => [
 					__( "It can assess file contents in order to give an estimation as to whether a file is malware, or clean of malicious code.", 'wp-simple-firewall' ),

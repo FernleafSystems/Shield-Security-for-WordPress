@@ -29,6 +29,7 @@ class ScansMalaiFileQuery extends BaseAction {
 			}
 			else {
 				try {
+					/* translators: %s: name of the malware scanner */
 					$msg = sprintf( '%s: %s', sprintf( __( '%s Status Report', 'wp-simple-firewall' ), 'MAL{ai}' ),
 						( new MalwareStatus() )->nameFromStatusLabel( $this->getMalaiStatus() ) );
 					$success = true;

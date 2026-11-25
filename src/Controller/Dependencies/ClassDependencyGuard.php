@@ -17,6 +17,7 @@ class ClassDependencyGuard {
 		if ( !@\class_exists( $fqcn ) ) {
 			throw new Exceptions\LibraryNotFoundException(
 				\sprintf(
+					/* translators: %1$s: library name, %2$s: class name */
 					__( '%1$s library (%2$s) could not be found.', 'wp-simple-firewall' ),
 					$libraryLabel,
 					$fqcn

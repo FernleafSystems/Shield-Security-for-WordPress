@@ -16,9 +16,12 @@ class LicenseEmails {
 			'last_warning_email_sent_at',
 			'Pro License Check Has Failed',
 			[
+				/* translators: %s: plugin name */
 				sprintf( __( 'Attempts to verify %s Pro license has just failed.', 'wp-simple-firewall' ), self::con()->labels->Name ),
+				/* translators: %s: web address of the license check page */
 				sprintf( __( 'Please check your license on-site: %s', 'wp-simple-firewall' ),
 					self::con()->plugin_urls->licenseCheck() ),
+				/* translators: %s: web address of the support site */
 				sprintf( __( 'If this problem persists, please contact support: %s', 'wp-simple-firewall' ), 'https://support.getshieldsecurity.com/' )
 			],
 			'lic_fail_email'
@@ -30,8 +33,11 @@ class LicenseEmails {
 			'last_deactivated_email_sent_at',
 			'[Action May Be Required] Pro License Has Been Deactivated',
 			[
+				/* translators: %s: plugin name */
 				sprintf( __( 'All attempts to verify %s Pro license have failed.', 'wp-simple-firewall' ), self::con()->labels->Name ),
+				/* translators: %s: web address of the license check page */
 				sprintf( __( 'Please check your license on-site: %s', 'wp-simple-firewall' ), self::con()->plugin_urls->licenseCheck() ),
+				/* translators: %s: web address of the support site */
 				sprintf( __( 'If this problem persists, please contact support: %s', 'wp-simple-firewall' ), 'https://support.getshieldsecurity.com/' )
 			]
 		);

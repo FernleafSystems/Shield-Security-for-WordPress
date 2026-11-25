@@ -274,6 +274,7 @@ class ConfigureZoneDiagnosisBuilder {
 		$rowTitle = \trim( $rowTitle );
 
 		$accessibleLabel = $label !== '' && $rowTitle !== ''
+			/* translators: %1$s: label of the setting group, %2$s: title of the setting */
 			? \sprintf( __( '%1$s: %2$s', 'wp-simple-firewall' ), $label, $rowTitle )
 			: ( $label !== '' ? $label : $rowTitle );
 		if ( $accessibleLabel === '' ) {
@@ -333,11 +334,13 @@ class ConfigureZoneDiagnosisBuilder {
 	 */
 	private function buildIssuePreviewText( ?array $row, string $zoneLabel ) :string {
 		if ( $row === null ) {
+			/* translators: %s: name of the settings area */
 			return sprintf( __( 'Review the current %s findings.', 'wp-simple-firewall' ), $zoneLabel );
 		}
 
 		return $this->fallbackText(
 			$this->primarySummary( $row ),
+			/* translators: %s: title of the setting */
 			sprintf( __( '%s needs attention.', 'wp-simple-firewall' ), $row[ 'title' ] )
 		);
 	}
@@ -348,12 +351,14 @@ class ConfigureZoneDiagnosisBuilder {
 	private function buildIssueNextMove( ?array $row, string $zoneLabel ) :string {
 		if ( $row === null ) {
 			return sprintf(
+				/* translators: %s: name of the settings area */
 				__( 'Review the settings below and confirm the current %s configuration.', 'wp-simple-firewall' ),
 				$zoneLabel
 			);
 		}
 
 		return sprintf(
+			/* translators: %s: title of the setting */
 			__( 'Review %s below next.', 'wp-simple-firewall' ),
 			$row[ 'title' ]
 		);
@@ -368,6 +373,7 @@ class ConfigureZoneDiagnosisBuilder {
 		}
 
 		return sprintf(
+			/* translators: %s: name of the settings area */
 			__( '%s currently shows no active findings.', 'wp-simple-firewall' ),
 			$zoneTile[ 'label' ]
 		);
@@ -382,6 +388,7 @@ class ConfigureZoneDiagnosisBuilder {
 		}
 
 		return sprintf(
+			/* translators: %s: name of the settings area */
 			__( 'Review the settings below to confirm %s still matches the site.', 'wp-simple-firewall' ),
 			$zoneTile[ 'label' ]
 		);
@@ -406,6 +413,7 @@ class ConfigureZoneDiagnosisBuilder {
 
 	private function buildFindingsBadge( int $findingsCount ) :string {
 		return sprintf(
+			/* translators: %s: number of findings */
 			_n( '%s finding', '%s findings', $findingsCount, 'wp-simple-firewall' ),
 			$findingsCount
 		);

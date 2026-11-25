@@ -11,6 +11,7 @@ class Scans extends Base {
 	}
 
 	public function subtitle() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( '%s Scanners.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

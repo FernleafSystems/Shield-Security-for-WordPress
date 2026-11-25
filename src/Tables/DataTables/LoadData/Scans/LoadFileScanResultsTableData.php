@@ -304,6 +304,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return sprintf(
 			'<button type="button" class="action view-file shield-button-link scan-results-malware-assessment" data-rid="%d" data-scan-result-action="view" aria-label="%s"><span class="badge text-bg-%s"><i class="bi %s" aria-hidden="true"></i> %s</span><span class="scan-results-malware-assessment__summary">%s</span>%s<span class="scan-results-malware-assessment__details text-primary text-decoration-underline">%s</span></button>',
 			$item->VO->resultitem_id,
+			/* translators: %1$s: file path, %2$s: scan result assessment label */
 			esc_attr( sprintf( __( 'View details: %1$s — %2$s', 'wp-simple-firewall' ), $item->path_fragment, $assessment[ 'label' ] ) ),
 			esc_attr( $assessment[ 'tone' ] ),
 			esc_attr( $assessment[ 'icon' ] ),
@@ -371,6 +372,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return sprintf(
 			'<div class="scan-results-file-cell" data-scan-result-file-cell="1"><button type="button" title="%s" aria-label="%s" class="action view-file shield-button-link text-primary text-decoration-underline" data-rid="%d" data-scan-result-action="view">%s</button>%s</div>',
 			esc_attr__( 'View File Contents', 'wp-simple-firewall' ),
+			/* translators: %s: file path */
 			esc_attr( sprintf( __( 'View File Contents: %s', 'wp-simple-firewall' ), $item->path_fragment ) ),
 			$item->VO->resultitem_id,
 			esc_html( $item->path_fragment ),

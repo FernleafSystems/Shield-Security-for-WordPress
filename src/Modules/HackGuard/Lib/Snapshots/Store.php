@@ -155,6 +155,7 @@ class Store {
 		$snap = [];
 
 		if ( $this->isReady() && !$this->getSnapStoreExists() ) {
+			/* translators: %s: folder path */
 			throw new \Exception( sprintf( __( "Snapshot store does not exist: '%s'", 'wp-simple-firewall' ), $this->getSnapStorePath() ) );
 		}
 
@@ -249,6 +250,7 @@ class Store {
 		$FS = Services::WpFs();
 
 		if ( $this->isReady() && !$this->getSnapStoreExists() ) {
+			/* translators: %s: folder path */
 			throw new \Exception( sprintf( __( "Snapshot store does not exist: '%s'", 'wp-simple-firewall' ), $this->getSnapStorePath() ) );
 		}
 
@@ -306,9 +308,11 @@ class Store {
 			throw new \Exception( __( 'Context has not been specified.', 'wp-simple-firewall' ) );
 		}
 		if ( !$FS->mkdir( $dir ) ) {
+			/* translators: %s: folder path */
 			throw new \Exception( sprintf( __( 'Store directory could not be created: %s', 'wp-simple-firewall' ), $dir ) );
 		}
 		if ( !$FS->exists( $dir ) ) {
+			/* translators: %s: folder path */
 			throw new \Exception( sprintf( __( 'Store directory path does not exist: %s', 'wp-simple-firewall' ), $dir ) );
 		}
 		return true;

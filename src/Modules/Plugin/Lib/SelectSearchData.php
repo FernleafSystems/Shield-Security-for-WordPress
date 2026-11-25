@@ -149,6 +149,7 @@ class SelectSearchData {
 					],
 					[
 						'id'          => 'external_getshieldhome',
+						/* translators: %s: plugin name */
 						'text'        => sprintf( __( '%s Home Page', 'wp-simple-firewall' ), self::con()->labels->Name ),
 						'link'        => [
 							'href' => $links->url( ExternalLinks::HOME ),
@@ -159,6 +160,7 @@ class SelectSearchData {
 					],
 					[
 						'id'          => 'external_gopro',
+						/* translators: %s: plugin name */
 						'text'        => sprintf( __( 'Get %s!', 'wp-simple-firewall' ), self::con()->labels->Name ),
 						'link'        => [
 							'href' => $links->url( ExternalLinks::GOPRO ),
@@ -169,6 +171,7 @@ class SelectSearchData {
 					],
 					[
 						'id'          => 'external_trial',
+						/* translators: %s: plugin name */
 						'text'        => sprintf( __( '%s Free Trial', 'wp-simple-firewall' ), self::con()->labels->Name ),
 						'link'        => [
 							'href' => $links->url( ExternalLinks::FREE_TRIAL ),
@@ -262,6 +265,7 @@ class SelectSearchData {
 	 */
 	private function toolSearchText( array $definition ) :string {
 		if ( $definition[ 'id' ] === 'tool_license' ) {
+			/* translators: %s: plugin name */
 			return sprintf( __( 'Activate %s License', 'wp-simple-firewall' ), self::con()->labels->Name );
 		}
 		return (string)( $definition[ 'search_text' ] ?? $definition[ 'title' ] );

@@ -184,6 +184,7 @@ class AuditCon {
 	 */
 	public function getSnapshot( string $slug ): Record {
 		if ( empty( $this->getSnapshots()[ $slug ] ) ) {
+			/* translators: %s: snapshot slug */
 			throw new \Exception( sprintf( __( 'Snapshot could not be loaded for %s', 'wp-simple-firewall' ), $slug ) );
 		}
 		return $this->getSnapshots()[ $slug ];

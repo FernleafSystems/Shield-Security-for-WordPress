@@ -150,6 +150,7 @@ class ScansVulnerabilitiesBuilder {
 				$count,
 				$this->buildVulnerableAssetActions( $asset ),
 				\sprintf(
+					/* translators: %s: number of known vulnerabilities */
 					_n( '%s known vulnerability needs review.', '%s known vulnerabilities need review.', $count, 'wp-simple-firewall' ),
 					$count
 				)

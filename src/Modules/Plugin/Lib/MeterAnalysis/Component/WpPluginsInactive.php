@@ -36,6 +36,7 @@ class WpPluginsInactive extends Base {
 		$count = $this->countInactive();
 		return _n(
 			__( 'There is 1 unused plugin that should be uninstalled.', 'wp-simple-firewall' ),
+			/* translators: %s: number of unused plugins */
 			sprintf( __( 'There are %s unused plugins that should be uninstalled.', 'wp-simple-firewall' ), $count ),
 			$count
 		, 'wp-simple-firewall' );

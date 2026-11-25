@@ -76,8 +76,11 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 					'label_enter_code'      => __( 'Yubikey ID', 'wp-simple-firewall' ),
 					'label_enter_otp'       => __( 'Yubikey OTP', 'wp-simple-firewall' ),
 					'title'                 => __( 'Yubikey Authentication', 'wp-simple-firewall' ),
+					/* translators: %s: name of the authentication method */
 					'cant_add_other_user'   => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Yubikey' ),
+					/* translators: %s: name of the authentication method */
 					'cant_remove_admins'    => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Yubikey', 'wp-simple-firewall' ) ),
+					/* translators: %s: plugin name */
 					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), self::con()->labels->Name ),
 					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' )
 				],
@@ -167,6 +170,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 
 			if ( $deleted ) {
 				$response->msg_text = sprintf(
+					/* translators: %s: "Yubikey Device" followed by the device ID */
 					__( '%s was removed from your profile.', 'wp-simple-firewall' ),
 					__( 'Yubikey Device', 'wp-simple-firewall' ).' '.$keyID
 				);
@@ -180,6 +184,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 					if ( $this->sendYubiOtpRequest( $keyOrOTP ) ) {
 						$this->createNewSecretRecord( $keyID, $label );
 						$response->msg_text = sprintf(
+							/* translators: %s: "Yubikey Device" followed by the device ID in brackets */
 							__( '%s was added to your profile.', 'wp-simple-firewall' ),
 							__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $keyID )
 						);

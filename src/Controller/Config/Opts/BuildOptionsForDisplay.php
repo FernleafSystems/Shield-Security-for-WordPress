@@ -134,6 +134,7 @@ class BuildOptionsForDisplay {
 						'name'              => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
 						'is_available'      => $hasAccess,
 						// Why a choice is unavailable, as a hover title: '' when there's nothing to add.
+						/* translators: %s: plugin name */
 						'unavailable_title' => $hasAccess ? '' : sprintf( __( 'Available with %s', 'wp-simple-firewall' ), $con->labels->Name ),
 					];
 
@@ -304,6 +305,7 @@ class BuildOptionsForDisplay {
 
 			case 'user_auto_recover':
 				$option[ 'value_options' ][ 'gasp' ][ 'name' ] = sprintf(
+					/* translators: %s: name of the silent CAPTCHA feature */
 					__( 'Protected By %s', 'wp-simple-firewall' ),
 					self::con()->labels->getBrandName( 'silentcaptcha' )
 				);
@@ -311,7 +313,9 @@ class BuildOptionsForDisplay {
 
 			case 'file_scan_areas':
 				$option[ 'value_options' ][ 'wp' ][ 'name' ] = sprintf( '%s (%s)', esc_html( __( 'WP core files', 'wp-simple-firewall' ) ),
+					/* translators: %s: directory path, wrapped in code tags */
 					sprintf( __( 'excludes %s', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ) );
+				/* translators: %s: directory path, wrapped in code tags */
 				$option[ 'value_options' ][ 'wpcontent' ][ 'name' ] = sprintf( __( '%s directory', 'wp-simple-firewall' ), '<code>/wp-content/</code>' );
 				break;
 

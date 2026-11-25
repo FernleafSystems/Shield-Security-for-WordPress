@@ -206,6 +206,7 @@ class SiteHealthSecurityStatusBuilder {
 		return sprintf(
 			'<p>%s</p>',
 			esc_html( sprintf(
+				/* translators: %s: number of security areas that need attention */
 				_n(
 					'Shield found %s security area that needs attention.',
 					'Shield found %s security areas that need attention.',
@@ -234,6 +235,7 @@ class SiteHealthSecurityStatusBuilder {
 			return sprintf(
 				'<p>%s</p>',
 				esc_html( sprintf(
+					/* translators: %s: name of the security area */
 					__( 'Shield reports no high-level security issues for %s.', 'wp-simple-firewall' ),
 					$zoneTitle
 				) )
@@ -248,6 +250,7 @@ class SiteHealthSecurityStatusBuilder {
 		return sprintf(
 			'<p>%s</p><ul>%s</ul>',
 			esc_html( sprintf(
+				/* translators: %s: name of the security area */
 				__( 'Shield found high-level security items that need attention for %s.', 'wp-simple-firewall' ),
 				$zoneTitle
 			) ),

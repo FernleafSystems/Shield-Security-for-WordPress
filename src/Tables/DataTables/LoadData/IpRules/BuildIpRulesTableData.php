@@ -226,6 +226,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 				$color = 'warning';
 				$remaining = self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit() - $record->offenses;
 				$blockedStatus = sprintf(
+					/* translators: %s: number of offenses remaining */
 					_n( '%s offense until block',
 						'%s offenses until block',
 						$remaining,

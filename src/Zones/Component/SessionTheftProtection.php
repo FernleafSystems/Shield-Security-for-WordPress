@@ -44,6 +44,7 @@ class SessionTheftProtection extends Base {
 		if ( $source !== 'REMOTE_ADDR' && \in_array( 'ip', $con->opts->optGet( 'session_lock' ), true ) ) {
 			$status[ 'level' ] = $status[ 'level' ] === EnumEnabledStatus::BAD ? EnumEnabledStatus::BAD : EnumEnabledStatus::OKAY;
 			$status[ 'exp' ][] = $this->explanationFixedBy(
+				/* translators: %s: name of the visitor IP source, wrapped in a code tag */
 				sprintf( __( 'Session IP locking is enabled, but the current visitor IP source (%s) can weaken that protection.', 'wp-simple-firewall' ), sprintf( '<code>%s</code>', $source ) ),
 				'session_lock'
 			);

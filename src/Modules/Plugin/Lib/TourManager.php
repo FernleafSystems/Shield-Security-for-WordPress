@@ -137,7 +137,7 @@ class TourManager {
 			return '';
 		}
 
-		$parts = \parse_url( $rawURL );
+		$parts = wp_parse_url( $rawURL );
 		if ( !\is_array( $parts ) ) {
 			return '';
 		}

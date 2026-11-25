@@ -81,7 +81,7 @@ class SectionRenderFallback {
 	}
 
 	private function sanitizeDiagnostic( string $diagnostic ) :string {
-		$diagnostic = \trim( \strip_tags( $diagnostic ) );
+		$diagnostic = wp_strip_all_tags( $diagnostic );
 		if ( \strlen( $diagnostic ) > 500 ) {
 			$diagnostic = \substr( $diagnostic, 0, 497 ).'...';
 		}

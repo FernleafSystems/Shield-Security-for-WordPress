@@ -34,8 +34,10 @@ class SystemPhpVersion extends Base {
 
 	public function descUnprotected() :string {
 		return \implode( ' ', [
+			/* translators: %s: PHP version number */
 			sprintf( __( 'WordPress is running an old version (%s) of PHP.', 'wp-simple-firewall' ),
 				Services::Data()->getPhpVersionCleaned() ),
+			/* translators: %s: PHP version number */
 			sprintf( __( 'WordPress.org recommends running on at least PHP %s.', 'wp-simple-firewall' ), '7.4' )
 		] );
 	}

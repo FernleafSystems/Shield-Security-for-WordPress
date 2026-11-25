@@ -76,12 +76,14 @@ class RepairItem {
 
 				if ( empty( $asset ) ) {
 					throw new \Exception( sprintf(
+						/* translators: %s: plugin slug */
 						__( "Couldn't load plugin for slug '%s'.", 'wp-simple-firewall' ),
 						$item->ptg_slug
 					) );
 				}
 				if ( !$asset->isWpOrg() ) {
 					throw new \Exception( sprintf(
+						/* translators: %s: type of asset, such as Plugin */
 						__( '%s not installed from WordPress.org.', 'wp-simple-firewall' ),
 						__( 'Plugin', 'wp-simple-firewall' )
 					) );
@@ -101,18 +103,21 @@ class RepairItem {
 
 				if ( empty( $asset ) ) {
 					throw new \Exception( sprintf(
+						/* translators: %s: theme slug */
 						__( "Couldn't load theme for slug '%s'.", 'wp-simple-firewall' ),
 						$item->ptg_slug
 					) );
 				}
 				if ( $asset->is_child ) {
 					throw new \Exception( sprintf(
+						/* translators: %s: type of asset, such as Theme */
 						__( "%s is a child of another theme.", 'wp-simple-firewall' ),
 						__( 'Theme', 'wp-simple-firewall' )
 					) );
 				}
 				if ( !$asset->isWpOrg() ) {
 					throw new \Exception( sprintf(
+						/* translators: %s: type of asset, such as Theme */
 						__( '%s not installed from WordPress.org.', 'wp-simple-firewall' ),
 						__( 'Theme', 'wp-simple-firewall' )
 					) );

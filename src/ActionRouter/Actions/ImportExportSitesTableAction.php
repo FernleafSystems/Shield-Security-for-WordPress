@@ -73,6 +73,7 @@ class ImportExportSitesTableAction extends TableActionBase {
 			'table_reload' => true,
 			'message'      => $pendingOnly
 				? __( 'Selected sites are already in the invitation or connection flow. Use Retry invitation for sites waiting on a connection.', 'wp-simple-firewall' )
+				/* translators: %s: number of sites */
 				: sprintf( _n( '%s site queued for sync.', '%s sites queued for sync.', $count, 'wp-simple-firewall' ), $count ),
 		];
 	}
@@ -87,6 +88,7 @@ class ImportExportSitesTableAction extends TableActionBase {
 			'success'      => true,
 			'table_reload' => !$shouldReloadPage,
 			'page_reload'  => $shouldReloadPage,
+			/* translators: %s: number of sites */
 			'message'      => sprintf( _n( '%s site removed.', '%s sites removed.', $count, 'wp-simple-firewall' ), $count ),
 		];
 	}
@@ -96,6 +98,7 @@ class ImportExportSitesTableAction extends TableActionBase {
 		return [
 			'success'      => true,
 			'table_reload' => true,
+			/* translators: %s: number of sites */
 			'message'      => sprintf( _n( '%s site queued for connection repair.', '%s sites queued for connection repair.', $count, 'wp-simple-firewall' ), $count ),
 		];
 	}
@@ -107,6 +110,7 @@ class ImportExportSitesTableAction extends TableActionBase {
 			'success'      => true,
 			'table_reload' => true,
 			'message'      => \sprintf(
+				/* translators: %1$s: number of invitations queued, %2$s: number of invitations skipped, %3$s: number of invitations that failed */
 				__( 'Invitation recovery handled: %1$s queued, %2$s skipped, %3$s failed.', 'wp-simple-firewall' ),
 				$result[ 'queued_count' ],
 				$result[ 'skipped_count' ],

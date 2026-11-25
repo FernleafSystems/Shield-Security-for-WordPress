@@ -307,6 +307,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 				}
 				elseif ( $ipRuleStatus->isAutoBlacklisted() ) {
 					$offenses = $ipRuleStatus->getOffenses();
+					/* translators: %s: number of offenses */
 					$offensesString = sprintf( _n( '%s offense', '%s offenses', $offenses, 'wp-simple-firewall' ), $offenses );
 					if ( $ipRuleStatus->isUnBlocked() ) {
 						$status = __( 'Unblocked', 'wp-simple-firewall' );

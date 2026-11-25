@@ -156,6 +156,7 @@ class JsonStringExtractor {
 		$php .= " * \n";
 		$php .= " * Usage: Run php extract_json_strings_for_translation.php to regenerate\n";
 		$php .= " */\n\n";
+		$php .= "if ( !\\defined( 'ABSPATH' ) ) { exit(); }\n\n";
 		$php .= "if ( false ) { // This ensures the code is never executed but is parsed for translation\n\n";
 
 		// Group and add strings

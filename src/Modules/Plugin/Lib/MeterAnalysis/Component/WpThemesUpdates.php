@@ -33,6 +33,7 @@ class WpThemesUpdates extends Base {
 		$count = $this->countUpdates();
 		return _n(
 			__( 'There is 1 theme update waiting to be applied.', 'wp-simple-firewall' ),
+			/* translators: %s: number of theme updates */
 			sprintf( __( 'There are %s theme updates waiting to be applied.', 'wp-simple-firewall' ), $count ),
 			$count
 		, 'wp-simple-firewall' );

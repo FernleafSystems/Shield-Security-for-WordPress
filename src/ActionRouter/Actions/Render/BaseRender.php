@@ -254,9 +254,13 @@ abstract class BaseRender extends BaseAction {
 				'blog'                         => __( 'Blog', 'wp-simple-firewall' ),
 				'save_all_settings'            => __( 'Save Settings', 'wp-simple-firewall' ),
 				'plugin_name'                  => $con->labels->Name,
+				/* translators: %s: plugin name */
 				'admin_shell_title'            => sprintf( __( '%s admin page', 'wp-simple-firewall' ), $con->labels->Name ),
+				/* translators: %s: plugin name */
 				'admin_shell_main_label'       => sprintf( __( '%s admin content', 'wp-simple-firewall' ), $con->labels->Name ),
+				/* translators: %s: plugin name */
 				'admin_shell_sidebar_label'    => sprintf( __( '%s admin sidebar', 'wp-simple-firewall' ), $con->labels->Name ),
+				/* translators: %s: plugin name */
 				'admin_shell_navigation_label' => sprintf( __( '%s admin navigation', 'wp-simple-firewall' ), $con->labels->Name ),
 				'actions_title'                => __( 'Actions and Info', 'wp-simple-firewall' ),
 				'installation_id'              => __( 'Installation ID', 'wp-simple-firewall' ),
@@ -305,18 +309,22 @@ abstract class BaseRender extends BaseAction {
 				'license_email'   => __( 'Owner', 'wp-simple-firewall' ),
 				'last_checked'    => __( 'Checked', 'wp-simple-firewall' ),
 
+				/* translators: %s: plugin name */
 				'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $con->labels->Name ),
 				'recommendation'      => \ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),
 				'suggestion'          => \ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),
 
 
+				/* translators: %s: plugin name */
 				'search_shield'            => sprintf( __( 'Search %s', 'wp-simple-firewall' ), $con->labels->Name ),
 				'search_shield_label'      => __( 'Click to launch plugin search modal', 'wp-simple-firewall' ),
 				'search_modal_placeholder' => __( 'Search settings, tools, IP addresses and help', 'wp-simple-firewall' ),
 				'search_modal_min_chars'   => __( 'Search using whole words of at least 3 characters.', 'wp-simple-firewall' ),
 				'search_modal_you_could'   => __( 'You could search for', 'wp-simple-firewall' ),
 				'search_suggestions'       => [
+					/* translators: %s: plugin name */
 					sprintf( __( '%s options and modules', 'wp-simple-firewall' ), $con->labels->Name ),
+					/* translators: %s: plugin name */
 					sprintf( __( '%s tools and features', 'wp-simple-firewall' ), $con->labels->Name ),
 					__( 'IP addresses', 'wp-simple-firewall' ),
 					__( 'Help docs & resources', 'wp-simple-firewall' ),

@@ -99,6 +99,7 @@ class RetrieveItems extends RetrieveBase {
 			$resultItemID
 		) );
 		if ( empty( $scan ) ) {
+			/* translators: %s: ID of the scan result item */
 			throw new \Exception( sprintf( __( 'Could not determine scan type from the result item ID %s.', 'wp-simple-firewall' ), $resultItemID ) );
 		}
 		$this->setScanController( self::con()->comps->scans->getScanCon( $scan ) );
@@ -113,6 +114,7 @@ class RetrieveItems extends RetrieveBase {
 
 		$resultSet = $this->convertToResultsSet( $rawResults );
 		if ( $resultSet->countItems() !== 1 ) {
+			/* translators: %s: ID of the scan result item */
 			throw new \Exception( sprintf( __( 'Scan result with ID %s does not exist.', 'wp-simple-firewall' ), $resultItemID ) );
 		}
 		$items = $resultSet->getAllItems();

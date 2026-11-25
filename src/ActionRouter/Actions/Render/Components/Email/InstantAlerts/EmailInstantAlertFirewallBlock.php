@@ -13,8 +13,10 @@ class EmailInstantAlertFirewallBlock extends EmailInstantAlertBase {
 		return \FernleafSystems\Wordpress\Services\Services::DataManipulation()->mergeArraysRecursive( parent::getBodyData(), [
 			'strings' => [
 				'intro' => [
+					/* translators: %s: plugin name */
 					sprintf( __( '%s Firewall has blocked a request to your WordPress site.', 'wp-simple-firewall' ), self::con()->labels->Name ),
 					__( 'This is for informational purposes only.', 'wp-simple-firewall' )
+					/* translators: %s: plugin name */
 					.' '.sprintf( __( '%s has already taken the necessary action of blocking the request.', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				],
 			],

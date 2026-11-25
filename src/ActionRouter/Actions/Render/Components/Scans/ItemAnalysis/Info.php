@@ -81,6 +81,7 @@ class Info extends BaseComponent {
 		if ( $item->is_in_core ) {
 			if ( $item->is_unrecognised ) {
 				$description[] = sprintf(
+					/* translators: %s: WordPress version number */
 					__( "This file is located in a core WordPress directory isn't a recognised core file for WordPress %s.", 'wp-simple-firewall' ),
 					Services::WpGeneral()->getVersion()
 				);
@@ -90,6 +91,7 @@ class Info extends BaseComponent {
 				if ( $item->is_in_wproot ) {
 					$description[] = __( "This file is located at the root of the WordPress installation directory.", 'wp-simple-firewall' );
 					$description[] = sprintf(
+						/* translators: %s: WordPress version number */
 						__( "This file isn't a known core file for WordPress %s.", 'wp-simple-firewall' ),
 						Services::WpGeneral()->getVersion()
 					);
@@ -97,6 +99,7 @@ class Info extends BaseComponent {
 			}
 			else {
 				$description[] = sprintf(
+					/* translators: %s: WordPress version number */
 					__( 'This is a recognised core file for WordPress %s.', 'wp-simple-firewall' ),
 					Services::WpGeneral()->getVersion()
 				);

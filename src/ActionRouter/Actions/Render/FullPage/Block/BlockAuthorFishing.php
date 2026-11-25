@@ -18,6 +18,7 @@ class BlockAuthorFishing extends BaseBlock {
 
 	protected function getRestrictionDetailsBlurb() :array {
 		$additional = [
+			/* translators: %s: query parameter name, shown as code */
 			'query_param' => sprintf( __( 'The %s query parameter has been blocked to protect against username / author fishing.', 'wp-simple-firewall' ), '<code>author</code>' )
 		];
 		if ( !self::con()->comps->whitelabel->isEnabled() ) {

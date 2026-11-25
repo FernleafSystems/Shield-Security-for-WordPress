@@ -75,7 +75,8 @@ abstract class TableActionBase extends BaseAction {
 		}
 
 		return \sprintf(
-			__( 'Not a supported %s table sub_action: %s', 'wp-simple-firewall' ),
+			/* translators: %1$s: table name, %2$s: action name */
+			__( 'Not a supported %1$s table sub_action: %2$s', 'wp-simple-firewall' ),
 			$this->translateUnsupportedSubActionTableLabel( $tableLabel ),
 			$subAction
 		);

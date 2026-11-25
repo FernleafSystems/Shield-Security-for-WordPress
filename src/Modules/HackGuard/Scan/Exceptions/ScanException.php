@@ -8,6 +8,7 @@ class ScanException extends \Exception {
 
 	public function __construct( string $scan, string $message = '' ) {
 		$this->scan = $scan;
+		/* translators: %s: scan name */
 		parent::__construct( empty( $message ) ? sprintf( __( 'Scan exception: %s', 'wp-simple-firewall' ), $scan ) : $message );
 	}
 }

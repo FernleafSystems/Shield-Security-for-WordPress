@@ -14,6 +14,7 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TourManager;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrainMonkeyWordPressWrapperFunctions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -23,12 +24,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 
 class TourManagerTest extends BaseUnitTest {
 
+	use BrainMonkeyWordPressWrapperFunctions;
+
 	private const DEFAULT_VIDEO_URL = 'https://vimeo.com/986378588/fde2b1c5f7?share=copy&fl=sv&fe=ci';
 
 	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->registerWordPressWrapperFunctions();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \preg_replace( '/[^a-z0-9_\-]/', '', $text ) ) : ''

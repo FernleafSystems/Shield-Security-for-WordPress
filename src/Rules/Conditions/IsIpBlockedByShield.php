@@ -21,6 +21,7 @@ class IsIpBlockedByShield extends Base {
 	}
 
 	public function getDescription() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( 'Is the request IP auto or manually blocked by %s.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

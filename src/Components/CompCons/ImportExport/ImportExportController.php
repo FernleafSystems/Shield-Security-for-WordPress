@@ -218,6 +218,7 @@ class ImportExportController {
 		$invalidUrls = \array_values( \array_unique( $invalidUrls ) );
 		if ( !empty( $invalidUrls ) ) {
 			throw new \RuntimeException( sprintf(
+				/* translators: %s: number of URLs */
 				_n(
 					'%s URL is invalid. Please provide normal HTTP or HTTPS site URLs only; localhost and private IP addresses are not allowed.',
 					'%s URLs are invalid. Please provide normal HTTP or HTTPS site URLs only; localhost and private IP addresses are not allowed.',

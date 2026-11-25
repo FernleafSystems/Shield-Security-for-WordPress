@@ -76,6 +76,7 @@ class License extends BaseCmd {
 	private function runRemove( $confirm ) {
 		if ( self::con()->isPremiumActive() ) {
 			if ( !$confirm ) {
+				/* translators: %s: plugin name */
 				WP_CLI::confirm( sprintf( __( 'Are you sure you want to remove the %s license?', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 			}
 			self::con()->comps->license->clearLicense();

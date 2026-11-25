@@ -28,6 +28,7 @@ class ShieldSessionParameterValueMatches extends Base {
 	}
 
 	public function getDescription() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( 'Does the value of the given %s Session parameter match the given pattern.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

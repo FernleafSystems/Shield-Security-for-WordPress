@@ -164,6 +164,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 		}
 		catch ( \Throwable $e ) {
 			$response->success = false;
+			/* translators: %s: error message */
 			$response->error_text = sprintf( __( 'Passkey authentication failed with the following error: %s', 'wp-simple-firewall' ),
 				$e->getMessage() );
 		}
@@ -192,6 +193,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 		}
 		catch ( \Throwable $e ) {
 			$response->success = false;
+			/* translators: %s: error message */
 			$response->error_text = sprintf( __( 'Passkey registration failed with the following error: %s', 'wp-simple-firewall' ),
 				$e->getMessage() );
 		}

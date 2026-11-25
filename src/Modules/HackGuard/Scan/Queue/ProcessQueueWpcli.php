@@ -37,6 +37,7 @@ class ProcessQueueWpcli {
 
 			try {
 				if ( !empty( $queuedScan ) ) {
+					/* translators: %s: scan name */
 					WP_CLI::log( sprintf( __( 'Building scan items for scan: %s', 'wp-simple-firewall' ),
 						$con->comps->scans->getScanCon( $queuedScan->scan )->getScanName()
 					) );

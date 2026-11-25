@@ -225,6 +225,7 @@ class ActionsQueueLandingViewBuilder {
 			'icon_class'     => $summary[ 'icon_class' ],
 			'summary_text'   => $summary[ 'has_items' ]
 				? sprintf(
+					/* translators: %1$s: number of critical issues, %2$s: number of to-dos, %3$s: total number of items */
 					__( '%1$s critical - %2$s to-dos - %3$s items total', 'wp-simple-firewall' ),
 					$criticalCount,
 					$warningCount,
@@ -281,12 +282,14 @@ class ActionsQueueLandingViewBuilder {
 		}
 		if ( $severityCounts[ 'critical' ] > 0 ) {
 			return sprintf(
+				/* translators: %1$s: number of issues, %2$s: number of critical issues */
 				_n( '%1$s issue - %2$s critical', '%1$s issues - %2$s critical', $totalIssues, 'wp-simple-firewall' ),
 				$totalIssues,
 				$severityCounts[ 'critical' ]
 			);
 		}
 		return sprintf(
+			/* translators: %1$s: number of issues */
 			_n( '%1$s issue', '%1$s issues', $totalIssues, 'wp-simple-firewall' ),
 			$totalIssues
 		);

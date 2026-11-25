@@ -88,6 +88,7 @@ class Retrieve {
 
 		$source = self::$sources[ $cacheKey ] ?? $this->byVOFromStoredSnapshot( $vo );
 		if ( \is_null( $source ) ) {
+			/* translators: %s: plugin or theme slug */
 			throw new AssetHashesNotFound( sprintf( __( 'Could not locate hashes for VO: %s', 'wp-simple-firewall' ), $vo->slug ) );
 		}
 		return $source;

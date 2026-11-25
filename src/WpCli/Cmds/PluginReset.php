@@ -27,6 +27,7 @@ class PluginReset extends BaseCmd {
 
 	protected function runCmd() :void {
 		if ( !$this->isForceFlag() ) {
+			/* translators: %s: plugin name */
 			\WP_CLI::confirm( sprintf( __( 'Are you sure you want to reset the %s plugin to defaults?', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 		( new ResetPlugin() )->run();

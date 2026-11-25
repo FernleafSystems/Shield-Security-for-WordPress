@@ -74,6 +74,7 @@ trait BuildsActionsQueueLandingData {
 
 		return $latestScanAt > 0
 			? \sprintf(
+				/* translators: %s: how long ago the last scan ran, such as "2 hours ago" */
 				__( 'Last scan: %s', 'wp-simple-firewall' ),
 				Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
 			)
@@ -233,6 +234,7 @@ trait BuildsActionsQueueLandingData {
 			'icon_class'       => $summary[ 'icon_class' ],
 			'badge'            => $summary[ 'has_items' ]
 				? \sprintf(
+					/* translators: %s: number of items */
 					_n( '%s item', '%s items', $totalItems, 'wp-simple-firewall' ),
 					$totalItems
 				)

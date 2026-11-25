@@ -22,6 +22,7 @@ class LoadConfig {
 	 */
 	public function __construct( string $path, string $storeKey ) {
 		if ( !Services::WpFs()->isAccessibleFile( $path ) ) {
+			/* translators: %s: file path */
 			throw new \Exception( sprintf( __( "Path to plugin config (%s) doesn't exist. Please reinstall the plugin.", 'wp-simple-firewall' ), $path ) );
 		}
 		$this->path = $path;

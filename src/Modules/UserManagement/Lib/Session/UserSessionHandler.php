@@ -159,6 +159,7 @@ class UserSessionHandler {
 					$msg = __( 'Your session was locked to another IP Address.', 'wp-simple-firewall' );
 					break;
 				case 'session_notfound':
+					/* translators: %s: plugin name */
 					$msg = sprintf( __( 'You do not currently have a %s user session.', 'wp-simple-firewall' ), self::con()->labels->Name );
 					break;
 				default:

@@ -84,6 +84,7 @@ class PageToolLockdown extends PageModeLandingBase {
 				'pro_note'            => __( 'Site Lockdown needs a Pro plan.', 'wp-simple-firewall' ),
 				'compare_plans'       => __( 'Compare plans', 'wp-simple-firewall' ),
 				'security_admin_html' => sprintf(
+					/* translators: %s: link to the Security Admin settings */
 					__( 'To stop other admins using this page, turn on %s.', 'wp-simple-firewall' ),
 					sprintf( '<a href="%s">%s</a>', esc_url( $con->plugin_urls->configureHome( 'control' ) ), __( 'Security Admin', 'wp-simple-firewall' ) )
 				),

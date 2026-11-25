@@ -208,7 +208,7 @@ class ConfigurePanelBuilder {
 		$width = 0;
 		foreach ( $option[ 'value_options' ] as $choice ) {
 			// Roughly 7px a character at the control's size, plus each segment's padding and border.
-			$width += \strlen( \strip_tags( \html_entity_decode( (string)$choice[ 'name' ] ) ) ) * 7 + 26;
+			$width += \strlen( wp_strip_all_tags( \html_entity_decode( (string)$choice[ 'name' ] ) ) ) * 7 + 26;
 		}
 		return $width <= 330;
 	}
@@ -241,7 +241,7 @@ class ConfigurePanelBuilder {
 			foreach ( $option[ 'value_options' ] as $value => $choice ) {
 				$stops[] = [
 					'value'        => (string)$value,
-					'label'        => \strip_tags( \html_entity_decode( (string)$choice[ 'name' ] ) ),
+					'label'        => wp_strip_all_tags( \html_entity_decode( (string)$choice[ 'name' ] ) ),
 					'is_available' => (bool)$choice[ 'is_available' ],
 				];
 			}
@@ -284,12 +284,19 @@ class ConfigurePanelBuilder {
 			return __( 'Off', 'wp-simple-firewall' );
 		}
 		$units = [
+			/* translators: %s: number of seconds */
 			'seconds'  => _n( '%s second', '%s seconds', $value, 'wp-simple-firewall' ),
+			/* translators: %s: number of minutes */
 			'minutes'  => _n( '%s minute', '%s minutes', $value, 'wp-simple-firewall' ),
+			/* translators: %s: number of hours */
 			'hours'    => _n( '%s hour', '%s hours', $value, 'wp-simple-firewall' ),
+			/* translators: %s: number of days */
 			'days'     => _n( '%s day', '%s days', $value, 'wp-simple-firewall' ),
+			/* translators: %s: number of comments */
 			'comments' => _n( '%s comment', '%s comments', $value, 'wp-simple-firewall' ),
+			/* translators: %s: number of offenses */
 			'offenses' => _n( '%s offense', '%s offenses', $value, 'wp-simple-firewall' ),
+			/* translators: %s: number of requests */
 			'requests' => _n( '%s request', '%s requests', $value, 'wp-simple-firewall' ),
 		];
 		return sprintf( $units[ $unit ] ?? '%s', number_format_i18n( $value ) );

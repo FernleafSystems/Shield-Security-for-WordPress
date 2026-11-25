@@ -160,12 +160,14 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 		switch ( $groupKey ) {
 			case 'maintenance_system':
 				$pattern = $isHealthy
+					/* translators: %s: number of system items */
 					? _n(
 						'%s system item is currently looking good.',
 						'%s system items are currently looking good.',
 						$itemCount,
 						'wp-simple-firewall'
 					)
+					/* translators: %s: number of system items */
 					: _n(
 						'%s system item needs review.',
 						'%s system items need review.',
@@ -176,12 +178,14 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 
 			case 'maintenance_wordpress':
 				$pattern = $isHealthy
+					/* translators: %s: number of WordPress items */
 					? _n(
 						'%s WordPress item is currently looking good.',
 						'%s WordPress items are currently looking good.',
 						$itemCount,
 						'wp-simple-firewall'
 					)
+					/* translators: %s: number of WordPress items */
 					: _n(
 						'%s WordPress item needs review.',
 						'%s WordPress items need review.',
@@ -192,12 +196,14 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 
 			default:
 				$pattern = $isHealthy
+					/* translators: %s: number of items */
 					? _n(
 						'%s item is currently looking good.',
 						'%s items are currently looking good.',
 						$itemCount,
 						'wp-simple-firewall'
 					)
+					/* translators: %s: number of to-do items */
 					: _n(
 						'%s to-do needs review.',
 						'%s to-dos need review.',

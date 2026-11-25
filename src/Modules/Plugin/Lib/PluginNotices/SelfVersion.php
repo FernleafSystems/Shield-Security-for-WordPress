@@ -33,6 +33,7 @@ class SelfVersion extends Base {
 					'text'      => [
 						sprintf(
 							'%s %s',
+							/* translators: %s: plugin name */
 							sprintf( __( 'There are at least 2 major upgrades to the %s plugin since your version.', 'wp-simple-firewall' ), $con->labels->Name ),
 							sprintf( '<a href="%s" class="">%s</a>',
 								Services::WpPlugins()->getUrl_Upgrade( self::con()->base_file ),
@@ -53,6 +54,7 @@ class SelfVersion extends Base {
 					'text'      => [
 						sprintf(
 							'%s %s',
+							/* translators: %s: plugin name */
 							sprintf( __( "An upgrade is available for the %s plugin.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 							sprintf( '<a href="%s" class="">%s</a>',
 								Services::WpPlugins()->getUrl_Upgrade( self::con()->base_file ),

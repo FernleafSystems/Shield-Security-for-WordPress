@@ -14,11 +14,13 @@ class GeneratedMuLoaderContent {
 	public function build() :string {
 		$templateFile = \rtrim( __DIR__, '/\\' ).'/mu-template.txt';
 		if ( !\is_readable( $templateFile ) ) {
+			/* translators: %s: file path */
 			throw new \Exception( sprintf( __( "Couldn't read MU plugin template from %s", 'wp-simple-firewall' ), $templateFile ) );
 		}
 
 		$template = \file_get_contents( $templateFile );
 		if ( !\is_string( $template ) || $template === '' ) {
+			/* translators: %s: file path */
 			throw new \Exception( sprintf( __( "Couldn't read MU plugin template from %s", 'wp-simple-firewall' ), $templateFile ) );
 		}
 

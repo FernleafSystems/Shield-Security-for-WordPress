@@ -11,6 +11,7 @@ class SecadminEnabled extends Base {
 	}
 
 	public function subtitle() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( 'The Security Admin system protects WordPress and the %s plugin against tampering.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

@@ -76,10 +76,12 @@ class ThemeReinstallContextActionBuilder {
 				] )
 			),
 			'confirm_text'     => \sprintf(
+				/* translators: %s: theme name */
 				__( 'Reinstall %s from WordPress.org?', 'wp-simple-firewall' ),
 				$name
 			),
 			'processing_text'  => \sprintf(
+				/* translators: %s: theme name */
 				__( 'Reinstalling %s. Keep this page open until it completes.', 'wp-simple-firewall' ),
 				$name
 			),

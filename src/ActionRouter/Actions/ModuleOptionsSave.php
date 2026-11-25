@@ -30,7 +30,9 @@ class ModuleOptionsSave extends BaseAction {
 			'page_reload' => ( !$wasSecAdminEnabled && $con->comps->sec_admin->isEnabledSecAdmin() )
 							 || ( !$wasEmailAuthEnabled && ( new EmailDeliveryVerificationDialog() )->isRequired() ),
 			'message'     => $success ?
+				/* translators: %s: plugin name */
 				sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $con->labels->Name )
+				/* translators: %s: plugin name */
 				: sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $con->labels->Name )
 		] )->setPayloadSuccess( $success );
 	}

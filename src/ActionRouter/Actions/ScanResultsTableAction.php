@@ -192,6 +192,7 @@ class ScanResultsTableAction extends BaseAction {
 					break;
 			}
 			$msg = sprintf( '%s: %s', $msg,
+				/* translators: %s: number of items */
 				sprintf( _n( '%s item processed', '%s items processed', $itemCount, 'wp-simple-firewall' ), $itemCount ) );
 		}
 		else {

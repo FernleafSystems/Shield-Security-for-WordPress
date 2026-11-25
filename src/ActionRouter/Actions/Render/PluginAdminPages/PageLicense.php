@@ -53,14 +53,17 @@ class PageLicense extends PageModeLandingBase {
 		$strings = [
 
 			'license_upgrade_eyebrow'      => __( 'Upgrade', 'wp-simple-firewall' ),
+			/* translators: %s: plugin name */
 			'license_activate_title'       => sprintf( __( 'Activate %s Pro', 'wp-simple-firewall' ), $con->labels->Name ),
 			'license_activate_subtitle'    => __( 'No licence keys. Simply register your site and Pro features activate automatically.', 'wp-simple-firewall' ),
 			'license_check_now'            => __( 'Check Licence Now', 'wp-simple-firewall' ),
 			'license_pricing_plans'        => __( 'See pricing plans', 'wp-simple-firewall' ),
 			'license_gallery_label'        => __( 'What you unlock with Pro', 'wp-simple-firewall' ),
+			/* translators: %s: plugin name */
 			'license_status_eyebrow'       => sprintf( __( '%s Pro', 'wp-simple-firewall' ), $con->labels->Name ),
 			'license_active_title'         => __( 'Licence Active', 'wp-simple-firewall' ),
 			'license_active_badge'         => __( 'Pro', 'wp-simple-firewall' ),
+			/* translators: %s: plugin name */
 			'license_active_subtitle'      => sprintf( __( 'Your %s Pro licence is active and your site is fully protected.', 'wp-simple-firewall' ), $con->labels->Name ),
 			'license_expired_title'        => __( 'Licence Expired', 'wp-simple-firewall' ),
 			'license_expired_badge'        => __( 'Expired', 'wp-simple-firewall' ),
@@ -70,9 +73,11 @@ class PageLicense extends PageModeLandingBase {
 			'clear_license'                => __( 'Remove License', 'wp-simple-firewall' ),
 			'url_to_activate'              => __( 'URL To Activate', 'wp-simple-firewall' ),
 			'activate_site_in'             => sprintf(
+				/* translators: %s: name of the activation feature */
 				__( 'Activate this site URL in your %s control panel', 'wp-simple-firewall' ),
 				__( 'Keyless Activation', 'wp-simple-firewall' )
 			),
+			/* translators: %s: number of seconds */
 			'license_check_limit'          => sprintf( __( 'Licenses may be checked once every %s seconds', 'wp-simple-firewall' ), 20 ),
 			'more_frequent'                => __( 'more frequent checks will be ignored', 'wp-simple-firewall' ),
 			'incase_debug'                 => __( 'In case of activation problems, click the link', 'wp-simple-firewall' ),
@@ -121,10 +126,12 @@ class PageLicense extends PageModeLandingBase {
 	}
 
 	protected function getLandingTitle() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( '%s License Management', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	protected function getLandingSubtitle() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( 'Seamlessly activate and manage your %s license without any license keys.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
@@ -193,8 +200,10 @@ class PageLicense extends PageModeLandingBase {
 		$con = self::con();
 		return [
 			[
+				/* translators: %s: list of file names wrapped in code tags */
 				'title' => sprintf( __( 'Protect your %s files', 'wp-simple-firewall' ), '<code>wp-config.php, .htaccess</code>' ),
 				'lines' => [
+					/* translators: %s: file name wrapped in code tags */
 					sprintf( __( 'The only WordPress security plugin to add monitoring of your %s files with automatic rollback and recovery.', 'wp-simple-firewall' ), '<code>wp-config.php</code>' ),
 				],
 				'href'  => 'https://clk.shldscrty.com/ki'
@@ -210,6 +219,7 @@ class PageLicense extends PageModeLandingBase {
 				'title' => sprintf( '%s: %s', __( 'Malware Scanner', 'wp-simple-firewall' ), __( 'Auto-learning and Detects Never-Before-Seen Malware', 'wp-simple-firewall' ) ),
 				'lines' => [
 					__( 'Detects common and uncommon malware patterns in PHP files and alerts you immediately.', 'wp-simple-firewall' ),
+					/* translators: %s: plugin name */
 					sprintf( __( 'With %s crowd-sourcing intelligence, noisy false-positives that waste your time are automatically hidden so you can focus on risks that matter.', 'wp-simple-firewall' ), $con->labels->Name ),
 				],
 				'href'  => 'https://clk.shldscrty.com/kj'
@@ -217,6 +227,7 @@ class PageLicense extends PageModeLandingBase {
 			[
 				'title' => __( 'Plugin and Theme Vulnerability Scanner', 'wp-simple-firewall' ),
 				'lines' => [
+					/* translators: %s: plugin name */
 					sprintf( __( 'Alerts to plugin/theme vulnerabilities. %s can automatically deploy upgrade they become available.', 'wp-simple-firewall' ), $con->labels->Name ),
 				],
 				'href'  => 'https://clk.shldscrty.com/kk'
@@ -238,6 +249,7 @@ class PageLicense extends PageModeLandingBase {
 			[
 				'title' => sprintf( '%s: %s', __( 'Intelligence From The Collective', 'wp-simple-firewall' ), $con->labels->getBrandName( 'shieldnet' ) ),
 				'lines' => [
+					/* translators: %s: plugin name */
 					sprintf( __( 'Take advantage of the intelligence gathered throughout the entire %s network to better protect your WordPress sites', 'wp-simple-firewall' ), $con->labels->Name ),
 				],
 				'href'  => 'https://clk.shldscrty.com/kn'
@@ -245,6 +257,7 @@ class PageLicense extends PageModeLandingBase {
 			[
 				'title' => __( 'Easiest, Frustration-Free WP Pro-Upgrade Anywhere', 'wp-simple-firewall' ),
 				'lines' => [
+					/* translators: %s: plugin name */
 					sprintf( __( 'No more license keys to remember/copy-paste! Simply activate your site URL in your %s control panel and get Pro features enabled on your site automatically.', 'wp-simple-firewall' ), $con->labels->Name ),
 				],
 				'href'  => 'https://clk.shldscrty.com/ko'
@@ -266,6 +279,7 @@ class PageLicense extends PageModeLandingBase {
 			[
 				'title' => __( 'White Label', 'wp-simple-firewall' ),
 				'lines' => [
+					/* translators: %s: plugin name */
 					sprintf( __( 'Re-Brand %s as your own!', 'wp-simple-firewall' ), $con->labels->Name ),
 				],
 				'href'  => 'https://clk.shldscrty.com/kr'
@@ -273,6 +287,7 @@ class PageLicense extends PageModeLandingBase {
 			[
 				'title' => __( 'Exclusive Customer Support', 'wp-simple-firewall' ),
 				'lines' => [
+					/* translators: %s: plugin name */
 					sprintf( __( 'Technical support for %s is exclusive to Pro customers.', 'wp-simple-firewall' ), $con->labels->Name ),
 				],
 			],

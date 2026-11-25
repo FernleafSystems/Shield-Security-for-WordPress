@@ -40,6 +40,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\AssetsCustomizer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TourManager;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrainMonkeyWordPressWrapperFunctions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -52,6 +53,7 @@ use FernleafSystems\Wordpress\Services\Core\General;
 class AssetsCustomizerTest extends BaseUnitTest {
 
 	use AjaxRenderPolicyAssertions;
+	use BrainMonkeyWordPressWrapperFunctions;
 
 	private const VALID_VIDEO_URL = 'https://vimeo.com/123456789';
 
@@ -59,6 +61,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->registerWordPressWrapperFunctions();
 		if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
 			\define( 'HOUR_IN_SECONDS', 3600 );
 		}

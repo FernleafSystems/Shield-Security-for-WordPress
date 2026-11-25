@@ -306,54 +306,63 @@ class ActionsQueueBucketsBuilder {
 		switch ( $groupKey ) {
 			case 'vulnerabilities':
 				return \sprintf(
+					/* translators: %s: number of vulnerabilities */
 					_n( '%s vulnerability', '%s vulnerabilities', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'abandoned':
 				return \sprintf(
+					/* translators: %s: number of abandoned assets */
 					_n( '%s abandoned asset', '%s abandoned assets', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'hidden_plugins':
 				return \sprintf(
+					/* translators: %s: number of cloaked plugins */
 					_n( '%s cloaked plugin', '%s cloaked plugins', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'wordpress':
 				return \sprintf(
+					/* translators: %s: number of WordPress file issues */
 					_n( '%s WordPress file issue', '%s WordPress file issues', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'plugins':
 				return \sprintf(
+					/* translators: %s: number of plugin file issues */
 					_n( '%s plugin file issue', '%s plugin file issues', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'themes':
 				return \sprintf(
+					/* translators: %s: number of theme file issues */
 					_n( '%s theme file issue', '%s theme file issues', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'malware':
 				return \sprintf(
+					/* translators: %s: number of malware detections */
 					_n( '%s malware detection', '%s malware detections', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'file_locker':
 				return \sprintf(
+					/* translators: %s: number of file changes */
 					_n( '%s file change', '%s file changes', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'file_locker_unlocked':
 				return \sprintf(
+					/* translators: %s: number of critical files not locked */
 					_n( '%s critical file not locked', '%s critical files not locked', $count, 'wp-simple-firewall' ),
 					$count
 				);
@@ -361,13 +370,16 @@ class ActionsQueueBucketsBuilder {
 			case 'maintenance':
 				return \sprintf(
 					$useChecksLabel
+						/* translators: %s: number of checks */
 						? _n( '%s check', '%s checks', $count, 'wp-simple-firewall' )
+						/* translators: %s: number of to-do items */
 						: _n( '%s to-do', '%s to-dos', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			default:
 				return \sprintf(
+					/* translators: %s: number of items */
 					_n( '%s item', '%s items', $count, 'wp-simple-firewall' ),
 					$count
 				);

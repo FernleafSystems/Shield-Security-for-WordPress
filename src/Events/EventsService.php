@@ -21,6 +21,7 @@ class EventsService {
 	public function fireEvent( string $event, array $meta = [] ) {
 		try {
 			if ( !$this->eventExists( $event ) ) {
+				/* translators: %s: event name */
 				throw new \Exception( sprintf( __( 'Event %s does not exist.', 'wp-simple-firewall' ), $event ) );
 			}
 			do_action(
@@ -42,6 +43,7 @@ class EventsService {
 		$metaParams = \array_keys( $meta[ 'audit_params' ] ?? [] );
 
 		if ( empty( $def ) && !empty( $metaParams ) ) {
+			/* translators: %s: event name */
 			error_log( sprintf( __( 'WARNING: Event (%s) receives params but none are defined.', 'wp-simple-firewall' ), $event ) );
 		}
 		elseif ( !empty( $def ) ) {
@@ -102,6 +104,7 @@ class EventsService {
 			$this->events = $this->normaliseEventLevels( $events );
 		}
 		if ( empty( $this->events ) ) {
+			/* translators: %s: plugin name */
 			error_log( sprintf( __( '%s event definitions are empty or not in the correct format.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 

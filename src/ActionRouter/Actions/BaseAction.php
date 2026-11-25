@@ -74,16 +74,19 @@ abstract class BaseAction extends DynPropertiesClass {
 		$con = self::con();
 		$thisReq = $con->this_req;
 		if ( !$thisReq->request_bypasses_all_restrictions && $thisReq->is_ip_blocked && !$this->canBypassIpAddressBlock() ) {
+			/* translators: %s: identifier of the action */
 			throw new IpBlockedException( sprintf( __( 'IP Address blocked so cannot process action: %s', 'wp-simple-firewall' ), static::SLUG ) );
 		}
 
 		$WPU = Services::WpUsers();
 		if ( $this->isUserAuthRequired()
 			 && ( !$WPU->isUserLoggedIn() || !user_can( $WPU->getCurrentWpUser(), $this->getMinimumUserAuthCapability() ) ) ) {
+			/* translators: %s: identifier of the action */
 			throw new UserAuthRequiredException( sprintf( __( 'Must be logged-in to execute this action: %s', 'wp-simple-firewall' ), static::SLUG ) );
 		}
 
 		if ( !$thisReq->is_security_admin && $this->isSecurityAdminRequired() ) {
+			/* translators: %s: identifier of the action */
 			throw new SecurityAdminRequiredException( sprintf( __( 'Security admin required for action: %s', 'wp-simple-firewall' ), static::SLUG ) );
 		}
 	}

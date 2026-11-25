@@ -25,6 +25,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\{
 	TrustedFileContext
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrainMonkeyWordPressWrapperFunctions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -47,6 +48,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 
 class FileScanOptimiserTest extends BaseUnitTest {
 
+	use BrainMonkeyWordPressWrapperFunctions;
 	use TempDirLifecycleTrait;
 	use WrittenFixtureFiles;
 
@@ -54,6 +56,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->registerWordPressWrapperFunctions();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		AssetTrustResolver::resetMemoization();
 		Retrieve::resetMemoization();

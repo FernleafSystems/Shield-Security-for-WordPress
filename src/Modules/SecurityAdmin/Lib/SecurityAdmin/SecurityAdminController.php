@@ -68,6 +68,7 @@ class SecurityAdminController {
 					__( "Sorry, this plugin is protected against unauthorised attempts to disable it.", 'wp-simple-firewall' ),
 					sprintf( '<a href="%s">%s</a>',
 						$con->plugin_urls->adminHome(),
+						/* translators: %s: plugin name */
 						sprintf( __( "Please authenticate with the %s Security Admin system and try again.", 'wp-simple-firewall' ), $con->labels->Name )
 					)
 				)
@@ -121,6 +122,7 @@ class SecurityAdminController {
 												  && !$this->isCurrentUserRegisteredSecAdmin(),
 						],
 						'strings' => [
+							/* translators: %s: partially hidden email address */
 							'confirm_disable'    => sprintf( __( "A confirmation link will be sent to '%s' - please open it in this browser window.", 'wp-simple-firewall' ),
 								Obfuscate::Email( $con->comps->opts_lookup->getReportEmail() ) ),
 							'timeout_title'      => __( 'Session Expired', 'wp-simple-firewall' ),

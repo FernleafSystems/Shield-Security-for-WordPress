@@ -120,6 +120,7 @@ class InvestigateLookup extends BaseAction {
 				'value' => $value,
 				'title' => $name === '' ? $value : $name,
 				'meta'  => \implode( ' · ', \array_filter( [
+					/* translators: %s: version number */
 					empty( $asset->Version ) ? '' : \sprintf( __( 'Version %s', 'wp-simple-firewall' ), $asset->Version ),
 					$asset->active ? __( 'Active', 'wp-simple-firewall' ) : __( 'Inactive', 'wp-simple-firewall' ),
 					$asset->hasUpdate() ? __( 'Update available', 'wp-simple-firewall' ) : '',

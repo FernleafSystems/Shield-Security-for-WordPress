@@ -58,6 +58,7 @@ class MUHandler {
 			$file = $this->getMuFilePath();
 			Services::WpFs()->deleteFile( $file );
 			if ( $this->isActiveMU() ) {
+				/* translators: %s: file path */
 				throw new \Exception( sprintf( __( 'Could not delete the MU file: %s', 'wp-simple-firewall' ), $file ) );
 			}
 		}
@@ -83,6 +84,7 @@ class MUHandler {
 		$FS = Services::WpFs();
 
 		if ( !Services::WpGeneral()->getWordpressIsAtLeastVersion( '5.6' ) ) {
+			/* translators: %s: WordPress version number */
 			throw new \Exception( sprintf( __( 'WordPress version must be at least: %s', 'wp-simple-firewall' ), '5.6' ) );
 		}
 
@@ -92,6 +94,7 @@ class MUHandler {
 		}
 
 		if ( !$FS->isDir( $muDir ) ) {
+			/* translators: %s: directory path */
 			throw new \Exception( sprintf( __( 'Could not create MU directory: %s', 'wp-simple-firewall' ), $muDir ) );
 		}
 
@@ -100,9 +103,11 @@ class MUHandler {
 		$FS->putFileContent( $file, $content );
 
 		if ( !$FS->isAccessibleFile( $file ) ) {
+			/* translators: %s: file path */
 			throw new \Exception( sprintf( __( 'Could not create MU file: %s', 'wp-simple-firewall' ), $file ) );
 		}
 		if ( $FS->getFileContent( $file ) !== $content ) {
+			/* translators: %s: file path */
 			throw new \Exception( sprintf( __( 'Could not write content to MU file: %s', 'wp-simple-firewall' ), $file ) );
 		}
 

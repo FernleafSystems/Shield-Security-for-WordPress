@@ -10,6 +10,7 @@ class ZoneReportComments extends BaseZoneReport {
 	protected function buildSummaryLinesForLog( LogRecord $log ) :array {
 		switch ( $log->event_slug ) {
 			case 'comment_created':
+				/* translators: %s: comment status */
 				$text = sprintf( __( 'Created with status %s', 'wp-simple-firewall' ),
 					$log->meta_data[ 'status' ] ?? __( 'missing data', 'wp-simple-firewall' ) );
 				break;

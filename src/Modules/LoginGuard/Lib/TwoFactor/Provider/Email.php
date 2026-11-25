@@ -152,6 +152,7 @@ class Email extends AbstractShieldProviderMfaDB {
 					'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
 					'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
 					'description_email_authentication_checkbox' => __( 'Toggle the option to enable/disable email-based login authentication.', 'wp-simple-firewall' ),
+					/* translators: %s: plugin name */
 					'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), self::con()->labels->Name )
 				]
 			]

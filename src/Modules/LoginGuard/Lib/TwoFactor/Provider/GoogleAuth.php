@@ -54,13 +54,17 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 					'description_chart_url' => __( 'Use your Google Authenticator app to scan this QR code and enter the 6-digit one time password.', 'wp-simple-firewall' ),
 					'description_ga_secret' => __( 'If you have a problem with scanning the QR code enter the long code manually into the app.', 'wp-simple-firewall' ),
 					'desc_remove'           => __( 'Click to immediately remove Google Authenticator login authentication.', 'wp-simple-firewall' ),
+					/* translators: %s: name of the authentication method */
 					'label_check_to_remove' => sprintf( __( 'Remove %s', 'wp-simple-firewall' ), __( 'Google Authenticator', 'wp-simple-firewall' ) ),
 					'label_enter_code'      => __( 'Google Authenticator Code', 'wp-simple-firewall' ),
 					'label_ga_secret'       => __( 'Manual Code', 'wp-simple-firewall' ),
 					'label_scan_qr_code'    => __( 'Scan This QR Code', 'wp-simple-firewall' ),
 					'title'                 => __( 'Google Authenticator', 'wp-simple-firewall' ),
+					/* translators: %s: name of the authentication method */
 					'cant_add_other_user'   => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Google Authenticator' ),
+					/* translators: %s: name of the authentication method */
 					'cant_remove_admins'    => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Google Authenticator', 'wp-simple-firewall' ) ),
+					/* translators: %s: plugin name */
 					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), self::con()->labels->Name ),
 					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ),
 					'remove_google_auth'    => __( 'Remove Google Authenticator', 'wp-simple-firewall' ),
@@ -116,6 +120,7 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 				// same QR code can be tried again; it's replaced the next time the form is drawn.
 				unset( $meta->ga_temp_secret );
 				$r->msg_text = sprintf(
+					/* translators: %s: name of the authentication method */
 					__( '%s was successfully added to your account.', 'wp-simple-firewall' ),
 					__( 'Google Authenticator', 'wp-simple-firewall' )
 				);

@@ -174,6 +174,7 @@ class SetupGuideDataBuilder {
 			'update_action_json'  => ActionData::BuildJson( SetupGuideUpdate::class ),
 			'refresh_action_json' => (string)\wp_json_encode( ActionData::BuildAjaxRender( SetupGuideBar::class ) ),
 			'strings'     => [
+				/* translators: %s: plugin name */
 				'title'          => sprintf( __( 'Finish setting up %s', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				/* translators: %1$s: steps done, %2$s: total steps */
 				'progress'       => __( '%1$s of %2$s done', 'wp-simple-firewall' ),

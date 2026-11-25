@@ -18,7 +18,8 @@ class DailyCron extends BaseCron {
 	}
 
 	public function getFirstRunTimestamp() :int {
-		$hour = ( \rand( -3, 7 ) + 24 )%24;
+		// 21:00 to 07:00. wp_rand() returns absolute values, so the range can't start below zero.
+		$hour = wp_rand( 21, 31 )%24;
 		if ( $hour === 0 ) {
 			$hour += wp_rand( 1, 7 );
 		}

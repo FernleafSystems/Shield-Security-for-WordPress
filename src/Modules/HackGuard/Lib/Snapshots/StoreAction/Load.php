@@ -15,6 +15,7 @@ class Load extends BaseAction {
 
 		foreach ( [ $store->getSnapStorePath(), $store->getSnapStoreMetaPath() ] as $path ) {
 			if ( !Services::WpFs()->exists( $path ) ) {
+				/* translators: %s: file path */
 				throw new \Exception( sprintf( __( 'Critical store file does not exist: %s', 'wp-simple-firewall' ), $path ) );
 			}
 		}

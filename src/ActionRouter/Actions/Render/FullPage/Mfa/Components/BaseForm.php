@@ -59,7 +59,9 @@ abstract class BaseForm extends Base {
 				'calculating'     => __( 'Calculating', 'wp-simple-firewall' ).' ...',
 				'verify_my_login' => __( 'Verify My Login', 'wp-simple-firewall' ),
 				'skip_mfa'        => sprintf(
+					/* translators: %s: length of time, such as '3 days' */
 					__( "Remember me for %s", 'wp-simple-firewall' ),
+					/* translators: %s: number of days */
 					sprintf( _n( '%s day', '%s days', $mfaSkip, 'wp-simple-firewall' ), $mfaSkip )
 				)
 			],

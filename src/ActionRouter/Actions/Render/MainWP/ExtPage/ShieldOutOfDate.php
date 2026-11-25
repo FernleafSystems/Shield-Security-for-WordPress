@@ -12,6 +12,7 @@ class ShieldOutOfDate extends BaseSubPage {
 	protected function getRenderData() :array {
 		return [
 			'strings' => [
+				/* translators: %s: plugin name */
 				'update'  => sprintf( __( 'The %s plugin on this site needs to be upgraded.', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'go_here' => __( 'Go to WordPress Updates', 'wp-simple-firewall' )
 			],

@@ -23,6 +23,7 @@ class PluginGeneral extends Base {
 		if ( !\in_array( $source, [ 'REMOTE_ADDR', 'HTTP_CF_CONNECTING_IP' ], true ) ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
 			$status[ 'exp' ][] = $this->explanationFixedBy(
+				/* translators: %s: name of the server setting the visitor IP address is read from, wrapped in a code tag */
 				sprintf( __( "Visitor IP addresses may be spoofed because the current source is %s.", 'wp-simple-firewall' ), sprintf( '<code>%s</code>', $source ) ),
 				'visitor_address_source'
 			);

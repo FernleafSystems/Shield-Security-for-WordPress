@@ -12,6 +12,7 @@ class SilentCaptcha extends Base {
 	}
 
 	public function subtitle() :string {
+		/* translators: %s: brand name of the bot detection technology */
 		return sprintf( __( '%s is our WordPress Bad Bot Detection technology.', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
 	}
 
@@ -97,9 +98,13 @@ class SilentCaptcha extends Base {
 			'threshold_weak'             => $minimum > 0 && $minimum < 30,
 			'challenge_disabled'         => $complexity === SilentCaptchaComplexity::NONE,
 			'challenge_weak'             => $complexity === SilentCaptchaComplexity::LOW,
+			/* translators: %s: brand name of the bot detection technology */
 			'threshold_disabled_message' => $this->explanationFixedBy( sprintf( __( "%s bot detection isn't running because the minimum score is set to 0.", 'wp-simple-firewall' ), $silentCaptcha ), 'antibot_minimum' ),
+			/* translators: %1$s: brand name of the bot detection technology, %2$s: minimum score threshold */
 			'threshold_warning_message'  => $this->explanationFixedBy( sprintf( __( '%1$s bot minimum score is quite low (%2$s).', 'wp-simple-firewall' ), $silentCaptcha, '< 30' ), 'antibot_minimum' ),
+			/* translators: %s: brand name of the bot detection technology */
 			'challenge_disabled_message' => $this->explanationFixedBy( sprintf( __( "%s bot detection isn't running, as bots aren't currently being challenged.", 'wp-simple-firewall' ), $silentCaptcha ), 'silentcaptcha_complexity' ),
+			/* translators: %s: brand name of the bot detection technology */
 			'challenge_warning_message'  => $this->explanationFixedBy( sprintf( __( "%s bot challenge complexity is too low - consider increasing it.", 'wp-simple-firewall' ), $silentCaptcha ), 'silentcaptcha_complexity' ),
 		];
 	}

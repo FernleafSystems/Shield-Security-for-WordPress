@@ -135,7 +135,7 @@ class FileScanOptimiser {
 		}
 		foreach ( new \DirectoryIterator( $dir ) as $file ) {
 			if ( $file->isFile() && $file->getExtension() === 'jsonl' ) {
-				@\unlink( $file->getPathname() );
+				wp_delete_file( $file->getPathname() );
 			}
 		}
 	}
@@ -351,7 +351,7 @@ class FileScanOptimiser {
 			@\rename( $tmp, $path );
 		}
 		else {
-			@\unlink( $tmp );
+			wp_delete_file( $tmp );
 		}
 	}
 

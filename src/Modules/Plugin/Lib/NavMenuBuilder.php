@@ -161,11 +161,13 @@ class NavMenuBuilder {
 				[
 					'text'   => (string)$actionsSummary[ 'critical_items' ],
 					'status' => 'critical',
+					/* translators: %s: number of critical items */
 					'label'  => \sprintf( _n( '%s critical item', '%s critical items', $actionsSummary[ 'critical_items' ], 'wp-simple-firewall' ), $actionsSummary[ 'critical_items' ] ),
 				],
 				[
 					'text'   => (string)$actionsSummary[ 'warning_items' ],
 					'status' => 'warning',
+					/* translators: %s: number of to-do items */
 					'label'  => \sprintf( _n( '%s to-do', '%s to-dos', $actionsSummary[ 'warning_items' ], 'wp-simple-firewall' ), $actionsSummary[ 'warning_items' ] ),
 				],
 			], fn( array $badge ) :bool => $badge[ 'text' ] !== '0' ) ),

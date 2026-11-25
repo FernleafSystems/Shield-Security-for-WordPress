@@ -875,6 +875,7 @@ class ScansResultsViewBuilder {
 		$rowTitle = \trim( $rowTitle );
 
 		$accessibleLabel = $label !== '' && $rowTitle !== ''
+			/* translators: %1$s: column label, %2$s: row title */
 			? \sprintf( __( '%1$s: %2$s', 'wp-simple-firewall' ), $label, $rowTitle )
 			: ( $label !== '' ? $label : $rowTitle );
 		if ( $accessibleLabel === '' ) {

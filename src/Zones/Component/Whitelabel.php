@@ -11,6 +11,7 @@ class Whitelabel extends Base {
 	}
 
 	public function subtitle() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( 'Re-brand the %s plugin.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

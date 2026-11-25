@@ -23,6 +23,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Int
 	}
 
 	protected function getCommonSpamMessage() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( "This appears to be spam as it failed %s AntiBot protection checks.", 'wp-simple-firewall' ),
 			self::con()->labels->Name );
 	}

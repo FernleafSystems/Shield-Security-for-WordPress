@@ -28,7 +28,9 @@ class PluginIpDetect extends BaseAction {
 		}
 		$this->response()->setPayload( [
 			'message'   => empty( $source )
+				/* translators: %s: IP address */
 				? sprintf( __( 'Could not find source from IP: %s', 'wp-simple-firewall' ), \esc_html( $ip ) )
+				/* translators: %s: name of the IP source */
 				: sprintf( __( 'IP Source Found: %s', 'wp-simple-firewall' ), $source ),
 			'ip_source' => $source,
 		] )->setPayloadSuccess( (bool)( !empty( $source ) ) );

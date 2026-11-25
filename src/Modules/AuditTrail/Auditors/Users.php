@@ -243,6 +243,7 @@ class Users extends Base {
 			$user = Services::WpUsers()->getUserById( $userID );
 			if ( empty( $user ) ) {
 				// Bail out.
+				/* translators: %s: user ID */
 				error_log( sprintf( __( 'Inconsistency: A user ID was passed to "profile_update" but no such user was found: %s', 'wp-simple-firewall' ), $userID ) );
 				return;
 			}

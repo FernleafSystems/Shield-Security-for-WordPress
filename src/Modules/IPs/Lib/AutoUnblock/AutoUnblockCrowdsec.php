@@ -16,6 +16,7 @@ class AutoUnblockCrowdsec extends BaseAutoUnblock {
 	}
 
 	protected function getUnblockMethodName() :string {
+		/* translators: %s: CrowdSec service name */
 		return sprintf( __( '%s Auto-Unblock', 'wp-simple-firewall' ), 'CrowdSec' );
 	}
 
@@ -28,6 +29,7 @@ class AutoUnblockCrowdsec extends BaseAutoUnblock {
 		}
 
 		if ( empty( $theRecord ) ) {
+			/* translators: %s: CrowdSec service name */
 			throw new \Exception( sprintf( __( "IP isn't on the %s block list.", 'wp-simple-firewall' ), 'CrowdSec' ) );
 		}
 		return $theRecord;

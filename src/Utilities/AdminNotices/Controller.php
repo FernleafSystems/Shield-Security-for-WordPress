@@ -331,6 +331,7 @@ class Controller {
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
+				/* translators: %s: plugin name */
 				'title'   => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $name ) ),
 				'message' => sprintf(
 				/* translators: %1$s: filename, %2$s: plugin name */
@@ -363,6 +364,7 @@ class Controller {
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
+				/* translators: %s: plugin name */
 				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->labels->Name ),
 				'notice_message' => __( 'Altering certain options has been restricted by your WordPress security administrator.', 'wp-simple-firewall' )
 									.' '.__( 'Repeated failed attempts to authenticate will probably lock you out of this site.', 'wp-simple-firewall' )
@@ -372,6 +374,7 @@ class Controller {
 					'<a href="%s" title="%s">%s</a>',
 					$con->plugin_urls->zone( Secadmin::Slug() ),
 					__( 'Admin Access Login', 'wp-simple-firewall' ),
+					/* translators: %s: plugin name */
 					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->labels->Name )
 				)
 			]
@@ -383,6 +386,7 @@ class Controller {
 		$notice->render_data = [
 			'notice_attributes' => [], // TODO
 			'strings'           => [
+				/* translators: %s: plugin name */
 				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->labels->Name ),
 				'notice_message' => __( 'Editing existing administrators, promoting existing users to the administrator role, or deleting administrator users is currently restricted.', 'wp-simple-firewall' )
 									.' '.__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.', 'wp-simple-firewall' ),
@@ -393,6 +397,7 @@ class Controller {
 					'<a href="%s" title="%s">%s</a>',
 					$con->plugin_urls->zone( Secadmin::Slug() ),
 					__( 'Security Admin Login', 'wp-simple-firewall' ),
+					/* translators: %s: plugin name */
 					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->labels->Name )
 				)
 			]

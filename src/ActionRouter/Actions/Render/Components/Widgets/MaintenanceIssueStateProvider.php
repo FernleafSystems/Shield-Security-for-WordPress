@@ -412,8 +412,9 @@ class MaintenanceIssueStateProvider {
 		switch ( $key ) {
 			case 'wp_plugins_updates':
 				$description = \sprintf(
+					/* translators: %s: number of plugin updates */
 					_n(
-						'There is 1 plugin update waiting to be applied.',
+						'There is %s plugin update waiting to be applied.',
 						'There are %s plugin updates waiting to be applied.',
 						$activeCount,
 						'wp-simple-firewall'
@@ -424,8 +425,9 @@ class MaintenanceIssueStateProvider {
 
 			case 'wp_themes_updates':
 				$description = \sprintf(
+					/* translators: %s: number of theme updates */
 					_n(
-						'There is 1 theme update waiting to be applied.',
+						'There is %s theme update waiting to be applied.',
 						'There are %s theme updates waiting to be applied.',
 						$activeCount,
 						'wp-simple-firewall'
@@ -436,8 +438,9 @@ class MaintenanceIssueStateProvider {
 
 			case 'wp_plugins_inactive':
 				$description = \sprintf(
+					/* translators: %s: number of unused plugins */
 					_n(
-						'There is 1 unused plugin that should be uninstalled.',
+						'There is %s unused plugin that should be uninstalled.',
 						'There are %s unused plugins that should be uninstalled.',
 						$activeCount,
 						'wp-simple-firewall'
@@ -448,8 +451,9 @@ class MaintenanceIssueStateProvider {
 
 			case 'wp_themes_inactive':
 				$description = \sprintf(
+					/* translators: %s: number of unused themes */
 					_n(
-						'There is 1 unused theme that should be uninstalled.',
+						'There is %s unused theme that should be uninstalled.',
 						'There are %s unused themes that should be uninstalled.',
 						$activeCount,
 						'wp-simple-firewall'
@@ -473,6 +477,7 @@ class MaintenanceIssueStateProvider {
 	private function buildIgnoredDescription( int $ignoredCount, bool $supportsSubItems ) :string {
 		return $supportsSubItems
 			? \sprintf(
+				/* translators: %s: number of ignored items */
 				_n(
 					'%s item is currently ignored.',
 					'%s items are currently ignored.',

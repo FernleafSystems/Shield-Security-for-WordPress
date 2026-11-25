@@ -299,6 +299,7 @@ class Controller extends DynPropertiesClass {
 
 			$wp = $this->cfg->requirements[ 'wordpress' ];
 			if ( !empty( $wp ) && \version_compare( Services::WpGeneral()->getVersion( true ), $wp, '<' ) ) {
+				/* translators: %s: required WordPress version */
 				$reqsMsg[] = sprintf( __( 'WordPress does not meet minimum version. Required version: %s.', 'wp-simple-firewall' ), $wp );
 			}
 
@@ -330,8 +331,10 @@ class Controller extends DynPropertiesClass {
 				->setTemplate( '/notices/does-not-meet-requirements.twig' )
 				->setData( [
 					'strings' => [
+						/* translators: %s: plugin name */
 						'not_met'          => sprintf( __( '%s Plugin – minimum site requirements are not met', 'wp-simple-firewall' ), $this->labels->Name ),
 						'requirements'     => $this->reqs_not_met,
+						/* translators: %s: plugin name */
 						'summary_title'    => sprintf( __( "Your web hosting doesn't meet the minimum requirements for the %s Plugin.", 'wp-simple-firewall' ), $this->labels->Name ),
 						'recommend'        => __( "We highly recommend upgrading your web hosting components as they're probably quite out-of-date.", 'wp-simple-firewall' ),
 						'more_information' => __( 'Click here for more information on requirements', 'wp-simple-firewall' )

@@ -39,6 +39,7 @@ class WpThemesInactive extends Base {
 		$count = $this->countInactive();
 		return _n(
 			__( 'There is 1 unused theme that should be uninstalled.', 'wp-simple-firewall' ),
+			/* translators: %s: number of unused themes */
 			sprintf( __( 'There are %s unused themes that should be uninstalled.', 'wp-simple-firewall' ), $count ),
 			$count
 		, 'wp-simple-firewall' );

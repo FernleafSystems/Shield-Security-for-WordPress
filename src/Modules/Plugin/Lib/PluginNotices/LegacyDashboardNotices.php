@@ -90,7 +90,9 @@ class LegacyDashboardNotices extends Base {
 			'text'        => [
 				sprintf(
 					'<strong>%s</strong> %s %s',
+					/* translators: %s: plugin name */
 					sprintf( __( "Make %s even better by sharing usage info?", 'wp-simple-firewall' ), $name ),
+					/* translators: %s: plugin name */
 					sprintf( __( "We're hoping to understand how %s is configured and used.", 'wp-simple-firewall' ), $name ),
 					__( "We'd like to understand how effective it is on a global scale.", 'wp-simple-firewall' )
 				),
@@ -124,6 +126,7 @@ class LegacyDashboardNotices extends Base {
 				sprintf(
 					'<strong>%s</strong> %s',
 					__( 'Can You Help Us With A Quick Review?', 'wp-simple-firewall' ),
+					/* translators: %s: plugin name */
 					sprintf( __( 'A lot of work goes into %s, and we need your help to spread the word about it. :)', 'wp-simple-firewall' ), self::con()->labels->Name )
 				),
 				__( "Even just a 1-liner review that says you're happy with it, will help us immensely.", 'wp-simple-firewall' ),

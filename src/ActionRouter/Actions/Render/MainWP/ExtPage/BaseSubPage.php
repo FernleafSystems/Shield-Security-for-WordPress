@@ -40,27 +40,42 @@ class BaseSubPage extends BaseMWP {
 				'last_sync'       => __( 'Last Sync', 'wp-simple-firewall' ),
 				'version'         => CommonDisplayStrings::get( 'version_label' ),
 				'connected'       => __( 'Connected', 'wp-simple-firewall' ),
+				/* translators: %s: plugin name */
 				'st_inactive'     => sprintf( __( '%s plugin is installed but not activated.', 'wp-simple-firewall' ), $name ),
+				/* translators: %s: plugin name */
 				'st_notinstalled' => sprintf( __( "%s plugin not detected in last sync.", 'wp-simple-firewall' ), $name ),
+				/* translators: %s: plugin name */
 				'st_notpro'       => sprintf( __( "%s isn't activated on this site.", 'wp-simple-firewall' ), $name ),
+				/* translators: %s: plugin name */
 				'st_mwpnoton'     => sprintf( __( "%s's MainWP integration isn't enabled for this site.", 'wp-simple-firewall' ), $name ),
 				'st_client_older' => sprintf( '%s: %s',
 					__( "Version Mismatch", 'wp-simple-firewall' ),
+					/* translators: %s: plugin name */
 					sprintf( __( "The %s plugin version on the client site is older than this server and must be updated.", 'wp-simple-firewall' ), $name )
 				),
 				'st_client_newer'     => sprintf( '%s: %s',
 					__( "Version Mismatch", 'wp-simple-firewall' ),
+					/* translators: %s: plugin name */
 					sprintf( __( "The %s plugin version on the client site is newer than this server.", 'wp-simple-firewall' ), $name )
 				),
+				/* translators: %s: plugin name */
 				'st_sync_rqd'         => sprintf( __( '%s plugin needs to sync.', 'wp-simple-firewall' ), $name ),
+				/* translators: %s: plugin name */
 				'st_version_mismatch' => sprintf( __( '%s plugin versions are out of sync.', 'wp-simple-firewall' ), $name ),
+				/* translators: %s: plugin name */
 				'st_unknown'          => sprintf( __( "Couldn't determine %s plugin status.", 'wp-simple-firewall' ), $name ),
 				'actions'             => [
+					/* translators: %s: plugin name */
 					H::OP_SYNC       => sprintf( __( 'Sync %s', 'wp-simple-firewall' ), $name ),
+					/* translators: %s: plugin name */
 					H::OP_ACTIVATE   => sprintf( __( 'Activate %s', 'wp-simple-firewall' ), $name ),
+					/* translators: %s: plugin name */
 					H::OP_DEACTIVATE => sprintf( __( 'Deactivate %s', 'wp-simple-firewall' ), $name ),
+					/* translators: %s: plugin name */
 					H::OP_INSTALL    => sprintf( __( 'Install %s', 'wp-simple-firewall' ), $name ),
+					/* translators: %s: plugin name */
 					H::OP_UPDATE     => sprintf( __( 'Update %s', 'wp-simple-firewall' ), $name ),
+					/* translators: %s: plugin name */
 					H::OP_LICENSE    => sprintf( __( 'Check %s License', 'wp-simple-firewall' ), $name ),
 					H::OP_MWP_ON     => __( 'Switch-On MainWP Integration', 'wp-simple-firewall' ),
 				],

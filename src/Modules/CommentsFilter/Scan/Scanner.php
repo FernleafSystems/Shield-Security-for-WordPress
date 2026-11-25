@@ -160,6 +160,7 @@ class Scanner {
 					sprintf(
 					/* translators: %1$s: plugin name, %2$s: status */
 						__( '%1$s marked this comment as "%2$s".', 'wp-simple-firewall' ), self::con()->labels->Name, $humanStatus ),
+					/* translators: %s: reason the comment was marked as SPAM */
 					sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->spamReason )
 				),
 				$this->spamStatus,

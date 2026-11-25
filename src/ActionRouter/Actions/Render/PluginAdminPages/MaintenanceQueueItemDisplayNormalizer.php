@@ -575,6 +575,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 	private function buildUpdateContext( string $currentVersion, string $availableVersion ) :string {
 		if ( $currentVersion !== '' && $availableVersion !== '' ) {
 			return \sprintf(
+				/* translators: %1$s: currently installed version, %2$s: available version */
 				__( 'Current: %1$s | Available: %2$s', 'wp-simple-firewall' ),
 				$currentVersion,
 				$availableVersion
@@ -588,12 +589,14 @@ class MaintenanceQueueItemDisplayNormalizer {
 
 	private function buildVersionContext( string $version ) :string {
 		return $version !== ''
+			/* translators: %s: version number */
 			? \sprintf( __( 'Version: %s', 'wp-simple-firewall' ), $version )
 			: __( 'Version unavailable', 'wp-simple-firewall' );
 	}
 
 	private function buildInlineVersionMeta( string $version ) :string {
 		return $version !== ''
+			/* translators: %s: version number */
 			? \sprintf( __( 'Version %s', 'wp-simple-firewall' ), $version )
 			: '';
 	}

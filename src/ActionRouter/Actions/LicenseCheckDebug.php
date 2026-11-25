@@ -25,6 +25,7 @@ class LicenseCheckDebug extends LicenseBase {
 			$msg = __( 'Successfully connected to license server.', 'wp-simple-firewall' );
 		}
 		elseif ( !Services::IP()->isValidIp( gethostbyname( $host ) ) ) {
+			/* translators: %s: host name of the license server */
 			$msg = sprintf( __( 'Could not resolve host IP address: %s', 'wp-simple-firewall' ), $host );
 		}
 		else {

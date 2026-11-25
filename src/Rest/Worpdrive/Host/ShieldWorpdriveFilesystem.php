@@ -257,7 +257,10 @@ class ShieldWorpdriveFilesystem implements WorpdriveFilesystem {
 		}
 		catch ( \Throwable $e ) {
 		}
-		return !\is_file( $path ) || @\unlink( $path );
+		if ( \is_file( $path ) ) {
+			wp_delete_file( $path );
+		}
+		return !\is_file( $path );
 	}
 
 	/**

@@ -13,6 +13,7 @@ class EmailInstantAlertShieldDeactivated extends EmailInstantAlertBase {
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getBodyData(), [
 			'strings' => [
 				'intro' => [
+					/* translators: %s: plugin name */
 					sprintf( __( 'The %s plugin has just been deactivated.', 'wp-simple-firewall' ), self::con()->labels->Name )
 				],
 				'outro' => [

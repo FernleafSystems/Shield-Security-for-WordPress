@@ -23,6 +23,7 @@ abstract class BaseExtension {
 	 */
 	public function __construct( string $file, array $cfg ) {
 		if ( empty( static::SLUG ) ) {
+			/* translators: %s: plugin name */
 			throw new \Exception( sprintf( __( 'Invalid %s extension configuration', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 		$this->file = $file;

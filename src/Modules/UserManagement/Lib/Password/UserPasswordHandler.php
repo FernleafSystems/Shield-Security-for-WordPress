@@ -85,6 +85,7 @@ class UserPasswordHandler {
 			] );
 			if ( !Services::WpGeneral()->isAjax() ) {
 				$this->redirectToResetPassword(
+					/* translators: %s: number of days */
 					sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ),
 						self::con()->opts->optGet( 'pass_expire' ) )
 				);
@@ -265,6 +266,7 @@ class UserPasswordHandler {
 					__( 'Please supply a different password as this password has been pwned.', 'wp-simple-firewall' ),
 					sprintf( '(<a href="%s" target="_blank">%s</a>)',
 						'https://clk.shldscrty.com/la',
+						/* translators: %s: number of times the password has been seen in data breaches */
 						sprintf( _n( '%s time', '%s times', $countPwned, 'wp-simple-firewall' ), $countPwned )
 					)
 				] ),

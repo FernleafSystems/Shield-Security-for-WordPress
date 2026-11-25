@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
-use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\ConfigurePanelBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrainMonkeyWordPressWrapperFunctions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 
@@ -12,11 +12,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicM
  */
 class ConfigurePanelBuilderDetailsTest extends BaseUnitTest {
 
+	use BrainMonkeyWordPressWrapperFunctions;
 	use InvokesNonPublicMethods;
 
 	protected function setUp() :void {
 		parent::setUp();
-		Functions\when( 'wp_strip_all_tags' )->alias( static fn( string $text ) :string => \strip_tags( $text ) );
+		$this->registerWordPressWrapperFunctions();
 	}
 
 	public function test_a_description_that_adds_something_is_offered_line_by_line() :void {

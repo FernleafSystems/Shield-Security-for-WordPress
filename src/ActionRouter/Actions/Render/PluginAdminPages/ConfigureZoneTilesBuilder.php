@@ -275,14 +275,17 @@ class ConfigureZoneTilesBuilder {
 
 		if ( $criticalCount > 0 && $warningCount > 0 ) {
 			$criticalText = sprintf(
+				/* translators: %s: number of critical groups */
 				_n( '%s critical group', '%s critical groups', $criticalCount, 'wp-simple-firewall' ),
 				$criticalCount
 			);
 			$warningText = sprintf(
+				/* translators: %s: number of groups that need work */
 				_n( '%s group needs work', '%s groups need work', $warningCount, 'wp-simple-firewall' ),
 				$warningCount
 			);
 			return sprintf(
+				/* translators: %1$s: number of critical groups, as text, %2$s: number of groups that need work, as text */
 				__( '%1$s, %2$s', 'wp-simple-firewall' ),
 				$criticalText,
 				$warningText
@@ -290,12 +293,14 @@ class ConfigureZoneTilesBuilder {
 		}
 		if ( $criticalCount > 0 ) {
 			return sprintf(
+				/* translators: %s: number of critical groups */
 				_n( '%s critical group', '%s critical groups', $criticalCount, 'wp-simple-firewall' ),
 				$criticalCount
 			);
 		}
 		if ( $warningCount > 0 ) {
 			return sprintf(
+				/* translators: %s: number of groups that need work */
 				_n( '%s group needs work', '%s groups need work', $warningCount, 'wp-simple-firewall' ),
 				$warningCount
 			);

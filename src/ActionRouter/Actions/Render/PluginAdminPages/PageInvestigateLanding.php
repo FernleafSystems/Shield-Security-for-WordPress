@@ -215,8 +215,10 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 			'lookup_kind_any'         => __( 'Anything', 'wp-simple-firewall' ),
 			'lookup_intro'            => __( 'Type a username, email address, IP address, or part of a plugin or theme name. Or choose what you are looking up to browse it.', 'wp-simple-firewall' ),
 			'lookup_searching'        => __( 'Searching…', 'wp-simple-firewall' ),
+			/* translators: %s: text the user searched for */
 			'lookup_none'             => __( 'Nothing matches "%s".', 'wp-simple-firewall' ),
 			'lookup_none_kind'        => __( 'There is nothing to list here.', 'wp-simple-firewall' ),
+			/* translators: %s: number of search results */
 			'lookup_count'            => __( '%s results', 'wp-simple-firewall' ),
 			'lookup_count_one'        => __( '1 result', 'wp-simple-firewall' ),
 			'lookup_failed'           => __( 'The lookup failed. Please try again.', 'wp-simple-firewall' ),
@@ -352,6 +354,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	private function getSubjectTilePresentation( array $subject ) :array {
 		$presentation = [
 			'title'                => $subject[ 'label' ],
+			/* translators: %s: name of the item type being explored, such as plugins or users */
 			'primary_action_label' => sprintf( __( 'Explore %s', 'wp-simple-firewall' ), $subject[ 'label' ] ),
 		];
 

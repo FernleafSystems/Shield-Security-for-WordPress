@@ -128,8 +128,8 @@ class PageOperatorModeLanding extends BaseRender {
 				$series = $seriesByKey[ $eventKey ];
 				$value = \array_sum( $series[ 'data' ] );
 				$change = $value - ( $previous[ $eventKey ] ?? 0 );
-				/* translators: %1$s: activity total, %2$s: activity label */
 				$accessibleLabel = \sprintf(
+					/* translators: %1$s: activity total, %2$s: activity label */
 					__( '%1$s %2$s in the last 7 days. View trend.', 'wp-simple-firewall' ),
 					$value,
 					$series[ 'label' ]

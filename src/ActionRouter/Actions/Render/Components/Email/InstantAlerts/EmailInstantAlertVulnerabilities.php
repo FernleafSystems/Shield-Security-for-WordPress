@@ -35,16 +35,16 @@ class EmailInstantAlertVulnerabilities extends EmailInstantAlertBase {
 			foreach ( $alertItems as $alertItem ) {
 				if ( $alertKey === 'plugins' ) {
 					$VO = $WPP->getPluginAsVo( $alertItem );
-					/* translators: %1$s: item name, %2$s: item version */
 					$items[] = $this->alertItem(
+						/* translators: %1$s: item name, %2$s: item version */
 						[ $this->alertTextLine( sprintf( __( '%1$s v%2$s', 'wp-simple-firewall' ), $VO->Name, $VO->Version ) ) ],
 						self::con()->plugin_urls->vulnerabilityLookupByPlugin( $VO->slug, $VO->Version )
 					);
 				}
 				elseif ( $alertKey === 'themes' ) {
 					$VO = $WPT->getThemeAsVo( $alertItem );
-					/* translators: %1$s: item name, %2$s: item version */
 					$items[] = $this->alertItem(
+						/* translators: %1$s: item name, %2$s: item version */
 						[ $this->alertTextLine( sprintf( __( '%1$s v%2$s', 'wp-simple-firewall' ), $VO->Name, $VO->Version ) ) ],
 						self::con()->plugin_urls->vulnerabilityLookupByTheme( $VO->stylesheet, $VO->Version )
 					);

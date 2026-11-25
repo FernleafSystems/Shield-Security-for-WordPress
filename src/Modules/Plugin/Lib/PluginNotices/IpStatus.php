@@ -18,6 +18,7 @@ class IpStatus extends Base {
 				'id'        => 'self_ip_bypass',
 				'type'      => 'warning',
 				'text'      => [
+					/* translators: %s: IP address, shown as a link */
 					sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is whitelisted.', 'wp-simple-firewall' ),
 						sprintf( '<a href="%s" class="offcanvas_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), $ip, $ip ) )
 				],
@@ -31,6 +32,7 @@ class IpStatus extends Base {
 				'id'        => 'self_ip_blocked',
 				'type'      => 'danger',
 				'text'      => [
+					/* translators: %s: IP address, shown as a link */
 					sprintf( __( 'It looks like your IP (%s) is currently blocked.', 'wp-simple-firewall' ),
 						sprintf( '<a href="%s" class="offcanvas_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), $ip, $ip ) )
 				],

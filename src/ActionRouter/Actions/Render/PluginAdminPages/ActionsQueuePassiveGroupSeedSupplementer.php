@@ -280,6 +280,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 							'status_label_override'         => $pendingStatusLabel,
 							'header_summary_override'       => $pendingFileLockerState,
 							'header_focus_override'         => \sprintf(
+								/* translators: %s: number of protected files */
 								_n(
 									'%s protected file is still waiting for its first lock.',
 									'%s protected files are still waiting for their first lock.',

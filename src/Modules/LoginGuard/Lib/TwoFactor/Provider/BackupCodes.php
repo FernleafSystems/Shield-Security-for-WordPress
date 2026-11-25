@@ -60,8 +60,11 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 					'description_code_ext2' => __( 'Generating a new code will replace your existing code.', 'wp-simple-firewall' ),
 					'label_enter_code'      => __( 'Create Backup 2FA Login Code', 'wp-simple-firewall' ),
 					'title'                 => __( 'Backup Login Code', 'wp-simple-firewall' ),
+					/* translators: %s: name of the authentication method */
 					'cant_add_other_user'   => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Backup Codes' ),
+					/* translators: %s: name of the authentication method */
 					'cant_remove_admins'    => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Backup Codes', 'wp-simple-firewall' ) ),
+					/* translators: %s: plugin name */
 					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
 						self::con()->labels->Name ),
 					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ),
@@ -130,6 +133,7 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 		self::con()->email_con->sendVO(
 			EmailVO::Factory(
 				$user->user_email,
+				/* translators: %s: short description of the event that happened */
 				sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Backup Login Code Just Used", 'wp-simple-firewall' ) ),
 				self::con()->action_router->render( BackupCodeUsed::class, [
 					'home_url' => Services::WpGeneral()->getHomeUrl(),
