@@ -8,6 +8,7 @@
 
 $panel-text: #1d2327;
 $panel-muted: #50575e;
+$panel-faded: #646970;
 $panel-good: #008000;
 $panel-good-dark: #005c00;
 $panel-link: #2271b1;
@@ -284,11 +285,12 @@ $panel-pro-tint: #f2ebfc;
 	}
 
 	// ─── A setting outside the site's plan: faded, with "Pro only" where its control is ───
-	// Its help and details stay as they are, so what the setting does can still be read.
+	// Its help and details stay as they are, so what the setting does can still be read. Its name and summary
+	// are greyed rather than made see-through, so they stay readable against the row, shaded or not.
 	.shield-panel-item.is-pro-only {
 		.option_label_name,
 		.options-summary {
-			opacity: 0.5;
+			color: $panel-faded;
 		}
 
 		.shield-panel-item__control {
