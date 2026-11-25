@@ -305,7 +305,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 		$this->assertSame( [ 'overall', 'summaries' ], \array_keys( $strip ) );
 		$this->assertSame(
-			[ 'status', 'icon_class', 'title', 'summary', 'accessible_label' ],
+			[ 'status', 'icon_class', 'title', 'summary', 'accessible_label', 'ignored_text' ],
 			\array_keys( $strip[ 'overall' ] )
 		);
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $strip[ 'summaries' ], 'id' ) );

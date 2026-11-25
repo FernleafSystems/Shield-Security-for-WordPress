@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
+	UnitTestActionsQueueIgnoredCounter,
 	UnitTestControllerFactory,
 	UnitTestPluginUrls
 };
@@ -52,8 +53,9 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	private function buildCardData( array $attentionQuery ) :array {
-		return ( new ActionsQueueCardDataBuilder() )->build( $attentionQuery );
+	private function buildCardData( array $attentionQuery, ?UnitTestActionsQueueIgnoredCounter $ignoredCounter = null ) :array {
+		return ( new ActionsQueueCardDataBuilder( $ignoredCounter ?? new UnitTestActionsQueueIgnoredCounter() ) )
+			->build( $attentionQuery );
 	}
 
 	private function attentionQuery(
@@ -231,7 +233,7 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		$strip = $this->buildCardData( $attentionQuery )[ 'dashboard_strip' ];
 
 		$this->assertSame(
-			[ 'status', 'icon_class', 'title', 'summary', 'accessible_label' ],
+			[ 'status', 'icon_class', 'title', 'summary', 'accessible_label', 'ignored_text' ],
 			\array_keys( $strip[ 'overall' ] )
 		);
 		$this->assertSame( 'critical', $strip[ 'overall' ][ 'status' ] );
@@ -246,7 +248,7 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 2, 3 ], \array_column( $strip[ 'summaries' ], 'count' ) );
 		$this->assertSame( [ 'critical', 'warning' ], \array_column( $strip[ 'summaries' ], 'status' ) );
 		$this->assertSame(
-			[ 'id', 'label', 'value', 'summary', 'accessible_label', 'count', 'status', 'href' ],
+			[ 'id', 'label', 'value', 'summary', 'accessible_label', 'count', 'status', 'href', 'ignored_text' ],
 			\array_keys( $strip[ 'summaries' ][ 0 ] )
 		);
 		foreach ( $strip[ 'summaries' ] as $summary ) {
@@ -271,6 +273,41 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'warning', $strip[ 'overall' ][ 'status' ] );
 		$this->assertSame( [ 'warning', 'good' ], \array_column( $strip[ 'summaries' ], 'status' ) );
 		$this->assertSame( [ 3, 0 ], \array_column( $strip[ 'summaries' ], 'count' ) );
+	}
+
+	public function test_all_clear_says_how_many_items_are_ignored() :void {
+		$strip = $this->buildCardData(
+			$this->attentionQuery( [] ),
+			new UnitTestActionsQueueIgnoredCounter( 4, 3 )
+		)[ 'dashboard_strip' ];
+
+		// Still all clear: ignored items count for nothing. But it says how many it's leaving out.
+		$this->assertSame( 'good', $strip[ 'overall' ][ 'status' ] );
+		$this->assertMatchesRegularExpression( '/\b7\b/', $strip[ 'overall' ][ 'ignored_text' ] );
+		$this->assertStringContainsString( $strip[ 'overall' ][ 'ignored_text' ], $strip[ 'overall' ][ 'accessible_label' ] );
+		$this->assertMatchesRegularExpression( '/\b3\b/', $strip[ 'summaries' ][ 0 ][ 'ignored_text' ] );
+		$this->assertMatchesRegularExpression( '/\b4\b/', $strip[ 'summaries' ][ 1 ][ 'ignored_text' ] );
+	}
+
+	public function test_all_clear_with_nothing_ignored_says_nothing_about_ignoring() :void {
+		$strip = $this->buildCardData( $this->attentionQuery( [] ) )[ 'dashboard_strip' ];
+
+		$this->assertSame( '', $strip[ 'overall' ][ 'ignored_text' ] );
+		$this->assertSame( [ '', '' ], \array_column( $strip[ 'summaries' ], 'ignored_text' ) );
+	}
+
+	public function test_only_a_group_with_nothing_waiting_says_how_many_it_ignores() :void {
+		$counter = new UnitTestActionsQueueIgnoredCounter( 4, 3 );
+		$strip = $this->buildCardData(
+			$this->attentionQuery( [ $this->attentionItem( 'malware', 'scans', 2, 'critical' ) ] ),
+			$counter
+		)[ 'dashboard_strip' ];
+
+		// Security issues are waiting, so nothing is claimed to be clear there, or overall; to-dos are clear.
+		$this->assertSame( '', $strip[ 'overall' ][ 'ignored_text' ] );
+		$this->assertSame( '', $strip[ 'summaries' ][ 0 ][ 'ignored_text' ] );
+		$this->assertMatchesRegularExpression( '/\b4\b/', $strip[ 'summaries' ][ 1 ][ 'ignored_text' ] );
+		$this->assertSame( [ 'to_dos' ], $counter->asked );
 	}
 
 	/**

@@ -123,7 +123,8 @@ class ActionsQueueBucketsBuilder {
 	}
 
 	/**
-	 * A passing check as a row, with the group it belongs to, so the landing lists it once, and its zone.
+	 * A passing check as a row, with the group it belongs to, so the landing lists it once, and its zone. A to-do
+	 * that's ignored isn't passing: it's listed once, faded, in the lane it would otherwise be in.
 	 * @param AssessmentRowsByZone $assessmentRowsByZone
 	 * @return list<HealthyRow>
 	 */
@@ -132,7 +133,7 @@ class ActionsQueueBucketsBuilder {
 
 		foreach ( [ 'scans', 'maintenance' ] as $zone ) {
 			foreach ( $assessmentRowsByZone[ $zone ] as $row ) {
-				if ( $row[ 'status' ] === 'good' ) {
+				if ( $row[ 'status' ] === 'good' && !$row[ 'is_ignored' ] ) {
 					// The group the row belongs to, so the landing lists it once, and which block it goes in.
 					$rows[] = $this->buildHealthyRow( $row ) + [
 						'group_key' => $zone === 'scans'

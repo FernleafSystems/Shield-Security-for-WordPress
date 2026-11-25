@@ -204,7 +204,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'good', $bucketsByKey[ 'critical' ][ 'selection' ][ 'header' ][ 'badge_status' ] ?? '' );
 	}
 
-	public function test_build_healthy_rows_collects_only_good_assessment_rows() :void {
+	public function test_build_healthy_rows_collects_only_good_assessment_rows_that_are_not_ignored() :void {
 		$builder = $this->newBuilder();
 
 		$healthyRows = $builder->buildHealthyRows(
@@ -219,6 +219,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'status' => 'good',
 						'status_label' => 'Good',
 						'status_icon_class' => 'bi bi-shield-check',
+						'is_ignored' => false,
 					],
 					[
 						'key' => 'themes',
@@ -229,6 +230,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'status' => 'warning',
 						'status_label' => 'Warning',
 						'status_icon_class' => 'bi bi-exclamation-circle-fill',
+						'is_ignored' => false,
 					],
 				],
 				'maintenance' => [
@@ -241,6 +243,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'status' => 'good',
 						'status_label' => 'Good',
 						'status_icon_class' => 'bi bi-check-circle-fill',
+						'is_ignored' => false,
 					],
 					[
 						'key' => 'system_ssl_certificate',
@@ -251,6 +254,19 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'status' => 'neutral',
 						'status_label' => 'Neutral',
 						'status_icon_class' => 'bi bi-info-circle-fill',
+						'is_ignored' => false,
+					],
+					// Ignored, so it no longer needs attention, but nothing about it passes.
+					[
+						'key' => 'wp_db_password',
+						'label' => 'Database Password',
+						'description' => 'Ignored.',
+						'drill_bucket' => 'review',
+						'item_icon_class' => 'bi bi-key-fill',
+						'status' => 'good',
+						'status_label' => 'Good',
+						'status_icon_class' => 'bi bi-check-circle-fill',
+						'is_ignored' => true,
 					],
 				],
 			]

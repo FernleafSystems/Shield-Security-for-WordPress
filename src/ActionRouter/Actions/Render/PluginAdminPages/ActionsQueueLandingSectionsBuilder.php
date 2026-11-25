@@ -45,6 +45,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   selection_json:string,
  *   is_open:bool,
  *   empty_text:string,
+ *   ignored_count:int,
  *   boxes:list<LandingBox>,
  *   is_selected_tab:bool
  * }
@@ -97,22 +98,26 @@ class ActionsQueueLandingSectionsBuilder {
 					if ( $group[ 'is_pro_upsell' ] || $group[ 'enable_dialog_json' ] !== '' ) {
 						$notCoveredCandidates[] = $entry;
 					}
-					elseif ( $group[ 'detail_shell' ] === 'maintenance' && !empty( $group[ 'ignored_rows' ] ) ) {
-						// Ignored items stay in their lane, in a faded group of their own, so each can be restored.
-						// They count for nothing.
-						$laneEntries[] = $entry;
-						$activeKeys[] = $group[ 'key' ];
-					}
-					elseif ( $group[ 'status' ] === 'good' || $isHealthySection ) {
-						$passingCandidates[] = $entry;
-					}
-					else {
+					elseif ( $group[ 'status' ] !== 'good' && !$isHealthySection ) {
 						$laneEntries[] = $entry;
 						$toDoEntries[] = $entry;
 						$activeKeys[] = $group[ 'key' ];
 					}
+					elseif ( $this->countIgnored( $group ) > 0 ) {
+						// Nothing left to do only because it's all ignored: that isn't passing. The group stays in
+						// its lane, faded, so each item can be restored. It counts for nothing.
+						$laneEntries[] = $entry;
+						$activeKeys[] = $group[ 'key' ];
+					}
+					else {
+						$passingCandidates[] = $entry;
+					}
 				}
 			}
+			$ignoredCount = (int)\array_sum( \array_map(
+				fn( array $entry ) :int => $this->countIgnored( $entry[ 'group' ] ),
+				$laneEntries
+			) );
 
 			// A lane with nothing to do stays, in green with a zero, and says so: a lane that came and went would
 			// leave people wondering where it had gone. It starts folded, holding at most what was ignored. Of
@@ -133,6 +138,8 @@ class ActionsQueueLandingSectionsBuilder {
 				'selection_json' => $bucket[ 'selection' ][ 'selection_json' ],
 				'is_open'        => $isOpen,
 				'empty_text'     => $hasNothingToDo ? $this->emptyLaneText( $bucket[ 'key' ] ) : '',
+				// How many of the lane's items are ignored. A lane that says there's nothing to do says this too.
+				'ignored_count'  => $ignoredCount,
 				// Review next is the longest lane, so its boxes start folded to a heading and a count.
 				'boxes'          => $this->buildLaneBoxes( $laneEntries, $bucket[ 'key' ] === 'review' ),
 				// As tabs, the lane that starts open is the one showing first.
@@ -191,6 +198,7 @@ class ActionsQueueLandingSectionsBuilder {
 				'selection_json' => '',
 				'is_open'        => false,
 				'empty_text'     => '',
+				'ignored_count'  => 0,
 				'boxes'          => [ $this->box( 'plain', '', '', '', false, $this->entries( $notCovered ) ) ],
 				'is_selected_tab' => false,
 			];
@@ -207,6 +215,19 @@ class ActionsQueueLandingSectionsBuilder {
 		return $bucketKey === 'critical'
 			? __( 'There are no items that require your immediate attention.', 'wp-simple-firewall' )
 			: __( 'There are no items that need to be reviewed.', 'wp-simple-firewall' );
+	}
+
+	/**
+	 * How many of a group's items someone has ignored: those with a way back. What Shield leaves out by itself,
+	 * such as its own loader among the cloaked plugins, isn't one of them.
+	 * @param GroupData $group
+	 */
+	private function countIgnored( array $group ) :int {
+		return \count( \array_filter(
+			\array_merge( $group[ 'maintenance_rows' ], $group[ 'ignored_rows' ] ),
+			fn( array $row ) :bool => $row[ 'is_ignored' ]
+									  && \in_array( 'unignore', \array_column( $row[ 'actions' ], 'kind' ), true )
+		) );
 	}
 
 	/**
@@ -347,6 +368,7 @@ class ActionsQueueLandingSectionsBuilder {
 			'selection_json' => '',
 			'is_open'        => false,
 			'empty_text'     => '',
+			'ignored_count'  => 0,
 			'boxes'          => $boxes,
 			'is_selected_tab' => false,
 		];

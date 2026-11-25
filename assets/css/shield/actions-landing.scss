@@ -346,6 +346,16 @@ $aq-pro-bg: #f2ebfc;
 	padding: 4px 2px;
 }
 
+// Beside "nothing to do": how much of that is down to what's ignored. Not good news, so not in green.
+.actions-queue-section__ignored {
+	align-items: center;
+	color: $aq-muted;
+	display: inline-flex;
+	font-weight: 400;
+	gap: 0.3rem;
+	margin-left: 0.25rem;
+}
+
 // The way to choose what a lane reports, under whatever it holds.
 .actions-queue-section__foot {
 	display: flex;

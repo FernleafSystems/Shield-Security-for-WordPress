@@ -39,7 +39,7 @@ test( 'an abandoned plugin can be ignored in place, seen faded, and restored', a
 
 		await ignoreButtons( page ).first().click();
 		await expect( ignoreButtons( page ) ).toHaveCount( 1, { timeout: 20_000 } );
-		await expect( ignoredToggle( page ) ).toHaveText( /1 ignored/ );
+		await expect( ignoredToggle( page ) ).toHaveText( /\b1\b/ );
 		await expect( ignoredToggle( page ) ).toHaveAttribute( 'aria-expanded', 'false' );
 		await expect( restoreButtons( page ) ).toBeHidden();
 
@@ -56,7 +56,7 @@ test( 'an abandoned plugin can be ignored in place, seen faded, and restored', a
 	} );
 } );
 
-test( 'with every abandoned plugin ignored, the group is passing and they can still be restored', async ( { page, fixtureApi } ) => {
+test( 'with every abandoned plugin ignored, the group stays in its lane, never passing, and they can still be restored', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'abandoned_plugins', async () => {
 		await openQueue( page );
 		await openSection( page, 'critical' );
@@ -69,7 +69,10 @@ test( 'with every abandoned plugin ignored, the group is passing and they can st
 		await expect( queueChip ).toHaveAttribute( 'data-color-key', 'critical' );
 
 		await abandonedGroup( page ).locator( '[data-actions-queue-maintenance-all="ignore"]' ).click();
-		await expect( section( page, 'passing' ).locator( '[data-actions-queue-group-key="abandoned"]' ) ).toHaveCount( 1, { timeout: 30_000 } );
+		// Ignored isn't passing: the group stays where it was, with nothing left to do in it.
+		const allIgnoredGroup = section( page, 'critical' ).locator( '.is-all-ignored[data-actions-queue-group-key="abandoned"]' );
+		await expect( allIgnoredGroup ).toHaveCount( 1, { timeout: 30_000 } );
+		await expect( section( page, 'passing' ).locator( '[data-actions-queue-group-key="abandoned"]' ) ).toHaveCount( 0 );
 
 		// With nothing critical left, the sidebar's queue item and the queue's breadcrumb stop being drawn as an
 		// alert, on the same page.
@@ -83,14 +86,18 @@ test( 'with every abandoned plugin ignored, the group is passing and they can st
 		await expect( page.locator( '.mode-badge.status-critical' ) ).toHaveCount( 0 );
 		await expect( page.locator( '#wpadminbar .shield-counter--issue' ) ).toHaveCount( 0 );
 
-		await openSection( page, 'passing' );
-		await expect( ignoredToggle( page ) ).toHaveText( /2 ignored/ );
+		await expect( allIgnoredGroup ).toHaveCount( 1 );
+		await expect( section( page, 'passing' ).locator( '[data-actions-queue-group-key="abandoned"]' ) ).toHaveCount( 0 );
+		await openSection( page, 'critical' );
+		await expect( ignoredToggle( page ) ).toHaveText( /\b2\b/ );
 		await expect( ignoreButtons( page ) ).toHaveCount( 0 );
 
 		await ignoredToggle( page ).click();
 		await expect( abandonedGroup( page ).locator( '.actions-queue-row.is-ignored' ) ).toHaveCount( 2 );
 
+		// One restored, and the group has something to do again.
 		await restoreButtons( page ).first().click();
-		await expect( section( page, 'critical' ).locator( '[data-actions-queue-group-key="abandoned"]' ) ).toHaveCount( 1, { timeout: 20_000 } );
+		await expect( allIgnoredGroup ).toHaveCount( 0, { timeout: 20_000 } );
+		await expect( ignoreButtons( page ) ).toHaveCount( 1 );
 	} );
 } );

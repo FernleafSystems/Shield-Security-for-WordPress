@@ -166,6 +166,26 @@
 	margin: 0.25rem 0 0;
 }
 
+// Beside "All Clear" or "Nothing to review": how many items are ignored. Not good news, so not in green.
+.operator-mode-overview__ignored,
+.operator-mode-overview__summary-ignored {
+	align-items: center;
+	color: #646970;
+	display: inline-flex;
+	font-size: 0.8rem;
+	gap: 0.3rem;
+	line-height: 1.3;
+	margin-top: 0.3rem;
+}
+
+.operator-mode-overview__ignored {
+	text-decoration: underline;
+
+	&:hover {
+		color: #1d2327;
+	}
+}
+
 .operator-mode-overview__summaries {
 	border-inline-start: 1px solid $border-color-neutral-subtle;
 	display: grid;

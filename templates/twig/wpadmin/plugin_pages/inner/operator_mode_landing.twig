@@ -17,6 +17,12 @@
 					<div class="operator-mode-overview__overall-copy">
 						<h2 class="operator-mode-overview__overall-title">{{ vars.dashboard_strip.overall.title }}</h2>
 						<p class="operator-mode-overview__overall-summary">{{ vars.dashboard_strip.overall.summary }}</p>
+						{# "All Clear" with items ignored says so, and leads to them by the card's one way into the queue. #}
+						{% if vars.dashboard_strip.overall.ignored_text is not empty %}
+							<a class="operator-mode-overview__ignored" href="{{ vars.launchpad.queue_href }}">
+								<i class="bi bi-eye-slash-fill" aria-hidden="true"></i>{{ vars.dashboard_strip.overall.ignored_text }}
+							</a>
+						{% endif %}
 						{# The top groups, with one way into the queue rather than a link per item. #}
 						{% if vars.launchpad.items is not empty %}
 							<ul class="operator-mode-overview__top-items" aria-label="{{ vars.launchpad.heading }}">
@@ -52,6 +58,11 @@
 									<i class="bi bi-arrow-right" aria-hidden="true"></i>
 								</span>
 								<span class="operator-mode-overview__summary-text">{{ summary.summary }}</span>
+								{% if summary.ignored_text is not empty %}
+									<span class="operator-mode-overview__summary-ignored">
+										<i class="bi bi-eye-slash-fill" aria-hidden="true"></i>{{ summary.ignored_text }}
+									</span>
+								{% endif %}
 							</span>
 						</a>
 					{% endfor %}

@@ -40,7 +40,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   accessible_label:string,
  *   count:int,
  *   status:string,
- *   href:string
+ *   href:string,
+ *   ignored_text:string
  * }
  * @phpstan-type DashboardStrip array{
  *   overall:array{
@@ -48,7 +49,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *     icon_class:string,
  *     title:string,
  *     summary:string,
- *     accessible_label:string
+ *     accessible_label:string,
+ *     ignored_text:string
  *   },
  *   summaries:list<DashboardStripSummary>
  * }
@@ -83,6 +85,12 @@ class ActionsQueueCardDataBuilder {
 		'critical',
 	];
 
+	private ?ActionsQueueIgnoredCounter $ignoredCounter;
+
+	public function __construct( ?ActionsQueueIgnoredCounter $ignoredCounter = null ) {
+		$this->ignoredCounter = $ignoredCounter;
+	}
+
 	/**
 	 * @param AttentionQuery $attentionQuery
 	 * @return ActionsQueueCardData
@@ -115,6 +123,11 @@ class ActionsQueueCardDataBuilder {
 		$scanStatus = $this->localDashboardStatus( $zoneGroups[ 'scans' ] );
 		$maintenanceCount = $maintenance[ 'total' ];
 		$totalCount = $scanCount + $maintenanceCount;
+		// Ignored items count for nothing, so a group with nothing waiting says how many it's leaving out.
+		$scanIgnored = $scanCount === 0 ? $this->ignoredCounter()->securityIssues() : 0;
+		$maintenanceIgnored = $maintenanceCount === 0 ? $this->ignoredCounter()->toDos() : 0;
+		// "All Clear" is only said with nothing waiting in either group, which is when both were counted.
+		$overallIgnoredText = $totalCount === 0 ? $this->ignoredText( $scanIgnored + $maintenanceIgnored ) : '';
 
 		if ( $totalCount === 0 ) {
 			$status = 'good';
@@ -165,7 +178,8 @@ class ActionsQueueCardDataBuilder {
 				'icon_class'       => self::con()->svgs->iconClass( $iconMap[ $status ] ),
 				'title'            => $title,
 				'summary'          => $summary,
-				'accessible_label' => $title.' '.$summary,
+				'accessible_label' => \trim( $title.' '.$summary.' '.$overallIgnoredText ),
+				'ignored_text'     => $overallIgnoredText,
 			],
 			'summaries' => [
 				$this->buildDashboardStripSummary(
@@ -173,17 +187,28 @@ class ActionsQueueCardDataBuilder {
 					__( 'Security Issues', 'wp-simple-firewall' ),
 					$scanCount,
 					$scanStatus,
-					$href
+					$href,
+					$this->ignoredText( $scanIgnored )
 				),
 				$this->buildDashboardStripSummary(
 					'maintenance',
 					__( 'To-dos', 'wp-simple-firewall' ),
 					$maintenanceCount,
 					$this->localDashboardStatus( $maintenance ),
-					$href
+					$href,
+					$this->ignoredText( $maintenanceIgnored )
 				),
 			],
 		];
+	}
+
+	private function ignoredText( int $count ) :string {
+		/* translators: %s: how many items are ignored */
+		return $count > 0 ? sprintf( __( '%s ignored', 'wp-simple-firewall' ), $count ) : '';
+	}
+
+	private function ignoredCounter() :ActionsQueueIgnoredCounter {
+		return $this->ignoredCounter ??= new ActionsQueueIgnoredCounter();
 	}
 
 	private function buildDashboardOverallSummary( string $default ) :string {
@@ -206,7 +231,8 @@ class ActionsQueueCardDataBuilder {
 		string $label,
 		int $count,
 		string $status,
-		string $href
+		string $href,
+		string $ignoredText
 	) :array {
 		$value = $this->buildDashboardStripSummaryValue( $id, $count, $status );
 		$summary = $this->buildDashboardStripSummaryDetail( $id, $count, $status );
@@ -216,10 +242,11 @@ class ActionsQueueCardDataBuilder {
 			'label'            => $label,
 			'value'            => $value,
 			'summary'          => $summary,
-			'accessible_label' => $label.' '.$value.' '.$summary,
+			'accessible_label' => \trim( $label.' '.$value.' '.$summary.' '.$ignoredText ),
 			'count'            => $count,
 			'status'           => $status,
 			'href'             => $href,
+			'ignored_text'     => $ignoredText,
 		];
 	}
 

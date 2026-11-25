@@ -111,6 +111,7 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 				'status'            => $status,
 				'status_label'      => $this->standardStatusLabel( $status ),
 				'status_icon_class' => $this->standardStatusIconClass( $status ),
+				'is_ignored'        => false,
 			],
 		];
 	}
@@ -130,6 +131,16 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 				$this->ignoredFindings()
 			),
 		];
+	}
+
+	/**
+	 * How many cloaked plugins someone has ignored. Shield's own loader, which nobody ignored, isn't one.
+	 */
+	public function ignoredByUserCount() :int {
+		return \count( \array_filter(
+			$this->ignoredFindings(),
+			fn( CloakedPluginFinding $finding ) :bool => !$this->isShieldMuLoaderFinding( $finding )
+		) );
 	}
 
 	/**

@@ -32,7 +32,7 @@ test( 'the queue fits a phone, with nothing cut off by its box', async ( { page,
 		for ( const width of [ 390, 320 ] ) {
 			await page.setViewportSize( { width, height: 844 } );
 			await openQueue( page );
-			await openSection( page, 'passing' );
+			await openSection( page, 'critical' );
 			await ignoredToggle( page ).click();
 
 			const measured = await page.evaluate( () => {
@@ -64,13 +64,13 @@ test( 'the queue fits a phone, with nothing cut off by its box', async ( { page,
 test( 'cloaked plugins can be ignored and restored in the queue, singly and together', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'ignored_cloaked_plugins', async () => {
 		await openQueue( page );
-		await openSection( page, 'passing' );
+		await openSection( page, 'critical' );
 
-		// With every one ignored the group is passing, and says so rather than claiming none were found.
-		const passingGroup = section( page, 'passing' ).locator( '[data-actions-queue-group-key="hidden_plugins"]' );
-		await expect( passingGroup ).toHaveCount( 1 );
-		await expect( ignoredToggle( page ) ).toHaveText( /2 ignored/ );
-		await expect( passingGroup ).not.toContainText( 'No cloaked plugins detected' );
+		// With every one ignored the group stays in its lane with nothing left to do. Ignored isn't passing.
+		const allIgnoredGroup = section( page, 'critical' ).locator( '.is-all-ignored[data-actions-queue-group-key="hidden_plugins"]' );
+		await expect( allIgnoredGroup ).toHaveCount( 1 );
+		await expect( section( page, 'passing' ).locator( '[data-actions-queue-group-key="hidden_plugins"]' ) ).toHaveCount( 0 );
+		await expect( ignoredToggle( page ) ).toHaveText( /\b2\b/ );
 
 		const navigations = [];
 		page.on( 'framenavigated', ( frame ) => frame === page.mainFrame() && navigations.push( frame.url() ) );
@@ -81,7 +81,7 @@ test( 'cloaked plugins can be ignored and restored in the queue, singly and toge
 		await expect( ignoredRows.first() ).toHaveCSS( 'opacity', '0.45' );
 
 		await cloakedGroup( page ).locator( '[data-actions-queue-maintenance-all="unignore"]' ).click();
-		await expect( section( page, 'critical' ).locator( '[data-actions-queue-group-key="hidden_plugins"]' ) ).toHaveCount( 1, { timeout: 20_000 } );
+		await expect( allIgnoredGroup ).toHaveCount( 0, { timeout: 20_000 } );
 		await openSection( page, 'critical' );
 		await expect( ignoreButtons( page ) ).toHaveCount( 2 );
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeHidden();
@@ -100,7 +100,7 @@ test( 'cloaked plugins can be ignored and restored in the queue, singly and toge
 		await drawer.locator( '[data-actions-queue-drawer-press="ignore"]' ).click();
 		await expect( drawer ).toBeHidden();
 		await expect( ignoreButtons( page ) ).toHaveCount( 1, { timeout: 20_000 } );
-		await expect( ignoredToggle( page ) ).toHaveText( /1 ignored/ );
+		await expect( ignoredToggle( page ) ).toHaveText( /\b1\b/ );
 		// It's the plugin the drawer showed that was ignored, not the other one.
 		expect( ( await openRows.innerText() ).trim() ).not.toBe( firstName );
 
@@ -124,14 +124,14 @@ test( 'cloaked plugins can be ignored and restored in the queue, singly and toge
 		await expect( alwaysIgnoreButtons( page ) ).toHaveCount( 2 );
 		await alwaysIgnoreButtons( page ).first().click();
 		await expect( alwaysIgnoreButtons( page ) ).toHaveCount( 1, { timeout: 20_000 } );
-		await expect( ignoredToggle( page ) ).toHaveText( /1 ignored/ );
+		await expect( ignoredToggle( page ) ).toHaveText( /\b1\b/ );
 
 		await ignoredToggle( page ).click();
 		await restoreButtons( page ).click();
 		await expect( ignoreButtons( page ) ).toHaveCount( 2, { timeout: 20_000 } );
 
 		await cloakedGroup( page ).locator( '[data-actions-queue-maintenance-all="ignore"]' ).click();
-		await expect( passingGroup ).toHaveCount( 1, { timeout: 20_000 } );
+		await expect( allIgnoredGroup ).toHaveCount( 1, { timeout: 20_000 } );
 		expect( navigations ).toEqual( [] );
 	} );
 } );

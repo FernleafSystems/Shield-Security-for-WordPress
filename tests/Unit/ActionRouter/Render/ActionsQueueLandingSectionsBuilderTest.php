@@ -155,9 +155,50 @@ class ActionsQueueLandingSectionsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 0, $review[ 'count' ] );
 		$this->assertFalse( $review[ 'is_open' ] );
 		$this->assertNotSame( '', $review[ 'empty_text' ] );
-		// What was ignored is still there to be restored.
+		// What was ignored is still there to be restored, and the lane says it's leaving something out.
 		$this->assertSame( [ 'wp_themes_inactive' ], \array_column( $review[ 'boxes' ], 'kind' ) );
+		$this->assertSame( 1, $review[ 'ignored_count' ] );
+		$this->assertSame( 0, $sections[ 0 ][ 'ignored_count' ] );
 		$this->assertSame( [ true, false ], \array_column( $sections, 'is_open' ) );
+	}
+
+	public function test_scan_findings_that_are_all_ignored_stay_in_their_lane_and_are_never_passing() :void {
+		$sections = ( new ActionsQueueLandingSectionsBuilder() )->build(
+			[ $this->bucket( 'critical' ) ],
+			[
+				'critical' => $this->layer( 'critical', [], [
+					$this->section( [
+						$this->group( 'abandoned', 'Abandoned Plugins', 'good', [
+							'card_type'    => 'category',
+							'ignored_rows' => [ $this->row( 'Old Plugin', true ), $this->row( 'Older Plugin', true ) ],
+						] ),
+						// Shield left this one out by itself: nobody ignored anything, so the check is passing.
+						$this->group( 'hidden_plugins', 'Cloaked Plugins', 'good', [
+							'card_type'    => 'category',
+							'ignored_rows' => [ $this->row( 'Shield loader', true, false ) ],
+						] ),
+					] ),
+				] ),
+			],
+			[
+				$this->healthyRow( 'Abandoned Assets', 'abandoned', 'scans' ),
+			],
+			[]
+		);
+
+		$this->assertSame( [ 'critical', 'passing' ], \array_column( $sections, 'key' ) );
+		[ $critical, $passing ] = $sections;
+		$this->assertSame( 'good', $critical[ 'status' ] );
+		$this->assertSame( 0, $critical[ 'count' ] );
+		$this->assertSame( [ 'abandoned' ], \array_column( $critical[ 'boxes' ], 'kind' ) );
+		$this->assertSame( 2, $critical[ 'ignored_count' ] );
+		// Neither the group nor its summary row is listed as passing.
+		$this->assertSame( 1, $passing[ 'count' ] );
+		$this->assertSame(
+			[ 'hidden_plugins' ],
+			\array_map( fn( array $entry ) :string => $entry[ 'group' ][ 'key' ], $passing[ 'boxes' ][ 0 ][ 'entries' ] )
+		);
+		$this->assertSame( [], $passing[ 'boxes' ][ 0 ][ 'rows' ] );
 	}
 
 	public function test_a_lane_of_ignored_items_does_not_take_the_place_of_the_lane_to_open() :void {
@@ -301,7 +342,10 @@ class ActionsQueueLandingSectionsBuilderTest extends BaseUnitTest {
 		], $overrides );
 	}
 
-	private function row( string $title, bool $isIgnored ) :array {
+	/**
+	 * An item someone ignored comes with its way back; one Shield leaves out by itself has none.
+	 */
+	private function row( string $title, bool $isIgnored, bool $canBeRestored = true ) :array {
 		return [
 			'icon_class'  => '',
 			'title'       => $title,
@@ -309,7 +353,7 @@ class ActionsQueueLandingSectionsBuilderTest extends BaseUnitTest {
 			'summary'     => '',
 			'badge_label' => '',
 			'is_ignored'  => $isIgnored,
-			'actions'     => [],
+			'actions'     => $isIgnored && $canBeRestored ? [ [ 'kind' => 'unignore' ] ] : [],
 		];
 	}
 

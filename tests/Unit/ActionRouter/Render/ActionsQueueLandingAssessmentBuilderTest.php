@@ -103,16 +103,28 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'scans' => [], 'maintenance' => [] ], $builder->build() );
 	}
 
-	public function test_build_marks_fully_ignored_maintenance_items_as_good() :void {
+	public function test_build_marks_fully_ignored_maintenance_items_as_ignored_and_no_others() :void {
 		$builder = new ActionsQueueLandingAssessmentBuilderTestDouble(
 			[],
 			[],
 			[],
 			[
-				'system_php_version' => [
-					'label'       => 'PHP Version',
-					'description' => 'This to-do is currently ignored.',
-					'severity'    => 'good',
+				'system_php_version'  => [
+					'label'         => 'PHP Version',
+					'description'   => 'This to-do is currently ignored.',
+					'severity'      => 'good',
+					'ignored_count' => 1,
+				],
+				// Some ignored, some still to do: it needs attention, so it isn't an ignored to-do.
+				'wp_plugins_inactive' => [
+					'label'         => 'Inactive Plugins',
+					'severity'      => 'warning',
+					'count'         => 2,
+					'ignored_count' => 1,
+				],
+				'system_lib_openssl'  => [
+					'label'    => 'OpenSSL',
+					'severity' => 'good',
 				],
 			]
 		);
@@ -125,6 +137,7 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'good', $rows[ 'maintenance' ][ 0 ][ 'status' ] ?? '' );
 		$this->assertArrayNotHasKey( 'count', $rows[ 'maintenance' ][ 0 ] );
 		$this->assertArrayNotHasKey( 'ignored_count', $rows[ 'maintenance' ][ 0 ] );
+		$this->assertSame( [ true, false, false ], \array_column( $rows[ 'maintenance' ], 'is_ignored' ) );
 	}
 
 	public function test_build_includes_only_plugin_files_when_only_plugin_scan_is_available() :void {

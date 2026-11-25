@@ -29,6 +29,10 @@
 				<div class="shield-dashboard-widget__all-clear">
 					<span class="shield-dashboard-widget__all-clear-icon" aria-hidden="true"></span>
 					<span>{{ strings.all_clear_message }}</span>
+					{# Nothing needs attention, but not because nothing's there: the queue lists what's ignored. #}
+					{% if strings.ignored is not empty %}
+						<span class="shield-dashboard-widget__ignored">{{ strings.ignored }}</span>
+					{% endif %}
 				</div>
 			{% endif %}
 
