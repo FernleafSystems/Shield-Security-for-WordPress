@@ -27,8 +27,10 @@ class ModuleOptionsSave extends BaseAction {
 		$this->response()->setPayload( [
 			'html'        => '',
 			// Turning on Security Admin needs the PIN; turning on email 2FA opens its verification dialog on reload.
-			'page_reload' => ( !$wasSecAdminEnabled && $con->comps->sec_admin->isEnabledSecAdmin() )
-							 || ( !$wasEmailAuthEnabled && ( new EmailDeliveryVerificationDialog() )->isRequired() ),
+			// A save that failed changed nothing, so it never reloads.
+			'page_reload' => $success
+							 && ( ( !$wasSecAdminEnabled && $con->comps->sec_admin->isEnabledSecAdmin() )
+								  || ( !$wasEmailAuthEnabled && ( new EmailDeliveryVerificationDialog() )->isRequired() ) ),
 			'message'     => $success ?
 				/* translators: %s: plugin name */
 				sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $con->labels->Name )

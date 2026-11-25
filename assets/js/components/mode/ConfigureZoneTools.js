@@ -11,6 +11,17 @@ export class ConfigureZoneTools extends BaseAutoExecComponent {
 	static ROOT_SELECTOR = '[data-configure-diagnosis="1"]';
 	static ITEM_SELECTOR = '.shield-detail-item--configure';
 
+	/**
+	 * The topic whose panel is open, or still opening, so the same one can be opened again when the goal is
+	 * drawn afresh.
+	 * @param {ParentNode} root
+	 * @return {string} its row key, or '' when no panel is open
+	 */
+	static openRowKey( root ) {
+		const open = root.querySelector( `${ConfigureZoneTools.ITEM_SELECTOR}:not([hidden]) [data-shield-expand-body="1"]:is(.show, .collapsing)` );
+		return open?.closest( '[data-configure-row-key]' )?.dataset.configureRowKey || '';
+	}
+
 	canRun() {
 		return !!this._base_data?.ajax;
 	}

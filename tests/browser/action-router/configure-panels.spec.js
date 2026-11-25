@@ -1,5 +1,10 @@
 const { openShieldRoute, test, expect } = require( './support/shield-test' );
-const { expectShieldAjaxSuccess, waitForShieldAjaxAction } = require( './support/security-assertions' );
+const {
+	expectShieldAjaxSuccess,
+	isAdminAjaxRequest,
+	requestActionSlug,
+	waitForShieldAjaxAction,
+} = require( './support/security-assertions' );
 const { expectNoAxeViolations } = require( './support/accessibility' );
 
 /**
@@ -26,9 +31,12 @@ async function openTopic( page, topic ) {
 }
 
 async function save( page ) {
+	// A save draws the goal again, so what follows waits for the one on the page now to be replaced.
+	const replaced = await diagnosis( page ).elementHandle();
 	const saved = waitForShieldAjaxAction( page, 'mod_options_save' );
 	await saveBar( page ).locator( '[data-configure-savebar-save="1"]' ).click();
 	await expectShieldAjaxSuccess( await saved );
+	await page.waitForFunction( ( node ) => !node.isConnected, replaced );
 	await expect( saveBar( page ) ).toBeHidden( { timeout: 20_000 } );
 }
 
@@ -74,6 +82,8 @@ test( 'a panel slider and switch save and reload like any other setting', async 
 	await expect( notify ).toBeChecked( { checked: !notifyWasOn } );
 
 	await save( page );
+	// The goal is drawn again after a save, and stays on the topic the change was made in.
+	await expect( diagnosis( page ).locator( '[data-configure-row-key="sessions"] form.options_form_for--panel' ) ).toBeVisible();
 	form = await openTopic( page, 'sessions' );
 	await expect( form.locator( 'input[type="hidden"][name="session_timeout_interval"]' ) ).toHaveValue( nextLifetime );
 	await expect( form.locator( 'input[name="enable_user_login_email_notification"]' ) ).toBeChecked( { checked: !notifyWasOn } );
@@ -82,6 +92,63 @@ test( 'a panel slider and switch save and reload like any other setting', async 
 	await moveSlider( form.locator( '[data-option-key="session_timeout_interval"] input.shield-range__input' ), originalLifetime );
 	await form.locator( '[data-option-key="enable_user_login_email_notification"] .form-switch' ).click();
 	await save( page );
+} );
+
+test( 'a save that gets no answer leaves the change unsaved and ready to save again', async ( { page } ) => {
+	await openGoal( page, 'accounts' );
+	const form = await openTopic( page, 'sessions' );
+	const notify = form.locator( 'input[name="enable_user_login_email_notification"]' );
+	const wasOn = await notify.isChecked();
+
+	const isSave = ( request ) => isAdminAjaxRequest( request ) && requestActionSlug( request ) === 'mod_options_save';
+	await page.route( '**/admin-ajax.php', ( route ) => isSave( route.request() ) ? route.abort() : route.continue() );
+	await form.locator( '[data-option-key="enable_user_login_email_notification"] .form-switch' ).click();
+	const refused = page.waitForEvent( 'requestfailed', isSave );
+	await saveBar( page ).locator( '[data-configure-savebar-save="1"]' ).click();
+	await refused;
+
+	// A warning says so, and nothing reads as saved: the change, its unsaved mark and the save bar are all still there.
+	await expect( page.locator( '#AptoOptionsToast.text-bg-warning' ) ).toBeVisible();
+	await expect( page.locator( '#AptoOptionsToast .toast-body' ) ).not.toBeEmpty();
+	await expect( saveBar( page ).locator( '[data-configure-savebar-save="1"]' ) ).toBeEnabled();
+	await expect( saveBar( page ) ).toBeVisible();
+	await expect( notify ).toBeChecked( { checked: !wasOn } );
+	await expect( form.locator( '[data-option-key="enable_user_login_email_notification"] [data-option-unsaved="1"]' ) ).toBeVisible();
+
+	await page.unroute( '**/admin-ajax.php' );
+	await saveBar( page ).locator( '[data-configure-savebar-discard="1"]' ).click();
+	await expect( saveBar( page ) ).toBeHidden();
+} );
+
+test( 'a save that reloads the page comes back to the goal and topic it was made in', async ( { page } ) => {
+	// Opened from its tab, so the page's address doesn't name the goal.
+	await openShieldRoute( page, { nav: 'zones', nav_sub: 'overview' } );
+	await page.locator( '[data-configure-tab="accounts"]' ).click();
+	await expect( diagnosis( page ) ).toHaveAttribute( 'data-configure-zone', 'accounts' );
+	const form = await openTopic( page, 'two_factor' );
+	await expect( form.locator( 'input[name="enable_email_authentication"]' ) ).not.toBeChecked();
+
+	// Turning on email 2FA reloads the page, to ask for its email to be verified. The save is made from another
+	// topic, one the goal wouldn't open by itself.
+	await form.locator( '[data-option-key="enable_email_authentication"] .form-switch' ).click();
+	await openTopic( page, 'sessions' );
+	const reloaded = page.waitForEvent( 'load' );
+	await saveBar( page ).locator( '[data-configure-savebar-save="1"]' ).click();
+
+	try {
+		await reloaded;
+		await expect( diagnosis( page ) ).toHaveAttribute( 'data-configure-zone', 'accounts' );
+		await expect( diagnosis( page ).locator( '[data-configure-row-key="sessions"] form.options_form_for--panel' ) ).toBeVisible();
+	}
+	finally {
+		// Put email 2FA back as it was, from the dialog shown while it waits to be verified.
+		const turnOff = page.locator( '.shield-email-verify__turn-off' );
+		if ( await turnOff.waitFor( { timeout: 10_000 } ).then( () => true, () => false ) ) {
+			const restored = page.waitForEvent( 'load' );
+			await turnOff.click();
+			await restored;
+		}
+	}
 } );
 
 test( 'role chips save the ticked roles, including none', async ( { page } ) => {

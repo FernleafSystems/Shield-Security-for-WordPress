@@ -1,5 +1,6 @@
 import { ObjectOps } from "../../util/ObjectOps";
 import { AjaxBatchService } from "../services/AjaxBatchService";
+import { ConfigureZoneTools } from "./ConfigureZoneTools";
 import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
 import { SearchBox } from "../search/SearchBox";
 
@@ -148,7 +149,10 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		} );
 	}
 
-	loadDiagnosisLayer( { showPlaceholder = true, includeLandingRefresh = false } = {} ) {
+	/**
+	 * @param {string} reopenRowKey a topic to open as soon as the goal is drawn, in place of its first one
+	 */
+	loadDiagnosisLayer( { showPlaceholder = true, includeLandingRefresh = false, reopenRowKey = '' } = {} ) {
 		if ( this.selectedZone === null ) {
 			return Promise.resolve( null );
 		}
@@ -165,7 +169,12 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 			this.buildRenderAction( this.rootEl?.dataset.configureDiagnosisAction, extraData ),
 			showPlaceholder,
 			this.getDiagnosisLoadingText(),
-			( data ) => this.applyDiagnosisLayerResponse( data )
+			( data ) => {
+				this.applyDiagnosisLayerResponse( data );
+				if ( reopenRowKey.length > 0 ) {
+					this.applyFocusRequest( JSON.stringify( { row_key: reopenRowKey, config_item: '' } ) );
+				}
+			}
 		);
 	}
 
@@ -238,9 +247,11 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 
 		this.rootEl = root;
 		this.shellEl = this.getShell( root );
+		// The goal is drawn again with what was saved, and stays on the topic that was open.
 		this.loadDiagnosisLayer( {
 			showPlaceholder: false,
 			includeLandingRefresh: true,
+			reopenRowKey: ConfigureZoneTools.openRowKey( root ),
 		} );
 	}
 

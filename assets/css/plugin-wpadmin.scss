@@ -80,7 +80,9 @@ tr.shield-plugin-vulnerability dd {
 
 .shield-toaster {
   position: fixed;
-  top: 100px;
+  // Beneath Configure's save bar while that's in view (it says where its bottom edge is), so a message never
+  // covers the bar's buttons.
+  top: max(100px, calc(var(--shield-actionbar-bottom, 0px) + 12px));
   right: 60px;
   z-index: -1;
 }
