@@ -277,7 +277,8 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_goal_diagnosis_rows_are_topics_that_open_their_panels() :void {
 		$diagnoses = ( new ConfigureLandingViewBuilder() )->build()[ 'diagnoses' ];
 
-		$this->assertDiagnosisRowScope( $diagnoses[ 'code' ] ?? [], 'scan_schedule', 'scan_scheduling', [ 'scan_frequency' ] );
+		// How often scans run sits with what they scan.
+		$this->assertDiagnosisRowScope( $diagnoses[ 'code' ] ?? [], 'file_scanning', 'scan_scheduling', [ 'scan_frequency', 'file_scan_areas' ] );
 		// Settings few sites change are gathered into the goal's Advanced options.
 		$this->assertDiagnosisRowScope( $diagnoses[ 'spam' ] ?? [], 'advanced', 'trusted_commenters', [ 'trusted_commenter_minimum', 'trusted_user_roles' ] );
 		$this->assertDiagnosisRowScope( $diagnoses[ 'accounts' ] ?? [], 'two_factor', 'two_factor_auth', [ 'enable_email_authentication', 'enable_passkeys' ] );
