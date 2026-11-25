@@ -68,6 +68,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] )
 			->id;
 		$wpdb = Services::WpDb()->loadWpdb();
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Shield's own log tables (prefix plus a fixed name) put in with sprintf(), whose %% leaves the placeholders for prepare(); every value goes through prepare(), and the %i identifier placeholder needs WordPress 6.2.
 		$existingLogID = (int)$wpdb->get_var( $wpdb->prepare(
 			sprintf(
 				"SELECT `log`.`id`
@@ -95,6 +96,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 				$existingLogID,
 				'audit_count'
 			) );
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			// this can fail under load, but doesn't actually matter:
 			$dbCon->activity_logs->getQueryUpdater()->updateById( $existingLogID, [
 				'updated_at' => Services::Request()->ts()

@@ -13,6 +13,7 @@ class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Hand
 
 		$wpdb = Services::WpDb()->loadWpdb();
 		$table = $this->getTableSchema()->table;
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Shield's own events table (prefix plus a fixed name), queried directly by design; every value goes through prepare(), and the %i identifier placeholder needs WordPress 6.2.
 		$rows = $wpdb->get_results( $wpdb->prepare(
 			"SELECT `event`, COUNT(*) AS `record_count`, MAX(`id`) AS `captured_max_id`,
 				MAX(`created_at`) AS `latest_at`, SUM(`count`) AS `event_total`
@@ -81,6 +82,7 @@ class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Hand
 				return false;
 			}
 		}
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		return true;
 	}
@@ -88,11 +90,13 @@ class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Hand
 	public function getNextCreatedAt( int $afterAt, int $beforeAt ) :?int {
 		$wpdb = Services::WpDb()->loadWpdb();
 		$table = $this->getTableSchema()->table;
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Shield's own events table (prefix plus a fixed name), queried directly by design; every value goes through prepare(), and the %i identifier placeholder needs WordPress 6.2.
 		$next = $wpdb->get_var( $wpdb->prepare(
 			"SELECT MIN(`created_at`) FROM `{$table}` WHERE `created_at` > %d AND `created_at` < %d",
 			$afterAt,
 			$beforeAt
 		) );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		if ( $wpdb->last_error !== '' ) {
 			throw new \RuntimeException( 'Failed to query the next event compaction timestamp.' );
 		}

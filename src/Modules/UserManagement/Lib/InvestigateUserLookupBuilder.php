@@ -118,6 +118,7 @@ class InvestigateUserLookupBuilder {
 	private function searchUsersByNumericTerm( string $search, int $limit ): array {
 		$wpdb = Services::WpDb()->loadWpdb();
 		$like = '%'.$wpdb->esc_like( $search ).'%';
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- WordPress's users table put in with sprintf(), whose %% leaves the placeholders for prepare(); the search term is escaped for LIKE and every value goes through prepare(). A live admin search, so it isn't cached.
 		$rows = $wpdb->get_results(
 			(string)$wpdb->prepare(
 				\sprintf(
@@ -139,6 +140,7 @@ class InvestigateUserLookupBuilder {
 				max( 1, $limit )
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		$users = [];
 		foreach ( \is_array( $rows ) ? $rows : [] as $row ) {

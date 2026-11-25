@@ -685,6 +685,7 @@ class AssetCoordinator {
 			throw new \RuntimeException( 'Asset coordinator readiness state query failed.' );
 		}
 
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- WordPress's own options or sitemeta table put in with sprintf(), whose %% leaves the placeholders for prepare(); every value goes through prepare().
 		if ( \is_multisite() ) {
 			$table = (string)( $wpdb->sitemeta ?? '' );
 			$query = $table === '' ? false : $wpdb->prepare(
@@ -706,6 +707,7 @@ class AssetCoordinator {
 				$this->optionKey()
 			);
 		}
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		if ( !\is_string( $query ) || $query === '' ) {
 			throw new \RuntimeException( 'Asset coordinator readiness state query failed.' );

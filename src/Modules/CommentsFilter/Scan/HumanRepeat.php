@@ -32,7 +32,7 @@ class HumanRepeat {
 					'trash',
 				],
 				'relation'   => 'OR',
-				'meta_query' => [
+				'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Finds held, spam and trashed comments that Shield marked as human spam, during the spam scan.
 					[
 						'key'   => self::con()->prefix( 'spam_human' ),
 						'value' => '1'

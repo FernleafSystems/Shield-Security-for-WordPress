@@ -82,7 +82,7 @@ class Import {
 		}
 
 		$FS = Services::WpFs();
-		$upload = $_FILES[ 'import_file' ] ?? null;
+		$upload = $_FILES[ 'import_file' ] ?? null; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- The action router verifies the nonce before this runs, and only a security admin gets here; the upload fields used below are validated, and the original filename and type aren't used.
 		if ( !\is_array( $upload )
 			 || !\is_string( $upload[ 'tmp_name' ] ?? null )
 			 || \trim( $upload[ 'tmp_name' ] ) === '' ) {
