@@ -59,7 +59,7 @@ export class Login2faHandler extends BaseComponent {
 			if ( timeRemaining < 0 ) {
 				clearInterval( x );
 				loginExpired();
-				this.timeRemainingP.innerHTML = this._base_data.strings.login_expired;
+				this.timeRemainingP.textContent = this._base_data.strings.login_expired;
 				this.updateCountdownMirror();
 			}
 			else {

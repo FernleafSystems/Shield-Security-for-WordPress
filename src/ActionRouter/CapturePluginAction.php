@@ -56,9 +56,9 @@ class CapturePluginAction extends CaptureActionBase {
 	 * @return never
 	 */
 	private function dieInvalidNonce() :void {
-		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- A fixed message and constants. wp_die()'s JSON and XML handlers expect plain text, so escaping would change the message there.
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- A translated message stripped of markup, and constants. wp_die()'s JSON and XML handlers expect plain text, so escaping would change the message there.
 		wp_die(
-			__( 'Unexpected data. Please try again.', 'wp-simple-firewall' ),
+			wp_strip_all_tags( __( 'Unexpected data. Please try again.', 'wp-simple-firewall' ) ),
 			'',
 			[
 				'code'     => self::WP_DIE_INVALID_NONCE_CODE,

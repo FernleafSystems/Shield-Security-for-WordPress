@@ -222,6 +222,18 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 		$this->assertSame( '/safe-cancel', $fields[ 'cancel_href' ] );
 	}
 
+	public function test_base_form_leaves_hidden_field_escaping_to_the_templates() :void {
+		$this->installMfaEnvironment( [], 0, false );
+		// Both form templates escape the values, so escaping here too would make the form submit "&amp;".
+		Functions\when( 'esc_attr' )->alias( static fn( $value ) :string => \htmlspecialchars( (string)$value, \ENT_QUOTES ) );
+
+		$fields = ( new BaseFormTestDouble( $this->renderData( [
+			'redirect_to' => '/target?a=1&b=2',
+		] ) ) )->hiddenFieldsForTest();
+
+		$this->assertSame( '/target?a=1&b=2', $fields[ 'redirect_to' ] );
+	}
+
 	public function test_base_form_ignores_non_string_referer_for_cancel_fallback() :void {
 		$this->installMfaEnvironment( [], 0, false );
 		ServicesState::mergeItems( [

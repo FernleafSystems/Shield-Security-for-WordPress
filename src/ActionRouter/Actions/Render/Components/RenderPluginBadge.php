@@ -34,9 +34,9 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 			}
 		}
 
-		// The template prints this as HTML, so the name in it is escaped.
+		// The template prints this as HTML, so the translation and the name in it are escaped.
 		/* translators: %s: plugin name, preceded by a line break and wrapped in a span tag */
-		$protectedBy = sprintf( __( 'Protected By %s', 'wp-simple-firewall' ),
+		$protectedBy = sprintf( esc_html__( 'Protected By %s', 'wp-simple-firewall' ),
 			'<br/><span class="plugin-badge-name">'.esc_html( $name ).'</span>' );
 
 		$badgeAttrs = [

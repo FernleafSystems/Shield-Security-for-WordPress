@@ -153,16 +153,20 @@ class Scanner {
 					break;
 			}
 
+			// The commenter can see this in the comment's moderation preview, and WordPress keeps links and formatting
+			// in comment text, so the translated explanation is stripped of markup. The filter output is site code's.
+			$explanation = wp_strip_all_tags( sprintf(
+				/* translators: %1$s: spam notice, %2$s: reason */
+				__( 'Comment SPAM Protection: %1$s %2$s', 'wp-simple-firewall' ),
+				sprintf(
+				/* translators: %1$s: plugin name, %2$s: status */
+					__( '%1$s marked this comment as "%2$s".', 'wp-simple-firewall' ), self::con()->labels->Name, $humanStatus ),
+				/* translators: %s: reason the comment was marked as SPAM */
+				sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->spamReason )
+			) );
 			$additional = (string)apply_filters(
 				'shield/comment_spam_explanation',
-				/* translators: %1$s: spam notice, %2$s: reason */
-				sprintf( '## '.__( 'Comment SPAM Protection: %1$s %2$s', 'wp-simple-firewall' )."##\n",
-					sprintf(
-					/* translators: %1$s: plugin name, %2$s: status */
-						__( '%1$s marked this comment as "%2$s".', 'wp-simple-firewall' ), self::con()->labels->Name, $humanStatus ),
-					/* translators: %s: reason the comment was marked as SPAM */
-					sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->spamReason )
-				),
+				'## '.$explanation."##\n",
 				$this->spamStatus,
 				$this->spamReason
 			);

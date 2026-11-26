@@ -83,12 +83,13 @@ abstract class BaseForm extends Base {
 
 		global $interim_login;
 
+		// Plain values: both form templates escape them when printing the hidden inputs.
 		$fields = \array_filter( [
 			'interim-login' => ( $interim_login === true || $data[ 'interim_login' ] === '1' ) ? '1' : false,
-			'login_nonce'   => esc_attr( $data[ 'plain_login_nonce' ] ),
-			'rememberme'    => esc_attr( $data[ 'rememberme' ] ),
-			'redirect_to'   => esc_attr( esc_url_raw( $data[ 'redirect_to' ] ) ),
-			'cancel_href'   => esc_attr( esc_url_raw( $cancelHref ) ),
+			'login_nonce'   => $data[ 'plain_login_nonce' ],
+			'rememberme'    => $data[ 'rememberme' ],
+			'redirect_to'   => esc_url_raw( $data[ 'redirect_to' ] ),
+			'cancel_href'   => esc_url_raw( $cancelHref ),
 			/**
 			 * This server produced HTTP 402 error if the request to the login form didn't include wp-submit
 			 * https://secure.helpscout.net/conversation/1781553925/1153

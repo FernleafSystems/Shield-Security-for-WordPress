@@ -43,11 +43,11 @@ class UserSessionHandler {
 		     && self::con()->comps->session->current()->valid
 		) {
 			$msg .= sprintf( '<p class="message">%s %s<br />%s</p>',
-				__( "You're already logged-in.", 'wp-simple-firewall' ),
+				esc_html__( "You're already logged-in.", 'wp-simple-firewall' ),
 				sprintf( '<span style="white-space: nowrap">(%s)</span>', esc_html( $user->user_login ) ),
 				( $user->user_level >= 2 ) ? sprintf( '<a href="%s">%s</a>',
 					Services::WpGeneral()->getAdminUrl(),
-					__( "Go To Admin", 'wp-simple-firewall' ).' &rarr;' ) : '' );
+					esc_html__( "Go To Admin", 'wp-simple-firewall' ).' &rarr;' ) : '' );
 		}
 
 		return \is_string( $msg ) ? $msg : '';
@@ -150,23 +150,23 @@ class UserSessionHandler {
 		if ( $forceLogoutParam ) {
 			switch ( $forceLogoutParam ) {
 				case 'session_expired':
-					$msg = __( 'Your session has expired.', 'wp-simple-firewall' );
+					$msg = esc_html__( 'Your session has expired.', 'wp-simple-firewall' );
 					break;
 				case 'session_idle':
-					$msg = __( 'Your session was idle for too long.', 'wp-simple-firewall' );
+					$msg = esc_html__( 'Your session was idle for too long.', 'wp-simple-firewall' );
 					break;
 				case 'session_iplock':
-					$msg = __( 'Your session was locked to another IP Address.', 'wp-simple-firewall' );
+					$msg = esc_html__( 'Your session was locked to another IP Address.', 'wp-simple-firewall' );
 					break;
 				case 'session_notfound':
 					/* translators: %s: plugin name */
-					$msg = sprintf( __( 'You do not currently have a %s user session.', 'wp-simple-firewall' ), self::con()->labels->Name );
+					$msg = sprintf( esc_html__( 'You do not currently have a %s user session.', 'wp-simple-firewall' ), self::con()->labels->Name );
 					break;
 				default:
-					$msg = __( 'Your session was terminated.', 'wp-simple-firewall' );
+					$msg = esc_html__( 'Your session was terminated.', 'wp-simple-firewall' );
 					break;
 			}
-			$error->add( 'shield-forcelogout', $msg.'<br />'.__( 'Please login again.', 'wp-simple-firewall' ) );
+			$error->add( 'shield-forcelogout', $msg.'<br />'.esc_html__( 'Please login again.', 'wp-simple-firewall' ) );
 		}
 		return $error;
 	}

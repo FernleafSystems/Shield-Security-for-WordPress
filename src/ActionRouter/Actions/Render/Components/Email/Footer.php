@@ -15,9 +15,9 @@ class Footer extends Base {
 		$WP = Services::WpGeneral();
 
 		$goPro = [
-			__( 'Go PRO For The Equivalent Of 1 Cappuccino Per Month &#9749;', 'wp-simple-firewall' ),
-			__( 'Go PRO For The Equivalent Of 1 Beer Per Month &#127866;', 'wp-simple-firewall' ),
-			__( 'Go PRO For The Equivalent Of 1 Glass Of Wine Per Month &#127863;', 'wp-simple-firewall' ),
+			esc_html__( 'Go PRO For The Equivalent Of 1 Cappuccino Per Month &#9749;', 'wp-simple-firewall' ),
+			esc_html__( 'Go PRO For The Equivalent Of 1 Beer Per Month &#127866;', 'wp-simple-firewall' ),
+			esc_html__( 'Go PRO For The Equivalent Of 1 Glass Of Wine Per Month &#127863;', 'wp-simple-firewall' ),
 		];
 		$benefits = [
 			__( 'The Easiest, Frustration-Free Pro-Upgrade Available Anywhere', 'wp-simple-firewall' ),

@@ -33,7 +33,7 @@ class WpLoginReplicaHeader extends Base {
 		$login_title = get_bloginfo( 'name', 'display' );
 
 		/* translators: Login screen title. 1: Login screen name, 2: Network or site name. */
-		$login_title = sprintf( __( '%1$s &lsaquo; %2$s &#8212; WordPress', 'wp-simple-firewall' ), esc_html( $this->action_data[ 'title' ] ?? '' ), $login_title );
+		$login_title = sprintf( esc_html__( '%1$s &lsaquo; %2$s &#8212; WordPress', 'wp-simple-firewall' ), esc_html( $this->action_data[ 'title' ] ?? '' ), $login_title );
 
 		/**
 		 * Filters the title tag content for login page.
@@ -79,7 +79,7 @@ class WpLoginReplicaHeader extends Base {
 		 */
 		$login_header_url = apply_filters( 'login_headerurl', $login_header_url ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Runs WordPress core's own login page hook on Shield's 2FA login page, so callbacks registered for it can take part there.
 
-		$login_header_text = __( 'Powered by WordPress', 'wp-simple-firewall' );
+		$login_header_text = esc_html__( 'Powered by WordPress', 'wp-simple-firewall' );
 
 		/**
 		 * Filters the link text of the header logo above the login form.
@@ -176,7 +176,8 @@ class WpLoginReplicaHeader extends Base {
 			}
 		}
 
-		$interimMessage = esc_html( $data[ 'interim_message' ] );
+		// The template escapes it when printing.
+		$interimMessage = (string)$data[ 'interim_message' ];
 
 		return [
 			'content' => [
@@ -193,8 +194,9 @@ class WpLoginReplicaHeader extends Base {
 				'has_interim_message' => $isInterimLogin && !empty( $interimMessage ),
 				'is_interim_login'    => $isInterimLogin,
 			],
+			// The template escapes these values for their attributes; esc_url_raw() only drops unsafe URL schemes.
 			'hrefs'   => [
-				'login_header_url' => esc_url( $login_header_url ),
+				'login_header_url' => esc_url_raw( $login_header_url ),
 			],
 			'strings' => [
 				'login_header_text' => $login_header_text,
@@ -206,7 +208,7 @@ class WpLoginReplicaHeader extends Base {
 				'language_attributes' => get_language_attributes(),
 				'meta_content_type'   => get_bloginfo( 'html_type' ),
 				'meta_charset'        => get_bloginfo( 'charset' ),
-				'classes_body'        => esc_attr( \implode( ' ', $classes ) ),
+				'classes_body'        => \implode( ' ', $classes ),
 			]
 		];
 	}

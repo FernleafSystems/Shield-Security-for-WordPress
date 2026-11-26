@@ -161,9 +161,9 @@ class UserPasswordHandler {
 				}
 
 				if ( $checksFailed ) {
-					$msg = __( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' );
+					$msg = esc_html__( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' );
 					if ( !empty( $failureMsg ) ) {
-						$msg .= sprintf( '<br/>%s: %s', __( 'Reason', 'wp-simple-firewall' ), $failureMsg );
+						$msg .= sprintf( '<br/>%s: %s', esc_html__( 'Reason', 'wp-simple-firewall' ), $failureMsg );
 					}
 					$wpErrors->add( 'shield_password_policy', $msg );
 					self::con()->comps->events->fireEvent( 'password_policy_block' );

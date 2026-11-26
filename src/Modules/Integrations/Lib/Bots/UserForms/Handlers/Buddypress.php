@@ -11,7 +11,7 @@ class Buddypress extends Base {
 	public function checkRegister_BP() {
 		if ( $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
 			$this->fireEventBlockRegister();
-			wp_die( $this->getErrorMessage() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Fixed translated text with the plugin name and a count; wp_die()'s JSON and XML handlers expect it unescaped.
+			wp_die( $this->getErrorMessage() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Translated text with the plugin name and a count, stripped of markup by getErrorMessage(); wp_die()'s JSON and XML handlers expect plain text.
 		}
 	}
 }

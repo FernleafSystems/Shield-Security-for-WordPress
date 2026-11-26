@@ -33,7 +33,7 @@ class BlockPageSiteBlockdown extends BaseBlock {
 
 	protected function getRestrictionDetailsBlurb() :array {
 		return [
-			'check_back' => __( 'Please check back again shortly, or contact the site administrator for further details.', 'wp-simple-firewall' ),
+			'check_back' => esc_html__( 'Please check back again shortly, or contact the site administrator for further details.', 'wp-simple-firewall' ),
 		];
 	}
 }
