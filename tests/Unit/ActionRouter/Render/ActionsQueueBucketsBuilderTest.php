@@ -3,13 +3,22 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\MaintenanceItemDetails;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueBucketsBuilder,
 	ScansResultsRailTabAvailability
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	ServicesState,
+	UnitTestGeneral,
+	UnitTestRequest,
+	UnitTestUsers
+};
 
 class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
+
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -17,6 +26,34 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
+		// A passing to-do's row carries the request for its drawer, which is built as any request to the plugin is.
+		if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
+			\define( 'HOUR_IN_SECONDS', 3600 );
+		}
+		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'wp_hash' )->alias(
+			static fn( string $data, string $scheme = 'auth' ) :string => 'hash-'.$scheme.'-'.$data
+		);
+		Functions\when( 'get_rest_url' )->alias(
+			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
+		);
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static fn( $value ) => \is_array( $value ) ? \array_map( 'rawurlencode', $value ) : \rawurlencode( (string)$value )
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static fn( array $params, string $url ) :string => $url.'?'.\http_build_query( $params )
+		);
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::mergeItems( [
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_request'   => new UnitTestRequest(),
+			'service_wpusers'   => new UnitTestUsers( 0 ),
+		] );
+	}
+
+	protected function tearDown() :void {
+		ServicesState::restore( $this->servicesSnapshot );
+		parent::tearDown();
 	}
 
 	public function test_build_returns_only_critical_and_review_buckets() :void {
@@ -277,6 +314,12 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 			]
 		);
 
+		// A passing to-do opens its drawer from its row; a passing scan has none.
+		$drawerRequest = \json_decode( $healthyRows[ 1 ][ 'drawer_json' ] ?? '', true );
+		$this->assertSame( MaintenanceItemDetails::SLUG, $drawerRequest[ 'render_slug' ] ?? null );
+		$this->assertSame( 'system_php_version', $drawerRequest[ 'maintenance_key' ] ?? null );
+		$healthyRows[ 1 ][ 'drawer_json' ] = 'the-drawer-request';
+
 		$this->assertSame(
 			[
 				[
@@ -299,7 +342,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 					'badge_label' => '',
 					'is_ignored'  => false,
 					'actions'     => [],
-					'drawer_json' => '',
+					'drawer_json' => 'the-drawer-request',
 					'group_key'   => 'system_php_version',
 					'zone'        => 'maintenance',
 				],

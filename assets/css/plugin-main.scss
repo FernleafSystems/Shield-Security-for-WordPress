@@ -954,7 +954,8 @@ td.status_file_size {
 }
 
 // Narrower than a phone is wide, it takes the screen's width rather than run off its edge.
-#AptoOffcanvas.offcanvas_cloaked_plugin {
+#AptoOffcanvas.offcanvas_cloaked_plugin,
+#AptoOffcanvas.offcanvas_maintenance_item {
   max-width: 100%;
   min-width: 0;
   width: 640px;

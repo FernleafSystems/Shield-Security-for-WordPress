@@ -731,9 +731,16 @@ $aq-pro-bg: #f2ebfc;
 	}
 }
 
-// One cloaked plugin, opened in the drawer: a stack of the queue's own boxes and rows. Only what sits inside a
+// The name is stretched over its row, so that anywhere on the row opens the drawer. The row's own buttons are
+// lifted above it, each by itself, so that the space between them still opens the drawer.
+.actions-queue-row--item.is-actionable > .actions-queue-row__links > .action {
+	position: relative;
+	z-index: 2;
+}
+
+// One item of the queue, opened in the drawer: a stack of the queue's own boxes and rows. Only what sits inside a
 // box that isn't a row is styled here.
-.shield-cloaked-drawer {
+.actions-queue-drawer {
 	display: grid;
 	gap: 12px;
 
@@ -745,10 +752,23 @@ $aq-pro-bg: #f2ebfc;
 			margin-bottom: 0;
 		}
 
-		ul {
-			list-style: disc;
+		ul,
+		ol {
 			margin: 0 0 8px;
 			padding-left: 18px;
+		}
+
+		ul {
+			list-style: disc;
+		}
+
+		// Steps are read one at a time, so they're set apart.
+		ol {
+			list-style: decimal;
+
+			li + li {
+				margin-top: 6px;
+			}
 		}
 
 		li {

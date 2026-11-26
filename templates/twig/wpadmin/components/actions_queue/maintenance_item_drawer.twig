@@ -1,0 +1,76 @@
+{#
+	One to-do, opened from its row in the Actions Queue. It's laid out as the queue is: a box per subject, each headed
+	by an icon and a title, with the to-do itself as a row. The steps are left out when there's nothing to put right.
+#}
+{% set item = vars.item %}
+<div class="actions-queue-drawer">
+	{% if item is empty %}
+		<p>{{ strings.gone }}</p>
+	{% else %}
+		{% set guidance = item.guidance %}
+		<div class="actions-queue-box">
+			<div class="actions-queue-row actions-queue-row--item{% if not item.has_issue %} actions-queue-row--good{% endif %}">
+				<span class="actions-queue-row__icon">
+					<i class="{{ item.has_issue ? item.icon_class : 'bi bi-check-lg' }}" aria-hidden="true"></i>
+				</span>
+				<div class="actions-queue-row__copy">
+					<span class="actions-queue-row__title">{{ item.title }}</span>
+					<span class="actions-queue-row__desc">{{ item.status }}</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="actions-queue-box">
+			<div class="actions-queue-box__head">
+				<i class="bi bi-search" aria-hidden="true"></i>{{ strings.checks }}
+			</div>
+			<div class="actions-queue-drawer__body">
+				<p>{{ guidance.checks }}</p>
+			</div>
+		</div>
+
+		<div class="actions-queue-box">
+			<div class="actions-queue-box__head">
+				<i class="bi bi-shield-exclamation" aria-hidden="true"></i>{{ strings.why }}
+			</div>
+			<div class="actions-queue-drawer__body">
+				{% for paragraph in guidance.why %}
+					<p>{{ paragraph }}</p>
+				{% endfor %}
+			</div>
+		</div>
+
+		{% if item.has_issue and guidance.steps is not empty %}
+			<div class="actions-queue-box">
+				<div class="actions-queue-box__head">
+					<i class="bi bi-wrench-adjustable" aria-hidden="true"></i>{{ strings.what_to_do }}
+				</div>
+				<div class="actions-queue-drawer__body">
+					<ol>
+						{% for step in guidance.steps %}
+							<li>{{ step }}</li>
+						{% endfor %}
+					</ol>
+					{% if guidance.who is not empty %}
+						<p class="actions-queue-drawer__note">{{ guidance.who }}</p>
+					{% endif %}
+				</div>
+			</div>
+		{% endif %}
+
+		{% if guidance.practice is not empty %}
+			<div class="actions-queue-box">
+				<div class="actions-queue-box__head">
+					<i class="bi bi-hand-thumbs-up" aria-hidden="true"></i>{{ strings.practice }}
+				</div>
+				<div class="actions-queue-drawer__body">
+					<ul>
+						{% for practice in guidance.practice %}
+							<li>{{ practice }}</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		{% endif %}
+	{% endif %}
+</div>

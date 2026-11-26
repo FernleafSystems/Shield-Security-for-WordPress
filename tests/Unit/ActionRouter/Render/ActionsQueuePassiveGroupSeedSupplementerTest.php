@@ -126,6 +126,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 				],
 				'toggle_action' => [],
 				'expansion'     => [],
+				'drawer_json'   => '',
 			],
 			[
 				'key'           => 'wp_db_password',
@@ -142,6 +143,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 				'cta'           => [],
 				'toggle_action' => [],
 				'expansion'     => [],
+				'drawer_json'   => '',
 			],
 		] );
 

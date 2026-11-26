@@ -281,7 +281,8 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 				$row[ 'ignored_label' ],
 				$row[ 'is_ignored' ],
 				$row[ 'secondary_actions' ],
-				$row[ 'inline_meta' ]
+				$row[ 'inline_meta' ],
+				$maintenanceItem[ 'drawer_json' ]
 			),
 			$this->extractRows( $maintenanceItem )
 		) );
@@ -301,7 +302,9 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 				$maintenanceItem[ 'description' ],
 				$this->isIgnored( $maintenanceItem ) ? __( 'Currently ignored', 'wp-simple-firewall' ) : '',
 				$this->isIgnored( $maintenanceItem ),
-				$this->buildAggregateRowActions( $maintenanceItem )
+				$this->buildAggregateRowActions( $maintenanceItem ),
+				'',
+				$maintenanceItem[ 'drawer_json' ]
 			),
 			$maintenanceItems
 		) );
@@ -323,7 +326,9 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			$maintenanceItem[ 'description' ],
 			$this->isIgnored( $maintenanceItem ) ? __( 'Currently ignored', 'wp-simple-firewall' ) : '',
 			$this->isIgnored( $maintenanceItem ),
-			empty( $toggleAction ) ? [] : [ $toggleAction ]
+			empty( $toggleAction ) ? [] : [ $toggleAction ],
+			'',
+			$maintenanceItem[ 'drawer_json' ]
 		);
 	}
 

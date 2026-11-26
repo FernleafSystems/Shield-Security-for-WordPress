@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\MaintenanceItemDetails;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
@@ -135,7 +136,7 @@ class ActionsQueueBucketsBuilder {
 			foreach ( $assessmentRowsByZone[ $zone ] as $row ) {
 				if ( $row[ 'status' ] === 'good' && !$row[ 'is_ignored' ] ) {
 					// The group the row belongs to, so the landing lists it once, and which block it goes in.
-					$rows[] = $this->buildHealthyRow( $row ) + [
+					$rows[] = $this->buildHealthyRow( $row, $zone ) + [
 						'group_key' => $zone === 'scans'
 							? $this->groupDefinitions()->groupKeyForSummaryKey( (string)$row[ 'key' ] )
 							: (string)$row[ 'key' ],
@@ -150,17 +151,25 @@ class ActionsQueueBucketsBuilder {
 
 	/**
 	 * @phpstan-param array{
+	 *   key:string,
 	 *   item_icon_class:string,
 	 *   label:string,
 	 *   description:string
 	 * } $row
+	 * @param 'scans'|'maintenance' $zone
 	 * @return CompactSummaryRow
 	 */
-	private function buildHealthyRow( array $row ) :array {
+	private function buildHealthyRow( array $row, string $zone ) :array {
 		return $this->summaryRowBuilder()->build(
 			(string)$row[ 'item_icon_class' ],
 			(string)$row[ 'label' ],
-			(string)$row[ 'description' ]
+			(string)$row[ 'description' ],
+			'',
+			false,
+			[],
+			'',
+			// A to-do that's passing still explains itself in its drawer.
+			$zone === 'maintenance' ? MaintenanceItemDetails::requestJsonFor( (string)$row[ 'key' ] ) : ''
 		);
 	}
 

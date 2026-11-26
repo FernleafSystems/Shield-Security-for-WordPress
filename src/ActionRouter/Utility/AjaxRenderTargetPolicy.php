@@ -16,6 +16,7 @@ class AjaxRenderTargetPolicy {
 		Actions\Render\Components\Scans\ScansFileLockerDiff::class,
 		Actions\Render\Components\OffCanvas\IpAnalysis::class,
 		Actions\Render\Components\OffCanvas\CloakedPluginDetails::class,
+		Actions\Render\Components\OffCanvas\MaintenanceItemDetails::class,
 		Actions\Render\Components\OffCanvas\ImportExportSitesAuthoriseUrls::class,
 		Actions\Render\Components\OffCanvas\IpRuleAddForm::class,
 		Actions\Render\Components\Rules\RuleBuilder::class,

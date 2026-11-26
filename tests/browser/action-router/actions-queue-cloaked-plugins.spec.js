@@ -50,7 +50,7 @@ test( 'the queue fits a phone, with nothing cut off by its box', async ( { page,
 			// A plugin's drawer takes the screen's width rather than run off its edge.
 			const drawer = page.locator( '#AptoOffcanvas' );
 			await cloakedGroup( page ).locator( '[data-actions-queue-row-drawer]' ).first().click();
-			await expect( drawer.locator( '.shield-cloaked-drawer' ) ).toBeVisible();
+			await expect( drawer.locator( '.actions-queue-drawer' ) ).toBeVisible();
 			await expect( drawer ).not.toHaveClass( /showing/ );
 			const box = await drawer.boundingBox();
 			expect( box.x, `drawer's left edge at ${width}px` ).toBeGreaterThanOrEqual( 0 );
@@ -94,7 +94,7 @@ test( 'cloaked plugins can be ignored and restored in the queue, singly and toge
 		const openRows = cloakedGroup( page ).locator( '.actions-queue-row--item:not(.is-ignored) [data-actions-queue-row-drawer]' );
 		const firstName = ( await firstRow.locator( '[data-actions-queue-row-drawer]' ).innerText() ).trim();
 		await firstRow.locator( '[data-actions-queue-row-drawer]' ).click();
-		await expect( drawer.locator( '.shield-cloaked-drawer code' ).first() ).toContainText( 'wp-content/plugins/shield-browser-cloaked-fixture' );
+		await expect( drawer.locator( '.actions-queue-drawer code' ).first() ).toContainText( 'wp-content/plugins/shield-browser-cloaked-fixture' );
 
 		// A button in the drawer does what the row's does: the plugin is ignored, and the drawer closes.
 		await drawer.locator( '[data-actions-queue-drawer-press="ignore"]' ).click();

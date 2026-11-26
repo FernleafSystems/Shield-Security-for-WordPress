@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
+ * @phpstan-import-type ComponentGuidance from MeterComponentBase
  * @phpstan-type MaintenanceIssueState array{
  *   key:string,
  *   label:string,
@@ -108,6 +109,19 @@ class MaintenanceIssueStateProvider {
 		}
 
 		return $identifiers;
+	}
+
+	/**
+	 * A to-do's check explained, for its drawer; null when the key isn't a to-do's.
+	 * @return ComponentGuidance|null
+	 */
+	public function guidanceFor( string $key ) :?array {
+		foreach ( $this->getDefinitions() as $definition ) {
+			if ( $definition[ 'key' ] === $key ) {
+				return ( new $definition[ 'component_class' ]() )->guidance();
+			}
+		}
+		return null;
 	}
 
 	public function isKnownMaintenanceKey( string $key ) :bool {

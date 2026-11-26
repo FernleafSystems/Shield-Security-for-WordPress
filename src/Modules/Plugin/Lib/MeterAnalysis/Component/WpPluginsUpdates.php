@@ -41,6 +41,25 @@ class WpPluginsUpdates extends Base {
 		);
 	}
 
+	public function guidance() :array {
+		return [
+			'checks'   => __( 'Shield asks WordPress which of your installed plugins have a newer version available.', 'wp-simple-firewall' ),
+			'why'      => [
+				__( 'Out-of-date plugins are one of the most common ways WordPress sites are broken into. Updates are how the security holes found in them are closed.', 'wp-simple-firewall' ),
+			],
+			'steps'    => [
+				__( "Take a backup of your site's files and database.", 'wp-simple-firewall' ),
+				__( 'Go to Plugins and update each plugin that shows an update. Updating one at a time makes it easy to tell which one caused a problem.', 'wp-simple-firewall' ),
+				__( 'Check that the main parts of your site still work.', 'wp-simple-firewall' ),
+			],
+			'who'      => __( 'Any administrator can do this.', 'wp-simple-firewall' ),
+			'practice' => [
+				__( 'Turn on auto-updates, from the Plugins page, for the plugins you trust.', 'wp-simple-firewall' ),
+				__( 'Replace a plugin that no longer gets updates with one that does.', 'wp-simple-firewall' ),
+			],
+		];
+	}
+
 	private function countUpdates() :int {
 		return \count( Services::WpPlugins()->getUpdates() );
 	}

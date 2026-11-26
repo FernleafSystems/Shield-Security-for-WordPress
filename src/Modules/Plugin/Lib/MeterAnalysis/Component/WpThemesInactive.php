@@ -44,6 +44,25 @@ class WpThemesInactive extends Base {
 		);
 	}
 
+	public function guidance() :array {
+		return [
+			'checks'   => __( "Shield counts the themes that are installed but not in use. The parent of your active theme is in use. One spare theme is fine, as WordPress needs a theme to fall back on if the active one fails.", 'wp-simple-firewall' ),
+			'why'      => [
+				__( "An unused theme's files stay on your server, where they can still be requested directly. If one has a security hole, it can be used whether the theme is active or not.", 'wp-simple-firewall' ),
+			],
+			'steps'    => [
+				__( 'Go to Appearance -> Themes.', 'wp-simple-firewall' ),
+				__( "Select a theme you don't use to open its details, then choose Delete.", 'wp-simple-firewall' ),
+				__( 'Keep one default WordPress theme as the fallback, and delete the rest.', 'wp-simple-firewall' ),
+				__( "If you're keeping a theme to use later, you can delete it now and install it again when you need it. Or ignore it here, so that Shield stops listing it.", 'wp-simple-firewall' ),
+			],
+			'who'      => __( 'Any administrator can do this.', 'wp-simple-firewall' ),
+			'practice' => [
+				__( 'Keep the fallback theme updated like any other.', 'wp-simple-firewall' ),
+			],
+		];
+	}
+
 	private function countInactive() :int {
 		$WPT = Services::WpThemes();
 		return \count( $WPT->getThemes() ) - ( $WPT->isActiveThemeAChild() ? 2 : 1 );

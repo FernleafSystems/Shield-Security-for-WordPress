@@ -653,6 +653,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					],
 					'toggle_action' => [],
 					'expansion'     => [],
+					'drawer_json'   => 'drawer:system_ssl_certificate',
 				],
 				[
 					'key'           => 'system_php_version',
@@ -679,6 +680,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'maintenance_key'  => 'wp_plugins_updates',
 					],
 					'expansion'     => [],
+					'drawer_json'   => '',
 				],
 				[
 					'key'           => 'wp_updates',
@@ -698,6 +700,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					],
 					'toggle_action' => [],
 					'expansion'     => [],
+					'drawer_json'   => '',
 				],
 				[
 					'key'           => 'default_admin_user',
@@ -717,6 +720,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					],
 					'toggle_action' => [],
 					'expansion'     => [],
+					'drawer_json'   => '',
 				],
 				[
 					'key'           => 'wp_db_password',
@@ -733,6 +737,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'cta'           => [],
 					'toggle_action' => [],
 					'expansion'     => [],
+					'drawer_json'   => '',
 				],
 				[
 					'key'           => 'wp_plugins_updates',
@@ -784,6 +789,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 							],
 						],
 					],
+					'drawer_json'   => 'drawer:wp_plugins_updates',
 				],
 			]
 		);
@@ -885,6 +891,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( '', $systemRows[ 0 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] );
 		$this->assertFalse( $systemRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] );
 		$this->assertFalse( $systemRows[ 0 ][ 'is_ignored' ] );
+		// A to-do's row opens that to-do's drawer.
+		$this->assertSame( 'drawer:system_ssl_certificate', $systemRows[ 0 ][ 'drawer_json' ] );
 		$this->assertSame( [], $systemGroup[ 'ignored_rows' ] );
 
 		// The ignored item comes last, faded, and can be restored.
@@ -939,6 +947,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$this->decodeAjaxAction( $pluginUpdatesGroup[ 'maintenance_rows' ][ 0 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] )[ 'ex' ] ?? ''
 		);
 		$this->assertTrue( $pluginUpdatesGroup[ 'maintenance_rows' ][ 0 ][ 'actions' ][ 0 ][ 'is_action' ] ?? false );
+		// As does each plugin's row, for the to-do the plugin is listed under.
+		$this->assertSame( 'drawer:wp_plugins_updates', $pluginUpdatesGroup[ 'maintenance_rows' ][ 0 ][ 'drawer_json' ] );
 		$this->assertSame( '', $pluginUpdatesGroup[ 'drill_hint' ] );
 		$this->assertSame( 'maintenance', $pluginUpdatesGroup[ 'detail_shell' ] );
 	}
@@ -1081,6 +1091,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					],
 					'toggle_action' => [],
 					'expansion'     => [],
+					'drawer_json'   => '',
 				],
 				[
 					'key'           => 'default_admin_user',
@@ -1110,6 +1121,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'maintenance_key'  => 'wp_plugins_updates',
 					],
 					'expansion'     => [],
+					'drawer_json'   => '',
 				],
 			]
 		);

@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MaintenanceItemIgnore,
 	MaintenanceItemUnignore
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\MaintenanceItemDetails;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -99,7 +100,8 @@ use FernleafSystems\Wordpress\Services\Services;
  *   target:string,
  *   cta:array{}|MaintenanceItemCta,
  *   toggle_action:array{}|MaintenanceUiAction,
- *   expansion:array{}|MaintenanceItemExpansion
+ *   expansion:array{}|MaintenanceItemExpansion,
+ *   drawer_json:string
  * }
  */
 class MaintenanceQueueItemDisplayNormalizer {
@@ -191,10 +193,13 @@ class MaintenanceQueueItemDisplayNormalizer {
 			$item[ 'cta' ] = [];
 			$item[ 'toggle_action' ] = [];
 			$item[ 'expansion' ] = [];
+			$item[ 'drawer_json' ] = '';
 			return $item;
 		}
 
 		$item[ 'cta' ] = $this->buildCta( $item );
+		// Every to-do explains itself in a drawer, opened from the name of any of its rows.
+		$item[ 'drawer_json' ] = MaintenanceItemDetails::requestJsonFor( $item[ 'key' ] );
 		$item[ 'toggle_action' ] = $this->buildToggleAction( $item, $state );
 		$item[ 'expansion' ] = $this->buildExpansion( $item, $state );
 		return $item;
