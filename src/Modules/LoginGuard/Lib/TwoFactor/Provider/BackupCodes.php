@@ -67,7 +67,6 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 					/* translators: %s: plugin name */
 					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
 						self::con()->labels->Name ),
-					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ),
 					'generated_at'          => sprintf( '%s: %s', __( 'Code Generated', 'wp-simple-firewall' ),
 						empty( $record ) ? '' : Services::Request()
 														->carbon()
