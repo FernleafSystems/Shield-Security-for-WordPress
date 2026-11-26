@@ -41,22 +41,22 @@ class PhpFutureMinimumTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @dataProvider providerDangerPhpVersions
+	 * @dataProvider providerUnsupportedSoonPhpVersions
 	 */
-	public function test_older_php_versions_return_non_dismissible_danger_notice( string $phpVersion ) :void {
+	public function test_older_php_versions_return_dismissible_info_notice( string $phpVersion ) :void {
 		$this->installEnvironment( $phpVersion );
 
 		$payload = ( new PhpFutureMinimum() )->check();
 
 		$this->assertIsArray( $payload );
 		$this->assertSame( PhpFutureMinimum::ID, $payload[ 'id' ] );
-		$this->assertSame( 'danger', $payload[ 'type' ] );
-		$this->assertFalse( (bool)$payload[ 'can_dismiss' ] );
+		$this->assertSame( 'info', $payload[ 'type' ] );
+		$this->assertTrue( (bool)$payload[ 'can_dismiss' ] );
 		$this->assertContains( 'shield_admin_top_page', $payload[ 'locations' ] );
 		$this->assertStringContainsString( PhpFutureMinimum::MORE_INFO_URL, \implode( "\n", $payload[ 'text' ] ) );
 	}
 
-	public static function providerDangerPhpVersions() :array {
+	public static function providerUnsupportedSoonPhpVersions() :array {
 		return [
 			'php 7.4' => [ '7.4.33' ],
 			'php 8.0' => [ '8.0.30' ],
@@ -64,57 +64,38 @@ class PhpFutureMinimumTest extends BaseUnitTest {
 		];
 	}
 
-	public function test_php_82_returns_dismissible_info_notice_when_not_snoozed() :void {
-		$this->installEnvironment( '8.2.20' );
-
-		$payload = ( new PhpFutureMinimum() )->check();
-
-		$this->assertIsArray( $payload );
-		$this->assertSame( PhpFutureMinimum::ID, $payload[ 'id' ] );
-		$this->assertSame( 'info', $payload[ 'type' ] );
-		$this->assertTrue( (bool)$payload[ 'can_dismiss' ] );
-		$this->assertContains( 'shield_admin_top_page', $payload[ 'locations' ] );
-		$this->assertStringContainsString( PhpFutureMinimum::MORE_INFO_URL, \implode( "\n", $payload[ 'text' ] ) );
-	}
-
-	public function test_php_82_notice_is_hidden_while_snoozed_for_less_than_30_days() :void {
-		$this->installEnvironment( '8.2.20', self::NOW - 100 );
+	public function test_notice_is_hidden_while_snoozed_for_less_than_30_days() :void {
+		$this->installEnvironment( '8.1.29', self::NOW - 100 );
 
 		$this->assertNull( ( new PhpFutureMinimum() )->check() );
 	}
 
-	public function test_php_82_notice_returns_after_30_day_snooze_expires() :void {
-		$this->installEnvironment( '8.2.20', self::NOW - 30 * 86400 );
+	public function test_notice_returns_after_30_day_snooze_expires() :void {
+		$this->installEnvironment( '8.1.29', self::NOW - 30 * 86400 );
 
-		$payload = ( new PhpFutureMinimum() )->check();
-
-		$this->assertIsArray( $payload );
-		$this->assertSame( 'info', $payload[ 'type' ] );
-		$this->assertTrue( (bool)$payload[ 'can_dismiss' ] );
+		$this->assertIsArray( ( new PhpFutureMinimum() )->check() );
 	}
 
-	public function test_the_recommendation_waits_out_a_new_installs_first_day_but_the_warning_does_not() :void {
-		$this->installEnvironment( '8.2.20', 0, self::NOW - 3600 );
-		$this->assertNull( ( new PhpFutureMinimum() )->check() );
-
-		$this->installEnvironment( '8.2.20', 0, self::NOW - 2 * 86400 );
-		$this->assertSame( 'info', ( new PhpFutureMinimum() )->check()[ 'type' ] ?? '' );
-
+	public function test_notice_waits_out_a_new_installs_first_day() :void {
 		$this->installEnvironment( '8.1.29', 0, self::NOW - 3600 );
-		$this->assertSame( 'danger', ( new PhpFutureMinimum() )->check()[ 'type' ] ?? '' );
+		$this->assertNull( ( new PhpFutureMinimum() )->check() );
+
+		$this->installEnvironment( '8.1.29', 0, self::NOW - 2 * 86400 );
+		$this->assertIsArray( ( new PhpFutureMinimum() )->check() );
 	}
 
 	/**
-	 * @dataProvider providerHiddenPhpVersions
+	 * @dataProvider providerSupportedPhpVersions
 	 */
-	public function test_php_83_and_newer_return_no_notice( string $phpVersion ) :void {
+	public function test_php_82_and_newer_return_no_notice( string $phpVersion ) :void {
 		$this->installEnvironment( $phpVersion );
 
 		$this->assertNull( ( new PhpFutureMinimum() )->check() );
 	}
 
-	public static function providerHiddenPhpVersions() :array {
+	public static function providerSupportedPhpVersions() :array {
 		return [
+			'php 8.2' => [ '8.2.20' ],
 			'php 8.3' => [ '8.3.15' ],
 			'php 8.4' => [ '8.4.8' ],
 		];
