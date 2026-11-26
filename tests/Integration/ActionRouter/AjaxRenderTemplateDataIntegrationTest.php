@@ -180,6 +180,7 @@ class AjaxRenderTemplateDataIntegrationTest extends ShieldIntegrationTestCase {
 			Components\OffCanvas\IpAnalysis::class                     => [ 'ip' => self::IP ],
 			Components\OffCanvas\CloakedPluginDetails::class           => [ 'identifier' => 'not-a-finding' ],
 			Components\OffCanvas\MaintenanceItemDetails::class         => [ 'maintenance_key' => 'wp_db_password' ],
+			Components\OffCanvas\AdminTwoFactorDetails::class          => [],
 			Components\OffCanvas\ImportExportSitesAuthoriseUrls::class => [],
 			Components\OffCanvas\IpRuleAddForm::class                  => [],
 			Components\Rules\RuleBuilder::class                        => [],

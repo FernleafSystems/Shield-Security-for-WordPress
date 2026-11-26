@@ -216,6 +216,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 		switch ( $item[ 'key' ] ) {
 			case 'report_email':
 			case 'default_admin_user':
+			case 'admin_two_factor':
 				return $this->buildMappedCta( $href, $item[ 'action' ], $target );
 
 			case 'wp_updates':

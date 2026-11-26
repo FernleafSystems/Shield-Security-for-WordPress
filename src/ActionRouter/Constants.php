@@ -178,6 +178,7 @@ class Constants {
 		Actions\Render\Components\OffCanvas\IpAnalysis::class,
 		Actions\Render\Components\OffCanvas\CloakedPluginDetails::class,
 		Actions\Render\Components\OffCanvas\MaintenanceItemDetails::class,
+		Actions\Render\Components\OffCanvas\AdminTwoFactorDetails::class,
 		Actions\Render\Components\OffCanvas\ImportExportSitesAuthoriseUrls::class,
 		Actions\Render\Components\OffCanvas\IpRuleAddForm::class,
 		Actions\Render\Components\OffCanvas\FormReportCreate::class,

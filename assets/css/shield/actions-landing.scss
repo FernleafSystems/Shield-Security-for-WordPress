@@ -744,6 +744,17 @@ $aq-pro-bg: #f2ebfc;
 	display: grid;
 	gap: 12px;
 
+	// A list that could run long scrolls inside its box, so that the boxes after it stay within reach.
+	&__scroll {
+		max-height: 330px;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+
+		> .actions-queue-row:first-child {
+			border-top: 0;
+		}
+	}
+
 	&__body {
 		font-size: 14px;
 		padding: 12px 14px;

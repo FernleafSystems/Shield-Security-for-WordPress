@@ -29,6 +29,7 @@ class ActionsQueueItemIconsTest extends BaseUnitTest {
 		$this->assertSame( 'bi bi-eye-slash-fill', $icons->iconClassForScanKey( 'hidden_plugins' ) );
 		$this->assertSame( 'bi bi-eye-slash-fill', $icons->iconClassForKey( 'hidden_plugins' ) );
 		$this->assertSame( 'bi bi-code-slash', $icons->iconClassForKey( 'system_php_version' ) );
+		$this->assertSame( 'bi bi-person-fill-lock', $icons->iconClassForKey( 'admin_two_factor' ) );
 		$this->assertSame( $icons->iconClassForScanKey( 'plugins' ), PluginNavs::actionsLandingScanRailIconClass( 'plugins' ) );
 	}
 }

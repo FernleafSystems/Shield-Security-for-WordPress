@@ -192,6 +192,7 @@ class ActionsQueueGroupDefinitions {
 				'wp_updates',
 				'wp_db_password',
 				'default_admin_user',
+				'admin_two_factor',
 			],
 		],
 	];

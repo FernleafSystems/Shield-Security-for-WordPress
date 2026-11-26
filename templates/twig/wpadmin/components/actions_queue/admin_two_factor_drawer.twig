@@ -1,0 +1,122 @@
+{#
+	The "administrators without two-factor authentication" to-do, opened from its row in the Actions Queue. It's laid
+	out as the queue is: a box per subject, with people and methods as rows. The first row is about the person
+	looking and nobody else. The people box is left out when every administrator is covered.
+#}
+{% set viewer = vars.viewer %}
+<div class="actions-queue-drawer">
+	{% if viewer is not empty %}
+		<div class="actions-queue-box">
+			<div class="actions-queue-row actions-queue-row--item{% if viewer.is_protected %} actions-queue-row--good{% endif %}">
+				<span class="actions-queue-row__icon">
+					<i class="bi {{ viewer.is_protected ? 'bi-check-lg' : 'bi-shield-exclamation' }}" aria-hidden="true"></i>
+				</span>
+				<div class="actions-queue-row__copy">
+					<span class="actions-queue-row__title">{{ viewer.title }}</span>
+					{% if viewer.summary is not empty %}
+						<span class="actions-queue-row__desc">{{ viewer.summary }}</span>
+					{% endif %}
+				</div>
+				{% if viewer.setup_href is not empty %}
+					<span class="actions-queue-row__links">
+						<a href="{{ viewer.setup_href }}" class="actions-queue-row__button action">
+							<i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
+							{{ strings.set_up }}
+						</a>
+					</span>
+				{% endif %}
+			</div>
+		</div>
+	{% endif %}
+
+	{% if vars.unprotected is not empty %}
+		<div class="actions-queue-box">
+			<div class="actions-queue-box__head">
+				<i class="bi bi-people" aria-hidden="true"></i>{{ strings.unprotected }}
+				<span class="actions-queue-pill">{{ strings.tally }}</span>
+			</div>
+			{# A long list scrolls inside its box, so that what comes after it stays within reach. #}
+			<div class="actions-queue-drawer__scroll">
+				{% for admin in vars.unprotected %}
+					<div class="actions-queue-row actions-queue-row--item">
+						<span class="actions-queue-row__icon"><i class="bi bi-person" aria-hidden="true"></i></span>
+						<div class="actions-queue-row__copy">
+							<span class="actions-queue-row__title">
+								{{ admin.name }}
+								{% if admin.login is not empty %}
+									<span class="actions-queue-row__meta">{{ admin.login }}</span>
+								{% endif %}
+								{% if admin.is_viewer %}
+									<span class="actions-queue-pill">{{ strings.you }}</span>
+								{% endif %}
+							</span>
+							{% if admin.last_login is not empty %}
+								<span class="actions-queue-row__desc">{{ admin.last_login }}</span>
+							{% endif %}
+						</div>
+						{% if admin.href is not empty %}
+							<span class="actions-queue-row__links">
+								<a href="{{ admin.href }}" class="actions-queue-row__button action" target="_blank" rel="noopener noreferrer">
+									<i class="bi bi-person" aria-hidden="true"></i>
+									{{ strings.view_user }}
+								</a>
+							</span>
+						{% endif %}
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+
+	<div class="actions-queue-box">
+		<div class="actions-queue-box__head">
+			<i class="bi bi-sliders" aria-hidden="true"></i>{{ strings.config }}
+		</div>
+		{% for method in vars.methods %}
+			<div class="actions-queue-row actions-queue-row--item{% if method.is_enabled %} actions-queue-row--good{% endif %}">
+				<span class="actions-queue-row__icon">
+					<i class="{{ method.is_enabled ? 'bi bi-check-lg' : method.icon_class }}" aria-hidden="true"></i>
+				</span>
+				<div class="actions-queue-row__copy">
+					<span class="actions-queue-row__title">
+						{{ method.name }}
+						{% if method.example is not empty %}
+							<span class="actions-queue-row__meta">{{ method.example }}</span>
+						{% endif %}
+						{% if method.is_recommended %}
+							<span class="actions-queue-pill">{{ strings.recommended }}</span>
+						{% endif %}
+					</span>
+					{% if method.status is not empty %}
+						<span class="actions-queue-row__desc">{{ method.status }}</span>
+					{% endif %}
+				</div>
+				{% if method.is_pro_only %}
+					<span class="actions-queue-row__links">
+						{# Opens the same "what Pro adds" dialog as the plugin's other upgrade prompts. #}
+						<button type="button" class="shield-pro-only-button" data-pro-upsell="1" aria-haspopup="dialog" aria-controls="ShieldModalContainer"
+								aria-label="{{ strings.pro_only }}: {{ method.name }}">
+							<i class="bi bi-lock-fill" aria-hidden="true"></i>{{ strings.pro_only }}
+						</button>
+					</span>
+				{% elseif method.configure_href is not empty %}
+					<span class="actions-queue-row__links">
+						<a href="{{ method.configure_href }}" class="actions-queue-row__button action">
+							<i class="bi bi-sliders" aria-hidden="true"></i>
+							{{ method.configure_label }}
+						</a>
+					</span>
+				{% endif %}
+			</div>
+		{% endfor %}
+	</div>
+
+	<div class="actions-queue-box">
+		<div class="actions-queue-box__head">
+			<i class="bi bi-info-circle" aria-hidden="true"></i>{{ strings.why }}
+		</div>
+		<div class="actions-queue-drawer__body">
+			<p>{{ strings.why_text }}</p>
+		</div>
+	</div>
+</div>

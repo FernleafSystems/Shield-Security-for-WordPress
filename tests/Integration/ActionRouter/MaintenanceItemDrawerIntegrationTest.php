@@ -29,7 +29,9 @@ class MaintenanceItemDrawerIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_every_todo_explains_what_it_checks_and_why() :void {
 		$provider = new MaintenanceIssueStateProvider();
 		foreach ( PluginNavs::actionsLandingAssessmentDefinitions() as $definition ) {
-			if ( $definition[ 'zone' ] === 'maintenance' ) {
+			// A to-do with a drawer of its own explains itself there.
+			if ( $definition[ 'zone' ] === 'maintenance'
+				 && MaintenanceItemDetails::drawerFor( $definition[ 'key' ] ) === MaintenanceItemDetails::class ) {
 				$guidance = $provider->guidanceFor( $definition[ 'key' ] );
 				$this->assertNotSame( '', $guidance[ 'checks' ] ?? '', $definition[ 'key' ] );
 				$this->assertNotEmpty( $guidance[ 'why' ] ?? [], $definition[ 'key' ] );
@@ -60,6 +62,9 @@ class MaintenanceItemDrawerIntegrationTest extends ShieldIntegrationTestCase {
 		// Which checks pass depends on the PHP and the WordPress these tests run on, so each one that does is tried.
 		$provider = new MaintenanceIssueStateProvider();
 		foreach ( $provider->buildStates() as $key => $state ) {
+			if ( MaintenanceItemDetails::drawerFor( $key ) !== MaintenanceItemDetails::class ) {
+				continue;
+			}
 			$guidance = $provider->guidanceFor( $key );
 			$drawer = $this->drawerText( $key );
 			$this->assertStringContainsString( $guidance[ 'checks' ], $drawer, $key );

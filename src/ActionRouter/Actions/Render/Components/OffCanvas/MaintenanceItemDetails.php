@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\OperatorChromeContract;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\AdminTwoFactor;
 
 /**
  * One to-do, opened from its row in the Actions Queue: where it stands, what its check looks at, why that matters,
@@ -18,10 +19,25 @@ class MaintenanceItemDetails extends OffCanvasBase {
 	public const SLUG = 'offcanvas_maintenance_item';
 
 	/**
+	 * The to-dos with more to show than a check explained, each with the drawer of its own that it opens.
+	 */
+	private const OWN_DRAWERS = [
+		AdminTwoFactor::SLUG => AdminTwoFactorDetails::class,
+	];
+
+	/**
+	 * The drawer a to-do opens: its own where it has one, or else this one.
+	 * @return class-string<OffCanvasBase>
+	 */
+	public static function drawerFor( string $maintenanceKey ) :string {
+		return self::OWN_DRAWERS[ $maintenanceKey ] ?? self::class;
+	}
+
+	/**
 	 * The request a queue row makes for the drawer of the to-do it belongs to.
 	 */
 	public static function requestJsonFor( string $maintenanceKey ) :string {
-		return OperatorChromeContract::encodeJson( ActionData::BuildAjaxRender( self::class, [
+		return OperatorChromeContract::encodeJson( ActionData::BuildAjaxRender( self::drawerFor( $maintenanceKey ), [
 			'maintenance_key' => $maintenanceKey,
 		] ) );
 	}

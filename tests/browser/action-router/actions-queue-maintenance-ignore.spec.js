@@ -55,8 +55,8 @@ test( 'a to-do opens in its drawer from anywhere on its row, and from its name b
 		const row = section( page, 'review' ).locator( '.actions-queue-row:has([data-actions-queue-row-drawer])' ).first();
 		test.skip( await row.count() === 0, 'This site has no maintenance items.' );
 		const drawer = page.locator( '#AptoOffcanvas' );
-		// The item itself heads its drawer; a drawer that couldn't find the item has no such row.
-		const shownItem = drawer.locator( '.actions-queue-drawer .actions-queue-row--item' );
+		// A drawer that found its item lays it out in rows; one that couldn't has none.
+		const shownItem = drawer.locator( '.actions-queue-drawer .actions-queue-row--item' ).first();
 
 		// Off its name, at its icon, the row still opens it.
 		await row.click( { position: { x: 20, y: 20 } } );

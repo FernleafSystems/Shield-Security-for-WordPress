@@ -679,6 +679,13 @@ class PluginNavs {
 				'drill_bucket'          => 'review',
 			],
 			[
+				'key'                   => 'admin_two_factor',
+				'zone'                  => 'maintenance',
+				'component_class'       => Component\AdminTwoFactor::class,
+				'availability_strategy' => 'always',
+				'drill_bucket'          => 'review',
+			],
+			[
 				'key'                   => 'wp_updates',
 				'zone'                  => 'maintenance',
 				'component_class'       => Component\WpUpdates::class,

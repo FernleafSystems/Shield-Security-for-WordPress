@@ -134,6 +134,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 'maintenance_wordpress', $definitions->reviewMaintenanceGroupKeyForItemKey( 'wp_updates' ) );
 		$this->assertSame( 'maintenance_wordpress', $definitions->reviewMaintenanceGroupKeyForItemKey( 'wp_db_password' ) );
 		$this->assertSame( 'maintenance_wordpress', $definitions->reviewMaintenanceGroupKeyForItemKey( 'default_admin_user' ) );
+		$this->assertSame( 'maintenance_wordpress', $definitions->reviewMaintenanceGroupKeyForItemKey( 'admin_two_factor' ) );
 		$this->assertSame( 'wp_plugins_updates', $definitions->reviewMaintenanceGroupKeyForItemKey( 'wp_plugins_updates' ) );
 		$this->assertTrue( $definitions->isReviewMaintenanceAggregateGroupKey( 'maintenance_system' ) );
 		$this->assertTrue( $definitions->isReviewMaintenanceAggregateGroupKey( 'maintenance_wordpress' ) );
