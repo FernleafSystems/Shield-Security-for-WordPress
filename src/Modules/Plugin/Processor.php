@@ -5,13 +5,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\Ops\Record as IpRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Events;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\Rename\RenameLogin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Password\UserPasswordHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Registration\EmailValidate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\UserSessionHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
+use FernleafSystems\Wordpress\Plugin\Shield\Users\{
+	BulkUpdateUserMeta,
+	UserMetas
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class Processor {
@@ -19,6 +24,12 @@ class Processor {
 	use ExecOnce;
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
+
+	/**
+	 * The IP addresses the people on the Users screen were last known at, by record ID, once they've been loaded.
+	 * @var array<int,IpRecord>|null
+	 */
+	private ?array $listedUsersIps = null;
 
 	public function __construct() {
 		$this->setupCronHooks();
@@ -152,6 +163,9 @@ class Processor {
 			add_filter( 'manage_users_custom_column', function ( $content, $colName, $userID ) use ( $customColName ) {
 
 				if ( $colName === $customColName ) {
+					// Everybody on the page is loaded together, as its first row is drawn.
+					$ips = $this->listedUsersIps ??= $this->preloadListedUsers();
+
 					$user = Services::WpUsers()->getUserById( $userID );
 					if ( $user instanceof \WP_User ) {
 						$con = self::con();
@@ -162,8 +176,9 @@ class Processor {
 										  ->carbon()
 										  ->setTimestamp( $lastLoginAt );
 
-						/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\Ops\Record $ip */
-						$ip = $con->db_con->ips->getQuerySelector()->byId( $meta->record->ip_ref );
+						$ipRef = (int)$meta->record->ip_ref;
+						/** @var IpRecord|null $ip */
+						$ip = $ips[ $ipRef ] ?? ( $ipRef > 0 ? $con->db_con->ips->getQuerySelector()->byId( $ipRef ) : null );
 
 						$content = \implode( '<br/>', \array_filter( \array_map(
 							/**
@@ -192,5 +207,34 @@ class Processor {
 		}
 
 		return $cols;
+	}
+
+	/**
+	 * Loads what the Users screen shows of everybody on its page, in a few queries where each row would otherwise
+	 * make a few of its own. Nobody is given a record for being listed.
+	 * @return array<int,IpRecord> the IP addresses those people were last known at, by record ID
+	 */
+	private function preloadListedUsers() :array {
+		$con = self::con();
+		$table = $GLOBALS[ 'wp_list_table' ] ?? null;
+		$users = \array_filter(
+			$table instanceof \WP_List_Table && \is_array( $table->items ) ? $table->items : [],
+			static fn( $item ) :bool => $item instanceof \WP_User
+		);
+		$con->user_metas->preload( $users );
+		( new MfaRecordsHandler() )->preload( $users );
+
+		$ipRefs = \array_values( \array_unique( \array_filter( \array_map(
+			static fn( \WP_User $user ) :int => (int)$con->user_metas->for( $user )->record->ip_ref,
+			$users
+		) ) ) );
+		$ips = [];
+		foreach ( \array_chunk( $ipRefs, UserMetas::PRELOAD_BATCH ) as $batch ) {
+			/** @var IpRecord $ip */
+			foreach ( $con->db_con->ips->getQuerySelector()->addWhereIn( 'id', $batch )->queryWithResult() ?? [] as $ip ) {
+				$ips[ $ip->id ] = $ip;
+			}
+		}
+		return $ips;
 	}
 }
