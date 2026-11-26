@@ -149,7 +149,7 @@ class ShieldWorpdriveFilesystem implements WorpdriveFilesystem {
 	private function isWritable( string $path ) :bool {
 		$wpfs = Services::WpFs()->fs();
 		return ( $wpfs && \method_exists( $wpfs, 'is_writable' ) && $wpfs->is_writable( $path ) )
-			   || \is_writable( $path );
+			   || \is_writable( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- Fallback when WP_Filesystem can't answer. The WorpDrive client writes with direct PHP calls, so direct writability is what counts.
 	}
 
 	/**
@@ -182,7 +182,7 @@ class ShieldWorpdriveFilesystem implements WorpdriveFilesystem {
 
 	private function writeContentExclusive( string $path, string $contents, bool &$created ) :bool {
 		$created = false;
-		$handle = @\fopen( $path, 'xb' );
+		$handle = @\fopen( $path, 'xb' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- 'x' mode creates the probe only if nothing exists at the path, which WP_Filesystem can't do. The probe has to test direct PHP writes, which is how the WorpDrive client writes its files.
 		if ( !\is_resource( $handle ) ) {
 			return false;
 		}
@@ -194,7 +194,7 @@ class ShieldWorpdriveFilesystem implements WorpdriveFilesystem {
 			return $success;
 		}
 		finally {
-			\fclose( $handle );
+			\fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closes the probe handle opened with fopen() above.
 			if ( !$success && $this->isFile( $path ) ) {
 				$this->deleteOwnedFile( $path );
 			}
@@ -203,7 +203,7 @@ class ShieldWorpdriveFilesystem implements WorpdriveFilesystem {
 
 	private function writeRandomBytesExclusive( string $path, int $size, bool &$created ) :bool {
 		$created = false;
-		$handle = @\fopen( $path, 'xb' );
+		$handle = @\fopen( $path, 'xb' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- 'x' mode creates the probe only if nothing exists at the path, which WP_Filesystem can't do. The probe has to test direct PHP writes, which is how the WorpDrive client writes its files.
 		if ( !\is_resource( $handle ) ) {
 			return false;
 		}
@@ -223,7 +223,7 @@ class ShieldWorpdriveFilesystem implements WorpdriveFilesystem {
 			return true;
 		}
 		finally {
-			\fclose( $handle );
+			\fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closes the probe handle opened with fopen() above.
 			if ( !$success && $this->isFile( $path ) ) {
 				$this->deleteOwnedFile( $path );
 			}
@@ -237,7 +237,7 @@ class ShieldWorpdriveFilesystem implements WorpdriveFilesystem {
 		$length = \strlen( $contents );
 		$written = 0;
 		while ( $written < $length ) {
-			$bytes = \fwrite( $handle, \substr( $contents, $written ) );
+			$bytes = \fwrite( $handle, \substr( $contents, $written ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- Writes to the probe handle opened with fopen() above.
 			if ( $bytes === false || $bytes < 1 ) {
 				return false;
 			}
@@ -269,7 +269,7 @@ class ShieldWorpdriveFilesystem implements WorpdriveFilesystem {
 	private function deleteOwnedEmptyDirs( array $dirs ) :void {
 		foreach ( \array_reverse( $dirs ) as $dir ) {
 			if ( $dir !== '' && \is_dir( $dir ) ) {
-				@\rmdir( $dir );
+				@\rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Removes only the empty directories this probe created. A directory that isn't empty fails quietly and stays.
 			}
 		}
 	}

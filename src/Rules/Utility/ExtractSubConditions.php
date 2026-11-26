@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class ExtractSubConditions {
 
@@ -63,7 +64,7 @@ class ExtractSubConditions {
 			$callables[] = $conditionsVO->conditions;
 		}
 		else {
-			error_log( 'SHOULD NEVER GET HERE.' );
+			ErrorLog::write( 'SHOULD NEVER GET HERE.' );
 		}
 
 		return [

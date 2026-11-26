@@ -68,6 +68,9 @@ catch ( Controller\Exceptions\PluginConfigInvalidException $e ) {
 	} );
 }
 catch ( \Exception $e ) {
+	// Direct calls, not the ErrorLog helper: after a failed upgrade, Shield's own classes may be missing.
+	// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Last-resort report that the plugin failed to load.
 	error_log( 'Perhaps due to a failed upgrade, the Shield plugin failed to load certain component(s) - you should remove the plugin and reinstall.' );
 	error_log( $e->getMessage() );
+	// phpcs:enable WordPress.PHP.DevelopmentFunctions.error_log_error_log
 }

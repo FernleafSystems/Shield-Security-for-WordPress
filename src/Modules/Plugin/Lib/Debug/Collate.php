@@ -286,7 +286,7 @@ class Collate {
 
 	private function getServiceIPs() :array {
 		return [
-			'ips' => var_export( Services::ServiceProviders()->getProviders(), true ),
+			'ips' => (string)wp_json_encode( Services::ServiceProviders()->getProviders(), \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES ),
 		];
 	}
 

@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 abstract class BaseAutoUnblock {
 
@@ -94,7 +95,7 @@ abstract class BaseAutoUnblock {
 				->updateSignalField( 'unblocked_at' );
 		}
 		catch ( \LogicException $e ) {
-			error_log( 'Error updating bot signal with column problem: '.$e->getMessage() );
+			ErrorLog::write( 'Error updating bot signal with column problem: '.$e->getMessage() );
 		}
 		catch ( \Exception $e ) {
 		}

@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class LocalDbWriter extends AbstractProcessingHandler {
 
@@ -155,7 +156,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	}
 
 	private function logActivityFailureMessage( string $message ) :void {
-		error_log( 'Shield activity log write failed: '.$this->formatLogContext( \array_merge(
+		ErrorLog::write( 'Shield activity log write failed: '.$this->formatLogContext( \array_merge(
 			[
 				'message'  => $message,
 				'db_error' => $this->currentDbError(),

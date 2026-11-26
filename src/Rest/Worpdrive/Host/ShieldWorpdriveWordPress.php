@@ -67,7 +67,8 @@ class ShieldWorpdriveWordPress implements WorpdriveWordPress {
 	}
 
 	public function version() :string {
-		return \function_exists( 'wp_get_wp_version' ) ? wp_get_wp_version() : \get_bloginfo( 'version' );
+		// Unqualified on purpose: Plugin Check recognises the guard for this WordPress 6.7 function only in this form.
+		return function_exists( 'wp_get_wp_version' ) ? wp_get_wp_version() : \get_bloginfo( 'version' );
 	}
 
 	public function scriptFilename() :string {

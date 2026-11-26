@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Step
 use FernleafSystems\Wordpress\Plugin\Shield\Profiles\CompareLevelWithCurrent;
 use FernleafSystems\Wordpress\Plugin\Shield\Profiles\Levels;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class ApplySecurityProfile extends Base {
 
@@ -28,7 +29,7 @@ class ApplySecurityProfile extends Base {
 				$resp->message = sprintf( __( "Profile '%s' was applied.", 'wp-simple-firewall' ), $con->comps->security_profiles->meta( $level )[ 'title' ] );
 			}
 			catch ( \Exception $e ) {
-				error_log( $e->getMessage() );
+				ErrorLog::write( $e->getMessage() );
 				$resp->success = false;
 				$resp->message = $resp->error = __( 'An unsupported profile was selected', 'wp-simple-firewall' );
 			}

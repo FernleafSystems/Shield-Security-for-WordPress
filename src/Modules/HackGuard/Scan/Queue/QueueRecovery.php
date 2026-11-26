@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class QueueRecovery {
 
@@ -82,7 +83,7 @@ class QueueRecovery {
 			self::MAX_RESUME_ATTEMPTS
 		);
 		if ( !$recovery[ 'persistence_succeeded' ] ) {
-			error_log( \sprintf(
+			ErrorLog::write( \sprintf(
 				'Shield scan recovery persistence failed: scan_id=%d phase=ready-unstarted',
 				(int)$scan->id
 			) );

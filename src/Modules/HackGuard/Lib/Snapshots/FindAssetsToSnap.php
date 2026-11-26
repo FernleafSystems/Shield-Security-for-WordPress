@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpThemeVo
 };
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class FindAssetsToSnap {
 
@@ -90,6 +91,6 @@ class FindAssetsToSnap {
 	}
 
 	private function logInvalid( string $type ) :void {
-		error_log( \sprintf( 'Shield snapshot inventory skipped an invalid %s asset.', $type ) );
+		ErrorLog::write( \sprintf( 'Shield snapshot inventory skipped an invalid %s asset.', $type ) );
 	}
 }

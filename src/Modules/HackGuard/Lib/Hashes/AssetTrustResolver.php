@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\{
 	Plugin,
 	Theme
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class AssetTrustResolver {
 
@@ -359,7 +360,7 @@ class AssetTrustResolver {
 
 			if ( \count( $candidates ) > 1 ) {
 				self::$plugins[ $cacheKey ] = self::AMBIGUOUS_PLUGIN;
-				error_log( \sprintf(
+				ErrorLog::write( \sprintf(
 					'Shield AFS skipped ambiguous plugin ownership: dir=%s; candidate_count=%d; candidates=%s',
 					$dir,
 					\count( $candidates ),

@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class RunState {
 
@@ -52,7 +53,7 @@ class RunState {
 
 	public function markFailed( int $scanID, string $failureMessage = '' ) :void {
 		$now = Services::Request()->ts();
-		error_log( \sprintf(
+		ErrorLog::write( \sprintf(
 			'Shield scan marked failed: scan_id=%d message=%s',
 			$scanID,
 			$failureMessage

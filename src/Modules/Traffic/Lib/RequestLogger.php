@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops as ReqLogsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class RequestLogger {
 	use ExecOnce;
@@ -75,7 +76,7 @@ class RequestLogger {
 				$this->getLogger()->log( 'debug', 'log request' );
 			}
 			catch ( \Exception $e ) {
-				error_log( $e->getMessage() );
+				ErrorLog::write( $e->getMessage() );
 			}
 			finally {
 				$this->hasLogged = true;

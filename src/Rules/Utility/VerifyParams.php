@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	ParametersMissingException
 };
 use IPLib\Factory;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class VerifyParams {
 
@@ -89,9 +90,9 @@ class VerifyParams {
 			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Validation text: ParseRuleBuilderForm passes it to the rule builder template, where Twig escapes it, and ResponseProcessor ignores it.
 			throw new ParameterIncorrectTypeException( empty( $invalidMsg ) ? sprintf( 'Incorrect parameter type: %s, %s, %s, %s',
 				$paramName,
-				var_export( $paramValue, true ),
+				ErrorLog::describe( $paramValue ),
 				\gettype( $paramValue ),
-				var_export( $def, true )
+				ErrorLog::describe( $def )
 			) : $invalidMsg );
 			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}

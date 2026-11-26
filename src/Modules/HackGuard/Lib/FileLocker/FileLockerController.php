@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Uti
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 /**
  * @phpstan-import-type State from FileLockerState as FileLockerStateData
@@ -228,12 +229,12 @@ class FileLockerController {
 				catch ( NoFileLockPathsExistException|UnsupportedFileLockType $e ) {
 					// Remove selections that cannot produce a file lock on this site.
 					self::con()->opts->optSet( 'file_locker', \array_diff( $this->getFilesToLock(), [ $type ] ) );
-					error_log( $e->getMessage() );
+					ErrorLog::write( $e->getMessage() );
 				}
 				catch ( \Exception $e ) {
 					$state[ 'last_error' ] = $e->getMessage();
 					$state[ 'last_locks_created_failed_at' ] = $now;
-					error_log( $e->getMessage() );
+					ErrorLog::write( $e->getMessage() );
 					break;
 				}
 			}

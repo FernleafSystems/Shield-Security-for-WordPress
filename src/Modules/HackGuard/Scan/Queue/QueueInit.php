@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\PopulateScanItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class QueueInit {
 
@@ -43,7 +44,7 @@ class QueueInit {
 		}
 
 		if ( $scanRecord->status !== ScanStatus::QUEUED || (int)$scanRecord->finished_at > 0 ) {
-			error_log( \sprintf(
+			ErrorLog::write( \sprintf(
 				'Shield scan build skipped: scan_id=%d status=%s finished_at=%d',
 				$scanID,
 				(string)$scanRecord->status,

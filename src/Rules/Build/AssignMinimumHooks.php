@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Utility\ExtractSubConditions,
 	WPHooksOrder
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 /**
  * Assigns the most appropriate WP Hook to a rule based on its (sub)conditions.
@@ -35,7 +36,7 @@ class AssignMinimumHooks {
 			}
 			catch ( \Exception $e ) {
 				$rule->is_valid = false;
-				error_log( sprintf( '[Rule::%s] %s', $rule->slug, $e->getMessage() ) );
+				ErrorLog::write( sprintf( '[Rule::%s] %s', $rule->slug, $e->getMessage() ) );
 			}
 		}
 	}

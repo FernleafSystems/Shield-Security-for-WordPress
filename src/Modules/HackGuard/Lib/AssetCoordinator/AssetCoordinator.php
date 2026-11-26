@@ -24,6 +24,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpThemeVo
 };
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class AssetCoordinator {
 
@@ -269,7 +270,7 @@ class AssetCoordinator {
 			$maintenance = ( new TouchAll() )->run();
 		}
 		catch ( \Throwable $e ) {
-			error_log( 'Shield asset coordinator snapshot discovery failed: '.$e->getMessage() );
+			ErrorLog::write( 'Shield asset coordinator snapshot discovery failed: '.$e->getMessage() );
 			return false;
 		}
 
@@ -283,7 +284,7 @@ class AssetCoordinator {
 			}
 		}
 		if ( !$maintenance[ 'touches_succeeded' ] ) {
-			error_log( 'Shield asset coordinator snapshot retention touch failed.' );
+			ErrorLog::write( 'Shield asset coordinator snapshot retention touch failed.' );
 		}
 		return $maintenance[ 'touches_succeeded' ];
 	}
@@ -335,7 +336,7 @@ class AssetCoordinator {
 				( new ScheduleBuildAll() )->build( 'sha256' );
 			}
 			catch ( \Throwable $e ) {
-				error_log( 'Shield asset coordinator snapshot build failed: '.$e->getMessage() );
+				ErrorLog::write( 'Shield asset coordinator snapshot build failed: '.$e->getMessage() );
 			}
 			$this->clearBuildIntent();
 		}
@@ -393,7 +394,7 @@ class AssetCoordinator {
 		}
 
 		if ( \wp_schedule_single_event( $nextDue, $this->cronHook(), [ $nextDue ] ) === false ) {
-			error_log( 'Shield asset coordinator could not schedule its wakeup.' );
+			ErrorLog::write( 'Shield asset coordinator could not schedule its wakeup.' );
 		}
 	}
 
@@ -478,7 +479,7 @@ class AssetCoordinator {
 			}
 		}
 		catch ( \Throwable $e ) {
-			error_log( 'Shield scan-result notification readiness signal failed: '.\substr(
+			ErrorLog::write( 'Shield scan-result notification readiness signal failed: '.\substr(
 				(string)\preg_replace( '#\s+#', ' ', $e->getMessage() ),
 				0,
 				300
@@ -517,7 +518,7 @@ class AssetCoordinator {
 	}
 
 	private function logExhausted( string $type, string $key, ?\Throwable $error ) :void {
-		error_log( \sprintf(
+		ErrorLog::write( \sprintf(
 			'Shield asset coordinator exhausted %s%s after %d attempts%s',
 			$type,
 			$key === '' ? '' : ':'.$key,
@@ -604,11 +605,11 @@ class AssetCoordinator {
 				$stored = $this->normalizeState( $this->readRawPersistedState() ?? [] );
 			}
 			catch ( \Throwable $e ) {
-				error_log( 'Shield asset coordinator could not verify imported legacy work.' );
+				ErrorLog::write( 'Shield asset coordinator could not verify imported legacy work.' );
 				return;
 			}
 			if ( !$this->hasImportedLegacyWork( $stored, $expectedState, $importedAssets, $importedBuild, $importedWpvAt ) ) {
-				error_log( 'Shield asset coordinator could not verify imported legacy work.' );
+				ErrorLog::write( 'Shield asset coordinator could not verify imported legacy work.' );
 				return;
 			}
 		}
@@ -761,7 +762,7 @@ class AssetCoordinator {
 		catch ( \Throwable $e ) {
 		}
 
-		error_log( 'Shield asset coordinator state write failed.' );
+		ErrorLog::write( 'Shield asset coordinator state write failed.' );
 		return false;
 	}
 
@@ -964,7 +965,7 @@ class AssetCoordinator {
 		$assetKey = (string)\preg_replace( '#[^\x20-\x7e]#', '?', $assetKey );
 		$assetKey = \substr( $assetKey, 0, 160 );
 
-		error_log( \sprintf(
+		ErrorLog::write( \sprintf(
 			'Shield full-scan snapshot preparation failed: type=%s key=%s message=%s',
 			$assetType,
 			$assetKey,

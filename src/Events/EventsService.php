@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Events;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\NormaliseLogLevel;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class EventsService {
 
@@ -44,7 +45,7 @@ class EventsService {
 
 		if ( empty( $def ) && !empty( $metaParams ) ) {
 			/* translators: %s: event name */
-			error_log( sprintf( __( 'WARNING: Event (%s) receives params but none are defined.', 'wp-simple-firewall' ), $event ) );
+			ErrorLog::write( sprintf( __( 'WARNING: Event (%s) receives params but none are defined.', 'wp-simple-firewall' ), $event ) );
 		}
 		elseif ( !empty( $def ) ) {
 
@@ -105,7 +106,7 @@ class EventsService {
 		}
 		if ( empty( $this->events ) ) {
 			/* translators: %s: plugin name */
-			error_log( sprintf( __( '%s event definitions are empty or not in the correct format.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
+			ErrorLog::write( sprintf( __( '%s event definitions are empty or not in the correct format.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 
 		try {

@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Dif
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Snapper\SnapUsers;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 /**
  * There are a few pathways to updating User passwords, so we try to capture them all, but not duplicate logs.
@@ -244,7 +245,7 @@ class Users extends Base {
 			if ( empty( $user ) ) {
 				// Bail out.
 				/* translators: %s: user ID */
-				error_log( sprintf( __( 'Inconsistency: A user ID was passed to "profile_update" but no such user was found: %s', 'wp-simple-firewall' ), $userID ) );
+				ErrorLog::write( sprintf( __( 'Inconsistency: A user ID was passed to "profile_update" but no such user was found: %s', 'wp-simple-firewall' ), $userID ) );
 				return;
 			}
 

@@ -8,15 +8,6 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 	}
 }
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
-
-if ( !\function_exists( __NAMESPACE__.'\\error_log' ) ) {
-	function error_log( string $message ) :bool {
-		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue\Support\QueueLifecycleLogSpy::record( $message );
-		return true;
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue;
 
 use Brain\Monkey\Functions;
@@ -37,11 +28,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	ReconcileQueue,
 	RunState
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ErrorLogCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue\Support\{
-	QueueLifecycleLogSpy,
-	ScanQueueLifecycleHarness
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue\Support\ScanQueueLifecycleHarness;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState,
@@ -52,17 +41,19 @@ use FernleafSystems\Wordpress\Services\Core\Db;
 class QueueRuntimeBehaviorTest extends BaseUnitTest {
 
 	private array $servicesSnapshot = [];
+	private ErrorLogCapture $errorLog;
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->errorLog = ErrorLogCapture::start();
 		$this->servicesSnapshot = ServicesState::snapshot();
-		QueueLifecycleLogSpy::reset();
 		QueueHeartbeat::resetRuntimeCache();
 	}
 
 	protected function tearDown() :void {
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
+		$this->errorLog->stop();
 		parent::tearDown();
 	}
 
@@ -441,7 +432,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'Unknown scan slug: bad', $message );
 		$this->assertStringNotContainsString( 'old failure', $message );
 		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'finished_at' ] );
-		$this->assertTrue( QueueLifecycleLogSpy::contains(
+		$this->assertTrue( $this->errorLog->contains(
 			\sprintf(
 				'Shield scan processing exception: scan_id=%d qitem_id=%d scan=bad message=Unknown scan slug: bad',
 				$scanID,

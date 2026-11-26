@@ -1,5 +1,12 @@
 <?php declare( strict_types=1 );
 
+/*
+ * No direct-access (ABSPATH) guard, on purpose. This file only declares functions, so requesting it directly
+ * runs nothing and prints nothing. Composer's autoloader also loads it into command-line tools that run outside
+ * WordPress (PHPUnit, PHPStan, the build scripts), and an ABSPATH guard would end those silently.
+ * Plugin Check reports the missing guard regardless; that finding is accepted in tests/plugin-check/baseline.json.
+ */
+
 namespace FernleafSystems\Wordpress\Plugin\Shield\Functions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;

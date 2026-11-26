@@ -1,20 +1,12 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
-
-if ( !\function_exists( __NAMESPACE__.'\\error_log' ) ) {
-	function error_log( string $message ) :bool {
-		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\ScansCronStartLogSpy::record( $message );
-		return true;
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ErrorLogCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -25,11 +17,12 @@ use FernleafSystems\Wordpress\Services\Core\General;
 class ScansControllerCronStartTest extends BaseUnitTest {
 
 	private array $servicesSnapshot = [];
+	private ErrorLogCapture $errorLog;
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->errorLog = ErrorLogCapture::start();
 		$this->servicesSnapshot = ServicesState::snapshot();
-		ScansCronStartLogSpy::reset();
 		Functions\when( '__' )->returnArg();
 		ServicesState::installItems( [
 			'service_wpgeneral' => new class extends General {
@@ -43,6 +36,7 @@ class ScansControllerCronStartTest extends BaseUnitTest {
 	protected function tearDown() :void {
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
+		$this->errorLog->stop();
 		parent::tearDown();
 	}
 
@@ -55,7 +49,7 @@ class ScansControllerCronStartTest extends BaseUnitTest {
 		$this->assertSame( [ $state->scanCons ], $scans->startCalls );
 		$this->assertSame( [ [ 'key' => 'is_scan_cron', 'value' => true ] ], $state->opts->sets );
 		$this->assertSame( 1, $state->opts->stores );
-		$this->assertSame( [], ScansCronStartLogSpy::$messages );
+		$this->assertSame( [], $this->errorLog->messages() );
 	}
 
 	public function test_run_cron_logs_nothing_when_all_requested_scans_are_already_active() :void {
@@ -70,7 +64,7 @@ class ScansControllerCronStartTest extends BaseUnitTest {
 		$scans->runCron();
 
 		$this->assertSame( [ $state->scanCons ], $scans->startCalls );
-		$this->assertSame( [], ScansCronStartLogSpy::$messages );
+		$this->assertSame( [], $this->errorLog->messages() );
 	}
 
 	public function test_run_cron_still_logs_real_start_failures() :void {
@@ -82,7 +76,7 @@ class ScansControllerCronStartTest extends BaseUnitTest {
 
 		$scans->runCron();
 
-		$this->assertSame( [ 'Shield scan start failures: wpv:create_failed' ], ScansCronStartLogSpy::$messages );
+		$this->assertSame( [ 'Shield scan start failures: wpv:create_failed' ], $this->errorLog->messages() );
 	}
 
 	private function installController( ?StartScansResult $startResult = null ) :object {
@@ -107,19 +101,6 @@ class ScansControllerCronStartTest extends BaseUnitTest {
 			'opts'     => $opts,
 			'scanCons' => $scanCons,
 		];
-	}
-}
-
-class ScansCronStartLogSpy {
-
-	public static array $messages = [];
-
-	public static function reset() :void {
-		self::$messages = [];
-	}
-
-	public static function record( string $message ) :void {
-		self::$messages[] = $message;
 	}
 }
 

@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\MainwpBa
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
 use MainWP\Dashboard\MainWP_Connect;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 abstract class BaseSiteMwpAction extends MainwpBase {
 
@@ -46,7 +47,7 @@ abstract class BaseSiteMwpAction extends MainwpBase {
 				self::con()->action_router->action( SiteActionSync::class, $this->action_data );
 			}
 			catch ( ActionException $e ) {
-				error_log( $e->getMessage() );
+				ErrorLog::write( $e->getMessage() );
 			}
 		}
 	}

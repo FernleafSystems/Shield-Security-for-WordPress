@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCapt
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class BotEventListener {
 
@@ -39,7 +40,7 @@ class BotEventListener {
 					->updateSignalFields( $signalFields );
 			}
 			catch ( \LogicException $e ) {
-				error_log( 'Error updating bot signal with column problem: '.$e->getMessage() );
+				ErrorLog::write( 'Error updating bot signal with column problem: '.$e->getMessage() );
 			}
 			catch ( \Exception $e ) {
 			}

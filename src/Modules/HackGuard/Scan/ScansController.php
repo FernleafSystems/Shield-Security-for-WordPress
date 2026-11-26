@@ -24,6 +24,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\{
 	RetrieveMalwareMalaiStatus
 };
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class ScansController {
 	public const HOOK_POST_SCAN = 'post_scan';
@@ -160,7 +161,7 @@ class ScansController {
 			return !self::con()->comps->asset_coordinator->hasRetryableAssetWork();
 		}
 		catch ( \Throwable $e ) {
-			error_log( 'Shield scan-result notification readiness check failed: '.\substr(
+			ErrorLog::write( 'Shield scan-result notification readiness check failed: '.\substr(
 				(string)\preg_replace( '#\s+#', ' ', $e->getMessage() ),
 				0,
 				300
@@ -212,12 +213,12 @@ class ScansController {
 			self::con()->opts->optSet( 'is_scan_cron', true )->store();
 			$result = $this->startNewScans( $this->getAllScanCons() );
 			if ( $result->hasFailures() ) {
-				error_log( $result->getFailureLogMessage() );
+				ErrorLog::write( $result->getFailureLogMessage() );
 			}
 		}
 		else {
 			/* translators: %s: plugin name */
-			error_log( sprintf( __( '%s scans cannot execute.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
+			ErrorLog::write( sprintf( __( '%s scans cannot execute.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 	}
 

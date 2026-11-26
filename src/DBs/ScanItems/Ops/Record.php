@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
+
 /**
  * @property int   $scan_ref
  * @property array<array-key,mixed> $items
@@ -60,7 +62,7 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 				$json = \wp_json_encode( $value );
 				if ( !\is_string( $json ) ) {
 					$json = \wp_json_encode( [] );
-					error_log( 'problem encoding json for: '.var_export( $value, true ) );
+					ErrorLog::write( 'problem encoding json for: '.ErrorLog::describe( $value ) );
 				}
 				$value = \base64_encode( $json );
 				break;

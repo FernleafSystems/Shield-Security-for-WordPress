@@ -25,7 +25,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\{
 	Processing\AssetTrustState,
 	ScanActionVO
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
+	ErrorLogCapture,
+	TempDirLifecycleTrait
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard\Scan\Support\AfsAssetChangeIntegrationSupport;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\CacheDirHandler;
@@ -131,17 +134,17 @@ class ScanHashCacheIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_api_miss_is_quiet_and_preserves_existing_failure_result( bool $trusted ) :void {
 		$this->writeSnapshot( $trusted );
 		$this->hashes = [];
-		$log = $this->createTrackedTempFile( 'shield-scan-hash-errors-', '.log' );
-		$previousLog = \ini_set( 'error_log', $log );
+		$errorLog = ErrorLogCapture::start();
 		$action = $this->fullAction();
 		try {
 			$action->asset_snapshot_eligibility = $this->requireController()->comps->asset_coordinator
 				->prepareFullScanSnapshotEligibility( [ $this->plugin ], static function () :void {} );
+			$logged = $errorLog->messages();
 		}
 		finally {
-			\ini_set( 'error_log', $previousLog );
+			$errorLog->stop();
 		}
-		$this->assertSame( '', \file_get_contents( $log ) );
+		$this->assertSame( [], $logged );
 		$resolver = new AssetTrustResolver();
 		$context = $resolver->resolveCurrentContext( $this->path );
 		$data = ( new ScanHashCache() )->read( $context );
@@ -163,15 +166,19 @@ class ScanHashCacheIntegrationTest extends ShieldIntegrationTestCase {
 	/** @dataProvider provideHttpFailures */
 	public function test_real_request_error_is_logged_once_and_snapshot_copy_is_written( string $failure ) :void {
 		$this->httpFailure = $failure;
-		$log = $this->createTrackedTempFile( 'shield-scan-hash-request-errors-', '.log' );
-		$previousLog = \ini_set( 'error_log', $log );
+		$errorLog = ErrorLogCapture::start();
 		try {
 			( new ScanHashCache() )->fill( $this->plugin );
+			$logged = $errorLog->messages();
 		}
 		finally {
-			\ini_set( 'error_log', $previousLog );
+			$errorLog->stop();
 		}
-		$this->assertSame( 1, \substr_count( \file_get_contents( $log ), 'Shield scan hash cache fill failed:' ), \file_get_contents( $log ) );
+		$fillFailures = \array_filter(
+			$logged,
+			static fn( string $message ) :bool => \strpos( $message, 'Shield scan hash cache fill failed:' ) === 0
+		);
+		$this->assertCount( 1, $fillFailures, \implode( "\n", $logged ) );
 		$context = ( new AssetTrustResolver() )->resolveCurrentContext( $this->path );
 		$this->assertSame( 'snapshot', ( new ScanHashCache() )->read( $context )[ 'meta' ][ 'source' ] );
 		$this->assertCount( 1, $this->requests );

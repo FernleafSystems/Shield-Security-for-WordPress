@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO as AfsScanActionVO;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class PopulateScanItems {
 
@@ -54,7 +55,7 @@ class PopulateScanItems {
 					}
 				}
 				catch ( \Throwable $e ) {
-					error_log( \sprintf( 'Shield scan hash cache asset lookup failed: type=%s key=%s message=%s',
+					ErrorLog::write( \sprintf( 'Shield scan hash cache asset lookup failed: type=%s key=%s message=%s',
 						$scanActionVO->scope_type, $scanActionVO->scope_key, $e->getMessage() ) );
 				}
 			}

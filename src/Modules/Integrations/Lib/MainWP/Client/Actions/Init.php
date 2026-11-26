@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class Init {
 
@@ -66,7 +67,7 @@ class Init {
 					}
 					catch ( \Throwable $e ) {
 						// A fault in the action, not a refusal. The dashboard still gets a controlled response.
-						\error_log( \sprintf( 'Shield MainWP action %s failed: %s', $actionSlug, $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Deliberate: records an unexpected fault for the site owner's error log.
+						ErrorLog::write( \sprintf( 'Shield MainWP action %s failed: %s', $actionSlug, $e->getMessage() ) );
 						$response = [
 							'success' => false,
 							'message' => 'Client site action failed.',

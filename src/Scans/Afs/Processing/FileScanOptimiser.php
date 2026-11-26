@@ -205,7 +205,7 @@ class FileScanOptimiser {
 		catch ( \Throwable $e ) {
 			$dir = '';
 		}
-		return $dir !== '' && \is_dir( $dir ) && \is_writable( $dir ) ? $dir : '';
+		return $dir !== '' && \is_dir( $dir ) && \is_writable( $dir ) ? $dir : ''; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- The cache is written with direct PHP calls, so direct writability decides whether it's usable.
 	}
 
 	private function existingOptimiserCacheRoot() :string {
@@ -220,7 +220,7 @@ class FileScanOptimiser {
 		catch ( \Throwable $e ) {
 			$dir = '';
 		}
-		return $dir !== '' && \is_dir( $dir ) && \is_writable( $dir ) ? $dir : '';
+		return $dir !== '' && \is_dir( $dir ) && \is_writable( $dir ) ? $dir : ''; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- The cache is written with direct PHP calls, so direct writability decides whether it's usable.
 	}
 
 	private function existingKnownValidRecordDir() :string {
@@ -348,7 +348,7 @@ class FileScanOptimiser {
 			$records
 		);
 		if ( \file_put_contents( $tmp, \implode( "\n", $lines ).( empty( $lines ) ? '' : "\n" ), \LOCK_EX ) !== false ) {
-			@\rename( $tmp, $path );
+			@\rename( $tmp, $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- Atomic replace, so readers never see a partly written cache file. WP_Filesystem::move() deletes the destination first when overwriting.
 		}
 		else {
 			wp_delete_file( $tmp );

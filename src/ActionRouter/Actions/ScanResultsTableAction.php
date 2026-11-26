@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\Bui
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\RetrieveMalwareMalaiStatus;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class ScanResultsTableAction extends BaseAction {
 
@@ -109,7 +110,7 @@ class ScanResultsTableAction extends BaseAction {
 			}
 		}
 		catch ( \Throwable $e ) {
-			error_log( 'Shield malware assessment refresh failed: '.$e->getMessage() );
+			ErrorLog::write( 'Shield malware assessment refresh failed: '.$e->getMessage() );
 		}
 		return $response;
 	}

@@ -23,7 +23,7 @@ class CrowdsecDebug extends CrowdsecBase {
 			( new ImportDecisions() )->runImport();
 		}
 		catch ( \Exception $e ) {
-			var_dump( $e->getMessage() );
+			\WP_CLI::line( $e->getMessage() );
 		}
 	}
 }

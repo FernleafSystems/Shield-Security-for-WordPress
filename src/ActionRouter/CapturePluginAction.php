@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ResponseAdapter\ResponseAdapterFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class CapturePluginAction extends CaptureActionBase {
 
@@ -47,7 +48,7 @@ class CapturePluginAction extends CaptureActionBase {
 		}
 		catch ( \Throwable $e ) {
 			// A fault in the action, not a refusal.
-			error_log( \sprintf( 'Shield action %s failed: %s', $slug, $e->getMessage() ) );
+			ErrorLog::write( \sprintf( 'Shield action %s failed: %s', $slug, $e->getMessage() ) );
 		}
 	}
 

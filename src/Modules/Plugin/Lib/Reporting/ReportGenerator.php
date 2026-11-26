@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Reports\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Uuid;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class ReportGenerator {
 
@@ -64,7 +65,7 @@ class ReportGenerator {
 					$builder = new Data\BuildForStats( $report );
 					break;
 				default:
-					error_log( 'unsupported report area slug: '.$slug );
+					ErrorLog::write( 'unsupported report area slug: '.$slug );
 					$builder = null;
 					continue( 2 );
 			}
@@ -189,7 +190,7 @@ class ReportGenerator {
 			] );
 		}
 		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
+			ErrorLog::write( $e->getMessage() );
 		}
 	}
 

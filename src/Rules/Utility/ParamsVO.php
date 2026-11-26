@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 /**
  * -- Conditions --
@@ -89,7 +90,7 @@ class ParamsVO extends DynPropertiesClass {
 				}
 			}
 			if ( !empty( $missing ) ) {
-				error_log( 'ParamsVO: Missing Param keys: '.var_export( $missing, true ) );
+				ErrorLog::write( 'ParamsVO: Missing Param keys: '.ErrorLog::describe( $missing ) );
 			}
 		}
 		return parent::applyFromArray( $data, \array_keys( $this->def ) );

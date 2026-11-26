@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Services\Exceptions\NotAnIpAddressOrRangeException;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class PerformConditionMatch {
 
@@ -76,7 +77,7 @@ class PerformConditionMatch {
 			$match = \in_array( \strval( $this->matchAgainst ), \array_map( '\strval', $this->incomingValue ) );
 		}
 		else {
-			throw new \Exception( sprintf( 'Invalid type for incoming value: %s', var_export( $this->incomingValue, true ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by ProcessConditions and Conditions\Base::run(), which treat it as no match; never shown.
+			throw new \Exception( sprintf( 'Invalid type for incoming value: %s', ErrorLog::describe( $this->incomingValue ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by ProcessConditions and Conditions\Base::run(), which treat it as no match; never shown.
 		}
 		return $match;
 	}

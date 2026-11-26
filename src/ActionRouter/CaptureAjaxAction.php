@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Ajax\Response;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class CaptureAjaxAction extends CaptureActionBase {
 
@@ -116,7 +117,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 		}
 		catch ( \Throwable $e ) {
 			// A fault in the action, not a refusal. The request still gets a controlled response.
-			\error_log( \sprintf( 'Shield AJAX action %s failed: %s', $slug, $e->getMessage() ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Deliberate: records an unexpected fault for the site owner's error log.
+			ErrorLog::write( \sprintf( 'Shield AJAX action %s failed: %s', $slug, $e->getMessage() ) );
 			$statusCode = 500;
 			$msg = __( 'An unexpected error occurred.', 'wp-simple-firewall' );
 			$response = [
