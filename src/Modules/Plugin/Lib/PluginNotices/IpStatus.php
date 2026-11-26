@@ -24,7 +24,7 @@ class IpStatus extends Base {
 				'text'      => [
 					/* translators: %s: IP address, shown as a link */
 					sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is whitelisted.', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" class="offcanvas_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), $ip, $ip ) )
+						sprintf( '<a href="%s" class="offcanvas_ip_analysis text-reset text-decoration-underline" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), $ip, $ip ) )
 				],
 				'locations' => [
 					'shield_admin_top_page',
@@ -52,7 +52,7 @@ class IpStatus extends Base {
 				'text'        => [
 					/* translators: %s: IP address, shown as a link */
 					sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is a private or local address.', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" class="offcanvas_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), esc_attr( $ip ), esc_html( $ip ) ) )
+						sprintf( '<a href="%s" class="offcanvas_ip_analysis text-reset text-decoration-underline" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), esc_attr( $ip ), esc_html( $ip ) ) )
 				],
 				'locations'   => [
 					'shield_admin_top_page',
