@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices\PhpFutureMinimum;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices\{
+	IpStatus,
+	PhpFutureMinimum
+};
 
 class DismissAdminNotice extends BaseAction {
 
@@ -43,6 +46,14 @@ class DismissAdminNotice extends BaseAction {
 	}
 
 	private function dismissPluginNotice( string $noticeID ) :void {
+		if ( $noticeID === IpStatus::ID_NOT_PUBLIC ) {
+			$notice = ( new IpStatus() )->check();
+			if ( $notice !== null && $notice[ 'id' ] === IpStatus::ID_NOT_PUBLIC && IpStatus::dismissNotPublicForCurrentUser() ) {
+				$this->setDismissedResponse( IpStatus::ID_NOT_PUBLIC );
+			}
+			return;
+		}
+
 		if ( $noticeID !== PhpFutureMinimum::ID ) {
 			return;
 		}
