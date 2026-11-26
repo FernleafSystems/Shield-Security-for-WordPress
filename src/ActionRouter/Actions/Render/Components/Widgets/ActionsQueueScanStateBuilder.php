@@ -164,12 +164,11 @@ class ActionsQueueScanStateBuilder {
 			$count,
 			$status,
 			\sprintf(
-				_n(
-					$tabKey === 'plugins' ? '%s plugin needs review.' : '%s theme needs review.',
-					$tabKey === 'plugins' ? '%s plugins need review.' : '%s themes need review.',
-					$count,
-					'wp-simple-firewall'
-				),
+				$tabKey === 'plugins' ?
+					/* translators: %s: number of plugins */
+					_n( '%s plugin needs review.', '%s plugins need review.', $count, 'wp-simple-firewall' ) :
+					/* translators: %s: number of themes */
+					_n( '%s theme needs review.', '%s themes need review.', $count, 'wp-simple-firewall' ),
 				$count
 			),
 			__( 'Repair', 'wp-simple-firewall' )

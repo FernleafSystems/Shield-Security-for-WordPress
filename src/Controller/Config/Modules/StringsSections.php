@@ -392,8 +392,8 @@ class StringsSections {
 				break;
 			default:
 				$def = $con->cfg->configuration->sections[ $key ];
-				$title = empty( $def[ 'title' ] ) ? __( 'No Title', 'wp-simple-firewall' ) : __( $def[ 'title' ], 'wp-simple-firewall' );
-				$short = empty( $def[ 'title_short' ] ) ? __( 'No Title', 'wp-simple-firewall' ) : __( $def[ 'title_short' ], 'wp-simple-firewall' );
+				$title = empty( $def[ 'title' ] ) ? __( 'No Title', 'wp-simple-firewall' ) : __( $def[ 'title' ], 'wp-simple-firewall' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- Section titles come from plugin.json, so they can't be literals here. The generated translations-strings-auto.php is how they reach the translation template.
+				$short = empty( $def[ 'title_short' ] ) ? __( 'No Title', 'wp-simple-firewall' ) : __( $def[ 'title_short' ], 'wp-simple-firewall' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- Section short titles come from plugin.json, so they can't be literals here. The generated translations-strings-auto.php is how they reach the translation template.
 				$summary = $def[ 'summary' ] ?? [];
 				break;
 		}

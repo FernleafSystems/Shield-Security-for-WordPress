@@ -26,7 +26,7 @@ class ActivityLogTableAction extends TableActionBase {
 	}
 
 	protected function getUnsupportedSubActionMessage( string $subAction ) :string {
-		return $this->buildUnsupportedSubActionMessage( 'Activity Log', $subAction );
+		return $this->buildUnsupportedSubActionMessage( __( 'Activity Log', 'wp-simple-firewall' ), $subAction );
 	}
 
 	protected function retrieveTableData() :array {

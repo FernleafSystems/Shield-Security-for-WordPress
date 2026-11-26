@@ -31,12 +31,11 @@ class WpThemesUpdates extends Base {
 
 	public function descUnprotected() :string {
 		$count = $this->countUpdates();
-		return _n(
-			__( 'There is 1 theme update waiting to be applied.', 'wp-simple-firewall' ),
+		return sprintf(
 			/* translators: %s: number of theme updates */
-			sprintf( __( 'There are %s theme updates waiting to be applied.', 'wp-simple-firewall' ), $count ),
+			_n( 'There is %s theme update waiting to be applied.', 'There are %s theme updates waiting to be applied.', $count, 'wp-simple-firewall' ),
 			$count
-		, 'wp-simple-firewall' );
+		);
 	}
 
 	private function countUpdates() :int {

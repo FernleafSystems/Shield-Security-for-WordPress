@@ -42,7 +42,7 @@ abstract class BaseHandler {
 
 		foreach ( $valueOptions as $valueOption ) {
 			if ( $valueOption[ 'value_key' ] === static::Slug() ) {
-				$name = __( $valueOption[ 'text' ], 'wp-simple-firewall' );
+				$name = __( $valueOption[ 'text' ], 'wp-simple-firewall' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- Option choice text comes from plugin.json, so it can't be a literal here.
 				break;
 			}
 		}

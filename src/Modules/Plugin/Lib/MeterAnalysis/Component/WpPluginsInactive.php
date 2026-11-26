@@ -34,12 +34,11 @@ class WpPluginsInactive extends Base {
 
 	public function descUnprotected() :string {
 		$count = $this->countInactive();
-		return _n(
-			__( 'There is 1 unused plugin that should be uninstalled.', 'wp-simple-firewall' ),
+		return sprintf(
 			/* translators: %s: number of unused plugins */
-			sprintf( __( 'There are %s unused plugins that should be uninstalled.', 'wp-simple-firewall' ), $count ),
+			_n( 'There is %s unused plugin that should be uninstalled.', 'There are %s unused plugins that should be uninstalled.', $count, 'wp-simple-firewall' ),
 			$count
-		, 'wp-simple-firewall' );
+		);
 	}
 
 	private function countInactive() :int {

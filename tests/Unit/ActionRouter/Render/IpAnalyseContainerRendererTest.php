@@ -41,6 +41,7 @@ class IpAnalyseContainerRendererTest extends BaseUnitTest {
 		$this->registerWordPressWrapperFunctions();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'esc_html' )->alias( static fn( $text ) :string => \htmlspecialchars( (string)$text, \ENT_QUOTES ) );
+		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => \htmlspecialchars( $text, \ENT_QUOTES ) );
 		$this->servicesSnapshot = ServicesState::snapshot();
 		ServicesState::mergeItems( [
 			'service_ip' => new UnitTestIpUtils(),

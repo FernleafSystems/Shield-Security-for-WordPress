@@ -34,12 +34,11 @@ class WpPluginsUpdates extends Base {
 
 	public function descUnprotected() :string {
 		$count = $this->countUpdates();
-		return _n(
-			__( 'There is 1 plugin update waiting to be applied.', 'wp-simple-firewall' ),
+		return sprintf(
 			/* translators: %s: number of plugin updates */
-			sprintf( __( 'There are %s plugin updates waiting to be applied.', 'wp-simple-firewall' ), $count ),
+			_n( 'There is %s plugin update waiting to be applied.', 'There are %s plugin updates waiting to be applied.', $count, 'wp-simple-firewall' ),
 			$count
-		, 'wp-simple-firewall' );
+		);
 	}
 
 	private function countUpdates() :int {

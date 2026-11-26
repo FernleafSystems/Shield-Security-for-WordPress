@@ -100,9 +100,16 @@ class PluginsPageSupplements {
 						continue;
 					}
 
-					$link[ 'name' ] = __( $link[ 'name' ], 'wp-simple-firewall' );
+					$link[ 'name' ] = __( $link[ 'name' ], 'wp-simple-firewall' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- Plugin page link names come from plugin.json, so they can't be literals here. The generated translations-strings-auto.php is how they reach the translation template.
 
-					$href = sprintf( $linkTemplate, $link[ 'href' ], $link[ 'target' ], $link[ 'title' ], $link[ 'name' ] );
+					// The name can be translated text, so it's escaped; esc_html() keeps the config's entities, like &uarr;.
+					$href = sprintf(
+						$linkTemplate,
+						esc_url( $link[ 'href' ] ),
+						esc_attr( $link[ 'target' ] ),
+						esc_attr( $link[ 'title' ] ),
+						esc_html( $link[ 'name' ] )
+					);
 					if ( $link[ 'highlight' ] ) {
 						$href = sprintf( '<span style="font-weight: bold;">%s</span>', $href );
 					}

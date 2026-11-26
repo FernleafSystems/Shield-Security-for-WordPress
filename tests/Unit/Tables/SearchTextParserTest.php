@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Tables;
 
+use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SearchTextParser;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
@@ -81,11 +82,13 @@ class SearchTextParserTest extends BaseUnitTest {
 	}
 
 	public function test_get_filter_definitions_returns_all_keys() :void {
+		Functions\stubTranslationFunctions();
 		$defs = SearchTextParser::GetFilterDefinitions();
 		$this->assertSame( [ 'ip', 'request_id', 'user_id', 'user_name', 'user_email' ], \array_keys( $defs ) );
 	}
 
 	public function test_each_definition_has_required_fields() :void {
+		Functions\stubTranslationFunctions();
 		foreach ( SearchTextParser::GetFilterDefinitions() as $key => $def ) {
 			$this->assertArrayHasKey( 'sanitise', $def, "Missing 'sanitise' for filter: {$key}" );
 			$this->assertArrayHasKey( 'description', $def, "Missing 'description' for filter: {$key}" );

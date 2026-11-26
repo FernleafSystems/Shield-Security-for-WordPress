@@ -25,7 +25,7 @@ class SessionsTableAction extends TableActionBase {
 	}
 
 	protected function getUnsupportedSubActionMessage( string $subAction ) :string {
-		return $this->buildUnsupportedSubActionMessage( 'Sessions', $subAction );
+		return $this->buildUnsupportedSubActionMessage( __( 'Sessions', 'wp-simple-firewall' ), $subAction );
 	}
 
 	protected function isPageReloadOnFailure() :bool {

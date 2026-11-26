@@ -138,7 +138,7 @@ class BuildOptionsForDisplay {
 					$hasAccess = $opts->optValueHasAccess( $optDef[ 'key' ], (string)$valueOpt[ 'value_key' ] );
 
 					$converted[ $valueOpt[ 'value_key' ] ] = [
-						'name'              => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
+						'name'              => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ), // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- Option choice text comes from plugin.json, so it can't be a literal here.
 						'is_available'      => $hasAccess,
 						// Why a choice is unavailable, as a hover title: '' when there's nothing to add.
 						'unavailable_title' => $hasAccess ? '' : self::outsidePlanLabel(),

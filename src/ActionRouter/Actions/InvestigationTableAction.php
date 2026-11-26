@@ -62,7 +62,7 @@ class InvestigationTableAction extends TableActionBase {
 	}
 
 	protected function getUnsupportedSubActionMessage( string $subAction ) :string {
-		return $this->buildUnsupportedSubActionMessage( 'Investigation', $subAction );
+		return $this->buildUnsupportedSubActionMessage( __( 'Investigation', 'wp-simple-firewall' ), $subAction );
 	}
 
 	/**

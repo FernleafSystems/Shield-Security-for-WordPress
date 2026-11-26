@@ -1526,8 +1526,8 @@ class StringsOptions {
 
 			default:
 				$def = $con->opts->optDef( $key );
-				$name = __( $def[ 'name' ] ?? '', 'wp-simple-firewall' );
-				$summary = __( $def[ 'summary' ] ?? '', 'wp-simple-firewall' );
+				$name = __( $def[ 'name' ] ?? '', 'wp-simple-firewall' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- Option names come from plugin.json, so they can't be literals here. The generated translations-strings-auto.php is how they reach the translation template.
+				$summary = __( $def[ 'summary' ] ?? '', 'wp-simple-firewall' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- Option summaries come from plugin.json, so they can't be literals here. The generated translations-strings-auto.php is how they reach the translation template.
 				$desc = $def[ 'description' ] ?? [];
 				break;
 		}

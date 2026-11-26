@@ -68,37 +68,16 @@ abstract class TableActionBase extends BaseAction {
 		}
 	}
 
-	protected function buildUnsupportedSubActionMessage( string $tableLabel, string $subAction ) :string {
-		// Backward-compatible lookup for previously action-specific msgids.
-		$legacyTemplate = \sprintf( 'Not a supported %s table sub_action: %%s', $tableLabel );
-		$legacyTranslation = __( $legacyTemplate, 'wp-simple-firewall' );
-		if ( $legacyTranslation !== $legacyTemplate ) {
-			return \sprintf( $legacyTranslation, $subAction );
-		}
-
+	/**
+	 * @param string $tableName the table's translated name
+	 */
+	protected function buildUnsupportedSubActionMessage( string $tableName, string $subAction ) :string {
 		return \sprintf(
 			/* translators: %1$s: table name, %2$s: action name */
 			__( 'Not a supported %1$s table sub_action: %2$s', 'wp-simple-firewall' ),
-			$this->translateUnsupportedSubActionTableLabel( $tableLabel ),
+			$tableName,
 			$subAction
 		);
-	}
-
-	private function translateUnsupportedSubActionTableLabel( string $tableLabel ) :string {
-		switch ( $tableLabel ) {
-			case 'Activity Log':
-				return __( 'Activity Log', 'wp-simple-firewall' );
-			case 'Traffic Log':
-				return __( 'Traffic Log', 'wp-simple-firewall' );
-			case 'Sessions':
-				return __( 'Sessions', 'wp-simple-firewall' );
-			case 'IP Rules':
-				return __( 'IP Rules', 'wp-simple-firewall' );
-			case 'Investigation':
-				return __( 'Investigation', 'wp-simple-firewall' );
-			default:
-				return $tableLabel;
-		}
 	}
 
 	protected function isPageReloadOnFailure() :bool {

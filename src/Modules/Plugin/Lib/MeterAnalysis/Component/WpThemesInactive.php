@@ -37,12 +37,11 @@ class WpThemesInactive extends Base {
 
 	public function descUnprotected() :string {
 		$count = $this->countInactive();
-		return _n(
-			__( 'There is 1 unused theme that should be uninstalled.', 'wp-simple-firewall' ),
+		return sprintf(
 			/* translators: %s: number of unused themes */
-			sprintf( __( 'There are %s unused themes that should be uninstalled.', 'wp-simple-firewall' ), $count ),
+			_n( 'There is %s unused theme that should be uninstalled.', 'There are %s unused themes that should be uninstalled.', $count, 'wp-simple-firewall' ),
 			$count
-		, 'wp-simple-firewall' );
+		);
 	}
 
 	private function countInactive() :int {
