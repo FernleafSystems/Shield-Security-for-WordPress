@@ -86,7 +86,8 @@ class Collate {
 			__( 'CloudFlare', 'wp-simple-firewall' )             => !empty( $req->server( 'HTTP_CF_REQUEST_ID' ) )
 				? __( 'No', 'wp-simple-firewall' )
 				: __( 'Yes', 'wp-simple-firewall' ),
-			__( 'rDNS', 'wp-simple-firewall' )                   => empty( $rDNS ) ? '-' : $rDNS,
+			// A reverse-DNS answer is outside data, and this page prints its values as HTML.
+			__( 'rDNS', 'wp-simple-firewall' )                   => empty( $rDNS ) ? '-' : esc_html( $rDNS ),
 			__( 'Server Name', 'wp-simple-firewall' )            => $req->server( 'SERVER_NAME' ),
 			__( 'Server Signature', 'wp-simple-firewall' )       => empty( $sig ) ? '-' : $sig,
 			__( 'Server Software', 'wp-simple-firewall' )        => empty( $soft ) ? '-' : $soft,
@@ -277,9 +278,10 @@ class Collate {
 			}
 		}
 
+		// When no source has a valid public IP, detection can return a forwarded header's entry as sent.
 		$ip = Services::Request()->ip();
 		$data[ __( 'Visitor IP Source', 'wp-simple-firewall' ) ] =
-			$source.': '.( empty( $ip ) ? __( 'n/a', 'wp-simple-firewall' ) : $ip );
+			$source.': '.( empty( $ip ) ? __( 'n/a', 'wp-simple-firewall' ) : esc_html( $ip ) );
 
 		return $data;
 	}

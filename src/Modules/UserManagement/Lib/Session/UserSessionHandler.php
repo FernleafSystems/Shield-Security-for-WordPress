@@ -44,7 +44,7 @@ class UserSessionHandler {
 		) {
 			$msg .= sprintf( '<p class="message">%s %s<br />%s</p>',
 				__( "You're already logged-in.", 'wp-simple-firewall' ),
-				sprintf( '<span style="white-space: nowrap">(%s)</span>', $user->user_login ),
+				sprintf( '<span style="white-space: nowrap">(%s)</span>', esc_html( $user->user_login ) ),
 				( $user->user_level >= 2 ) ? sprintf( '<a href="%s">%s</a>',
 					Services::WpGeneral()->getAdminUrl(),
 					__( "Go To Admin", 'wp-simple-firewall' ).' &rarr;' ) : '' );

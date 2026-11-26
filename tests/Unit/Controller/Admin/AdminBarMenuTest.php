@@ -48,6 +48,8 @@ class AdminBarMenuTest extends BaseUnitTest {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		// Like WordPress, this leaves existing entities alone.
+		Functions\when( 'esc_html' )->alias( static fn( $text ) :string => \htmlspecialchars( (string)$text, \ENT_QUOTES, 'UTF-8', false ) );
 		Functions\when( 'rawurlencode_deep' )->alias(
 			static fn( $value ) => \is_array( $value ) ? \array_map( 'rawurlencode', $value ) : \rawurlencode( (string)$value )
 		);
@@ -408,6 +410,25 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$this->assertCount( 1, $this->topMenuChildGroups( $adminBar ) );
 		$this->assertStringContainsString( '/wp-admin/user-edit.php?user_id=7', $this->nodeById( $adminBar, 'shield-meta-7' )[ 'title' ] );
 		$this->assertNoIpNodes( $adminBar );
+	}
+
+	public function test_recent_user_login_is_escaped_in_the_html_title() :void {
+		$markup = '<img src=x onerror=alert(1)>';
+		$usersDb = new AdminBarUsersDbSpy( [
+			[
+				'user_id'       => 7,
+				'last_login_at' => 1234,
+				'ip'            => '203.0.113.7',
+				'user_login'    => $markup,
+			],
+		] );
+		$this->installController( true, true, new AdminBarCountsSpy( $this->emptySummary() ),
+			new AdminBarSummaryCacheSpy( $this->emptySummary() ), $usersDb );
+
+		// The admin bar prints node titles as HTML.
+		$title = $this->nodeById( $this->buildAdminBar(), 'shield-meta-7' )[ 'title' ];
+		$this->assertStringNotContainsString( $markup, $title );
+		$this->assertStringContainsString( \htmlspecialchars( $markup, \ENT_QUOTES ), $title );
 	}
 
 	public function test_admin_bar_does_not_query_or_render_recent_users_on_non_plugin_pages() :void {

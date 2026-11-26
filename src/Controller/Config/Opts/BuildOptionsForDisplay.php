@@ -329,7 +329,9 @@ class BuildOptionsForDisplay {
 				$ipDetector = Services::IP()->getIpDetector();
 				foreach ( \array_keys( $option[ 'value_options' ] ) as $valKey ) {
 					if ( $valKey !== 'AUTO_DETECT_IP' ) {
-						$IPs = \implode( ', ', $ipDetector->getIpsFromSource( $valKey ) );
+						// The choice name is printed as HTML, and getIpsFromSource() returns each header entry as sent
+						// when only its "IP:port" form validates, so anything after the colon is escaped here.
+						$IPs = esc_html( \implode( ', ', $ipDetector->getIpsFromSource( $valKey ) ) );
 						if ( empty( $IPs ) ) {
 							unset( $option[ 'value_options' ][ $valKey ] );
 						}

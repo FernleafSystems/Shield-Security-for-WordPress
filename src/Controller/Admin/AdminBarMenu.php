@@ -283,9 +283,10 @@ class AdminBarMenu {
 			foreach ( $recent as $userID => $user ) {
 				$items[] = [
 					'id'    => $con->prefix( 'meta-'.$userID ),
+					// The admin bar prints titles as HTML. The IP is from INET6_NTOA(), so it can only be an address.
 					'title' => sprintf( '<a href="%s">%s (%s)</a>',
 						Services::WpUsers()->getAdminUrl_ProfileEdit( $userID ),
-						$user[ 'user_login' ],
+						esc_html( $user[ 'user_login' ] ),
 						$user[ 'ip' ]
 					),
 				];

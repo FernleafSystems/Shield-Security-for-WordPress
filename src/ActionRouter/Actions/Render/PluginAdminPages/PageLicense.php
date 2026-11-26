@@ -108,11 +108,12 @@ class PageLicense extends PageModeLandingBase {
 			],
 			'strings' => $strings,
 			'vars'    => [
+				// The template prints these values as HTML, since some carry markup; the licence record's own text is escaped.
 				'license_table'  => [
-					'product_name'    => $lic->item_name,
+					'product_name'    => esc_html( $lic->item_name ),
 					'license_active'  => $con->comps->license->hasValidWorkingLicense() ? '&#10004;' : '&#10006;',
 					'license_expires' => $expiresAtHuman,
-					'license_email'   => $lic->customer_email,
+					'license_email'   => esc_html( $lic->customer_email ),
 					'last_checked'    => $checked,
 					'wphashes_token'  => $con->comps->api_token->hasToken() ? '&#10004;' : '&#10006;',
 					'installation_id' => ( new InstallationID() )->id(),

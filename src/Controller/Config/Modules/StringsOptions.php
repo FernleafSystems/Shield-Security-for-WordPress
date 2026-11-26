@@ -1018,9 +1018,10 @@ class StringsOptions {
 					__( "This lets you customise the default email address for all emails sent by the plugin.", 'wp-simple-firewall' ),
 					/* translators: %s: site administration email address, wrapped in a link */
 					sprintf( __( "The plugin defaults to the site administration email address, which is: %s", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" target="_blank" title="%s"><code>'.get_bloginfo( 'admin_email' ).'</code></a>',
+						sprintf( '<a href="%s" target="_blank" title="%s"><code>%s</code></a>',
 							Services::WpGeneral()->getAdminUrl( 'options-general.php' ),
-							__( 'Review site settings', 'wp-simple-firewall' ) )
+							__( 'Review site settings', 'wp-simple-firewall' ),
+							esc_html( get_bloginfo( 'admin_email' ) ) )
 					)
 				];
 				break;
