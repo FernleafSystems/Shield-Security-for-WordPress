@@ -43,7 +43,7 @@ class WpLoginReplicaHeader extends Base {
 		 * @since 4.9.0
 		 *
 		 */
-		$login_title = apply_filters( 'login_title', $login_title, esc_html( $this->action_data[ 'title' ] ?? '' ) );
+		$login_title = apply_filters( 'login_title', $login_title, esc_html( $this->action_data[ 'title' ] ?? '' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Runs WordPress core's own login page hook on Shield's 2FA login page, so callbacks registered for it can take part there.
 
 		wp_enqueue_style( 'login' );
 
@@ -53,7 +53,7 @@ class WpLoginReplicaHeader extends Base {
 		 * @since 3.1.0
 		 */
 		$actionLoginEnqScripts = CaptureOutput::Capture( function () {
-			do_action( 'login_enqueue_scripts' );
+			do_action( 'login_enqueue_scripts' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Runs WordPress core's own login page hook on Shield's 2FA login page, so callbacks registered for it can take part there.
 		} );
 
 		/**
@@ -62,7 +62,7 @@ class WpLoginReplicaHeader extends Base {
 		 * @since 2.1.0
 		 */
 		$actionLoginHead = CaptureOutput::Capture( function () {
-			do_action( 'login_head' );
+			do_action( 'login_head' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Runs WordPress core's own login page hook on Shield's 2FA login page, so callbacks registered for it can take part there.
 		} );
 
 		/**
@@ -77,7 +77,7 @@ class WpLoginReplicaHeader extends Base {
 		 * @since 2.1.0
 		 *
 		 */
-		$login_header_url = apply_filters( 'login_headerurl', $login_header_url );
+		$login_header_url = apply_filters( 'login_headerurl', $login_header_url ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Runs WordPress core's own login page hook on Shield's 2FA login page, so callbacks registered for it can take part there.
 
 		$login_header_text = __( 'Powered by WordPress', 'wp-simple-firewall' );
 
@@ -88,7 +88,7 @@ class WpLoginReplicaHeader extends Base {
 		 * @since 5.2.0
 		 *
 		 */
-		$login_header_text = apply_filters( 'login_headertext', $login_header_text );
+		$login_header_text = apply_filters( 'login_headertext', $login_header_text ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Runs WordPress core's own login page hook on Shield's 2FA login page, so callbacks registered for it can take part there.
 
 		$classes = [ 'login-action-'.sanitize_html_class( $this->action_data[ 'action' ] ?? 'login' ), 'wp-core-ui' ];
 
@@ -110,7 +110,7 @@ class WpLoginReplicaHeader extends Base {
 		 * @since 3.5.0
 		 *
 		 */
-		$classes = apply_filters( 'login_body_class', $classes, $action );
+		$classes = apply_filters( 'login_body_class', $classes, $action ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Runs WordPress core's own login page hook on Shield's 2FA login page, so callbacks registered for it can take part there.
 
 		$actionLoginHeader = CaptureOutput::Capture( function () {
 			/**
@@ -118,7 +118,7 @@ class WpLoginReplicaHeader extends Base {
 			 *
 			 * @since 4.6.0
 			 */
-			do_action( 'login_header' );
+			do_action( 'login_header' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Runs WordPress core's own login page hook on Shield's 2FA login page, so callbacks registered for it can take part there.
 		} );
 
 		/**
@@ -128,7 +128,7 @@ class WpLoginReplicaHeader extends Base {
 		 * @since 2.1.0
 		 *
 		 */
-		$message = apply_filters( 'login_message', $this->action_data[ 'message' ] ?? '' );
+		$message = apply_filters( 'login_message', $this->action_data[ 'message' ] ?? '' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Runs WordPress core's own login page hook on Shield's 2FA login page, so callbacks registered for it can take part there.
 		// Sanitize output to prevent XSS from URL input or malicious filter callbacks
 		$message = esc_html( $message );
 		if ( !empty( $message ) ) {
@@ -161,7 +161,7 @@ class WpLoginReplicaHeader extends Base {
 				 * @since 2.1.0
 				 *
 				 */
-				$loginErrors = apply_filters( 'login_errors', $errors );
+				$loginErrors = apply_filters( 'login_errors', $errors ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Runs WordPress core's own login page hook on Shield's 2FA login page, so callbacks registered for it can take part there.
 			}
 
 			if ( !empty( $messages ) ) {
@@ -172,7 +172,7 @@ class WpLoginReplicaHeader extends Base {
 				 * @since 2.5.0
 				 *
 				 */
-				$loginMessages = apply_filters( 'login_messages', $messages );
+				$loginMessages = apply_filters( 'login_messages', $messages ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Runs WordPress core's own login page hook on Shield's 2FA login page, so callbacks registered for it can take part there.
 			}
 		}
 

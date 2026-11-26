@@ -49,8 +49,8 @@ class ICWP_WPSF_Shield_Security {
 Services::GetInstance();
 
 try {
-	$oICWP_Wpsf_Controller = Controller\Controller::GetInstance( $rootFile );
-	$oICWP_Wpsf = ICWP_WPSF_Shield_Security::GetInstance( $oICWP_Wpsf_Controller );
+	$oICWP_Wpsf_Controller = Controller\Controller::GetInstance( $rootFile ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Not a global: plugin_init.php is required from inside icwp_wpsf_init().
+	$oICWP_Wpsf = ICWP_WPSF_Shield_Security::GetInstance( $oICWP_Wpsf_Controller ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Long-standing global that stops the plugin loading twice; icwp is Shield's own prefix.
 	$oICWP_Wpsf->start();
 }
 catch ( Controller\Exceptions\VersionMismatchException $e ) {

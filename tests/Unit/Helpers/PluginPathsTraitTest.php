@@ -69,7 +69,7 @@ class PluginPathsTraitTest extends TestCase {
 
 	public function testGetComposerScriptCommandsNormalizesArrayScriptEntries() :void {
 		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
+			$this->markTestSkipped( 'Source-only: checks the repository\'s Composer scripts, not the built package.' );
 		}
 
 		$commands = $this->getComposerScriptCommands( 'package-plugin' );
@@ -79,7 +79,7 @@ class PluginPathsTraitTest extends TestCase {
 
 	public function testGetComposerScriptCommandsNormalizesStringScriptEntry() :void {
 		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
+			$this->markTestSkipped( 'Source-only: checks the repository\'s Composer scripts, not the built package.' );
 		}
 
 		$this->assertSame(

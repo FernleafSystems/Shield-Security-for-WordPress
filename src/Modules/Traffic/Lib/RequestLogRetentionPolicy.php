@@ -88,7 +88,7 @@ class RequestLogRetentionPolicy {
 			],
 		];
 
-		$policy = (array)apply_filters( self::FILTER_REQUEST_POLICY, $defaults );
+		$policy = (array)apply_filters( self::FILTER_REQUEST_POLICY, $defaults ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- The constant holds one of Shield's own shield/ hook names.
 		$days = \array_merge(
 			$defaults[ 'retention_days' ],
 			\is_array( $policy[ 'retention_days' ] ?? null ) ? $policy[ 'retention_days' ] : []

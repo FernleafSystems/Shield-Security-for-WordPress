@@ -36,7 +36,7 @@ if ( !\defined( 'ABSPATH' ) ) { exit(); }
 
 if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
 	global $sIcwpWpsfPluginFile;
-	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
+	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global read by unsupported.php; icwp is Shield's own long-standing prefix.
 	include_once( dirname( __FILE__ ).'/unsupported.php' );
 }
 elseif ( @is_file( dirname( __FILE__ ).'/vendor/autoload.php' ) ) {

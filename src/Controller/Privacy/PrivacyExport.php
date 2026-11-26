@@ -37,7 +37,7 @@ class PrivacyExport {
 		$valid = Services::Data()->validEmail( $email )
 				 && ( Services::WpUsers()->getUserByEmail( $email ) instanceof \WP_User );
 		return [
-			'data' => $valid ? apply_filters( self::con()->prefix( 'wpPrivacyExport' ), [], $email, $page ) : [],
+			'data' => $valid ? apply_filters( self::con()->prefix( 'wpPrivacyExport' ), [], $email, $page ) : [], // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 			'done' => true,
 		];
 	}

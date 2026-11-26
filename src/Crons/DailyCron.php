@@ -43,6 +43,6 @@ class DailyCron extends BaseCron {
 	 * Use the included action to hook into the plugin's daily cron
 	 */
 	public function runCron() {
-		do_action( self::con()->prefix( 'daily_cron' ) );
+		do_action( self::con()->prefix( 'daily_cron' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 	}
 }

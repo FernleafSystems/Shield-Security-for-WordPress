@@ -411,14 +411,14 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function onWpDeactivatePlugin() {
-		do_action( $this->prefix( 'pre_deactivate_plugin' ) );
+		do_action( $this->prefix( 'pre_deactivate_plugin' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 		if ( $this->isPluginAdmin() ) {
 
 			$this->plugin_deactivating = true;
 
 			( new PluginDeactivate() )->run();
 
-			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
+			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 				$this->deletePlugin();
 			}
 		}
@@ -426,7 +426,7 @@ class Controller extends DynPropertiesClass {
 
 	public function deletePlugin() {
 		$this->plugin_deleting = true;
-		do_action( $this->prefix( 'delete_plugin' ) );
+		do_action( $this->prefix( 'delete_plugin' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 		( new Shield\Controller\Plugin\PluginDelete() )->run();
 	}
 
@@ -481,7 +481,7 @@ class Controller extends DynPropertiesClass {
 		catch ( \Exception $e ) {
 		}
 		// This is where any rules responses will execute (i.e. after processors are run):
-		do_action( $this->prefix( 'after_run_processors' ) );
+		do_action( $this->prefix( 'after_run_processors' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 	}
 
 	public function onWpAdminInit() {
@@ -528,11 +528,11 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function onWpShutdown() {
-		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
+		do_action( $this->prefix( 'pre_plugin_shutdown' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 		if ( $this->opts->hasChanges() ) {
 			$this->opts->store();
 		}
-		do_action( $this->prefix( 'plugin_shutdown' ) );
+		do_action( $this->prefix( 'plugin_shutdown' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 		if ( $this->plugin_deleting || ( isset( $this->cfg ) && $this->cfg->persist_required ) ) {
 			$this->saveCurrentPluginControllerOptions();
 		}
@@ -588,8 +588,8 @@ class Controller extends DynPropertiesClass {
 	 * only ever consider after WP INIT (when a logged-in user is recognised)
 	 */
 	public function isPluginAdmin() :bool {
-		return apply_filters( $this->prefix( 'bypass_is_plugin_admin' ), false )
-			   || apply_filters( $this->prefix( 'is_plugin_admin' ), $this->getMeetsBasePermissions() );
+		return apply_filters( $this->prefix( 'bypass_is_plugin_admin' ), false ) // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
+			   || apply_filters( $this->prefix( 'is_plugin_admin' ), $this->getMeetsBasePermissions() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 	}
 
 	/**
@@ -735,7 +735,7 @@ class Controller extends DynPropertiesClass {
 		}
 
 		// Apply filter for whitelabel and other modifications
-		$labels = $isPremium ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
+		$labels = $isPremium ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 
 		// Apply PRO suffix AFTER whitelabel (if premium active AND whitelabel disabled)
 		// This centralizes the logic in the labels system itself

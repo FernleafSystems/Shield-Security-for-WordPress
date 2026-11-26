@@ -475,7 +475,7 @@ class AssetCoordinator {
 	private function signalNotificationReadinessOpened() :void {
 		try {
 			if ( self::con()->comps->scans->isReadyForScanResultNotifications() ) {
-				\do_action( ScansController::HOOK_SCAN_RESULT_NOTIFICATION_READINESS_OPENED );
+				\do_action( ScansController::HOOK_SCAN_RESULT_NOTIFICATION_READINESS_OPENED ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- The constant holds one of Shield's own shield/ hook names.
 			}
 		}
 		catch ( \Throwable $e ) {

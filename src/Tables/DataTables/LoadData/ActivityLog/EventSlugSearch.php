@@ -62,7 +62,7 @@ class EventSlugSearch {
 	 */
 	private function getStopWords() :array {
 		return (array)apply_filters(
-			'wp_search_stopwords',
+			'wp_search_stopwords', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core's wp_search_stopwords filter, applied to core's own stopword list.
 			\array_map(
 				fn( $word ) => \strtolower( \trim( (string)$word ) ),
 				\explode( ',', _x( // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Deliberate: this is WordPress core's own search stopwords string, so leaving out the domain uses core's translation.

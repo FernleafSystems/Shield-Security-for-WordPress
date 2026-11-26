@@ -56,7 +56,7 @@ class RequestLogger {
 		if ( !$con->plugin_deleting && !$con->is_my_upgrade && apply_filters( 'shield/is_log_traffic', false ) ) {
 			$isLogged = $this->isDependentLog()
 			            || $con->comps->opts_lookup->getTrafficLiveLogTimeRemaining() > 0
-			            || !apply_filters( self::FILTER_BUILTIN_SUPPRESSIONS_ENABLED, true, $con->this_req )
+			            || !apply_filters( self::FILTER_BUILTIN_SUPPRESSIONS_ENABLED, true, $con->this_req ) // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- The constant holds one of Shield's own shield/ hook names.
 			            || !( new RequestLogSuppressor() )->shouldSuppress();
 		}
 

@@ -80,7 +80,7 @@ class LoadTextDomain {
 	private function overrideTranslations( string $moFilePath ) :string {
 		// use determine_locale() as it also considers the user's profile preference
 		$targetLoc = determine_locale();
-		$filteredLocale = apply_filters( 'plugin_locale', $targetLoc, self::con()->getTextDomain() );
+		$filteredLocale = apply_filters( 'plugin_locale', $targetLoc, self::con()->getTextDomain() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core's plugin_locale filter, applied when choosing Shield's translation file so callbacks that set a plugin's locale still take effect.
 		if ( !empty( $filteredLocale ) ) {
 			$targetLoc = $filteredLocale;
 		}

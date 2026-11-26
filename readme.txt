@@ -1,4 +1,4 @@
-﻿=== Shield Security – Smart Bot Blocking, Brute-Force Login Protection & File Scanning ===
+﻿=== Shield Security ===
 Contributors: paultgoodchild, getshieldsecurity
 Donate link: https://clk.shldscrty.com/bw
 License: GPLv3
