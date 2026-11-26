@@ -50,7 +50,7 @@ abstract class Base {
 			'viewCount'     => false,
 			'initCollapsed' => true,
 			'i18n'          => [
-				'clearMessage' => __( 'Clear All Filters', 'wp-simple-firewall' ),
+				'clearMessage' => esc_html__( 'Clear All Filters', 'wp-simple-firewall' ),
 			]
 		];
 	}
@@ -66,11 +66,8 @@ abstract class Base {
 		$columns = [];
 		foreach ( $this->getColumnsToDisplay() as $colSlug ) {
 			$col = $this->pluckColumn( $colSlug );
-
-			if ( $col[ 'search_builder' ] ?? false ) {
-				$col[ 'className' ] .= ' search_builder';
-			}
-
+			// DataTables prints titles as HTML. A title may hide its text visually in a span; its translation can't add more.
+			$col[ 'title' ] = wp_kses( (string)( $col[ 'title' ] ?? '' ), [ 'span' => [ 'class' => true ] ] );
 			$columns[ $colSlug ] = $col;
 		}
 		return $columns;

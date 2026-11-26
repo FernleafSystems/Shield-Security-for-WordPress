@@ -58,7 +58,7 @@ class PluginsPageSupplements {
 						URL::Build( $WP->getAdminUrl_Plugins(), [
 							'plugin_status' => 'mustuse'
 						] ),
-						__( 'Disable MU To Deactivate', 'wp-simple-firewall' )
+						esc_html__( 'Disable MU To Deactivate', 'wp-simple-firewall' )
 					);
 				}
 			}

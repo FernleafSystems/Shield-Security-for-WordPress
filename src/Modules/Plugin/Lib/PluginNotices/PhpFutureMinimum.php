@@ -32,13 +32,13 @@ class PhpFutureMinimum extends Base {
 				sprintf( '%s %s',
 					sprintf(
 						/* translators: %1$s: current minimum PHP version, %2$s: future minimum PHP version */
-						__( 'This is the final major release of Shield that supports PHP %1$s; future Shield releases will require PHP %2$s or newer.', 'wp-simple-firewall' ),
+						esc_html__( 'This is the final major release of Shield that supports PHP %1$s; future Shield releases will require PHP %2$s or newer.', 'wp-simple-firewall' ),
 						self::CURRENT_MINIMUM_PHP,
 						self::FUTURE_MINIMUM_PHP
 					),
 					sprintf( '<a href="%s" class="text-reset text-decoration-underline" target="_blank" rel="noopener noreferrer">%s</a>',
 						esc_url( self::MORE_INFO_URL ),
-						__( 'Learn more', 'wp-simple-firewall' )
+						esc_html__( 'Learn more', 'wp-simple-firewall' )
 					)
 				),
 			],

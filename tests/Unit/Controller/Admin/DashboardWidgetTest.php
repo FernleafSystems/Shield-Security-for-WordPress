@@ -33,6 +33,7 @@ class DashboardWidgetTest extends BaseUnitTest {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'esc_html' )->alias( static fn( $text ) :string => \htmlspecialchars( (string)$text, \ENT_QUOTES, 'UTF-8', false ) );
 		$this->servicesSnapshot = ServicesState::snapshot();
 	}
 

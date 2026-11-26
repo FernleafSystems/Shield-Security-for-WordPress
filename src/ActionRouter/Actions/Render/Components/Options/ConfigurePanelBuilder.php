@@ -192,12 +192,24 @@ class ConfigurePanelBuilder {
 
 	/**
 	 * More about a setting, shown when asked for: its description, unless that only repeats the summary beside
-	 * it. The lines are the plugin's own strings and may hold links or code.
+	 * it. The lines are printed as HTML and keep only the markup they use, so their translations, and values such as
+	 * paths and role names, can't add anything else. No id or data attributes: Shield's scripts act on those.
 	 * @return list<string>
 	 */
 	private function details( array $option ) :array {
+		$allowed = [
+			'a'      => [ 'href' => true, 'target' => true, 'title' => true, 'class' => true ],
+			'br'     => [],
+			'code'   => [],
+			'em'     => [],
+			'li'     => [],
+			'p'      => [ 'class' => true ],
+			'span'   => [ 'class' => true, 'style' => true ],
+			'strong' => [],
+			'ul'     => [ 'style' => true ],
+		];
 		$lines = \array_values( \array_filter(
-			\array_map( static fn( $line ) :string => \trim( (string)$line ), $option[ 'description' ] ),
+			\array_map( static fn( $line ) :string => \trim( wp_kses( (string)$line, $allowed ) ), $option[ 'description' ] ),
 			static fn( string $line ) :bool => $line !== ''
 		) );
 		$plain = static fn( string $text ) :string => \strtolower( \trim( \wp_strip_all_tags( $text ), " .\t\n\r" ) );

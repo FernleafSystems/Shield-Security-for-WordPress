@@ -51,9 +51,26 @@ class PageDebug extends PageModeLandingBase {
 				'recent_events' => $con->action_router->render( DebugRecentEvents::class ),
 			],
 			'vars'    => [
-				'debug_data' => ( new Collate() )->run(),
+				'debug_data' => $this->filterDebugData( ( new Collate() )->run() ),
 			],
 		] );
+	}
+
+	/**
+	 * The values are printed as HTML for their code, line breaks and table listings. Server, database and plugin
+	 * details in them, and their translations, can't add any other markup or any attributes.
+	 */
+	private function filterDebugData( array $data ) :array {
+		$allowed = [
+			'address' => [],
+			'br'      => [],
+			'code'    => [],
+			'pre'     => [],
+		];
+		\array_walk_recursive( $data, static function ( &$value ) use ( $allowed ) {
+			$value = wp_kses( (string)$value, $allowed );
+		} );
+		return $data;
 	}
 
 	protected function getLandingTitle() :string {

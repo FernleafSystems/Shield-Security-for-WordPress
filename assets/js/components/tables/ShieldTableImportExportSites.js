@@ -1,5 +1,6 @@
 import { ShieldTableBase } from "./ShieldTableBase";
 import { Popover } from "bootstrap";
+import { Html } from "../../util/Html";
 
 export class ShieldTableImportExportSites extends ShieldTableBase {
 
@@ -35,7 +36,8 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 			className: 'action selected-action queue-sync btn-outline-primary mb-2',
 			action: () => this.bulkTableAction( 'queue_sync' )
 		}, {
-			text: this._base_data.strings.retry_invitation_label,
+			// Buttons print their text as HTML.
+			text: Html.Escape( this._base_data.strings.retry_invitation_label ),
 			name: 'retry-invitation',
 			className: 'action selected-action retry-invitation btn-outline-primary mb-2',
 			action: () => this.bulkTableAction( 'retry_invitation' )

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
+use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\ConfigurePanelBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrainMonkeyWordPressWrapperFunctions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -19,6 +20,7 @@ class ConfigurePanelBuilderDetailsTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		$this->registerWordPressWrapperFunctions();
+		Functions\when( 'wp_kses' )->returnArg();
 	}
 
 	public function test_a_description_that_adds_something_is_offered_line_by_line() :void {

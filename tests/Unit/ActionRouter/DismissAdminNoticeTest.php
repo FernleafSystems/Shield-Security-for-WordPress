@@ -31,6 +31,7 @@ class DismissAdminNoticeTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'esc_url' )->alias( static fn( string $url ) :string => $url );
 		$this->servicesSnapshot = ServicesState::snapshot();
 	}

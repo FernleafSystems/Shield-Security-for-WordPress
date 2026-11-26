@@ -21,11 +21,11 @@ class ImportExportNetworkInvite extends Base {
 			'text'        => [
 				sprintf(
 					'%s %s: <code>%s</code>. <a href="%s">%s</a>',
-					__( 'You have been invited to join a network.', 'wp-simple-firewall' ),
-					__( 'Site URL', 'wp-simple-firewall' ),
+					esc_html__( 'You have been invited to join a network.', 'wp-simple-firewall' ),
+					esc_html__( 'Site URL', 'wp-simple-firewall' ),
 					esc_html( (string)$invite[ 'master_url' ] ),
 					esc_url( (string)$invite[ 'review_url' ] ),
-					__( 'Click to review', 'wp-simple-firewall' )
+					esc_html__( 'Click to review', 'wp-simple-firewall' )
 				),
 			],
 			'locations'   => [

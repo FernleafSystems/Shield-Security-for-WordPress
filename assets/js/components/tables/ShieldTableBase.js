@@ -9,6 +9,7 @@ import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { announceStatus } from "../ui/ShieldA11y";
+import { Html } from "../../util/Html";
 
 export class ShieldTableBase extends BaseComponent {
 
@@ -203,7 +204,8 @@ export class ShieldTableBase extends BaseComponent {
 		// itself; the endpoint answers with an attachment, so the page stays put.
 		( this._base_data.vars?.downloads || [] ).forEach( ( download, idx ) => {
 			buttons.push( {
-				text: download.label,
+				// Buttons print their text as HTML.
+				text: Html.Escape( download.label ),
 				name: `download-${idx}`,
 				tag: 'a',
 				className: 'action table-download btn-outline-secondary mb-2',

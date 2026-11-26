@@ -146,7 +146,7 @@ class Processor {
 		if ( \is_array( $cols ) ) {
 			$customColName = self::con()->prefix( 'col_user_status' );
 			if ( !isset( $cols[ $customColName ] ) ) {
-				$cols[ $customColName ] = __( 'User Status', 'wp-simple-firewall' );
+				$cols[ $customColName ] = esc_html__( 'User Status', 'wp-simple-firewall' );
 			}
 
 			add_filter( 'manage_users_custom_column', function ( $content, $colName, $userID ) use ( $customColName ) {
@@ -174,13 +174,13 @@ class Processor {
 							apply_filters( 'shield/user_status_column', [
 								$content,
 								sprintf( '<em title="%s">%s</em>: %s',
-									$lastLoginAt > 0 ? $carbon->toIso8601String() : __( 'Not Recorded', 'wp-simple-firewall' ),
-									__( 'Last Login', 'wp-simple-firewall' ),
-									$lastLoginAt > 0 ? $carbon->diffForHumans() : __( 'Not Recorded', 'wp-simple-firewall' )
+									$lastLoginAt > 0 ? $carbon->toIso8601String() : esc_attr__( 'Not Recorded', 'wp-simple-firewall' ),
+									esc_html__( 'Last Login', 'wp-simple-firewall' ),
+									$lastLoginAt > 0 ? $carbon->diffForHumans() : esc_html__( 'Not Recorded', 'wp-simple-firewall' )
 								),
 								sprintf( '<em title="%s">%s</em>: %s',
-									empty( $ip->ip ) ? __( 'Unknown', 'wp-simple-firewall' ) : $ip->ip, __( 'Last Known IP', 'wp-simple-firewall' ),
-									empty( $ip->ip ) ? __( 'Unknown', 'wp-simple-firewall' ) : sprintf( '<a href="%s" target="_blank">%s</a>', $con->plugin_urls->ipAnalysis( $ip->ip ), $ip->ip )
+									empty( $ip->ip ) ? esc_attr__( 'Unknown', 'wp-simple-firewall' ) : $ip->ip, esc_html__( 'Last Known IP', 'wp-simple-firewall' ),
+									empty( $ip->ip ) ? esc_html__( 'Unknown', 'wp-simple-firewall' ) : sprintf( '<a href="%s" target="_blank">%s</a>', $con->plugin_urls->ipAnalysis( $ip->ip ), $ip->ip )
 								),
 							], $user )
 						) ) );

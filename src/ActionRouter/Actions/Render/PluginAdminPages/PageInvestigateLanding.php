@@ -528,7 +528,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 
 		if ( \trim( $panelBody ) === '' ) {
 			$panelBody = '<div class="alert alert-warning mb-0">'
-						 .$this->getPanelLoadErrorMessage()
+						 .esc_html( $this->getPanelLoadErrorMessage() )
 						 .'</div>';
 		}
 

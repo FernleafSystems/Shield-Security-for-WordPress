@@ -397,10 +397,10 @@ class Controller {
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
-					$con->plugin_urls->zone( Secadmin::Slug() ),
-					__( 'Security Admin Login', 'wp-simple-firewall' ),
+					esc_url( $con->plugin_urls->zone( Secadmin::Slug() ) ),
+					esc_attr__( 'Security Admin Login', 'wp-simple-firewall' ),
 					/* translators: %s: plugin name */
-					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->labels->Name )
+					esc_html( sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->labels->Name ) )
 				)
 			]
 		];

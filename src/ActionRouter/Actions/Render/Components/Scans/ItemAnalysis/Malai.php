@@ -48,7 +48,7 @@ class Malai extends BaseComponent {
 				'important'       => [
 					__( "Always ensure that there is NO sensitive or private data within the file when submitting it to MAL{ai} for assessment.", 'wp-simple-firewall' ),
 					__( "This is YOUR responsibility - don't submit the file unless you're absolutely sure.", 'wp-simple-firewall' ),
-					sprintf( __( 'It is important to understand that the result of this query is an estimation to help you assess the file, not a conclusion.', 'wp-simple-firewall' ), 'MAL{ai}' ),
+					__( 'It is important to understand that the result of this query is an estimation to help you assess the file, not a conclusion.', 'wp-simple-firewall' ),
 					__( "As always, your use and reliance of this service is done so at your own risk.", 'wp-simple-firewall' ),
 				],
 				'i_accept'        => __( 'I have read the above information & warnings, and fully accept any and all implications.', 'wp-simple-firewall' ),

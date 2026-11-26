@@ -24,7 +24,7 @@ class TabManageSitePage extends BaseMainwpPage {
 	}
 
 	protected function renderMainBodyContent() :string {
-		return __( 'No content yet', 'wp-simple-firewall' );
+		return esc_html__( 'No content yet', 'wp-simple-firewall' );
 	}
 
 	protected function getRequiredDataKeys() :array {

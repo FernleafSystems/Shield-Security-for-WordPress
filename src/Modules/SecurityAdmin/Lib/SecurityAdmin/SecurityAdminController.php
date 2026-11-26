@@ -65,11 +65,11 @@ class SecurityAdminController {
 			Services::WpGeneral()->wpDie(
 				sprintf(
 					'<p>%s</p><p>%s</p>',
-					__( "Sorry, this plugin is protected against unauthorised attempts to disable it.", 'wp-simple-firewall' ),
+					esc_html__( "Sorry, this plugin is protected against unauthorised attempts to disable it.", 'wp-simple-firewall' ),
 					sprintf( '<a href="%s">%s</a>',
-						$con->plugin_urls->adminHome(),
+						esc_url( $con->plugin_urls->adminHome() ),
 						/* translators: %s: plugin name */
-						sprintf( __( "Please authenticate with the %s Security Admin system and try again.", 'wp-simple-firewall' ), $con->labels->Name )
+						esc_html( sprintf( __( "Please authenticate with the %s Security Admin system and try again.", 'wp-simple-firewall' ), $con->labels->Name ) )
 					)
 				)
 			);

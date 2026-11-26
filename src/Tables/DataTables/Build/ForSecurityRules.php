@@ -33,7 +33,6 @@ class ForSecurityRules extends Base {
 				'className'      => 'active',
 				'orderable'      => false,
 				'searchable'     => false,
-				'search_builder' => false,
 				'visible'        => true,
 				'searchPanes'    => [
 					'show' => false,
@@ -45,7 +44,6 @@ class ForSecurityRules extends Base {
 				'className'      => 'rid',
 				'orderable'      => false,
 				'searchable'     => false,
-				'search_builder' => false,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => false,
@@ -57,7 +55,6 @@ class ForSecurityRules extends Base {
 				'className'      => 'uuid',
 				'orderable'      => false,
 				'searchable'     => false,
-				'search_builder' => false,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => false,
@@ -69,7 +66,6 @@ class ForSecurityRules extends Base {
 				'className'      => 'exec_order',
 				'orderable'      => false,
 				'searchable'     => false,
-				'search_builder' => false,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => false,
@@ -81,7 +77,6 @@ class ForSecurityRules extends Base {
 				'className'      => 'details',
 				'orderable'      => false,
 				'searchable'     => true,
-				'search_builder' => false,
 				'visible'        => true,
 				'searchPanes'    => [
 					'show' => false,
@@ -93,7 +88,6 @@ class ForSecurityRules extends Base {
 				'className'      => 'name',
 				'orderable'      => false,
 				'searchable'     => true,
-				'search_builder' => false,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => false,
@@ -105,7 +99,6 @@ class ForSecurityRules extends Base {
 				'className'      => 'description',
 				'orderable'      => false,
 				'searchable'     => true,
-				'search_builder' => false,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => false,
@@ -117,7 +110,6 @@ class ForSecurityRules extends Base {
 				'className'      => 'version',
 				'orderable'      => false,
 				'searchable'     => false,
-				'search_builder' => false,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => true
@@ -129,7 +121,6 @@ class ForSecurityRules extends Base {
 				'className'      => 'is_viable',
 				'orderable'      => false,
 				'searchable'     => false,
-				'search_builder' => false,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => true
@@ -167,7 +158,6 @@ class ForSecurityRules extends Base {
 				'className'      => 'drag',
 				'orderable'      => false,
 				'searchable'     => false,
-				'search_builder' => false,
 				'visible'        => true,
 				'searchPanes'    => [
 					'show' => false,

@@ -73,7 +73,7 @@ class UserSuspendController {
 				$meta = self::con()->user_metas->for( $user );
 				if ( $meta->record->hard_suspended_at > 0 ) {
 					$content[] = sprintf( '<em>%s</em>: %s',
-						__( 'Suspended', 'wp-simple-firewall' ),
+						esc_html__( 'Suspended', 'wp-simple-firewall' ),
 						Services::Request()
 								->carbon( true )
 								->setTimestamp( $meta->record->hard_suspended_at )
@@ -161,7 +161,7 @@ class UserSuspendController {
 					$views[ 'shield_users_suspended' ] = sprintf(
 						'<a href="%s">%s <span class="count">(%s)</span></a>',
 						URL::Build( $WP->getUrl_CurrentAdminPage(), [ 'shield_users_suspended' => 1 ] ),
-						__( 'Manually Suspended', 'wp-simple-firewall' ), $manual
+						esc_html__( 'Manually Suspended', 'wp-simple-firewall' ), $manual
 					);
 				}
 
@@ -169,7 +169,7 @@ class UserSuspendController {
 					$views[ 'shield_idle_users' ] = sprintf(
 						'<a href="%s">%s <span class="count">(%s)</span></a>',
 						URL::Build( $WP->getUrl_CurrentAdminPage(), [ 'shield_users_idle' => 1 ] ),
-						__( 'Idle', 'wp-simple-firewall' ), $idle
+						esc_html__( 'Idle', 'wp-simple-firewall' ), $idle
 					);
 				}
 
@@ -177,7 +177,7 @@ class UserSuspendController {
 					$views[ 'shield_users_pass' ] = sprintf(
 						'<a href="%s">%s <span class="count">(%s)</span></a>',
 						URL::Build( $WP->getUrl_CurrentAdminPage(), [ 'shield_users_pass' => 1 ] ),
-						__( 'Password Expired', 'wp-simple-firewall' ), $passwords
+						esc_html__( 'Password Expired', 'wp-simple-firewall' ), $passwords
 					);
 				}
 

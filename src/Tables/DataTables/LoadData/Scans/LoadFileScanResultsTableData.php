@@ -320,7 +320,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		$carbon = Services::Request()->carbon( true );
 
 		$content = \implode( ' / ', \array_map( function ( string $status ) {
-			return \sprintf( '<span class="badge text-bg-secondary">%s</span>', $status );
+			return \sprintf( '<span class="badge text-bg-secondary">%s</span>', esc_html( $status ) );
 		}, $item->getStatusForHuman() ) );
 
 		$meta = [];
@@ -353,7 +353,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		if ( !empty( $meta ) ) {
-			$content .= sprintf( '<ul style="list-style: square inside"><li>%s</li></ul>', \implode( '</li><li>', $meta ) );
+			$content .= sprintf( '<ul style="list-style: square inside"><li>%s</li></ul>', \implode( '</li><li>', \array_map( 'esc_html', $meta ) ) );
 		}
 
 		return $content;

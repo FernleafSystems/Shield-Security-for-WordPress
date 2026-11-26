@@ -12,6 +12,7 @@ class ReportsTableRequestNormalizerTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'wp_kses' )->returnArg();
 	}
 
 	public function test_normalize_clamps_paging_and_rebuilds_canonical_contract() :void {

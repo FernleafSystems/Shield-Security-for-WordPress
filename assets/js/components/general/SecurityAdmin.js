@@ -3,6 +3,7 @@ import { BaseComponent } from "../BaseComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldOverlay } from "../ui/ShieldOverlay";
 import { focusElement } from "../ui/ShieldA11y";
+import { Html } from "../../util/Html";
 
 export class SecurityAdmin extends BaseComponent {
 
@@ -231,7 +232,8 @@ export class SecurityAdmin extends BaseComponent {
 	getRestrictedOptionNoticeHtml() {
 		return '<div style="clear:both"></div><div class="shield-restricted-option">' +
 			'<span class="dashicons dashicons-lock"></span>' +
-			this._base_data.strings.editing_restricted +
+			Html.Escape( this._base_data.strings.editing_restricted ) +
+			// Already HTML: built and escaped by SecurityAdminController::unlockLink().
 			' ' + this._base_data.strings.unlock_link +
 			'</div>';
 	};

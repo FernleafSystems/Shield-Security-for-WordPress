@@ -28,8 +28,8 @@ class RateLimiting extends Base {
 			}
 			else {
 				$status[ 'level' ] = EnumEnabledStatus::OKAY;
-				/* translators: %s: name of the IP address source setting wrapped in code tags */
-				$status[ 'exp' ][] = sprintf( __( 'Traffic rate limiting is enabled, but the current IP source (%s) is not recommended for accurate visitor tracking.', 'wp-simple-firewall' ), sprintf( '<code>%s</code>', $source ) );
+				/* translators: %s: name of the IP address source setting */
+				$status[ 'exp' ][] = sprintf( __( 'Traffic rate limiting is enabled, but the current IP source (%s) is not recommended for accurate visitor tracking.', 'wp-simple-firewall' ), $source );
 			}
 		}
 		else {

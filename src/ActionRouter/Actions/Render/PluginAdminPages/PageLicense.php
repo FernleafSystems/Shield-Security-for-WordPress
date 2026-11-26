@@ -41,7 +41,7 @@ class PageLicense extends PageModeLandingBase {
 
 		$lastReqAt = $lic->last_request_at;
 		if ( empty( $lastReqAt ) ) {
-			$checked = CommonDisplayStrings::get( 'never_label' );
+			$checked = esc_html( CommonDisplayStrings::get( 'never_label' ) );
 		}
 		else {
 			$checked = sprintf( '%s<br/><small>%s</small>',
@@ -171,12 +171,16 @@ class PageLicense extends PageModeLandingBase {
 		];
 	}
 
+	/**
+	 * The tiles are printed as HTML for their file names in code tags, so their translations can't add other markup.
+	 */
 	private function buildProFeatureTiles( array $proFeatures ) :array {
+		$codeOnly = static fn( string $text ) :string => wp_kses( $text, [ 'code' => [] ] );
 		return \array_map(
-			function ( array $feature ) :array {
+			function ( array $feature ) use ( $codeOnly ) :array {
 				return [
-					'title'       => $feature[ 'title' ],
-					'description' => $feature[ 'lines' ][ 0 ] ?? '',
+					'title'       => $codeOnly( $feature[ 'title' ] ),
+					'description' => $codeOnly( $feature[ 'lines' ][ 0 ] ?? '' ),
 				];
 			},
 			$proFeatures

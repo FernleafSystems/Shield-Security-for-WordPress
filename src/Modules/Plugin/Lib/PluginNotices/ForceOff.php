@@ -16,10 +16,10 @@ class ForceOff extends Base {
 					sprintf(
 						'%s %s',
 						/* translators: %s: plugin name */
-						sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not currently protecting your site.', 'wp-simple-firewall' ), $con->labels->Name ) ),
+						sprintf( '%s: %s', esc_html__( 'Warning', 'wp-simple-firewall' ), sprintf( esc_html__( '%s is not currently protecting your site.', 'wp-simple-firewall' ), $con->labels->Name ) ),
 						sprintf( '<button type="button" data-notice_action="%s" class="shield_admin_notice_action shield-button-link">%s</button>',
 							PluginDeleteForceOff::SLUG,
-							__( "Delete 'forceoff' File", 'wp-simple-firewall' )
+							esc_html__( "Delete 'forceoff' File", 'wp-simple-firewall' )
 						)
 					)
 				],

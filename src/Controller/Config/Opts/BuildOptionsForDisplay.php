@@ -287,11 +287,11 @@ class BuildOptionsForDisplay {
 				$option[ 'value' ] = $applicability->removeServerUnsupportedKeys( $fileLockerValue );
 				foreach ( \array_map( 'strval', \array_keys( $option[ 'value_options' ] ) ) as $fileKey ) {
 					if ( !$applicability->isServerSupported( $fileKey ) ) {
-						$option[ 'value_options' ][ $fileKey ][ 'name' ] .= sprintf( ' (%s)', __( 'IIS only', 'wp-simple-firewall' ) );
+						$option[ 'value_options' ][ $fileKey ][ 'name' ] .= sprintf( ' (%s)', esc_html__( 'IIS only', 'wp-simple-firewall' ) );
 						$option[ 'value_options' ][ $fileKey ][ 'is_available' ] = false;
 					}
 					elseif ( !$applicability->isApplicable( $fileKey ) ) {
-						$option[ 'value_options' ][ $fileKey ][ 'name' ] .= sprintf( ' (%s)', __( 'not found', 'wp-simple-firewall' ) );
+						$option[ 'value_options' ][ $fileKey ][ 'name' ] .= sprintf( ' (%s)', esc_html__( 'not found', 'wp-simple-firewall' ) );
 						// A selected file that's gone missing stays tickable, so saving keeps it (and its lock).
 						if ( !\in_array( $fileKey, $option[ 'value' ], true ) ) {
 							$option[ 'value_options' ][ $fileKey ][ 'is_available' ] = false;
@@ -310,19 +310,19 @@ class BuildOptionsForDisplay {
 				break;
 
 			case 'user_auto_recover':
-				$option[ 'value_options' ][ 'gasp' ][ 'name' ] = sprintf(
+				$option[ 'value_options' ][ 'gasp' ][ 'name' ] = esc_html( sprintf(
 					/* translators: %s: name of the silent CAPTCHA feature */
 					__( 'Protected By %s', 'wp-simple-firewall' ),
 					self::con()->labels->getBrandName( 'silentcaptcha' )
-				);
+				) );
 				break;
 
 			case 'file_scan_areas':
 				$option[ 'value_options' ][ 'wp' ][ 'name' ] = sprintf( '%s (%s)', esc_html( __( 'WP core files', 'wp-simple-firewall' ) ),
 					/* translators: %s: directory path, wrapped in code tags */
-					sprintf( __( 'excludes %s', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ) );
+					sprintf( esc_html__( 'excludes %s', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ) );
 				/* translators: %s: directory path, wrapped in code tags */
-				$option[ 'value_options' ][ 'wpcontent' ][ 'name' ] = sprintf( __( '%s directory', 'wp-simple-firewall' ), '<code>/wp-content/</code>' );
+				$option[ 'value_options' ][ 'wpcontent' ][ 'name' ] = sprintf( esc_html__( '%s directory', 'wp-simple-firewall' ), '<code>/wp-content/</code>' );
 				break;
 
 			case 'visitor_address_source':

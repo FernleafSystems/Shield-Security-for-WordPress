@@ -23,8 +23,8 @@ class IpStatus extends Base {
 				'type'      => 'warning',
 				'text'      => [
 					/* translators: %s: IP address, shown as a link */
-					sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is whitelisted.', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" class="offcanvas_ip_analysis text-reset text-decoration-underline" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), $ip, $ip ) )
+					sprintf( esc_html__( 'Something not working? No security features apply to you because your IP (%s) is whitelisted.', 'wp-simple-firewall' ),
+						sprintf( '<a href="%s" class="offcanvas_ip_analysis text-reset text-decoration-underline" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), esc_attr( $ip ), esc_html( $ip ) ) )
 				],
 				'locations' => [
 					'shield_admin_top_page',
@@ -37,8 +37,8 @@ class IpStatus extends Base {
 				'type'      => 'danger',
 				'text'      => [
 					/* translators: %s: IP address, shown as a link */
-					sprintf( __( 'It looks like your IP (%s) is currently blocked.', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" class="offcanvas_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), $ip, $ip ) )
+					sprintf( esc_html__( 'It looks like your IP (%s) is currently blocked.', 'wp-simple-firewall' ),
+						sprintf( '<a href="%s" class="offcanvas_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), esc_attr( $ip ), esc_html( $ip ) ) )
 				],
 				'locations' => [
 					'shield_admin_top_page',
@@ -51,7 +51,7 @@ class IpStatus extends Base {
 				'type'        => 'warning',
 				'text'        => [
 					/* translators: %s: IP address, shown as a link */
-					sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is a private or local address.', 'wp-simple-firewall' ),
+					sprintf( esc_html__( 'Something not working? No security features apply to you because your IP (%s) is a private or local address.', 'wp-simple-firewall' ),
 						sprintf( '<a href="%s" class="offcanvas_ip_analysis text-reset text-decoration-underline" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), esc_attr( $ip ), esc_html( $ip ) ) )
 				],
 				'locations'   => [

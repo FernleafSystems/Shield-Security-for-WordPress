@@ -126,14 +126,14 @@ class MfaController {
 			                  ->setTimestamp( $twoFAat );
 
 			$content[] = sprintf( '<em title="%s">%s</em>: %s',
-				$twoFAat > 0 ? $carbon->toIso8601String() : __( 'Not Recorded', 'wp-simple-firewall' ),
-				__( '2FA At', 'wp-simple-firewall' ),
-				$twoFAat > 0 ? $carbon->diffForHumans() : __( 'Not Recorded', 'wp-simple-firewall' )
+				$twoFAat > 0 ? $carbon->toIso8601String() : esc_attr__( 'Not Recorded', 'wp-simple-firewall' ),
+				esc_html__( '2FA At', 'wp-simple-firewall' ),
+				$twoFAat > 0 ? $carbon->diffForHumans() : esc_html__( 'Not Recorded', 'wp-simple-firewall' )
 			);
 
-			$providers = \array_map( fn( $p ) => $p->getProviderName(), $this->getProvidersActiveForUser( $user ) );
-			$content[] = sprintf( '<em>%s</em>: %s', __( 'Active 2FA', 'wp-simple-firewall' ),
-				empty( $providers ) ? __( 'None', 'wp-simple-firewall' ) : \implode( ', ', $providers ) );
+			$providers = \array_map( fn( $p ) => esc_html( $p->getProviderName() ), $this->getProvidersActiveForUser( $user ) );
+			$content[] = sprintf( '<em>%s</em>: %s', esc_html__( 'Active 2FA', 'wp-simple-firewall' ),
+				empty( $providers ) ? esc_html__( 'None', 'wp-simple-firewall' ) : \implode( ', ', $providers ) );
 
 			return $content;
 		}, 10, 2 );

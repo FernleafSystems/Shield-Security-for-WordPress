@@ -14,12 +14,12 @@ class SiteInLockdown extends Base {
 					sprintf(
 						'%s %s',
 						sprintf( '%s: %s',
-							__( 'Warning', 'wp-simple-firewall' ),
-							sprintf( __( 'Your site is in lockdown.', 'wp-simple-firewall' ), $con->labels->Name )
+							esc_html__( 'Warning', 'wp-simple-firewall' ),
+							sprintf( esc_html__( 'Your site is in lockdown.', 'wp-simple-firewall' ), $con->labels->Name )
 						),
 						sprintf( '<a href="%s">%s</a>',
 							$con->plugin_urls->lockdown(),
-							__( "Configure Lockdown", 'wp-simple-firewall' )
+							esc_html__( "Configure Lockdown", 'wp-simple-firewall' )
 						)
 					)
 				],

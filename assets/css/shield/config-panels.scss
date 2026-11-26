@@ -183,7 +183,8 @@ $panel-unsaved: #f0f6fc;
 			}
 		}
 
-		a {
+		// A button-style link keeps its button colours.
+		a:not(.btn) {
 			color: $panel-link;
 		}
 

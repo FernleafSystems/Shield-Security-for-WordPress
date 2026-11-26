@@ -40,13 +40,15 @@ class TourManager {
 			'is_available' => $this->isTourAvailable( self::TOUR_DASHBOARD ),
 			'steps'        => $this->getDashboardTourSteps(),
 			'options'      => [
-				'overlayOpacity'  => 0.7,
-				'highlightClass'  => 'shield-dashboard-tour-highlight',
-				'tooltipClass'    => 'shield_tour_tooltip',
-				'showProgress'    => true,
-				'showBullets'     => true,
-				'scrollToElement' => true,
-				'scrollPadding'   => 40,
+				'overlayOpacity'      => 0.7,
+				'highlightClass'      => 'shield-dashboard-tour-highlight',
+				'tooltipClass'        => 'shield_tour_tooltip',
+				'showProgress'        => true,
+				'showBullets'         => true,
+				'scrollToElement'     => true,
+				'scrollPadding'       => 40,
+				// The step text is plain, so it's printed as text rather than HTML.
+				'tooltipRenderAsHtml' => false,
 			],
 			'video_modal'  => $this->getDashboardVideoModal(),
 		];

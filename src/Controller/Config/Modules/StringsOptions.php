@@ -91,7 +91,7 @@ class StringsOptions {
 				$name = __( 'SPAM Action', 'wp-simple-firewall' );
 				$summary = __( 'How To Categorise Comments When Identified To Be SPAM', 'wp-simple-firewall' );
 				/* translators: %s: the words "a human commenter", wrapped in HTML markup */
-				$desc = [ sprintf( __( 'When a comment is detected as being SPAM from %s, the comment will be categorised based on this setting.', 'wp-simple-firewall' ), '<span style"text-decoration:underline;">'.__( 'a human commenter', 'wp-simple-firewall' ).'</span>' ) ];
+				$desc = [ sprintf( __( 'When a comment is detected as being SPAM from %s, the comment will be categorised based on this setting.', 'wp-simple-firewall' ), '<span style="text-decoration:underline;">'.__( 'a human commenter', 'wp-simple-firewall' ).'</span>' ) ];
 				break;
 			case 'comments_default_action_spam_bot':
 				$name = __( 'Bot SPAM Action', 'wp-simple-firewall' );

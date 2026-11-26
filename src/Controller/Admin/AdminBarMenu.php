@@ -156,7 +156,7 @@ class AdminBarMenu {
 
 		return [
 			'title' => sprintf(
-				'%s %s', __( 'Scan Results', 'wp-simple-firewall' ),
+				'%s %s', esc_html__( 'Scan Results', 'wp-simple-firewall' ),
 				$this->counterMarkup( $counterLabel )
 			),
 			'href'  => self::con()->plugin_urls->actionsQueueScans(),
@@ -196,32 +196,32 @@ class AdminBarMenu {
 		return [
 			'malware'           => [
 				'suffix'     => 'malware',
-				'label'      => __( 'Potential Malware', 'wp-simple-firewall' ),
+				'label'      => esc_html__( 'Potential Malware', 'wp-simple-firewall' ),
 				'queue_kind' => 'malware',
 			],
 			'wp_files'          => [
 				'suffix'     => 'wp',
-				'label'      => __( 'WordPress Core Files', 'wp-simple-firewall' ),
+				'label'      => esc_html__( 'WordPress Core Files', 'wp-simple-firewall' ),
 				'queue_kind' => 'wordpress',
 			],
 			'plugin_files'      => [
 				'suffix'     => 'plugin',
-				'label'      => __( 'Plugin Files', 'wp-simple-firewall' ),
+				'label'      => esc_html__( 'Plugin Files', 'wp-simple-firewall' ),
 				'queue_kind' => 'plugins',
 			],
 			'theme_files'       => [
 				'suffix'     => 'theme',
-				'label'      => __( 'Theme Files', 'wp-simple-firewall' ),
+				'label'      => esc_html__( 'Theme Files', 'wp-simple-firewall' ),
 				'queue_kind' => 'themes',
 			],
 			'abandoned'         => [
 				'suffix'     => 'apc',
-				'label'      => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
+				'label'      => esc_html__( 'Abandoned Plugins', 'wp-simple-firewall' ),
 				'queue_kind' => 'abandoned',
 			],
 			'vulnerable_assets' => [
 				'suffix'     => 'wpv',
-				'label'      => __( 'Vulnerable Plugins', 'wp-simple-firewall' ),
+				'label'      => esc_html__( 'Vulnerable Plugins', 'wp-simple-firewall' ),
 				'queue_kind' => 'vulnerabilities',
 			],
 		];
@@ -293,7 +293,7 @@ class AdminBarMenu {
 			}
 
 			$thisGroup = [
-				'title' => __( 'Recent Users', 'wp-simple-firewall' ),
+				'title' => esc_html__( 'Recent Users', 'wp-simple-firewall' ),
 				'href'  => $con->plugin_urls->investigateUserSessions(),
 				'items' => $items,
 			];

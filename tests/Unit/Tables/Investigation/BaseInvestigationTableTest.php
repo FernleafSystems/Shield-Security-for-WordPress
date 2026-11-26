@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Tables\Investigation;
 
+use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Investigation\BaseInvestigationTable;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -27,6 +28,11 @@ class TestSourceTableBuilder extends Base {
 }
 
 class BaseInvestigationTableTest extends BaseUnitTest {
+
+	protected function setUp() :void {
+		parent::setUp();
+		Functions\when( 'wp_kses' )->returnArg();
+	}
 
 	private function createBuilder() :BaseInvestigationTable {
 		return new class extends BaseInvestigationTable {

@@ -73,7 +73,7 @@ class WpvAddPluginRows {
 		$views[ 'vulnerable' ] = sprintf( "<a href='%s' %s>%s</a>",
 			add_query_arg( 'plugin_status', 'vulnerable', 'plugins.php' ),
 			( 'vulnerable' === $status ) ? ' class="current"' : '',
-			sprintf( '%s <span class="count">(%s)</span>', __( 'Vulnerable', 'wp-simple-firewall' ), number_format_i18n( $this->countVulnerablePlugins() ) )
+			sprintf( '%s <span class="count">(%s)</span>', esc_html__( 'Vulnerable', 'wp-simple-firewall' ), number_format_i18n( $this->countVulnerablePlugins() ) )
 		);
 		return $views;
 	}
