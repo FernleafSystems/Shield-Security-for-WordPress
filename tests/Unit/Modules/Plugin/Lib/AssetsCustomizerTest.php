@@ -66,6 +66,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 			\define( 'HOUR_IN_SECONDS', 3600 );
 		}
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'wp_kses' )->returnArg();
 		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => htmlspecialchars( $text ) );
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \preg_replace( '/[^a-z0-9_\-]/', '', $text ) ) : ''
