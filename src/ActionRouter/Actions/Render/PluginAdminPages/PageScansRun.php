@@ -155,6 +155,7 @@ class PageScansRun extends PageScansBase {
 				'vars'    => [
 					'slug'     => $slug,
 					'last_ran' => $lastRanBySlug[ $slug ] > 0
+						/* translators: %s: how long ago the scan last ran, such as "2 hours ago" */
 						? \sprintf( __( 'Last ran %s', 'wp-simple-firewall' ),
 							Services::Request()->carbon( true )->setTimestamp( $lastRanBySlug[ $slug ] )->diffForHumans() )
 						: __( 'Not run yet', 'wp-simple-firewall' ),

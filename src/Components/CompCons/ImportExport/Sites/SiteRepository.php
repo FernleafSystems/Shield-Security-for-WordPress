@@ -1567,7 +1567,7 @@ class SiteRepository {
 		}
 
 		global $wpdb;
-		return (string)$wpdb->prepare( $sql, ...$values );
+		return (string)$wpdb->prepare( $sql, ...$values ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Callers build $sql from Shield's table, schema-checked column names and literal WHERE clauses; the values are passed for prepare().
 	}
 
 	private function executePreparedSql( string $sql, array $values ) :bool {

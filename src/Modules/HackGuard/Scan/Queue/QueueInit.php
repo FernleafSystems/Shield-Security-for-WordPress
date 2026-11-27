@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\PopulateScanItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class QueueInit {
 
@@ -39,11 +40,11 @@ class QueueInit {
 	private function loadQueuedScan( int $scanID ) :?ScansDB\Record {
 		$scanRecord = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
 		if ( empty( $scanRecord ) ) {
-			throw new \Exception( sprintf( 'Scan record %d could not be loaded.', $scanID ) );
+			throw new \Exception( sprintf( 'Scan record %d could not be loaded.', $scanID ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message holds only an integer scan ID; QueueBuilder::task() and ProcessQueueWpcli record it as the scan failure text.
 		}
 
 		if ( $scanRecord->status !== ScanStatus::QUEUED || (int)$scanRecord->finished_at > 0 ) {
-			error_log( \sprintf(
+			ErrorLog::write( \sprintf(
 				'Shield scan build skipped: scan_id=%d status=%s finished_at=%d',
 				$scanID,
 				(string)$scanRecord->status,

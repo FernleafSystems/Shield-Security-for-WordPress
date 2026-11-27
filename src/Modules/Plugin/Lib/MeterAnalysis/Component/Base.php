@@ -4,6 +4,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
+/**
+ * @phpstan-type ComponentGuidance array{
+ *   checks:string,
+ *   why:list<string>,
+ *   steps:list<string>,
+ *   who:string,
+ *   practice:list<string>
+ * }
+ */
 abstract class Base {
 
 	use PluginControllerConsumer;
@@ -40,7 +49,7 @@ abstract class Base {
 	) :?string {
 		$normalized = self::normalizeChannel( $channel );
 		if ( !self::isValidChannel( $normalized ) ) {
-			throw new \InvalidArgumentException( \sprintf( $messageTemplate, (string)$normalized ) );
+			throw new \InvalidArgumentException( \sprintf( $messageTemplate, (string)$normalized ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: developer-error guard; callers pass only the CHANNEL_* constants, never request input.
 		}
 		return $normalized;
 	}
@@ -102,6 +111,23 @@ abstract class Base {
 	abstract public function descProtected() :string;
 
 	abstract public function descUnprotected() :string;
+
+	/**
+	 * The check explained, as its drawer in the Actions Queue shows it: what it looks at, why that matters (a
+	 * paragraph each), the steps that put it right, who usually takes them, and what's good practice whatever the
+	 * result. The drawer shows the steps only while there's something to put right. Every to-do in the queue has
+	 * one, except a to-do that opens a drawer of its own.
+	 * @return ComponentGuidance
+	 */
+	public function guidance() :array {
+		return [
+			'checks'   => '',
+			'why'      => [],
+			'steps'    => [],
+			'who'      => '',
+			'practice' => [],
+		];
+	}
 
 	protected function href() :string {
 		return $this->hrefFull();

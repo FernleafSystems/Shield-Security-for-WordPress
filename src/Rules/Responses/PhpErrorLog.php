@@ -3,13 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class PhpErrorLog extends Base {
 
 	public const SLUG = 'php_error_log';
 
 	public function execResponse() :void {
-		\error_log( $this->p->message );
+		ErrorLog::write( $this->p->message );
 	}
 
 	public function getParamsDef() :array {

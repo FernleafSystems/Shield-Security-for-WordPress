@@ -187,6 +187,7 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 				? __( 'Known Vulnerabilities', 'wp-simple-firewall' )
 				: '',
 			'summary'     => $hasVulnerabilities
+				/* translators: %d: number of vulnerabilities */
 				? \sprintf( _n( '%d vulnerability detected for this asset.', '%d vulnerabilities detected for this asset.', $count, 'wp-simple-firewall' ), $count )
 				: __( 'No known vulnerabilities were detected for this asset in the current scan results.', 'wp-simple-firewall' ),
 			'lookup_href' => $hasVulnerabilities ? $lookupHref : '',

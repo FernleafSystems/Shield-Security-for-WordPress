@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\HttpRequest;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 /**
  * @property int         $api_version
@@ -48,7 +49,7 @@ abstract class BaseApi extends DynPropertiesClass {
 		if ( $reqSuccess ) {
 			$response = empty( $httpReq->lastResponse->body ) ? [] : @\json_decode( $httpReq->lastResponse->body, true );
 			if ( !\is_array( $response ) ) {
-				error_log( 'failed to decode HTTP body response' );
+				ErrorLog::write( 'failed to decode HTTP body response' );
 				$response = null;
 			}
 		}

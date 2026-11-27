@@ -210,7 +210,7 @@ class OptsHandler extends DynPropertiesClass {
 		// Pre-process options.
 		( new PreStore() )->run();
 
-		do_action( $con->prefix( 'pre_options_store' ) );
+		do_action( $con->prefix( 'pre_options_store' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 
 		if ( !empty( $this->changes ) ) {
 			( new Opts\FireEventsForChangedOpts() )->run( $this->changes );
@@ -218,7 +218,7 @@ class OptsHandler extends DynPropertiesClass {
 
 		$this->transposeValuesToStore();
 
-		do_action( $con->prefix( 'after_pre_options_store' ), !empty( $this->changes ) );
+		do_action( $con->prefix( 'after_pre_options_store' ), !empty( $this->changes ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 	}
 
 	private function transposeValuesToStore() :void {

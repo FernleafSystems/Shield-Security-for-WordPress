@@ -25,7 +25,7 @@ class Base extends Render\BaseRender {
 	 */
 	protected function getAnalyseIP() :string {
 		if ( !Services::IP()->isValidIp( $this->action_data[ 'ip' ] ) ) {
-			throw new ActionException( __( "A valid IP address wasn't provided.", 'wp-simple-firewall' ) );
+			throw new ActionException( __( "A valid IP address wasn't provided.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Shown only through the action router: AJAX responses show it as text, and render() escapes it when printing.
 		}
 		return $this->action_data[ 'ip' ];
 	}

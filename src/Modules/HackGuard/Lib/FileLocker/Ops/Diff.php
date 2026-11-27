@@ -45,6 +45,10 @@ class Diff {
 			throw new \UnexpectedValueException();
 		}
 
+		// This HTML is printed as is, deliberately. It comes from our own WP Hashes API (AptoWeb-Api,
+		// Requests/WpHashes/Util/Diff.php) over HTTPS, which renders it with jfcherng/php-diff: every line of both
+		// files is escaped with htmlspecialchars() before it's placed in the table, so file contents can't add markup.
+		// The CSS is that library's static stylesheet. Any cleaning belongs in the API, not here.
 		return sprintf( '<style>%s</style>%s',
 			'table.diff.diff-wrapper tbody tr td:nth-child(2){ width:auto;}'.
 			'table.diff.diff-wrapper { table-layout: auto;}'.
@@ -68,7 +72,7 @@ class Diff {
 			] );
 		}
 		catch ( \Throwable $e ) {
-			throw new DiffUnavailableException( $e );
+			throw new DiffUnavailableException( $e ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the exception sets its own fixed message and wraps $e; ScansFileLockerDiff catches it and shows a "diff unavailable" notice instead.
 		}
 
 		return $diff;

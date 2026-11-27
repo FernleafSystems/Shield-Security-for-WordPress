@@ -26,7 +26,6 @@ class ForReports extends Base {
 				'className'      => 'rid',
 				'orderable'      => false,
 				'searchable'     => false,
-				'search_builder' => false,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => false,
@@ -38,7 +37,6 @@ class ForReports extends Base {
 				'className'      => 'type',
 				'orderable'      => false,
 				'searchable'     => false,
-				'search_builder' => false,
 				'visible'        => true,
 				'searchPanes'    => [
 					'show' => false,
@@ -50,7 +48,6 @@ class ForReports extends Base {
 				'className'      => 'title',
 				'orderable'      => false,
 				'searchable'     => true,
-				'search_builder' => false,
 				'visible'        => true,
 				'searchPanes'    => [
 					'show' => false,
@@ -77,7 +74,6 @@ class ForReports extends Base {
 				'className'      => 'actions',
 				'orderable'      => false,
 				'searchable'     => false,
-				'search_builder' => false,
 				'visible'        => true,
 				'searchPanes'    => [
 					'show' => false,

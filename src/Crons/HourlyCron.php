@@ -27,6 +27,6 @@ class HourlyCron extends BaseCron {
 	}
 
 	public function runCron() {
-		do_action( self::con()->prefix( 'hourly_cron' ) );
+		do_action( self::con()->prefix( 'hourly_cron' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 	}
 }

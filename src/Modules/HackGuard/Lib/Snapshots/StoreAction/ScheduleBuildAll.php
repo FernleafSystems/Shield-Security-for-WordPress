@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpThemeVo
 };
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class ScheduleBuildAll extends BaseExec {
 
@@ -34,7 +35,7 @@ class ScheduleBuildAll extends BaseExec {
 				$this->buildMissingAsset( $asset, $algorithm );
 			}
 			catch ( \Throwable $e ) {
-				error_log( '[Build Asset] Notice: '.$e->getMessage() );
+				ErrorLog::write( '[Build Asset] Notice: '.$e->getMessage() );
 			}
 		}
 
@@ -45,7 +46,7 @@ class ScheduleBuildAll extends BaseExec {
 					->run( $algorithm );
 			}
 			catch ( \Throwable $e ) {
-				error_log( '[Promote Asset Snapshot] Notice: '.$e->getMessage() );
+				ErrorLog::write( '[Promote Asset Snapshot] Notice: '.$e->getMessage() );
 			}
 		}
 	}

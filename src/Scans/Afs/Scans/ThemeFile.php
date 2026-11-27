@@ -29,18 +29,22 @@ class ThemeFile extends BasePluginThemeFile {
 			return true;
 		}
 		if ( !$verification->recognisedInSnapshot ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: carries only the file path; FileScanner::scan() catches it and flags the result item, never shown.
 			throw new Exceptions\ThemeFileUnrecognisedException( $this->pathFull, [
 				'slug'             => $verification->assetKey,
 				'asset_version'    => $verification->assetVersion,
 				'comparison_basis' => $verification->comparisonBasis,
 			] );
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 		if ( !$verification->verified ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: carries only the file path; FileScanner::scan() catches it and flags the result item, never shown.
 			throw new Exceptions\ThemeFileChecksumFailException( $this->pathFull, [
 				'slug'             => $verification->assetKey,
 				'asset_version'    => $verification->assetVersion,
 				'comparison_basis' => $verification->comparisonBasis,
 			] );
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 		$this->hashVerificationResult = $verification;
 		return true;

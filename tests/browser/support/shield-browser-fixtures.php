@@ -278,6 +278,7 @@ function shield_browser_fixture_allowed_actions() :array {
 		'__all__' => [ 'cleanup' ],
 		'actions-queue' => [ 'seed', 'cleanup', 'inspect' ],
 		'scan-progress' => [ 'render' ],
+		'dashboard-activity' => [ 'seed', 'cleanup' ],
 		'dashboard-defaults' => [ 'seed', 'cleanup', 'inspect', 'reset-defaults', 'prepare-actions-all-clear', 'prepare-maintenance-warning' ],
 		'import-export-file' => [ 'seed', 'cleanup' ],
 		'import-export-network' => [ 'seed', 'cleanup' ],
@@ -296,7 +297,7 @@ function shield_browser_fixture_allowed_actions() :array {
 		'report-email-hold' => [ 'seed', 'cleanup', 'inspect' ],
 		'security-admin' => [ 'seed', 'cleanup', 'inspect' ],
 		'security-headers' => [ 'seed', 'cleanup' ],
-		'setup-guide-dismissed' => [ 'seed', 'cleanup' ],
+		'setup-guide-state' => [ 'seed', 'cleanup' ],
 		'user-ui-state' => [ 'reset' ],
 	];
 }
@@ -311,6 +312,7 @@ function shield_browser_fixture_require_helpers() :void {
 		'tests/Helpers/ActionRouter/ActionsQueueRuntimeProbe.php',
 		'tests/Helpers/ActionRouter/ActionsQueueFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/RawOptionStoreSnapshot.php',
+		'tests/Helpers/ActionRouter/DashboardActivityFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/DashboardDefaultsFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/ImportExportFileFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/ImportExportNetworkFixtureBuilder.php',
@@ -328,7 +330,7 @@ function shield_browser_fixture_require_helpers() :void {
 		'tests/Helpers/ActionRouter/ReportEmailHoldFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/SecurityAdminFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/SecurityHeadersFixtureBuilder.php',
-		'tests/Helpers/ActionRouter/SetupGuideDismissedFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/SetupGuideStateFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/UserUiStateFixtureBuilder.php',
 	] as $relativePath ) {
 		require_once $pluginRoot.'/'.$relativePath;

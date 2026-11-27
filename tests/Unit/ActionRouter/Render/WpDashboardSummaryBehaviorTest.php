@@ -11,11 +11,13 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueCardDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\WpDashboardSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
 	PluginControllerInstaller,
+	UnitTestActionsQueueIgnoredCounter,
 	UnitTestControllerFactory,
 	UnitTestPluginUrls
 };
@@ -115,6 +117,33 @@ class WpDashboardSummaryBehaviorTest extends BaseUnitTest {
 		$this->assertRestrictedContract( $renderData, false, 'good' );
 	}
 
+	public function test_all_clear_says_how_many_items_are_ignored_only_where_the_queue_is_shown() :void {
+		$this->setSecurityAdminState( false, false );
+		$full = $this->invokeNonPublicMethod(
+			new WpDashboardSummaryAttentionQueryTestDouble( $this->attentionQuery( [] ) ),
+			'getRenderData'
+		);
+
+		$this->assertFalse( $full[ 'flags' ][ 'has_items' ] );
+		$this->assertMatchesRegularExpression( '/\b3\b/', $full[ 'strings' ][ 'ignored' ] );
+
+		// With something waiting, nothing is claimed to be clear, so there's nothing to qualify.
+		$withItems = $this->invokeNonPublicMethod(
+			new WpDashboardSummaryAttentionQueryTestDouble( $this->attentionQuery( [
+				$this->attentionItem( 'malware', 'scans', 2, 'critical', 'Malware' ),
+			] ) ),
+			'getRenderData'
+		);
+		$this->assertSame( '', $withItems[ 'strings' ][ 'ignored' ] );
+
+		$this->setSecurityAdminState( true, false );
+		$restricted = $this->invokeNonPublicMethod(
+			new WpDashboardSummaryRestrictedNoCardBuilderTestDouble( $this->attentionQuery( [] ) ),
+			'getRenderData'
+		);
+		$this->assertSame( '', $restricted[ 'strings' ][ 'ignored' ] );
+	}
+
 	private function attentionQuery( array $scanItems, array $maintenanceItems = [] ) :array {
 		$items = \array_values( \array_merge( $scanItems, $maintenanceItems ) );
 
@@ -199,6 +228,10 @@ class WpDashboardSummaryAttentionQueryTestDouble extends WpDashboardSummary {
 
 	protected function buildAttentionQuery() :array {
 		return $this->attentionQuery;
+	}
+
+	protected function buildActionsQueueCardData( array $attentionQuery ) :array {
+		return ( new ActionsQueueCardDataBuilder( new UnitTestActionsQueueIgnoredCounter( 2, 1 ) ) )->build( $attentionQuery );
 	}
 }
 

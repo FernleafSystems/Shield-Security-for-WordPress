@@ -23,7 +23,7 @@ class ResponseAdapterFactory {
 				$adapter = new RestApiActionResponseAdapter();
 				break;
 			default:
-				throw new ActionTypeDoesNotExistException( sprintf( 'Action type does not exist: %s', $type ) );
+				throw new ActionTypeDoesNotExistException( sprintf( 'Action type does not exist: %s', $type ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Programming-error guard: every caller passes one of the router's fixed action-type constants, so it isn't reached, and only an int is added.
 		}
 		return $adapter;
 	}

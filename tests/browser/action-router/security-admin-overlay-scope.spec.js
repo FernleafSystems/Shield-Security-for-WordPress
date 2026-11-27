@@ -98,6 +98,32 @@ test( 'Security Admin zone contract locks protected routes and restores cleanup 
 	expect( inspection.current.selected_options ).toEqual( originalOptions );
 } );
 
+/**
+ * The restricted page again, with Shield's script held back until released: what's typed meanwhile can't be waiting
+ * on the script.
+ */
+async function reloadWithScriptHeldBack( page, pinInput ) {
+	let release;
+	const held = new Promise( ( resolve ) => {
+		release = resolve;
+	} );
+	let isHeldBack = false;
+	await page.route( '**/shield-main.bundle.js*', async ( route ) => {
+		isHeldBack = true;
+		await held;
+		await route.continue();
+	} );
+	await page.reload( { waitUntil: 'commit' } );
+	await expect( pinInput ).toBeVisible( { timeout: 30_000 } );
+	await expect.poll( () => isHeldBack ).toBe( true );
+	await expect( pinInput ).toBeFocused();
+
+	return async () => {
+		release();
+		await page.unrouteAll( { behavior: 'wait' } );
+	};
+}
+
 test( 'Security Admin PIN can be typed as soon as the restricted page is shown, and is kept until it can be sent', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withSecurityAdminFixture( 'locked', async ( rawContract ) => {
 		const contract = assertSecurityAdminContract( rawContract, 'locked' );
@@ -109,30 +135,10 @@ test( 'Security Admin PIN can be typed as soon as the restricted page is shown, 
 		const unlock = overlay.locator( contract.selectors.pin_form ).locator( 'button[type="submit"]' );
 		const forgotPin = overlay.locator( contract.selectors.pin_form ).locator( 'a' );
 
-		// The page again, with Shield's script held back: the field can't be waiting on it for focus.
-		let release;
-		const held = new Promise( ( resolve ) => {
-			release = resolve;
-		} );
-		let isHeldBack = false;
-		const holdBack = async ( route ) => {
-			isHeldBack = true;
-			await held;
-			await route.continue();
-		};
-		await page.route( '**/shield-main.bundle.js*', holdBack );
+		const releaseScript = await reloadWithScriptHeldBack( page, pinInput );
 		try {
-			await page.reload( { waitUntil: 'commit' } );
-			await expect( pinInput ).toBeVisible( { timeout: 30_000 } );
-			await expect.poll( () => isHeldBack ).toBe( true );
-			await expect( pinInput ).toBeFocused();
-
-			// Entered before the script is listening, the PIN stays put: sending it now would only draw the page
-			// again and lose it.
 			await page.keyboard.type( contract.pins.valid );
-			await page.keyboard.press( 'Enter' );
 			await expect( unlock ).toBeDisabled();
-			await expect( pinInput ).toHaveValue( contract.pins.valid );
 
 			// Moving on from the field is the user's choice, and it holds when the script arrives. Unlock can't be
 			// reached yet, so the next stop is the link for a forgotten PIN.
@@ -140,13 +146,44 @@ test( 'Security Admin PIN can be typed as soon as the restricted page is shown, 
 			await expect( forgotPin ).toBeFocused();
 		}
 		finally {
-			release();
-			await page.unrouteAll( { behavior: 'wait' } );
+			await releaseScript();
 		}
 
+		// Nobody asked for it to be sent, so it waits.
 		await expect( unlock ).toBeEnabled( { timeout: 30_000 } );
 		await expect( pinInput ).toHaveValue( contract.pins.valid );
 		await expect( forgotPin ).toBeFocused();
+		expect( ( await fixtureApi.inspectSecurityAdminFixture() ).current.session_active ).toBe( false );
+	} );
+} );
+
+test( 'Enter pressed on a Security Admin PIN before the script is listening sends it once it is', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withSecurityAdminFixture( 'locked', async ( rawContract ) => {
+		const contract = assertSecurityAdminContract( rawContract, 'locked' );
+		await openShieldRoute( page, contract.routes.protected );
+		await expectRestrictedOverlay( page, contract );
+
+		const overlay = page.locator( contract.selectors.overlay );
+		const pinInput = overlay.locator( contract.selectors.pin_input );
+		const unlock = overlay.locator( contract.selectors.pin_form ).locator( 'button[type="submit"]' );
+
+		const login = waitForShieldAjaxAction( page, contract.action_slugs.sec_admin_login );
+		const releaseScript = await reloadWithScriptHeldBack( page, pinInput );
+		try {
+			// With nothing listening yet, Enter mustn't send the form the ordinary way: that would only draw the page
+			// again and lose the PIN.
+			await page.keyboard.type( contract.pins.valid );
+			await page.keyboard.press( 'Enter' );
+			await expect( unlock ).toBeDisabled();
+			await expect( pinInput ).toHaveValue( contract.pins.valid );
+		}
+		finally {
+			await releaseScript();
+		}
+
+		// The Enter was meant, so the PIN goes without being asked for twice.
+		expect( parseShieldAjaxJson( await ( await login ).text() ).success ).toBe( true );
+		expect( ( await fixtureApi.inspectSecurityAdminFixture() ).current.session_active ).toBe( true );
 	} );
 } );
 

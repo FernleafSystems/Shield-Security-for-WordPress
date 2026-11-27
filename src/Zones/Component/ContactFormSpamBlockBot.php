@@ -28,6 +28,7 @@ class ContactFormSpamBlockBot extends Base {
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			/* translators: %s: comma-separated list of form plugin names */
 			$status[ 'exp' ][] = sprintf( __( "It looks like you're using a WP forms plugin for which we have an integration: %s.", 'wp-simple-firewall' ), implode( ', ', $unprotected ) );
 		}
 

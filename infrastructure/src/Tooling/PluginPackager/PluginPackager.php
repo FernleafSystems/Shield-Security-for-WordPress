@@ -405,10 +405,10 @@ class PluginPackager {
 	 * Remove packaging-only files from the package directory.
 	 * Called after all composer/Strauss operations are complete.
 	 * These files are needed during packaging but not at runtime.
+	 * composer.json stays: WordPress.org's Plugin Check expects it alongside a Composer vendor directory.
 	 */
 	private function removePackagingOnlyFiles( string $targetDir ) :void {
 		$files = [
-			'composer.json',
 			'composer.lock',
 			Path::join( 'bin', 'patch-plugin-core-api-exception.php' ),
 		];

@@ -51,7 +51,7 @@ class Activate {
 	 */
 	public function run( string $apiKey ) :void {
 		if ( empty( $apiKey ) ) {
-			throw new \Exception( __( 'API key cannot be empty.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'API key cannot be empty.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI error output, plain text: only the license WP-CLI command calls Activate::run().
 		}
 
 		$this->preActivate();
@@ -69,7 +69,7 @@ class Activate {
 			self::con()->comps->events->fireEvent( 'lic_activation_fail', [
 				'audit_params' => [ 'error' => 'HTTP Request Failed' ]
 			] );
-			throw new \Exception( __( 'License activation request failed.', 'wp-simple-firewall' ), self::ERR_UNKNOWN );
+			throw new \Exception( __( 'License activation request failed.', 'wp-simple-firewall' ), self::ERR_UNKNOWN ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI error output, plain text: only the license WP-CLI command calls Activate::run().
 		}
 	}
 
@@ -108,7 +108,7 @@ class Activate {
 			throw new LicenseAlreadyActivatedException();
 		}
 		else {
-			throw new \Exception( $this->buildErrorMessage( $errorCode, (string)( $response[ 'message' ] ?? '' ) ), $errorCode );
+			throw new \Exception( $this->buildErrorMessage( $errorCode, (string)( $response[ 'message' ] ?? '' ) ), $errorCode ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI error output, plain text: only the license WP-CLI command calls Activate::run(). The text may include the license API message.
 		}
 	}
 

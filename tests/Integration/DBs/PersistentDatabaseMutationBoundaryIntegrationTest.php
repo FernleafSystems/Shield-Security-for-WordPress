@@ -45,6 +45,26 @@ class PersistentDatabaseMutationBoundaryIntegrationTest extends ShieldIntegratio
 		);
 	}
 
+	public function test_rolled_back_options_are_not_left_in_the_object_cache() :void {
+		$beforeKey = $this->fixtureKey( 'cached_before_initial_rollback' );
+		$exerciseKey = $this->fixtureKey( 'cached_before_restoration_rollback' );
+		\update_option( $beforeKey, 'must roll back', false );
+
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( $beforeKey, $exerciseKey ) :void {
+				$this->assertFalse( \get_option( $beforeKey ) );
+				\update_option( $exerciseKey, 'must also roll back', false );
+			},
+			function () use ( $exerciseKey ) :void {
+				$this->assertFalse( \get_option( $exerciseKey ) );
+				// An option the cache still held would be "updated" here without any row being written.
+				\update_option( $exerciseKey, 'restored', false );
+				$this->assertSame( 'restored', $this->storedOptionValue( $exerciseKey ) );
+				\delete_option( $exerciseKey );
+			}
+		);
+	}
+
 	public function test_exercise_failure_still_runs_restoration() :void {
 		$table = $this->tableName( 'exercise_failure' );
 

@@ -67,6 +67,19 @@ class SourceStaticAnalysisLaneTest extends TestCase {
 		$this->assertContains( $paths[ 2 ], $processRunner->calls[ 1 ][ 'command' ] );
 	}
 
+	public function testBatchedAnalysisStopsAtTheFirstFailingBatch() :void {
+		$processRunner = RecordingProcessRunner::strict( [ 1 ] );
+		$lane = new SourceStaticAnalysisLane( $processRunner, $this->createSetupCoordinator( false, 'fingerprint-fail' ) );
+		$paths = [
+			'src/'.\str_repeat( 'a', 2800 ).'.php',
+			'src/'.\str_repeat( 'b', 2800 ).'.php',
+			'src/'.\str_repeat( 'c', 2800 ).'.php',
+		];
+
+		$this->assertSame( 1, $this->runLaneSilencedWithPaths( $lane, false, $paths ) );
+		$this->assertCount( 1, $processRunner->calls );
+	}
+
 	public function testCacheMissRunsBuildConfigThenPhpStan() :void {
 		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$setupCoordinator = $this->createSetupCoordinator( true, 'fingerprint-b' );

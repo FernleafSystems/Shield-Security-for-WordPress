@@ -49,4 +49,21 @@ class ReportEmailChoice extends Base {
 	public function descUnprotected() :string {
 		return ( new ReportEmailHold() )->explanation();
 	}
+
+	public function guidance() :array {
+		return [
+			'checks'   => __( "Shield checks whether an email address has been chosen for its reports and alerts. It asks only during the first day after it's installed.", 'wp-simple-firewall' ),
+			'why'      => [
+				__( "Shield emails you when it finds something that needs you, such as a changed file or a plugin with a known security hole. For that first day it holds these emails back, so they don't go to the site admin email, which often belongs to someone other than the person who installed Shield.", 'wp-simple-firewall' ),
+			],
+			'steps'    => [
+				__( "Use this item's link in the queue to open the setup guide's report email step.", 'wp-simple-firewall' ),
+				__( 'Enter the address that should get the emails, and save. After that, Shield sends its emails to that address, including the ones it held.', 'wp-simple-firewall' ),
+			],
+			'who'      => __( "Any administrator can do this. If you do nothing, the emails go to the site admin email once Shield has been installed for a day.", 'wp-simple-firewall' ),
+			'practice' => [
+				__( 'Choose an address that is read every day, by whoever looks after the site.', 'wp-simple-firewall' ),
+			],
+		];
+	}
 }

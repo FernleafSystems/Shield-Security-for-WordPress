@@ -16,8 +16,9 @@ class ConflictMonolog extends Base {
 				'id'        => 'conflict_monolog',
 				'type'      => 'warning',
 				'text'      => [
-					__( 'You have a PHP library conflict with the Monolog library. Likely another plugin is using an incompatible version of the library.', 'wp-simple-firewall' ),
-					$e->getMessage(),
+					esc_html__( 'You have a PHP library conflict with the Monolog library. Likely another plugin is using an incompatible version of the library.', 'wp-simple-firewall' ),
+					// Notice lines are printed as HTML, so the message is escaped to join them.
+					esc_html( $e->getMessage() ),
 				],
 				'locations' => [
 					'shield_admin_top_page',

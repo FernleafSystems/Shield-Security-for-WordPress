@@ -7,9 +7,12 @@ class GenericLines extends EmailBase {
 	public const SLUG = 'email_generic_lines';
 	public const TEMPLATE = '/email/base_email.twig';
 
+	/**
+	 * Plain sentences, printed as HTML paragraphs.
+	 */
 	protected function getBodyData() :array {
 		return \array_map(
-			static fn( $line ) => \is_string( $line ) ? $line : '',
+			static fn( $line ) => \is_string( $line ) ? esc_html( $line ) : '',
 			\is_array( $this->action_data[ 'lines' ] ) ? $this->action_data[ 'lines' ] : []
 		);
 	}

@@ -32,23 +32,11 @@ class SiteHealthControllerTest extends BaseUnitTest {
 
 	private bool $isNetworkAdmin = false;
 
-	private bool $showSiteHealth = true;
-
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
-		$this->showSiteHealth = true;
 
-		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
-		Functions\when( '_n' )->alias( static fn( string $single, string $plural, int $number ) :string => $number === 1 ? $single : $plural );
-		Functions\when( 'admin_url' )->alias( static fn( string $path = '' ) :string => '/wp-admin/'.$path );
-		Functions\when( 'apply_filters' )->alias(
-			fn( string $hook, $value ) => $hook === 'shield/show_site_health' ? $this->showSiteHealth : $value
-		);
-		Functions\when( 'esc_html' )->alias(
-			static fn( string $text ) :string => \htmlspecialchars( $text, \ENT_QUOTES )
-		);
-		Functions\when( 'esc_url' )->alias( static fn( string $url ) :string => $url );
+		Functions\when( 'apply_filters' )->alias( static fn( string $hook, $value ) => $value );
 		Functions\when( 'is_admin' )->alias( fn() :bool => $this->isAdmin );
 		Functions\when( 'is_network_admin' )->alias( fn() :bool => $this->isNetworkAdmin );
 	}
@@ -59,64 +47,24 @@ class SiteHealthControllerTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_execute_registers_status_tab_and_capability_hooks_for_admin_context() :void {
-		$this->isAdmin = true;
-		$this->installSiteHealthRuntime();
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerSiteHealthContexts' )]
+	public function test_execute_registers_only_the_capability_filter( bool $isAdmin, bool $isAjax ) :void {
+		$this->isAdmin = $isAdmin;
+		$this->installSiteHealthRuntime( $isAjax );
 
 		$registered = [];
 		$this->trackRegisteredHooks( $registered );
 
 		( new SiteHealthController() )->execute();
 
-		$this->assertContains( $this->hookRecord( 'filter', 'site_status_tests' ), $registered );
-		$this->assertContains( $this->hookRecord( 'filter', 'site_health_navigation_tabs', 11 ), $registered );
-		$this->assertContains( $this->hookRecord( 'action', 'site_health_tab_content' ), $registered );
-		$this->assertContains( $this->hookRecord( 'filter', 'user_has_cap', 20, 4 ), $registered );
+		$this->assertSame( [ $this->hookRecord( 'filter', 'user_has_cap', 20, 4 ) ], $registered );
 	}
 
-	public function test_site_health_display_filter_disables_admin_display_hooks_but_preserves_capability_filter() :void {
-		$this->isAdmin = true;
-		$this->showSiteHealth = false;
-		$this->installSiteHealthRuntime();
-
-		$registered = [];
-		$this->trackRegisteredHooks( $registered );
-
-		( new SiteHealthController() )->execute();
-
-		$this->assertNotContains( $this->hookRecord( 'filter', 'site_status_tests' ), $registered );
-		$this->assertNotContains( $this->hookRecord( 'filter', 'site_health_navigation_tabs', 11 ), $registered );
-		$this->assertNotContains( $this->hookRecord( 'action', 'site_health_tab_content' ), $registered );
-		$this->assertContains( $this->hookRecord( 'filter', 'user_has_cap', 20, 4 ), $registered );
-	}
-
-	public function test_execute_registers_status_and_capability_hooks_without_tab_hooks_for_ajax_context() :void {
-		$this->installSiteHealthRuntime( true );
-
-		$registered = [];
-		$this->trackRegisteredHooks( $registered );
-
-		( new SiteHealthController() )->execute();
-
-		$this->assertContains( $this->hookRecord( 'filter', 'site_status_tests' ), $registered );
-		$this->assertNotContains( $this->hookRecord( 'filter', 'site_health_navigation_tabs', 11 ), $registered );
-		$this->assertNotContains( $this->hookRecord( 'action', 'site_health_tab_content' ), $registered );
-		$this->assertContains( $this->hookRecord( 'filter', 'user_has_cap', 20, 4 ), $registered );
-	}
-
-	public function test_site_health_display_filter_disables_ajax_status_tests_but_preserves_capability_filter() :void {
-		$this->showSiteHealth = false;
-		$this->installSiteHealthRuntime( true );
-
-		$registered = [];
-		$this->trackRegisteredHooks( $registered );
-
-		( new SiteHealthController() )->execute();
-
-		$this->assertNotContains( $this->hookRecord( 'filter', 'site_status_tests' ), $registered );
-		$this->assertNotContains( $this->hookRecord( 'filter', 'site_health_navigation_tabs', 11 ), $registered );
-		$this->assertNotContains( $this->hookRecord( 'action', 'site_health_tab_content' ), $registered );
-		$this->assertContains( $this->hookRecord( 'filter', 'user_has_cap', 20, 4 ), $registered );
+	public static function providerSiteHealthContexts() :array {
+		return [
+			'admin page' => [ true, false ],
+			'ajax'       => [ false, true ],
+		];
 	}
 
 	public function test_execute_registers_only_capability_filter_for_site_health_rest_context() :void {
@@ -131,10 +79,7 @@ class SiteHealthControllerTest extends BaseUnitTest {
 
 		( new SiteHealthController() )->execute();
 
-		$this->assertNotContains( $this->hookRecord( 'filter', 'site_status_tests' ), $registered );
-		$this->assertNotContains( $this->hookRecord( 'filter', 'site_health_navigation_tabs', 11 ), $registered );
-		$this->assertNotContains( $this->hookRecord( 'action', 'site_health_tab_content' ), $registered );
-		$this->assertContains( $this->hookRecord( 'filter', 'user_has_cap', 20, 4 ), $registered );
+		$this->assertSame( [ $this->hookRecord( 'filter', 'user_has_cap', 20, 4 ) ], $registered );
 	}
 
 	public function test_can_run_for_site_health_rest_async_test_route() :void {
@@ -182,30 +127,6 @@ class SiteHealthControllerTest extends BaseUnitTest {
 		$this->installSiteHealthRuntime( false, false, '', true, false );
 
 		$this->assertFalse( ( new ExposedSiteHealthController() )->exposeCanRun() );
-	}
-
-	public function test_add_site_status_tests_preserves_existing_direct_tests_and_adds_only_aggregate_shield_test() :void {
-		$tests = ( new SiteHealthController() )->addSiteStatusTests( [
-			'direct' => [
-				'wordpress_test' => [
-					'label' => 'WordPress',
-				],
-			],
-		] );
-
-		$this->assertArrayHasKey( 'wordpress_test', $tests[ 'direct' ] );
-		$this->assertArrayHasKey( 'shield_security', $tests[ 'direct' ] );
-		$this->assertArrayNotHasKey( 'shield_security_firewall', $tests[ 'direct' ] );
-		$this->assertIsCallable( $tests[ 'direct' ][ 'shield_security' ][ 'test' ] );
-	}
-
-	public function test_add_site_health_navigation_tab_positions_security_after_status() :void {
-		$tabs = ( new SiteHealthController() )->addSiteHealthNavigationTab( [
-			''      => 'Status',
-			'debug' => 'Info',
-		] );
-
-		$this->assertSame( [ '', 'shield_security', 'debug' ], \array_keys( $tabs ) );
 	}
 
 	public function test_security_admin_access_grants_site_health_capability() :void {

@@ -1,4 +1,5 @@
 import { ScanItemAnalysisModal } from "../scans/ScanItemAnalysisModal";
+import { Html } from "../../util/Html";
 
 /**
  * @typedef {object} ScanResultsRowActionOptions
@@ -199,7 +200,8 @@ export function buildScanResultsActionButtons( {
 
 	if ( malwareRefresh !== null ) {
 		buttons.push( {
-			text: malwareRefresh.label,
+			// Buttons print their text as HTML.
+			text: Html.Escape( malwareRefresh.label ),
 			titleAttr: malwareRefresh.description,
 			name: 'refresh-malware-assessments',
 			className: 'action btn-outline-secondary',
@@ -214,7 +216,7 @@ export function buildScanResultsActionButtons( {
 	if ( assetActions !== null ) {
 		assetActions.actions.forEach( ( assetAction, index ) => {
 			buttons.push( {
-				text: `<i class="${assetAction.icon_class}" aria-hidden="true"></i> ${assetAction.label}`,
+				text: `<i class="${Html.Escape( assetAction.icon_class )}" aria-hidden="true"></i> ${Html.Escape( assetAction.label )}`,
 				name: `asset-action-${index}`,
 				className: 'action btn-outline-secondary',
 				attr: index === 0 ? { 'data-scan-results-group-start': 'asset' } : {},

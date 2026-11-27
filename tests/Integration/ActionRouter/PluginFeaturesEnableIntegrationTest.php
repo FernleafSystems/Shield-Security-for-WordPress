@@ -56,7 +56,7 @@ class PluginFeaturesEnableIntegrationTest extends ShieldIntegrationTestCase {
 		$dialog = \json_decode( \html_entity_decode( $matches[ 1 ], \ENT_QUOTES ), true, 512, \JSON_THROW_ON_ERROR );
 		$this->assertSame( PluginFeaturesEnable::SLUG, $dialog[ 'action' ][ 'ex' ] ?? null );
 		$this->assertNotSame( '', $dialog[ 'title' ] );
-		$this->assertNotSame( '', $dialog[ 'setting_label' ] );
+		$this->assertNotSame( '', $dialog[ 'settings' ][ 0 ][ 'label' ] );
 	}
 
 	public function test_notice_is_absent_while_protection_is_on() :void {

@@ -19,6 +19,7 @@ class TranslationsQueued extends Base {
 		$count = \count( $queue );
 
 		$translationsQueued = \sprintf(
+			/* translators: %d: number of translations */
 			_n(
 				'%d translation is queued for download',
 				'%d translations are queued for download',
@@ -32,6 +33,7 @@ class TranslationsQueued extends Base {
 		if ( !empty( $nextScheduled ) ) {
 			$minsRemaining = \max( 1, (int)\ceil( ( $nextScheduled - Services::Request()->ts() )/60 ) );
 			$message = $translationsQueued.' '.\sprintf(
+					/* translators: %d: number of minutes */
 					_n(
 						'and will be processed automatically in approximately %d minute.',
 						'and will be processed automatically in approximately %d minutes.',
@@ -51,12 +53,12 @@ class TranslationsQueued extends Base {
 			'text'      => [
 				sprintf(
 					'%s %s',
-					sprintf( '%s: %s - ', $con->labels->Name, __( 'Translations Queued', 'wp-simple-firewall' ) ),
+					sprintf( '%s: %s - ', $con->labels->Name, esc_html__( 'Translations Queued', 'wp-simple-firewall' ) ),
 					sprintf(
 						'%s <button type="button" data-notice_action="%s" class="shield_admin_notice_action shield-button-link">%s</button>',
-						$message,
+						esc_html( $message ),
 						TranslationsForceDownload::SLUG,
-						__( 'Download Now', 'wp-simple-firewall' )
+						esc_html__( 'Download Now', 'wp-simple-firewall' )
 					)
 				)
 			],

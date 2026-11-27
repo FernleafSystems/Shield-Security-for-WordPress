@@ -50,17 +50,23 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'key'               => 'wp_updates',
 					'label'             => 'WordPress Version',
 					'description'       => 'Update available.',
+					'drill_bucket'      => 'review',
+					'item_icon_class'   => '',
 					'status'            => 'warning',
 					'status_label'      => 'Warning',
 					'status_icon_class' => 'bi bi-exclamation-circle-fill',
+					'is_ignored'        => false,
 				],
 				[
 					'key'               => 'system_lib_openssl',
 					'label'             => 'OpenSSL Extension',
 					'description'       => 'OpenSSL looks healthy.',
+					'drill_bucket'      => 'review',
+					'item_icon_class'   => '',
 					'status'            => 'good',
 					'status_label'      => 'Good',
 					'status_icon_class' => 'bi bi-check-circle-fill',
+					'is_ignored'        => false,
 				],
 			]
 		);

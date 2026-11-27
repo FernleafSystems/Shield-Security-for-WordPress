@@ -22,7 +22,7 @@ class IPRecords {
 		else {
 			$parsedRange = Factory::parseRangeString( $ip );
 			if ( empty( $parsedRange ) ) {
-				throw new \Exception( __( 'Not a valid IP range', 'wp-simple-firewall' ) );
+				throw new \Exception( __( 'Not a valid IP range', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: callers either discard or log it, or AddRule consumers (AJAX responses, WP-CLI) show it as text.
 			}
 			$ip = \explode( '/', $parsedRange->asSubnet()->toString() )[ 0 ];
 
@@ -38,7 +38,7 @@ class IPRecords {
 			}
 
 			if ( !$record instanceof Ops\Record ) {
-				throw new \Exception( 'IP Record unavailable: '.$ip );
+				throw new \Exception( 'IP Record unavailable: '.$ip ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: callers either discard or log it, or AddRule consumers (AJAX responses, WP-CLI) show it as text.
 			}
 
 			if ( $cacheRecord ) {

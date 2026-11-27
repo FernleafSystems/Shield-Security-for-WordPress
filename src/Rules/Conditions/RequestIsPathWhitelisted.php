@@ -18,6 +18,7 @@ class RequestIsPathWhitelisted extends Base {
 	public const SLUG = 'request_is_path_whitelisted';
 
 	public function getDescription() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( 'Is the request path whitelisted by %s.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

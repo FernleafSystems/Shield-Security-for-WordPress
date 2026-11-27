@@ -95,7 +95,7 @@ class ProcessConditions {
 	private function processSingleCondition( ConditionsVO $condition ) :bool {
 		$handlerClass = $condition->conditions;
 		if ( !\class_exists( $handlerClass ) ) {
-			throw new NoSuchConditionHandlerException( 'No such Condition Handler Class for: '.$handlerClass );
+			throw new NoSuchConditionHandlerException( 'No such Condition Handler Class for: '.$handlerClass ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by ProcessConditions::process(), which treats the condition as not met, never shown.
 		}
 		$conditionHandler = new $handlerClass();
 		$conditionHandler->setThisRequest( $this->req )

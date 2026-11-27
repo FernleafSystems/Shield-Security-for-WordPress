@@ -104,6 +104,16 @@ $sidebar-mode-gap: 0.12rem;
 	color: $mode-actions;
 }
 
+// The Actions Queue's icon is drawn after the queue's most severe item, whichever page is open: red for
+// anything critical, amber when there are only to-dos, green when there's nothing to do.
+.mode-item[data-mode="actions"][data-queue-status="warning"] .mode-icon > i {
+	color: #dba617;
+}
+
+.mode-item[data-mode="actions"][data-queue-status="good"] .mode-icon > i {
+	color: #008000;
+}
+
 .mode-item[data-mode="investigate"] .mode-icon > i {
 	color: $mode-investigate;
 }
@@ -133,10 +143,6 @@ $sidebar-mode-gap: 0.12rem;
 	border-color: #f0c96b;
 	box-shadow: inset 3px 0 0 #dba617;
 	color: #946200;
-
-	.mode-icon > i {
-		color: #dba617;
-	}
 }
 
 .mode-item.active[data-mode="actions"][data-queue-status="good"] {
@@ -144,10 +150,6 @@ $sidebar-mode-gap: 0.12rem;
 	border-color: #b8dfb8;
 	box-shadow: inset 3px 0 0 #008000;
 	color: #006400;
-
-	.mode-icon > i {
-		color: #008000;
-	}
 }
 
 .mode-item.active[data-mode="investigate"] {

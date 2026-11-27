@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanActionFro
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class ProcessQueueItem {
 
@@ -44,7 +45,7 @@ class ProcessQueueItem {
 			( new SetScanCompleted() )->runForQueueItem( $item );
 		}
 		catch ( \Throwable $e ) {
-			error_log( \sprintf(
+			ErrorLog::write( \sprintf(
 				'Shield scan processing exception: scan_id=%d qitem_id=%d scan=%s message=%s',
 				$item->scan_id,
 				$item->qitem_id,
@@ -118,7 +119,7 @@ class ProcessQueueItem {
 
 	private function logAssetEnqueueFailure( string $assetType, string $assetKey, string $message ) :void {
 		$message = \trim( (string)\preg_replace( '#\s+#', ' ', $message ) );
-		error_log( \sprintf(
+		ErrorLog::write( \sprintf(
 			'Shield AFS asset follow-up enqueue failed: type=%s key=%s message=%s',
 			$assetType,
 			$assetKey,

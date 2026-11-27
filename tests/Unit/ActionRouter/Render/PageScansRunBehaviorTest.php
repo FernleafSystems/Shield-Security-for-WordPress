@@ -115,6 +115,13 @@ class PageScansRunBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [ 'afs', 'apc' ], $controller->action_router->rendered[ 'completed' ][ 'scan_slugs' ] );
 	}
 
+	public function test_scan_run_page_breadcrumb_takes_the_actions_queue_status() :void {
+		$this->installDb( [] );
+		$this->installController( [] );
+
+		$this->assertSame( 'warning', $this->renderPage()[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] );
+	}
+
 	private function renderPage( array $actionData = [] ) :array {
 		$method = new \ReflectionMethod( PageScansRun::class, 'getRenderData' );
 		$method->setAccessible( true );
@@ -264,6 +271,10 @@ class PageScansRunBehaviorTest extends BaseUnitTest {
 				}
 			},
 			'site_query' => new class {
+				public function attention() :array {
+					return [ 'summary' => [ 'severity' => 'warning' ] ];
+				}
+
 				public function latestCompletedScanTimestamps() :array {
 					return [
 						'malware'         => 0,

@@ -76,18 +76,24 @@ class PageOperatorModeLanding extends BaseRender {
 				'dashboard_activity_charts_heading' => __( 'Last 7 days', 'wp-simple-firewall' ),
 				'dashboard_activity_charts_link'    => __( 'Open charts', 'wp-simple-firewall' ),
 				'dashboard_activity_charts_href'    => self::con()->plugin_urls->reportsHome( PluginNavs::SUBNAV_REPORTS_CHARTS ),
+				'dashboard_activity_charts_empty'   => __( 'No activity yet. Blocks and logins will be counted here as they happen.', 'wp-simple-firewall' ),
 				'dashboard_recent_events'           => $dashboardRecentEvents,
 				'dashboard_recent_events_heading'   => __( 'Recent events', 'wp-simple-firewall' ),
 				/* translators: %s: number of times the event happened this week */
 				'dashboard_recent_events_week_label' => __( '%s this week', 'wp-simple-firewall' ),
 				'dashboard_recent_events_link'      => __( 'Open activity log', 'wp-simple-firewall' ),
 				'dashboard_recent_events_href'      => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
-				'dashboard_recent_events_unrecorded_label' => __( 'Not seen yet:', 'wp-simple-firewall' ),
+				'dashboard_recent_events_empty'     => __( 'Nothing to show yet. Security events will be listed here as they happen.', 'wp-simple-firewall' ),
 				'dashboard_launchpad_heading'       => __( 'Launchpad', 'wp-simple-firewall' ),
 				'dashboard_strip'                   => $queueCard[ 'dashboard_strip' ],
 				'launchpad'                         => $this->buildLaunchpadTopItems(),
 				'destination_cards'                 => $this->buildDestinationCards(),
 				'dashboard_task_guide'              => [ 'launcher' => $dashboardTaskGuideLauncher ],
+				// The tour runs when asked for here, or from the setup guide's summary.
+				'dashboard_tour'                    => [
+					'href'  => self::con()->plugin_urls->dashboardTour(),
+					'label' => __( 'Take a 1-minute tour of the dashboard', 'wp-simple-firewall' ),
+				],
 				'live_monitor'                      => $this->buildLiveMonitorVars(),
 			],
 		];
@@ -122,8 +128,8 @@ class PageOperatorModeLanding extends BaseRender {
 				$series = $seriesByKey[ $eventKey ];
 				$value = \array_sum( $series[ 'data' ] );
 				$change = $value - ( $previous[ $eventKey ] ?? 0 );
-				/* translators: %1$s: activity total, %2$s: activity label */
 				$accessibleLabel = \sprintf(
+					/* translators: %1$s: activity total, %2$s: activity label */
 					__( '%1$s %2$s in the last 7 days. View trend.', 'wp-simple-firewall' ),
 					$value,
 					$series[ 'label' ]

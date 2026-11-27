@@ -55,11 +55,16 @@ class SitesListTableColumn extends BaseRender {
 				'issues'         => $this->buildIssuesHref( $workingSite ),
 			],
 			'strings' => [
+				/* translators: %s: plugin name */
 				'tooltip_inactive'         => sprintf( __( "%s plugin is installed, but not active.", 'wp-simple-firewall' ), self::con()->labels->Name ),
+				/* translators: %s: plugin name */
 				'tooltip_notpro'           => sprintf( __( "The %s plugin on this site requires an active PRO license.", 'wp-simple-firewall' ), self::con()->labels->Name, self::con()->labels->Name ),
+				/* translators: %s: plugin name */
 				'tooltip_mwpnoton'         => sprintf( __( "%s's MainWP integration isn't enabled for this site.", 'wp-simple-firewall' ), self::con()->labels->Name ),
+				/* translators: %s: plugin name */
 				'tooltip_not_installed'    => sprintf( __( "%s isn't installed on this site.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'tooltip_sync_required'    => __( "Sync Required.", 'wp-simple-firewall' ),
+				/* translators: %s: plugin name */
 				'tooltip_version_mismatch' => sprintf( __( "%s version on site doesn't match this server.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'tooltip_issues_found'     => __( "Issues Found", 'wp-simple-firewall' ),
 			]

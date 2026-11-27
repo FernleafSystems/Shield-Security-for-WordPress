@@ -196,6 +196,7 @@ class ProfileOptionsFormViewBuilder {
 			? __( 'Click to exclude this group from sync', 'wp-simple-firewall' )
 			: __( 'Click to include this group in sync', 'wp-simple-firewall' );
 		$group[ 'sync_status_label' ] = sprintf(
+			/* translators: %1$d: number of included options, %2$d: total number of options */
 			__( '%1$d/%2$d included', 'wp-simple-firewall' ),
 			$includedCount,
 			$optionCount

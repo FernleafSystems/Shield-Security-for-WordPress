@@ -28,6 +28,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Uuid;
  * @property int      $pass_reset_last_redirect_at
  * @property int      $pass_check_failed_at
  * @property int      $php_future_minimum_snoozed_at
+ * @property int      $self_ip_not_public_dismissed_at
  * @property bool     $wc_social_login_valid
  * @property array    $passkeys
  * @property array    $tours

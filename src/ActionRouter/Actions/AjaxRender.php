@@ -32,7 +32,7 @@ class AjaxRender extends BaseAction {
 			ActionsMap::ActionFromRequest( $this->fields()->string( 'render_slug' ) )
 		);
 		if ( !( new AjaxRenderTargetPolicy() )->isAllowed( $renderAction ) ) {
-			throw new ActionException( __( 'Render target is not allowed.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'Render target is not allowed.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX responses show it as text.
 		}
 
 		$this->setResponse( self::con()->action_router->action( $renderAction, $this->renderData() ) );

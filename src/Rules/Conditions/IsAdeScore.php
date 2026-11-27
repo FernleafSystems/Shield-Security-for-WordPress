@@ -13,10 +13,12 @@ class IsAdeScore extends Base {
 	use Traits\TypeShield;
 
 	public function getName() :string {
+		/* translators: %s: brand name of the bot detection technology */
 		return sprintf( __( 'Is %s score', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
 	}
 
 	public function getDescription() :string {
+		/* translators: %s: brand name of the bot detection technology */
 		return sprintf( __( 'Is Visitor %s Score ...', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) );
 	}
 

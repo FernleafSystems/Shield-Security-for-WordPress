@@ -307,22 +307,24 @@ test( 'dashboard status strip renders all real attention outcomes', async ( { pa
 		await expect( allClearOverview.locator( '[data-summary-id]' ) ).toHaveCount( 2 );
 		await expect( allClearOverview.locator( '[data-summary-id="scans"]' ) ).toHaveRole( 'link' );
 		await expect( allClearOverview.locator( '[data-summary-id="maintenance"]' ) ).toHaveRole( 'link' );
-		await expect( allClearOverview.locator( '[data-summary-id="scans"] .operator-mode-overview__summary-value' ) ).toHaveText( 'None waiting' );
-		await expect( allClearOverview.locator( '[data-summary-id="maintenance"] .operator-mode-overview__summary-value' ) ).toHaveText( 'Up to date' );
+		await expect( allClearOverview.locator( '[data-summary-id="scans"]' ) ).toHaveClass( /status-good/ );
+		await expect( allClearOverview.locator( '[data-summary-id="maintenance"]' ) ).toHaveClass( /status-good/ );
 
 		await fixtureApi.prepareDashboardMaintenanceWarningFixture();
 		await page.reload( { waitUntil: 'domcontentloaded' } );
 		await dismissBlockingDialogs( page );
 		const maintenanceOverview = page.locator( '.operator-mode-landing__overview' );
 		await expect( maintenanceOverview ).toHaveAttribute( 'data-shield-status', 'warning' );
-		await expect( maintenanceOverview.locator( '.operator-mode-overview__overall-title' ) ).toHaveText( 'Maintenance Action Required' );
+		// With only to-dos waiting, the security summary stays clear and the to-dos are counted beside it.
+		await expect( maintenanceOverview.locator( '[data-summary-id="scans"]' ) ).toHaveClass( /status-good/ );
+		await expect( maintenanceOverview.locator( '[data-summary-id="maintenance"]' ) ).toHaveClass( /status-warning/ );
 
 		await fixtureApi.withActionsQueueFixture( 'file_locker_lazy', async () => {
 			await openShieldRoute( page, contract.routes.dashboard );
 			await dismissBlockingDialogs( page );
 			const fileLockerOverview = page.locator( '.operator-mode-landing__overview' );
 			await expect( fileLockerOverview ).toHaveAttribute( 'data-shield-status', 'critical' );
-			await expect( fileLockerOverview.locator( '.operator-mode-overview__overall-title' ) ).toHaveText( 'Critical Action Required' );
+			await expect( fileLockerOverview.locator( '[data-summary-id="scans"]' ) ).toHaveClass( /status-critical/ );
 		} );
 
 		await fixtureApi.withActionsQueueFixture( 'direct_table', async () => {

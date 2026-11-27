@@ -70,6 +70,7 @@ class WebApplicationFirewall extends Base {
 	 */
 	private function ruleNotInterceptedExplanation( string $ruleKey ) :string {
 		return $this->explanationFixedBy( sprintf(
+			/* translators: %s: name of the firewall rule */
 			__( "Requests that trigger the firewall rule '%s' aren't intercepted.", 'wp-simple-firewall' ),
 			$this->firewallRuleDefinitions()[ $ruleKey ][ 'name' ]
 		), $ruleKey );

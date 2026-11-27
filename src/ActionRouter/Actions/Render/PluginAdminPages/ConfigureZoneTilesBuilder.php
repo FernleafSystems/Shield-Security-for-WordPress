@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\BuildOptionsForDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
@@ -11,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
 
 /**
+ * @phpstan-import-type PanelTopic from ConfigureGoalPanels
  * @phpstan-type TileDefinition array{
  *   key:string,
  *   label:string,
@@ -171,17 +173,20 @@ class ConfigureZoneTilesBuilder {
 				continue;
 			}
 
+			$isOutsidePlan = $this->isTopicOutsidePlan( $goal[ 'topics' ][ $topicKey ] );
 			// Advanced options gathers odd settings from across the goal, so it only speaks for problems
 			// its own settings fix, rather than taking on the state of every component they come from.
-			[ $status, $explanations ] = $this->topicStatus( $scope, $topicKey === 'advanced' );
+			[ $status, $explanations ] = $isOutsidePlan
+				? [ 'neutral', [] ]
+				: $this->topicStatus( $scope, $topicKey === 'advanced' );
 			$configAction = $this->buildConfigActionForScope( $scope, $goalKey.':'.$topicKey );
 
 			$rows[] = [
 				'key'               => $topicKey,
 				'title'             => $labels[ $topicKey ][ 'label' ] ?? $topicKey,
 				'status'            => $status,
-				'status_label'      => $this->componentStatusLabel( $status ),
-				'status_icon_class' => $this->componentStatusIconClass( $status ),
+				'status_label'      => $isOutsidePlan ? BuildOptionsForDisplay::outsidePlanLabel() : $this->componentStatusLabel( $status ),
+				'status_icon_class' => $isOutsidePlan ? self::con()->svgs->iconClass( 'lock-fill' ) : $this->componentStatusIconClass( $status ),
 				'note'              => $labels[ $topicKey ][ 'summary' ] ?? '',
 				'explanations'      => $explanations,
 				'config_action'     => $configAction,
@@ -190,6 +195,22 @@ class ConfigureZoneTilesBuilder {
 
 		$this->assertValidUniqueRowKeys( $rows );
 		return $rows;
+	}
+
+	/**
+	 * A topic the site's plan doesn't include has nothing in it to act on. The settings a topic starts with decide
+	 * that: the ones beneath them only apply once theirs is on.
+	 * @param PanelTopic $topic
+	 */
+	private function isTopicOutsidePlan( array $topic ) :bool {
+		$leadingKeys = [];
+		foreach ( $topic[ 'blocks' ] as $block ) {
+			$leadingKeys = \array_merge( $leadingKeys, \array_column( $block[ 'items' ], 'key' ) );
+		}
+		$leadingKeys = \array_filter( $leadingKeys, fn( string $key ) :bool => $this->isDisplayableOptionKey( $key ) );
+		$opts = self::con()->opts;
+		return !empty( $leadingKeys )
+			   && empty( \array_filter( $leadingKeys, static fn( string $key ) :bool => $opts->optHasAccess( $key ) ) );
 	}
 
 	/**
@@ -210,14 +231,25 @@ class ConfigureZoneTilesBuilder {
 				// Explanations record the option that fixes them as they're built, so read the lookup afterwards.
 				$fixLookup = Component\Base::explanationFixLookup();
 				$kept = [];
+				$fixedInAnotherTopic = 0;
 				foreach ( $rowInput[ 'explanations' ] as $explanation ) {
 					$fixedBy = $fixLookup[ \trim( $explanation ) ] ?? '';
 					if ( \in_array( $fixedBy, $scope[ 'option_keys' ], true ) || ( $fixedBy === '' && !$ownFixesOnly ) ) {
 						$kept[] = $explanation;
 					}
+					elseif ( \in_array( $fixedBy, $rowInput[ 'config_scope' ][ 'option_keys' ], true ) ) {
+						$fixedInAnotherTopic++;
+					}
+				}
+				$rowStatus = $this->componentStatusToConfigureStatus( $rowInput[ 'enabled_status' ] );
+				// A component's settings can be spread over several topics. When every reason it gives is fixed by
+				// one of its settings in another topic, the problem is that topic's, not this one's.
+				if ( $fixedInAnotherTopic > 0 && $fixedInAnotherTopic === \count( $rowInput[ 'explanations' ] )
+					 && \in_array( $rowStatus, [ 'warning', 'critical' ], true ) ) {
+					$rowStatus = 'good';
 				}
 				if ( !$ownFixesOnly || !empty( $kept ) ) {
-					$statuses[] = $this->componentStatusToConfigureStatus( $rowInput[ 'enabled_status' ] );
+					$statuses[] = $rowStatus;
 				}
 				$explanations = \array_merge( $explanations, $kept );
 			}
@@ -238,7 +270,7 @@ class ConfigureZoneTilesBuilder {
 		foreach ( $rows as $row ) {
 			$key = $row[ 'key' ];
 			if ( isset( $seenKeys[ $key ] ) ) {
-				throw new \LogicException( 'Configure row keys must be unique within a zone: '.$key );
+				throw new \LogicException( 'Configure row keys must be unique within a zone: '.$key ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Developer assertion on row keys defined in code, never user input; the plugin does not print it.
 			}
 			$seenKeys[ $key ] = true;
 		}
@@ -275,14 +307,17 @@ class ConfigureZoneTilesBuilder {
 
 		if ( $criticalCount > 0 && $warningCount > 0 ) {
 			$criticalText = sprintf(
+				/* translators: %s: number of critical groups */
 				_n( '%s critical group', '%s critical groups', $criticalCount, 'wp-simple-firewall' ),
 				$criticalCount
 			);
 			$warningText = sprintf(
+				/* translators: %s: number of groups that need work */
 				_n( '%s group needs work', '%s groups need work', $warningCount, 'wp-simple-firewall' ),
 				$warningCount
 			);
 			return sprintf(
+				/* translators: %1$s: number of critical groups, as text, %2$s: number of groups that need work, as text */
 				__( '%1$s, %2$s', 'wp-simple-firewall' ),
 				$criticalText,
 				$warningText
@@ -290,12 +325,14 @@ class ConfigureZoneTilesBuilder {
 		}
 		if ( $criticalCount > 0 ) {
 			return sprintf(
+				/* translators: %s: number of critical groups */
 				_n( '%s critical group', '%s critical groups', $criticalCount, 'wp-simple-firewall' ),
 				$criticalCount
 			);
 		}
 		if ( $warningCount > 0 ) {
 			return sprintf(
+				/* translators: %s: number of groups that need work */
 				_n( '%s group needs work', '%s groups need work', $warningCount, 'wp-simple-firewall' ),
 				$warningCount
 			);

@@ -60,12 +60,16 @@ class PageAdminPlugin extends BaseRender {
 
 		return [
 			'admin_shell_title'            => sprintf(
+				/* translators: %1$s: name of the current page, %2$s: plugin name */
 				__( '%1$s - %2$s', 'wp-simple-firewall' ),
 				$this->resolveRouteLabel( $nav, $subNav ),
 				$pluginName
 			),
+			/* translators: %s: plugin name */
 			'admin_shell_main_label'       => sprintf( __( '%s admin content', 'wp-simple-firewall' ), $pluginName ),
+			/* translators: %s: plugin name */
 			'admin_shell_sidebar_label'    => sprintf( __( '%s admin sidebar', 'wp-simple-firewall' ), $pluginName ),
+			/* translators: %s: plugin name */
 			'admin_shell_navigation_label' => sprintf( __( '%s admin navigation', 'wp-simple-firewall' ), $pluginName ),
 		];
 	}

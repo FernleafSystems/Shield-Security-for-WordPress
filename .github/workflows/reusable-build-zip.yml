@@ -20,9 +20,6 @@ on:
       artifact_id:
         description: GitHub artifact ID for the ZIP.
         value: ${{ jobs.build-zip.outputs.artifact_id }}
-      artifact_name:
-        description: Artifact name for download.
-        value: ${{ jobs.build-zip.outputs.artifact_name }}
       artifact_url:
         description: URL for the uploaded ZIP artifact.
         value: ${{ jobs.build-zip.outputs.artifact_url }}
@@ -32,9 +29,6 @@ on:
       ref_name:
         description: Git ref name used for the build.
         value: ${{ jobs.build-zip.outputs.ref_name }}
-      short_sha:
-        description: Short commit SHA used in default ZIP names.
-        value: ${{ jobs.build-zip.outputs.short_sha }}
       zip_name:
         description: ZIP filename produced by the build.
         value: ${{ jobs.build-zip.outputs.zip_name }}
@@ -54,11 +48,9 @@ jobs:
     outputs:
       artifact_digest: ${{ steps.upload-zip.outputs.artifact-digest }}
       artifact_id: ${{ steps.upload-zip.outputs.artifact-id }}
-      artifact_name: ${{ steps.metadata.outputs.artifact_name }}
       artifact_url: ${{ steps.upload-zip.outputs.artifact-url }}
       commit_sha: ${{ steps.metadata.outputs.commit_sha }}
       ref_name: ${{ steps.metadata.outputs.ref_name }}
-      short_sha: ${{ steps.metadata.outputs.short_sha }}
       zip_name: ${{ steps.metadata.outputs.zip_name }}
       zip_sha256: ${{ steps.build-zip.outputs.zip_sha256 }}
 
@@ -130,10 +122,8 @@ jobs:
           ZIP_NAME="wp-simple-firewall-${REF_SLUG}-${SHORT_SHA}.zip"
         fi
 
-        echo "artifact_name=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
         echo "commit_sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
         echo "ref_name=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
-        echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
         echo "zip_name=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
 
     - name: Build release ZIP

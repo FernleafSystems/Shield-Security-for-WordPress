@@ -87,10 +87,14 @@ class ConfigureLandingViewBuilder {
 	private function buildPostureSummaryText( array $postureSource ) :string {
 		$zoneCounts = $postureSource[ 'zones' ];
 		return \sprintf(
+			/* translators: %1$s: percentage of settings configured, as a number, %2$s: critical zones summary, %3$s: zones needing review summary, %4$s: zones ready summary */
 			__( '%1$s%% - %2$s - %3$s - %4$s', 'wp-simple-firewall' ),
 			$postureSource[ 'percentage' ],
+			/* translators: %s: number of critical zones */
 			\sprintf( _n( '%s critical zone', '%s critical zones', $zoneCounts[ 'critical' ], 'wp-simple-firewall' ), $zoneCounts[ 'critical' ] ),
+			/* translators: %s: number of zones needing review */
 			\sprintf( _n( '%s zone needs review', '%s zones need review', $zoneCounts[ 'warning' ], 'wp-simple-firewall' ), $zoneCounts[ 'warning' ] ),
+			/* translators: %s: number of zones that are ready */
 			\sprintf( _n( '%s zone ready', '%s zones ready', $zoneCounts[ 'good' ], 'wp-simple-firewall' ), $zoneCounts[ 'good' ] )
 		);
 	}

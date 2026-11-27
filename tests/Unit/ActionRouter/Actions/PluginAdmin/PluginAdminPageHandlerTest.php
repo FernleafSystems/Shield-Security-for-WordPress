@@ -46,6 +46,7 @@ class PluginAdminPageHandlerTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'sanitize_key' )->alias( static fn( string $key ) :string => \strtolower( \trim( $key ) ) );
 		Functions\when( 'add_submenu_page' )->alias( function (
 			string $parentSlug,

@@ -11,6 +11,7 @@ class BotActions extends Base {
 	}
 
 	public function subtitle() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( "Decide how %s should respond when a bot performs certain actions.", 'wp-simple-firewall' ),
 			self::con()->labels->Name );
 	}
@@ -77,6 +78,7 @@ class BotActions extends Base {
 	 */
 	private function signalNotPenalisedExplanation( string $signalKey ) :string {
 		return $this->explanationFixedBy( sprintf(
+			/* translators: %s: name of the bot signal */
 			__( "Visitors that repeatedly trigger the signal '%s' aren't penalised.", 'wp-simple-firewall' ),
 			$this->botSignalDefinitions()[ $signalKey ][ 'name' ]
 		), $signalKey );

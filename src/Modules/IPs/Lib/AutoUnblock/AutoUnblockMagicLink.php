@@ -23,11 +23,11 @@ class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 		$con = self::con();
 		$user = Services::WpUsers()->getCurrentWpUser();
 		if ( !$user instanceof \WP_User ) {
-			throw new \Exception( __( 'There is no user currently logged-in.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'There is no user currently logged-in.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: IpAutoUnblockShieldUserLinkRequest rethrows it as an ActionException, shown as text in the AJAX response.
 		}
 
 		if ( empty( $requestedIP ) || !Services::IP()->IpIn( $requestedIP, [ $con->this_req->ip ] ) ) {
-			throw new \Exception( __( 'IP does not match.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'IP does not match.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: IpAutoUnblockShieldUserLinkRequest rethrows it as an ActionException, shown as text in the AJAX response.
 		}
 
 		$con->email_con->sendVO(

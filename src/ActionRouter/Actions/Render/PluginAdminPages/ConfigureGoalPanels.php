@@ -453,20 +453,16 @@ class ConfigureGoalPanels {
 									],
 								],
 							],
+							[ 'items' => [ [ 'key' => 'scan_frequency', 'control' => 'slider' ] ] ],
 						],
 						'more'   => [
 							[ 'key' => 'scan_path_exclusions', 'control' => 'field' ],
 						],
 					],
-					'scan_schedule'   => [
-						'icon'   => 'calendar-check',
-						'blocks' => [
-							[ 'items' => [ [ 'key' => 'scan_frequency', 'control' => 'slider' ] ] ],
-						],
-					],
 					'vulnerabilities' => [
 						'icon'   => 'exclamation-triangle',
 						'blocks' => [
+							[ 'items' => [ [ 'key' => 'enabled_scan_apc', 'control' => 'toggle' ] ] ],
 							[
 								'items' => [
 									[
@@ -479,7 +475,6 @@ class ConfigureGoalPanels {
 									[ 'key' => 'update_delay', 'control' => 'slider', 'stops' => [ 0, 1, 2, 3, 5, 7 ] ],
 								],
 							],
-							[ 'items' => [ [ 'key' => 'enabled_scan_apc', 'control' => 'toggle' ] ] ],
 						],
 					],
 					'file_locker'     => [
@@ -736,10 +731,9 @@ class ConfigureGoalPanels {
 				'crowdsec'        => [ 'label' => __( 'CrowdSec', 'wp-simple-firewall' ), 'summary' => __( 'The community blocklist of known bad IP addresses.', 'wp-simple-firewall' ) ],
 				'rate_limiting'   => [ 'label' => __( 'Rate limiting', 'wp-simple-firewall' ), 'summary' => __( 'How many requests one visitor can make.', 'wp-simple-firewall' ) ],
 				'apis'            => [ 'label' => __( 'XML-RPC and REST API', 'wp-simple-firewall' ), 'summary' => __( 'Access to the XML-RPC endpoint and the anonymous REST API.', 'wp-simple-firewall' ) ],
-				'file_scanning'   => [ 'label' => __( 'File scanning', 'wp-simple-firewall' ), 'summary' => __( 'Which files are scanned and repaired.', 'wp-simple-firewall' ) ],
-				'scan_schedule'   => [ 'label' => __( 'Scan schedule', 'wp-simple-firewall' ), 'summary' => __( 'How often scans run on their own.', 'wp-simple-firewall' ) ],
+				'file_scanning'   => [ 'label' => __( 'File scanning', 'wp-simple-firewall' ), 'summary' => __( 'Which files are scanned and repaired, and how often.', 'wp-simple-firewall' ) ],
 				'vulnerabilities' => [ 'label' => __( 'Vulnerable and abandoned plugins', 'wp-simple-firewall' ), 'summary' => __( 'Known vulnerabilities, automatic updates and abandoned plugins.', 'wp-simple-firewall' ) ],
-				'file_locker'     => [ 'label' => __( 'FileLocker', 'wp-simple-firewall' ), 'summary' => __( 'Critical files locked against changes.', 'wp-simple-firewall' ) ],
+				'file_locker'     => [ 'label' => __( 'Critical File Locker', 'wp-simple-firewall' ), 'summary' => __( 'Critical files locked against changes.', 'wp-simple-firewall' ) ],
 				'comment_spam'    => [ 'label' => __( 'Comment spam', 'wp-simple-firewall' ), 'summary' => __( 'Spam from bots and people, and who is trusted.', 'wp-simple-firewall' ) ],
 				'contact_forms'   => [ 'label' => __( 'Contact forms', 'wp-simple-firewall' ), 'summary' => __( 'Which form plugins are checked for spam.', 'wp-simple-firewall' ) ],
 				'file_editing'    => [ 'label' => __( 'Admin file editing', 'wp-simple-firewall' ), 'summary' => __( 'Editing code from the dashboard, and leftover WordPress files.', 'wp-simple-firewall' ) ],

@@ -38,6 +38,7 @@ class WordfenceLoginSecurityBridge implements SupplierBridgeInterface {
 		}
 
 		$table = $this->getSecretsTable();
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Wordfence Login Security's own table (prefix plus its fixed name), read once to import a user's 2FA; the user ID goes through prepare(), and the %i identifier placeholder needs WordPress 6.2.
 		$record = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT `secret`, `recovery`, `mode` FROM `{$table}` WHERE `user_id` = %d LIMIT 1",
@@ -45,6 +46,7 @@ class WordfenceLoginSecurityBridge implements SupplierBridgeInterface {
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		if ( !\is_array( $record ) || ( $record[ 'mode' ] ?? '' ) !== self::MODE_AUTHENTICATOR ) {
 			return $data;
 		}

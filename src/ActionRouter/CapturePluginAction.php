@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ResponseAdapter\ResponseAdapterFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalEntryGuard;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class CapturePluginAction extends CaptureActionBase {
 
@@ -47,7 +48,7 @@ class CapturePluginAction extends CaptureActionBase {
 		}
 		catch ( \Throwable $e ) {
 			// A fault in the action, not a refusal.
-			error_log( \sprintf( 'Shield action %s failed: %s', $slug, $e->getMessage() ) );
+			ErrorLog::write( \sprintf( 'Shield action %s failed: %s', $slug, $e->getMessage() ) );
 		}
 	}
 
@@ -55,14 +56,16 @@ class CapturePluginAction extends CaptureActionBase {
 	 * @return never
 	 */
 	private function dieInvalidNonce() :void {
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- A translated message stripped of markup, and constants. wp_die()'s JSON and XML handlers expect plain text, so escaping would change the message there.
 		wp_die(
-			__( 'Unexpected data. Please try again.', 'wp-simple-firewall' ),
+			wp_strip_all_tags( __( 'Unexpected data. Please try again.', 'wp-simple-firewall' ) ),
 			'',
 			[
 				'code'     => self::WP_DIE_INVALID_NONCE_CODE,
 				'response' => self::WP_DIE_INVALID_NONCE_STATUS,
 			]
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	protected function postRun() {

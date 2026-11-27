@@ -43,16 +43,18 @@ class SetupGuideUpdateTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_skip_records_the_step_once_and_dismiss_hides_the_guide() :void {
+	public function test_skip_records_the_step_once_as_skipped_and_dismiss_hides_the_guide() :void {
 		$opts = $this->installEnvironment();
 
-		foreach ( [ 'report_email', 'report_email' ] as $slug ) {
+		foreach ( [ 'security_admin', 'security_admin' ] as $slug ) {
 			$action = new SetupGuideUpdate( [ 'op' => 'skip', 'step_slug' => $slug ] );
 			$action->process();
 			$this->assertTrue( $action->response()->payload()[ 'success' ] );
 		}
-		$this->assertSame( [ 'report_email' ], ( new SetupGuideState() )->doneSlugs() );
-		$this->assertFalse( ( new SetupGuideState() )->isDismissed() );
+		$state = new SetupGuideState();
+		$this->assertSame( [ 'security_admin' ], $state->skippedSlugs() );
+		$this->assertSame( [], $state->doneSlugs(), 'A skipped step is not a done one.' );
+		$this->assertFalse( $state->isDismissed() );
 
 		$action = new SetupGuideUpdate( [ 'op' => 'dismiss' ] );
 		$action->process();
@@ -60,10 +62,65 @@ class SetupGuideUpdateTest extends BaseUnitTest {
 		$this->assertSame( 1700001234, $opts->optGet( SetupGuideState::OPT_KEY )[ 'dismissed_at' ] ?? 0 );
 	}
 
+	public function test_minimise_is_recorded_without_closing_the_guide() :void {
+		$this->installEnvironment();
+		$this->assertFalse( ( new SetupGuideState() )->isMinimised() );
+
+		$action = new SetupGuideUpdate( [ 'op' => 'minimise' ] );
+		$action->process();
+
+		$this->assertTrue( $action->response()->payload()[ 'success' ] );
+		$this->assertTrue( ( new SetupGuideState() )->isMinimised() );
+		$this->assertFalse( ( new SetupGuideState() )->isDismissed() );
+	}
+
+	public function test_a_step_is_done_or_skipped_and_saving_wins() :void {
+		$this->installEnvironment();
+		$state = new SetupGuideState();
+
+		$this->assertSame( SetupGuideState::STEP_TODO, $state->stepState( 'security_admin', false ) );
+		$this->assertSame( SetupGuideState::STEP_ALREADY, $state->stepState( 'security_admin', true ) );
+
+		$state->markSkipped( 'security_admin' );
+		$this->assertSame( SetupGuideState::STEP_SKIPPED, $state->stepState( 'security_admin', false ) );
+		$this->assertSame( SetupGuideState::STEP_ALREADY, $state->stepState( 'security_admin', true ), 'A skipped step whose setting is since in place is set up.' );
+
+		$state->markDone( 'security_admin' );
+		$this->assertSame( SetupGuideState::STEP_DONE, $state->stepState( 'security_admin', false ) );
+		$this->assertSame( [], $state->skippedSlugs() );
+
+		$this->assertTrue( $state->markSkipped( 'security_admin' ) );
+		$this->assertSame( SetupGuideState::STEP_DONE, $state->stepState( 'security_admin', false ), 'Skipping a saved step leaves it done.' );
+	}
+
+	public function test_a_recorded_licence_step_is_skipped_not_done_while_there_is_no_licence() :void {
+		$this->installEnvironment();
+		$state = new SetupGuideState();
+
+		$state->markDone( 'license' );
+
+		$this->assertSame( SetupGuideState::STEP_SKIPPED, $state->stepState( 'license', false ) );
+	}
+
+	public function test_where_reports_go_cannot_be_skipped_and_is_only_done_by_being_set() :void {
+		$opts = $this->installEnvironment();
+
+		$action = new SetupGuideUpdate( [ 'op' => 'skip', 'step_slug' => 'report_email' ] );
+		$action->process();
+		$this->assertFalse( $action->response()->payload()[ 'success' ] );
+		$this->assertSame( [], $opts->optGet( SetupGuideState::OPT_KEY ) );
+
+		// A record of the step from when it could be skipped doesn't stand in for an address.
+		$state = new SetupGuideState();
+		$state->markDone( 'report_email' );
+		$this->assertSame( SetupGuideState::STEP_TODO, $state->stepState( 'report_email', false ) );
+		$this->assertSame( SetupGuideState::STEP_DONE, $state->stepState( 'report_email', true ) );
+	}
+
 	public function test_skip_records_only_the_guides_own_steps() :void {
 		$opts = $this->installEnvironment();
 
-		foreach ( [ 'not_a_step', 'welcome', 'REPORT_EMAIL', '' ] as $slug ) {
+		foreach ( [ 'not_a_step', 'welcome', 'SECURITY_ADMIN', '' ] as $slug ) {
 			$action = new SetupGuideUpdate( [ 'op' => 'skip', 'step_slug' => $slug ] );
 			$action->process();
 			$this->assertFalse( $action->response()->payload()[ 'success' ], $slug );
@@ -84,7 +141,7 @@ class SetupGuideUpdateTest extends BaseUnitTest {
 	public function test_an_admin_without_security_admin_cannot_change_the_sites_progress() :void {
 		$opts = $this->installEnvironment( false );
 
-		foreach ( [ [ 'op' => 'skip', 'step_slug' => 'report_email' ], [ 'op' => 'dismiss' ] ] as $data ) {
+		foreach ( [ [ 'op' => 'skip', 'step_slug' => 'security_admin' ], [ 'op' => 'minimise' ], [ 'op' => 'dismiss' ] ] as $data ) {
 			try {
 				( new SetupGuideUpdate( $data ) )->process();
 				$this->fail( 'The update went ahead without Security Admin.' );

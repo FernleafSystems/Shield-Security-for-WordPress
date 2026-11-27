@@ -231,21 +231,24 @@ test( 'dashboard overview respects reduced motion for summary links', async ( { 
 	expect( await arrow.evaluate( ( element ) => getComputedStyle( element ).transitionProperty ) ).toBe( 'none' );
 } );
 
-test( 'dashboard activity charts complete an interrupted flip before returning', async ( { page } ) => {
-	await openShieldRoute( page, dashboardRoute );
+test( 'dashboard activity charts complete an interrupted flip before returning', async ( { page, fixtureApi } ) => {
+	// Only activity that has happened gets a stat, so one offence is recorded for the dashboard to chart.
+	await fixtureApi.withDashboardActivityFixture( async () => {
+		await openShieldRoute( page, dashboardRoute );
 
-	const chart = page.locator( '[data-dashboard-activity-chart]' ).first();
-	await expect( chart ).toBeVisible();
-	await chart.hover();
-	await expect( chart ).toHaveClass( /is-chart-visible/ );
-	await page.waitForTimeout( 100 );
-	await page.mouse.move( 0, 0 );
+		const chart = page.locator( '[data-dashboard-activity-chart="ip_offense"]' );
+		await expect( chart ).toBeVisible();
+		await chart.hover();
+		await expect( chart ).toHaveClass( /is-chart-visible/ );
+		await page.waitForTimeout( 100 );
+		await page.mouse.move( 0, 0 );
 
-	await page.waitForTimeout( 550 );
-	await expect( chart ).toHaveClass( /is-chart-visible/ );
+		await page.waitForTimeout( 550 );
+		await expect( chart ).toHaveClass( /is-chart-visible/ );
 
-	await page.waitForTimeout( 1050 );
-	await expect( chart ).not.toHaveClass( /is-chart-visible/ );
+		await page.waitForTimeout( 1050 );
+		await expect( chart ).not.toHaveClass( /is-chart-visible/ );
+	} );
 } );
 
 test( 'dashboard sidebar keeps dashboard first, separates actions, and preserves the dashboard geometry', async ( { page } ) => {

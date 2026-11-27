@@ -95,7 +95,7 @@ class ExternalEntryGuard {
 			throw new ActionDoesNotExistException( 'There was no action handler available for '.esc_html( $slug ) );
 		}
 		if ( !$this->admit( $slug, $entry ) ) {
-			throw new ActionNotAdmittedException( __( 'Action transport is not allowed.', 'wp-simple-firewall' ) );
+			throw new ActionNotAdmittedException( __( 'Action transport is not allowed.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX and MainWP consumers display it as text, and escaping would show entities from translations.
 		}
 		try {
 			$this->verifyProof( $slug, $entry, $transport );

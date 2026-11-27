@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
+
 class Handler {
 
 	public function build() :array {
@@ -33,10 +35,10 @@ class Handler {
 		$normalised = [];
 		foreach ( $issues as $issue ) {
 			if ( empty( $issue[ 'id' ] ) ) {
-				error_log( sprintf( 'Invalid issue defined without ID: %s', var_export( $issue, true ) ) );
+				ErrorLog::write( sprintf( 'Invalid issue defined without ID: %s', ErrorLog::describe( $issue ) ) );
 			}
 			elseif ( isset( $normalised[ $issue[ 'id' ] ] ) ) {
-				error_log( sprintf( 'Duplicate issue ID: %s', var_export( $issue, true ) ) );
+				ErrorLog::write( sprintf( 'Duplicate issue ID: %s', ErrorLog::describe( $issue ) ) );
 			}
 			else {
 				$normalised[ $issue[ 'id' ] ] = \array_merge( [

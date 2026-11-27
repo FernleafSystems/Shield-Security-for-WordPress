@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops as ReqLogsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class RequestLogger {
 	use ExecOnce;
@@ -55,7 +56,7 @@ class RequestLogger {
 		if ( !$con->plugin_deleting && !$con->is_my_upgrade && apply_filters( 'shield/is_log_traffic', false ) ) {
 			$isLogged = $this->isDependentLog()
 			            || $con->comps->opts_lookup->getTrafficLiveLogTimeRemaining() > 0
-			            || !apply_filters( self::FILTER_BUILTIN_SUPPRESSIONS_ENABLED, true, $con->this_req )
+			            || !apply_filters( self::FILTER_BUILTIN_SUPPRESSIONS_ENABLED, true, $con->this_req ) // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- The constant holds one of Shield's own shield/ hook names.
 			            || !( new RequestLogSuppressor() )->shouldSuppress();
 		}
 
@@ -75,7 +76,7 @@ class RequestLogger {
 				$this->getLogger()->log( 'debug', 'log request' );
 			}
 			catch ( \Exception $e ) {
-				error_log( $e->getMessage() );
+				ErrorLog::write( $e->getMessage() );
 			}
 			finally {
 				$this->hasLogged = true;

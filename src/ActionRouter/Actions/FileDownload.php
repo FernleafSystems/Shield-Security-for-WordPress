@@ -22,7 +22,7 @@ class FileDownload extends BaseAction {
 		try {
 			$cat = $this->fields()->string( 'download_category', '' );
 			if ( empty( $cat ) ) {
-				throw new \Exception( __( 'Invalid download request.', 'wp-simple-firewall' ) );
+				throw new \Exception( __( 'Invalid download request.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught by FileDownload::exec(), which returns it as a plain-text response message.
 			}
 			$contents = $this->getFileDownloadContents( $cat );
 
@@ -68,7 +68,7 @@ class FileDownload extends BaseAction {
 				break;
 
 			default:
-				throw new \Exception( __( 'Invalid download request.', 'wp-simple-firewall' ) );
+				throw new \Exception( __( 'Invalid download request.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught by FileDownload::exec(), which returns it as a plain-text response message.
 		}
 
 		return $fileDetails;

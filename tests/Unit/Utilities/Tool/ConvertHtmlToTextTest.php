@@ -2,10 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Utilities\Tool;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrainMonkeyWordPressWrapperFunctions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\ConvertHtmlToText;
 
 class ConvertHtmlToTextTest extends BaseUnitTest {
+
+	use BrainMonkeyWordPressWrapperFunctions;
+
+	protected function setUp() :void {
+		parent::setUp();
+		$this->registerWordPressWrapperFunctions();
+	}
 
 	public function test_converts_full_html_documents_without_losing_structure() :void {
 		$html = <<<'HTML'

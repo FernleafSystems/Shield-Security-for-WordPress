@@ -42,7 +42,7 @@ class MfaEmailAutoLogin extends BaseAction {
 
 		$user = Services::WpUsers()->getUserById( $userID );
 		if ( empty( $user ) ) {
-			throw new ActionException( __( 'No such user', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'No such user', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Never shown: this ordinary-entry action runs through CapturePluginAction, which swallows ActionException.
 		}
 		$otpField = ( new Email( $user ) )->getLoginIntentFormParameter();
 		$otp = $fields->string( $otpField );
@@ -56,10 +56,10 @@ class MfaEmailAutoLogin extends BaseAction {
 			$success = true;
 		}
 		catch ( InvalidLoginIntentException|TooManyAttemptsException $e ) {
-			throw new ActionException( __( 'Invalid login nonce', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'Invalid login nonce', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Never shown: this ordinary-entry action runs through CapturePluginAction, which swallows ActionException.
 		}
 		catch ( NoActiveProvidersForUserException|CouldNotValidate2FA $e ) {
-			throw new ActionException( __( 'No email provider for user.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'No email provider for user.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Never shown: this ordinary-entry action runs through CapturePluginAction, which swallows ActionException.
 		}
 		catch ( OtpVerificationFailedException $e ) {
 			$success = false;

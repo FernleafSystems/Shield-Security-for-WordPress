@@ -144,7 +144,7 @@ class ActivityLogRetentionPolicy {
 			'retention_seconds_by_event'  => [],
 		];
 
-		$policy = (array)apply_filters( self::FILTER_ACTIVITY_POLICY, $defaults );
+		$policy = (array)apply_filters( self::FILTER_ACTIVITY_POLICY, $defaults ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- The constant holds one of Shield's own shield/ hook names.
 		$retentionByLevel = \array_merge(
 			$defaults[ 'retention_seconds_by_level' ],
 			\is_array( $policy[ 'retention_seconds_by_level' ] ?? null ) ? $policy[ 'retention_seconds_by_level' ] : []

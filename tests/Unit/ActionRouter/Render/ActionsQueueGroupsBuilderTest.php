@@ -393,6 +393,36 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 	public function test_build_surfaces_disabled_fix_now_scan_groups_as_neutral_clickable_cards() :void {
 		$controller = $this->createMock( \FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller::class );
 		$controller->method( 'isPremiumActive' )->willReturn( false );
+		// A scan that is switched off carries the dialog that turns it on, which reads what is scanned now and
+		// what the plan includes.
+		$parts = [
+			'comps'  => (object)[
+				'scans' => new class {
+					public function AFS() :object {
+						return new class {
+							public function isEnabled() :bool {
+								return false;
+							}
+
+							public function getFileScanAreas() :array {
+								return [];
+							}
+						};
+					}
+				},
+			],
+			'caps'   => new class {
+				public function canScanMalwareLocal() :bool {
+					return false;
+				}
+
+				public function canScanPluginsThemesLocal() :bool {
+					return false;
+				}
+			},
+			'labels' => (object)[ 'Name' => 'Plugin' ],
+		];
+		$controller->method( '__get' )->willReturnCallback( static fn( string $key ) => $parts[ $key ] ?? null );
 		PluginControllerInstaller::install( $controller );
 		$builder = $this->createBuilder(
 			[],
@@ -525,18 +555,22 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'label'             => 'WordPress Files',
 						'description'       => 'WordPress core files are healthy.',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 					[
 						'key'               => 'abandoned',
 						'label'             => 'Abandoned Assets',
 						'description'       => 'Previous scans did not detect any abandoned assets.',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 				],
 				'maintenance' => [],
@@ -619,6 +653,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					],
 					'toggle_action' => [],
 					'expansion'     => [],
+					'drawer_json'   => 'drawer:system_ssl_certificate',
 				],
 				[
 					'key'           => 'system_php_version',
@@ -628,7 +663,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'count'         => 0,
 					'severity'      => 'good',
 					'drill_bucket'  => 'review',
-					'description'   => 'This maintenance item is currently ignored.',
+					'description'   => 'This to-do is currently ignored.',
 					'href'          => '/wp-admin/site-health.php',
 					'action'        => 'Open Site Health',
 					'target'        => '',
@@ -639,12 +674,13 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'href'             => '',
 						'is_action'        => true,
 						'icon'             => 'bi bi-eye-fill',
-						'tooltip'          => 'Stop ignoring this maintenance item',
+						'tooltip'          => 'Stop ignoring this to-do',
 						'target'           => '',
 						'ajax_action_json' => '{"ex":"maintenance_item_unignore"}',
 						'maintenance_key'  => 'wp_plugins_updates',
 					],
 					'expansion'     => [],
+					'drawer_json'   => '',
 				],
 				[
 					'key'           => 'wp_updates',
@@ -664,6 +700,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					],
 					'toggle_action' => [],
 					'expansion'     => [],
+					'drawer_json'   => '',
 				],
 				[
 					'key'           => 'default_admin_user',
@@ -683,6 +720,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					],
 					'toggle_action' => [],
 					'expansion'     => [],
+					'drawer_json'   => '',
 				],
 				[
 					'key'           => 'wp_db_password',
@@ -699,6 +737,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'cta'           => [],
 					'toggle_action' => [],
 					'expansion'     => [],
+					'drawer_json'   => '',
 				],
 				[
 					'key'           => 'wp_plugins_updates',
@@ -740,7 +779,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 											'href'             => '',
 											'is_action'        => true,
 											'icon'             => 'bi bi-eye-slash-fill',
-											'tooltip'          => 'Ignore this maintenance item',
+											'tooltip'          => 'Ignore this to-do',
 											'target'           => '',
 											'ajax_action_json' => '{"ex":"maintenance_item_ignore"}',
 											'maintenance_key'  => 'wp_plugins_updates',
@@ -750,6 +789,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 							],
 						],
 					],
+					'drawer_json'   => 'drawer:wp_plugins_updates',
 				],
 			]
 		);
@@ -784,29 +824,35 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					[
 						'key'               => 'system_php_version',
 						'label'             => 'PHP Version',
-						'description'       => 'This maintenance item is currently ignored.',
+						'description'       => 'This to-do is currently ignored.',
 						'drill_bucket'      => 'review',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-check-circle-fill',
+						'is_ignored'        => false,
 					],
 					[
 						'key'               => 'default_admin_user',
 						'label'             => 'Default Admin User',
 						'description'       => 'The default admin user is no longer available.',
 						'drill_bucket'      => 'review',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-check-circle-fill',
+						'is_ignored'        => false,
 					],
 					[
 						'key'               => 'wp_db_password',
 						'label'             => 'MySQL DB Password',
 						'description'       => 'The database password is strong.',
 						'drill_bucket'      => 'review',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-check-circle-fill',
+						'is_ignored'        => false,
 					],
 				],
 			]
@@ -845,6 +891,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( '', $systemRows[ 0 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] );
 		$this->assertFalse( $systemRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] );
 		$this->assertFalse( $systemRows[ 0 ][ 'is_ignored' ] );
+		// A to-do's row opens that to-do's drawer.
+		$this->assertSame( 'drawer:system_ssl_certificate', $systemRows[ 0 ][ 'drawer_json' ] );
 		$this->assertSame( [], $systemGroup[ 'ignored_rows' ] );
 
 		// The ignored item comes last, faded, and can be restored.
@@ -899,6 +947,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$this->decodeAjaxAction( $pluginUpdatesGroup[ 'maintenance_rows' ][ 0 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] )[ 'ex' ] ?? ''
 		);
 		$this->assertTrue( $pluginUpdatesGroup[ 'maintenance_rows' ][ 0 ][ 'actions' ][ 0 ][ 'is_action' ] ?? false );
+		// As does each plugin's row, for the to-do the plugin is listed under.
+		$this->assertSame( 'drawer:wp_plugins_updates', $pluginUpdatesGroup[ 'maintenance_rows' ][ 0 ][ 'drawer_json' ] );
 		$this->assertSame( '', $pluginUpdatesGroup[ 'drill_hint' ] );
 		$this->assertSame( 'maintenance', $pluginUpdatesGroup[ 'detail_shell' ] );
 	}
@@ -1041,6 +1091,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					],
 					'toggle_action' => [],
 					'expansion'     => [],
+					'drawer_json'   => '',
 				],
 				[
 					'key'           => 'default_admin_user',
@@ -1050,7 +1101,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'count'         => 0,
 					'severity'      => 'good',
 					'drill_bucket'  => 'review',
-					'description'   => 'This maintenance item is currently ignored.',
+					'description'   => 'This to-do is currently ignored.',
 					'href'          => '/wp-admin/users.php',
 					'action'        => 'Manage Users',
 					'target'        => '',
@@ -1064,12 +1115,13 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'href'             => '',
 						'is_action'        => true,
 						'icon'             => 'bi bi-eye-fill',
-						'tooltip'          => 'Stop ignoring this maintenance item',
+						'tooltip'          => 'Stop ignoring this to-do',
 						'target'           => '',
 						'ajax_action_json' => '{"ex":"maintenance_item_unignore"}',
 						'maintenance_key'  => 'wp_plugins_updates',
 					],
 					'expansion'     => [],
+					'drawer_json'   => '',
 				],
 			]
 		);
@@ -1088,18 +1140,22 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'label'             => 'WordPress Version',
 						'description'       => 'WordPress is up to date.',
 						'drill_bucket'      => 'review',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-check-circle-fill',
+						'is_ignored'        => false,
 					],
 					[
 						'key'               => 'default_admin_user',
 						'label'             => 'Default Admin User',
-						'description'       => 'This maintenance item is currently ignored.',
+						'description'       => 'This to-do is currently ignored.',
 						'drill_bucket'      => 'review',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 				],
 			]
@@ -1192,9 +1248,11 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'label'             => 'Abandoned Assets',
 						'description'       => 'Previous scans did not detect any abandoned assets.',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 				],
 				'maintenance' => [],
@@ -1249,18 +1307,22 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'label'             => 'Known Vulnerabilities',
 						'description'       => 'Previous scans did not detect any vulnerable assets.',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 					[
 						'key'               => 'abandoned',
 						'label'             => 'Abandoned Assets',
 						'description'       => 'Previous scans did not detect any abandoned assets.',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 				],
 				'maintenance' => [],
@@ -1302,6 +1364,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 				],
 				'maintenance' => [],
@@ -1333,6 +1396,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'status'            => 'good',
 					'status_label'      => 'Good',
 					'status_icon_class' => 'bi bi-patch-check-fill',
+					'is_ignored'        => false,
 				] ],
 				'maintenance' => [],
 			]
@@ -1402,18 +1466,22 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'label'             => 'Known Vulnerabilities',
 						'description'       => 'Previous scans did not detect any vulnerable assets.',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 					[
 						'key'               => 'abandoned',
 						'label'             => 'Abandoned Assets',
 						'description'       => 'Previous scans did not detect any abandoned assets.',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 				],
 				'maintenance' => [],
@@ -1481,18 +1549,22 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'label'             => 'Theme Files',
 						'description'       => 'All theme files appear to be valid.',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 					[
 						'key'               => 'abandoned',
 						'label'             => 'Abandoned Assets',
 						'description'       => 'Previous scans did not detect any abandoned assets.',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 				],
 				'maintenance' => [],
@@ -1557,9 +1629,11 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'label'             => 'File Locker',
 						'description'       => 'Locked files are healthy.',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 				],
 				'maintenance' => [],
@@ -1594,27 +1668,33 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'label'             => 'scan-label-wp',
 						'description'       => 'scan-description-wp',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'status-label-good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 					[
 						'key'               => 'plugin_files',
 						'label'             => 'scan-label-plugin',
 						'description'       => 'scan-description-plugin',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'status-label-good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 					[
 						'key'               => 'theme_files',
 						'label'             => 'scan-label-theme',
 						'description'       => 'scan-description-theme',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'status-label-good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 				],
 				'maintenance' => [],
@@ -1663,18 +1743,22 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'label'             => 'Plugin Files',
 						'description'       => 'All plugin files appear to be valid.',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 					[
 						'key'               => 'theme_files',
 						'label'             => 'Theme Files',
 						'description'       => 'All theme files appear to be valid.',
 						'drill_bucket'      => 'critical',
+						'item_icon_class'   => '',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
+						'is_ignored'        => false,
 					],
 				],
 				'maintenance' => [],

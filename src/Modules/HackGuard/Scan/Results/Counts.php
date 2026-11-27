@@ -148,11 +148,11 @@ class Counts {
 			$this->counts[ $cacheKey ] = $this->countDistinctItemIdsAcrossScanMetaFilters( [
 				[
 					'scan_slug' => self::con()->comps->scans->WPV()->getSlug(),
-					'meta_key'  => 'is_vulnerable',
+					'meta_key'  => 'is_vulnerable', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- A column of Shield's own scan result meta table, not a WordPress meta query.
 				],
 				[
 					'scan_slug' => self::con()->comps->scans->APC()->getSlug(),
-					'meta_key'  => 'is_abandoned',
+					'meta_key'  => 'is_abandoned', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- A column of Shield's own scan result meta table, not a WordPress meta query.
 				],
 			] );
 		}
@@ -194,7 +194,7 @@ class Counts {
 					break;
 
 				default:
-					die( __( 'Unsupported result type.', 'wp-simple-firewall' ) );
+					die( esc_html__( 'Unsupported result type.', 'wp-simple-firewall' ) );
 			}
 			$this->counts[ $resultType ] = $resultsCount->count( $this->context );
 		}

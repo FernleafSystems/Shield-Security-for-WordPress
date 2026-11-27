@@ -54,6 +54,7 @@ class SecurityAdminPin extends SecurityAdminBase {
 			try {
 				( new SetSecAdminPin() )->run( $newPIN );
 				\WP_CLI::success(
+					/* translators: %s: new security admin PIN */
 					sprintf( __( 'Security admin pin set to: `%s`', 'wp-simple-firewall' ), $newPIN )
 				);
 			}

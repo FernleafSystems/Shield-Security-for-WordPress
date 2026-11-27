@@ -545,7 +545,7 @@ class ScansResultsViewBuilder {
 	private function normalizeDirectTableAreaKey( string $areaKey ) :string {
 		$areaKey = \strtolower( \trim( $areaKey ) );
 		if ( !\in_array( $areaKey, self::DIRECT_TABLE_AREA_KEYS, true ) ) {
-			throw new \InvalidArgumentException( \sprintf( 'Scan result area "%s" has no direct table.', $areaKey ) );
+			throw new \InvalidArgumentException( \sprintf( 'Scan result area "%s" has no direct table.', $areaKey ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Programming-error guard, not an ActionException: AJAX handlers log it and show a generic message, and the plugin never prints it.
 		}
 
 		return $areaKey;
@@ -564,7 +564,7 @@ class ScansResultsViewBuilder {
 				return 'themes';
 
 			default:
-				throw new \InvalidArgumentException( \sprintf( 'Unsupported scan result subject type "%s".', $subjectType ) );
+				throw new \InvalidArgumentException( \sprintf( 'Unsupported scan result subject type "%s".', $subjectType ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Not an ActionException: AJAX handlers log it and show a generic message, and the plugin never prints it.
 		}
 	}
 
@@ -579,7 +579,7 @@ class ScansResultsViewBuilder {
 				return $tableBuilder->buildMalwareTable( $resultsDisplayOptions );
 
 			default:
-				throw new \InvalidArgumentException( \sprintf( 'Scan result area "%s" has no direct table.', $areaKey ) );
+				throw new \InvalidArgumentException( \sprintf( 'Scan result area "%s" has no direct table.', $areaKey ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Programming-error guard, not an ActionException: AJAX handlers log it and show a generic message, and the plugin never prints it.
 		}
 	}
 
@@ -594,7 +594,7 @@ class ScansResultsViewBuilder {
 				return $tableBuilder->buildThemeTable( $subjectId, $resultsDisplayOptions );
 
 			default:
-				throw new \InvalidArgumentException( \sprintf( 'Scan result area "%s" has no subject table.', $areaKey ) );
+				throw new \InvalidArgumentException( \sprintf( 'Scan result area "%s" has no subject table.', $areaKey ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Programming-error guard, not an ActionException: AJAX handlers log it and show a generic message, and the plugin never prints it.
 		}
 	}
 
@@ -875,6 +875,7 @@ class ScansResultsViewBuilder {
 		$rowTitle = \trim( $rowTitle );
 
 		$accessibleLabel = $label !== '' && $rowTitle !== ''
+			/* translators: %1$s: column label, %2$s: row title */
 			? \sprintf( __( '%1$s: %2$s', 'wp-simple-firewall' ), $label, $rowTitle )
 			: ( $label !== '' ? $label : $rowTitle );
 		if ( $accessibleLabel === '' ) {

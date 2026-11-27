@@ -24,7 +24,9 @@ class LicenseLookup extends LicenseBase {
 		if ( $checkInterval < 20 ) {
 			$waitFor = 20 - $checkInterval;
 			$msg = sprintf(
+				/* translators: %s: length of time to wait, such as 5 seconds */
 				__( 'Please wait %s before attempting another license check.', 'wp-simple-firewall' ),
+				/* translators: %s: number of seconds */
 				sprintf( _n( '%s second', '%s seconds', $waitFor, 'wp-simple-firewall' ), $waitFor )
 			);
 		}

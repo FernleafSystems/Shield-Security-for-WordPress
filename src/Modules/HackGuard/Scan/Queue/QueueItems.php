@@ -43,7 +43,7 @@ class QueueItems {
 				)
 			);
 			if ( empty( $result ) ) {
-				throw new NoQueueItems( __( 'No items remaining in queue to select.', 'wp-simple-firewall' ) );
+				throw new NoQueueItems( __( 'No items remaining in queue to select.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: NoQueueItems is caught by ProcessQueueWpcli (ends the loop) and QueueProcessor (error_log); never shown.
 			}
 
 			$item = ( new QueueItemVO() )->applyFromArray( $result );
@@ -53,7 +53,7 @@ class QueueItems {
 			}
 		}
 
-		throw new NoQueueItems( __( 'No items remaining in queue to claim.', 'wp-simple-firewall' ) );
+		throw new NoQueueItems( __( 'No items remaining in queue to claim.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: NoQueueItems is caught by ProcessQueueWpcli (ends the loop) and QueueProcessor (error_log); never shown.
 	}
 
 	public function hasNextItem() :bool {

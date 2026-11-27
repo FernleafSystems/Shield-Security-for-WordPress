@@ -22,4 +22,12 @@ abstract class PageScansBase extends PageModeLandingBase {
 	protected function hasOperatorModeParent() :bool {
 		return true;
 	}
+
+	/**
+	 * Scan pages belong to the Actions Queue, so their breadcrumb takes the colour of the queue's most severe
+	 * item as the queue's own does: red only for something critical, amber for to-dos, green for nothing to do.
+	 */
+	protected function getLandingChromeColorKey() :string {
+		return self::con()->comps->site_query->attention()[ 'summary' ][ 'severity' ];
+	}
 }

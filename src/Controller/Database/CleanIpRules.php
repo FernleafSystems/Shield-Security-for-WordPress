@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class CleanIpRules {
 
@@ -77,7 +78,7 @@ class CleanIpRules {
 					( new MergeAutoBlockRules() )->byIP( $ip );
 				}
 				catch ( \Exception $e ) {
-					error_log( 'clean duplicate IPs for: '.$ip );
+					ErrorLog::write( 'clean duplicate IPs for: '.$ip );
 				}
 			},
 			\array_keys( \array_filter( $this->getIpCountsForType( IpRulesDB\Handler::T_AUTO_BLOCK ), function ( $IDs ) {

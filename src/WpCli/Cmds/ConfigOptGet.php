@@ -46,6 +46,7 @@ class ConfigOptGet extends ConfigBase {
 					$explain = sprintf( 'Note: %s', __( '"Y" = Turned On; "N" = Turned Off', 'wp-simple-firewall' ) );
 				}
 
+				/* translators: %s: option value */
 				\WP_CLI::log( sprintf( __( 'Current value: %s', 'wp-simple-firewall' ), $value ) );
 				if ( !empty( $explain ) ) {
 					\WP_CLI::log( $explain );

@@ -24,6 +24,7 @@ class Collate {
 		$pluginsInactive = $this->getPlugins( false );
 		$themes = $this->getThemes( true );
 		return [
+			/* translators: %s: plugin name */
 			sprintf( __( '%s Info', 'wp-simple-firewall' ), self::con()->labels->Name )    => [
 				__( 'Summary', 'wp-simple-firewall' )      => $this->getShieldSummary(),
 				__( 'Databases', 'wp-simple-firewall' )    => $this->getShieldDatabases(),
@@ -36,8 +37,11 @@ class Collate {
 			],
 			__( 'WordPress Info', 'wp-simple-firewall' ) => [
 				__( 'Summary', 'wp-simple-firewall' )                                            => $this->getWordPressSummary(),
+				/* translators: %s: number of active plugins */
 				sprintf( __( 'Active Plugins (%s)', 'wp-simple-firewall' ), \count( $pluginsActive ) )     => $pluginsActive,
+				/* translators: %s: number of inactive plugins */
 				sprintf( __( 'Inactive Plugins (%s)', 'wp-simple-firewall' ), \count( $pluginsInactive ) ) => $pluginsInactive,
+				/* translators: %s: number of active themes */
 				sprintf( __( 'Active Themes (%s)', 'wp-simple-firewall' ), \count( $themes ) )             => $themes,
 			],
 			__( 'Service IPs', 'wp-simple-firewall' )    => [
@@ -70,7 +74,8 @@ class Collate {
 			$diff = ( new WorldTimeApi() )->diffServerWithReal();
 		}
 		catch ( \Exception $e ) {
-			$diff = sprintf( __( 'Failed: %s', 'wp-simple-firewall' ), $e->getMessage() );
+			/* translators: %s: error message */
+			$diff = sprintf( __( 'Failed: %s', 'wp-simple-firewall' ), esc_html( $e->getMessage() ) );
 		}
 
 		return [
@@ -81,11 +86,13 @@ class Collate {
 			__( 'CloudFlare', 'wp-simple-firewall' )             => !empty( $req->server( 'HTTP_CF_REQUEST_ID' ) )
 				? __( 'No', 'wp-simple-firewall' )
 				: __( 'Yes', 'wp-simple-firewall' ),
-			__( 'rDNS', 'wp-simple-firewall' )                   => empty( $rDNS ) ? '-' : $rDNS,
+			// A reverse-DNS answer is outside data, and this page prints its values as HTML.
+			__( 'rDNS', 'wp-simple-firewall' )                   => empty( $rDNS ) ? '-' : esc_html( $rDNS ),
 			__( 'Server Name', 'wp-simple-firewall' )            => $req->server( 'SERVER_NAME' ),
 			__( 'Server Signature', 'wp-simple-firewall' )       => empty( $sig ) ? '-' : $sig,
 			__( 'Server Software', 'wp-simple-firewall' )        => empty( $soft ) ? '-' : $soft,
 			__( 'Disk Space', 'wp-simple-firewall' )             => sprintf(
+				/* translators: %1$s: disk space used, %2$s: total disk space, %3$s: unused disk space */
 				__( '%1$s used out of %2$s (unused: %3$s)', 'wp-simple-firewall' ),
 				( \is_numeric( $totalDisk ) && \is_numeric( $freeDisk ) ) ? FormatBytes::Format( $totalDisk - $freeDisk, 2, '' ) : '-',
 				\is_numeric( $totalDisk ) ? FormatBytes::Format( $totalDisk, 2, '' ) : '-',
@@ -180,6 +187,7 @@ class Collate {
 			$DBs[ $dbhDef[ 'def' ][ 'name' ] ] = sprintf( '<code>%s</code> | %s | %s | %s',
 				$dbh->getTableSchema()->table,
 				$dbh->isReady() ? __( 'Ready', 'wp-simple-firewall' ) : __( 'Not Ready', 'wp-simple-firewall' ),
+				/* translators: %s: number of database rows */
 				sprintf( __( 'Rows: %s', 'wp-simple-firewall' ), $dbh->isReady() ? $dbh->getQuerySelector()->count() : '-' ),
 				self::con()->action_router->render( DbDescribeTable::class, [
 					'show_table' => $WPDB->selectCustom( sprintf( 'DESCRIBE %s', $dbh->getTableSchema()->table ) )
@@ -219,6 +227,7 @@ class Collate {
 		$data = [
 			__( 'Can Loopback Request', 'wp-simple-firewall' )       => $this->yesNo( $con->plugin->canSiteLoopback() ),
 			__( 'NotBot Frontend JS Loading', 'wp-simple-firewall' ) => $this->yesNo( ( new TestNotBotLoading() )->test() ),
+			/* translators: %s: ShieldNET service name */
 			sprintf( __( 'Handshake %s', 'wp-simple-firewall' ), $con->labels->getBrandName( 'shieldnet' ) ) => $this->yesNo( $con->comps->shieldnet->canHandshake() ),
 			__( 'WP Hashes Ping', 'wp-simple-firewall' )             => $this->yesNo( ( new ApiPing() )->ping() ),
 		];
@@ -227,6 +236,7 @@ class Collate {
 			$this->yesNo( ( new Licenses\Keyless\Ping() )->ping() );
 
 		$data[ __( 'Write TMP/Cache DIR', 'wp-simple-firewall' ) ] = $con->cache_dir_handler->exists() ?
+			/* translators: %s: directory path */
 			sprintf( __( 'Yes: %s', 'wp-simple-firewall' ), $con->cache_dir_handler->dir() ) :
 			__( 'No', 'wp-simple-firewall' );
 
@@ -243,6 +253,7 @@ class Collate {
 			$sPrev = __( 'Never', 'wp-simple-firewall' );
 		}
 		else {
+			/* translators: %s: how long ago the last attempt was */
 			$sPrev = sprintf( __( 'Last Attempt: %s', 'wp-simple-firewall' ), Services::Request()
 											  ->carbon()
 											  ->setTimestamp( $nPrevAttempt )
@@ -267,16 +278,17 @@ class Collate {
 			}
 		}
 
+		// When no source has a valid public IP, detection can return a forwarded header's entry as sent.
 		$ip = Services::Request()->ip();
 		$data[ __( 'Visitor IP Source', 'wp-simple-firewall' ) ] =
-			$source.': '.( empty( $ip ) ? __( 'n/a', 'wp-simple-firewall' ) : $ip );
+			$source.': '.( empty( $ip ) ? __( 'n/a', 'wp-simple-firewall' ) : esc_html( $ip ) );
 
 		return $data;
 	}
 
 	private function getServiceIPs() :array {
 		return [
-			'ips' => var_export( Services::ServiceProviders()->getProviders(), true ),
+			'ips' => (string)wp_json_encode( Services::ServiceProviders()->getProviders(), \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES ),
 		];
 	}
 
@@ -297,9 +309,13 @@ class Collate {
 			__( 'ABSPATH', 'wp-simple-firewall' )     => ABSPATH,
 			__( 'Debug Is On', 'wp-simple-firewall' ) => $this->yesNo( $WP->isDebug() ),
 			__( 'Database', 'wp-simple-firewall' )    => [
+				/* translators: %s: database host name */
 				sprintf( __( 'Host: <code>%s</code>', 'wp-simple-firewall' ), DB_HOST ),
+				/* translators: %s: database name */
 				sprintf( __( 'Name: <code>%s</code>', 'wp-simple-firewall' ), DB_NAME ),
+				/* translators: %s: database user name */
 				sprintf( __( 'User: <code>%s</code>', 'wp-simple-firewall' ), DB_USER ),
+				/* translators: %s: database table prefix */
 				sprintf( __( 'Prefix: <code>%s</code>', 'wp-simple-firewall' ), Services::WpDb()->getPrefix() ),
 			],
 		] );

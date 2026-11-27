@@ -29,6 +29,8 @@ test( 'a Configure goal names its filter and views, and its save bar is announce
 	await expect( bar ).toHaveAttribute( 'role', 'region' );
 	await expect( bar ).toHaveAccessibleName( /\S/ );
 	await expect( bar.locator( '.shield-actionbar__copy' ) ).toHaveAttribute( 'aria-live', 'polite' );
+	// The bar fades in as it drops: its colours are only its own once it has arrived.
+	await bar.evaluate( ( el ) => Promise.all( el.getAnimations().map( ( animation ) => animation.finished ) ) );
 	await expectNoAxeViolations( page, '#PageContainer-Apto' );
 
 	await bar.locator( '[data-configure-savebar-discard="1"]' ).focus();

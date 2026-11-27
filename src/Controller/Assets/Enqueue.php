@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class Enqueue {
 
@@ -255,7 +256,7 @@ class Enqueue {
 				wp_localize_script( $this->normaliseHandle( $handle ), $objectName, $data );
 			}
 			else {
-				\error_log( 'Invalid localisation: '.\var_export( $local, true ) );
+				ErrorLog::write( 'Invalid localisation: '.ErrorLog::describe( $local ) );
 			}
 		}
 	}

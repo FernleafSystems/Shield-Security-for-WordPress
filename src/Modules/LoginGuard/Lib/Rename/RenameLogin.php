@@ -80,18 +80,22 @@ class RenameLogin {
 			$isConflicted = true;
 		}
 		elseif ( \class_exists( 'Rename_WP_Login' ) ) {
+			/* translators: %s: name of the conflicting plugin */
 			$msg = sprintf( __( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.', 'wp-simple-firewall' ), 'Rename WP Login' );
 			$isConflicted = true;
 		}
 		elseif ( \class_exists( 'Theme_My_Login' ) ) {
+			/* translators: %s: name of the conflicting plugin */
 			$msg = sprintf( __( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.', 'wp-simple-firewall' ), 'Theme My Login' );
 			$isConflicted = true;
 		}
 		elseif ( !$WP->isPermalinksEnabled() ) {
+			/* translators: %s: name of the WordPress permalinks setting */
 			$msg = sprintf( __( 'Can not use the Rename WP Login feature because you have not enabled %s.', 'wp-simple-firewall' ), __( 'Permalinks', 'wp-simple-firewall' ) );
 			$isConflicted = true;
 		}
 		elseif ( $WP->isPermalinksEnabled() && ( $WP->getDoesWpSlugExist( $path ) || \in_array( $path, $WP->getAutoRedirectLocations() ) ) ) {
+			/* translators: %s: URL path */
 			$msg = sprintf( __( 'Can not use the Rename WP Login feature because you have chosen a path ("%s") that is already used on your WordPress site.', 'wp-simple-firewall' ), $path );
 			$isConflicted = true;
 		}

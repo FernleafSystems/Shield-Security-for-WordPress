@@ -9,9 +9,9 @@ class BlockIpAddressCrowdsec extends BlockIpAddressShield {
 
 	protected function getRestrictionDetailsBlurb() :array {
 		return [
-			'crowdsec'  => __( "In collaboration with CrowdSec and their crowd-sourced IP reputation data, your IP address has been identified as malicious.", 'wp-simple-firewall' ),
-			'no_access' => __( "All access to this website is therefore restricted.", 'wp-simple-firewall' )
-						   .' '.__( "Please take a moment to review your options below.", 'wp-simple-firewall' ),
+			'crowdsec'  => esc_html__( "In collaboration with CrowdSec and their crowd-sourced IP reputation data, your IP address has been identified as malicious.", 'wp-simple-firewall' ),
+			'no_access' => esc_html__( "All access to this website is therefore restricted.", 'wp-simple-firewall' )
+						   .' '.esc_html__( "Please take a moment to review your options below.", 'wp-simple-firewall' ),
 		];
 	}
 

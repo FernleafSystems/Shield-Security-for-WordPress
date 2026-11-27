@@ -329,6 +329,7 @@ class PageImportExport extends PageModeLandingBase {
 			'rail'                 => [
 				'connection_label'   => $hasMasterURL ? __( 'Connected to master', 'wp-simple-firewall' ) : __( 'No master connected', 'wp-simple-firewall' ),
 				'client_count_label' => sprintf(
+					/* translators: %s: number of client sites */
 					_n( '%s client site', '%s client sites', $activeClientCount, 'wp-simple-firewall' ),
 					$activeClientCount
 				),
@@ -536,7 +537,7 @@ class PageImportExport extends PageModeLandingBase {
 	}
 
 	private function hostFromUrl( string $url ) :string {
-		$host = (string)\parse_url( $url, \PHP_URL_HOST );
+		$host = (string)wp_parse_url( $url, \PHP_URL_HOST );
 		return empty( $host ) ? $url : $host;
 	}
 

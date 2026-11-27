@@ -143,6 +143,26 @@ function installNativeDialogGuard( page ) {
 	return nativeDialogs;
 }
 
+/**
+ * WordPress warns about unsaved changes when its profile form's fields aren't as they were when the page was drawn.
+ * Shield's 2FA fields are drawn into that form afterwards and are sent as they're used, never with the form.
+ */
+test( 'drawing the 2FA section does not leave the WordPress profile form looking changed', async ( { page, fixtureApi } ) => {
+	const nativeDialogs = installNativeDialogGuard( page );
+	await fixtureApi.withMfaProfileFixture( async ( fixture ) => {
+		await openMfaProfile( page, fixture );
+
+		const controls = page.locator( '#ShieldMfaUserProfileForm' ).locator( 'input, select, textarea, button' );
+		expect( await controls.count() ).toBeGreaterThan( 0 );
+		expect( await controls.evaluateAll( ( all ) => all.filter( ( control ) => control.form !== null ).length ) ).toBe( 0 );
+
+		// The browser only asks about leaving a page that has been used, so the page is clicked first.
+		await page.locator( '#ShieldUserProfileMFA' ).click( { position: { x: 2, y: 2 } } );
+		await page.goto( fixture.profile_path, { waitUntil: 'load' } );
+		expect( nativeDialogs ).toEqual( [] );
+	} );
+} );
+
 test( 'backup-code confirm uses accessible modal and cancel does not send ajax', async ( { page, fixtureApi } ) => {
 	const nativeDialogs = installNativeDialogGuard( page );
 	await fixtureApi.withMfaProfileFixture( async ( fixture ) => {
@@ -261,6 +281,44 @@ test( 'backup-code generate and delete mutate fixture-inspected records', async 
 
 		await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
 		await expectMfaDialogHidden( page );
+		expect( nativeDialogs ).toEqual( [] );
+	} );
+} );
+
+/**
+ * Drawing the 2FA section makes a new secret and QR code. A mistyped code mustn't do that: the app already holds the
+ * one that was scanned.
+ */
+test( 'a wrong authenticator code can be followed by the right one for the QR code already scanned', async ( { page, fixtureApi } ) => {
+	const nativeDialogs = installNativeDialogGuard( page );
+	await fixtureApi.withMfaProfileFixture( async ( fixture ) => {
+		await openMfaProfile( page, fixture );
+		const scanned = ( await fixtureApi.inspectMfaProfileFixture() ).google_auth;
+		const secretShown = page.locator( '#shield_ga_secret' );
+		await expect( secretShown ).toHaveText( scanned.temp_secret );
+
+		const otpInput = page.locator( 'input.shield_gacode' );
+		await otpInput.pressSequentially( scanned.current_otp === '000000' ? '000001' : '000000' );
+		let dialog = await expectNamedMfaDialog( page );
+		await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
+		await expectMfaDialogHidden( page );
+
+		// Told it was wrong, with the same QR code still there and the field ready for another go.
+		await expect( secretShown ).toHaveText( scanned.temp_secret );
+		await expect( otpInput ).toBeEnabled();
+		await expect( otpInput ).toHaveValue( '' );
+		await expect( otpInput ).toBeFocused();
+		let inspected = await fixtureApi.inspectMfaProfileFixture();
+		expect( inspected.google_auth.temp_secret ).toBe( scanned.temp_secret );
+		expect( inspected.user_record_counts[ fixture.ga_provider_slug ] || 0 ).toBe( 0 );
+
+		await otpInput.pressSequentially( inspected.google_auth.current_otp );
+		dialog = await expectNamedMfaDialog( page );
+		await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
+		await expectMfaDialogHidden( page );
+
+		inspected = await fixtureApi.inspectMfaProfileFixture();
+		expect( inspected.user_record_counts[ fixture.ga_provider_slug ] ).toBe( 1 );
 		expect( nativeDialogs ).toEqual( [] );
 	} );
 } );

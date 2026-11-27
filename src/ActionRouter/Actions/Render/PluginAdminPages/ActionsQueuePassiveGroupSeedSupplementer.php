@@ -72,7 +72,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 			$existingGroupKeys[ $seed[ 'key' ] ] = true;
 		}
 
-		foreach ( $this->buildHealthyScanSeedsForBucket( $bucketKey, $assessmentRowsByZone[ 'scans' ] ?? [] ) as $seed ) {
+		foreach ( $this->buildHealthyScanSeedsForBucket( $bucketKey, $assessmentRowsByZone[ 'scans' ] ) as $seed ) {
 			if ( isset( $existingGroupKeys[ $seed[ 'key' ] ] ) ) {
 				continue;
 			}
@@ -127,7 +127,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		$seeds = [];
 		foreach ( $this->groupDefinitions->ignoredOnlyDirectTableGroupKeys() as $definitionKey ) {
 			$availability = $this->scanAvailability->build( $definitionKey );
-			if ( empty( $availability[ 'is_available' ] ) || empty( $availability[ 'show_in_actions_queue' ] ) ) {
+			if ( !$availability[ 'is_available' ] || !$availability[ 'show_in_actions_queue' ] ) {
 				continue;
 			}
 
@@ -211,7 +211,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				$seed[ 'is_pro_upsell' ] = true;
 			}
 			if ( $availability[ 'disabled_reason' ] === 'not_enabled' ) {
-				$seed[ 'enable_dialog_json' ] = ( new ProtectionEnableDialogBuilder() )->forScan( $definitionKey, $definition[ 'icon_class' ] );
+				$seed[ 'enable_dialog_json' ] = ( new ProtectionEnableDialogBuilder() )->forScan( $definitionKey );
 			}
 			$seeds[] = $seed;
 		}
@@ -280,6 +280,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 							'status_label_override'         => $pendingStatusLabel,
 							'header_summary_override'       => $pendingFileLockerState,
 							'header_focus_override'         => \sprintf(
+								/* translators: %s: number of protected files */
 								_n(
 									'%s protected file is still waiting for its first lock.',
 									'%s protected files are still waiting for their first lock.',

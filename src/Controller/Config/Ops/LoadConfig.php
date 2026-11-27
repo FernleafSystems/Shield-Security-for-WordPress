@@ -22,7 +22,8 @@ class LoadConfig {
 	 */
 	public function __construct( string $path, string $storeKey ) {
 		if ( !Services::WpFs()->isAccessibleFile( $path ) ) {
-			throw new \Exception( sprintf( __( "Path to plugin config (%s) doesn't exist. Please reinstall the plugin.", 'wp-simple-firewall' ), $path ) );
+			/* translators: %s: file path */
+			throw new \Exception( sprintf( __( "Path to plugin config (%s) doesn't exist. Please reinstall the plugin.", 'wp-simple-firewall' ), $path ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: thrown while the plugin boots; plugin_init.php catches it and writes it to the error log.
 		}
 		$this->path = $path;
 		$this->store_key = $storeKey;

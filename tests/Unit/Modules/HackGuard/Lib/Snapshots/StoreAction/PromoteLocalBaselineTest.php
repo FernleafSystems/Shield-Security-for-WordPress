@@ -1,17 +1,5 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
-
-class PromoteLocalBaselineTestLog {
-
-	public static array $messages = [];
-}
-
-function error_log( string $message ) :bool {
-	PromoteLocalBaselineTestLog::$messages[] = $message;
-	return true;
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
 use Brain\Monkey\Functions;
@@ -24,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
 	Store
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\PromoteLocalBaseline;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ErrorLogCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -62,14 +51,15 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 	private PromoteLocalBaselineTestFs $fs;
 	private PromoteLocalBaselineTestDb $db;
 	private PromoteLocalBaselineTestCoordinator $coordinator;
+	private ErrorLogCapture $errorLog;
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->errorLog = ErrorLogCapture::start();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->hadWpdb = \array_key_exists( 'wpdb', $GLOBALS );
 		$this->wpdbSnapshot = $GLOBALS[ 'wpdb' ] ?? null;
 		$GLOBALS[ 'wpdb' ] = (object)[ 'last_error' => '' ];
-		\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\PromoteLocalBaselineTestLog::$messages = [];
 		Retrieve::resetMemoization();
 		AssetTrustResolver::resetMemoization();
 		$this->resetHashesStorageDir();
@@ -115,6 +105,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		else {
 			unset( $GLOBALS[ 'wpdb' ] );
 		}
+		$this->errorLog->stop();
 		parent::tearDown();
 	}
 
@@ -388,7 +379,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		$this->assertSame( [], $this->coordinator->assets );
 		$this->assertSame(
 			[],
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\PromoteLocalBaselineTestLog::$messages
+			$this->errorLog->messages()
 		);
 	}
 
@@ -408,7 +399,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		$this->assertSame( [], $this->coordinator->assets );
 		$this->assertCount(
 			1,
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\PromoteLocalBaselineTestLog::$messages
+			$this->errorLog->messages()
 		);
 	}
 
@@ -434,7 +425,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		$this->assertSame( [], $this->coordinator->assets );
 		$this->assertCount(
 			1,
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\PromoteLocalBaselineTestLog::$messages
+			$this->errorLog->messages()
 		);
 	}
 
@@ -454,7 +445,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		$this->assertSame( [], $this->coordinator->assets );
 		$this->assertCount(
 			1,
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\PromoteLocalBaselineTestLog::$messages
+			$this->errorLog->messages()
 		);
 	}
 
@@ -472,7 +463,7 @@ class PromoteLocalBaselineTest extends BaseUnitTest {
 		$this->assertSame( [ [ 'plugin', $asset->file, $asset->Version ] ], $this->coordinator->assets );
 		$this->assertSame(
 			[],
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\PromoteLocalBaselineTestLog::$messages
+			$this->errorLog->messages()
 		);
 	}
 

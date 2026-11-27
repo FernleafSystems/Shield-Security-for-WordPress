@@ -3,11 +3,12 @@
 // and its control on the right, and a readable maximum width so the eye doesn't travel across a wide screen
 // to find a control. Space, not rules or coloured edges, separates settings, and the one under the pointer
 // is lightly shaded so it's clear which name goes with which control. Settings that only apply when the one
-// above is on are indented beneath it. Nothing is faded. A setting that needs attention says why, right under
-// its name.
+// above is on are indented beneath it. Only a setting outside the site's plan is faded. A setting that needs
+// attention says why, right under its name.
 
 $panel-text: #1d2327;
 $panel-muted: #50575e;
+$panel-faded: #646970;
 $panel-good: #008000;
 $panel-good-dark: #005c00;
 $panel-link: #2271b1;
@@ -182,7 +183,8 @@ $panel-unsaved: #f0f6fc;
 			}
 		}
 
-		a {
+		// A button-style link keeps its button colours.
+		a:not(.btn) {
 			color: $panel-link;
 		}
 
@@ -278,6 +280,39 @@ $panel-unsaved: #f0f6fc;
 	// A list of choices sits beside its name too, starting level with it.
 	.shield-option-item.shield-panel-item.shield-panel-item--radios {
 		align-items: start;
+	}
+
+	// ─── A setting outside the site's plan: faded, with "Pro only" where its control is ───
+	// Its help and details stay as they are, so what the setting does can still be read. Its name and summary
+	// are greyed rather than made see-through, so they stay readable against the row, shaded or not.
+	.shield-panel-item.is-pro-only {
+		.option_label_name,
+		.options-summary {
+			color: $panel-faded;
+		}
+
+		.shield-panel-item__control {
+			position: relative;
+
+			> *:not(.shield-panel-pro-only) {
+				filter: grayscale(1);
+				opacity: 0.35;
+			}
+		}
+	}
+
+	// The "Pro only" button itself is styled where every use of it shares it; this places it over the control.
+	.shield-panel-pro-only {
+		left: 0;
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+	}
+
+	// Under a list of choices it sits in the middle of them.
+	.is-stacked .shield-panel-pro-only {
+		left: 50%;
+		transform: translate(-50%, -50%);
 	}
 
 	// Settings that only apply when the one above is on, indented beneath it.

@@ -72,7 +72,7 @@ class LoginRequestCapture {
 					] );
 				}
 				catch ( ActionException $e ) {
-					die( $e->getMessage() );
+					die( esc_html( $e->getMessage() ) );
 				}
 			}
 		}

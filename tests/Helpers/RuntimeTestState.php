@@ -6,8 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableReadyCache;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogger;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Users\UserMeta;
 use WP_User;
 
 class RuntimeTestState {
@@ -271,6 +273,18 @@ class RuntimeTestState {
 			$property = $reflection->getProperty( 'providers' );
 			$property->setAccessible( true );
 			$property->setValue( $mfa, [] );
+		}
+	}
+
+	/**
+	 * Shield holds each user's records for the rest of a request once it has loaded them. This forgets them all,
+	 * so that the next time they're asked for they come from the database.
+	 */
+	public static function forgetLoadedUserRecords() :void {
+		foreach ( [ [ UserMeta::class, 'metas' ], [ MfaRecordsHandler::class, 'records' ] ] as [ $class, $property ] ) {
+			$held = new \ReflectionProperty( $class, $property );
+			$held->setAccessible( true );
+			$held->setValue( null, [] );
 		}
 	}
 

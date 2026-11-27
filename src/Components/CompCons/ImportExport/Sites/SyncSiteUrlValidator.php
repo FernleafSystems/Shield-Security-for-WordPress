@@ -18,7 +18,7 @@ class SyncSiteUrlValidator {
 	public function validate( string $url, bool $rejectSelf = true ) :string {
 		$url = $this->canonicalize( $url );
 		if ( $url === '' ) {
-			throw new \InvalidArgumentException( __( 'Please provide valid HTTP or HTTPS site URLs only.', 'wp-simple-firewall' ) );
+			throw new \InvalidArgumentException( __( 'Please provide valid HTTP or HTTPS site URLs only.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: reaches only AJAX and WP-CLI import output (via Import), other callers discard it.
 		}
 
 		$parts = $this->parse( $url );
@@ -26,19 +26,19 @@ class SyncSiteUrlValidator {
 		$host = $this->normaliseHost( (string)( $parts[ 'host' ] ?? '' ) );
 
 		if ( !\in_array( $scheme, [ 'http', 'https' ], true ) || $host === '' ) {
-			throw new \InvalidArgumentException( __( 'Please provide valid HTTP or HTTPS site URLs only.', 'wp-simple-firewall' ) );
+			throw new \InvalidArgumentException( __( 'Please provide valid HTTP or HTTPS site URLs only.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: reaches only AJAX and WP-CLI import output (via Import), other callers discard it.
 		}
 		if ( !empty( $parts[ 'user' ] ) || !empty( $parts[ 'pass' ] ) ) {
-			throw new \InvalidArgumentException( __( 'Site URLs cannot include credentials.', 'wp-simple-firewall' ) );
+			throw new \InvalidArgumentException( __( 'Site URLs cannot include credentials.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: reaches only AJAX and WP-CLI import output (via Import), other callers discard it.
 		}
 		if ( !$this->isValidHostShape( $host ) ) {
-			throw new \InvalidArgumentException( __( 'Please provide public site URLs only.', 'wp-simple-firewall' ) );
+			throw new \InvalidArgumentException( __( 'Please provide public site URLs only.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: reaches only AJAX and WP-CLI import output (via Import), other callers discard it.
 		}
 		if ( $this->isUnsafeLiteralIp( $host ) ) {
-			throw new \InvalidArgumentException( __( 'Private, loopback, and reserved IP addresses are not allowed.', 'wp-simple-firewall' ) );
+			throw new \InvalidArgumentException( __( 'Private, loopback, and reserved IP addresses are not allowed.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: reaches only AJAX and WP-CLI import output (via Import), other callers discard it.
 		}
 		if ( $rejectSelf && $this->isSelfUrl( $url ) ) {
-			throw new \InvalidArgumentException( __( 'This site cannot invite itself.', 'wp-simple-firewall' ) );
+			throw new \InvalidArgumentException( __( 'This site cannot invite itself.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: reaches only AJAX and WP-CLI import output (via Import), other callers discard it.
 		}
 
 		return $url;
@@ -48,19 +48,19 @@ class SyncSiteUrlValidator {
 		$url = $this->validate( $url, $rejectSelf );
 
 		if ( \wp_http_validate_url( $url ) === false ) {
-			throw new \InvalidArgumentException( __( 'Please provide public site URLs only.', 'wp-simple-firewall' ) );
+			throw new \InvalidArgumentException( __( 'Please provide public site URLs only.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: reaches only AJAX and WP-CLI import output (via Import), other callers discard it.
 		}
 
 		$parts = $this->parse( $url );
 		$host = $this->normaliseHost( (string)( $parts[ 'host' ] ?? '' ) );
 		$ips = $this->resolveHostIps( $host );
 		if ( empty( $ips ) ) {
-			throw new \InvalidArgumentException( __( 'Site URLs must resolve to public IP addresses.', 'wp-simple-firewall' ) );
+			throw new \InvalidArgumentException( __( 'Site URLs must resolve to public IP addresses.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: reaches only AJAX and WP-CLI import output (via Import), other callers discard it.
 		}
 
 		foreach ( $ips as $ip ) {
 			if ( $this->isUnsafeLiteralIp( $ip ) ) {
-				throw new \InvalidArgumentException( __( 'Site URLs must resolve to public IP addresses only.', 'wp-simple-firewall' ) );
+				throw new \InvalidArgumentException( __( 'Site URLs must resolve to public IP addresses only.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: reaches only AJAX and WP-CLI import output (via Import), other callers discard it.
 			}
 		}
 
@@ -72,13 +72,13 @@ class SyncSiteUrlValidator {
 		$url = $this->validate( $url, false );
 
 		if ( $rejectSelf && $this->isTrustedSyncSelfUrl( $url ) ) {
-			throw new \InvalidArgumentException( __( 'This site cannot invite itself.', 'wp-simple-firewall' ) );
+			throw new \InvalidArgumentException( __( 'This site cannot invite itself.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: reaches only AJAX and WP-CLI import output (via Import), other callers discard it.
 		}
 
 		$parts = $this->parse( $url );
 		$host = $this->normaliseHost( (string)( $parts[ 'host' ] ?? '' ) );
 		if ( empty( $this->resolveHostIps( $host ) ) ) {
-			throw new \InvalidArgumentException( __( 'Site URLs must resolve to valid IP addresses.', 'wp-simple-firewall' ) );
+			throw new \InvalidArgumentException( __( 'Site URLs must resolve to valid IP addresses.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: reaches only AJAX and WP-CLI import output (via Import), other callers discard it.
 		}
 
 		return $url;

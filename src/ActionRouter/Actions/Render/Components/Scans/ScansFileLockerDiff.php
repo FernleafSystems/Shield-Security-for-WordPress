@@ -100,7 +100,7 @@ class ScansFileLockerDiff extends BaseScans {
 			$data[ 'success' ] = true;
 		}
 		catch ( \Exception $e ) {
-			throw new ActionException( $e->getMessage() );
+			throw new ActionException( $e->getMessage() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: reaches the AJAX render response as an ActionException, sent as JSON text.
 		}
 
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), $data );

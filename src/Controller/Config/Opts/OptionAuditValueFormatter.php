@@ -22,6 +22,7 @@ class OptionAuditValueFormatter {
 					$value = \implode( ', ', $value );
 					break;
 				default:
+					/* translators: %s: option value encoded as JSON */
 					$value = sprintf( __( '%s (JSON Encoded)', 'wp-simple-firewall' ), \wp_json_encode( $value ) );
 					break;
 			}

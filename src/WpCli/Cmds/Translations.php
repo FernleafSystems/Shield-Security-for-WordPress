@@ -86,12 +86,13 @@ class Translations extends BaseCmd {
 				'hash'       => \substr( $data[ 'hash' ] ?? '-', 0, 20 ).'...',
 				'size'       => $data[ 'size' ] ?? '-',
 				'updated_at' => !empty( $data[ 'updated_at' ] )
-					? \date( 'Y-m-d H:i:s', $data[ 'updated_at' ] )
+					? \gmdate( 'Y-m-d H:i:s', $data[ 'updated_at' ] )
 					: '-',
 			];
 		}
 
 		\WP_CLI\Utils\format_items( 'table', $items, [ 'locale', 'hash', 'size', 'updated_at' ] );
+		/* translators: %d: number of locales */
 		\WP_CLI::success( \sprintf( __( '%d locale(s) available.', 'wp-simple-firewall' ), \count( $items ) ) );
 	}
 
@@ -111,6 +112,7 @@ class Translations extends BaseCmd {
 
 		$items = \array_map( fn( $locale ) => [ 'locale' => $locale ], $queue );
 		\WP_CLI\Utils\format_items( 'table', $items, [ 'locale' ] );
+		/* translators: %d: number of locales */
 		\WP_CLI::success( \sprintf( __( '%d locale(s) in queue.', 'wp-simple-firewall' ), \count( $queue ) ) );
 	}
 
@@ -125,6 +127,7 @@ class Translations extends BaseCmd {
 		$controller = self::con()->comps->translation_downloads;
 
 		if ( !$controller->isLocaleAvailable( $locale ) ) {
+			/* translators: %s: locale code, such as fr_FR */
 			\WP_CLI::error( \sprintf( __( 'Locale "%s" is not available for download.', 'wp-simple-firewall' ), $locale ) );
 			return;
 		}
@@ -133,6 +136,7 @@ class Translations extends BaseCmd {
 		$cachedPath = $controller->getLocaleMoFilePath( $locale );
 		if ( !empty( $cachedPath ) && !$this->isForceFlag() ) {
 			\WP_CLI::warning( \sprintf(
+				/* translators: %1$s: locale code, such as fr_FR, %2$s: file path */
 				__( 'Locale "%1$s" is already cached at: %2$s. Use --force to re-download.', 'wp-simple-firewall' ),
 				$locale,
 				$cachedPath
@@ -143,12 +147,14 @@ class Translations extends BaseCmd {
 		// Queue the locale and run the cron immediately
 		$controller->enqueueLocaleForDownload( $locale );
 
+		/* translators: %s: locale code, such as fr_FR */
 		\WP_CLI::log( \sprintf( __( 'Downloading translation for locale: %s', 'wp-simple-firewall' ), $locale ) );
 		$controller->processQueue( true );
 
 		// Check if download succeeded
 		$cachedPath = $controller->getLocaleMoFilePath( $locale );
 		if ( !empty( $cachedPath ) ) {
+			/* translators: %s: file path */
 			\WP_CLI::success( \sprintf( __( 'Translation downloaded successfully: %s', 'wp-simple-firewall' ), $cachedPath ) );
 		}
 		else {

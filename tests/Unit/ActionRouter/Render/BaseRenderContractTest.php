@@ -10,6 +10,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
+use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -26,6 +27,7 @@ class BaseRenderContractTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		Functions\stubEscapeFunctions();
 		$this->renderer = new BaseRenderContractRenderer();
 		$this->installControllerStub();
 	}

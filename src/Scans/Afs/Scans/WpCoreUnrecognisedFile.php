@@ -19,7 +19,7 @@ class WpCoreUnrecognisedFile extends BaseScan {
 	protected function runScan() :bool {
 		if ( Services::WpFs()->isAccessibleFile( $this->pathFull )
 			 && !Services::CoreFileHashes()->isCoreFile( $this->pathFull ) ) {
-			throw new Exceptions\WpCoreFileUnrecognisedException( $this->pathFull );
+			throw new Exceptions\WpCoreFileUnrecognisedException( $this->pathFull ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: carries only the file path; FileScanner::scan() catches it and flags the result item, never shown.
 		}
 		return false;
 	}

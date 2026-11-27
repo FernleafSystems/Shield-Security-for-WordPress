@@ -754,11 +754,89 @@ class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase 
 		$findDynamicMo = $reflection->getMethod( 'findDynamicMo' );
 		$findDynamicMo->setAccessible( true );
 
-		$resolvedPath = $findDynamicMo->invoke( $loader, 'ar_EG' );
-		$this->assertNull( $resolvedPath, 'No cached MO should resolve before download.' );
+		try {
+			$resolvedPath = $findDynamicMo->invoke( $loader, 'ar_EG' );
+			$this->assertNull( $resolvedPath, 'No cached MO should resolve before download.' );
+			$loader->queueLocalesForDownload();
+		}
+		finally {
+			remove_action( 'shutdown', [ $loader, 'queueLocalesForDownload' ] );
+		}
 
 		$queue = $controller->getQueue();
 		$this->assertContains( 'ar', $queue, 'Language fallback locale should be queued.' );
 		$this->assertNotContains( 'ar_EG', $queue, 'Unavailable exact locale should not be queued.' );
+	}
+
+	public function testChoosingTranslationFileDefersQueueSaveToShutdown() :void {
+		$controller = $this->controller();
+		$con = $this->requireController();
+		$domain = $con->getTextDomain();
+		$this->addCfg( $controller, 'queue', [] );
+		$this->addCfg( $controller, 'locales', [
+			'en_GB' => [
+				'hash'      => \hash( 'sha256', 'en-gb-mo' ),
+				'hash_type' => 'sha256',
+			],
+		] );
+		if ( $controller->getLocaleMoFilePath( 'en_GB' ) !== null ) {
+			$this->markTestSkipped( 'A cached en_GB translation already exists in this environment.' );
+		}
+
+		$originalOverride = $con->opts->optGet( 'language_override' );
+		$con->opts->optSet( 'language_override', 'en' );
+
+		$loader = new LoadTextDomain();
+		$stores = 0;
+		$countStores = function () use ( &$stores ) :void {
+			$stores++;
+		};
+		add_action( $con->prefix( 'after_pre_options_store' ), $countStores );
+		try {
+			$resolved = $loader->onLoadTextdomainMofile( WP_LANG_DIR.'/plugins/'.$domain.'-nl_NL.mo', $domain );
+
+			$this->assertSame( '', $resolved, 'With no English file available, the override should load no file.' );
+			$this->assertSame( 0, $stores, 'Choosing the file must not store options.' );
+			$this->assertSame( [], $controller->getQueue(), 'The queue should not be saved while translations load.' );
+			$this->assertNotFalse( has_action( 'shutdown', [ $loader, 'queueLocalesForDownload' ] ) );
+
+			$loader->queueLocalesForDownload();
+			$this->assertSame( [ 'en_GB' ], $controller->getQueue() );
+		}
+		finally {
+			remove_action( $con->prefix( 'after_pre_options_store' ), $countStores );
+			remove_action( 'shutdown', [ $loader, 'queueLocalesForDownload' ] );
+			$con->opts->optSet( 'language_override', $originalOverride );
+		}
+	}
+
+	public function testLocaleDownloadedLaterInRequestIsNotQueuedAgainAtShutdown() :void {
+		$controller = $this->controller();
+		$locale = 'ar';
+		$path = $this->ensureLocaleCachePathAvailable( $controller, $locale );
+		$this->clearLocaleMoFile( $path );
+		$this->addCfg( $controller, 'queue', [] );
+		$this->addCfg( $controller, 'locales', [
+			$locale => [
+				'hash'      => \hash( 'sha256', 'ar-mo' ),
+				'hash_type' => 'sha256',
+			],
+		] );
+
+		$loader = new LoadTextDomain();
+		$findDynamicMo = ( new \ReflectionClass( $loader ) )->getMethod( 'findDynamicMo' );
+		$findDynamicMo->setAccessible( true );
+		try {
+			$this->assertNull( $findDynamicMo->invoke( $loader, 'ar_EG' ) );
+			// The download cron runs later in the same request and installs the file.
+			Services::WpFs()->putFileContent( $path, $this->buildValidMoContent( 'ar-mo' ) );
+			$loader->queueLocalesForDownload();
+		}
+		finally {
+			remove_action( 'shutdown', [ $loader, 'queueLocalesForDownload' ] );
+			$this->clearLocaleMoFile( $path );
+		}
+
+		$this->assertSame( [], $controller->getQueue() );
 	}
 }

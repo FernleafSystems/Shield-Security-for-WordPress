@@ -7,6 +7,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\CrowdSecSignals\Ops as CrowdsecSignalsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 /**
  * https://crowdsecurity.github.io/api_doc/capi/#/watchers/post_signals
@@ -49,7 +50,7 @@ class PushSignalsToCS {
 					$pushCount += \count( $toPush );
 				}
 				catch ( ClientException $e ) {
-					error_log( $e->getMessage() );
+					ErrorLog::write( $e->getMessage() );
 				}
 			}
 		} while ( !empty( $records ) );

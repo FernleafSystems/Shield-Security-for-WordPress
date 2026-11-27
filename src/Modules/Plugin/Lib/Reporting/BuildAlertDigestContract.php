@@ -174,6 +174,7 @@ class BuildAlertDigestContract {
 			'count'                   => $count,
 			'new_count'               => $newCount,
 			'count_summary'           => \sprintf(
+				/* translators: %1$s: total number of items, %2$s: number of new items */
 				__( '%1$s total, %2$s new', 'wp-simple-firewall' ),
 				$count,
 				$newCount

@@ -45,7 +45,7 @@ class GetRequestMeta {
 		$meta = $this->getRawMeta( $reqID );
 
 		if ( empty( $meta ) ) {
-			$content = __( 'Invalid Request ID', 'wp-simple-firewall' );
+			$content = esc_html__( 'Invalid Request ID', 'wp-simple-firewall' );
 		}
 		else {
 			$metaDefs = [
@@ -96,7 +96,7 @@ class GetRequestMeta {
 				}
 			}
 
-			$content = empty( $lines ) ? __( 'No meta available', 'wp-simple-firewall' ) : sprintf( '<ul>%s</ul>', \implode( '', $lines ) );
+			$content = empty( $lines ) ? esc_html__( 'No meta available', 'wp-simple-firewall' ) : sprintf( '<ul>%s</ul>', \implode( '', $lines ) );
 		}
 
 		return $content;

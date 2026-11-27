@@ -24,10 +24,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\{
 	RetrieveMalwareMalaiStatus
 };
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class ScansController {
 	public const HOOK_POST_SCAN = 'post_scan';
 	public const HOOK_POST_SCAN_MALAI = 'post_scan_malai';
+	public const HOOK_FIRST_SCAN = 'first_scan';
 	public const HOOK_SCAN_RESULT_NOTIFICATION_READINESS_OPENED = 'shield/scan_result_notification_readiness_opened';
 
 	use ExecOnce;
@@ -52,8 +54,21 @@ class ScansController {
 		$this->setCustomCronSchedules();
 		$this->setupCron();
 		$this->setupCronHooks();
+		// A new install's first scan is the scheduled scan, brought forward, so it holds off for the same reasons.
+		add_action( self::con()->prefix( self::HOOK_FIRST_SCAN ), [ $this, 'runCron' ] );
 		$this->setupAdminBarScanSummaryCacheHooks();
 		$this->handlePostScanCron();
+	}
+
+	/**
+	 * The scheduled scan first runs overnight, which on a new install can be most of a day away. Until then nothing
+	 * has been scanned, whatever the site is shown as. So a new install is scanned within a few minutes instead.
+	 */
+	public function scheduleFirstScan() :void {
+		$hook = self::con()->prefix( self::HOOK_FIRST_SCAN );
+		if ( !wp_next_scheduled( $hook ) ) {
+			wp_schedule_single_event( Services::Request()->ts() + 2*\MINUTE_IN_SECONDS, $hook );
+		}
 	}
 
 	protected function setCustomCronSchedules() {
@@ -62,6 +77,7 @@ class ScansController {
 			self::con()->prefix( sprintf( 'per-day-%s', $freq ) ),
 			[
 				'interval' => \DAY_IN_SECONDS/$freq,
+				/* translators: %s: number of scans per day */
 				'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )
 			]
 		);
@@ -145,7 +161,7 @@ class ScansController {
 			return !self::con()->comps->asset_coordinator->hasRetryableAssetWork();
 		}
 		catch ( \Throwable $e ) {
-			error_log( 'Shield scan-result notification readiness check failed: '.\substr(
+			ErrorLog::write( 'Shield scan-result notification readiness check failed: '.\substr(
 				(string)\preg_replace( '#\s+#', ' ', $e->getMessage() ),
 				0,
 				300
@@ -197,11 +213,12 @@ class ScansController {
 			self::con()->opts->optSet( 'is_scan_cron', true )->store();
 			$result = $this->startNewScans( $this->getAllScanCons() );
 			if ( $result->hasFailures() ) {
-				error_log( $result->getFailureLogMessage() );
+				ErrorLog::write( $result->getFailureLogMessage() );
 			}
 		}
 		else {
-			error_log( sprintf( __( '%s scans cannot execute.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
+			/* translators: %s: plugin name */
+			ErrorLog::write( sprintf( __( '%s scans cannot execute.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 	}
 

@@ -53,7 +53,7 @@ class BuildFileFromFileKey {
 				$levels = 1; // $isSplitWpUrl ? 2 : 1;
 				break;
 			default:
-				throw new UnsupportedFileLockType( $fileType );
+				throw new UnsupportedFileLockType( $fileType ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by FileLockerController (logged), GetFileLocksToCreate and GetFileLockCandidateDisplays; never shown.
 		}
 
 		$file = new File( $fileType, $fileName, $dir );

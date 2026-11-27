@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class SetScanCompleted {
 	use PluginControllerConsumer;
@@ -92,7 +93,7 @@ class SetScanCompleted {
 			$this->auditLatestScanItems( $scanCon, $scanID );
 		}
 		catch ( \Throwable $e ) {
-			error_log( \sprintf(
+			ErrorLog::write( \sprintf(
 				'Shield scan completion side effect failed: scan_id=%d message=%s',
 				$scanID,
 				$e->getMessage()

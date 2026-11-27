@@ -24,9 +24,19 @@ export class ProviderGA extends ProviderBase {
 									 .substring( 0, 6 );
 			if ( targetEl.value.length === 6 ) {
 				targetEl.setAttribute( 'disabled', 'disabled' );
+				// Drawing the form again makes a new secret and QR code. After a wrong code the form is kept, so the
+				// right code for the QR code already scanned can be entered.
 				this.sendReq(
-					ObjectOps.Merge( this._base_data.ajax.profile_ga_toggle, { ga_otp: targetEl.value } )
-				);
+					ObjectOps.Merge( this._base_data.ajax.profile_ga_toggle, { ga_otp: targetEl.value } ),
+					null,
+					true
+				).then( ( resp ) => {
+					if ( resp?.success !== true && targetEl.isConnected ) {
+						targetEl.removeAttribute( 'disabled' );
+						targetEl.value = '';
+						targetEl.focus();
+					}
+				} );
 			}
 		} );
 	}

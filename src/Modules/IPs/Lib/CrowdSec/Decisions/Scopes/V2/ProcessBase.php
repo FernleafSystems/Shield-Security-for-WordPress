@@ -100,10 +100,10 @@ abstract class ProcessBase extends DynPropertiesClass {
 			throw new \Exception( "Decision doesn't contain a 'duration'" );
 		}
 		if ( !\is_string( $decision[ 'duration' ] ) ) {
-			throw new \Exception( sprintf( "Decision duration not of the correct type (string): %s", $decision[ 'duration' ] ) );
+			throw new \Exception( sprintf( "Decision duration not of the correct type (string): %s", $decision[ 'duration' ] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught and discarded by ProcessIPs::extractScopeDecisionData_New() and _Deleted(); never shown.
 		}
 		if ( !preg_match( '#^(\d+)([a-z])$#i', $decision[ 'duration' ], $matches ) ) {
-			throw new \Exception( sprintf( "Decision duration not of the correct format (123h): %s", $decision[ 'duration' ] ) );
+			throw new \Exception( sprintf( "Decision duration not of the correct format (123h): %s", $decision[ 'duration' ] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught and discarded by ProcessIPs::extractScopeDecisionData_New() and _Deleted(); never shown.
 		}
 
 		$carbon = Services::Request()->carbon();
@@ -112,11 +112,11 @@ abstract class ProcessBase extends DynPropertiesClass {
 				$expiresAt = $carbon->startOfHour()->addHours( (int)$matches[ 1 ] )->timestamp;
 				break;
 			default:
-				throw new \Exception( sprintf( "Unsupported decision format notation: '%s'", $matches[ 2 ] ) );
+				throw new \Exception( sprintf( "Unsupported decision format notation: '%s'", $matches[ 2 ] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught and discarded by ProcessIPs::extractScopeDecisionData_New() and _Deleted(); never shown.
 		}
 
 		if ( $expiresAt < $this->minimum_expires_at ) {
-			throw new \Exception( sprintf( 'We only accept the data with "expires at" greater than %s.', $this->minimum_expires_at ) );
+			throw new \Exception( sprintf( 'We only accept the data with "expires at" greater than %s.', $this->minimum_expires_at ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught and discarded by ProcessIPs::extractScopeDecisionData_New() and _Deleted(); never shown.
 		}
 
 		return $expiresAt;
@@ -130,7 +130,7 @@ abstract class ProcessBase extends DynPropertiesClass {
 			throw new \Exception( 'Empty decision scope' );
 		}
 		if ( $decision[ 'scope' ] !== static::SCOPE ) {
-			throw new \Exception( "Unsupported decision scope: ".$decision[ 'scope' ] );
+			throw new \Exception( "Unsupported decision scope: ".$decision[ 'scope' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught and discarded by ProcessIPs::extractScopeDecisionData_New() and _Deleted(); never shown.
 		}
 		if ( empty( $decision[ 'decisions' ] ) || !\is_array( $decision[ 'decisions' ] ) ) {
 			throw new \Exception( 'There are no decisions in group.' );
@@ -167,7 +167,7 @@ abstract class ProcessBase extends DynPropertiesClass {
 		$normalisedValue = $this->normaliseDecisionValue( $decision[ 'value' ] );
 		// simple verification of data we're going to import
 		if ( !$this->validateDecisionValue( $normalisedValue ) ) {
-			throw new \Exception( sprintf( 'Invalid decision value for scope (%s) provided: %s', static::SCOPE, $decision[ 'value' ] ) );
+			throw new \Exception( sprintf( 'Invalid decision value for scope (%s) provided: %s', static::SCOPE, $decision[ 'value' ] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught and discarded by ProcessIPs::extractScopeDecisionData_New() and _Deleted(); never shown.
 		}
 
 		return $normalisedValue;

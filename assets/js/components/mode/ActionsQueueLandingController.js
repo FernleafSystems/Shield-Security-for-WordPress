@@ -336,8 +336,8 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 	}
 
 	/**
-	 * The sidebar's Actions Queue item shows the queue's counts and colour; they follow the queue as it changes.
-	 * @param {{nav_status:string,nav_badges_html:string}} landingRefresh
+	 * The sidebar's Actions Queue item shows the queue's counts, icon and colour; they follow the queue as it changes.
+	 * @param {{nav_status:string,nav_icon_class:string,nav_badges_html:string}} landingRefresh
 	 */
 	updateSidebarCounts( landingRefresh ) {
 		const item = document.querySelector( '#NavSideBar a[data-mode="actions"]' );
@@ -345,6 +345,10 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			return;
 		}
 		item.dataset.queueStatus = landingRefresh.nav_status;
+		const icon = item.querySelector( '.mode-icon > i' );
+		if ( icon ) {
+			icon.className = landingRefresh.nav_icon_class;
+		}
 		item.querySelector( '.mode-badges' )?.remove();
 		item.querySelector( '.mode-label' ).insertAdjacentHTML( 'afterend', landingRefresh.nav_badges_html );
 	}

@@ -346,6 +346,16 @@ $aq-pro-bg: #f2ebfc;
 	padding: 4px 2px;
 }
 
+// Beside "nothing to do": how much of that is down to what's ignored. Not good news, so not in green.
+.actions-queue-section__ignored {
+	align-items: center;
+	color: $aq-muted;
+	display: inline-flex;
+	font-weight: 400;
+	gap: 0.3rem;
+	margin-left: 0.25rem;
+}
+
 // The way to choose what a lane reports, under whatever it holds.
 .actions-queue-section__foot {
 	display: flex;
@@ -721,11 +731,29 @@ $aq-pro-bg: #f2ebfc;
 	}
 }
 
-// One cloaked plugin, opened in the drawer: a stack of the queue's own boxes and rows. Only what sits inside a
+// The name is stretched over its row, so that anywhere on the row opens the drawer. The row's own buttons are
+// lifted above it, each by itself, so that the space between them still opens the drawer.
+.actions-queue-row--item.is-actionable > .actions-queue-row__links > .action {
+	position: relative;
+	z-index: 2;
+}
+
+// One item of the queue, opened in the drawer: a stack of the queue's own boxes and rows. Only what sits inside a
 // box that isn't a row is styled here.
-.shield-cloaked-drawer {
+.actions-queue-drawer {
 	display: grid;
 	gap: 12px;
+
+	// A list that could run long scrolls inside its box, so that the boxes after it stay within reach.
+	&__scroll {
+		max-height: 330px;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+
+		> .actions-queue-row:first-child {
+			border-top: 0;
+		}
+	}
 
 	&__body {
 		font-size: 14px;
@@ -735,10 +763,23 @@ $aq-pro-bg: #f2ebfc;
 			margin-bottom: 0;
 		}
 
-		ul {
-			list-style: disc;
+		ul,
+		ol {
 			margin: 0 0 8px;
 			padding-left: 18px;
+		}
+
+		ul {
+			list-style: disc;
+		}
+
+		// Steps are read one at a time, so they're set apart.
+		ol {
+			list-style: decimal;
+
+			li + li {
+				margin-top: 6px;
+			}
 		}
 
 		li {

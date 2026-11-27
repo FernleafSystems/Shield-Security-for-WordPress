@@ -13,6 +13,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueCardDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\DashboardRecentEventsDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Handler as EventHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Select as EventSelect;
@@ -26,6 +27,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
 	PluginControllerInstaller,
 	ServicesState,
+	UnitTestActionsQueueIgnoredCounter,
 	UnitTestControllerFactory,
 	UnitTestPluginUrls
 };
@@ -320,6 +322,10 @@ class PageOperatorModeLandingTestDouble extends PageOperatorModeLanding {
 
 	protected function buildAttentionQuery() :array {
 		return $this->attentionQuery;
+	}
+
+	protected function buildActionsQueueCardData() :array {
+		return ( new ActionsQueueCardDataBuilder( new UnitTestActionsQueueIgnoredCounter() ) )->build( $this->attentionQuery );
 	}
 
 	protected function buildPreviousWeekTotals() :array {

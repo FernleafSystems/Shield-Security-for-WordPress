@@ -38,7 +38,8 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 				$data[ 'ip_linked' ] = $this->getColumnContent_LinkedIP( $record->ipAsSubnetRange(), $record->id );
 				$data[ 'is_blocked' ] = $record->ip > 0;
 				$data[ 'status' ] = $this->getColumnContent_Status( $record );
-				$data[ 'type' ] = IpRulesDB\Handler::GetTypeName( $data[ 'type' ] );
+				// Hidden columns still have their cells written as HTML.
+				$data[ 'type' ] = esc_html( IpRulesDB\Handler::GetTypeName( $data[ 'type' ] ) );
 				$data[ 'country' ] = ( new LookupMeta() )
 					->setIP( $record->ip )
 					->countryCode();
@@ -158,15 +159,15 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 
 	private function getColumnContent_Status( IpRuleRecord $record ) :string {
 		$content = [
-			sprintf( '%s: <code>%s</code>', __( 'Rule Type', 'wp-simple-firewall' ), IpRulesDB\Handler::GetTypeName( $record->type ) )
+			sprintf( '%s: <code>%s</code>', esc_html__( 'Rule Type', 'wp-simple-firewall' ), esc_html( IpRulesDB\Handler::GetTypeName( $record->type ) ) )
 		];
 
 		if ( $record->type === IpRulesDB\Handler::T_AUTO_BLOCK ) {
-			$content[] = sprintf( '%s: <span class="badge text-bg-warning">%s</span>', __( 'Offenses', 'wp-simple-firewall' ), $record->offenses );
+			$content[] = sprintf( '%s: <span class="badge text-bg-warning">%s</span>', esc_html__( 'Offenses', 'wp-simple-firewall' ), $record->offenses );
 		}
 
 		if ( $record->type === IpRulesDB\Handler::T_MANUAL_BYPASS ) {
-			$content[] = sprintf( '%s: %s', __( 'Label', 'wp-simple-firewall' ), esc_html( $record->label ) );
+			$content[] = sprintf( '%s: %s', esc_html__( 'Label', 'wp-simple-firewall' ), esc_html( $record->label ) );
 		}
 
 		if ( \in_array( $record->type, [
@@ -226,6 +227,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 				$color = 'warning';
 				$remaining = self::con()->comps->opts_lookup->getIpAutoBlockOffenseLimit() - $record->offenses;
 				$blockedStatus = sprintf(
+					/* translators: %s: number of offenses remaining */
 					_n( '%s offense until block',
 						'%s offenses until block',
 						$remaining,
@@ -233,7 +235,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 					), $remaining );
 			}
 
-			$content[] = sprintf( '%s: <span class="badge text-bg-%s">%s</span>', __( 'IP Block Status', 'wp-simple-firewall' ), $color, $blockedStatus );
+			$content[] = sprintf( '%s: <span class="badge text-bg-%s">%s</span>', esc_html__( 'IP Block Status', 'wp-simple-firewall' ), $color, esc_html( $blockedStatus ) );
 		}
 
 		return \implode( '<br/>', $content );
@@ -241,7 +243,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 
 	private function getColumnContent_LastSeen( int $ts ) :string {
 		if ( empty( $ts ) ) {
-			$content = __( 'Never Seen', 'wp-simple-firewall' );
+			$content = esc_html__( 'Never Seen', 'wp-simple-firewall' );
 		}
 		else {
 			$content = $this->getColumnContent_Date( $ts );
@@ -251,7 +253,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 
 	private function getColumnContent_UnblockedAt( int $ts ) :string {
 		if ( empty( $ts ) ) {
-			$content = __( 'Never', 'wp-simple-firewall' );
+			$content = esc_html__( 'Never', 'wp-simple-firewall' );
 		}
 		else {
 			$content = $this->getColumnContent_Date( $ts );

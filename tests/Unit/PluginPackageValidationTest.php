@@ -82,7 +82,6 @@ class PluginPackageValidationTest extends TestCase {
 			'phpstan.tooling.neon.dist',
 			'phpunit.xml',
 			'plugin_'.'autoload.php',
-			'composer.json',
 			'composer.lock',
 			'vendor/bin',
 			'vendor/monolog',
@@ -97,6 +96,14 @@ class PluginPackageValidationTest extends TestCase {
 				"Development file/directory should not be in package: $item"
 			);
 		}
+	}
+
+	/**
+	 * WordPress.org's Plugin Check expects composer.json alongside a Composer vendor directory.
+	 */
+	public function testComposerJsonShippedWithVendor() :void {
+		$this->assertDirectoryExists( Path::join( $this->packagePath, 'vendor' ) );
+		$this->assertFileExists( Path::join( $this->packagePath, 'composer.json' ) );
 	}
 
 	/**

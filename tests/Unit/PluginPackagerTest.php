@@ -178,7 +178,7 @@ class PluginPackagerTest extends TestCase {
 
 		$this->invokePrivateMethod( $packager, 'removePackagingOnlyFiles', [ $tempDir ] );
 
-		$this->assertFileDoesNotExist( Path::join( $tempDir, 'composer.json' ) );
+		$this->assertFileExists( Path::join( $tempDir, 'composer.json' ) );
 		$this->assertFileDoesNotExist( Path::join( $tempDir, 'composer.lock' ) );
 		$this->assertFileDoesNotExist( Path::join( $tempDir, 'bin', 'patch-plugin-core-api-exception.php' ) );
 		$this->assertFileExists( Path::join( $tempDir, 'bin', 'runtime-helper.php' ) );

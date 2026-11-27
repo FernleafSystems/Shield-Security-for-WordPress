@@ -54,6 +54,7 @@ class ConfigExport extends BaseCmd {
 			}
 			$FS->mkdir( $file );
 			if ( $FS->mkdir( $file ) && !$FS->isDir( $dir ) ) {
+				/* translators: %s: directory path */
 				\WP_CLI::error( sprintf( __( "Couldn't create the directory: %s", 'wp-simple-firewall' ), $dir ) );
 			}
 		}
@@ -66,7 +67,7 @@ class ConfigExport extends BaseCmd {
 		if ( !$FS->isAccessibleFile( $file ) ) {
 			\WP_CLI::error( __( "Couldn't create the export file.", 'wp-simple-firewall' ) );
 		}
-		if ( !\is_writable( $file ) ) {
+		if ( !\is_writable( $file ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- WP-CLI check that tells the operator early when PHP can't write the export file it just created.
 			\WP_CLI::error( __( "The system reports that this file path isn't writable.", 'wp-simple-firewall' ) );
 		}
 

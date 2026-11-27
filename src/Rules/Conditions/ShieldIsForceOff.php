@@ -9,6 +9,7 @@ class ShieldIsForceOff extends Base {
 	public const SLUG = 'is_force_off';
 
 	public function getDescription() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( 'Is the %s plugin in "forceoff" state.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

@@ -10,7 +10,7 @@ class PhpSetDefine extends Base {
 
 	public function execResponse() :void {
 		if ( !\defined( $this->p->name ) ) {
-			\define( $this->p->name, $this->p->value );
+			\define( $this->p->name, $this->p->value ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.VariableConstantNameFound -- Defines the constant named in the rule's settings, such as WordPress's own DISALLOW_FILE_EDIT in Shield's file editing rule.
 		}
 	}
 

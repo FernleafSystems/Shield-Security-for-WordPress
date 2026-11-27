@@ -129,9 +129,11 @@ class BuildScanFindings {
 
 		$invalid = \array_values( \array_diff( $requested, $possible ) );
 		if ( !empty( $invalid ) ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message listing fixed slugs: the REST route (Rest\v1\Process\ScanResults) sends it as an ApiException and the MCP ability as a WP_Error, both JSON text.
 			throw new \InvalidArgumentException(
 				\sprintf( 'Invalid scan slugs provided. Please only supply: %s', \implode( ', ', $possible ) )
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
 		return \array_values( \array_intersect( $possible, $requested ) );
@@ -152,9 +154,11 @@ class BuildScanFindings {
 
 		$invalid = \array_values( \array_diff( $requested, self::SUPPORTED_STATES ) );
 		if ( !empty( $invalid ) ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message listing fixed states: the REST route (Rest\v1\Process\ScanResults) sends it as an ApiException and the MCP ability as a WP_Error, both JSON text.
 			throw new \InvalidArgumentException(
 				\sprintf( 'Invalid scan item states provided. Please only supply: %s', \implode( ', ', self::SUPPORTED_STATES ) )
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
 		return \array_values( \array_intersect( self::SUPPORTED_STATES, $requested ) );

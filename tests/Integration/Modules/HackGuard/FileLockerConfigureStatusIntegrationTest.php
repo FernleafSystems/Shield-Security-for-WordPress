@@ -19,11 +19,14 @@ class FileLockerConfigureStatusIntegrationTest extends ShieldIntegrationTestCase
 	public function set_up() {
 		parent::set_up();
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [ 'file_locker', 'filelocker_state' ] );
+		// Configure says nothing about File Locker on a plan that doesn't include it.
+		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
 		$this->requireController()->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
 	}
 
 	public function tear_down() {
 		$this->restoreSelectedOptions( $this->optionsSnapshot );
+		$this->disablePremiumCapabilities();
 		parent::tear_down();
 	}
 

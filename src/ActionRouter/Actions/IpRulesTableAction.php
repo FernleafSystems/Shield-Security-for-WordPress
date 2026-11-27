@@ -22,7 +22,7 @@ class IpRulesTableAction extends TableActionBase {
 	}
 
 	protected function getUnsupportedSubActionMessage( string $subAction ) :string {
-		return $this->buildUnsupportedSubActionMessage( 'IP Rules', $subAction );
+		return $this->buildUnsupportedSubActionMessage( __( 'IP Rules', 'wp-simple-firewall' ), $subAction );
 	}
 
 	protected function retrieveTableData() :array {

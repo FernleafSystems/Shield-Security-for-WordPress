@@ -13,7 +13,7 @@
 				<span class="shield-tool-status__badge"><i class="bi bi-eye-slash" aria-hidden="true"></i></span>
 				<div class="shield-tool-status__copy">
 					<h2 class="shield-tool-status__title" id="LoginHideStatusTitle">{{ strings.on_title }}</h2>
-					<p class="shield-tool-status__desc">{{ strings.on_desc|format( '<code>' ~ vars.new_address|e ~ '</code>' )|raw }}</p>
+					<p class="shield-tool-status__desc">{{ strings.on_desc|e|format( '<code>' ~ vars.new_address|e ~ '</code>' )|raw }}</p>
 				</div>
 				<span class="shield-tool-status__pill">{{ strings.on_pill }}</span>
 			</section>
@@ -31,7 +31,7 @@
 				<span class="shield-tool-status__badge"><i class="bi bi-eye" aria-hidden="true"></i></span>
 				<div class="shield-tool-status__copy">
 					<h2 class="shield-tool-status__title" id="LoginHideStatusTitle">{{ strings.off_title }}</h2>
-					<p class="shield-tool-status__desc">{{ strings.off_desc|format( '<code>' ~ vars.usual_address|e ~ '</code>' )|raw }}</p>
+					<p class="shield-tool-status__desc">{{ strings.off_desc|e|format( '<code>' ~ vars.usual_address|e ~ '</code>' )|raw }}</p>
 				</div>
 				<span class="shield-tool-status__pill">{{ strings.off_pill }}</span>
 			</section>

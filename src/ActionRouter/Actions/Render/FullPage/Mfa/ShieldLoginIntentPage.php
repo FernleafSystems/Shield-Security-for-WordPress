@@ -13,6 +13,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 		$con = self::con();
 		return [
 			'strings' => [
+				/* translators: %s: plugin name */
 				'page_title'   => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $con->labels->Name ),
 			],
 			'imgs'    => [
@@ -41,7 +42,9 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 									$this->getLoginIntentJavascript()
 								)
 							]
-						]
+						],
+						// Printed inside a <script> block: encoding < and > keeps translated text from changing how it's parsed.
+						\JSON_HEX_TAG
 					) ),
 				],
 			]

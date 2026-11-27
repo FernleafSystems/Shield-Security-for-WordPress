@@ -1,5 +1,6 @@
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { Forms } from "../../util/Forms";
+import { ConfigureZoneTools } from "../mode/ConfigureZoneTools";
 import { OptionsFormSubmit } from "./OptionsFormSubmit";
 import { sendEncodedOptionsSave } from "./OptionsSaveRequest";
 
@@ -88,6 +89,7 @@ export class ConfigureSaveBar extends BaseAutoExecComponent {
 		const count = dirtyKeys.size;
 		bar.hidden = count === 0;
 		if ( count === 0 ) {
+			document.documentElement.style.removeProperty( '--shield-actionbar-bottom' );
 			return;
 		}
 
@@ -115,6 +117,9 @@ export class ConfigureSaveBar extends BaseAutoExecComponent {
 		bar.style.left = `${centre}px`;
 		const headBottom = document.getElementById( 'PageHead-Apto' )?.getBoundingClientRect().bottom || 0;
 		bar.style.setProperty( '--shield-actionbar-clearance', `${Math.max( 0, headBottom )}px` );
+		// A message shown while the bar is in view is placed beneath it, wherever the bar ends up and however
+		// many lines it takes.
+		document.documentElement.style.setProperty( '--shield-actionbar-bottom', `${bar.offsetTop + bar.offsetHeight}px` );
 	}
 
 	/**
@@ -194,11 +199,20 @@ export class ConfigureSaveBar extends BaseAutoExecComponent {
 
 		sendEncodedOptionsSave( this._base_data.ajax[ actionKey ], formData )
 		.then( ( resp ) => {
-			if ( resp?.data?.page_reload ) {
+			if ( resp?.success !== true ) {
+				// Nothing was saved, so the changes stay as they are, still marked unsaved, ready to save again.
+				// The site gives its own reason when it refuses a save; a request that never got an answer has none.
+				if ( typeof resp?.success !== 'boolean' ) {
+					shieldServices.notification().showMessage( bar.dataset.saveFailed, false );
+				}
+				return;
+			}
+			if ( resp.data.page_reload ) {
 				// The AJAX service reloads the page once its message has been seen. Nothing is unsaved any more,
 				// so that reload mustn't raise the browser's unsaved-changes warning.
 				forms.forEach( ( form ) => this.markSaved( form ) );
 				this.refreshFor( forms[ 0 ] );
+				this.returnHereOnReload( root );
 				return;
 			}
 			if ( root.closest( '[data-configure-landing="1"]' ) === null ) {
@@ -219,6 +233,27 @@ export class ConfigureSaveBar extends BaseAutoExecComponent {
 			saveButton.disabled = false;
 			saveButton.textContent = saveLabel;
 		} );
+	}
+
+	/**
+	 * Puts the goal and its open topic into the page's address, so the reload a save asks for comes back to them
+	 * rather than to Configure's first page.
+	 * @param {HTMLElement} root
+	 */
+	returnHereOnReload( root ) {
+		if ( root.closest( '[data-configure-landing="1"]' ) === null ) {
+			return;
+		}
+		const url = new URL( window.location.href );
+		url.searchParams.set( 'zone', root.dataset.configureZone );
+		// Whatever topic or setting the address named when the page was opened no longer applies.
+		url.searchParams.delete( 'row_key' );
+		url.searchParams.delete( 'config_item' );
+		const rowKey = ConfigureZoneTools.openRowKey( root );
+		if ( rowKey.length > 0 ) {
+			url.searchParams.set( 'row_key', rowKey );
+		}
+		window.history.replaceState( window.history.state, '', url );
 	}
 
 	/**

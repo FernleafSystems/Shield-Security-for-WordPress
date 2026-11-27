@@ -28,12 +28,13 @@ class RateLimiting extends Base {
 			}
 			else {
 				$status[ 'level' ] = EnumEnabledStatus::OKAY;
-				$status[ 'exp' ][] = sprintf( __( 'Traffic rate limiting is enabled, but the current IP source (%s) is not recommended for accurate visitor tracking.', 'wp-simple-firewall' ), sprintf( '<code>%s</code>', $source ) );
+				/* translators: %s: name of the IP address source setting */
+				$status[ 'exp' ][] = sprintf( __( 'Traffic rate limiting is enabled, but the current IP source (%s) is not recommended for accurate visitor tracking.', 'wp-simple-firewall' ), $source );
 			}
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "There's no limit to the number of requests that a single visitor may make against your site.", 'wp-simple-firewall' );
+			$status[ 'exp' ][] = $this->explanationFixedBy( __( "There's no limit to the number of requests that a single visitor may make against your site.", 'wp-simple-firewall' ), 'enable_limiter' );
 		}
 
 		return $status;

@@ -27,7 +27,7 @@ class ScanActionFromSlug {
 				break;
 		}
 		if ( $VO === null ) {
-			throw new \InvalidArgumentException( sprintf( 'Unknown scan slug: %s', $slug ) );
+			throw new \InvalidArgumentException( sprintf( 'Unknown scan slug: %s', $slug ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal invariant guard: the slug is a scan controller constant or a queue row scan slug; ProcessQueueItem logs it and records it as scan diagnostics, which the scan progress template escapes.
 		}
 		$VO->scan = $slug;
 		return $VO;

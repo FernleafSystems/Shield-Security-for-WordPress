@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\{
 	RequestLogRetentionPolicy
 };
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 /**
  * Request logs are tiered during write so pruning can retain high-signal requests longer without user configuration.
@@ -156,7 +157,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 
 	private function logRequestFailure( array $context ) :void {
 		$this->failureLogged = true;
-		error_log( 'Shield request log write failed: '.$this->formatLogContext( $context ) );
+		ErrorLog::write( 'Shield request log write failed: '.$this->formatLogContext( $context ) );
 	}
 
 	private function hasLoggedFailure() :bool {

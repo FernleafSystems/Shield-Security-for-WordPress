@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModuleIntegrations;
@@ -124,6 +125,7 @@ class NavMenuBuilder {
 			];
 			if ( $mode === PluginNavs::MODE_ACTIONS ) {
 				$queue = $this->buildActionsQueueState( $actionsSummary );
+				$item[ 'img' ] = $queue[ 'icon_class' ];
 				$item[ 'data' ] = [
 					'queue-status' => $queue[ 'status' ],
 				];
@@ -135,33 +137,38 @@ class NavMenuBuilder {
 	}
 
 	/**
-	 * The Actions Queue item's colour and counts, for the sidebar as it renders and for the queue to refresh
-	 * them in place as items are ignored or fixed.
-	 * @return array{status:string,badges:list<array{text:string,status:string,label:string}>}
+	 * The Actions Queue item's colour, icon and counts, for the sidebar as it renders and for the queue to
+	 * refresh them in place as items are ignored or fixed.
+	 * @return array{status:string,icon_class:string,badges:list<array{text:string,status:string,label:string}>}
 	 */
 	public function buildActionsQueueNavState() :array {
 		return $this->buildActionsQueueState( $this->getActionsQueueSummary() );
 	}
 
 	/**
-	 * While it's open, the item takes the colour of its most severe item. It has one count per severity, so
-	 * critical items aren't overstated by the warnings beside them.
+	 * The item takes the icon and colour of its most severe item. It has one count per severity, so
+	 * critical items aren't overstated by the to-dos beside them. Everything that isn't critical is a to-do:
+	 * something to review in time, never called a warning.
 	 * @param ActionsSummary $actionsSummary
-	 * @return array{status:string,badges:list<array{text:string,status:string,label:string}>}
+	 * @return array{status:string,icon_class:string,badges:list<array{text:string,status:string,label:string}>}
 	 */
 	private function buildActionsQueueState( array $actionsSummary ) :array {
+		$status = $actionsSummary[ 'total_items' ] > 0 ? $actionsSummary[ 'severity' ] : 'good';
 		return [
-			'status' => $actionsSummary[ 'total_items' ] > 0 ? $actionsSummary[ 'severity' ] : 'good',
+			'status'     => $status,
+			'icon_class' => ( new ActionsQueueItemIcons() )->iconClassForQueueStatus( $status ),
 			'badges' => \array_values( \array_filter( [
 				[
 					'text'   => (string)$actionsSummary[ 'critical_items' ],
 					'status' => 'critical',
+					/* translators: %s: number of critical items */
 					'label'  => \sprintf( _n( '%s critical item', '%s critical items', $actionsSummary[ 'critical_items' ], 'wp-simple-firewall' ), $actionsSummary[ 'critical_items' ] ),
 				],
 				[
 					'text'   => (string)$actionsSummary[ 'warning_items' ],
 					'status' => 'warning',
-					'label'  => \sprintf( _n( '%s warning', '%s warnings', $actionsSummary[ 'warning_items' ], 'wp-simple-firewall' ), $actionsSummary[ 'warning_items' ] ),
+					/* translators: %s: number of to-do items */
+					'label'  => \sprintf( _n( '%s to-do', '%s to-dos', $actionsSummary[ 'warning_items' ], 'wp-simple-firewall' ), $actionsSummary[ 'warning_items' ] ),
 				],
 			], fn( array $badge ) :bool => $badge[ 'text' ] !== '0' ) ),
 		];
@@ -257,7 +264,7 @@ class NavMenuBuilder {
 		return \array_map(
 			function ( string $toolId ) use ( $toolItemsById ) :array {
 				if ( !isset( $toolItemsById[ $toolId ] ) ) {
-					throw new \LogicException( sprintf( 'Missing configure sidebar tool definition: %s', $toolId ) );
+					throw new \LogicException( sprintf( 'Missing configure sidebar tool definition: %s', $toolId ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Developer-contract check on plugin-defined menu items: never shown by Shield (AJAX actions log it and answer generically).
 				}
 				return $toolItemsById[ $toolId ];
 			},
@@ -442,19 +449,14 @@ class NavMenuBuilder {
 	 * @return ActionsSummary
 	 */
 	protected function buildActionsQueueSummaryContract() :array {
-		$attention = self::con()->comps->site_query->attention();
-		$summary = $attention[ 'summary' ];
-		$critical = 0;
-		foreach ( $attention[ 'items' ] as $item ) {
-			if ( $item[ 'severity' ] === 'critical' ) {
-				$critical += (int)$item[ 'count' ];
-			}
-		}
+		$siteQuery = self::con()->comps->site_query;
+		$summary = $siteQuery->attention()[ 'summary' ];
+		$counts = $siteQuery->attentionCounts();
 		return [
 			'total_items'    => $summary[ 'total' ],
 			'severity'       => $summary[ 'severity' ],
-			'critical_items' => $critical,
-			'warning_items'  => \max( 0, $summary[ 'total' ] - $critical ),
+			'critical_items' => $counts[ 'critical' ],
+			'warning_items'  => $counts[ 'todo' ],
 		];
 	}
 
@@ -507,7 +509,7 @@ class NavMenuBuilder {
 
 		if ( empty( $item[ 'sub_items' ] ) ) {
 			if ( !$item[ 'is_action' ] && \trim( (string)$item[ 'href' ] ) === '' ) {
-				throw new \LogicException( sprintf( 'Sidebar link item requires a non-empty href: %s', $item[ 'slug' ] ) );
+				throw new \LogicException( sprintf( 'Sidebar link item requires a non-empty href: %s', $item[ 'slug' ] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Developer-contract check on plugin-defined menu items: never shown by Shield (AJAX actions log it and answer generically).
 			}
 			$item[ 'classes' ][] = 'body_content_link';
 		}
@@ -529,7 +531,7 @@ class NavMenuBuilder {
 					$sub[ 'target' ] = '';
 				}
 				if ( !$sub[ 'is_action' ] && \trim( (string)$sub[ 'href' ] ) === '' ) {
-					throw new \LogicException( sprintf( 'Sidebar sub-link item requires a non-empty href: %s', $sub[ 'slug' ] ) );
+					throw new \LogicException( sprintf( 'Sidebar sub-link item requires a non-empty href: %s', $sub[ 'slug' ] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Developer-contract check on plugin-defined menu items: never shown by Shield (AJAX actions log it and answer generically).
 				}
 				if ( $sub[ 'active' ] ) {
 					$sub[ 'classes' ][] = 'active';

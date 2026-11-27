@@ -28,7 +28,7 @@ class BuildChartData {
 		$periodKey = $req->period_key;
 		$eventKeys = $req->event_keys;
 		if ( empty( $eventKeys ) ) {
-			throw new \InvalidArgumentException( __( 'Select at least one event to chart.', 'wp-simple-firewall' ) );
+			throw new \InvalidArgumentException( __( 'Select at least one event to chart.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: ReportingChartTrends returns it as AJAX JSON text.
 		}
 
 		$period = ChartOptions::periodDefinitions()[ $periodKey ];

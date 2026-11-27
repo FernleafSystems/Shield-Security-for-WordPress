@@ -36,7 +36,7 @@ class AdminLoginAlertContextBuilder {
 	}
 
 	private function roleThreshold() :string {
-		$filtered = apply_filters( self::con()->prefix( 'login-notification-email-role' ), 'administrator' );
+		$filtered = apply_filters( self::con()->prefix( 'login-notification-email-role' ), 'administrator' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 		$roleToCheck = \strtolower( \is_string( $filtered ) ? $filtered : 'administrator' );
 		return \array_key_exists( $roleToCheck, $this->userCapToRolesMap() ) ? $roleToCheck : 'administrator';
 	}

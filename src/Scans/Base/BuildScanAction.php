@@ -29,7 +29,7 @@ abstract class BuildScanAction {
 			$action->created_at = Services::Request()->ts();
 			$action->finished_at = 0;
 			$action->usleep = (int)( 1000000*max( 0, apply_filters(
-					self::con()->prefix( 'scan_block_sleep' ),
+					self::con()->prefix( 'scan_block_sleep' ), // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 					$action::DEFAULT_SLEEP_SECONDS, $action->scan
 				) ) );
 			$action->site_assets = $this->siteAssetsSnap();

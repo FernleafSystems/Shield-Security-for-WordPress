@@ -45,6 +45,6 @@ class PrivacyEraser {
 			'done'           => true,
 		];
 		return $valid ?
-			apply_filters( self::con()->prefix( 'wpPrivacyErase' ), $result, $email, $page ) : $result;
+			apply_filters( self::con()->prefix( 'wpPrivacyErase' ), $result, $email, $page ) : $result; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 	}
 }

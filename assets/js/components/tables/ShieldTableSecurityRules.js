@@ -1,6 +1,7 @@
 import Sortable from 'sortablejs';
 import { ShieldTableBase } from "./ShieldTableBase";
 import { ObjectOps } from "../../util/ObjectOps";
+import { Html } from "../../util/Html";
 
 /**
  * Rows-Reorder extension for Datatables is terrible. When using server-side there's no way to gather
@@ -20,7 +21,8 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 		// 	/** https://datatables.net/reference/option/rowReorder.update **/
 		// 	update: false, /** whether to automatically reload the table after ordering **/
 		// };
-		cfg.language.emptyTable = this._base_data.strings.no_rules_yet;
+		// DataTables prints this as HTML.
+		cfg.language.emptyTable = Html.Escape( this._base_data.strings.no_rules_yet );
 		return cfg;
 	}
 

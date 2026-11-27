@@ -96,12 +96,18 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Int
 		self::con()->comps->events->fireEvent( 'block_checkout' );
 	}
 
+	/**
+	 * Shown to visitors by each form plugin, some as HTML and some as text, so translations are stripped of markup
+	 * rather than escaped, which would show entities wherever it's treated as text.
+	 */
 	protected function getErrorMessage() :string {
-		return $this->isCoolDownBlockRequired() ?
+		return wp_strip_all_tags( $this->isCoolDownBlockRequired() ?
 			\implode( ' ', [
 				__( 'Cooldown in effect.', 'wp-simple-firewall' ),
+				/* translators: %s: number of seconds */
 				sprintf( __( 'Please wait %s seconds before attempting this action again.', 'wp-simple-firewall' ), self::con()->comps->cool_down->cooldownRemaining( $this->getCooldownContext() ) )
 			] )
-			: sprintf( __( '%s Bot Check Failed.', 'wp-simple-firewall' ), self::con()->labels->Name );
+			/* translators: %s: plugin name */
+			: sprintf( __( '%s Bot Check Failed.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 	}
 }

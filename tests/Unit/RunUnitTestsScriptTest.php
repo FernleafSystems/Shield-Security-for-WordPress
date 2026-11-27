@@ -25,7 +25,7 @@ class RunUnitTestsScriptTest extends BaseUnitTest {
 
 	public function testComposerUnitScriptsRunPolicyBeforeDispatcher() :void {
 		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
+			$this->markTestSkipped( 'Source-only: checks the repository\'s Composer scripts, not the built package.' );
 		}
 
 		$this->assertSame(

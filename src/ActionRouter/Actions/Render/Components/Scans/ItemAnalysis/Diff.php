@@ -163,6 +163,10 @@ class Diff extends BaseScans {
 		if ( !\is_array( $html ) || empty( $html[ 'content' ] ) ) {
 			return null;
 		}
+		// This HTML is printed as is, deliberately. It comes from our own WP Hashes API (AptoWeb-Api,
+		// Requests/WpHashes/Util/Diff.php) over HTTPS, which renders it with jfcherng/php-diff: every line of both
+		// files is escaped with htmlspecialchars() before it's placed in the table, so file contents can't add markup.
+		// The CSS is that library's static stylesheet. Any cleaning belongs in the API, not here.
 		return [
 			'css'     => (string)\base64_decode( (string)( $html[ 'css_default' ] ?? '' ) ),
 			'content' => $this->labelEmptyHeaders( (string)\base64_decode( (string)$html[ 'content' ] ) ),

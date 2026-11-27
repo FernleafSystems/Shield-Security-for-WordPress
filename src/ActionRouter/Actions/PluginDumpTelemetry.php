@@ -16,7 +16,11 @@ class PluginDumpTelemetry extends BaseAction {
 	}
 
 	protected function exec() {
-		echo sprintf( '<pre><code>%s</code></pre>', \print_r( ( new PluginTelemetry() )->collectTrackingData(), true ) );
+		// Shown as JSON, the form in which the data is sent.
+		echo sprintf( '<pre><code>%s</code></pre>', esc_html( (string)wp_json_encode(
+			( new PluginTelemetry() )->collectTrackingData(),
+			\JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES
+		) ) );
 		die();
 	}
 }

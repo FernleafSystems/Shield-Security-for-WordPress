@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\Bui
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\RetrieveMalwareMalaiStatus;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class ScanResultsTableAction extends BaseAction {
 
@@ -109,7 +110,7 @@ class ScanResultsTableAction extends BaseAction {
 			}
 		}
 		catch ( \Throwable $e ) {
-			error_log( 'Shield malware assessment refresh failed: '.$e->getMessage() );
+			ErrorLog::write( 'Shield malware assessment refresh failed: '.$e->getMessage() );
 		}
 		return $response;
 	}
@@ -154,7 +155,7 @@ class ScanResultsTableAction extends BaseAction {
 		$type = \trim( $this->fields()->string( 'type', '' ) );
 		$file = \trim( $this->fields()->string( 'file', '' ) );
 		if ( $type === '' || $file === '' ) {
-			throw new \Exception( __( 'No scan results scope was provided.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'No scan results scope was provided.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: ScanResultsTableAction::exec() returns it as the AJAX JSON message.
 		}
 
 		$results = ( new RetrieveItems() )
@@ -192,6 +193,7 @@ class ScanResultsTableAction extends BaseAction {
 					break;
 			}
 			$msg = sprintf( '%s: %s', $msg,
+				/* translators: %s: number of items */
 				sprintf( _n( '%s item processed', '%s items processed', $itemCount, 'wp-simple-firewall' ), $itemCount ) );
 		}
 		else {
@@ -233,7 +235,7 @@ class ScanResultsTableAction extends BaseAction {
 	private function getItemIDs() :array {
 		$itemIDs = $this->fields()->positiveIntList( 'rids', [] );
 		if ( empty( $itemIDs ) ) {
-			throw new \Exception( __( 'No items selected.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'No items selected.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: ScanResultsTableAction::exec() returns it as the AJAX JSON message.
 		}
 		return $itemIDs;
 	}

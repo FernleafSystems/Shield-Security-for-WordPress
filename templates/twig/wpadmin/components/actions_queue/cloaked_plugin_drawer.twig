@@ -3,7 +3,7 @@
 	each headed by an icon and a title, with the plugin itself and its actions as rows.
 #}
 {% set plugin = vars.plugin %}
-<div class="shield-cloaked-drawer"{% if plugin is not empty %} data-actions-queue-drawer-for="{{ plugin.identifier|e('html_attr') }}"{% endif %}>
+<div class="actions-queue-drawer"{% if plugin is not empty %} data-actions-queue-drawer-for="{{ plugin.identifier|e('html_attr') }}"{% endif %}>
 	{% if plugin is empty %}
 		<p>{{ strings.gone }}</p>
 	{% else %}
@@ -29,7 +29,7 @@
 			<div class="actions-queue-box__head">
 				<i class="bi bi-eye-slash-fill" aria-hidden="true"></i>{{ strings.why }}
 			</div>
-			<div class="shield-cloaked-drawer__body">
+			<div class="actions-queue-drawer__body">
 				<ul>
 					{% for reason in plugin.reasons %}
 						<li>{{ reason }}</li>
@@ -42,7 +42,7 @@
 			<div class="actions-queue-box__head">
 				<i class="bi bi-file-earmark-code" aria-hidden="true"></i>{{ strings.file }}
 			</div>
-			<div class="shield-cloaked-drawer__body">
+			<div class="actions-queue-drawer__body">
 				<dl>
 					{% for item in plugin.file %}
 						<dt>{{ item.label }}</dt>
@@ -57,8 +57,8 @@
 				<div class="actions-queue-box__head">
 					<i class="bi bi-card-text" aria-hidden="true"></i>{{ strings.claims }}
 				</div>
-				<div class="shield-cloaked-drawer__body">
-					<p class="shield-cloaked-drawer__note">{{ strings.claims_note }}</p>
+				<div class="actions-queue-drawer__body">
+					<p class="actions-queue-drawer__note">{{ strings.claims_note }}</p>
 					<dl>
 						{% for item in plugin.claims %}
 							<dt>{{ item.label }}</dt>
@@ -76,7 +76,7 @@
 				<i class="bi bi-wrench-adjustable" aria-hidden="true"></i>{{ strings.what_to_do }}
 			</div>
 			{% if plugin.recommended is not empty or plugin.ignore_details is not empty %}
-				<div class="shield-cloaked-drawer__body">
+				<div class="actions-queue-drawer__body">
 					{% if plugin.recommended is not empty %}
 						<p>{{ plugin.recommended }}</p>
 					{% endif %}

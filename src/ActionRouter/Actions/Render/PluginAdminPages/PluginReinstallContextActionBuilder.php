@@ -76,10 +76,12 @@ class PluginReinstallContextActionBuilder {
 				] )
 			),
 			'confirm_text'     => \sprintf(
+				/* translators: %s: name of the plugin being reinstalled */
 				__( 'Reinstall %s from WordPress.org?', 'wp-simple-firewall' ),
 				$name
 			),
 			'processing_text'  => \sprintf(
+				/* translators: %s: name of the plugin being reinstalled */
 				__( 'Reinstalling %s. Keep this page open until it completes.', 'wp-simple-firewall' ),
 				$name
 			),

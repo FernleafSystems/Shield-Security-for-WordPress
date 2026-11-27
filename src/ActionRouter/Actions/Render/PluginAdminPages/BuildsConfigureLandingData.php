@@ -249,6 +249,7 @@ trait BuildsConfigureLandingData {
 				'discard'      => __( 'Discard', 'wp-simple-firewall' ),
 				'save'         => __( 'Save changes', 'wp-simple-firewall' ),
 				'saving'       => __( 'Saving...', 'wp-simple-firewall' ),
+				'save_failed'  => __( "Your changes weren't saved. Please try again.", 'wp-simple-firewall' ),
 				'pin_mismatch' => __( 'The two Security Admin PIN fields don\'t match. Enter the same PIN in both.', 'wp-simple-firewall' ),
 			],
 		];

@@ -97,7 +97,7 @@ class LoginIntentRequestCapture {
 				] );
 			}
 			catch ( ActionException $e ) {
-				die( $e->getMessage() );
+				die( esc_html( $e->getMessage() ) );
 			}
 		}
 		catch ( ActionException $e ) {
@@ -164,7 +164,7 @@ class LoginIntentRequestCapture {
 			$redirect = LoginRequestValues::safeRedirect( $req->request( 'redirect_to', false, $fallback ), $fallback );
 			Services::Response()->redirect(
 				LoginRequestValues::safeRedirect(
-					apply_filters( 'login_redirect', $redirect, $redirect, $this->user ),
+					apply_filters( 'login_redirect', $redirect, $redirect, $this->user ), // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core's login_redirect filter, applied once 2FA completes so callbacks can still choose where the user goes.
 					$fallback
 				),
 				[], true, false

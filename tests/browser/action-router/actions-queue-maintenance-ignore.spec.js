@@ -5,6 +5,7 @@ const { ActionsQueuePage } = require( './support/actions-queue-page' );
  * Ignoring maintenance items from the Actions Queue landing refreshes the queue in place: the section that
  * was open stays open, and a group of like items can be ignored all at once, in one request. A group whose
  * items are all ignored stays in its lane, faded, with its items behind "N ignored" so they can be restored.
+ * Each item's row also opens the item in a drawer, without getting in the way of the row's own buttons.
  */
 
 const section = ( page, key ) => page.locator( `[data-actions-queue-section-key="${key}"]` );
@@ -45,6 +46,27 @@ test( 'ignoring an item refreshes the queue in place and keeps Review next open'
 			'[data-actions-queue-box-toggle]:not([data-actions-queue-box-toggle^="ignored:"])[aria-expanded="false"]'
 		) ).toHaveCount( 0 );
 		expect( navigations ).toEqual( [] );
+	} );
+} );
+
+test( 'a to-do opens in its drawer from anywhere on its row, and from its name by keyboard', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async () => {
+		await openReviewSection( page );
+		const row = section( page, 'review' ).locator( '.actions-queue-row:has([data-actions-queue-row-drawer])' ).first();
+		test.skip( await row.count() === 0, 'This site has no maintenance items.' );
+		const drawer = page.locator( '#AptoOffcanvas' );
+		// A drawer that found its item lays it out in rows; one that couldn't has none.
+		const shownItem = drawer.locator( '.actions-queue-drawer .actions-queue-row--item' ).first();
+
+		// Off its name, at its icon, the row still opens it.
+		await row.click( { position: { x: 20, y: 20 } } );
+		await expect( shownItem ).toBeVisible();
+		await drawer.locator( '.btn-close' ).click();
+		await expect( drawer ).toBeHidden();
+
+		await row.locator( '[data-actions-queue-row-drawer]' ).focus();
+		await page.keyboard.press( 'Enter' );
+		await expect( shownItem ).toBeVisible();
 	} );
 } );
 

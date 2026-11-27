@@ -23,7 +23,7 @@ class RenderActionTarget {
 	public static function require( string $classOrSlug ) :string {
 		$action = self::resolve( $classOrSlug );
 		if ( empty( $action ) ) {
-			throw new ActionException( __( 'Invalid render target.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'Invalid render target.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX renders return it as JSON text, and ActionRoutingController::render() escapes it when printing.
 		}
 		return $action;
 	}

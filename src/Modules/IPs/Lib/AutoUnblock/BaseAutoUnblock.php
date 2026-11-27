@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 abstract class BaseAutoUnblock {
 
@@ -66,10 +67,10 @@ abstract class BaseAutoUnblock {
 		$carbon = Services::Request()->carbon();
 		$ipRecord = $this->getIpRecord();
 		if ( $carbon->subMinute()->timestamp < $ipRecord->last_unblock_attempt_at ) {
-			throw new \Exception( __( 'IP has recently attempted an unblock.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'IP has recently attempted an unblock.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by processAutoUnblockRequest() and isUnblockAvailable(), which ignore the message.
 		}
 		if ( $carbon->subHour()->timestamp < $ipRecord->unblocked_at ) {
-			throw new \Exception( __( 'IP has already been unblocked recently.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'IP has already been unblocked recently.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by processAutoUnblockRequest() and isUnblockAvailable(), which ignore the message.
 		}
 	}
 
@@ -94,7 +95,7 @@ abstract class BaseAutoUnblock {
 				->updateSignalField( 'unblocked_at' );
 		}
 		catch ( \LogicException $e ) {
-			error_log( 'Error updating bot signal with column problem: '.$e->getMessage() );
+			ErrorLog::write( 'Error updating bot signal with column problem: '.$e->getMessage() );
 		}
 		catch ( \Exception $e ) {
 		}

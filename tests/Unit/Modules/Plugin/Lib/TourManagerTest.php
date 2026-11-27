@@ -14,6 +14,7 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TourManager;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrainMonkeyWordPressWrapperFunctions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -23,12 +24,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 
 class TourManagerTest extends BaseUnitTest {
 
+	use BrainMonkeyWordPressWrapperFunctions;
+
 	private const DEFAULT_VIDEO_URL = 'https://vimeo.com/986378588/fde2b1c5f7?share=copy&fl=sv&fe=ci';
 
 	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->registerWordPressWrapperFunctions();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \preg_replace( '/[^a-z0-9_\-]/', '', $text ) ) : ''
@@ -42,42 +46,38 @@ class TourManagerTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_default_dashboard_route_launches_for_unseen_admin() :void {
+	public function test_the_dashboard_tour_never_starts_by_itself() :void {
+		// An admin who has never taken the tour, on the dashboard.
 		$this->installRequest( [] );
 		$this->installController();
 
 		$tour = ( new TourManager() )->getTour();
 
 		$this->assertSame( TourManager::TOUR_DASHBOARD, $tour[ 'key' ] );
-		$this->assertTrue( $tour[ 'is_available' ] );
-		$this->assertContains( '[data-shield-tour="sidebar-menu"]', \array_column( $tour[ 'steps' ], 'selector' ) );
-		$this->assertContains( '[data-shield-tour="dashboard-live-monitor"]', \array_column( $tour[ 'steps' ], 'selector' ) );
-		$this->assertSame( 0.7, $tour[ 'options' ][ 'overlayOpacity' ] );
-		$this->assertStringNotContainsString( 'dashboard_v'.'1', (string)\json_encode( $tour ) );
+		$this->assertFalse( $tour[ 'is_available' ] );
 	}
 
-	public function test_completed_dashboard_tour_suppresses_launch() :void {
-		$this->installRequest( [] );
-		$this->installController( true, true, [
-			TourManager::TOUR_DASHBOARD => 1700000000,
-		] );
-
-		$this->assertFalse( ( new TourManager() )->getTour()[ 'is_available' ] );
-	}
-
-	public function test_old_dashboard_completion_does_not_suppress_launch() :void {
-		$this->installRequest( [] );
-		$this->installController( true, true, [
-			'dashboard_v'.'1' => 1700000000,
-		] );
+	public function test_the_dashboard_tour_covers_the_main_areas() :void {
+		$this->installRequest( [ 'force_tour' => '1' ] );
+		$this->installController();
 
 		$tour = ( new TourManager() )->getTour();
 
-		$this->assertSame( TourManager::TOUR_DASHBOARD, $tour[ 'key' ] );
 		$this->assertTrue( $tour[ 'is_available' ] );
+		$this->assertSame(
+			[
+				'[data-shield-tour="sidebar-menu"]',
+				'[data-shield-tour="dashboard-actions"]',
+				'[data-shield-tour="dashboard-investigate"]',
+				'[data-shield-tour="dashboard-configure"]',
+				'[data-shield-tour="dashboard-reports"]',
+			],
+			\array_column( $tour[ 'steps' ], 'selector' )
+		);
+		$this->assertSame( 0.7, $tour[ 'options' ][ 'overlayOpacity' ] );
 	}
 
-	public function test_force_tour_relaunches_completed_dashboard_tour_on_dashboard_only() :void {
+	public function test_the_dashboard_tour_starts_when_asked_for_on_the_dashboard_only() :void {
 		$this->installRequest( [ 'force_tour' => '1' ] );
 		$this->installController( true, true, [
 			TourManager::TOUR_DASHBOARD => 1700000000,
@@ -103,13 +103,14 @@ class TourManagerTest extends BaseUnitTest {
 
 	public function test_non_dashboard_and_restricted_routes_do_not_launch() :void {
 		$this->installRequest( [
+			'force_tour'             => '1',
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_REPORTS,
 			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_REPORTS_OVERVIEW,
 		] );
 		$this->installController();
 		$this->assertFalse( ( new TourManager() )->getTour()[ 'is_available' ] );
 
-		$this->installRequest( [] );
+		$this->installRequest( [ 'force_tour' => '1' ] );
 		$this->installController( true, false );
 		$this->assertFalse( ( new TourManager() )->getTour()[ 'is_available' ] );
 	}
@@ -133,7 +134,7 @@ class TourManagerTest extends BaseUnitTest {
 	}
 
 	public function test_invalid_dashboard_video_url_produces_blank_embed_url() :void {
-		$this->installRequest( [] );
+		$this->installRequest( [ 'force_tour' => '1' ] );
 		$this->installController( true, true, [], 'https://example.com/video' );
 
 		$tour = ( new TourManager() )->getTour();
@@ -144,7 +145,7 @@ class TourManagerTest extends BaseUnitTest {
 	}
 
 	public function test_blank_dashboard_video_url_produces_blank_embed_url() :void {
-		$this->installRequest( [] );
+		$this->installRequest( [ 'force_tour' => '1' ] );
 		$this->installController( true, true, [], '' );
 
 		$tour = ( new TourManager() )->getTour();

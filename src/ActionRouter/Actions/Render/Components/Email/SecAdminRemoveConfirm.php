@@ -14,6 +14,7 @@ class SecAdminRemoveConfirm extends EmailBase {
 				// Internally generated via noncedPluginAction(); template uses |raw
 			],
 			'strings' => [
+				/* translators: %s: username of the WordPress user */
 				'requested'            => sprintf( __( 'A WordPress user (%s) has requested to remove the Security Admin restriction.', 'wp-simple-firewall' ),
 					$this->action_data[ 'username' ] ),
 				'purpose'              => __( 'The purpose of this email is to confirm this action.', 'wp-simple-firewall' ),

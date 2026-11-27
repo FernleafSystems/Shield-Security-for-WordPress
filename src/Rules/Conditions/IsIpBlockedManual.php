@@ -9,6 +9,7 @@ class IsIpBlockedManual extends Base {
 	public const SLUG = 'is_ip_blocked_manual';
 
 	public function getDescription() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( "Is the request IP on %s's Manual block list.", 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

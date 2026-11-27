@@ -105,8 +105,8 @@ class Store {
 				foreach ( $scanResult->meta as $metaKey => $metaValue ) {
 					$metaRows[] = [
 						'ri_ref'     => $resultRecord->id,
-						'meta_key'   => $metaKey,
-						'meta_value' => \is_scalar( $metaValue ) ? $metaValue : \wp_json_encode( $metaValue ),
+						'meta_key'   => $metaKey, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Columns of Shield's own scan result meta table, not a WordPress meta query.
+						'meta_value' => \is_scalar( $metaValue ) ? $metaValue : \wp_json_encode( $metaValue ), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Columns of Shield's own scan result meta table, not a WordPress meta query.
 					];
 				}
 			}

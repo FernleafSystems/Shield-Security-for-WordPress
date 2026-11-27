@@ -31,6 +31,7 @@ class PhpFutureMinimumTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'esc_url' )->alias( static fn( string $url ) :string => $url );
 		$this->servicesSnapshot = ServicesState::snapshot();
 	}
@@ -56,42 +57,57 @@ class PhpFutureMinimumTest extends BaseUnitTest {
 		];
 	}
 
-	public function test_configured_future_minimum_returns_non_dismissible_danger_notice_below_future_version() :void {
+	public function test_configured_future_minimum_returns_dismissible_info_notice_below_future_version() :void {
 		$this->installEnvironment( '8.3.20' );
 
 		$payload = ( new ConfiguredPhpFutureMinimum() )->check();
 
 		$this->assertIsArray( $payload );
 		$this->assertSame( PhpFutureMinimum::ID, $payload[ 'id' ] );
-		$this->assertSame( 'danger', $payload[ 'type' ] );
-		$this->assertFalse( (bool)$payload[ 'can_dismiss' ] );
+		$this->assertSame( 'info', $payload[ 'type' ] );
+		$this->assertTrue( (bool)$payload[ 'can_dismiss' ] );
 		$this->assertContains( 'shield_admin_top_page', $payload[ 'locations' ] );
 		$this->assertStringContainsString( PhpFutureMinimum::MORE_INFO_URL, \implode( "\n", $payload[ 'text' ] ) );
 	}
 
-	public function test_configured_future_minimum_returns_dismissible_recommendation_notice() :void {
-		$this->installEnvironment( '8.4.1' );
-
-		$payload = ( new ConfiguredPhpFutureMinimum() )->check();
-
-		$this->assertIsArray( $payload );
-		$this->assertSame( 'info', $payload[ 'type' ] );
-		$this->assertTrue( (bool)$payload[ 'can_dismiss' ] );
-	}
-
-	public function test_configured_future_minimum_recommendation_notice_can_be_snoozed() :void {
-		$this->installEnvironment( '8.4.1', self::NOW - 100 );
+	public function test_configured_notice_is_hidden_while_snoozed_for_less_than_30_days() :void {
+		$this->installEnvironment( '8.3.20', self::NOW - 100 );
 
 		$this->assertNull( ( new ConfiguredPhpFutureMinimum() )->check() );
 	}
 
-	public function test_configured_future_minimum_hides_notice_at_recommended_version() :void {
-		$this->installEnvironment( '8.5.0' );
+	public function test_configured_notice_returns_after_30_day_snooze_expires() :void {
+		$this->installEnvironment( '8.3.20', self::NOW - 30 * 86400 );
+
+		$this->assertIsArray( ( new ConfiguredPhpFutureMinimum() )->check() );
+	}
+
+	public function test_configured_notice_waits_out_a_new_installs_first_day() :void {
+		$this->installEnvironment( '8.3.20', 0, self::NOW - 3600 );
+		$this->assertNull( ( new ConfiguredPhpFutureMinimum() )->check() );
+
+		$this->installEnvironment( '8.3.20', 0, self::NOW - 2 * 86400 );
+		$this->assertIsArray( ( new ConfiguredPhpFutureMinimum() )->check() );
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'providerFutureMinimumVersions' )]
+	public function test_configured_notice_is_hidden_at_or_above_future_minimum( string $phpVersion ) :void {
+		$this->installEnvironment( $phpVersion );
 
 		$this->assertNull( ( new ConfiguredPhpFutureMinimum() )->check() );
 	}
 
-	private function installEnvironment( string $phpVersion, int $snoozedAt = 0 ) :PhpFutureMinimumUserMetaStub {
+	public static function providerFutureMinimumVersions() :array {
+		return [
+			'php 8.4' => [ '8.4.1' ],
+			'php 8.5' => [ '8.5.0' ],
+		];
+	}
+
+	/**
+	 * @param int $installedAt when the plugin was installed; long ago unless a test is about a new install
+	 */
+	private function installEnvironment( string $phpVersion, int $snoozedAt = 0, int $installedAt = 1600000000 ) :PhpFutureMinimumUserMetaStub {
 		$meta = new PhpFutureMinimumUserMetaStub( $snoozedAt );
 		ServicesState::installItems( [
 			'service_data'    => new PhpFutureMinimumDataStub( $phpVersion ),
@@ -99,7 +115,8 @@ class PhpFutureMinimumTest extends BaseUnitTest {
 		] );
 		PluginControllerInstaller::install(
 			new PhpFutureMinimumControllerStub(
-				new PhpFutureMinimumUserMetasStub( $meta )
+				new PhpFutureMinimumUserMetasStub( $meta ),
+				$installedAt
 			)
 		);
 
@@ -111,13 +128,26 @@ class ConfiguredPhpFutureMinimum extends PhpFutureMinimum {
 
 	protected const CURRENT_MINIMUM_PHP = MinimumRequirements::PHP;
 	protected const FUTURE_MINIMUM_PHP = '8.4';
-	protected const RECOMMENDED_PHP = '8.5';
 }
 
 class PhpFutureMinimumControllerStub extends Controller {
 
-	public function __construct( object $userMetas ) {
+	public function __construct( object $userMetas, int $installedAt ) {
 		$this->user_metas = $userMetas;
+		$this->comps = (object)[
+			'opts_lookup' => new class( $installedAt ) {
+
+				private int $installedAt;
+
+				public function __construct( int $installedAt ) {
+					$this->installedAt = $installedAt;
+				}
+
+				public function getInstalledAt() :int {
+					return $this->installedAt;
+				}
+			},
+		];
 	}
 }
 

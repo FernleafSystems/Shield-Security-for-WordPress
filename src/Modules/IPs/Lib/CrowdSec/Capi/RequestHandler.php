@@ -22,7 +22,7 @@ class RequestHandler implements CapiHandlerInterface {
 	public function handle( Request $request ) :Response {
 		$result = wp_remote_request( $this->buildUri( $request ), $this->buildWpRemoteRequest( $request ) );
 		if ( is_wp_error( $result ) ) {
-			throw new ClientException( $result->get_error_message() );
+			throw new ClientException( $result->get_error_message() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: CrowdSec callers (ImportDecisions, PushSignalsToCS) write it to the error log, and Enroll ignores it.
 		}
 		/** @var ?\WP_HTTP_Requests_Response $res */
 		$res = $result[ 'http_response' ] ?? null;

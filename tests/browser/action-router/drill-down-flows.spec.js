@@ -352,24 +352,30 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	const firstSwitch = () => visibleExpandedForms.first().locator( '.form-switch input[type="checkbox"]:not([disabled])' ).first();
 	await firstSwitch().click();
 	await expect( saveBar ).toBeVisible();
+	// A save draws the goal again, so what follows waits for the one on the page now to be replaced.
+	const replaced = await page.locator( '[data-configure-diagnosis="1"]' ).elementHandle();
 	await saveBar.locator( '[data-configure-savebar-save="1"]' ).click();
+	await page.waitForFunction( ( node ) => !node.isConnected, replaced );
 	await expect( saveBar ).toBeHidden( { timeout: 20_000 } );
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
 	await expect( configureTabs ).toHaveCount( 2 );
 	await expect( page.locator( '[data-configure-tab="control"]' ) ).toHaveAttribute( 'aria-current', 'page' );
 	await expect( rail ).toBeHidden();
-	// Refreshed, the list opens its first component again and keeps exactly one open; the keyboard moves
+	// Refreshed, the list stays on the component that was open and keeps exactly one open; the keyboard moves
 	// between components, and a click anywhere on a row opens it.
 	const refreshedRows = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' );
 	const firstButton = refreshedRows.nth( 0 ).locator( '[data-shield-expand-trigger="1"]' );
 	const secondButton = refreshedRows.nth( 1 ).locator( '[data-shield-expand-trigger="1"]' );
-	await expect( firstButton ).toHaveAttribute( 'aria-expanded', 'true', { timeout: 20_000 } );
-	await secondButton.press( 'Enter' );
-	await expect( secondButton ).toHaveAttribute( 'aria-expanded', 'true' );
+	await expect( secondButton ).toHaveAttribute( 'aria-expanded', 'true', { timeout: 20_000 } );
 	await expect( firstButton ).toHaveAttribute( 'aria-expanded', 'false' );
-	await firstButton.press( 'Space' );
+	await firstButton.press( 'Enter' );
 	await expect( firstButton ).toHaveAttribute( 'aria-expanded', 'true' );
 	await expect( secondButton ).toHaveAttribute( 'aria-expanded', 'false' );
+	await secondButton.press( 'Space' );
+	await expect( secondButton ).toHaveAttribute( 'aria-expanded', 'true' );
+	await expect( firstButton ).toHaveAttribute( 'aria-expanded', 'false' );
+	await refreshedRows.nth( 0 ).click();
+	await expect( firstButton ).toHaveAttribute( 'aria-expanded', 'true' );
 	await refreshedRows.nth( 1 ).click();
 	await expect( secondButton ).toHaveAttribute( 'aria-expanded', 'true' );
 	await expect( visibleExpandedForms ).toHaveCount( 1 );

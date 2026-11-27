@@ -8,7 +8,7 @@ class SearchTextTokenBuilder {
 	 * @param string[] $texts
 	 */
 	public function build( array $texts ) :string {
-		$allWords = $this->extractNormalizedTokens( \strip_tags( \implode( ' ', $texts ) ) );
+		$allWords = $this->extractNormalizedTokens( wp_strip_all_tags( \implode( ' ', $texts ) ) );
 
 		return \implode(
 			' ',

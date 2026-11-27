@@ -67,7 +67,7 @@ class SqlBackend {
 
 		if ( \class_exists( '\PDO', false ) && $dbh instanceof \PDO ) {
 			try {
-				return \strtolower( (string)$dbh->getAttribute( \PDO::ATTR_DRIVER_NAME ) ) === 'sqlite';
+				return \strtolower( (string)$dbh->getAttribute( \PDO::ATTR_DRIVER_NAME ) ) === 'sqlite'; // phpcs:ignore WordPress.DB.RestrictedClasses.mysql__PDO -- Only reads the driver name of WordPress's existing database handle to detect SQLite; no connection is made.
 			}
 			catch ( \Throwable $e ) {
 			}

@@ -81,10 +81,10 @@ class TrackLinkCheese extends Base {
 		echo \sprintf(
 			'<style>#%s{display:none !important;}</style><a rel="nofollow" href="%s" title="%s" id="%s">%s</a>',
 			'icwpWpsfLinkCheese',
-			$this->buildTrapHref(),
-			__( 'Click here to see something fantastic', 'wp-simple-firewall' ),
+			esc_url( $this->buildTrapHref() ),
+			esc_attr__( 'Click here to see something fantastic', 'wp-simple-firewall' ),
 			'icwpWpsfLinkCheese',
-			__( 'Click to access the login or register cheese', 'wp-simple-firewall' )
+			esc_html__( 'Click to access the login or register cheese', 'wp-simple-firewall' )
 		);
 	}
 

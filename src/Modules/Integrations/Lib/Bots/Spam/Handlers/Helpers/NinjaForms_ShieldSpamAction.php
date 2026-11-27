@@ -23,6 +23,7 @@ final class NinjaForms_ShieldSpamAction extends \NF_Abstracts_Action {
 
 	public function __construct() {
 		parent::__construct();
+		/* translators: %s: plugin name */
 		$this->_nicename = esc_html( sprintf( __( '%s Anti-Spam', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 	}
 

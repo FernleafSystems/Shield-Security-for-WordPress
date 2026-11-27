@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops as MfaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Users\UserMetas;
 
 class MfaRecordsHandler {
 	use PluginControllerConsumer;
@@ -55,6 +56,29 @@ class MfaRecordsHandler {
 				return $record->slug === $providerSlug;
 			}
 		) );
+	}
+
+	/**
+	 * Loads the records of many users a batch at a time, so that asking for each of them afterwards costs no
+	 * query of its own.
+	 * @param \WP_User[] $users
+	 */
+	public function preload( array $users ): void {
+		$waiting = \array_values( \array_filter(
+			\array_map( static fn( \WP_User $user ): int => $user->ID, $users ),
+			static fn( int $userID ): bool => !isset( self::$records[ $userID ] )
+		) );
+		foreach ( \array_chunk( $waiting, UserMetas::PRELOAD_BATCH ) as $batch ) {
+			foreach ( $batch as $userID ) {
+				self::$records[ $userID ] = [];
+			}
+			/** @var MfaDB\Select $selector */
+			$selector = self::con()->db_con->mfa->getQuerySelector();
+			/** @var MfaDB\Record $record */
+			foreach ( $selector->addWhereIn( 'user_id', $batch )->queryWithResult() ?? [] as $record ) {
+				self::$records[ $record->user_id ][] = $record;
+			}
+		}
 	}
 
 	public function loadForUser( \WP_User $user ) {

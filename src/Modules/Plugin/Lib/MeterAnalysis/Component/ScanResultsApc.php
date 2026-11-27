@@ -20,6 +20,7 @@ class ScanResultsApc extends ScanResultsBase {
 	}
 
 	public function descUnprotected() :string {
+		/* translators: %s: number of abandoned plugins */
 		return sprintf( __( "There appears to be at least %s abandoned plugin(s) installed on your site.", 'wp-simple-firewall' ),
 			$this->countResults() );
 	}

@@ -57,7 +57,8 @@ class ActionRoutingController {
 			$output = '';
 		}
 		catch ( Exceptions\ActionException $e ) {
-			$output = $e->getMessage();
+			// Callers print this as HTML.
+			$output = esc_html( $e->getMessage() );
 		}
 
 		return $output;

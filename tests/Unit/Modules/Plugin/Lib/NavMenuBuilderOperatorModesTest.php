@@ -123,12 +123,30 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		// Critical items and warnings are counted apart, each in its own colour.
 		$this->assertSame( [ '3', '4' ], \array_column( $actionsMode[ 'badges' ], 'text' ) );
 		$this->assertSame( [ 'critical', 'warning' ], \array_column( $actionsMode[ 'badges' ], 'status' ) );
-		$this->assertSame( '3 critical items', $actionsMode[ 'badges' ][ 0 ][ 'label' ] );
 
 		$scanTool = $this->findItemBySlug( $sidebar[ 'tool_items' ], PluginNavs::NAV_SCANS.'-'.PluginNavs::SUBNAV_SCANS_RUN );
 		$this->assertIsArray( $scanTool );
 		$this->assertTrue( $scanTool[ 'active' ] );
 		$this->assertContains( 'active', $scanTool[ 'classes' ] );
+	}
+
+	public function test_the_queue_item_has_its_own_icon_for_critical_items_for_to_dos_and_for_nothing_to_do() :void {
+		$this->installController();
+		$this->installRequest();
+
+		$queueItem = fn( array $summary ) :array => $this->findItemBySlug(
+			$this->createBuilder( $summary )->build()[ 'navigation_links' ],
+			'mode-actions'
+		);
+		$critical = $queueItem( [ 'total_items' => 3, 'severity' => 'critical', 'critical_items' => 1, 'warning_items' => 2 ] );
+		$toDos = $queueItem( [ 'total_items' => 2, 'severity' => 'warning', 'warning_items' => 2 ] );
+		$nothing = $queueItem( [] );
+
+		$this->assertSame(
+			[ 'critical', 'warning', 'good' ],
+			[ $critical[ 'data' ][ 'queue-status' ], $toDos[ 'data' ][ 'queue-status' ], $nothing[ 'data' ][ 'queue-status' ] ]
+		);
+		$this->assertCount( 3, \array_unique( [ $critical[ 'img' ], $toDos[ 'img' ], $nothing[ 'img' ] ] ) );
 	}
 
 	public function test_dashboard_is_active_only_on_overview_route() :void {

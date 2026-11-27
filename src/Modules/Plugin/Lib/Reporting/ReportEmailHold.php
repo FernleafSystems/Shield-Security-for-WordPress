@@ -25,6 +25,6 @@ class ReportEmailHold {
 	}
 
 	public function explanation() :string {
-		return __( "Shield is holding its first scan alerts until you choose where reports and alerts go. If you don't choose within a day of installing Shield, they go to the site admin email.", 'wp-simple-firewall' );
+		return __( "Shield has started checking your site. Anything it finds is emailed once you choose an address. If you haven't chosen within a day of installing Shield, it goes to the site admin email.", 'wp-simple-firewall' );
 	}
 }

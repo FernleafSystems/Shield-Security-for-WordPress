@@ -41,6 +41,10 @@ class UnitTestPluginUrls {
 		return '/admin/zones/overview?setup_guide=open';
 	}
 
+	public function dashboardTour() :string {
+		return '/admin/dashboard/overview?force_tour=1';
+	}
+
 	public function reportsHome( string $workspace = '' ) :string {
 		return '/admin/reports/overview'.( $workspace === '' ? '' : '?workspace='.$workspace );
 	}

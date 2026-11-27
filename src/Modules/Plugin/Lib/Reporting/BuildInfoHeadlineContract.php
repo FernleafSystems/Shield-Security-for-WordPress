@@ -117,6 +117,7 @@ class BuildInfoHeadlineContract {
 			'key'        => 'coverage',
 			'label'      => __( 'Configuration Coverage', 'wp-simple-firewall' ),
 			'value'      => \sprintf(
+				/* translators: %s: percentage of settings configured, as a number without the percent sign */
 				__( '%s%% configured', 'wp-simple-firewall' ),
 				$percentage
 			),
@@ -141,6 +142,7 @@ class BuildInfoHeadlineContract {
 				'label'  => __( 'Scan Status', 'wp-simple-firewall' ),
 				'value'  => __( 'Scans running', 'wp-simple-firewall' ),
 				'meta'   => \sprintf(
+					/* translators: %s: number of scan tasks */
 					_n( '%s scan task queued', '%s scan tasks queued', $enqueuedCount, 'wp-simple-firewall' ),
 					$enqueuedCount
 				),
@@ -155,6 +157,7 @@ class BuildInfoHeadlineContract {
 				'key'    => 'scans',
 				'label'  => __( 'Scan Status', 'wp-simple-firewall' ),
 				'value'  => \sprintf(
+					/* translators: %s: how long ago the last scan finished, such as '2 hours ago' */
 					__( 'Last scan: %s', 'wp-simple-firewall' ),
 					$this->formatTimestampDiff( $latestCompletedAt )
 				),
@@ -191,15 +194,20 @@ class BuildInfoHeadlineContract {
 		$good = $zones[ 'good' ];
 
 		return \sprintf(
+			/* translators: %1$s: critical zones summary, %2$s: zones needing review summary, %3$s: zones ready summary */
 			__( '%1$s, %2$s, %3$s', 'wp-simple-firewall' ),
+			/* translators: %s: number of critical zones */
 			\sprintf( _n( '%s critical zone', '%s critical zones', $critical, 'wp-simple-firewall' ), $critical ),
+			/* translators: %s: number of zones needing review */
 			\sprintf( _n( '%s zone needs review', '%s zones need review', $warning, 'wp-simple-firewall' ), $warning ),
+			/* translators: %s: number of zones that are ready */
 			\sprintf( _n( '%s zone ready', '%s zones ready', $good, 'wp-simple-firewall' ), $good )
 		);
 	}
 
 	protected function formatIssuesNeedAttention( int $count ) :string {
 		return \sprintf(
+			/* translators: %s: number of issues */
 			_n( '%s issue needs attention', '%s issues need attention', $count, 'wp-simple-firewall' ),
 			$count
 		);

@@ -68,7 +68,7 @@ class Verify {
 
 			$licHandler->maybeDeactivateWithGrace();
 
-			throw new \Exception( __( 'License API HTTP Request Failed.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'License API HTTP Request Failed.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: shown as text by the license AJAX action, REST and WP-CLI responses, and ignored by the cron callers.
 		}
 	}
 

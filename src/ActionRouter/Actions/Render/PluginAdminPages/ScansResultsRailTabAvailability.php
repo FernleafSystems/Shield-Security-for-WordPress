@@ -248,6 +248,7 @@ class ScansResultsRailTabAvailability {
 						: $this->buildDisabledState(
 							'upgrade_required',
 							\sprintf(
+								/* translators: %s: plugin name */
 								__( 'File Locker is available only with the Pro version of %s.', 'wp-simple-firewall' ),
 								self::con()->labels->Name
 							),
@@ -280,12 +281,14 @@ class ScansResultsRailTabAvailability {
 	}
 
 	private function buildNotEnabledMessage( string $featureTitle ) :string {
+		/* translators: %s: name of the feature */
 		return \sprintf( __( '%s is not enabled.', 'wp-simple-firewall' ), $featureTitle );
 	}
 
 	private function buildRestrictedMessage( string $featureTitle ) :string {
 		return \sprintf(
-			__( '%s is available only with the Pro version of %s.', 'wp-simple-firewall' ),
+			/* translators: %1$s: name of the feature, %2$s: plugin name */
+			__( '%1$s is available only with the Pro version of %2$s.', 'wp-simple-firewall' ),
 			$featureTitle,
 			self::con()->labels->Name
 		);
@@ -293,6 +296,7 @@ class ScansResultsRailTabAvailability {
 
 	private function buildPluginThemeRestrictedMessage() :string {
 		return \sprintf(
+			/* translators: %s: plugin name */
 			__( 'Scanning Plugin & Theme Files is available only with the Pro version of %s.', 'wp-simple-firewall' ),
 			self::con()->labels->Name
 		);
@@ -303,7 +307,7 @@ class ScansResultsRailTabAvailability {
 	}
 
 	/**
-	 * Switching a scan on opens the same one-switch dialog wherever it's offered.
+	 * Switching a scan on opens the same dialog wherever it's offered.
 	 * @return DisabledPaneAction
 	 */
 	private function buildEnableAction( string $label, string $scanKey ) :array {
@@ -318,7 +322,7 @@ class ScansResultsRailTabAvailability {
 			'target'       => '',
 			'rel'          => '',
 			'attributes'   => [
-				'data-enable-protection' => ( new ProtectionEnableDialogBuilder() )->forScan( $scanKey, 'bi bi-shield-check' ),
+				'data-enable-protection' => ( new ProtectionEnableDialogBuilder() )->forScan( $scanKey ),
 				'aria-haspopup'          => 'dialog',
 			],
 		];

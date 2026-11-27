@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Uti
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 /**
  * @phpstan-import-type State from FileLockerState as FileLockerStateData
@@ -130,11 +131,11 @@ class FileLockerController {
 			$content = ( new Ops\ReadOriginalFileContent() )->run( $lock );
 		}
 		else {
-			throw new \Exception( __( 'Invalid file locker type download', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Invalid file locker type download', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: FileDownload::exec() puts it in the action response payload; never printed as HTML.
 		}
 
 		if ( empty( $content ) ) {
-			throw new \Exception( __( 'File contents are empty.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'File contents are empty.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: FileDownload::exec() puts it in the action response payload; never printed as HTML.
 		}
 
 		return [
@@ -153,7 +154,7 @@ class FileLockerController {
 	public function getFileLock( int $ID ): FileLockerDB\Record {
 		$lock = $this->getLocks()[ $ID ] ?? null;
 		if ( empty( $lock ) ) {
-			throw new \Exception( __( 'Not a valid lock file record.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Not a valid lock file record.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: FileDownload puts it in its response payload and ScansFileLockerDiff passes it on as an AJAX ActionException; ScansFileLockerAction ignores it.
 		}
 		return $lock;
 	}
@@ -228,12 +229,12 @@ class FileLockerController {
 				catch ( NoFileLockPathsExistException|UnsupportedFileLockType $e ) {
 					// Remove selections that cannot produce a file lock on this site.
 					self::con()->opts->optSet( 'file_locker', \array_diff( $this->getFilesToLock(), [ $type ] ) );
-					error_log( $e->getMessage() );
+					ErrorLog::write( $e->getMessage() );
 				}
 				catch ( \Exception $e ) {
 					$state[ 'last_error' ] = $e->getMessage();
 					$state[ 'last_locks_created_failed_at' ] = $now;
-					error_log( $e->getMessage() );
+					ErrorLog::write( $e->getMessage() );
 					break;
 				}
 			}

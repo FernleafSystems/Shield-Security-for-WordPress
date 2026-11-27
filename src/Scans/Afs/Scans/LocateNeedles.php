@@ -39,7 +39,7 @@ class LocateNeedles {
 			throw new \InvalidArgumentException( "File doesn't exist" );
 		}
 		if ( !\is_readable( $path ) ) {
-			throw new \Exception( "File isn't readable: ".$path );
+			throw new \Exception( "File isn't readable: ".$path ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by ProcessQueueItem, which writes it to the error log and records it as a scan error; not shown directly.
 		}
 		$this->reset();
 		$this->path = $path;

@@ -16,6 +16,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 		return [
 			'strings' => [
 				'title_recent'        => __( 'Recent Events Log', 'wp-simple-firewall' ),
+				/* translators: %s: plugin name */
 				'box_receve_subtitle' => sprintf( __( 'Some of the most recent %s events', 'wp-simple-firewall' ), self::con()->labels->Name ),
 			],
 			'vars'    => [

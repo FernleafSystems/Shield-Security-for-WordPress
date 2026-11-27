@@ -33,10 +33,11 @@ class SelfVersion extends Base {
 					'text'      => [
 						sprintf(
 							'%s %s',
-							sprintf( __( 'There are at least 2 major upgrades to the %s plugin since your version.', 'wp-simple-firewall' ), $con->labels->Name ),
+							/* translators: %s: plugin name */
+							sprintf( esc_html__( 'There are at least 2 major upgrades to the %s plugin since your version.', 'wp-simple-firewall' ), $con->labels->Name ),
 							sprintf( '<a href="%s" class="">%s</a>',
-								Services::WpPlugins()->getUrl_Upgrade( self::con()->base_file ),
-								__( 'Upgrade Now', 'wp-simple-firewall' )
+								esc_url( Services::WpPlugins()->getUrl_Upgrade( self::con()->base_file ) ),
+								esc_html__( 'Upgrade Now', 'wp-simple-firewall' )
 							)
 						)
 					],
@@ -53,10 +54,11 @@ class SelfVersion extends Base {
 					'text'      => [
 						sprintf(
 							'%s %s',
-							sprintf( __( "An upgrade is available for the %s plugin.", 'wp-simple-firewall' ), self::con()->labels->Name ),
+							/* translators: %s: plugin name */
+							sprintf( esc_html__( "An upgrade is available for the %s plugin.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 							sprintf( '<a href="%s" class="">%s</a>',
-								Services::WpPlugins()->getUrl_Upgrade( self::con()->base_file ),
-								__( 'Upgrade Now', 'wp-simple-firewall' )
+								esc_url( Services::WpPlugins()->getUrl_Upgrade( self::con()->base_file ) ),
+								esc_html__( 'Upgrade Now', 'wp-simple-firewall' )
 							)
 						)
 					],

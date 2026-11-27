@@ -58,7 +58,8 @@ class MUHandler {
 			$file = $this->getMuFilePath();
 			Services::WpFs()->deleteFile( $file );
 			if ( $this->isActiveMU() ) {
-				throw new \Exception( sprintf( __( 'Could not delete the MU file: %s', 'wp-simple-firewall' ), $file ) );
+				/* translators: %s: file path */
+				throw new \Exception( sprintf( __( 'Could not delete the MU file: %s', 'wp-simple-firewall' ), $file ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: reached only through run(), which swallows it; never shown.
 			}
 		}
 		return !$this->isActiveMU();
@@ -83,7 +84,8 @@ class MUHandler {
 		$FS = Services::WpFs();
 
 		if ( !Services::WpGeneral()->getWordpressIsAtLeastVersion( '5.6' ) ) {
-			throw new \Exception( sprintf( __( 'WordPress version must be at least: %s', 'wp-simple-firewall' ), '5.6' ) );
+			/* translators: %s: WordPress version number */
+			throw new \Exception( sprintf( __( 'WordPress version must be at least: %s', 'wp-simple-firewall' ), '5.6' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: reached only through run(), which swallows it; never shown.
 		}
 
 		$muDir = $this->getMuDir();
@@ -92,7 +94,8 @@ class MUHandler {
 		}
 
 		if ( !$FS->isDir( $muDir ) ) {
-			throw new \Exception( sprintf( __( 'Could not create MU directory: %s', 'wp-simple-firewall' ), $muDir ) );
+			/* translators: %s: directory path */
+			throw new \Exception( sprintf( __( 'Could not create MU directory: %s', 'wp-simple-firewall' ), $muDir ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: reached only through run(), which swallows it; never shown.
 		}
 
 		$file = $this->getMuFilePath();
@@ -100,16 +103,18 @@ class MUHandler {
 		$FS->putFileContent( $file, $content );
 
 		if ( !$FS->isAccessibleFile( $file ) ) {
-			throw new \Exception( sprintf( __( 'Could not create MU file: %s', 'wp-simple-firewall' ), $file ) );
+			/* translators: %s: file path */
+			throw new \Exception( sprintf( __( 'Could not create MU file: %s', 'wp-simple-firewall' ), $file ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: reached only through run(), which swallows it; never shown.
 		}
 		if ( $FS->getFileContent( $file ) !== $content ) {
-			throw new \Exception( sprintf( __( 'Could not write content to MU file: %s', 'wp-simple-firewall' ), $file ) );
+			/* translators: %s: file path */
+			throw new \Exception( sprintf( __( 'Could not write content to MU file: %s', 'wp-simple-firewall' ), $file ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: reached only through run(), which swallows it; never shown.
 		}
 
 		// Now test we haven't destroyed the site loading.
 		if ( !self::con()->plugin->canSiteLoopback() ) {
 			$this->convertToStandard();
-			throw new \Exception( __( 'Cancelled - could not verify site loads successfully', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Cancelled - could not verify site loads successfully', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: reached only through run(), which swallows it; never shown.
 		}
 
 		return $this->isActiveMU();

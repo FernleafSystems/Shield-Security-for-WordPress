@@ -13,8 +13,9 @@ class LicenseStatus extends Base {
 				'type'      => 'warning',
 				'text'      => [
 					\implode( ' ', [
-						sprintf( __( '%s API Token Missing.', 'wp-simple-firewall' ), self::con()->labels->Name ),
-						__( "Please contact support if this message persists for over 24hrs.", 'wp-simple-firewall' ),
+						/* translators: %s: plugin name */
+						sprintf( esc_html__( '%s API Token Missing.', 'wp-simple-firewall' ), self::con()->labels->Name ),
+						esc_html__( "Please contact support if this message persists for over 24hrs.", 'wp-simple-firewall' ),
 					] ),
 				],
 				'locations' => [

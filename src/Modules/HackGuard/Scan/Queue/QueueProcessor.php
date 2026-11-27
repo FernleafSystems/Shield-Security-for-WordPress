@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\No
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 
@@ -57,7 +58,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 		}
 		catch ( NoQueueItems $e ) {
 			// This should never happen as "is_empty()" is called before
-			error_log( $e->getMessage() );
+			ErrorLog::write( $e->getMessage() );
 		}
 
 		return $batch;

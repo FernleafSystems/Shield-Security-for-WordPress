@@ -84,7 +84,7 @@ class Controller extends DynPropertiesClass {
 	public static function GetInstance( ?string $rootFile = null ) :Controller {
 		if ( !isset( static::$oInstance ) ) {
 			if ( empty( $rootFile ) ) {
-				throw new \Exception( __( 'Empty root file provided for instantiation', 'wp-simple-firewall' ) );
+				throw new \Exception( __( 'Empty root file provided for instantiation', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught in plugin_init.php, which logs it with error_log(); never shown.
 			}
 			static::$oInstance = new static( $rootFile );
 		}
@@ -299,6 +299,7 @@ class Controller extends DynPropertiesClass {
 
 			$wp = $this->cfg->requirements[ 'wordpress' ];
 			if ( !empty( $wp ) && \version_compare( Services::WpGeneral()->getVersion( true ), $wp, '<' ) ) {
+				/* translators: %s: required WordPress version */
 				$reqsMsg[] = sprintf( __( 'WordPress does not meet minimum version. Required version: %s.', 'wp-simple-firewall' ), $wp );
 			}
 
@@ -313,7 +314,7 @@ class Controller extends DynPropertiesClass {
 				$this->reqs_not_met = $reqsMsg;
 				add_action( 'admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
 				add_action( 'network_admin_notices', [ $this, 'adminNoticeDoesNotMeetRequirements' ] );
-				throw new \Exception( __( 'Plugin does not meet minimum requirements', 'wp-simple-firewall' ) );
+				throw new \Exception( __( 'Plugin does not meet minimum requirements', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught in plugin_init.php, which logs it with error_log(); the admin notice uses the separate requirements list.
 			}
 
 			if ( !$FS->isDir( $this->paths->forFlag() ) ) {
@@ -330,8 +331,10 @@ class Controller extends DynPropertiesClass {
 				->setTemplate( '/notices/does-not-meet-requirements.twig' )
 				->setData( [
 					'strings' => [
+						/* translators: %s: plugin name */
 						'not_met'          => sprintf( __( '%s Plugin – minimum site requirements are not met', 'wp-simple-firewall' ), $this->labels->Name ),
 						'requirements'     => $this->reqs_not_met,
+						/* translators: %s: plugin name */
 						'summary_title'    => sprintf( __( "Your web hosting doesn't meet the minimum requirements for the %s Plugin.", 'wp-simple-firewall' ), $this->labels->Name ),
 						'recommend'        => __( "We highly recommend upgrading your web hosting components as they're probably quite out-of-date.", 'wp-simple-firewall' ),
 						'more_information' => __( 'Click here for more information on requirements', 'wp-simple-firewall' )
@@ -408,14 +411,14 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function onWpDeactivatePlugin() {
-		do_action( $this->prefix( 'pre_deactivate_plugin' ) );
+		do_action( $this->prefix( 'pre_deactivate_plugin' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 		if ( $this->isPluginAdmin() ) {
 
 			$this->plugin_deactivating = true;
 
 			( new PluginDeactivate() )->run();
 
-			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
+			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 				$this->deletePlugin();
 			}
 		}
@@ -423,7 +426,7 @@ class Controller extends DynPropertiesClass {
 
 	public function deletePlugin() {
 		$this->plugin_deleting = true;
-		do_action( $this->prefix( 'delete_plugin' ) );
+		do_action( $this->prefix( 'delete_plugin' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 		( new Shield\Controller\Plugin\PluginDelete() )->run();
 	}
 
@@ -478,7 +481,7 @@ class Controller extends DynPropertiesClass {
 		catch ( \Exception $e ) {
 		}
 		// This is where any rules responses will execute (i.e. after processors are run):
-		do_action( $this->prefix( 'after_run_processors' ) );
+		do_action( $this->prefix( 'after_run_processors' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 	}
 
 	public function onWpAdminInit() {
@@ -525,11 +528,11 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function onWpShutdown() {
-		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
+		do_action( $this->prefix( 'pre_plugin_shutdown' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 		if ( $this->opts->hasChanges() ) {
 			$this->opts->store();
 		}
-		do_action( $this->prefix( 'plugin_shutdown' ) );
+		do_action( $this->prefix( 'plugin_shutdown' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 		if ( $this->plugin_deleting || ( isset( $this->cfg ) && $this->cfg->persist_required ) ) {
 			$this->saveCurrentPluginControllerOptions();
 		}
@@ -585,8 +588,8 @@ class Controller extends DynPropertiesClass {
 	 * only ever consider after WP INIT (when a logged-in user is recognised)
 	 */
 	public function isPluginAdmin() :bool {
-		return apply_filters( $this->prefix( 'bypass_is_plugin_admin' ), false )
-			   || apply_filters( $this->prefix( 'is_plugin_admin' ), $this->getMeetsBasePermissions() );
+		return apply_filters( $this->prefix( 'bypass_is_plugin_admin' ), false ) // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
+			   || apply_filters( $this->prefix( 'is_plugin_admin' ), $this->getMeetsBasePermissions() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 	}
 
 	/**
@@ -644,7 +647,7 @@ class Controller extends DynPropertiesClass {
 	public function includePrefixedVendor() :void {
 		$auto = path_join( $this->getRootDir(), 'vendor_prefixed/autoload.php' );
 		if ( !Services::WpFs()->isAccessibleFile( $auto ) ) {
-			throw new Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException( __( 'Prefixed autoload missing', 'wp-simple-firewall' ) );
+			throw new Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException( __( 'Prefixed autoload missing', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by ClassDependencyGuard::includePrefixedVendorIfAvailable(), which ignores it.
 		}
 		require_once( $auto );
 	}
@@ -732,7 +735,7 @@ class Controller extends DynPropertiesClass {
 		}
 
 		// Apply filter for whitelabel and other modifications
-		$labels = $isPremium ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
+		$labels = $isPremium ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 
 		// Apply PRO suffix AFTER whitelabel (if premium active AND whitelabel disabled)
 		// This centralizes the logic in the labels system itself

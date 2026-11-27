@@ -39,16 +39,19 @@ class SiteCustomAction extends BaseSiteMwpAction {
 		$response = $this->clientActionResponse;
 		$key = self::con()->prefix( 'mwp-action-response' );
 		if ( empty( $response ) || !\is_array( $response ) || !isset( $response[ $key ] ) ) {
-			throw new ActionException( sprintf( __( 'Empty response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) );
+			/* translators: %s: plugin name */
+			throw new ActionException( sprintf( __( 'Empty response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: BaseSiteMwpAction::exec() returns it in the MainWP response, which is JSON text.
 		}
 
 		if ( !\is_string( $response[ $key ] ) ) {
-			throw new ActionException( sprintf( __( 'Invalid response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) );
+			/* translators: %s: plugin name */
+			throw new ActionException( sprintf( __( 'Invalid response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: BaseSiteMwpAction::exec() returns it in the MainWP response, which is JSON text.
 		}
 
 		$result = \json_decode( $response[ $key ], true );
 		if ( empty( $result ) || !\is_array( $result ) ) {
-			throw new ActionException( sprintf( __( 'Invalid response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) );
+			/* translators: %s: plugin name */
+			throw new ActionException( sprintf( __( 'Invalid response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: BaseSiteMwpAction::exec() returns it in the MainWP response, which is JSON text.
 		}
 
 		return (bool)( $result[ 'success' ] ?? false );
@@ -57,6 +60,7 @@ class SiteCustomAction extends BaseSiteMwpAction {
 	protected function getMainwpActionFailureMessage() :string {
 		switch ( $this->action_data[ 'sub_action_slug' ] ) {
 			case LicenseLookup::SLUG:
+				/* translators: %s: plugin name */
 				$msg = sprintf( __( '%s license check failed.', 'wp-simple-firewall' ), self::con()->labels->Name );
 				break;
 			default:
@@ -69,6 +73,7 @@ class SiteCustomAction extends BaseSiteMwpAction {
 	protected function getMainwpActionSuccessMessage() :string {
 		switch ( $this->action_data[ 'sub_action_slug' ] ) {
 			case LicenseLookup::SLUG:
+				/* translators: %s: plugin name */
 				$msg = sprintf( __( '%s license check was successful.', 'wp-simple-firewall' ), self::con()->labels->Name );
 				break;
 			default:

@@ -29,8 +29,9 @@ export class ToasterService {
 
 		$toastBody.html( '' );
 
+		// Messages are plain text, often carrying server error text, so they're never parsed as HTML.
 		$( '<span></span>' )
-		.html( msg )
+		.text( msg )
 		.appendTo( $toastBody );
 
 		this.$toast.css( 'z-index', 100000000 );

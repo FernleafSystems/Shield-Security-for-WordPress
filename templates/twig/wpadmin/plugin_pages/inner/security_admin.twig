@@ -19,6 +19,15 @@
 			</div>
 			<div class="shield-accessible-dialog__content">
 				{{ pin.form( strings, hrefs, false ) }}
+				{# A PIN can be typed and Enter pressed before Shield's script is listening. That Enter is remembered
+				   here, so the PIN is sent as soon as it can be, without being asked for twice. #}
+				<script>
+					document.getElementById( 'ShieldSecAdminUnlockPin' ).addEventListener( 'keydown', function ( evt ) {
+						if ( evt.key === 'Enter' ) {
+							this.form.dataset.shieldSubmitAsked = '1';
+						}
+					} );
+				</script>
 			</div>
 
 			{% if flags.allow_email_override %}

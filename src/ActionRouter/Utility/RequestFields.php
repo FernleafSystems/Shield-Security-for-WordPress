@@ -30,7 +30,7 @@ class RequestFields {
 			return $this->defaultFor( $key, $default );
 		}
 		if ( !\is_string( $value ) ) {
-			throw $this->invalid( $key );
+			throw $this->invalid( esc_html( $key ) );
 		}
 		return $value;
 	}
@@ -43,7 +43,7 @@ class RequestFields {
 	public function oneOf( string $key, array $allowed, ?string $default = null ) :string {
 		$value = $this->string( $key, $default );
 		if ( !\in_array( $value, $allowed, true ) ) {
-			throw $this->invalid( $key );
+			throw $this->invalid( esc_html( $key ) );
 		}
 		return $value;
 	}
@@ -71,7 +71,7 @@ class RequestFields {
 		if ( $value === $no ) {
 			return false;
 		}
-		throw $this->invalid( $key );
+		throw $this->invalid( esc_html( $key ) );
 	}
 
 	/**
@@ -85,7 +85,7 @@ class RequestFields {
 		}
 		$int = self::PositiveIntFrom( $value );
 		if ( $int === null ) {
-			throw $this->invalid( $key );
+			throw $this->invalid( esc_html( $key ) );
 		}
 		return $int;
 	}
@@ -125,7 +125,7 @@ class RequestFields {
 			return $this->defaultFor( $key, $default );
 		}
 		if ( !\is_array( $value ) ) {
-			throw $this->invalid( $key );
+			throw $this->invalid( esc_html( $key ) );
 		}
 		return $value;
 	}
@@ -163,7 +163,7 @@ class RequestFields {
 	 */
 	private function defaultFor( string $key, $default ) {
 		if ( $default === null ) {
-			throw new ActionException( \sprintf( 'Missing request field: %s', $key ) );
+			throw new ActionException( \sprintf( 'Missing request field: %s', esc_html( $key ) ) );
 		}
 		return $default;
 	}

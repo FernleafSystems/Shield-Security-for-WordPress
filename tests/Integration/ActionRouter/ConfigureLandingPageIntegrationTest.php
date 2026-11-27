@@ -277,7 +277,8 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_goal_diagnosis_rows_are_topics_that_open_their_panels() :void {
 		$diagnoses = ( new ConfigureLandingViewBuilder() )->build()[ 'diagnoses' ];
 
-		$this->assertDiagnosisRowScope( $diagnoses[ 'code' ] ?? [], 'scan_schedule', 'scan_scheduling', [ 'scan_frequency' ] );
+		// How often scans run sits with what they scan.
+		$this->assertDiagnosisRowScope( $diagnoses[ 'code' ] ?? [], 'file_scanning', 'scan_scheduling', [ 'scan_frequency', 'file_scan_areas' ] );
 		// Settings few sites change are gathered into the goal's Advanced options.
 		$this->assertDiagnosisRowScope( $diagnoses[ 'spam' ] ?? [], 'advanced', 'trusted_commenters', [ 'trusted_commenter_minimum', 'trusted_user_roles' ] );
 		$this->assertDiagnosisRowScope( $diagnoses[ 'accounts' ] ?? [], 'two_factor', 'two_factor_auth', [ 'enable_email_authentication', 'enable_passkeys' ] );
@@ -286,6 +287,25 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertDiagnosisRowScope( $diagnoses[ 'attacks' ] ?? [], 'bot_signals', 'bot_actions', [ 'track_xmlrpc' ] );
 		$this->assertDiagnosisRowScope( $diagnoses[ 'login' ] ?? [], 'login_guards', 'bot_actions', [ 'track_loginfailed', 'block_author_discovery' ] );
 		$this->assertDiagnosisRowScope( $diagnoses[ 'shield' ] ?? [], 'general', 'plugin_general', [ 'visitor_address_source' ] );
+	}
+
+	public function test_a_topic_outside_the_plan_needs_no_attention_until_the_plan_includes_it() :void {
+		try {
+			$this->disablePremiumCapabilities();
+			$onFree = $this->findDiagnosisRowByKey( ( new ConfigureLandingViewBuilder() )->build()[ 'diagnoses' ][ 'code' ], 'file_locker' );
+
+			$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
+			$onPro = $this->findDiagnosisRowByKey( ( new ConfigureLandingViewBuilder() )->build()[ 'diagnoses' ][ 'code' ], 'file_locker' );
+		}
+		finally {
+			$this->disablePremiumCapabilities();
+		}
+
+		$this->assertNotNull( $onFree );
+		$this->assertNotNull( $onPro );
+		$this->assertSame( 'neutral', $onFree[ 'status' ] );
+		// No files are locked, which is a problem once the site could lock them.
+		$this->assertContains( $onPro[ 'status' ], [ 'warning', 'critical' ] );
 	}
 
 	public function test_own_page_settings_have_no_configure_topic() :void {

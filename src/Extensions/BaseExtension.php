@@ -24,7 +24,8 @@ abstract class BaseExtension {
 	 */
 	public function __construct( string $file, array $cfg ) {
 		if ( empty( static::SLUG ) ) {
-			throw new \Exception( sprintf( __( 'Invalid %s extension configuration', 'wp-simple-firewall' ), self::con()->labels->Name ) );
+			/* translators: %s: plugin name */
+			throw new \Exception( sprintf( __( 'Invalid %s extension configuration', 'wp-simple-firewall' ), self::con()->labels->Name ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Developer-facing plain-text message from an extension's constructor: this plugin never catches or prints it.
 		}
 		$this->file = $file;
 		$this->cfg = ( new ExtensionConfigVO() )->applyFromArray( $cfg );

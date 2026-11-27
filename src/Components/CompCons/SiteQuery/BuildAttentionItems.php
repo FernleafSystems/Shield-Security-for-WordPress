@@ -64,6 +64,7 @@ class BuildAttentionItems {
 		'hidden_plugins',
 		'report_email',
 		'default_admin_user',
+		'admin_two_factor',
 		'wp_updates',
 		'wp_plugins_updates',
 		'wp_themes_updates',

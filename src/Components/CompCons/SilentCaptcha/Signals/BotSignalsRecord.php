@@ -187,7 +187,7 @@ class BotSignalsRecord {
 
 		foreach ( $fields as $field ) {
 			if ( !self::con()->db_con->bot_signals->getTableSchema()->hasColumn( $field ) ) {
-				throw new \LogicException( sprintf( '"%s" is not a valid column on Bot Signals', $field ) );
+				throw new \LogicException( sprintf( '"%s" is not a valid column on Bot Signals', $field ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by BotEventListener and BaseAutoUnblock, which log it with error_log; never shown.
 			}
 		}
 

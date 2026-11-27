@@ -59,6 +59,25 @@
 	white-space: nowrap;
 }
 
+// The way to the dashboard tour, which only runs when asked for. Its link is drawn as the dashboard's other
+// section links are.
+.dashboard-task-guide__tour {
+	margin: 0.5rem 0 0;
+	text-align: right;
+
+	a {
+		color: #0a58ca;
+		font-size: 0.8rem;
+		font-weight: 600;
+		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			text-decoration: underline;
+		}
+	}
+}
+
 .dashboard-task-guide__launch:hover {
 	background: $status-bg-good-light;
 	border-color: $status-color-good;

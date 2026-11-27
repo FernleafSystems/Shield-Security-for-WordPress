@@ -16,8 +16,8 @@ class Suspended extends Base {
 			$user = new \WP_Error(
 				self::con()->prefix( 'hard-suspended' ),
 				\implode( ' ', [
-					__( 'Sorry, this account is suspended.', 'wp-simple-firewall' ),
-					__( 'Please contact your website administrator.', 'wp-simple-firewall' ),
+					esc_html__( 'Sorry, this account is suspended.', 'wp-simple-firewall' ),
+					esc_html__( 'Please contact your website administrator.', 'wp-simple-firewall' ),
 				] )
 			);
 		}

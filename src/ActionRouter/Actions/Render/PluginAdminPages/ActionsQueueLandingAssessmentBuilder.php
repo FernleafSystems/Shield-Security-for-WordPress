@@ -9,6 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Com
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
+ * A row's `is_ignored` marks a to-do that has stopped needing attention only because it's ignored: nothing about it
+ * passes.
+ *
  * @phpstan-type AssessmentRow array{
  *   key:string,
  *   label:string,
@@ -17,7 +20,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   item_icon_class:string,
  *   status:string,
  *   status_label:string,
- *   status_icon_class:string
+ *   status_icon_class:string,
+ *   is_ignored:bool
  * }
  * @phpstan-type AssessmentRowsByZone array{
  *   scans:list<AssessmentRow>,
@@ -83,6 +87,7 @@ class ActionsQueueLandingAssessmentBuilder {
 				'status'            => $state[ 'severity' ],
 				'status_label'      => $this->standardStatusLabel( $state[ 'severity' ] ),
 				'status_icon_class' => $this->standardStatusIconClass( $state[ 'severity' ] ),
+				'is_ignored'        => $state[ 'count' ] === 0 && $state[ 'ignored_count' ] > 0,
 			];
 		}
 
@@ -152,16 +157,7 @@ class ActionsQueueLandingAssessmentBuilder {
 
 	/**
 	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base> $componentClass
-	 * @return array{
-	 *   key:string,
-	 *   label:string,
-	 *   description:string,
-	 *   drill_bucket:'critical'|'review',
-	 *   item_icon_class:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string
-	 * }|null
+	 * @return AssessmentRow|null
 	 */
 	protected function buildAssessmentRow( string $key, string $componentClass, string $drillBucket ) :?array {
 		$component = $this->buildAssessmentComponent( $componentClass );
@@ -184,6 +180,7 @@ class ActionsQueueLandingAssessmentBuilder {
 			'status'            => $status,
 			'status_label'      => $this->standardStatusLabel( $status ),
 			'status_icon_class' => $this->standardStatusIconClass( $status ),
+			'is_ignored'        => false,
 		];
 	}
 

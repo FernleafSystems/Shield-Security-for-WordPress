@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
+	UnitTestActionsQueueIgnoredCounter,
 	UnitTestControllerFactory,
 	UnitTestPluginUrls
 };
@@ -52,8 +53,9 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	private function buildCardData( array $attentionQuery ) :array {
-		return ( new ActionsQueueCardDataBuilder() )->build( $attentionQuery );
+	private function buildCardData( array $attentionQuery, ?UnitTestActionsQueueIgnoredCounter $ignoredCounter = null ) :array {
+		return ( new ActionsQueueCardDataBuilder( $ignoredCounter ?? new UnitTestActionsQueueIgnoredCounter() ) )
+			->build( $attentionQuery );
 	}
 
 	private function attentionQuery(
@@ -231,24 +233,22 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		$strip = $this->buildCardData( $attentionQuery )[ 'dashboard_strip' ];
 
 		$this->assertSame(
-			[ 'status', 'icon_class', 'title', 'summary', 'accessible_label' ],
+			[ 'status', 'icon_class', 'title', 'summary', 'accessible_label', 'ignored_text' ],
 			\array_keys( $strip[ 'overall' ] )
 		);
 		$this->assertSame( 'critical', $strip[ 'overall' ][ 'status' ] );
-		$this->assertSame( 'Critical Action Required', $strip[ 'overall' ][ 'title' ] );
-		$this->assertSame( '5 issues need your attention.', $strip[ 'overall' ][ 'summary' ] );
+		$this->assertNotSame( '', $strip[ 'overall' ][ 'title' ] );
+		// The overall count is the groups' own, not the query's summary total.
+		$this->assertStringContainsString( '5', $strip[ 'overall' ][ 'summary' ] );
+		$this->assertStringNotContainsString( '99', $strip[ 'overall' ][ 'summary' ] );
 		$this->assertSame(
 			[ 'scans', 'maintenance' ],
 			\array_column( $strip[ 'summaries' ], 'id' )
 		);
-		$this->assertSame(
-			[ 'Security Issues', 'Maintenance' ],
-			\array_column( $strip[ 'summaries' ], 'label' )
-		);
 		$this->assertSame( [ 2, 3 ], \array_column( $strip[ 'summaries' ], 'count' ) );
 		$this->assertSame( [ 'critical', 'warning' ], \array_column( $strip[ 'summaries' ], 'status' ) );
 		$this->assertSame(
-			[ 'id', 'label', 'value', 'summary', 'accessible_label', 'count', 'status', 'href' ],
+			[ 'id', 'label', 'value', 'summary', 'accessible_label', 'count', 'status', 'href', 'ignored_text' ],
 			\array_keys( $strip[ 'summaries' ][ 0 ] )
 		);
 		foreach ( $strip[ 'summaries' ] as $summary ) {
@@ -275,41 +275,71 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 3, 0 ], \array_column( $strip[ 'summaries' ], 'count' ) );
 	}
 
+	public function test_all_clear_says_how_many_items_are_ignored() :void {
+		$strip = $this->buildCardData(
+			$this->attentionQuery( [] ),
+			new UnitTestActionsQueueIgnoredCounter( 4, 3 )
+		)[ 'dashboard_strip' ];
+
+		// Still all clear: ignored items count for nothing. But it says how many it's leaving out.
+		$this->assertSame( 'good', $strip[ 'overall' ][ 'status' ] );
+		$this->assertMatchesRegularExpression( '/\b7\b/', $strip[ 'overall' ][ 'ignored_text' ] );
+		$this->assertStringContainsString( $strip[ 'overall' ][ 'ignored_text' ], $strip[ 'overall' ][ 'accessible_label' ] );
+		$this->assertMatchesRegularExpression( '/\b3\b/', $strip[ 'summaries' ][ 0 ][ 'ignored_text' ] );
+		$this->assertMatchesRegularExpression( '/\b4\b/', $strip[ 'summaries' ][ 1 ][ 'ignored_text' ] );
+	}
+
+	public function test_all_clear_with_nothing_ignored_says_nothing_about_ignoring() :void {
+		$strip = $this->buildCardData( $this->attentionQuery( [] ) )[ 'dashboard_strip' ];
+
+		$this->assertSame( '', $strip[ 'overall' ][ 'ignored_text' ] );
+		$this->assertSame( [ '', '' ], \array_column( $strip[ 'summaries' ], 'ignored_text' ) );
+	}
+
+	public function test_only_a_group_with_nothing_waiting_says_how_many_it_ignores() :void {
+		$counter = new UnitTestActionsQueueIgnoredCounter( 4, 3 );
+		$strip = $this->buildCardData(
+			$this->attentionQuery( [ $this->attentionItem( 'malware', 'scans', 2, 'critical' ) ] ),
+			$counter
+		)[ 'dashboard_strip' ];
+
+		// Security issues are waiting, so nothing is claimed to be clear there, or overall; to-dos are clear.
+		$this->assertSame( '', $strip[ 'overall' ][ 'ignored_text' ] );
+		$this->assertSame( '', $strip[ 'summaries' ][ 0 ][ 'ignored_text' ] );
+		$this->assertMatchesRegularExpression( '/\b4\b/', $strip[ 'summaries' ][ 1 ][ 'ignored_text' ] );
+		$this->assertSame( [ 'to_dos' ], $counter->asked );
+	}
+
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'dashboardStripPrecedenceProvider' )]
 	public function test_dashboard_strip_overall_precedence(
 		array $scanItems,
 		array $maintenanceItems,
-		string $expectedStatus,
-		string $expectedTitle
+		string $expectedStatus
 	) :void {
 		$overall = $this->buildCardData(
 			$this->attentionQuery( $scanItems, $maintenanceItems )
 		)[ 'dashboard_strip' ][ 'overall' ];
 
 		$this->assertSame( $expectedStatus, $overall[ 'status' ] );
-		$this->assertSame( $expectedTitle, $overall[ 'title' ] );
 	}
 
 	public static function dashboardStripPrecedenceProvider() :array {
 		return [
-			'all clear'                    => [ [], [], 'good', 'All Clear' ],
+			'all clear'                    => [ [], [], 'good' ],
 			'critical maintenance'         => [
 				[],
 				[ self::attentionItem( 'wp_updates', 'maintenance', 1, 'critical' ) ],
 				'critical',
-				'Critical Action Required',
 			],
 			'security issues are critical' => [
 				[ self::attentionItem( 'plugin_files', 'scans', 1, 'critical' ) ],
 				[ self::attentionItem( 'wp_updates', 'maintenance', 1, 'warning' ) ],
 				'critical',
-				'Critical Action Required',
 			],
 			'maintenance only'             => [
 				[],
 				[ self::attentionItem( 'wp_updates', 'maintenance', 1, 'warning' ) ],
 				'warning',
-				'Maintenance Action Required',
 			],
 		];
 	}

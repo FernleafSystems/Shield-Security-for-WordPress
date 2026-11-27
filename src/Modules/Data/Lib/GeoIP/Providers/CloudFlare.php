@@ -9,6 +9,10 @@ class CloudFlare {
 
 	use ThisRequestConsumer;
 
+	/**
+	 * Any visitor can send CF-IPCountry, so the value is returned unchecked and UpdateGeoData::getIpGeoData()
+	 * validates it, along with any value from the shield/get_ip_geo_data filter, before anything is stored.
+	 */
 	public function lookup() :array {
 		$geoData = [];
 		$req = $this->req;

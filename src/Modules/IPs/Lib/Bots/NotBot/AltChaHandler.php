@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
+\defined( 'ABSPATH' ) || exit();
+
 // Deprecated 22.0: Upgrade bridge for the moved silentCAPTCHA component namespace.
 if ( !\class_exists( __NAMESPACE__.'\\AltChaHandler', false ) ) {
 	\class_alias(

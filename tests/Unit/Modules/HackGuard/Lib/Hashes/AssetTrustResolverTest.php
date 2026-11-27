@@ -1,14 +1,5 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes;
-
-if ( !\function_exists( __NAMESPACE__.'\\error_log' ) ) {
-	function error_log( string $message ) :bool {
-		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Lib\Hashes\AssetTrustResolverTest::$capturedErrorLogs[] = $message;
-		return true;
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Lib\Hashes;
 
 use Brain\Monkey\Functions;
@@ -26,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
 	HashesStorageDir,
 	Store
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ErrorLogCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -58,12 +50,13 @@ class AssetTrustResolverTest extends BaseUnitTest {
 	private const SECOND_HASH = 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc';
 	private const THEME_HASH = 'dddddddddddddddddddddddddddddddd';
 
-	public static array $capturedErrorLogs = [];
+	private ErrorLogCapture $errorLog;
 
 	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->errorLog = ErrorLogCapture::start();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		AssetTrustResolver::resetMemoization();
 		Retrieve::resetMemoization();
@@ -73,7 +66,6 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		ResolverPlugins::$getPluginAsVoCalls = 0;
 		ResolverThemes::$getThemesCalls = 0;
 		ResolverThemes::$getThemeAsVoCalls = 0;
-		self::$capturedErrorLogs = [];
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'path_join' )->alias( fn( string $a, string $b ) :string => $this->normalisePath( \rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' ) ) );
 		Functions\when( 'wp_json_encode' )->alias( static fn( $data ) :string => \json_encode( $data ) );
@@ -90,6 +82,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		PluginControllerInstaller::reset();
 		$this->removeWrittenFixtureFiles();
 		$this->cleanupTrackedTempDirs();
+		$this->errorLog->stop();
 		parent::tearDown();
 	}
 
@@ -172,7 +165,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		], \array_map( static fn( $context ) :string => $context->assetKey, $contexts ) );
 		$this->assertSame( 1, ResolverPlugins::$installedPluginFilesCalls );
 		$this->assertSame( 3, ResolverPlugins::$getPluginAsVoCalls );
-		$this->assertCount( 0, self::$capturedErrorLogs );
+		$this->assertCount( 0, $this->errorLog->messages() );
 	}
 
 	public function test_ambiguous_plugin_directory_is_not_guessed_and_logs_once() :void {
@@ -190,8 +183,8 @@ class AssetTrustResolverTest extends BaseUnitTest {
 			}
 		}
 
-		$this->assertCount( 1, self::$capturedErrorLogs );
-		$this->assertStringContainsString( 'candidate_count=2', self::$capturedErrorLogs[ 0 ] );
+		$this->assertCount( 1, $this->errorLog->messages() );
+		$this->assertStringContainsString( 'candidate_count=2', $this->errorLog->messages()[ 0 ] );
 		$this->assertSame( 1, ResolverPlugins::$installedPluginFilesCalls );
 		$this->assertSame( 0, ResolverPlugins::$getPluginAsVoCalls );
 	}
@@ -211,7 +204,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$betaPath = $this->normalisePath( WP_PLUGIN_DIR.'/beta/src/File.php' );
 		$this->assertResolveContextMiss( $resolver, $betaPath );
 		$this->assertSame( 1, ResolverPlugins::$installedPluginFilesCalls );
-		$this->assertCount( 0, self::$capturedErrorLogs );
+		$this->assertCount( 0, $this->errorLog->messages() );
 
 		AssetTrustResolver::resetMemoization();
 		try {
@@ -223,8 +216,8 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		}
 
 		$this->assertSame( 2, ResolverPlugins::$installedPluginFilesCalls );
-		$this->assertCount( 1, self::$capturedErrorLogs );
-		$this->assertStringContainsString( 'candidate_count=2', self::$capturedErrorLogs[ 0 ] );
+		$this->assertCount( 1, $this->errorLog->messages() );
+		$this->assertStringContainsString( 'candidate_count=2', $this->errorLog->messages()[ 0 ] );
 	}
 
 	public function test_cached_plugin_context_does_not_refresh_asset_version_until_reset() :void {

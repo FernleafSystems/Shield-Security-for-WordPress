@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -97,7 +98,9 @@ class ActionsQueueLandingViewBuilder {
 			'has_items'   => $hasItems,
 			'total_items' => $attentionQuery[ 'summary' ][ 'total' ],
 			'severity'    => $attentionQuery[ 'summary' ][ 'severity' ],
-			'icon_class'  => self::con()->svgs->iconClass( $hasItems ? 'exclamation-triangle-fill' : 'shield-check' ),
+			'icon_class'  => ( new ActionsQueueItemIcons() )->iconClassForQueueStatus(
+				$hasItems ? $attentionQuery[ 'summary' ][ 'severity' ] : 'good'
+			),
 			'subtext'     => $summarySubtext,
 		];
 	}
@@ -222,7 +225,8 @@ class ActionsQueueLandingViewBuilder {
 			'icon_class'     => $summary[ 'icon_class' ],
 			'summary_text'   => $summary[ 'has_items' ]
 				? sprintf(
-					__( '%1$s critical - %2$s warnings - %3$s items total', 'wp-simple-firewall' ),
+					/* translators: %1$s: number of critical issues, %2$s: number of to-dos, %3$s: total number of items */
+					__( '%1$s critical - %2$s to-dos - %3$s items total', 'wp-simple-firewall' ),
 					$criticalCount,
 					$warningCount,
 					$summary[ 'total_items' ]
@@ -278,12 +282,14 @@ class ActionsQueueLandingViewBuilder {
 		}
 		if ( $severityCounts[ 'critical' ] > 0 ) {
 			return sprintf(
+				/* translators: %1$s: number of issues, %2$s: number of critical issues */
 				_n( '%1$s issue - %2$s critical', '%1$s issues - %2$s critical', $totalIssues, 'wp-simple-firewall' ),
 				$totalIssues,
 				$severityCounts[ 'critical' ]
 			);
 		}
 		return sprintf(
+			/* translators: %1$s: number of issues */
 			_n( '%1$s issue', '%1$s issues', $totalIssues, 'wp-simple-firewall' ),
 			$totalIssues
 		);

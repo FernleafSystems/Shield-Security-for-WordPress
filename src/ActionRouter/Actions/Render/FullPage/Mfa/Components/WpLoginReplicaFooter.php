@@ -16,7 +16,7 @@ class WpLoginReplicaFooter extends Base {
 		 * @since 3.1.0
 		 */
 		$actionLoginFooter = CaptureOutput::Capture( function () {
-			do_action( 'login_footer' );
+			do_action( 'login_footer' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Runs WordPress core's own login page hook on Shield's 2FA login page, so callbacks registered for it can take part there.
 		} );
 
 		return [

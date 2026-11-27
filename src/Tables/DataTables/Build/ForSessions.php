@@ -27,7 +27,6 @@ class ForSessions extends Base {
 				'className'      => 'rid',
 				'orderable'      => false,
 				'searchable'     => false,
-				'search_builder' => false,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => false,
@@ -39,7 +38,6 @@ class ForSessions extends Base {
 				'className'      => 'uid',
 				'orderable'      => false,
 				'searchable'     => true,
-				'search_builder' => false,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => true,

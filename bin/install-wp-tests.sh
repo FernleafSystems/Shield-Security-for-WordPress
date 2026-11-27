@@ -47,6 +47,8 @@ TMPDIR=${TMPDIR-/tmp}
 TMPDIR=$(echo $TMPDIR | sed -e "s/\/$//")
 WP_TESTS_DIR=${WP_TESTS_DIR-$TMPDIR/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress/}
+# The archive the install was unpacked from. It's kept, as it says what the install should hold.
+WP_CORE_ARCHIVE="$TMPDIR/wordpress.tar.gz"
 
 wp_core_valid() {
 	local http_bootstrap="$WP_CORE_DIR/wp-includes/class-wp-http.php"
@@ -57,6 +59,9 @@ wp_core_valid() {
 	[ -f "$http_bootstrap" ] || return 1
 	[ -f "$diff_renderer" ] || return 1
 	[ -f "$inline_diff_renderer" ] || return 1
+	# No test loads the front controller, so it's among the first files to go from an install that's being
+	# cleared out. With no archive to check against, its absence is what says the install is damaged.
+	[ -f "$WP_CORE_DIR/index.php" ] || return 1
 
 	if grep -q 'Requests/src/Autoload.php' "$http_bootstrap"; then
 		[ -f "$WP_CORE_DIR/wp-includes/Requests/src/Autoload.php" ]
@@ -69,6 +74,42 @@ wp_core_valid() {
 	fi
 
 	return 0
+}
+
+wp_version_from() {
+	grep -o "wp_version = '[^']*'" | sed "s/.*'\(.*\)'/\1/"
+}
+
+# The install is kept between runs, where anything that clears out unused files can take some of it away. It can
+# only be checked against the archive it came from, so it has to be that archive's version of WordPress.
+wp_core_matches_archive() {
+	local version_file="$WP_CORE_DIR/wp-includes/version.php"
+	local installed archived
+
+	[ -f "$WP_CORE_ARCHIVE" ] && [ -f "$version_file" ] || return 1
+
+	installed=$(wp_version_from < "$version_file")
+	archived=$(tar -xzOf "$WP_CORE_ARCHIVE" wordpress/wp-includes/version.php 2>/dev/null | wp_version_from)
+	[ -n "$installed" ] && [ "$installed" = "$archived" ]
+}
+
+# Puts back every file of the archive that the install no longer has. Files that are there are left as they are.
+restore_missing_wp_core_files() {
+	local list="$TMPDIR/wordpress-missing-files.txt"
+	local entry
+
+	tar -tzf "$WP_CORE_ARCHIVE" | while IFS= read -r entry; do
+		case "$entry" in
+			*/) ;;
+			*) [ -e "$WP_CORE_DIR/${entry#wordpress/}" ] || echo "$entry" ;;
+		esac
+	done > "$list"
+
+	if [ -s "$list" ]; then
+		tar --strip-components=1 -zxmf "$WP_CORE_ARCHIVE" -C "$WP_CORE_DIR" -T "$list"
+		echo "Restored $(wc -l < "$list" | tr -d ' ') missing WordPress files from the cached archive."
+	fi
+	rm -f "$list"
 }
 
 wp_tests_lib_valid() {
@@ -162,6 +203,11 @@ fi
 
 install_wp() {
 
+	# An install that can be checked against its archive first has its missing files put back.
+	if [ -d "$WP_CORE_DIR" ] && wp_core_matches_archive; then
+		restore_missing_wp_core_files
+	fi
+
 	if [ -d "$WP_CORE_DIR" ] && ! wp_core_valid; then
 		rm -rf "$WP_CORE_DIR"
 	fi
@@ -199,8 +245,8 @@ install_wp() {
 		else
 			local ARCHIVE_NAME="wordpress-$WP_VERSION"
 		fi
-		download https://wordpress.org/${ARCHIVE_NAME}.tar.gz  $TMPDIR/wordpress.tar.gz
-		tar --strip-components=1 -zxmf $TMPDIR/wordpress.tar.gz -C $WP_CORE_DIR
+		download https://wordpress.org/${ARCHIVE_NAME}.tar.gz  "$WP_CORE_ARCHIVE"
+		tar --strip-components=1 -zxmf "$WP_CORE_ARCHIVE" -C $WP_CORE_DIR
 	fi
 
 	download https://raw.github.com/markoheijnen/wp-mysqli/master/db.php $WP_CORE_DIR/wp-content/db.php

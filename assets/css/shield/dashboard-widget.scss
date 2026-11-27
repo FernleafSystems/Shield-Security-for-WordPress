@@ -261,6 +261,12 @@
   padding: 12px;
 }
 
+#ShieldDashboardWidget .shield-dashboard-widget__ignored {
+  font-weight: 600;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
 #ShieldDashboardWidget .shield-dashboard-widget__all-clear-icon {
   border: 2px solid currentColor;
   border-radius: 999px;

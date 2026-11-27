@@ -21,6 +21,7 @@ class LoadTextDomainLanguageOverrideIntegrationTest extends ShieldWordPressTestC
 	public function tear_down() {
 		$this->setLanguageOverride( '' );
 		remove_filter( 'load_textdomain_mofile', [ $this->loader, 'onLoadTextdomainMofile' ], 100 );
+		remove_action( 'shutdown', [ $this->loader, 'queueLocalesForDownload' ] );
 		parent::tear_down();
 	}
 
@@ -120,6 +121,56 @@ class LoadTextDomainLanguageOverrideIntegrationTest extends ShieldWordPressTestC
 
 		$con->opts->optSet( 'language_override', 'ENG<script>' )->store();
 		$this->assertSame( '', (string)$con->opts->optGet( 'language_override' ) );
+	}
+
+	public function testOverrideHoldsWhenStringsAreTranslatedDuringRealTextdomainLoad() :void {
+		global $wp_textdomain_registry;
+		$con = self::con();
+		$this->assertNotNull( $con );
+		$domain = $con->getTextDomain();
+		$locale = determine_locale();
+		$sentinel = 'Shield nested-load sentinel';
+
+		$dir = trailingslashit( get_temp_dir() ).'shield-i18n-'.wp_generate_password( 8, false, false );
+		$this->assertTrue( wp_mkdir_p( $dir ) );
+		$moFile = $dir.'/'.$domain.'-'.$locale.'.mo';
+		$mo = new \MO();
+		$mo->add_entry( new \Translation_Entry( [ 'singular' => $sentinel, 'translations' => [ 'Foreign sentinel' ] ] ) );
+		$this->assertTrue( $mo->export_to_file( $moFile ) );
+
+		$previousPath = $wp_textdomain_registry->get( $domain, $locale );
+		$translatedDuringChoice = false;
+		$translateDuringChoice = function ( $pluginLocale, $filterDomain ) use ( $domain, $sentinel, &$translatedDuringChoice ) {
+			if ( $filterDomain === $domain && !$translatedDuringChoice ) {
+				$translatedDuringChoice = true;
+				__( $sentinel, $domain );
+			}
+			return $pluginLocale;
+		};
+
+		try {
+			unload_textdomain( $domain, true );
+			$wp_textdomain_registry->set( $domain, $locale, trailingslashit( $dir ) );
+
+			// Control: without an override, the catalogue loads.
+			load_textdomain( $domain, $moFile, $locale );
+			$this->assertSame( 'Foreign sentinel', __( $sentinel, $domain ) );
+			unload_textdomain( $domain, true );
+
+			$this->setLanguageOverride( 'en' );
+			add_filter( 'plugin_locale', $translateDuringChoice, 10, 2 );
+			load_textdomain( $domain, $moFile, $locale );
+
+			$this->assertTrue( $translatedDuringChoice, 'A string should be translated while the file is chosen.' );
+			$this->assertSame( $sentinel, __( $sentinel, $domain ), 'The override must hold after a nested load.' );
+		}
+		finally {
+			remove_filter( 'plugin_locale', $translateDuringChoice, 10 );
+			unload_textdomain( $domain, true );
+			$wp_textdomain_registry->set( $domain, $locale, $previousPath );
+			@\unlink( $moFile );
+			@\rmdir( $dir );
+		}
 	}
 
 	public function testFilterIgnoredForDifferentDomain() :void {

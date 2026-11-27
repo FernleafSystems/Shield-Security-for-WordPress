@@ -67,6 +67,8 @@ class UpdateGeoData {
 		$data = apply_filters( 'shield/get_ip_geo_data',
 			$this->seedCloudflare ? ( new Providers\CloudFlare() )->setThisRequest( $this->req )->lookup() : [] );
 
+		// The single check on geo data before it's stored. Providers and the filter return values unchecked, and
+		// the Cloudflare one comes straight from a request header, so this is what keeps it to a 2-letter code.
 		if ( \preg_match( '#^([A-Z]{2})$#i', $data[ 'country_iso2' ] ?? '' ) ) {
 			$data[ 'country_iso2' ] = \strtoupper( $data[ 'country_iso2' ] );
 		}

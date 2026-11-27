@@ -18,14 +18,22 @@ class WpCoreFile extends BaseScan {
 	protected function runScan() :bool {
 		if ( !Services::WpFs()->isAccessibleFile( $this->pathFull ) ) {
 			if ( !$this->isExcludedMissing() ) {
-				throw new Exceptions\WpCoreFileMissingException( $this->pathFull );
+				throw new Exceptions\WpCoreFileMissingException( $this->pathFull ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the message is a file path, caught by FileScanner and turned into a scan result item, never shown.
 			}
 		}
 		elseif ( !Services::CoreFileHashes()->isCoreFileHashValid( $this->pathFull ) ) {
-			throw new Exceptions\WpCoreFileChecksumFailException( $this->pathFull );
+			throw new Exceptions\WpCoreFileChecksumFailException( $this->pathFull ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the message is a file path, caught by FileScanner and turned into a scan result item, never shown.
 		}
 
 		return true;
+	}
+
+	/**
+	 * Whether the scan accepts this file as WordPress's original copy. Scan exclusions apply, as the scan doesn't
+	 * verify an excluded file as core even when it's in WordPress's checksums.
+	 */
+	public function isOriginalCoreFile() :bool {
+		return !$this->isFileExcluded() && Services::CoreFileHashes()->isCoreFileHashValid( $this->pathFull );
 	}
 
 	protected function isFileExcluded() :bool {

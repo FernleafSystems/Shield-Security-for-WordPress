@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retri
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class MalaiEarlyRecheck {
 
@@ -81,7 +82,7 @@ class MalaiEarlyRecheck {
 			( new RetrieveMalwareMalaiStatus() )->reconcileActiveResults( RetrieveMalwareMalaiStatus::MODE_EARLY );
 		}
 		catch ( \Throwable $e ) {
-			error_log( 'Shield early malware recheck failed: '.$e->getMessage() );
+			ErrorLog::write( 'Shield early malware recheck failed: '.$e->getMessage() );
 		}
 		finally {
 			// Failed overdue work returns to normal scheduling, avoiding a rapid retry loop.

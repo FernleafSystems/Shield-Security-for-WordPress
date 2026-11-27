@@ -31,6 +31,8 @@ class SelfVersionTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->returnArg();
+		Functions\when( 'esc_html__' )->returnArg();
+		Functions\when( 'esc_url' )->returnArg();
 		$this->servicesSnapshot = ServicesState::snapshot();
 	}
 

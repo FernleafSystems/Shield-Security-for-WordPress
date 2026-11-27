@@ -24,8 +24,10 @@ class MwpExtensionLoader {
 		// Render the main extension page content
 		// The tab comes from the page URL; it's checked here and passed down, so the pages don't read the request.
 		$tab = ActionData::TransportField( $req->query, 'tab' );
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from the action router: Shield's templates escape their own values, and the page also carries MainWP's hook HTML and the nested page body, which are markup by design.
 		echo self::con()->action_router->render( ExtensionPageContainer::class, [
 			'current_tab' => $tab === '' ? TabSitesListing::TAB : $tab,
 		] );
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }

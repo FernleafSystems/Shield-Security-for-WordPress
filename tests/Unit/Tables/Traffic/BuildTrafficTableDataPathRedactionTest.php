@@ -24,6 +24,7 @@ class BuildTrafficTableDataPathRedactionTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'apply_filters' )->alias( static fn( string $tag, $value ) => $value );
 		Functions\when( 'esc_html' )->alias(
 			static fn( string $text ) :string => \htmlspecialchars( $text, \ENT_QUOTES, 'UTF-8' )

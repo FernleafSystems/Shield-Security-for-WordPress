@@ -105,7 +105,7 @@ class RouteProcessorMap {
 			return $processor( $req );
 		}
 		catch ( \Exception $e ) {
-			throw new ApiException( $e->getMessage() );
+			throw new ApiException( $e->getMessage() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- REST response message, sent as JSON text.
 		}
 	}
 }

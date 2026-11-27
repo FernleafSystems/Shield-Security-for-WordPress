@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	ParametersMissingException
 };
 use IPLib\Factory;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class VerifyParams {
 
@@ -86,12 +87,14 @@ class VerifyParams {
 		}
 
 		if ( $invalidType ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Validation text: ParseRuleBuilderForm passes it to the rule builder template, where Twig escapes it, and ResponseProcessor ignores it.
 			throw new ParameterIncorrectTypeException( empty( $invalidMsg ) ? sprintf( 'Incorrect parameter type: %s, %s, %s, %s',
 				$paramName,
-				var_export( $paramValue, true ),
+				ErrorLog::describe( $paramValue ),
 				\gettype( $paramValue ),
-				var_export( $def, true )
+				ErrorLog::describe( $def )
 			) : $invalidMsg );
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
 		if ( $def[ 'type' ] === EnumParameters::TYPE_STRING ) {
@@ -102,7 +105,7 @@ class VerifyParams {
 
 		if ( $def[ 'type' ] === EnumParameters::TYPE_STRING && !empty( $def[ 'verify_regex' ] ) ) {
 			if ( !\preg_match( $def[ 'verify_regex' ], $paramValue ) ) {
-				throw new \Exception( sprintf( 'Please ensure only valid characters (value: %s) (regex: %s)', $paramValue, $def[ 'verify_regex' ] ) );
+				throw new \Exception( sprintf( 'Please ensure only valid characters (value: %s) (regex: %s)', $paramValue, $def[ 'verify_regex' ] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Validation text: ParseRuleBuilderForm passes it to the rule builder template, where Twig escapes it, and ResponseProcessor ignores it.
 			}
 		}
 

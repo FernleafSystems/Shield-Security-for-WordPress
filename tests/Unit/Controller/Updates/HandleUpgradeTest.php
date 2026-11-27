@@ -18,6 +18,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 	use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
 	use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
 	use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
+	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ErrorLogCapture;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue\Support\ScanQueueLifecycleHarness;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -37,16 +38,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 
 		private object $serviceProviders;
 
+		private ErrorLogCapture $errorLog;
+
 		protected function setUp() :void {
 			parent::setUp();
+			$this->errorLog = ErrorLogCapture::start();
 			HandleUpgradeCacheSpy::reset();
 			Functions\when( 'FernleafSystems\Wordpress\Services\Utilities\is_email' )->alias(
 				static fn( string $email ) :string => \filter_var( $email, \FILTER_VALIDATE_EMAIL ) ? $email : ''
 			);
-			Functions\when( 'FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\error_log' )->alias(
-				static fn( string $message ) :bool => HandleUpgradeErrorLogSpy::log( $message )
-			);
-			HandleUpgradeErrorLogSpy::reset();
 			HandleUpgradeDbSpy::reset();
 			$this->serviceProviders = new class extends ServiceProviders {
 				public int $clears = 0;
@@ -66,6 +66,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 		protected function tearDown() :void {
 			ServicesState::restore( $this->servicesSnapshot );
 			PluginControllerInstaller::reset();
+			$this->errorLog->stop();
 			parent::tearDown();
 		}
 
@@ -234,7 +235,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$this->assertCount( 1, $state->scans->startedScans );
 			$this->assertContains(
 				'Shield upgrade side effect failed: scan metadata column alignment: The scan metadata column has an unexpected type.',
-				HandleUpgradeErrorLogSpy::$messages
+				$this->errorLog->messages()
 			);
 		}
 
@@ -275,7 +276,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$this->runCapturedUpgradeCallback( $actions );
 
 			$this->assertCount( 1, $state->scans->startedScans );
-			$this->assertSame( [], HandleUpgradeErrorLogSpy::$messages );
+			$this->assertSame( [], $this->errorLog->messages() );
 		}
 
 		public function test_scheduled_upgrade_does_not_log_all_already_exists_as_hard_failure() :void {
@@ -291,7 +292,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$this->runCapturedUpgradeCallback( $actions );
 
 			$this->assertSame( [], \array_filter(
-				HandleUpgradeErrorLogSpy::$messages,
+				$this->errorLog->messages(),
 				static fn( string $message ) :bool => \str_contains( $message, 'already_exists' )
 			) );
 		}
@@ -306,7 +307,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			( new HandleUpgrade() )->execute();
 			$this->runCapturedUpgradeCallback( $actions );
 
-			$this->assertSame( [ 'Shield scan start failures: afs:create_failed' ], HandleUpgradeErrorLogSpy::$messages );
+			$this->assertSame( [ 'Shield scan start failures: afs:create_failed' ], $this->errorLog->messages() );
 		}
 
 		public function test_scheduled_upgrade_recovers_prior_release_stale_rows_through_central_scan_start() :void {
@@ -349,7 +350,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$this->runCapturedUpgradeCallback( $actions );
 
 			$this->assertSame( [], \array_filter(
-				HandleUpgradeErrorLogSpy::$messages,
+				$this->errorLog->messages(),
 				static fn( string $message ) :bool => \str_contains( $message, 'afs:already_exists' )
 													  && \str_contains( $message, 'apc:already_exists' )
 													  && \str_contains( $message, 'wpv:already_exists' )
@@ -578,20 +579,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 		}
 	}
 
-	class HandleUpgradeErrorLogSpy {
-
-		public static array $messages = [];
-
-		public static function reset() :void {
-			self::$messages = [];
-		}
-
-		public static function log( string $message ) :bool {
-			self::$messages[] = $message;
-			return true;
-		}
-	}
-
 	class HandleUpgradeDbSpy {
 
 		public static string $columnType = 'varchar(24)';
@@ -758,6 +745,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 
 		public function hasChanges() :bool {
 			return $this->changed;
+		}
+
+		public function optExists( string $key ) :bool {
+			return \array_key_exists( $key, $this->values );
 		}
 
 		public function optGet( string $key ) {

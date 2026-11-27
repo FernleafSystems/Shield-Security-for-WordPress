@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 class ShieldUser2faHasActive extends ShieldUser2faBase {
 
 	public function getName() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( '%s User 2FA: Has Any Active', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

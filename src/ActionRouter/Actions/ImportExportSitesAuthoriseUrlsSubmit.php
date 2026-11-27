@@ -48,6 +48,7 @@ class ImportExportSitesAuthoriseUrlsSubmit extends BaseAction {
 
 			$message = $result[ 'authorised_count' ] > 0
 				? sprintf(
+					/* translators: %s: number of URLs */
 					_n(
 						'%s URL authorised.',
 						'%s URLs authorised.',
@@ -59,6 +60,7 @@ class ImportExportSitesAuthoriseUrlsSubmit extends BaseAction {
 				: __( 'No new URLs were authorised.', 'wp-simple-firewall' );
 			if ( $result[ 'already_authorised_count' ] > 0 ) {
 				$message .= ' '.sprintf(
+					/* translators: %s: number of URLs */
 					_n(
 						'%s URL was already authorised.',
 						'%s URLs were already authorised.',

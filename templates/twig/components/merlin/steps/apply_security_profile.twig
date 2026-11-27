@@ -2,8 +2,8 @@
 
 {#
 	Pick a level, see what changes: three choices, each saying how many settings it would change on this site, and
-	under them one list of the chosen level's settings as they are and as they would be. Every level's list is
-	here; the picker script shows the chosen one.
+	under them one list of what the chosen level would change, as it is and as it would be. Every level's list is
+	here; the picker script shows the chosen one, and the settings it leaves alone when their count is clicked.
 #}
 {% block slide_body_video_section_blurb %}
 	<p>{{ strings.intro }}</p>
@@ -14,7 +14,7 @@
 
 	<form class="merlin-form ajax-form protection-levels" data-protection-levels="1">
 		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
-		<input type="hidden" name="security_profile" value="{{ vars.closest }}" data-protection-levels-choice="1">
+		<input type="hidden" name="security_profile" value="{{ vars.recommended }}" data-protection-levels-choice="1">
 
 		<div class="protection-levels__choices" role="group" aria-label="{{ strings.levels_label }}">
 			{% for level in vars.levels %}
@@ -22,15 +22,18 @@
 						class="protection-levels__choice"
 						data-protection-level="{{ level.key }}"
 						data-apply-label="{{ level.strings.apply|e('html_attr') }}"
-						aria-pressed="{{ level.key == vars.closest ? 'true' : 'false' }}">
+						aria-pressed="{{ level.key == vars.recommended ? 'true' : 'false' }}">
 					<span class="protection-levels__name">
 						<span class="protection-levels__dot" aria-hidden="true"></span>{{ level.title }}
-						{% if level.key == vars.closest %}
-							<span class="protection-levels__closest">{{ strings.closest }}</span>
+						{% if level.key == vars.recommended %}
+							<span class="protection-levels__recommended">{{ strings.recommended }}</span>
 						{% endif %}
 					</span>
 					<span class="protection-levels__subtitle">{{ level.subtitle }}</span>
 					<span class="protection-levels__changes">{{ level.strings.changes }}</span>
+					{% if level.strings.loosens is not empty %}
+						<span class="protection-levels__loosens">{{ level.strings.loosens }}</span>
+					{% endif %}
 				</button>
 			{% endfor %}
 		</div>
@@ -39,7 +42,7 @@
 			{% set comparison = level.comparison %}
 			<div class="protection-levels__comparison"
 				 data-protection-level-comparison="{{ level.key }}"
-				 {% if level.key != vars.closest %}hidden{% endif %}>
+				 {% if level.key != vars.recommended %}hidden{% endif %}>
 				<div class="protection-levels__summary">
 					<strong>{{ level.strings.compared }}</strong>
 					{% if comparison.stricter > 0 %}
@@ -48,7 +51,16 @@
 					{% if comparison.looser > 0 %}
 						<span class="protection-levels__chip is-looser">{{ strings.looser|format( comparison.looser ) }}</span>
 					{% endif %}
-					<span class="protection-levels__chip">{{ strings.unchanged|format( comparison.unchanged ) }}</span>
+					{# What a level leaves alone is out of the way; its count is the way to it, and back. #}
+					{% if comparison.unchanged > 0 %}
+						<button type="button"
+								class="protection-levels__chip protection-levels__chip--toggle"
+								data-protection-levels-show-unchanged="1"
+								aria-pressed="false"
+								title="{{ strings.show_unchanged|e('html_attr') }}">
+							{{ strings.unchanged|format( comparison.unchanged ) }}<i class="bi bi-chevron-down" aria-hidden="true"></i>
+						</button>
+					{% endif %}
 				</div>
 
 				<div class="protection-levels__list">
@@ -83,10 +95,9 @@
 		{% endfor %}
 
 		<div class="merlin-form-footer protection-levels__foot">
-			<button type="submit" class="btn btn-primary" data-protection-levels-apply="1">{{ vars.levels[vars.closest].strings.apply }}</button>
-			<label class="protection-levels__only-changes">
-				<input type="checkbox" checked data-protection-levels-only-changes="1"> {{ strings.only_changes }}
-			</label>
+			{# With no level chosen yet there's nothing to apply, so the button waits for a choice. #}
+			<button type="submit" class="btn btn-primary" data-protection-levels-apply="1"
+					{% if vars.recommended is empty %}disabled{% endif %}>{{ vars.recommended is empty ? strings.choose_first : vars.levels[vars.recommended].strings.apply }}</button>
 		</div>
 	</form>
 {% endblock %}

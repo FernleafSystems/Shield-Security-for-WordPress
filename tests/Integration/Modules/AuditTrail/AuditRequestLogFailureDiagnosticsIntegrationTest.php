@@ -1,44 +1,5 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\LogHandlers {
-	function error_log( string $message ) :bool {
-		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\AuditTrail\Support\RequestLogDiagnosticSpy::record( 'traffic', $message );
-		return true;
-	}
-}
-
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers {
-	function error_log( string $message ) :bool {
-		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\AuditTrail\Support\RequestLogDiagnosticSpy::record( 'audit', $message );
-		return true;
-	}
-}
-
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\AuditTrail\Support {
-	class RequestLogDiagnosticSpy {
-
-		private static array $messages = [
-			'audit'   => [],
-			'traffic' => [],
-		];
-
-		public static function record( string $source, string $message ) :void {
-			self::$messages[ $source ][] = $message;
-		}
-
-		public static function reset() :void {
-			self::$messages = [
-				'audit'   => [],
-				'traffic' => [],
-			];
-		}
-
-		public static function messages( string $source ) :array {
-			return self::$messages[ $source ] ?? [];
-		}
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\AuditTrail {
 	use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 	use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops as ReqLogsDB;
@@ -46,10 +7,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 	use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
 	use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditLogger;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
+		ErrorLogCapture,
 		RuntimeTestState,
 		ServicesState
 	};
-	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\AuditTrail\Support\RequestLogDiagnosticSpy;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 	use FernleafSystems\Wordpress\Services\Services;
@@ -66,8 +27,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 
 		private array $requestSnapshot = [];
 
+		private ErrorLogCapture $errorLog;
+
 		public function set_up() {
 			parent::set_up();
+			$this->errorLog = ErrorLogCapture::start();
 
 			\remove_filter( 'shield/is_log_traffic', '__return_true', \PHP_INT_MAX );
 
@@ -83,15 +47,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 				->optSet( 'enable_limiter', 'N' )
 				->optSet( 'live_log_started_at', 0 );
 
-			RequestLogDiagnosticSpy::reset();
 			RuntimeTestState::resetRequestLoggerState();
 		}
 
 		public function tear_down() {
-			RequestLogDiagnosticSpy::reset();
 			RuntimeTestState::resetRequestLoggerState();
 			\remove_filter( 'shield/is_log_traffic', '__return_true', \PHP_INT_MAX );
 			$this->restoreCurrentRequestState( $this->requestSnapshot );
+			$this->errorLog->stop();
 			parent::tear_down();
 		}
 
@@ -118,7 +81,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 			$this->assertNotSame( '', $this->fieldValue( $line, 'type' ) );
 			$this->assertSame( '198.51.100.91', $this->fieldValue( $line, 'ip' ) );
 			$this->assertSame( '/wp-admin/admin-ajax.php', $this->fieldValue( $line, 'path' ) );
-			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'audit' ) );
+			$this->assertSame( [], $this->logMessages( 'Shield activity log write failed: ' ) );
 			$this->assertSame( 0, $this->rowCount( 'activity_logs' ) );
 			$this->assertSame( 0, $this->rowCount( 'req_logs' ) );
 			$this->assertDiagnosticLineIsPrivate( $line );
@@ -145,7 +108,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 			$line = $this->singleAuditLine();
 			$this->assertSame( 'Failed to insert activity log metadata', $this->fieldValue( $line, 'message' ) );
 			$this->assertNotSame( '', $this->fieldValue( $line, 'db_error' ) );
-			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'traffic' ) );
+			$this->assertSame( [], $this->logMessages( 'Shield request log write failed: ' ) );
 			$this->assertSame( 1, $this->rowCount( 'activity_logs' ) );
 			$this->assertSame( 0, $this->rowCount( 'activity_logs_meta' ) );
 			$this->assertSame( \PHP_INT_MAX, \has_filter( 'shield/is_log_traffic', '__return_true' ) );
@@ -196,7 +159,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 			$this->assertNotSame( '', $this->fieldValue( $line, 'db_error' ) );
 			$this->assertNotSame( '', $this->fieldValue( $line, 'type' ) );
 			$this->assertSame( '/wp-admin/admin-ajax.php', $this->fieldValue( $line, 'path' ) );
-			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'audit' ) );
+			$this->assertSame( [], $this->logMessages( 'Shield activity log write failed: ' ) );
 			$this->assertSame( 1, $this->rowCount( 'activity_logs' ) );
 			$this->assertSame( 1, $this->rowCount( 'req_logs' ) );
 			$this->assertSame( $this->reqLogIds(), $this->activityLogRequestRefs() );
@@ -210,7 +173,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 			$line = $this->singleTrafficLine();
 			$this->assertSame( 'ip_record_load', $this->fieldValue( $line, 'stage' ) );
 			$this->assertNotSame( '', $this->fieldValue( $line, 'type' ) );
-			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'audit' ) );
+			$this->assertSame( [], $this->logMessages( 'Shield activity log write failed: ' ) );
 			$this->assertSame( 0, $this->rowCount( 'activity_logs' ) );
 			$this->assertSame( 0, $this->rowCount( 'req_logs' ) );
 			$this->assertDiagnosticLineIsPrivate( $line );
@@ -220,8 +183,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 			$this->applyPhpCliCronRequestWithoutTransport();
 			$this->writeAuditEvent();
 
-			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'traffic' ) );
-			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'audit' ) );
+			$this->assertSame( [], $this->logMessages( 'Shield request log write failed: ' ) );
+			$this->assertSame( [], $this->logMessages( 'Shield activity log write failed: ' ) );
 			$this->assertSame( 1, $this->rowCount( 'activity_logs' ) );
 			$this->assertSame( 1, $this->rowCount( 'req_logs' ) );
 			$this->assertSame( $this->reqLogIds(), $this->activityLogRequestRefs() );
@@ -241,8 +204,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 
 			$this->writeAuditEvent();
 
-			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'traffic' ) );
-			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'audit' ) );
+			$this->assertSame( [], $this->logMessages( 'Shield request log write failed: ' ) );
+			$this->assertSame( [], $this->logMessages( 'Shield activity log write failed: ' ) );
 			$this->assertSame( 1, $this->rowCount( 'activity_logs' ) );
 			$this->assertSame( 1, $this->rowCount( 'req_logs' ) );
 
@@ -450,8 +413,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 			};
 		}
 
+		/**
+		 * @return list<string> the error log messages that begin with the given prefix
+		 */
+		private function logMessages( string $prefix ) :array {
+			return \array_values( \array_filter(
+				$this->errorLog->messages(),
+				static fn( string $message ) :bool => \strpos( $message, $prefix ) === 0
+			) );
+		}
+
 		private function singleTrafficLine() :string {
-			$messages = RequestLogDiagnosticSpy::messages( 'traffic' );
+			$messages = $this->logMessages( 'Shield request log write failed: ' );
 			$this->assertCount( 1, $messages );
 			$line = (string)$messages[ 0 ];
 			$this->assertStringStartsWith( 'Shield request log write failed: ', $line );
@@ -460,7 +433,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 		}
 
 		private function singleAuditLine() :string {
-			$messages = RequestLogDiagnosticSpy::messages( 'audit' );
+			$messages = $this->logMessages( 'Shield activity log write failed: ' );
 			$this->assertCount( 1, $messages );
 			$line = (string)$messages[ 0 ];
 			$this->assertStringStartsWith( 'Shield activity log write failed: ', $line );

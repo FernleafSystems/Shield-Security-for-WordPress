@@ -21,6 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\{Build, ScheduleBuildAll};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build\BuildHashesFromApi;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ErrorLogCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -48,11 +49,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\{
 use FernleafSystems\Wordpress\Services\Core\Db;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\{ApiBase, Hashes};
 
-function error_log( string $message ) :bool {
-	ScheduleBuildAllTest::$capturedErrorLogs[] = $message;
-	return true;
-}
-
 class ScheduleBuildAllTest extends BaseUnitTest {
 
 	use CacheStoreWordPressFunctions;
@@ -61,14 +57,14 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 
 	private const MD5 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
-	public static array $capturedErrorLogs = [];
+	private ErrorLogCapture $errorLog;
 
 	private array $servicesSnapshot = [];
 	private array $httpQueryCacheSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
-		self::$capturedErrorLogs = [];
+		$this->errorLog = ErrorLogCapture::start();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->httpQueryCacheSnapshot = $this->getStaticProperty( ApiBase::class, 'QueryCache' );
 		$this->setStaticProperty( ApiBase::class, 'QueryCache', [] );
@@ -109,6 +105,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		PluginControllerInstaller::reset();
 		$this->removeWrittenFixtureFiles();
 		$this->cleanupTrackedTempDirs();
+		$this->errorLog->stop();
 		parent::tearDown();
 	}
 
@@ -137,7 +134,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertNotSame(
 			[],
 			\glob( $uploadsRoot.'/ptguard-*/plugins/snapshot-build-root-1.0.0.txt' ) ?: [],
-			\implode( "\n", self::$capturedErrorLogs )
+			\implode( "\n", $this->errorLog->messages() )
 		);
 		$this->assertSame( [], \glob( $cacheRoot.'/ptguard-*/plugins/snapshot-build-root-1.0.0.txt' ) ?: [] );
 		$this->assertTrue( $this->loadStore( $asset )->isUsable() );

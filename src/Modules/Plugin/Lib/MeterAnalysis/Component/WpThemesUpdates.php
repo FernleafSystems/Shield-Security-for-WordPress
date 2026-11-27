@@ -31,11 +31,30 @@ class WpThemesUpdates extends Base {
 
 	public function descUnprotected() :string {
 		$count = $this->countUpdates();
-		return _n(
-			__( 'There is 1 theme update waiting to be applied.', 'wp-simple-firewall' ),
-			sprintf( __( 'There are %s theme updates waiting to be applied.', 'wp-simple-firewall' ), $count ),
+		return sprintf(
+			/* translators: %s: number of theme updates */
+			_n( 'There is %s theme update waiting to be applied.', 'There are %s theme updates waiting to be applied.', $count, 'wp-simple-firewall' ),
 			$count
-		, 'wp-simple-firewall' );
+		);
+	}
+
+	public function guidance() :array {
+		return [
+			'checks'   => __( 'Shield asks WordPress which of your installed themes have a newer version available.', 'wp-simple-firewall' ),
+			'why'      => [
+				__( "Themes contain code like plugins do, and security holes are found in them too. Updates are how those holes are closed, including in themes that are installed but not in use.", 'wp-simple-firewall' ),
+			],
+			'steps'    => [
+				__( "Take a backup of your site's files and database.", 'wp-simple-firewall' ),
+				__( 'Go to Dashboard -> Updates and update each theme listed there.', 'wp-simple-firewall' ),
+				__( 'Check that your site still looks and works as it should.', 'wp-simple-firewall' ),
+			],
+			'who'      => __( 'Any administrator can do this.', 'wp-simple-firewall' ),
+			'practice' => [
+				__( "Make your own design changes in a child theme. An update replaces a theme's files, along with any edits made to them.", 'wp-simple-firewall' ),
+				__( "Delete the themes you don't use, so there are fewer to keep updated.", 'wp-simple-firewall' ),
+			],
+		];
 	}
 
 	private function countUpdates() :int {

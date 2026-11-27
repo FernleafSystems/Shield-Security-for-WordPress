@@ -13,48 +13,49 @@ class PhpFutureMinimum extends Base {
 
 	protected const CURRENT_MINIMUM_PHP = MinimumRequirements::PHP;
 	protected const FUTURE_MINIMUM_PHP = '';
-	protected const RECOMMENDED_PHP = '';
 	private const SNOOZE_SECONDS = 30 * 86400;
 
 	/**
+	 * Says only that Shield is about to stop supporting this site's PHP. That the PHP is itself out of date is a
+	 * to-do in the Actions Queue.
 	 * @return array{id:string,type:string,text:string[],locations:string[],can_dismiss:bool}|null
 	 */
 	public function check() :?array {
-		if ( !$this->isConfigured() ) {
+		// It only informs, so it waits out a new install's first day as well as a snooze.
+		if ( !$this->isConfigured()
+			 || Services::Data()->getPhpVersionIsAtLeast( static::FUTURE_MINIMUM_PHP )
+			 || $this->isSnoozed()
+			 || $this->isNewInstall() ) {
 			return null;
 		}
 
-		$recommendedPhp = $this->recommendedPhp();
-		if ( $recommendedPhp !== '' && Services::Data()->getPhpVersionIsAtLeast( $recommendedPhp ) ) {
-			return null;
-		}
-
-		if ( !Services::Data()->getPhpVersionIsAtLeast( static::FUTURE_MINIMUM_PHP ) ) {
-			return $this->buildIssue(
-				'danger',
-				sprintf(
-					/* translators: %1$s: current minimum PHP version, %2$s: future minimum PHP version */
-					__( 'This is the final major release of Shield that supports PHP %1$s; future Shield releases will require PHP %2$s or newer.', 'wp-simple-firewall' ),
-					static::CURRENT_MINIMUM_PHP,
-					static::FUTURE_MINIMUM_PHP
-				),
-				false
+		$text = sprintf(
+			/* translators: %1$s: current minimum PHP version, %2$s: future minimum PHP version */
+			esc_html__( 'This is the final major release of Shield that supports PHP %1$s; future Shield releases will require PHP %2$s or newer.', 'wp-simple-firewall' ),
+			static::CURRENT_MINIMUM_PHP,
+			static::FUTURE_MINIMUM_PHP
+		);
+		if ( static::MORE_INFO_URL !== '' ) {
+			$text = sprintf( '%s %s',
+				$text,
+				sprintf( '<a href="%s" class="text-reset text-decoration-underline" target="_blank" rel="noopener noreferrer">%s</a>',
+					esc_url( static::MORE_INFO_URL ),
+					esc_html__( 'Learn more', 'wp-simple-firewall' )
+				)
 			);
 		}
 
-		if ( $recommendedPhp === '' ) {
-			return null;
-		}
-
-		return $this->isSnoozed() ? null : $this->buildIssue(
-			'info',
-			sprintf(
-				/* translators: %s: recommended PHP version */
-				__( 'Your site meets the next Shield PHP requirement, but we recommend upgrading to PHP %s or newer.', 'wp-simple-firewall' ),
-				$recommendedPhp
-			),
-			true
-		);
+		return [
+			'id'          => static::ID,
+			'type'        => 'info',
+			'text'        => [
+				$text,
+			],
+			'locations'   => [
+				'shield_admin_top_page',
+			],
+			'can_dismiss' => true,
+		];
 	}
 
 	public static function snoozeCurrentUser() :bool {
@@ -70,38 +71,6 @@ class PhpFutureMinimum extends Base {
 	protected function isConfigured() :bool {
 		return static::FUTURE_MINIMUM_PHP !== ''
 			   && \version_compare( static::FUTURE_MINIMUM_PHP, static::CURRENT_MINIMUM_PHP, '>' );
-	}
-
-	protected function recommendedPhp() :string {
-		return static::RECOMMENDED_PHP;
-	}
-
-	/**
-	 * @return array{id:string,type:string,text:string[],locations:string[],can_dismiss:bool}
-	 */
-	private function buildIssue( string $type, string $message, bool $canDismiss ) :array {
-		$text = $message;
-		if ( static::MORE_INFO_URL !== '' ) {
-			$text = sprintf( '%s %s',
-				$message,
-				sprintf( '<a href="%s" class="text-reset text-decoration-underline" target="_blank" rel="noopener noreferrer">%s</a>',
-					esc_url( static::MORE_INFO_URL ),
-					__( 'Learn more', 'wp-simple-firewall' )
-				)
-			);
-		}
-
-		return [
-			'id'          => static::ID,
-			'type'        => $type,
-			'text'        => [
-				$text,
-			],
-			'locations'   => [
-				'shield_admin_top_page',
-			],
-			'can_dismiss' => $canDismiss,
-		];
 	}
 
 	private function isSnoozed() :bool {
