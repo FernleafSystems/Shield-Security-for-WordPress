@@ -354,9 +354,9 @@ class BrowserFixtureRegistry {
 
 		switch ( $action ) {
 			case 'cleanup':
-				$builder->cleanup( $state );
+				$leftoverPaths = $builder->cleanup( $state );
 				\delete_option( $optionKey );
-				return [ 'cleaned' => true ];
+				return [ 'cleaned' => true, 'leftover_paths' => $leftoverPaths ];
 
 			case 'inspect':
 				$scenario = self::requireScenario( $args );

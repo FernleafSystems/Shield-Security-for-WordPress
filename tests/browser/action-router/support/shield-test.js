@@ -243,16 +243,23 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 			renderScanProgressFixture: ( state ) => runFixture( 'scan-progress', 'render', [ state ] ),
 			async withActionsQueueFixture( scenario, runScenario ) {
 				let seeded = false;
+				let result;
+				let leftoverPaths = [];
 				try {
 					const contract = await runFixture( 'actions-queue', 'seed', [ scenario ] );
 					seeded = true;
-					return await runScenario( contract );
+					result = await runScenario( contract );
 				}
 				finally {
 					if ( seeded ) {
-						await runFixture( 'actions-queue', 'cleanup' );
+						leftoverPaths = ( await runFixture( 'actions-queue', 'cleanup' ) ).leftover_paths;
 					}
 				}
+				// Only reached when the scenario passed, so a leftover never hides the scenario's own failure.
+				if ( leftoverPaths.length > 0 ) {
+					throw new Error( `Actions Queue fixture cleanup couldn't remove: ${leftoverPaths.join( ', ' )}` );
+				}
+				return result;
 			},
 			async inspectDashboardDefaultsFixture() {
 				return runFixture( 'dashboard-defaults', 'inspect' );
