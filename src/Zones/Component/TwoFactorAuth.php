@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\{
+	AbstractShieldProvider,
 	Email,
 	GoogleAuth,
 	Passkey,
@@ -107,6 +108,10 @@ class TwoFactorAuth extends Base {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
 			$status[ 'exp' ][] = $this->explanationFixedBy( __( 'Email-based verification is disabled.', 'wp-simple-firewall' ), 'enable_email_authentication' );
 		}
+		elseif ( $this->isTakenOut( Email::class, 'enable_email_authentication' ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::OKAY;
+			$status[ 'exp' ][] = $this->takenOutExplanation( Email::class );
+		}
 		elseif ( $emailVerificationStatus !== EmailDeliveryVerification::STATUS_VERIFIED ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
 			$status[ 'exp' ][] = __( 'Email-based verification cannot be relied on until email delivery has been verified.', 'wp-simple-firewall' );
@@ -129,16 +134,23 @@ class TwoFactorAuth extends Base {
 		$status = parent::status();
 		$usableProviders = [];
 		$reasons = [];
+		$takenOut = [];
 
-		if ( GoogleAuth::ProviderEnabled() ) {
+		if ( $this->isUsable( GoogleAuth::class ) ) {
 			$usableProviders[] = GoogleAuth::ProviderName();
+		}
+		elseif ( $this->isTakenOut( GoogleAuth::class, 'enable_google_authenticator' ) ) {
+			$takenOut[] = $this->takenOutExplanation( GoogleAuth::class );
 		}
 		else {
 			$reasons[] = $this->explanationFixedBy( __( 'TOTP authenticator apps are disabled.', 'wp-simple-firewall' ), 'enable_google_authenticator' );
 		}
 
-		if ( Yubikey::ProviderEnabled() ) {
+		if ( $this->isUsable( Yubikey::class ) ) {
 			$usableProviders[] = Yubikey::ProviderName();
+		}
+		elseif ( $this->isTakenOut( Yubikey::class, 'enable_yubikey' ) ) {
+			$takenOut[] = $this->takenOutExplanation( Yubikey::class );
 		}
 		elseif ( self::con()->opts->optIs( 'enable_yubikey', 'Y' ) ) {
 			$reasons[] = $this->explanationFixedBy( __( 'Yubikey OTP is enabled but the Yubico application credentials are incomplete.', 'wp-simple-firewall' ), 'yubikey_app_id' );
@@ -147,8 +159,11 @@ class TwoFactorAuth extends Base {
 			$reasons[] = $this->explanationFixedBy( __( 'Yubikey OTP is disabled.', 'wp-simple-firewall' ), 'enable_yubikey' );
 		}
 
-		if ( Passkey::ProviderEnabled() ) {
+		if ( $this->isUsable( Passkey::class ) ) {
 			$usableProviders[] = Passkey::ProviderName();
+		}
+		elseif ( $this->isTakenOut( Passkey::class, 'enable_passkeys' ) ) {
+			$takenOut[] = $this->takenOutExplanation( Passkey::class );
 		}
 		elseif ( self::con()->opts->optIs( 'enable_passkeys', 'Y' ) ) {
 			$reasons[] = ( new PasskeyCompatibilityCheck() )->run()
@@ -159,9 +174,15 @@ class TwoFactorAuth extends Base {
 			$reasons[] = $this->explanationFixedBy( __( 'Passkeys are disabled.', 'wp-simple-firewall' ), 'enable_passkeys' );
 		}
 
+		// A method that's switched off is a choice, so it doesn't matter while another works. One that something else
+		// has taken out isn't, so it's always said.
 		if ( empty( $usableProviders ) ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
-			$status[ 'exp' ] = $reasons;
+			$status[ 'exp' ] = \array_merge( $takenOut, $reasons );
+		}
+		elseif ( !empty( $takenOut ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::OKAY;
+			$status[ 'exp' ] = $takenOut;
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::GOOD;
@@ -171,12 +192,41 @@ class TwoFactorAuth extends Base {
 	}
 
 	private function hasEmailAudience() :bool {
-		return self::con()->opts->optIs( 'email_any_user_set', 'Y' )
+		return Email::AnyUserCanTurnOn()
 			   || \count( self::con()->comps->opts_lookup->getLoginGuardEmailAuth2FaRoles() ) > 0;
 	}
 
 	private function isEmailProviderUsable() :bool {
-		return Email::ProviderEnabled() && $this->hasEmailAudience();
+		return $this->isUsable( Email::class ) && $this->hasEmailAudience();
+	}
+
+	/**
+	 * Enabled here, and offered at login.
+	 * @param class-string<AbstractShieldProvider> $provider
+	 */
+	private function isUsable( string $provider ) :bool {
+		return $provider::ProviderEnabled() && self::con()->comps->mfa->isProviderOffered( $provider );
+	}
+
+	/**
+	 * Switched on here, but another plugin or custom code has left it out of the methods login offers. The admin
+	 * two-factor drawer says the same of the same methods.
+	 * @param class-string<AbstractShieldProvider> $provider
+	 */
+	private function isTakenOut( string $provider, string $switchOptKey ) :bool {
+		return self::con()->opts->optIs( $switchOptKey, 'Y' ) && !self::con()->comps->mfa->isProviderOffered( $provider );
+	}
+
+	/**
+	 * Configure can't put back a method that something else has taken out, so there's nothing here to link to.
+	 * @param class-string<AbstractShieldProvider> $provider
+	 */
+	private function takenOutExplanation( string $provider ) :string {
+		return sprintf(
+			/* translators: %s: name of a two-factor method, such as "Email" */
+			__( 'Another plugin or custom code has removed %s from the methods offered at login.', 'wp-simple-firewall' ),
+			$provider::ProviderName()
+		);
 	}
 
 	/**
@@ -188,14 +238,10 @@ class TwoFactorAuth extends Base {
 		if ( $this->isEmailProviderUsable() ) {
 			$providers[] = Email::ProviderName();
 		}
-		if ( GoogleAuth::ProviderEnabled() ) {
-			$providers[] = GoogleAuth::ProviderName();
-		}
-		if ( Yubikey::ProviderEnabled() ) {
-			$providers[] = Yubikey::ProviderName();
-		}
-		if ( Passkey::ProviderEnabled() ) {
-			$providers[] = Passkey::ProviderName();
+		foreach ( [ GoogleAuth::class, Yubikey::class, Passkey::class ] as $provider ) {
+			if ( $this->isUsable( $provider ) ) {
+				$providers[] = $provider::ProviderName();
+			}
 		}
 
 		return $providers;

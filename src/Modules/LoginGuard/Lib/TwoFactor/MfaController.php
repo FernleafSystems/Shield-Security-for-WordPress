@@ -146,7 +146,11 @@ class MfaController {
 
 		$enum = apply_filters( 'shield/2fa_providers', $this->enumShieldProviders() );
 		$providerClasses = \array_filter(
-			\array_filter( \is_array( $enum ) ? $enum : $this->enumShieldProviders(), '\is_string' ),
+			// A class written with a leading backslash is the same class, and is recognised as such.
+			\array_map(
+				fn( string $provider ) :string => \ltrim( $provider, '\\' ),
+				\array_filter( \is_array( $enum ) ? $enum : $this->enumShieldProviders(), '\is_string' )
+			),
 			/**
 			 * @return bool
 			 * @var class-string<Provider\Provider2faInterface> $provider
@@ -155,23 +159,32 @@ class MfaController {
 			                          && \preg_match( '#^[a-z0-9]+$#', $provider::ProviderSlug() )
 		);
 
-		// Find duplicate slugs.
-		$duplicateSlugs = \array_filter(
-			\array_count_values( \array_map(
-			/** @var class-string<Provider\Provider2faInterface> $provider */
-				fn( string $provider ) => \strtolower( $provider::ProviderSlug() ),
-				$providerClasses
-			) ),
-			fn( $count ) => $count > 1
-		);
+		$providerClasses = \array_unique( $providerClasses );
 
-		return empty( $duplicateSlugs ) ?
-			$providerClasses :
-			\array_filter(
-				$providerClasses,
-				/** @var class-string<Provider\Provider2faInterface> $provider */
-				fn( string $provider ) => !\array_key_exists( $provider::ProviderSlug(), $duplicateSlugs )
-			);
+		// A slug names one method at login, so no two methods may share one. Shield's own method keeps its slug, so
+		// a method added by another plugin can't switch off one this site's settings require. Other methods that
+		// share a slug are all left out, as there's no telling which was meant.
+		$shieldProviders = $this->enumShieldProviders();
+		$slugCounts = \array_count_values( \array_map(
+		/** @var class-string<Provider\Provider2faInterface> $provider */
+			fn( string $provider ) => $provider::ProviderSlug(),
+			$providerClasses
+		) );
+
+		return \array_filter(
+			$providerClasses,
+			/** @var class-string<Provider\Provider2faInterface> $provider */
+			fn( string $provider ) => \in_array( $provider, $shieldProviders, true )
+									  || $slugCounts[ $provider::ProviderSlug() ] === 1
+		);
+	}
+
+	/**
+	 * Whether login offers this method, once other plugins and custom code have had their say on the methods.
+	 * @param class-string<Provider\Provider2faInterface> $provider
+	 */
+	public function isProviderOffered( string $provider ) :bool {
+		return \in_array( $provider, $this->collateMfaProviderClasses(), true );
 	}
 
 	/**

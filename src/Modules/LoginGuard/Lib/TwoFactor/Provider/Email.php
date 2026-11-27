@@ -23,6 +23,13 @@ class Email extends AbstractShieldProviderMfaDB {
 			   && ( new EmailDeliveryVerification() )->status() === EmailDeliveryVerification::STATUS_VERIFIED;
 	}
 
+	/**
+	 * Whether any user may turn email on for their own account, as well as the roles required to use it.
+	 */
+	public static function AnyUserCanTurnOn() :bool {
+		return self::con()->opts->optIs( 'email_any_user_set', 'Y' );
+	}
+
 	public function getJavascriptVars() :array {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getJavascriptVars(),
@@ -81,8 +88,7 @@ class Email extends AbstractShieldProviderMfaDB {
 
 	public function hasValidatedProfile() :bool {
 		return $this->isEnforced()
-			   || ( self::con()->opts->optIs( 'email_any_user_set', 'Y' )
-					&& self::con()->user_metas->for( $this->getUser() )->email_2fa_enabled );
+			   || ( self::AnyUserCanTurnOn() && self::con()->user_metas->for( $this->getUser() )->email_2fa_enabled );
 	}
 
 	public function isEnforced() :bool {
@@ -161,7 +167,7 @@ class Email extends AbstractShieldProviderMfaDB {
 
 	public function isProviderAvailableToUser() :bool {
 		return parent::isProviderAvailableToUser()
-			   && ( $this->isEnforced() || self::con()->opts->optIs( 'email_any_user_set', 'Y' ) );
+			   && ( $this->isEnforced() || self::AnyUserCanTurnOn() );
 	}
 
 	private function generate2faCode( string $hashedLoginNonce ) :string {

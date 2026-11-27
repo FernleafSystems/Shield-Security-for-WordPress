@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\UserMeta\MetaRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Email;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\AdminTwoFactor;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -59,6 +60,49 @@ class AdminTwoFactorIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [ 0, 0 ], $this->counts() );
 		$this->assertSame( 'good', $this->state()[ 'severity' ] );
 		$this->assertNotContains( AdminTwoFactor::SLUG, $this->attentionKeys() );
+	}
+
+	public function test_a_required_method_that_login_no_longer_offers_covers_nobody() :void {
+		$this->requireEmailFor( [ 'administrator' ] );
+		$this->assertSame( [ 0, 0 ], $this->counts() );
+
+		$withoutEmail = static fn( array $providers ) :array => \array_values( \array_diff( $providers, [ Email::class ] ) );
+		\add_filter( 'shield/2fa_providers', $withoutEmail );
+		RuntimeTestState::resetMfaProviderCache();
+		try {
+			// Login no longer asks the administrator for email, and the to-do and its drawer say the same.
+			$this->assertSame( [], $this->requireController()->comps->mfa->getProvidersActiveForUser( \wp_get_current_user() ) );
+			$this->assertSame( [ 1, 0 ], $this->counts() );
+
+			$drawer = $this->requireController()->action_router->render( AdminTwoFactorDetails::class );
+			$this->assertStringContainsString( 'actions-queue-row--warning', $drawer );
+		}
+		finally {
+			\remove_filter( 'shield/2fa_providers', $withoutEmail );
+			RuntimeTestState::resetMfaProviderCache();
+		}
+	}
+
+	public function test_another_method_with_the_same_slug_does_not_take_out_shields_own() :void {
+		$this->requireEmailFor( [ 'administrator' ] );
+
+		// Shield's own class is still recognised when the filter writes it with a leading backslash.
+		$withLookalike = static fn( array $providers ) :array => \array_merge(
+			\array_diff( $providers, [ Email::class ] ),
+			[ '\\'.Email::class, AdminTwoFactorEmailLookalike::class ]
+		);
+		\add_filter( 'shield/2fa_providers', $withLookalike );
+		RuntimeTestState::resetMfaProviderCache();
+		try {
+			$mfa = $this->requireController()->comps->mfa;
+			$this->assertTrue( $mfa->isProviderOffered( Email::class ) );
+			$this->assertFalse( $mfa->isProviderOffered( AdminTwoFactorEmailLookalike::class ) );
+			$this->assertSame( [ 0, 0 ], $this->counts() );
+		}
+		finally {
+			\remove_filter( 'shield/2fa_providers', $withLookalike );
+			RuntimeTestState::resetMfaProviderCache();
+		}
 	}
 
 	public function test_only_administrators_are_counted() :void {
@@ -180,4 +224,10 @@ class AdminTwoFactorIntegrationTest extends ShieldIntegrationTestCase {
 	private function attentionKeys() :array {
 		return \array_column( ( new BuildAttentionItems() )->build()[ 'items' ], 'key' );
 	}
+}
+
+/**
+ * Another plugin's method that happens to use the slug of Shield's own email method.
+ */
+class AdminTwoFactorEmailLookalike extends Email {
 }
