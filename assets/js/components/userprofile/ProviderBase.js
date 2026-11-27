@@ -9,10 +9,17 @@ export class ProviderBase extends BaseAutoExecComponent {
 		this.profileRenderer = profileRenderer;
 	}
 
-	sendReq( params, launcher = null ) {
+	/**
+	 * The section is drawn again once the request is done, as most requests change what it shows.
+	 * @param keepFormOnFailure leaves it as it is after a request that was refused, where drawing it again would
+	 *                          replace what the user is in the middle of (see ProviderGA).
+	 */
+	sendReq( params, launcher = null, keepFormOnFailure = false ) {
+		let wasRefused = false;
 		return ( new AjaxService() )
 		.send( params, false, true )
 		.then( ( resp ) => {
+			wasRefused = resp?.success !== true;
 			const message = typeof resp?.data?.message === 'string' ? resp.data.message : '';
 			if ( message.length > 0 && resp?.data?.show_toast !== false ) {
 				return mfaAlert( {
@@ -24,7 +31,11 @@ export class ProviderBase extends BaseAutoExecComponent {
 			}
 			return resp;
 		} )
-		.finally( () => this.profileRenderer.render.call( this.profileRenderer ) );
+		.finally( () => {
+			if ( !( keepFormOnFailure && wasRefused ) ) {
+				this.profileRenderer.render.call( this.profileRenderer );
+			}
+		} );
 	};
 
 	container() {

@@ -134,8 +134,8 @@ class ReportEmailHoldIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
-	 * A finished step can be gone over again from the guide, except Integrations while there's nothing to switch
-	 * on, as on a site whose plan has none. A step still to do shows its form instead.
+	 * A finished step can be gone over again from the guide. Integrations isn't in the guide at all while there's
+	 * nothing to switch on, as on a site whose plan has none. A step still to do shows its form instead.
 	 */
 	public function test_setup_guide_offers_to_go_over_a_finished_step_that_has_something_to_go_over() :void {
 		$this->loginAsAdministrator();
@@ -147,14 +147,14 @@ class ReportEmailHoldIntegrationTest extends ShieldIntegrationTestCase {
 		$steps = \array_column( ( new SetupGuideDataBuilder() )->build()[ 'steps' ], null, 'slug' );
 
 		$this->assertSame( [], ( new SetupGuideState() )->doneSlugs() );
-		$this->assertTrue( $steps[ 'report_email' ][ 'is_done' ] );
+		$this->assertSame( SetupGuideState::STEP_ALREADY, $steps[ 'report_email' ][ 'state' ] );
+		$this->assertTrue( $steps[ 'report_email' ][ 'is_set_up' ] );
 		\parse_str( (string)\wp_parse_url( $steps[ 'report_email' ][ 'redo_href' ], \PHP_URL_QUERY ), $link );
 		$this->assertSame( 'report_email', $link[ 'setup_step' ] ?? '' );
 
-		$this->assertTrue( $steps[ 'integrations' ][ 'is_done' ] );
-		$this->assertSame( '', $steps[ 'integrations' ][ 'redo_href' ] );
+		$this->assertArrayNotHasKey( 'integrations', $steps );
 
-		$this->assertFalse( $steps[ 'security_admin' ][ 'is_done' ] );
+		$this->assertFalse( $steps[ 'security_admin' ][ 'is_set_up' ] );
 		$this->assertNotSame( '', $steps[ 'security_admin' ][ 'body' ] );
 		$this->assertSame( '', $steps[ 'security_admin' ][ 'redo_href' ] );
 	}

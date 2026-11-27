@@ -117,10 +117,21 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 	}
 
 	private function conditionTypesForDisplay() :array {
+		$labels = [
+			EnumConditions::CONDITION_TYPE_BOTS    => __( 'Bots', 'wp-simple-firewall' ),
+			EnumConditions::CONDITION_TYPE_REQUEST => __( 'Request', 'wp-simple-firewall' ),
+			EnumConditions::CONDITION_TYPE_USER    => __( 'User', 'wp-simple-firewall' ),
+			EnumConditions::CONDITION_TYPE_SESSION => __( 'Session', 'wp-simple-firewall' ),
+			EnumConditions::CONDITION_TYPE_SHIELD  => __( 'Shield', 'wp-simple-firewall' ),
+			EnumConditions::CONDITION_TYPE_WP      => __( 'WordPress', 'wp-simple-firewall' ),
+			EnumConditions::CONDITION_TYPE_PHP     => __( 'PHP', 'wp-simple-firewall' ),
+			EnumConditions::CONDITION_TYPE_SYSTEM  => __( 'System', 'wp-simple-firewall' ),
+			EnumConditions::CONDITION_TYPE_FS      => __( 'Filesystem', 'wp-simple-firewall' ),
+		];
 		$theTypes = [];
-		$rawTypes = EnumConditions::Types();
-		foreach ( $rawTypes as $type ) {
-			$theTypes[ $type ] = \ucfirst( __( $type, 'wp-simple-firewall' ) );
+		foreach ( EnumConditions::Types() as $type ) {
+			// A type added through the shield/rules/enum_types filter has no label here, so it shows its name.
+			$theTypes[ $type ] = $labels[ $type ] ?? \ucfirst( $type );
 		}
 		return $theTypes;
 	}

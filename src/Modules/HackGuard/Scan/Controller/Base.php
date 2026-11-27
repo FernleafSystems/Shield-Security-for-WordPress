@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\{
 	ResultItem,
 	ResultsSet
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 abstract class Base {
 
@@ -37,7 +38,7 @@ abstract class Base {
 			function () {
 				$result = self::con()->comps->scans->startNewScans( [ $this->getSlug() ] );
 				if ( $result->hasFailures() ) {
-					error_log( $result->getFailureLogMessage() );
+					ErrorLog::write( $result->getFailureLogMessage() );
 				}
 			}
 		);

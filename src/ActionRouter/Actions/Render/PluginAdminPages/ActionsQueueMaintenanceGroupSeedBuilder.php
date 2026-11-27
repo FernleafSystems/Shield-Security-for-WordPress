@@ -160,12 +160,14 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 		switch ( $groupKey ) {
 			case 'maintenance_system':
 				$pattern = $isHealthy
+					/* translators: %s: number of system items */
 					? _n(
 						'%s system item is currently looking good.',
 						'%s system items are currently looking good.',
 						$itemCount,
 						'wp-simple-firewall'
 					)
+					/* translators: %s: number of system items */
 					: _n(
 						'%s system item needs review.',
 						'%s system items need review.',
@@ -176,12 +178,14 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 
 			case 'maintenance_wordpress':
 				$pattern = $isHealthy
+					/* translators: %s: number of WordPress items */
 					? _n(
 						'%s WordPress item is currently looking good.',
 						'%s WordPress items are currently looking good.',
 						$itemCount,
 						'wp-simple-firewall'
 					)
+					/* translators: %s: number of WordPress items */
 					: _n(
 						'%s WordPress item needs review.',
 						'%s WordPress items need review.',
@@ -192,15 +196,17 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 
 			default:
 				$pattern = $isHealthy
+					/* translators: %s: number of items */
 					? _n(
-						'%s maintenance item is currently looking good.',
-						'%s maintenance items are currently looking good.',
+						'%s item is currently looking good.',
+						'%s items are currently looking good.',
 						$itemCount,
 						'wp-simple-firewall'
 					)
+					/* translators: %s: number of to-do items */
 					: _n(
-						'%s maintenance item needs review.',
-						'%s maintenance items need review.',
+						'%s to-do needs review.',
+						'%s to-dos need review.',
 						$itemCount,
 						'wp-simple-firewall'
 					);
@@ -275,7 +281,8 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 				$row[ 'ignored_label' ],
 				$row[ 'is_ignored' ],
 				$row[ 'secondary_actions' ],
-				$row[ 'inline_meta' ]
+				$row[ 'inline_meta' ],
+				$maintenanceItem[ 'drawer_json' ]
 			),
 			$this->extractRows( $maintenanceItem )
 		) );
@@ -295,7 +302,9 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 				$maintenanceItem[ 'description' ],
 				$this->isIgnored( $maintenanceItem ) ? __( 'Currently ignored', 'wp-simple-firewall' ) : '',
 				$this->isIgnored( $maintenanceItem ),
-				$this->buildAggregateRowActions( $maintenanceItem )
+				$this->buildAggregateRowActions( $maintenanceItem ),
+				'',
+				$maintenanceItem[ 'drawer_json' ]
 			),
 			$maintenanceItems
 		) );
@@ -317,7 +326,9 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			$maintenanceItem[ 'description' ],
 			$this->isIgnored( $maintenanceItem ) ? __( 'Currently ignored', 'wp-simple-firewall' ) : '',
 			$this->isIgnored( $maintenanceItem ),
-			empty( $toggleAction ) ? [] : [ $toggleAction ]
+			empty( $toggleAction ) ? [] : [ $toggleAction ],
+			'',
+			$maintenanceItem[ 'drawer_json' ]
 		);
 	}
 

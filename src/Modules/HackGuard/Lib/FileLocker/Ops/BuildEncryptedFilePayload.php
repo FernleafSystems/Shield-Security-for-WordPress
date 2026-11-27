@@ -36,12 +36,12 @@ class BuildEncryptedFilePayload {
 
 		$payload = $srvEnc->sealData( $contents, $publicKey, $cipher );
 		if ( !$payload->success ) {
-			throw new FileContentsEncryptionFailure( __( 'File contents could not be encrypted. Message: ', 'wp-simple-firewall' ).$payload->message );
+			throw new FileContentsEncryptionFailure( __( 'File contents could not be encrypted. Message: ', 'wp-simple-firewall' ).$payload->message ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: reaches ScansFileLockerAction (generic message shown), FileLockerController (error_log and stored state) or UpgradeLocks (lock deleted); never shown.
 		}
 
 		$encoded = wp_json_encode( $payload->getRawData() );
 		if ( empty( $encoded ) || !\is_string( $encoded ) ) {
-			throw new FileContentsEncodingFailure( __( 'File contents could not be wp_json_encode() after encryption.', 'wp-simple-firewall' ) );
+			throw new FileContentsEncodingFailure( __( 'File contents could not be wp_json_encode() after encryption.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: reaches ScansFileLockerAction (generic message shown), FileLockerController (error_log and stored state) or UpgradeLocks (lock deleted); never shown.
 		}
 
 		return $encoded;

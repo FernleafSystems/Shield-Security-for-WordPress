@@ -51,6 +51,7 @@ class ActionsQueueRefresh extends BaseAction {
 	 *   root_step_json:string,
 	 *   buckets_html:string,
 	 *   nav_status:string,
+	 *   nav_icon_class:string,
 	 *   nav_badges_html:string
 	 * }
 	 */
@@ -62,6 +63,7 @@ class ActionsQueueRefresh extends BaseAction {
 			'root_step_json'        => $this->buildActionsQueueOperatorRootStepJson(),
 			'buckets_html'          => $hasDrilldownContent ? $this->renderBucketsLayer() : '',
 			'nav_status'            => $navState[ 'status' ],
+			'nav_icon_class'        => $navState[ 'icon_class' ],
 			'nav_badges_html'       => self::con()->comps->render
 				->setTemplate( '/wpadmin/components/page/mode_badges.twig' )
 				->setData( [ 'badges' => $navState[ 'badges' ] ] )

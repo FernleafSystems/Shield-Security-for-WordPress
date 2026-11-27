@@ -21,6 +21,7 @@ class PageSecurityAdminRestricted extends PageModeLandingBase {
 			],
 			'strings' => [
 				'disable_security_admin' => __( 'Disable Security Admin via Email', 'wp-simple-firewall' ),
+				/* translators: %s: email address, partly hidden */
 				'send_to_email'          => sprintf( __( 'Confirmation email will be sent to %s', 'wp-simple-firewall' ),
 					Obfuscate::Email( $con->comps->opts_lookup->getReportEmail() ) ),
 			],
@@ -32,6 +33,7 @@ class PageSecurityAdminRestricted extends PageModeLandingBase {
 	}
 
 	protected function getLandingSubtitle() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( 'Access to the %s Security plugin is restricted.', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

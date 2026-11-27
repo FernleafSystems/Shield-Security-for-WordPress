@@ -154,6 +154,7 @@ class ActionsQueueScanResultScopeStateBuilder {
 		if ( $options[ 'ignored_only' ] ) {
 			return $this->visibleDisplayNotice(
 				self::MODE_SHOWING_IGNORED,
+				/* translators: %s: number of ignored results */
 				\_n(
 					'Showing %s ignored result for this scope. Ignored results are hidden from active Actions Queue work.',
 					'Showing %s ignored results for this scope. Ignored results are hidden from active Actions Queue work.',
@@ -167,6 +168,7 @@ class ActionsQueueScanResultScopeStateBuilder {
 		if ( $options[ 'include_ignored' ] ) {
 			return $this->visibleDisplayNotice(
 				self::MODE_INCLUDING_IGNORED,
+				/* translators: %s: number of ignored results */
 				\_n(
 					'This view includes %s ignored result.',
 					'This view includes %s ignored results.',
@@ -179,6 +181,7 @@ class ActionsQueueScanResultScopeStateBuilder {
 
 		return $this->visibleDisplayNotice(
 			self::MODE_HIDDEN_IGNORED,
+			/* translators: %s: number of ignored results */
 			\_n(
 				'There is %s ignored result hidden from this active work view. Use Display Results to show ignored results.',
 				'There are %s ignored results hidden from this active work view. Use Display Results to show ignored results.',

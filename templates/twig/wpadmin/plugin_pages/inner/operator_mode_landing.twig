@@ -17,6 +17,12 @@
 					<div class="operator-mode-overview__overall-copy">
 						<h2 class="operator-mode-overview__overall-title">{{ vars.dashboard_strip.overall.title }}</h2>
 						<p class="operator-mode-overview__overall-summary">{{ vars.dashboard_strip.overall.summary }}</p>
+						{# "All Clear" with items ignored says so, and leads to them by the card's one way into the queue. #}
+						{% if vars.dashboard_strip.overall.ignored_text is not empty %}
+							<a class="operator-mode-overview__ignored" href="{{ vars.launchpad.queue_href }}">
+								<i class="bi bi-eye-slash-fill" aria-hidden="true"></i>{{ vars.dashboard_strip.overall.ignored_text }}
+							</a>
+						{% endif %}
 						{# The top groups, with one way into the queue rather than a link per item. #}
 						{% if vars.launchpad.items is not empty %}
 							<ul class="operator-mode-overview__top-items" aria-label="{{ vars.launchpad.heading }}">
@@ -39,7 +45,7 @@
 					</div>
 				</div>
 
-				<div class="operator-mode-overview__summaries" data-shield-tour="dashboard-queue">
+				<div class="operator-mode-overview__summaries">
 					{% for summary in vars.dashboard_strip.summaries %}
 						<a href="{{ summary.href }}"
 						   class="operator-mode-overview__summary status-{{ summary.status }}"
@@ -52,6 +58,11 @@
 									<i class="bi bi-arrow-right" aria-hidden="true"></i>
 								</span>
 								<span class="operator-mode-overview__summary-text">{{ summary.summary }}</span>
+								{% if summary.ignored_text is not empty %}
+									<span class="operator-mode-overview__summary-ignored">
+										<i class="bi bi-eye-slash-fill" aria-hidden="true"></i>{{ summary.ignored_text }}
+									</span>
+								{% endif %}
 							</span>
 						</a>
 					{% endfor %}
@@ -100,6 +111,9 @@
 					</span>
 				</button>
 			</div>
+			<p class="dashboard-task-guide__tour">
+				<a href="{{ vars.dashboard_tour.href }}">{{ vars.dashboard_tour.label }}</a>
+			</p>
 		</section>
 
 		<section class="dashboard-activity-charts-section" aria-labelledby="dashboard-activity-charts-heading">
@@ -109,11 +123,16 @@
 				<a class="dashboard-section-heading__link" href="{{ vars.dashboard_activity_charts_href }}">{{ vars.dashboard_activity_charts_link }}</a>
 			</div>
 
+			{# Only what has happened is counted out: a row of zeros says nothing, least of all on a new site. #}
+			{% set active_charts = vars.dashboard_activity_charts|filter( c => c.value > 0 ) %}
+			{% if active_charts is empty %}
+				<p class="dashboard-empty-note">{{ vars.dashboard_activity_charts_empty }}</p>
+			{% else %}
 			<div class="stats-strip dashboard-activity-charts"
 				 data-dashboard-activity-charts="1"
 				 data-dashboard-activity-chart-data="{{ vars.dashboard_activity_chart_data_json|e('html_attr') }}"
 				 aria-label="{{ vars.dashboard_activity_charts_heading|e('html_attr') }}">
-				{% for chart in vars.dashboard_activity_charts %}
+				{% for chart in active_charts %}
 					<a href="{{ chart.href }}"
 					   class="stat-cell"
 					   data-dashboard-activity-chart="{{ chart.key|e('html_attr') }}"
@@ -141,6 +160,7 @@
 					</a>
 				{% endfor %}
 			</div>
+			{% endif %}
 		</section>
 
 		<section class="dashboard-recent-events-section" aria-labelledby="dashboard-recent-events-heading">
@@ -150,11 +170,14 @@
 				<a class="dashboard-section-heading__link" href="{{ vars.dashboard_recent_events_href }}">{{ vars.dashboard_recent_events_link }}</a>
 			</div>
 
-			{# One list, newest first; event types that have never happened share a single line at the end. #}
-			{% set unrecorded = vars.dashboard_recent_events|filter( e => not e.has_record ) %}
+			{# One list, newest first, of the event types that have happened. Those that never have aren't listed. #}
+			{% set recorded = vars.dashboard_recent_events|filter( e => e.has_record ) %}
+			{% if recorded is empty %}
+				<p class="dashboard-empty-note">{{ vars.dashboard_recent_events_empty }}</p>
+			{% else %}
 			<div class="dashboard-recent-events-card">
 				<ul class="dashboard-recent-events list-unstyled m-0 p-0" aria-label="{{ vars.dashboard_recent_events_heading|e('html_attr') }}">
-					{% for event in vars.dashboard_recent_events|filter( e => e.has_record ) %}
+					{% for event in recorded %}
 						<li class="dashboard-recent-events__item" aria-label="{{ event.accessible_label|e('html_attr') }}">
 							<span class="dashboard-recent-events__icon" aria-hidden="true"><i class="{{ event.icon_class }}"></i></span>
 							<span class="dashboard-recent-events__label">{{ event.label }}</span>
@@ -163,13 +186,8 @@
 						</li>
 					{% endfor %}
 				</ul>
-				{% if unrecorded is not empty %}
-					<p class="dashboard-recent-events__unrecorded">
-						{{ vars.dashboard_recent_events_unrecorded_label }}
-						{{ unrecorded|map( e => e.label )|join( ', ' ) }}
-					</p>
-				{% endif %}
 			</div>
+			{% endif %}
 		</section>
 	</div>
 

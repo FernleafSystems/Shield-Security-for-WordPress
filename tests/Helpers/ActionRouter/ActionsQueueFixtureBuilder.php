@@ -24,7 +24,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
  *   file_lock_ids:list<int>,
  *   malware_ids:list<int>,
  *   raw_option_stores:array<string,mixed>|null,
- *   cloaked_plugin_paths:list<string>
+ *   cloaked_plugin_paths:list<string>,
+ *   core_fixture_paths:list<string>
  * }
  * @phpstan-type ScenarioContract array{
  *   scenario:string,
@@ -181,6 +182,11 @@ class ActionsQueueFixtureBuilder {
 			\is_array( $state[ 'options_snapshot' ] ?? null ) ? $state[ 'options_snapshot' ] : []
 		);
 		$this->removeCloakedPluginFixtureFiles( $state );
+		foreach ( \is_array( $state[ 'core_fixture_paths' ] ?? null ) ? $state[ 'core_fixture_paths' ] : [] as $path ) {
+			if ( \is_file( $path ) ) {
+				@\unlink( $path );
+			}
+		}
 		if ( \is_array( $state[ 'raw_option_stores' ] ?? null ) ) {
 			( new RawOptionStoreSnapshot() )->restore( $state[ 'raw_option_stores' ], 'Actions Queue cloaked fixture' );
 		}
@@ -397,7 +403,14 @@ class ActionsQueueFixtureBuilder {
 		);
 		$this->trackScanResult( $state, $themeTracked );
 
-		$corePathFragment = 'wp-includes/version.php';
+		// An unrecognised core finding is an extra file in a core folder. One of WordPress's own files can't stand in:
+		// loading the results settles a finding for an original core file as a clean rescan.
+		$corePathFragment = 'wp-includes/shield-browser-unrecognised-'.\wp_generate_uuid4().'.php';
+		$corePath = \path_join( ABSPATH, $corePathFragment );
+		if ( \file_put_contents( $corePath, "<?php\n" ) === false ) {
+			throw new \RuntimeException( 'Unable to create the unrecognised core file for the MAL{ai} fixture.' );
+		}
+		$state[ 'core_fixture_paths' ][] = $corePath;
 		$coreTracked = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $corePathFragment, [
 			'is_in_core'      => 1,
 			'is_unrecognised' => 1,
@@ -1032,6 +1045,7 @@ class ActionsQueueFixtureBuilder {
 			'malware_ids'          => [],
 			'raw_option_stores'    => null,
 			'cloaked_plugin_paths' => [],
+			'core_fixture_paths'   => [],
 		];
 	}
 

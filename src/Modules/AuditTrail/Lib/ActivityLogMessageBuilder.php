@@ -59,6 +59,7 @@ class ActivityLogMessageBuilder {
 		$auditCount = (int)( $metaData[ 'audit_count' ] ?? 1 );
 		$eventDef = self::con()->comps->events->getEventDef( $event );
 		if ( ( $eventDef[ 'audit_countable' ] ?? false ) && $auditCount > 1 ) {
+			/* translators: %s: number of times the event repeated */
 			$log .= $logSeparator.sprintf( __( 'This event repeated %s times in the last 24hrs.', 'wp-simple-firewall' ), $auditCount );
 		}
 

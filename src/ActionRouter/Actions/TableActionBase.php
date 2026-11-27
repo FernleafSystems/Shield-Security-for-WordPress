@@ -60,42 +60,24 @@ abstract class TableActionBase extends BaseAction {
 	protected function assertRequiredActionDataKeys( array $requiredKeys ) :void {
 		$missingKeys = \array_diff( $requiredKeys, \array_keys( $this->action_data ) );
 		if ( !empty( $missingKeys ) ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message of developer-defined key names: exec() returns it as the AJAX response message.
 			throw new MissingTableActionDataException(
 				'Missing required action data keys: '.\implode( ', ', $missingKeys )
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 	}
 
-	protected function buildUnsupportedSubActionMessage( string $tableLabel, string $subAction ) :string {
-		// Backward-compatible lookup for previously action-specific msgids.
-		$legacyTemplate = \sprintf( 'Not a supported %s table sub_action: %%s', $tableLabel );
-		$legacyTranslation = __( $legacyTemplate, 'wp-simple-firewall' );
-		if ( $legacyTranslation !== $legacyTemplate ) {
-			return \sprintf( $legacyTranslation, $subAction );
-		}
-
+	/**
+	 * @param string $tableName the table's translated name
+	 */
+	protected function buildUnsupportedSubActionMessage( string $tableName, string $subAction ) :string {
 		return \sprintf(
-			__( 'Not a supported %s table sub_action: %s', 'wp-simple-firewall' ),
-			$this->translateUnsupportedSubActionTableLabel( $tableLabel ),
+			/* translators: %1$s: table name, %2$s: action name */
+			__( 'Not a supported %1$s table sub_action: %2$s', 'wp-simple-firewall' ),
+			$tableName,
 			$subAction
 		);
-	}
-
-	private function translateUnsupportedSubActionTableLabel( string $tableLabel ) :string {
-		switch ( $tableLabel ) {
-			case 'Activity Log':
-				return __( 'Activity Log', 'wp-simple-firewall' );
-			case 'Traffic Log':
-				return __( 'Traffic Log', 'wp-simple-firewall' );
-			case 'Sessions':
-				return __( 'Sessions', 'wp-simple-firewall' );
-			case 'IP Rules':
-				return __( 'IP Rules', 'wp-simple-firewall' );
-			case 'Investigation':
-				return __( 'Investigation', 'wp-simple-firewall' );
-			default:
-				return $tableLabel;
-		}
 	}
 
 	protected function isPageReloadOnFailure() :bool {

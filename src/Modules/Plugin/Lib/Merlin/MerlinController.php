@@ -30,16 +30,16 @@ class MerlinController {
 	 */
 	public function processFormSubmit( array $form ) :Response {
 		if ( $form !== \array_filter( $form, '\is_string' ) ) {
-			throw new ActionException( __( 'This form could not be read.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'This form could not be read.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: MerlinAction returns it in an AJAX response, which the page shows as text.
 		}
 
 		$step = $form[ 'step_slug' ] ?? '';
 		if ( $step === '' ) {
-			throw new \Exception( __( 'No step configured for this form', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'No step configured for this form', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: MerlinAction returns it in an AJAX response, which the page shows as text.
 		}
 		$handler = $this->getHandlerFromSlug( $step );
 		if ( empty( $handler ) || !\class_exists( $handler ) ) {
-			throw new \Exception( __( 'Invalid Step.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Invalid Step.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: MerlinAction returns it in an AJAX response, which the page shows as text.
 		}
 		return ( new $handler() )->processStepFormSubmit( $form );
 	}

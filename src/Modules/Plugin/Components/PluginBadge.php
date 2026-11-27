@@ -48,7 +48,7 @@ class PluginBadge {
 	}
 
 	public function printPluginBadge() {
-		echo $this->render( true );
+		echo $this->render( true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Twig render of the badge: its values are escaped, apart from the badge text, which is markup that Shield and the badge filters supply on purpose.
 	}
 
 	public function render( bool $isFloating = false ) :string {

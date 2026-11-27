@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Uti
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeyCompatibilityCheck;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeySourcesHandler;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class Passkey extends AbstractShieldProviderMfaDB {
 
@@ -83,7 +84,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 			];
 		}
 		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
+			ErrorLog::write( $e->getMessage() );
 		}
 
 		return $fieldData;
@@ -164,6 +165,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 		}
 		catch ( \Throwable $e ) {
 			$response->success = false;
+			/* translators: %s: error message */
 			$response->error_text = sprintf( __( 'Passkey authentication failed with the following error: %s', 'wp-simple-firewall' ),
 				$e->getMessage() );
 		}
@@ -192,6 +194,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 		}
 		catch ( \Throwable $e ) {
 			$response->success = false;
+			/* translators: %s: error message */
 			$response->error_text = sprintf( __( 'Passkey registration failed with the following error: %s', 'wp-simple-firewall' ),
 				$e->getMessage() );
 		}

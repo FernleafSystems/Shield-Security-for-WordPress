@@ -22,7 +22,7 @@ class BlockFirewall extends BaseBlock {
 
 	protected function getRestrictionDetailsBlurb() :array {
 		$messages = apply_filters( 'shield/firewall_die_message', [
-			__( "Data scanned in this request matched at least 1 firewall rule and is considered potentially dangerous.", 'wp-simple-firewall' )
+			esc_html__( "Data scanned in this request matched at least 1 firewall rule and is considered potentially dangerous.", 'wp-simple-firewall' )
 		] );
 		return \array_merge(
 			\is_array( $messages ) ? $messages : [],

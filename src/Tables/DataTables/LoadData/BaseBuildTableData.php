@@ -43,7 +43,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				'recordsFiltered' => !$this->hasActiveFiltersForFilteredCount()
 					? $totalCount
 					: $this->countTotalRecordsFiltered(),
-				'searchPanes'     => $this->getSearchPanesData(),
+				'searchPanes'     => $this->getSearchPanesDataForDisplay(),
 			];
 		}
 		catch ( ImpossibleQueryException $e ) {
@@ -51,9 +51,25 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				'data'            => [],
 				'recordsTotal'    => $this->getOrCacheTotalCount(),
 				'recordsFiltered' => 0,
-				'searchPanes'     => $this->getSearchPanesData(),
+				'searchPanes'     => $this->getSearchPanesDataForDisplay(),
 			];
 		}
+	}
+
+	/**
+	 * DataTables SearchPanes inserts each option's label into the page as HTML, so every label is escaped here.
+	 * Labels can be translated text, usernames, or file extensions from scanned files; none are safe to trust.
+	 * Filtering uses each option's value, which is left unchanged.
+	 * Each column's options are a list of label and value pairs; a table without panes has no options.
+	 */
+	private function getSearchPanesDataForDisplay() :array {
+		$data = $this->getSearchPanesData();
+		foreach ( $data[ 'options' ] ?? [] as $column => $columnOptions ) {
+			foreach ( $columnOptions as $i => $option ) {
+				$data[ 'options' ][ $column ][ $i ][ 'label' ] = esc_html( $option[ 'label' ] );
+			}
+		}
+		return $data;
 	}
 
 	/**
@@ -211,7 +227,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				$user = Services::WpUsers()->getUserById( $searchValue );
 			}
 			if ( empty( $user ) ) {
-				throw new ImpossibleQueryException( $searchParam );
+				throw new ImpossibleQueryException( $searchParam ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by BaseBuildTableData::build(), which ignores the message.
 			}
 			$where = \sprintf( "`req`.`uid`=%d", $user->ID );
 		}

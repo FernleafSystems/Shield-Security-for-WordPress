@@ -10,7 +10,7 @@ class ConvertHtmlToText {
 		$text = $this->removeInterTagWhitespace( $text );
 		$text = $this->convertLinks( $text );
 		$text = $this->applyStructuralConversions( $text );
-		$text = \strip_tags( $text );
+		$text = wp_strip_all_tags( $text );
 		$text = $this->decodeEntities( $text );
 		return $this->normalizeWhitespace( $text );
 	}
@@ -54,7 +54,7 @@ class ConvertHtmlToText {
 			'/<a\b[^>]*href\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+))[^>]*>(.*?)<\/a>/is',
 			function ( array $matches ) :string {
 				$href = $this->normalizeInlineText( $matches[ 1 ] ?: ( $matches[ 2 ] ?: ( $matches[ 3 ] ?: '' ) ) );
-				$label = $this->normalizeInlineText( \strip_tags( $matches[ 4 ] ) );
+				$label = $this->normalizeInlineText( wp_strip_all_tags( $matches[ 4 ] ) );
 
 				if ( $href === '' ) {
 					return $label;

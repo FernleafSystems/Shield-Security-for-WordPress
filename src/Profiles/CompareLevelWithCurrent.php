@@ -140,7 +140,7 @@ class CompareLevelWithCurrent {
 		}
 		foreach ( self::con()->opts->optDef( $optKey )[ 'value_options' ] ?? [] as $choice ) {
 			if ( $choice[ 'value_key' ] === $value ) {
-				return __( $choice[ 'text' ], 'wp-simple-firewall' );
+				return __( $choice[ 'text' ], 'wp-simple-firewall' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- Option choice labels are defined in plugin.json, so the lookup is by design.
 			}
 		}
 		// A stored value can be anything, and one that isn't a number or text has nothing to show.

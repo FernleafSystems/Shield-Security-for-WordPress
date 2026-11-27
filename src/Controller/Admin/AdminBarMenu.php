@@ -81,10 +81,7 @@ class AdminBarMenu {
 			'title' => sprintf(
 				'%s %s',
 				$con->labels->Name,
-				$this->counterMarkup(
-					$this->formatCounterLabel( $scanSummary[ 'total' ], $scanSummary[ 'is_capped' ] ),
-					$scanSummary[ 'total' ] === 0
-				)
+				$this->topCounterMarkup( $scanSummary, $canSeeDetails && $isPluginAdminPageRequest )
 			),
 			'href'  => $con->plugin_urls->actionsQueueScans()
 		] );
@@ -159,7 +156,7 @@ class AdminBarMenu {
 
 		return [
 			'title' => sprintf(
-				'%s %s', __( 'Scan Results', 'wp-simple-firewall' ),
+				'%s %s', esc_html__( 'Scan Results', 'wp-simple-firewall' ),
 				$this->counterMarkup( $counterLabel )
 			),
 			'href'  => self::con()->plugin_urls->actionsQueueScans(),
@@ -199,41 +196,64 @@ class AdminBarMenu {
 		return [
 			'malware'           => [
 				'suffix'     => 'malware',
-				'label'      => __( 'Potential Malware', 'wp-simple-firewall' ),
+				'label'      => esc_html__( 'Potential Malware', 'wp-simple-firewall' ),
 				'queue_kind' => 'malware',
 			],
 			'wp_files'          => [
 				'suffix'     => 'wp',
-				'label'      => __( 'WordPress Core Files', 'wp-simple-firewall' ),
+				'label'      => esc_html__( 'WordPress Core Files', 'wp-simple-firewall' ),
 				'queue_kind' => 'wordpress',
 			],
 			'plugin_files'      => [
 				'suffix'     => 'plugin',
-				'label'      => __( 'Plugin Files', 'wp-simple-firewall' ),
+				'label'      => esc_html__( 'Plugin Files', 'wp-simple-firewall' ),
 				'queue_kind' => 'plugins',
 			],
 			'theme_files'       => [
 				'suffix'     => 'theme',
-				'label'      => __( 'Theme Files', 'wp-simple-firewall' ),
+				'label'      => esc_html__( 'Theme Files', 'wp-simple-firewall' ),
 				'queue_kind' => 'themes',
 			],
 			'abandoned'         => [
 				'suffix'     => 'apc',
-				'label'      => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
+				'label'      => esc_html__( 'Abandoned Plugins', 'wp-simple-firewall' ),
 				'queue_kind' => 'abandoned',
 			],
 			'vulnerable_assets' => [
 				'suffix'     => 'wpv',
-				'label'      => __( 'Vulnerable Plugins', 'wp-simple-firewall' ),
+				'label'      => esc_html__( 'Vulnerable Plugins', 'wp-simple-firewall' ),
 				'queue_kind' => 'vulnerabilities',
 			],
 		];
 	}
 
-	private function counterMarkup( string $countLabel, bool $isOk = false ) :string {
+	/**
+	 * The count beside the plugin's name: scan results when there are any. On the plugin's own pages, where
+	 * the sidebar counts out everything that needs attention, a clear scan count would contradict it, so the
+	 * counter then shows what the sidebar shows: critical issues, or failing those, the to-dos. Elsewhere in
+	 * the admin it stays the scan count, which is kept ready without working out the rest on every page.
+	 * @param AdminBarScanSummaryShape $scanSummary
+	 */
+	private function topCounterMarkup( array $scanSummary, bool $isOnPluginPage ) :string {
+		if ( $scanSummary[ 'total' ] === 0 && $isOnPluginPage ) {
+			$counts = self::con()->comps->site_query->attentionCounts();
+			if ( $counts[ 'critical' ] > 0 ) {
+				return $this->counterMarkup( $this->formatCounterLabel( $counts[ 'critical' ] ) );
+			}
+			if ( $counts[ 'todo' ] > 0 ) {
+				return $this->counterMarkup( $this->formatCounterLabel( $counts[ 'todo' ] ), 'shield-counter--todo' );
+			}
+		}
+		return $this->counterMarkup(
+			$this->formatCounterLabel( $scanSummary[ 'total' ], $scanSummary[ 'is_capped' ] ),
+			$scanSummary[ 'total' ] === 0 ? 'shield-counter--ok' : 'shield-counter--issue'
+		);
+	}
+
+	private function counterMarkup( string $countLabel, string $class = 'shield-counter--issue' ) :string {
 		return sprintf(
 			'<div class="wp-core-ui wp-ui-notification shield-counter %s"><span aria-hidden="true">%s</span></div>',
-			$isOk ? 'shield-counter--ok' : 'shield-counter--issue',
+			$class,
 			$countLabel
 		);
 	}
@@ -263,16 +283,17 @@ class AdminBarMenu {
 			foreach ( $recent as $userID => $user ) {
 				$items[] = [
 					'id'    => $con->prefix( 'meta-'.$userID ),
+					// The admin bar prints titles as HTML. The IP is from INET6_NTOA(), so it can only be an address.
 					'title' => sprintf( '<a href="%s">%s (%s)</a>',
 						Services::WpUsers()->getAdminUrl_ProfileEdit( $userID ),
-						$user[ 'user_login' ],
+						esc_html( $user[ 'user_login' ] ),
 						$user[ 'ip' ]
 					),
 				];
 			}
 
 			$thisGroup = [
-				'title' => __( 'Recent Users', 'wp-simple-firewall' ),
+				'title' => esc_html__( 'Recent Users', 'wp-simple-firewall' ),
 				'href'  => $con->plugin_urls->investigateUserSessions(),
 				'items' => $items,
 			];

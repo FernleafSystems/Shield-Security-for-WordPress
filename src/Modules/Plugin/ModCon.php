@@ -165,13 +165,15 @@ class ModCon {
 	}
 
 	/**
-	 * Records the install time the first time it's missing. A plugin reset clears it, so it then starts again.
+	 * Records the install time the first time it's missing, and has the new install scanned soon after. A plugin
+	 * reset clears it, so it then starts again.
 	 */
 	public function storeRealInstallDate(): int {
 		$installedAt = self::con()->comps->opts_lookup->getInstalledAt();
 		if ( $installedAt === 0 ) {
 			$installedAt = Services::Request()->ts();
 			self::con()->opts->optSet( 'installation_time', $installedAt );
+			self::con()->comps->scans->scheduleFirstScan();
 		}
 		return $installedAt;
 	}
@@ -188,7 +190,7 @@ class ModCon {
 
 		add_action( 'admin_footer', function () {
 			if ( self::con()->isPluginAdminPageRequest() ) {
-				echo self::con()->action_router->render( Actions\Render\Components\ToastPlaceholder::class );
+				echo self::con()->action_router->render( Actions\Render\Components\ToastPlaceholder::class ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by the action router, whose Twig templates escape their values.
 			}
 		}, 100, 0 );
 	}

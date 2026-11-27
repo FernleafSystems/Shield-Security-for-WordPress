@@ -574,7 +574,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 			$zoneTiles = $this->landingZoneTiles();
 
-			$this->assertModeShellPayload( $vars, 'actions', 'actions', false );
+			// With nothing in the queue its breadcrumb is drawn as all clear.
+			$this->assertModeShellPayload( $vars, 'actions', 'good', false );
 			$this->assertModePanelPayload( $vars, '', false );
 			$this->assertSame( 'good', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge_status' ] ?? '' ) );
 			$this->assertIsString( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? null );
@@ -605,7 +606,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$maintenance = $this->findZoneTile( $zoneTiles, 'maintenance' );
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
 
-		$this->assertModeShellPayload( $vars, 'actions', 'actions', false );
+		// The queue's breadcrumb takes the status of the queue's most severe item.
+		$this->assertModeShellPayload(
+			$vars,
+			'actions',
+			$this->requireController()->comps->site_query->attention()[ 'summary' ][ 'severity' ],
+			false
+		);
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertSame( '', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? '' ) );
@@ -745,7 +752,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'queue_is_empty', $payload[ 'landing_refresh' ] ?? [] );
 		$this->assertTrue( (bool)( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] ?? false ) );
 		$rootStep = \json_decode( (string)( $payload[ 'landing_refresh' ][ 'root_step_json' ] ?? '' ), true );
-		$this->assertSame( 'actions', (string)( $rootStep[ 'color_key' ] ?? '' ) );
+		// The queue's breadcrumb chip takes the queue's own status, rather than one fixed colour.
+		$this->assertSame( (string)( $rootStep[ 'badge_status' ] ?? '' ), (string)( $rootStep[ 'color_key' ] ?? '' ) );
+		$this->assertNotSame( 'actions', (string)( $rootStep[ 'color_key' ] ?? '' ) );
 		$this->assertArrayHasKey( 'buckets_html', $payload[ 'landing_refresh' ] ?? [] );
 		$this->assertIsString( $payload[ 'landing_refresh' ][ 'buckets_html' ] );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
@@ -1355,10 +1364,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->enablePremiumCapabilities( [ 'scan_malware_local', 'scan_pluginsthemes_local', 'scan_vulnerabilities', 'scan_file_locker' ] );
 		$builder = new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ProtectionEnableDialogBuilder();
 		foreach ( [ 'malware', 'plugins', 'themes', 'wordpress', 'vulnerabilities', 'abandoned' ] as $key ) {
-			$dialog = \json_decode( $builder->forScan( $key, 'bi bi-shield' ), true, 512, \JSON_THROW_ON_ERROR );
+			$dialog = $this->scanDialog( $key );
 			$this->assertProtectionDialogContract( $dialog );
 			$this->assertSame( ScansEnable::SLUG, $dialog[ 'action' ][ 'ex' ] );
-			$this->assertSame( $key, $dialog[ 'action' ][ 'scan' ] );
+			$this->assertContains( $key, \array_column( $dialog[ 'settings' ], 'key' ) );
 			$this->assertSame( '', $dialog[ 'path' ] );
 		}
 		$path = '/example/<script>&"/wp-config.php';
@@ -1367,18 +1376,90 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $path, $file[ 'path' ] );
 		$this->assertSame( ScansFileLockerEnableFile::SLUG, $file[ 'action' ][ 'ex' ] );
 		$this->assertSame( 'wpconfig', $file[ 'action' ][ 'file_key' ] );
-		$this->assertSame( '', $builder->forScan( 'unknown', '' ) );
-		// The same dialog is offered on every plan; whether the scan can be switched on is the action's call.
+		$this->assertSame( '', $builder->forScan( 'unknown' ) );
+		// The same dialog is offered on every plan; whether a scan can be switched on is the action's call.
 		$this->disablePremiumCapabilities();
-		$this->assertProtectionDialogContract( \json_decode( $builder->forScan( 'wordpress', 'bi bi-shield' ), true, 512, \JSON_THROW_ON_ERROR ) );
+		$this->assertProtectionDialogContract( $this->scanDialog( 'wordpress' ) );
+	}
+
+	public function test_file_scanning_dialog_lists_the_scanner_only_while_it_is_off_and_locks_what_the_plan_lacks() :void {
+		$opts = $this->requireController()->opts;
+		$this->disablePremiumCapabilities();
+
+		// The scanner is off; WordPress core files are still chosen, so they'll be scanned as soon as it's on.
+		$opts->optSet( 'enable_core_file_integrity_scan', 'N' )->optSet( 'file_scan_areas', [ 'wp' ] )->store();
+		$dialog = $this->scanDialog( 'wordpress' );
+		$settings = \array_column( $dialog[ 'settings' ], null, 'key' );
+		$this->assertSame( [ ScansEnable::FILE_SCANNING, 'wordpress', 'plugins', 'themes', 'malware' ], \array_keys( $settings ) );
+		$this->assertNotSame( '', $dialog[ 'notice' ] );
+		$this->assertSame( [ 'off', false ], $this->settingState( $settings[ ScansEnable::FILE_SCANNING ] ) );
+		$this->assertTrue( $settings[ ScansEnable::FILE_SCANNING ][ 'is_required' ] );
+		$this->assertSame( [ 'on', true ], $this->settingState( $settings[ 'wordpress' ] ) );
+		$this->assertSame( [ true, true, true, true ], \array_column( \array_slice( $dialog[ 'settings' ], 1 ), 'is_nested' ) );
+		foreach ( [ 'plugins', 'themes', 'malware' ] as $outsidePlan ) {
+			$this->assertSame( 'locked', $settings[ $outsidePlan ][ 'state' ], $outsidePlan );
+		}
+
+		// The scanner is on, so only the kinds of file are listed, each as it is now.
+		$opts->optSet( 'enable_core_file_integrity_scan', 'Y' )->optSet( 'file_scan_areas', [] )->store();
+		$dialog = $this->scanDialog( 'wordpress' );
+		$settings = \array_column( $dialog[ 'settings' ], null, 'key' );
+		$this->assertSame( [ 'wordpress', 'plugins', 'themes', 'malware' ], \array_keys( $settings ) );
+		$this->assertSame( '', $dialog[ 'notice' ] );
+		$this->assertSame( [ 'off', false ], $this->settingState( $settings[ 'wordpress' ] ) );
+		$this->assertSame( [ false, false, false, false ], \array_column( $dialog[ 'settings' ], 'is_nested' ) );
+
+		// A plan that includes them all offers them all, with what's already on shown as on.
+		$this->enablePremiumCapabilities( [ 'scan_malware_local', 'scan_pluginsthemes_local' ] );
+		$opts->optSet( 'file_scan_areas', [ 'wp' ] )->store();
+		$settings = \array_column( $this->scanDialog( 'plugins' )[ 'settings' ], null, 'key' );
+		$this->assertSame( [ 'on', false ], $this->settingState( $settings[ 'wordpress' ] ) );
+		foreach ( [ 'plugins', 'themes', 'malware' ] as $notYetOn ) {
+			$this->assertSame( [ 'off', false ], $this->settingState( $settings[ $notYetOn ] ), $notYetOn );
+		}
+	}
+
+	public function test_plugin_and_theme_checks_share_a_dialog_that_locks_what_the_plan_lacks() :void {
+		$this->disablePremiumCapabilities();
+		$this->requireController()->opts->optSet( 'enabled_scan_apc', 'N' )->store();
+
+		$dialog = $this->scanDialog( 'abandoned' );
+		$settings = \array_column( $dialog[ 'settings' ], null, 'key' );
+
+		$this->assertSame( [ 'abandoned', 'vulnerabilities' ], \array_keys( $settings ) );
+		$this->assertSame( '', $dialog[ 'notice' ] );
+		$this->assertSame( [ 'off', false ], $this->settingState( $settings[ 'abandoned' ] ) );
+		$this->assertSame( 'locked', $settings[ 'vulnerabilities' ][ 'state' ] );
+	}
+
+	private function scanDialog( string $key ) :array {
+		return \json_decode(
+			( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ProtectionEnableDialogBuilder() )->forScan( $key ),
+			true, 512, \JSON_THROW_ON_ERROR
+		);
+	}
+
+	/**
+	 * @return array{0:string,1:bool} a setting's state, and whether it's nested
+	 */
+	private function settingState( array $setting ) :array {
+		return [ $setting[ 'state' ], $setting[ 'is_nested' ] ];
 	}
 
 	private function assertProtectionDialogContract( array $dialog ) :void {
-		foreach ( [ 'title', 'description', 'setting_label', 'icon_class', 'path', 'save_label', 'cancel_label', 'saving_label', 'error_message' ] as $field ) {
+		foreach ( [ 'title', 'description', 'icon_class', 'notice', 'locked_label', 'path', 'save_label', 'cancel_label', 'saving_label', 'error_message' ] as $field ) {
 			$this->assertIsString( $dialog[ $field ], $field );
-			if ( $field !== 'path' ) $this->assertNotSame( '', $dialog[ $field ], $field );
+			if ( !\in_array( $field, [ 'path', 'notice' ], true ) ) $this->assertNotSame( '', $dialog[ $field ], $field );
 		}
 		$this->assertIsArray( $dialog[ 'action' ] );
+		$this->assertNotEmpty( $dialog[ 'settings' ] );
+		foreach ( $dialog[ 'settings' ] as $setting ) {
+			$this->assertNotSame( '', $setting[ 'key' ] );
+			$this->assertNotSame( '', $setting[ 'label' ] );
+			$this->assertContains( $setting[ 'state' ], [ 'off', 'on', 'locked' ] );
+			$this->assertIsBool( $setting[ 'is_required' ] );
+			$this->assertIsBool( $setting[ 'is_nested' ] );
+		}
 	}
 
 	public function test_scan_enable_action_preserves_other_settings_and_rejects_unavailable_scans() :void {
@@ -1387,10 +1468,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$opts->optSet( 'file_scan_areas', [ 'wp' ] )->optSet( 'enable_core_file_integrity_scan', 'N' )
 			->optSet( 'enable_wpvuln_scan', 'N' )->optSet( 'enabled_scan_apc', 'N' )->store();
 		foreach ( [ 'malware', 'plugins', 'themes', 'wordpress', 'vulnerabilities', 'abandoned' ] as $key ) {
-			$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'scan' => $key ] );
+			$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'enable' => [ $key ] ] );
 			$this->assertTrue( $payload[ 'success' ], $key );
 			$afterFirstSave = $opts->values();
-			$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'scan' => $key ] );
+			$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'enable' => [ $key ] ] );
 			$this->assertTrue( $payload[ 'success' ], $key );
 			$this->assertSame( $afterFirstSave, $opts->values(), 'Repeated enable must not change settings.' );
 		}
@@ -1398,13 +1479,47 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'Y', $opts->optGet( 'enable_core_file_integrity_scan' ) );
 		$this->assertSame( 'Y', $opts->optGet( 'enable_wpvuln_scan' ) );
 		$this->assertSame( 'Y', $opts->optGet( 'enabled_scan_apc' ) );
-		$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'scan' => 'arbitrary_option' ] );
+		$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'enable' => [ 'arbitrary_option' ] ] );
 		$this->assertFalse( $payload[ 'success' ] );
 		$this->enablePremiumCapabilities( [] );
 		$opts->optSet( 'file_scan_areas', [ 'wp' ] )->store();
-		$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'scan' => 'malware' ] );
+		$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'enable' => [ 'malware' ] ] );
 		$this->assertFalse( $payload[ 'success' ] );
 		$this->assertSame( [ 'wp' ], $opts->optGet( 'file_scan_areas' ) );
+	}
+
+	public function test_scan_enable_switches_on_several_at_once_or_none_of_them() :void {
+		$this->disablePremiumCapabilities();
+		$opts = $this->requireController()->opts;
+		$opts->optSet( 'file_scan_areas', [] )->optSet( 'enable_core_file_integrity_scan', 'N' )
+			->optSet( 'enabled_scan_apc', 'N' )->store();
+		$before = $opts->values();
+
+		// One of each pair is outside a free site's plan, or isn't the name of a scan at all, so neither is switched on.
+		foreach ( [ [ 'wordpress', 'malware' ], [ 'wordpress', [ 'abandoned' ] ] ] as $asked ) {
+			$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'enable' => $asked ] );
+			$this->assertFalse( $payload[ 'success' ] );
+			$this->assertSame( $before, $opts->values() );
+		}
+
+		// The file scanner can be switched on by itself, leaving what it scans as it was.
+		$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'enable' => [ ScansEnable::FILE_SCANNING ] ] );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( 'Y', $opts->optGet( 'enable_core_file_integrity_scan' ) );
+		$this->assertSame( [], $opts->optGet( 'file_scan_areas' ) );
+
+		$opts->optSet( 'enable_core_file_integrity_scan', 'N' )->store();
+		$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'enable' => [ ScansEnable::FILE_SCANNING, 'wordpress', 'abandoned' ] ] );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( 'Y', $opts->optGet( 'enable_core_file_integrity_scan' ) );
+		$this->assertSame( [ 'wp' ], $opts->optGet( 'file_scan_areas' ) );
+		$this->assertSame( 'Y', $opts->optGet( 'enabled_scan_apc' ) );
+
+		// Two kinds of file asked for together are both added to those already chosen.
+		$this->enablePremiumCapabilities( [ 'scan_pluginsthemes_local' ] );
+		$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'enable' => [ 'plugins', 'themes' ] ] );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( [ 'wp', 'plugins', 'themes' ], $opts->optGet( 'file_scan_areas' ) );
 	}
 
 	/** @dataProvider scanEnableCapabilitiesProvider */
@@ -1419,7 +1534,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$opts->optSet( 'file_scan_areas', [ 'wp' ] )->optSet( 'enable_core_file_integrity_scan', 'N' )
 			->optSet( 'enable_wpvuln_scan', 'N' )->optSet( 'enabled_scan_apc', 'N' )->store();
 		$before = $opts->values();
-		$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'scan' => $scan ] );
+		$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'enable' => [ $scan ] ] );
 		$this->assertSame( $expected, $payload[ 'success' ] );
 		$expectedValues = $before;
 		if ( $expected ) {
@@ -1467,7 +1582,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	public static function protectionEnableInvalidInputProvider() :array {
 		$cases = [];
-		foreach ( [ ScansEnable::class => 'scan', ScansFileLockerEnableFile::class => 'file_key' ] as $action => $key ) {
+		foreach ( [ ScansEnable::class => 'enable', ScansFileLockerEnableFile::class => 'file_key' ] as $action => $key ) {
 			foreach ( [ 'unknown' => 'unknown', 'array' => [], 'null' => null, 'number' => 1 ] as $name => $value ) {
 				$cases[ $key.' '.$name ] = [ $action, $key, $value ];
 			}
@@ -1489,7 +1604,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->enablePremiumCapabilities( [ 'scan_malware_local' ] );
 		$before = $this->requireController()->opts->values();
 		$this->assertAjaxRequestRefused( ScansEnable::class, [
-			'scan' => 'malware',
+			'enable' => [ 'malware' ],
 		], 'invalid' );
 		$this->assertSame( $before, $this->requireController()->opts->values() );
 	}

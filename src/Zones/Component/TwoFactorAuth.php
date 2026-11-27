@@ -84,6 +84,7 @@ class TwoFactorAuth extends Base {
 		elseif ( $count === 1 ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
 			$status[ 'exp' ][] = sprintf(
+				/* translators: %s: name of the 2FA provider */
 				__( 'Only 1 usable primary 2FA provider is available: %s.', 'wp-simple-firewall' ),
 				$providers[ 0 ]
 			);

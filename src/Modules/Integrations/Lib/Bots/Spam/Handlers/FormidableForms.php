@@ -11,8 +11,9 @@ class FormidableForms extends Base {
 					if ( !\is_array( $errors ) ) {
 						$errors = [];
 					}
-					// string taken from Formidable forms FrmEntryValidate.php
-					$errors[ 'spam' ] = __( 'Your entry appears to be spam!', 'wp-simple-firewall' );
+					// String taken from Formidable Forms' FrmEntryValidate.php. Formidable shows it to the visitor
+					// as HTML, so the translation is stripped of markup.
+					$errors[ 'spam' ] = wp_strip_all_tags( __( 'Your entry appears to be spam!', 'wp-simple-firewall' ) );
 				}
 			}
 			return $errors;

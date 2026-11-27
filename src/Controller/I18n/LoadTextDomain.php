@@ -11,6 +11,12 @@ class LoadTextDomain {
 
 	private static bool $processing = false;
 
+	/**
+	 * Locales to add to the download queue at shutdown.
+	 * @var list<string>
+	 */
+	private array $localesToQueue = [];
+
 	public function run() {
 		/**
 		 * Translations override - we want to use our in-plugin translations, not those
@@ -30,16 +36,41 @@ class LoadTextDomain {
 	}
 
 	public function onLoadTextdomainMofile( string $moFile, string $domain ) :string {
-		if ( !self::$processing && $domain === self::con()->getTextDomain() ) {
-			self::$processing = true;
-			try {
-				$moFile = $this->overrideTranslations( $moFile );
+		if ( $domain === self::con()->getTextDomain() ) {
+			if ( self::$processing ) {
+				/**
+				 * Something translated one of our strings while we were choosing the file, so WordPress
+				 * started a nested load. Load nothing here so the outer load's choice is the one that stands.
+				 */
+				$moFile = '';
 			}
-			finally {
-				self::$processing = false;
+			else {
+				self::$processing = true;
+				try {
+					$moFile = $this->overrideTranslations( $moFile );
+				}
+				finally {
+					self::$processing = false;
+				}
 			}
 		}
 		return $moFile;
+	}
+
+	/**
+	 * Saving the queue stores options, and storing can translate strings (e.g. the rules rebuild). Doing that
+	 * while WordPress is loading our translations would start a nested load, so the queue is saved at shutdown.
+	 * A locale downloaded later in the same request (e.g. by the download cron) isn't queued again.
+	 */
+	public function queueLocalesForDownload() :void {
+		$transDownloaderCon = self::con()->comps->translation_downloads;
+		$locales = $this->localesToQueue;
+		$this->localesToQueue = [];
+		foreach ( $locales as $locale ) {
+			if ( $transDownloaderCon->getLocaleMoFilePath( $locale ) === null ) {
+				$transDownloaderCon->enqueueLocaleForDownload( $locale );
+			}
+		}
 	}
 
 	/**
@@ -49,7 +80,7 @@ class LoadTextDomain {
 	private function overrideTranslations( string $moFilePath ) :string {
 		// use determine_locale() as it also considers the user's profile preference
 		$targetLoc = determine_locale();
-		$filteredLocale = apply_filters( 'plugin_locale', $targetLoc, self::con()->getTextDomain() );
+		$filteredLocale = apply_filters( 'plugin_locale', $targetLoc, self::con()->getTextDomain() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core's plugin_locale filter, applied when choosing Shield's translation file so callbacks that set a plugin's locale still take effect.
 		if ( !empty( $filteredLocale ) ) {
 			$targetLoc = $filteredLocale;
 		}
@@ -126,8 +157,9 @@ class LoadTextDomain {
 			else {
 				$localeToQueue = ( new LocaleLanguageMatcher() )->getFirstLocaleForLanguage( $cachedLocales, $targetLocale );
 			}
-			if ( !empty( $localeToQueue ) ) {
-				$transDownloaderCon->enqueueLocaleForDownload( $localeToQueue );
+			if ( !empty( $localeToQueue ) && !\in_array( $localeToQueue, $this->localesToQueue, true ) ) {
+				$this->localesToQueue[] = $localeToQueue;
+				add_action( 'shutdown', [ $this, 'queueLocalesForDownload' ] );
 			}
 		}
 

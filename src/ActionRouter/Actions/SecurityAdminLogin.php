@@ -56,6 +56,7 @@ class SecurityAdminLogin extends SecurityAdminBase {
 					$reload = $remaining < 1;
 					$message .= ' '.( $reload ?
 							__( "No attempts remaining.", 'wp-simple-firewall' )
+							/* translators: %s: number of login attempts remaining */
 							: sprintf( __( 'Attempts remaining: %s.', 'wp-simple-firewall' ), $remaining ) );
 				}
 			}

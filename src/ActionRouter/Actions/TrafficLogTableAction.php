@@ -22,7 +22,7 @@ class TrafficLogTableAction extends TableActionBase {
 	}
 
 	protected function getUnsupportedSubActionMessage( string $subAction ) :string {
-		return $this->buildUnsupportedSubActionMessage( 'Traffic Log', $subAction );
+		return $this->buildUnsupportedSubActionMessage( __( 'Traffic Log', 'wp-simple-firewall' ), $subAction );
 	}
 
 	protected function retrieveTableData() :array {

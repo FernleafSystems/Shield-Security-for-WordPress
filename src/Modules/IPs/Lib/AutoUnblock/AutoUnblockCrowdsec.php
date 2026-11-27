@@ -16,6 +16,7 @@ class AutoUnblockCrowdsec extends BaseAutoUnblock {
 	}
 
 	protected function getUnblockMethodName() :string {
+		/* translators: %s: CrowdSec service name */
 		return sprintf( __( '%s Auto-Unblock', 'wp-simple-firewall' ), 'CrowdSec' );
 	}
 
@@ -28,7 +29,8 @@ class AutoUnblockCrowdsec extends BaseAutoUnblock {
 		}
 
 		if ( empty( $theRecord ) ) {
-			throw new \Exception( sprintf( __( "IP isn't on the %s block list.", 'wp-simple-firewall' ), 'CrowdSec' ) );
+			/* translators: %s: CrowdSec service name */
+			throw new \Exception( sprintf( __( "IP isn't on the %s block list.", 'wp-simple-firewall' ), 'CrowdSec' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by BaseAutoUnblock::isUnblockAvailable() and processAutoUnblockRequest(), which return false, never shown.
 		}
 		return $theRecord;
 	}

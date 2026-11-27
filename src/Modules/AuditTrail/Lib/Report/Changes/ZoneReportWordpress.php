@@ -15,6 +15,7 @@ class ZoneReportWordpress extends BaseZoneReport {
 					$log->meta_data[ 'to' ] ?? __( 'missing data', 'wp-simple-firewall' ) );
 				break;
 			case 'core_reinstalled':
+				/* translators: %s: WordPress version number */
 				$text = sprintf( __( 'Core Reinstalled: v%s', 'wp-simple-firewall' ),
 					$log->meta_data[ 'version' ] ?? __( 'missing data', 'wp-simple-firewall' ) );
 				break;

@@ -19,7 +19,9 @@ abstract class BaseBlock extends BaseFullPageRender {
 				'strings' => [
 					'restriction_details'       => __( 'Restriction Details', 'wp-simple-firewall' ),
 					'restriction_details_blurb' => $this->getRestrictionDetailsBlurb(),
+					/* translators: %s: plugin name */
 					'about_title'               => sprintf( __( 'About %s for WordPress', 'wp-simple-firewall' ), self::con()->labels->Name ),
+					/* translators: %s: plugin name */
 					'about_description'         => sprintf( __( '%s is a powerful WordPress Security service deployed on over 40,000+ WordPress websites.', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				],
 				'vars'    => [
@@ -31,8 +33,8 @@ abstract class BaseBlock extends BaseFullPageRender {
 
 	protected function getRestrictionDetailsBlurb() :array {
 		return [
-			'this_website'      => __( "This website uses a security service to monitor requests to check for activity that is malicious, abnormal or unexpected.", 'wp-simple-firewall' ),
-			'activity_recorded' => __( "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated.", 'wp-simple-firewall' ),
+			'this_website'      => esc_html__( "This website uses a security service to monitor requests to check for activity that is malicious, abnormal or unexpected.", 'wp-simple-firewall' ),
+			'activity_recorded' => esc_html__( "This activity will have been recorded against your IP address and you may be completely blocked from further site access if similar activity is repeated.", 'wp-simple-firewall' ),
 		];
 	}
 

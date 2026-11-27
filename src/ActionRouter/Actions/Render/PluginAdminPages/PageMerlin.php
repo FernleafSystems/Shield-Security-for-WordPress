@@ -29,7 +29,7 @@ class PageMerlin extends BasePluginAdminPage {
 			];
 		}
 		catch ( \Exception $ae ) {
-			throw new ActionException( $ae->getMessage() );
+			throw new ActionException( $ae->getMessage() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Shown only through the action router, which escapes exception messages when printing.
 		}
 	}
 }

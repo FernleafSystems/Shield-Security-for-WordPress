@@ -18,6 +18,7 @@ class BuildSessionsDataSearchBehaviorTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->returnArg();
+		Functions\when( 'wp_kses' )->returnArg();
 		Functions\when( 'wp_strip_all_tags' )->alias(
 			fn( string $content ) :string => \strip_tags( $content )
 		);

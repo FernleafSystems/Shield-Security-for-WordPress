@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	RuleVO,
 	Utility
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class ResponseProcessor {
 
@@ -34,7 +35,7 @@ class ResponseProcessor {
 			try {
 				$responseClass = $respDef[ 'response' ] ?? null;
 				if ( empty( $responseClass ) ) {
-					throw new NoResponseActionDefinedException( 'No Response Handler defined for: '.var_export( $respDef, true ) );
+					throw new NoResponseActionDefinedException( 'No Response Handler defined for: '.ErrorLog::describe( $respDef ) );
 				}
 				if ( !\class_exists( $responseClass ) ) {
 					throw new NoSuchResponseHandlerException( 'No Such Response Handler Class: '.$responseClass );
@@ -56,7 +57,7 @@ class ResponseProcessor {
 				}
 			}
 			catch ( NoResponseActionDefinedException|NoSuchResponseHandlerException $e ) {
-				error_log( $e->getMessage() );
+				ErrorLog::write( $e->getMessage() );
 			}
 			catch ( ParametersException|\Exception $e ) {
 			}

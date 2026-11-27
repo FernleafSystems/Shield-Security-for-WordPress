@@ -1,25 +1,9 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
-
-class ScansControllerNotificationReadinessTestLog {
-
-	public static array $messages = [];
-}
-
-if ( !\function_exists( __NAMESPACE__.'\\error_log' ) ) {
-	function error_log( string $message ) :bool {
-		ScansControllerNotificationReadinessTestLog::$messages[] = $message;
-		if ( \class_exists( '\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Tests\\Unit\\Modules\\HackGuard\\Scan\\ScansCronStartLogSpy' ) ) {
-			\FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\ScansCronStartLogSpy::record( $message );
-		}
-		return true;
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ErrorLogCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue\Support\ScanQueueLifecycleHarness;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -33,17 +17,15 @@ class ScansControllerNotificationReadinessTest extends BaseUnitTest {
 	private array $servicesSnapshot = [];
 	private bool $hadWpdb = false;
 	private $wpdbSnapshot;
+	private ErrorLogCapture $errorLog;
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->errorLog = ErrorLogCapture::start();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->hadWpdb = \array_key_exists( 'wpdb', $GLOBALS );
 		$this->wpdbSnapshot = $GLOBALS[ 'wpdb' ] ?? null;
 		$GLOBALS[ 'wpdb' ] = (object)[ 'last_error' => '' ];
-		\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansControllerNotificationReadinessTestLog::$messages = [];
-		if ( \class_exists( ScansCronStartLogSpy::class ) ) {
-			ScansCronStartLogSpy::reset();
-		}
 	}
 
 	protected function tearDown() :void {
@@ -55,6 +37,7 @@ class ScansControllerNotificationReadinessTest extends BaseUnitTest {
 		}
 		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
+		$this->errorLog->stop();
 		parent::tearDown();
 	}
 
@@ -108,7 +91,7 @@ class ScansControllerNotificationReadinessTest extends BaseUnitTest {
 
 		$this->assertFalse( ( new ScansController() )->isReadyForScanResultNotifications() );
 
-		$messages = $this->readinessLogMessages();
+		$messages = $this->errorLog->messages();
 		$this->assertCount( 1, $messages );
 		$this->assertStringStartsWith( 'Shield scan-result notification readiness check failed: ', $messages[ 0 ] );
 		$this->assertStringNotContainsString( "\n", $messages[ 0 ] );
@@ -125,7 +108,7 @@ class ScansControllerNotificationReadinessTest extends BaseUnitTest {
 		$this->assertSame( 1, $assets->calls );
 		$this->assertStringContainsString(
 			'Synthetic asset readiness failure.',
-			$this->readinessLogMessages()[ 0 ]
+			$this->errorLog->messages()[ 0 ]
 		);
 	}
 
@@ -134,14 +117,6 @@ class ScansControllerNotificationReadinessTest extends BaseUnitTest {
 			'shield/scan_result_notification_readiness_opened',
 			ScansController::HOOK_SCAN_RESULT_NOTIFICATION_READINESS_OPENED
 		);
-	}
-
-	private function readinessLogMessages() :array {
-		$messages = \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansControllerNotificationReadinessTestLog::$messages;
-		if ( empty( $messages ) && \class_exists( ScansCronStartLogSpy::class ) ) {
-			$messages = ScansCronStartLogSpy::$messages;
-		}
-		return $messages;
 	}
 }
 

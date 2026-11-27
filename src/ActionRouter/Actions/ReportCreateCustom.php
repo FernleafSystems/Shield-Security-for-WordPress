@@ -63,11 +63,11 @@ class ReportCreateCustom extends BaseAction {
 
 	private function carbonFromFormDate( string $date ) :Carbon {
 		if ( !\preg_match( '#^\d{4}-\d{2}-\d{2}$#', $date ) ) {
-			throw new \Exception( __( 'Please provide a valid date using YYYY-MM-DD format.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Please provide a valid date using YYYY-MM-DD format.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: ReportCreateCustom::exec() returns it as the AJAX JSON message.
 		}
 		$date = \array_map( 'intval', \explode( '-', $date ) );
 		if ( !\checkdate( $date[ 1 ], $date[ 2 ], $date[ 0 ] ) ) {
-			throw new \Exception( __( 'Please provide a valid date.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Please provide a valid date.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: ReportCreateCustom::exec() returns it as the AJAX JSON message.
 		}
 
 		return Services::Request()

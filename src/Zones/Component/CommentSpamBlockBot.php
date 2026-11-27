@@ -26,6 +26,7 @@ class CommentSpamBlockBot extends Base {
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
 			$status[ 'exp' ][] = $this->explanationFixedBy(
+				/* translators: %s: name of the bot detection feature */
 				sprintf( __( "%s isn't protecting your WP Comments against bot SPAM.", 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) ),
 				'enable_antibot_comments'
 			);

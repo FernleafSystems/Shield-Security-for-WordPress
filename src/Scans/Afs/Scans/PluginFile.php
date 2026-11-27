@@ -29,18 +29,22 @@ class PluginFile extends BasePluginThemeFile {
 			return true;
 		}
 		if ( !$verification->recognisedInSnapshot ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the message is a file path, caught by FileScanner and turned into a scan result item, never shown.
 			throw new Exceptions\PluginFileUnrecognisedException( $this->pathFull, [
 				'slug'             => $verification->assetKey,
 				'asset_version'    => $verification->assetVersion,
 				'comparison_basis' => $verification->comparisonBasis,
 			] );
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 		if ( !$verification->verified ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the message is a file path, caught by FileScanner and turned into a scan result item, never shown.
 			throw new Exceptions\PluginFileChecksumFailException( $this->pathFull, [
 				'slug'             => $verification->assetKey,
 				'asset_version'    => $verification->assetVersion,
 				'comparison_basis' => $verification->comparisonBasis,
 			] );
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 		$this->hashVerificationResult = $verification;
 		return true;

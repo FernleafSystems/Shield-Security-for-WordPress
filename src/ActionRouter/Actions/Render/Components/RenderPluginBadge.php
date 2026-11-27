@@ -34,8 +34,9 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 			}
 		}
 
-		// The template prints this as HTML, so the name in it is escaped.
-		$protectedBy = sprintf( __( 'Protected By %s', 'wp-simple-firewall' ),
+		// The template prints this as HTML, so the translation and the name in it are escaped.
+		/* translators: %s: plugin name, preceded by a line break and wrapped in a span tag */
+		$protectedBy = sprintf( esc_html__( 'Protected By %s', 'wp-simple-firewall' ),
 			'<br/><span class="plugin-badge-name">'.esc_html( $name ).'</span>' );
 
 		$badgeAttrs = [
@@ -72,8 +73,10 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 				'logo'  => esc_url_raw( $this->stringAttr( $badgeAttrs[ 'logo' ] ) ),
 			],
 			'strings' => [
+				/* translators: %s: plugin name */
 				'badge_label' => sprintf( __( '%s security badge', 'wp-simple-firewall' ), $this->stringAttr( $badgeAttrs[ 'name' ] ) ),
 				'close_label' => __( 'Close security badge', 'wp-simple-firewall' ),
+				/* translators: %s: plugin name */
 				'link_label'  => sprintf( __( 'Learn more about %s security protection (opens in a new tab)', 'wp-simple-firewall' ), $this->stringAttr( $badgeAttrs[ 'name' ] ) ),
 				'protected'   => $this->stringAttr( $badgeAttrs[ 'protected_by' ] ),
 				'name'        => $this->stringAttr( $badgeAttrs[ 'name' ] ),

@@ -35,6 +35,7 @@ class GetPendingFileLockDisplays {
 
 	public function describeCount( int $pendingCount ) :string {
 		return \sprintf(
+			/* translators: %s: number of file locks */
 			_n(
 				'%s initial file lock is still being created.',
 				'%s initial file locks are still being created.',

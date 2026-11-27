@@ -13,6 +13,7 @@ class ShieldRestrictionsEnabled extends Base {
 	use Traits\TypeShield;
 
 	public function getDescription() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( "Are %s's Restrictions Enabled?", 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

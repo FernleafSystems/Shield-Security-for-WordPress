@@ -73,7 +73,7 @@ class ScansStatus {
 			) );
 		}
 		catch ( \Throwable $e ) {
-			throw new \RuntimeException( 'Active scan status query failed.', 0, $e );
+			throw new \RuntimeException( 'Active scan status query failed.', 0, $e ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: callers (ScansController, AssetCoordinator, PromoteLocalBaseline) log it with error_log or ignore it; never shown.
 		}
 
 		if ( !\is_array( $rows )

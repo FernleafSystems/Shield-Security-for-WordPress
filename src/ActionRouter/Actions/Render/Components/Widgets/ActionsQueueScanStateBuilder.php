@@ -111,6 +111,7 @@ class ActionsQueueScanStateBuilder {
 			$count,
 			$status,
 			\sprintf(
+				/* translators: %s: number of WordPress core files */
 				_n( '%s WordPress core file needs review.', '%s WordPress core files need review.', $count, 'wp-simple-firewall' ),
 				$count
 			),
@@ -163,12 +164,11 @@ class ActionsQueueScanStateBuilder {
 			$count,
 			$status,
 			\sprintf(
-				_n(
-					$tabKey === 'plugins' ? '%s plugin needs review.' : '%s theme needs review.',
-					$tabKey === 'plugins' ? '%s plugins need review.' : '%s themes need review.',
-					$count,
-					'wp-simple-firewall'
-				),
+				$tabKey === 'plugins' ?
+					/* translators: %s: number of plugins */
+					_n( '%s plugin needs review.', '%s plugins need review.', $count, 'wp-simple-firewall' ) :
+					/* translators: %s: number of themes */
+					_n( '%s theme needs review.', '%s themes need review.', $count, 'wp-simple-firewall' ),
 				$count
 			),
 			__( 'Repair', 'wp-simple-firewall' )
@@ -231,6 +231,7 @@ class ActionsQueueScanStateBuilder {
 				$vulnerableAssetsCount,
 				$vulnerableStatus,
 				\sprintf(
+					/* translators: %s: number of vulnerable assets */
 					_n( '%s vulnerable asset detected.', '%s vulnerable assets detected.', $vulnerableAssetsCount, 'wp-simple-firewall' ),
 					$vulnerableAssetsCount
 				),
@@ -248,6 +249,7 @@ class ActionsQueueScanStateBuilder {
 				$abandonedAssetsCount,
 				$abandonedStatus,
 				\sprintf(
+					/* translators: %s: number of abandoned assets */
 					_n( '%s abandoned asset detected.', '%s abandoned assets detected.', $abandonedAssetsCount, 'wp-simple-firewall' ),
 					$abandonedAssetsCount
 				),
@@ -293,6 +295,7 @@ class ActionsQueueScanStateBuilder {
 			$count,
 			$status,
 			\sprintf(
+				/* translators: %s: number of malware issues */
 				_n( '%s malware issue detected.', '%s malware issues detected.', $count, 'wp-simple-firewall' ),
 				$count
 			),
@@ -352,6 +355,7 @@ class ActionsQueueScanStateBuilder {
 			$status,
 			$count > 0
 				? \sprintf(
+					/* translators: %s: number of locked files */
 					_n( '%s locked file needs review.', '%s locked files need review.', $count, 'wp-simple-firewall' ),
 					$count
 				)

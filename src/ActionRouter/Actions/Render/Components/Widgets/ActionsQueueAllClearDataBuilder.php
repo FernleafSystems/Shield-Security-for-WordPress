@@ -36,6 +36,7 @@ class ActionsQueueAllClearDataBuilder {
 			'checks'     => \array_values( \array_map(
 				static fn( array $zone ) :array => [
 					'slug'       => $zone[ 'slug' ],
+					/* translators: %s: name of the security zone */
 					'label'      => \sprintf( __( '%s clear', 'wp-simple-firewall' ), $zone[ 'label' ] ),
 					'icon_class' => $chipIconClass,
 					'severity'   => 'good',

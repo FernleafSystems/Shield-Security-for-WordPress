@@ -6,6 +6,7 @@ use CrowdSec\CapiClient\ClientException;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class ImportDecisions {
 
@@ -50,10 +51,10 @@ class ImportDecisions {
 		}
 		catch ( ClientException $ce ) {
 			// TODO: if 403 reset auth.
-			error_log( sprintf( 'client exception: "%s" : "%s"', $ce->getCode(), $ce->getMessage() ) );
+			ErrorLog::write( sprintf( 'client exception: "%s" : "%s"', $ce->getCode(), $ce->getMessage() ) );
 		}
 		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
+			ErrorLog::write( $e->getMessage() );
 		}
 	}
 

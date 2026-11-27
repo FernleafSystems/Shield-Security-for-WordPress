@@ -15,9 +15,9 @@ class Footer extends Base {
 		$WP = Services::WpGeneral();
 
 		$goPro = [
-			__( 'Go PRO For The Equivalent Of 1 Cappuccino Per Month &#9749;', 'wp-simple-firewall' ),
-			__( 'Go PRO For The Equivalent Of 1 Beer Per Month &#127866;', 'wp-simple-firewall' ),
-			__( 'Go PRO For The Equivalent Of 1 Glass Of Wine Per Month &#127863;', 'wp-simple-firewall' ),
+			esc_html__( 'Go PRO For The Equivalent Of 1 Cappuccino Per Month &#9749;', 'wp-simple-firewall' ),
+			esc_html__( 'Go PRO For The Equivalent Of 1 Beer Per Month &#127866;', 'wp-simple-firewall' ),
+			esc_html__( 'Go PRO For The Equivalent Of 1 Glass Of Wine Per Month &#127863;', 'wp-simple-firewall' ),
 		];
 		$benefits = [
 			__( 'The Easiest, Frustration-Free Pro-Upgrade Available Anywhere', 'wp-simple-firewall' ),
@@ -52,7 +52,9 @@ class Footer extends Base {
 				'benefits'               => $benefits,
 				'much_more'              => __( 'And So Much More', 'wp-simple-firewall' ),
 				'upgrade'                => $goPro[ \array_rand( $goPro ) ],
+				/* translators: %s: plugin name */
 				'thanks_pro'             => sprintf( __( 'Thank you for choosing %s.', 'wp-simple-firewall' ), self::con()->labels->Name ),
+				/* translators: %s: plugin name */
 				'thanks_free'            => sprintf( __( 'Thank you for choosing %s (Free).', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'upgrade_heading_prefix' => __( 'Upgrade To', 'wp-simple-firewall' ),
 				'upgrade_heading_suffix' => __( "today and these are just some of the added benefits you'll get:", 'wp-simple-firewall' ),
@@ -63,8 +65,11 @@ class Footer extends Base {
 					$WP->getHomeUrl()
 				),
 				'delays'                 => __( 'Note: Any email delays or delivery issues are caused by website hosting and email providers.', 'wp-simple-firewall' ),
+				/* translators: %s: date and time the email was sent */
 				'time_sent'              => sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $WP->getTimeStampForDisplay() ),
+				/* translators: %s: current email recipient, such as "currently name@example.com" */
 				'configure_recipient'    => sprintf( __( 'Configure security email recipient (%s)', 'wp-simple-firewall' ),
+					/* translators: %s: email address of the current recipient */
 					sprintf( __( 'currently %s', 'wp-simple-firewall' ), $con->comps->opts_lookup->getReportEmail() )
 				),
 			],

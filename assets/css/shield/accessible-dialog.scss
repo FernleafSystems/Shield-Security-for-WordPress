@@ -198,6 +198,34 @@
 	margin: 0;
 	flex-shrink: 0;
 }
+// Several settings in one dialog: a list, with any that depend on the one above set in beneath it.
+.shield-accessible-dialog__settings {
+	display: grid;
+	gap: 10px;
+}
+.shield-accessible-dialog__setting.is-nested {
+	margin-left: 28px;
+}
+// Something the settings below it depend on is off.
+.shield-accessible-dialog__notice {
+	color: #b45309;
+	font-weight: 600;
+	margin: 0 0 12px;
+}
+// A setting outside the site's plan: faded, with its "Pro only" button at the row's far end left plain.
+.shield-accessible-dialog__setting.is-locked {
+	cursor: default;
+
+	> span {
+		color: #646970;
+	}
+	> .form-check-input {
+		opacity: 0.45;
+	}
+	> .shield-pro-only-button {
+		margin-left: auto;
+	}
+}
 .shield-accessible-dialog__path {
 	font: 12px/1.6 monospace;
 	background: #f5f7f6;

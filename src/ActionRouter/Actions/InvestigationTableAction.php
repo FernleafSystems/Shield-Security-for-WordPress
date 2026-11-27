@@ -62,7 +62,7 @@ class InvestigationTableAction extends TableActionBase {
 	}
 
 	protected function getUnsupportedSubActionMessage( string $subAction ) :string {
-		return $this->buildUnsupportedSubActionMessage( 'Investigation', $subAction );
+		return $this->buildUnsupportedSubActionMessage( __( 'Investigation', 'wp-simple-firewall' ), $subAction );
 	}
 
 	/**
@@ -101,9 +101,11 @@ class InvestigationTableAction extends TableActionBase {
 	protected function createBuilderForTableType( string $tableType ) :BaseInvestigationData {
 		$builderClass = InvestigationTableRegistry::getBuilderClass( $tableType );
 		if ( empty( $builderClass ) || !\class_exists( $builderClass ) ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: buildFailurePayload() returns it as the AJAX JSON message.
 			throw new UnavailableInvestigationTableBuilderException(
 				'Investigation table builder unavailable for table type: '.$tableType
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 		return new $builderClass();
 	}

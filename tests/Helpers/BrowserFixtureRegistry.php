@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansProgress;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ActionsQueueFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\DashboardDefaultsFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\DashboardActivityFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportFileFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportNetworkFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpAnalysisActivityMetaFixtureBuilder;
@@ -22,7 +23,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PublicBlo
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ReportEmailHoldFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityAdminFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityHeadersFixtureBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SetupGuideDismissedFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SetupGuideStateFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\UserUiStateFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\CustomRulesTerminalFinalizationFixtureBuilder;
 
@@ -42,6 +43,8 @@ class BrowserFixtureRegistry {
 				return self::runActionsQueueFixture( $action, $args );
 			case 'scan-progress':
 				return self::renderScanProgress( $action, $args );
+			case 'dashboard-activity':
+				return self::runDashboardActivityFixture( $action );
 			case 'dashboard-defaults':
 				return self::runDashboardDefaultsFixture( $action );
 			case 'import-export-file':
@@ -78,8 +81,8 @@ class BrowserFixtureRegistry {
 				return self::runSecurityAdminFixture( $action, $args );
 			case 'security-headers':
 				return self::runSecurityHeadersFixture( $action );
-			case 'setup-guide-dismissed':
-				return self::runSetupGuideDismissedFixture( $action );
+			case 'setup-guide-state':
+				return self::runSetupGuideStateFixture( $action, $args );
 			case 'custom-rules-terminal-finalization':
 				return self::runCustomRulesTerminalFinalizationFixture( $action, $args );
 			case 'user-ui-state':
@@ -98,6 +101,7 @@ class BrowserFixtureRegistry {
 		}
 
 		self::runActionsQueueFixture( 'cleanup', [] );
+		self::runDashboardActivityFixture( 'cleanup' );
 		self::runDashboardDefaultsFixture( 'cleanup' );
 		self::runImportExportFileFixture( 'cleanup' );
 		self::runImportExportNetworkFixture( 'cleanup' );
@@ -116,7 +120,7 @@ class BrowserFixtureRegistry {
 		self::runReportEmailHoldFixture( 'cleanup' );
 		self::runSecurityAdminFixture( 'cleanup', [] );
 		self::runSecurityHeadersFixture( 'cleanup' );
-		self::runSetupGuideDismissedFixture( 'cleanup' );
+		self::runSetupGuideStateFixture( 'cleanup', [] );
 		self::runCustomRulesTerminalFinalizationFixture( 'cleanup', [] );
 		return [ 'cleaned' => true ];
 	}
@@ -814,6 +818,36 @@ class BrowserFixtureRegistry {
 	/**
 	 * @return array<string,mixed>
 	 */
+	private static function runDashboardActivityFixture( string $action ) :array {
+		$builder = new DashboardActivityFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'dashboard-activity' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
 	private static function runSecurityHeadersFixture( string $action ) :array {
 		$builder = new SecurityHeadersFixtureBuilder();
 		$optionKey = self::fixtureOptionKey( 'security-headers' );
@@ -842,11 +876,12 @@ class BrowserFixtureRegistry {
 	}
 
 	/**
+	 * @param list<string> $args
 	 * @return array<string,mixed>
 	 */
-	private static function runSetupGuideDismissedFixture( string $action ) :array {
-		$builder = new SetupGuideDismissedFixtureBuilder();
-		$optionKey = self::fixtureOptionKey( 'setup-guide-dismissed' );
+	private static function runSetupGuideStateFixture( string $action, array $args ) :array {
+		$builder = new SetupGuideStateFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'setup-guide-state' );
 		$state = \get_option( $optionKey, [] );
 		$state = \is_array( $state ) ? $state : [];
 
@@ -857,12 +892,13 @@ class BrowserFixtureRegistry {
 				return [ 'cleaned' => true ];
 
 			case 'seed':
+				$scenario = self::requireScenario( $args );
 				if ( $state !== [] ) {
 					$builder->cleanup( $state );
 					\delete_option( $optionKey );
 				}
 
-				$result = $builder->seed();
+				$result = $builder->seed( $scenario );
 				\update_option( $optionKey, $result[ 'state' ], false );
 				return $result[ 'contract' ];
 

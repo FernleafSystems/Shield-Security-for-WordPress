@@ -11,6 +11,7 @@ class RequestBypassesAllRestrictions extends Base {
 	public const SLUG = 'request_bypasses_all_restrictions';
 
 	public function getDescription() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( "Does the request bypass any and all %s restrictions.", 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

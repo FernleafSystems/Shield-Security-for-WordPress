@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\CrowdSourcedHashes\Query;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 /**
  * @phpstan-type ScanHashData array{meta:array{type:string,key:string,version:string,source:'crowd_sourced'|'snapshot',trusted:bool,created_at:int},hashes:array<string,list<string>>}
@@ -82,7 +83,7 @@ class ScanHashCache {
 		}
 		finally {
 			if ( $error !== null ) {
-				error_log( \sprintf(
+				ErrorLog::write( \sprintf(
 					'Shield scan hash cache fill failed: type=%s key=%s version=%s message=%s',
 					$asset->asset_type,
 					$asset->unique_id,
@@ -238,7 +239,7 @@ class ScanHashCache {
 			$realDir = \realpath( $dir );
 			if ( $realDir === false || wp_normalize_path( \dirname( $tmp ) ) !== wp_normalize_path( $realDir )
 				 || !Services::WpFs()->putFileContent( $tmp, $json )
-				 || !@\rename( $tmp, path_join( $dir, $this->filename( $context ) ) ) ) {
+				 || !@\rename( $tmp, path_join( $dir, $this->filename( $context ) ) ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- Atomic replace, so readers never see a partly written cache file. WP_Filesystem::move() deletes the destination first when overwriting.
 				throw new \RuntimeException( 'Could not write scan hash cache file.' );
 			}
 			self::resetMemoization();

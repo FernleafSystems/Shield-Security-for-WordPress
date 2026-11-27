@@ -101,6 +101,21 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		}
 	}
 
+	public function test_a_problem_fixed_by_the_components_own_setting_elsewhere_belongs_to_that_topic() :void {
+		// User Suspension has a setting under Passwords as well as its own topic.
+		$this->installControllerStub( 'auto_password' );
+		$rows = \array_column( $this->tile( 'accounts' )[ 'panel' ][ 'rows' ], null, 'key' );
+
+		$this->assertSame( 'good', $rows[ 'suspensions' ][ 'status' ] );
+	}
+
+	public function test_a_problem_waiting_on_another_components_setting_stays_with_its_topic() :void {
+		$this->installControllerStub( 'enable_password_policies' );
+		$rows = \array_column( $this->tile( 'accounts' )[ 'panel' ][ 'rows' ], null, 'key' );
+
+		$this->assertSame( 'warning', $rows[ 'suspensions' ][ 'status' ] );
+	}
+
 	private function tile( string $key ) :array {
 		foreach ( ( new ConfigureZoneTilesBuilder() )->build() as $tile ) {
 			if ( $tile[ 'key' ] === $key ) {
@@ -132,7 +147,10 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		return $options;
 	}
 
-	private function installControllerStub() :void {
+	/**
+	 * @param string $suspensionFixedBy the setting that fixes User Suspension's problem, or '' when it names none
+	 */
+	private function installControllerStub( string $suspensionFixedBy = '' ) :void {
 		$components = [
 			'password_policies'        => $this->newComponent( 'Password Policies', EnumEnabledStatus::GOOD, '', [ 'Password policy is active.' ], [
 				'enable_password_policies',
@@ -150,7 +168,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			'inactive_users'           => $this->newComponent( 'User Suspension', EnumEnabledStatus::OKAY, '', [ 'Suspension policy needs review.' ], [
 				'manual_suspend',
 				'auto_password',
-			], 'inactive_users' ),
+			], 'inactive_users', $suspensionFixedBy ),
 			'session_theft_protection' => $this->newComponent( 'Sessions', EnumEnabledStatus::GOOD, '', [], [
 				'session_timeout_interval',
 				'session_lock',
@@ -220,23 +238,26 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		string $subtitle,
 		array $explanation,
 		array $options = [],
-		?string $slug = null
+		?string $slug = null,
+		string $fixedBy = ''
 	) :Component\Base {
-		return new class( $title, $enabledStatus, $subtitle, $explanation, $options, $slug ) extends Component\Base {
+		return new class( $title, $enabledStatus, $subtitle, $explanation, $options, $slug, $fixedBy ) extends Component\Base {
 			private string $localTitle;
 			private string $localEnabledStatus;
 			private string $localSubtitle;
 			private array $localExplanation;
 			private array $localOptions;
 			private string $localSlug;
+			private string $localFixedBy;
 
-			public function __construct( string $title, string $enabledStatus, string $subtitle, array $explanation, array $options, ?string $slug ) {
+			public function __construct( string $title, string $enabledStatus, string $subtitle, array $explanation, array $options, ?string $slug, string $fixedBy ) {
 				$this->localTitle = $title;
 				$this->localEnabledStatus = $enabledStatus;
 				$this->localSubtitle = $subtitle;
 				$this->localExplanation = $explanation;
 				$this->localOptions = $options;
 				$this->localSlug = $slug ?? \strtolower( \str_replace( ' ', '_', $title ) );
+				$this->localFixedBy = $fixedBy;
 			}
 
 			public function title() :string {
@@ -252,6 +273,10 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			}
 
 			public function explanation() :array {
+				// Always recorded, so a setting named in one test doesn't carry into the next.
+				foreach ( $this->localExplanation as $explanation ) {
+					$this->explanationFixedBy( $explanation, $this->localFixedBy );
+				}
 				return $this->localExplanation;
 			}
 

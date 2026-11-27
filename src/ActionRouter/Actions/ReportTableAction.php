@@ -33,7 +33,7 @@ class ReportTableAction extends TableActionBase {
 	}
 
 	protected function getUnsupportedSubActionMessage( string $subAction ) :string {
-		return $this->buildUnsupportedSubActionMessage( 'Reports', $subAction );
+		return $this->buildUnsupportedSubActionMessage( __( 'Reports', 'wp-simple-firewall' ), $subAction );
 	}
 
 	protected function isPageReloadOnFailure() :bool {

@@ -23,7 +23,7 @@
 		   id="Opt-{{ option.key }}"
 		   aria-labelledby="Label-{{ option.key }}"
 		   value="{{ option.value|raw }}"
-		   placeholder="{{ option.value }}"
+		   placeholder="{{ option.value|raw }}"
 			{% if option.disabled %}
 				disabled="disabled"
 			{% endif %}
@@ -38,7 +38,7 @@
 		   id="Opt-{{ option.key }}"
 		   aria-labelledby="Label-{{ option.key }}"
 		   value="{{ option.value|raw }}"
-		   placeholder="{{ option.value }}"
+		   placeholder="{{ option.value|raw }}"
 		   {% if option.disabled %}disabled="disabled"{% endif %}
 		   class="form-control" />
 

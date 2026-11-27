@@ -20,10 +20,11 @@ class ConflictAkismet extends Base {
 					'text'      => [
 						sprintf(
 							'%s %s',
-							sprintf( __( "You may get unreliable results while Akismet is operating alongside %s's Human SPAM protection.", 'wp-simple-firewall' ), self::con()->labels->Name ),
+							/* translators: %s: plugin name */
+							sprintf( esc_html__( "You may get unreliable results while Akismet is operating alongside %s's Human SPAM protection.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 							sprintf( '<a href="%s" class="">%s</a>',
-								$WPP->getUrl_Deactivate( $WPP->findPluginFileFromDirName( 'akismet' ) ),
-								__( 'Deactivate Akismet', 'wp-simple-firewall' )
+								esc_url( $WPP->getUrl_Deactivate( $WPP->findPluginFileFromDirName( 'akismet' ) ) ),
+								esc_html__( 'Deactivate Akismet', 'wp-simple-firewall' )
 							)
 						)
 					],

@@ -341,7 +341,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'system_php_version' => [
 				'key'                 => 'system_php_version',
 				'label'               => 'PHP Version',
-				'description'         => 'This maintenance item is currently ignored.',
+				'description'         => 'This to-do is currently ignored.',
 				'count'               => 0,
 				'ignored_count'       => 1,
 				'severity'            => 'good',

@@ -1,6 +1,7 @@
 @import './shield/dashboard-widget';
 @import './shield/wpadmin-toast';
 @import './shield/focus-indicators';
+@import './shield/pro-only-button';
 @import './shield/tile-anatomy';
 @import './shield/accessible-dialog';
 @import './shield/security-admin-unlock';
@@ -80,7 +81,9 @@ tr.shield-plugin-vulnerability dd {
 
 .shield-toaster {
   position: fixed;
-  top: 100px;
+  // Beneath Configure's save bar while that's in view (it says where its bottom edge is), so a message never
+  // covers the bar's buttons.
+  top: max(100px, calc(var(--shield-actionbar-bottom, 0px) + 12px));
   right: 60px;
   z-index: -1;
 }
@@ -108,6 +111,12 @@ tr.shield-plugin-vulnerability dd {
 #wpadminbar .shield-counter.shield-counter--issue {
   background-color: #d63638;
   color: #ffffff;
+}
+
+// To-dos: things to review in time, as the sidebar counts them out.
+#wpadminbar .shield-counter.shield-counter--todo {
+  background-color: #dba617;
+  color: #1d2327;
 }
 
 #wp-admin-bar-icwp-wpsf-adminbarmenu .ab-submenu > li {

@@ -40,13 +40,13 @@ class ItemDeleteHandler {
 		$item = $this->getScanItem();
 
 		if ( !$this->deleteSupported() ) {
-			throw new \Exception( sprintf( "Deletion isn't support for scan %s", $item->VO->scan ) );
+			throw new \Exception( sprintf( "Deletion isn't support for scan %s", $item->VO->scan ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: ItemActionHandler::delete() callers (ScanResultsTableAction::executeActionForItemID()) catch it and return false, never shown.
 		}
 		if ( !( $item->is_unrecognised || $item->is_unidentified || $item->is_mal ) ) {
-			throw new \Exception( sprintf( "File '%s' isn't unrecognised.", $item->path_fragment ) );
+			throw new \Exception( sprintf( "File '%s' isn't unrecognised.", $item->path_fragment ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: ItemActionHandler::delete() callers (ScanResultsTableAction::executeActionForItemID()) catch it and return false, never shown.
 		}
 		if ( !Services::WpFs()->isAccessibleFile( $item->path_full ) ) {
-			throw new \Exception( sprintf( "File '%s' doesn't exist.", $item->path_fragment ) );
+			throw new \Exception( sprintf( "File '%s' doesn't exist.", $item->path_fragment ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: ItemActionHandler::delete() callers (ScanResultsTableAction::executeActionForItemID()) catch it and return false, never shown.
 		}
 
 		return true;

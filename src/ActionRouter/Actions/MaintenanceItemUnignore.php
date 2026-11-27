@@ -26,6 +26,6 @@ class MaintenanceItemUnignore extends MaintenanceItemIgnoreBase {
 	}
 
 	protected function successMessage() :string {
-		return __( 'Maintenance item restored.', 'wp-simple-firewall' );
+		return __( 'To-do restored.', 'wp-simple-firewall' );
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Bootstrap;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Services;
@@ -167,6 +168,29 @@ class OrdinaryRequestFanoutReductionIntegrationTest extends ShieldIntegrationTes
 		finally {
 			$retiredValue === false ? \delete_option( $retiredKey ) : \update_option( $retiredKey, $retiredValue );
 		}
+	}
+
+	/**
+	 * The scheduled scan first runs overnight, so a new install would go most of a day unscanned.
+	 */
+	public function test_a_new_install_is_scanned_within_minutes_and_an_existing_one_is_left_to_the_schedule() :void {
+		$con = $this->requireController();
+		$hook = $con->prefix( ScansController::HOOK_FIRST_SCAN );
+		$now = Services::Request()->ts();
+		\wp_clear_scheduled_hook( $hook );
+
+		$con->opts->optSet( 'installation_time', $now - 600 )->store();
+		$con->plugin->storeRealInstallDate();
+		$this->assertFalse( \wp_next_scheduled( $hook ) );
+
+		$con->opts->optSet( 'installation_time', 0 )->store();
+		$con->plugin->storeRealInstallDate();
+		$due = \wp_next_scheduled( $hook );
+		$this->assertIsInt( $due );
+		$this->assertGreaterThan( $now, $due );
+		$this->assertLessThanOrEqual( $now + 5*\MINUTE_IN_SECONDS, $due );
+		// What answers it is the scheduled scan itself.
+		$this->assertNotFalse( \has_action( $hook, [ $con->comps->scans, 'runCron' ] ) );
 	}
 
 	private function flushPendingOptionState() :void {

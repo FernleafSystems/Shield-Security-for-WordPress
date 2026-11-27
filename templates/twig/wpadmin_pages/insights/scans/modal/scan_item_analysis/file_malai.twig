@@ -4,12 +4,12 @@
 		<p>{{ strings.subtitle }}</p>
 		<ul>
 			{% for line in strings.introduction %}
-				<li>{{ line|raw }}</li>
+				<li>{{ line }}</li>
 			{% endfor %}
 		</ul>
 		<ul>
 			{% for line in strings.important %}
-				<li class="text-danger">{{ line|raw }}</li>
+				<li class="text-danger">{{ line }}</li>
 			{% endfor %}
 		</ul>
 	</div>

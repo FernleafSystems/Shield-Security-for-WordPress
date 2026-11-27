@@ -71,9 +71,11 @@ class Controller {
 
 	protected function displayNotices() {
 		foreach ( $this->buildNotices() as $notice ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by the action router, whose Twig templates escape their values.
 			echo self::con()->action_router->render( AdminNotice::class, [
 				'raw_notice_data' => $notice->getRawData()
 			] );
+			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 	}
 
@@ -322,7 +324,7 @@ class Controller {
 				$this->buildNotice_CertainOptionsRestricted( $notice );
 				break;
 			default:
-				throw new \Exception( 'Unsupported Notice ID: '.$notice->id );
+				throw new \Exception( 'Unsupported Notice ID: '.$notice->id ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: processNotice() is only called by buildNotices(), which swallows it; never shown.
 		}
 	}
 
@@ -331,6 +333,7 @@ class Controller {
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
+				/* translators: %s: plugin name */
 				'title'   => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $name ) ),
 				'message' => sprintf(
 				/* translators: %1$s: filename, %2$s: plugin name */
@@ -363,6 +366,7 @@ class Controller {
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
+				/* translators: %s: plugin name */
 				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->labels->Name ),
 				'notice_message' => __( 'Altering certain options has been restricted by your WordPress security administrator.', 'wp-simple-firewall' )
 									.' '.__( 'Repeated failed attempts to authenticate will probably lock you out of this site.', 'wp-simple-firewall' )
@@ -370,9 +374,10 @@ class Controller {
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
-					$con->plugin_urls->zone( Secadmin::Slug() ),
-					__( 'Admin Access Login', 'wp-simple-firewall' ),
-					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->labels->Name )
+					esc_url( $con->plugin_urls->zone( Secadmin::Slug() ) ),
+					esc_attr__( 'Admin Access Login', 'wp-simple-firewall' ),
+					/* translators: %s: plugin name */
+					esc_html( sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->labels->Name ) )
 				)
 			]
 		];
@@ -383,6 +388,7 @@ class Controller {
 		$notice->render_data = [
 			'notice_attributes' => [], // TODO
 			'strings'           => [
+				/* translators: %s: plugin name */
 				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->labels->Name ),
 				'notice_message' => __( 'Editing existing administrators, promoting existing users to the administrator role, or deleting administrator users is currently restricted.', 'wp-simple-firewall' )
 									.' '.__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.', 'wp-simple-firewall' ),
@@ -391,9 +397,10 @@ class Controller {
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
-					$con->plugin_urls->zone( Secadmin::Slug() ),
-					__( 'Security Admin Login', 'wp-simple-firewall' ),
-					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->labels->Name )
+					esc_url( $con->plugin_urls->zone( Secadmin::Slug() ) ),
+					esc_attr__( 'Security Admin Login', 'wp-simple-firewall' ),
+					/* translators: %s: plugin name */
+					esc_html( sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->labels->Name ) )
 				)
 			]
 		];

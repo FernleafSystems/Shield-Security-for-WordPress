@@ -101,7 +101,7 @@ class Users extends Base {
 		$userToDelete = $WPU->getUserById( $userID );
 		if ( $userToDelete && $WPU->isUserAdmin( $userToDelete ) ) {
 			Services::WpGeneral()
-					->wpDie( __( 'Sorry, deleting administrators is currently restricted to your Security Admin', 'wp-simple-firewall' ) );
+					->wpDie( esc_html__( 'Sorry, deleting administrators is currently restricted to your Security Admin', 'wp-simple-firewall' ) );
 		}
 	}
 

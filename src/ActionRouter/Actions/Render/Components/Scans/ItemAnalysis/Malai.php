@@ -21,7 +21,7 @@ class Malai extends BaseComponent {
 			( new MalaiFileQueryEligibility() )->assertCanOfferQuery( $item );
 		}
 		catch ( \Exception $e ) {
-			throw new ActionException( $e->getMessage() );
+			throw new ActionException( $e->getMessage() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Shown only through ActionRoutingController::render(), which escapes it into the HTML fragment that the AJAX response carries.
 		}
 
 		return [
@@ -35,7 +35,9 @@ class Malai extends BaseComponent {
 				]
 			],
 			'strings' => [
+				/* translators: %s: product name */
 				'title'           => sprintf( __( '%s Lookup', 'wp-simple-firewall' ), 'MAL{ai}' ),
+				/* translators: %s: product name */
 				'subtitle'        => sprintf( __( '%s is our exclusive AI-powered Malware Scanning and Detection engine.', 'wp-simple-firewall' ), 'MAL{ai}' ),
 				'introduction'    => [
 					__( "It can assess file contents in order to give an estimation as to whether a file is malware, or clean of malicious code.", 'wp-simple-firewall' ),
@@ -46,7 +48,7 @@ class Malai extends BaseComponent {
 				'important'       => [
 					__( "Always ensure that there is NO sensitive or private data within the file when submitting it to MAL{ai} for assessment.", 'wp-simple-firewall' ),
 					__( "This is YOUR responsibility - don't submit the file unless you're absolutely sure.", 'wp-simple-firewall' ),
-					sprintf( __( 'It is important to understand that the result of this query is an estimation to help you assess the file, not a conclusion.', 'wp-simple-firewall' ), 'MAL{ai}' ),
+					__( 'It is important to understand that the result of this query is an estimation to help you assess the file, not a conclusion.', 'wp-simple-firewall' ),
 					__( "As always, your use and reliance of this service is done so at your own risk.", 'wp-simple-firewall' ),
 				],
 				'i_accept'        => __( 'I have read the above information & warnings, and fully accept any and all implications.', 'wp-simple-firewall' ),

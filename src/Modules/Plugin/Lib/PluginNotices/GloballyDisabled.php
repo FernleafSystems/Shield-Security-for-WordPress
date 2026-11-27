@@ -17,7 +17,7 @@ class GloballyDisabled extends Base {
 			'text'      => [
 				sprintf(
 					'%s %s',
-					__( "All security protection offered by Shield is completely disabled.", 'wp-simple-firewall' ),
+					esc_html__( "All security protection offered by Shield is completely disabled.", 'wp-simple-firewall' ),
 					sprintf( '<button type="button" class="shield-button-link fw-semibold text-decoration-underline" data-enable-protection="%s" aria-haspopup="dialog">%s</button>',
 						esc_attr( $dialog->forPlugin() ),
 						esc_html( $dialog->pluginTitle() )

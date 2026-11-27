@@ -15,7 +15,8 @@ class Load extends BaseAction {
 
 		foreach ( [ $store->getSnapStorePath(), $store->getSnapStoreMetaPath() ] as $path ) {
 			if ( !Services::WpFs()->exists( $path ) ) {
-				throw new \Exception( sprintf( __( 'Critical store file does not exist: %s', 'wp-simple-firewall' ), $path ) );
+				/* translators: %s: file path */
+				throw new \Exception( sprintf( __( 'Critical store file does not exist: %s', 'wp-simple-firewall' ), $path ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: callers catch it and treat the snapshot as unavailable or log it, never shown.
 			}
 		}
 		return $store;

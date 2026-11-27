@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class LocalDbWriter extends AbstractProcessingHandler {
 
@@ -68,6 +69,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] )
 			->id;
 		$wpdb = Services::WpDb()->loadWpdb();
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Shield's own log tables (prefix plus a fixed name) put in with sprintf(), whose %% leaves the placeholders for prepare(); every value goes through prepare(), and the %i identifier placeholder needs WordPress 6.2.
 		$existingLogID = (int)$wpdb->get_var( $wpdb->prepare(
 			sprintf(
 				"SELECT `log`.`id`
@@ -95,6 +97,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 				$existingLogID,
 				'audit_count'
 			) );
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			// this can fail under load, but doesn't actually matter:
 			$dbCon->activity_logs->getQueryUpdater()->updateById( $existingLogID, [
 				'updated_at' => Services::Request()->ts()
@@ -116,7 +119,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$requestRecord = self::con()->comps->requests_log->createDependentLog()
 						 ?? $this->loadCurrentRequestRecordFromUpgradeCompatibilityPath();
 		if ( empty( $requestRecord ) ) {
-			throw new \Exception( __( 'No dependent request record found or created.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'No dependent request record found or created.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by write(); isDependentRequestRecordException() compares this exact message, so it must not be escaped.
 		}
 
 		$record->req_ref = $requestRecord->id;
@@ -125,7 +128,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$inserter = $dbh->getQueryInserter();
 		$log = $inserter->insertGetRecord( $record );
 		if ( empty( $log ) ) {
-			throw new \Exception( __( 'Failed to insert.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Failed to insert.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by write() and logged with error_log; never shown.
 		}
 		return $log;
 	}
@@ -153,7 +156,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	}
 
 	private function logActivityFailureMessage( string $message ) :void {
-		error_log( 'Shield activity log write failed: '.$this->formatLogContext( \array_merge(
+		ErrorLog::write( 'Shield activity log write failed: '.$this->formatLogContext( \array_merge(
 			[
 				'message'  => $message,
 				'db_error' => $this->currentDbError(),

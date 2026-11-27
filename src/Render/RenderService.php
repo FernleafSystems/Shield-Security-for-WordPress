@@ -25,7 +25,7 @@ class RenderService {
 	private $twigEnvVariables = [];
 
 	public function display() :void {
-		echo $this->render();
+		echo $this->render(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Twig render, which escapes its values.
 	}
 
 	public function render() :string {
@@ -47,7 +47,7 @@ class RenderService {
 			return $env->render( Paths::AddExt( $this->template, self::STUB ), $this->renderVars );
 		}
 		catch ( \Exception $e ) {
-			return 'Could not render Twig with following Exception: '.$e->getMessage();
+			return 'Could not render Twig with following Exception: '.esc_html( $e->getMessage() );
 		}
 	}
 

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\MaintenanceItemDetails;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
@@ -123,7 +124,8 @@ class ActionsQueueBucketsBuilder {
 	}
 
 	/**
-	 * A passing check as a row, with the group it belongs to, so the landing lists it once, and its zone.
+	 * A passing check as a row, with the group it belongs to, so the landing lists it once, and its zone. A to-do
+	 * that's ignored isn't passing: it's listed once, faded, in the lane it would otherwise be in.
 	 * @param AssessmentRowsByZone $assessmentRowsByZone
 	 * @return list<HealthyRow>
 	 */
@@ -132,9 +134,9 @@ class ActionsQueueBucketsBuilder {
 
 		foreach ( [ 'scans', 'maintenance' ] as $zone ) {
 			foreach ( $assessmentRowsByZone[ $zone ] as $row ) {
-				if ( $row[ 'status' ] === 'good' ) {
+				if ( $row[ 'status' ] === 'good' && !$row[ 'is_ignored' ] ) {
 					// The group the row belongs to, so the landing lists it once, and which block it goes in.
-					$rows[] = $this->buildHealthyRow( $row ) + [
+					$rows[] = $this->buildHealthyRow( $row, $zone ) + [
 						'group_key' => $zone === 'scans'
 							? $this->groupDefinitions()->groupKeyForSummaryKey( (string)$row[ 'key' ] )
 							: (string)$row[ 'key' ],
@@ -149,22 +151,31 @@ class ActionsQueueBucketsBuilder {
 
 	/**
 	 * @phpstan-param array{
+	 *   key:string,
 	 *   item_icon_class:string,
 	 *   label:string,
 	 *   description:string
 	 * } $row
+	 * @param 'scans'|'maintenance' $zone
 	 * @return CompactSummaryRow
 	 */
-	private function buildHealthyRow( array $row ) :array {
+	private function buildHealthyRow( array $row, string $zone ) :array {
 		return $this->summaryRowBuilder()->build(
 			(string)$row[ 'item_icon_class' ],
 			(string)$row[ 'label' ],
-			(string)$row[ 'description' ]
+			(string)$row[ 'description' ],
+			'',
+			false,
+			[],
+			'',
+			// A to-do that's passing still explains itself in its drawer.
+			$zone === 'maintenance' ? MaintenanceItemDetails::requestJsonFor( (string)$row[ 'key' ] ) : ''
 		);
 	}
 
 	/**
 	 * @param AttentionQuery $attentionQuery
+	 * @param AssessmentRowsByZone $assessmentRowsByZone
 	 * @return array<string,BucketSource>
 	 */
 	public function classify( array $attentionQuery, array $assessmentRowsByZone = [ 'scans' => [], 'maintenance' => [] ] ) :array {
@@ -197,21 +208,16 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		foreach ( [ 'scans', 'maintenance' ] as $zone ) {
-			foreach ( $assessmentRowsByZone[ $zone ] ?? [] as $row ) {
-				if ( ( $row[ 'status' ] ?? '' ) !== 'good' ) {
-					continue;
-				}
-
-				$bucketKey = \trim( (string)( $row[ 'drill_bucket' ] ?? '' ) );
-				if ( isset( $sources[ $bucketKey ] ) ) {
-					$sources[ $bucketKey ][ 'healthy_item_count' ]++;
+			foreach ( $assessmentRowsByZone[ $zone ] as $row ) {
+				if ( $row[ 'status' ] === 'good' ) {
+					$sources[ $row[ 'drill_bucket' ] ][ 'healthy_item_count' ]++;
 				}
 			}
 		}
 
 		foreach ( $this->groupDefinitions()->criticalScanGroupKeys() as $groupKey ) {
 			$availability = $this->scanAvailability()->build( $groupKey );
-			if ( empty( $availability[ 'show_in_fix_now' ] ) || !empty( $availability[ 'is_available' ] ) ) {
+			if ( !$availability[ 'show_in_fix_now' ] || $availability[ 'is_available' ] ) {
 				continue;
 			}
 			// File Locker is switched on by locking files, which Review next asks for, so it's never listed as
@@ -222,7 +228,7 @@ class ActionsQueueBucketsBuilder {
 
 			$sources[ 'critical' ][ 'disabled_item_count' ]++;
 			$sources[ 'critical' ][ 'disabled_groups' ][ $groupKey ] = $availability;
-			if ( ( $availability[ 'disabled_reason' ] ?? '' ) === 'upgrade_required' ) {
+			if ( $availability[ 'disabled_reason' ] === 'upgrade_required' ) {
 				$sources[ 'critical' ][ 'disabled_upgrade_count' ]++;
 			}
 		}
@@ -247,7 +253,7 @@ class ActionsQueueBucketsBuilder {
 	 * @phpstan-param AttentionItem $item
 	 */
 	private function bucketKeyForAttentionItem( array $item ) :string {
-		return $this->bucketKeyForStatus( (string)( $item[ 'severity' ] ?? '' ) );
+		return $this->bucketKeyForStatus( $item[ 'severity' ] );
 	}
 
 	/**
@@ -309,54 +315,63 @@ class ActionsQueueBucketsBuilder {
 		switch ( $groupKey ) {
 			case 'vulnerabilities':
 				return \sprintf(
+					/* translators: %s: number of vulnerabilities */
 					_n( '%s vulnerability', '%s vulnerabilities', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'abandoned':
 				return \sprintf(
+					/* translators: %s: number of abandoned assets */
 					_n( '%s abandoned asset', '%s abandoned assets', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'hidden_plugins':
 				return \sprintf(
+					/* translators: %s: number of cloaked plugins */
 					_n( '%s cloaked plugin', '%s cloaked plugins', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'wordpress':
 				return \sprintf(
+					/* translators: %s: number of WordPress file issues */
 					_n( '%s WordPress file issue', '%s WordPress file issues', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'plugins':
 				return \sprintf(
+					/* translators: %s: number of plugin file issues */
 					_n( '%s plugin file issue', '%s plugin file issues', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'themes':
 				return \sprintf(
+					/* translators: %s: number of theme file issues */
 					_n( '%s theme file issue', '%s theme file issues', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'malware':
 				return \sprintf(
+					/* translators: %s: number of malware detections */
 					_n( '%s malware detection', '%s malware detections', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'file_locker':
 				return \sprintf(
+					/* translators: %s: number of file changes */
 					_n( '%s file change', '%s file changes', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			case 'file_locker_unlocked':
 				return \sprintf(
+					/* translators: %s: number of critical files not locked */
 					_n( '%s critical file not locked', '%s critical files not locked', $count, 'wp-simple-firewall' ),
 					$count
 				);
@@ -364,13 +379,16 @@ class ActionsQueueBucketsBuilder {
 			case 'maintenance':
 				return \sprintf(
 					$useChecksLabel
-						? _n( '%s maintenance check', '%s maintenance checks', $count, 'wp-simple-firewall' )
-						: _n( '%s maintenance item', '%s maintenance items', $count, 'wp-simple-firewall' ),
+						/* translators: %s: number of checks */
+						? _n( '%s check', '%s checks', $count, 'wp-simple-firewall' )
+						/* translators: %s: number of to-do items */
+						: _n( '%s to-do', '%s to-dos', $count, 'wp-simple-firewall' ),
 					$count
 				);
 
 			default:
 				return \sprintf(
+					/* translators: %s: number of items */
 					_n( '%s item', '%s items', $count, 'wp-simple-firewall' ),
 					$count
 				);

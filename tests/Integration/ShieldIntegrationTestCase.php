@@ -234,14 +234,14 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		try {
 			$this->runWithPersistentDatabaseMutation(
 				function () use ( &$baseline, &$timestamp ) :void {
-					$baseline = $this->snapshotFreshCronArray();
+					$baseline = $this->snapshotCronArray();
 					$timestamp = Services::Request()->ts() + 3600;
 					while ( isset( $baseline[ $timestamp ] ) ) {
 						++$timestamp;
 					}
 				},
 				function () use ( $sentinelHook, &$baseline, &$seeded, &$timestamp ) :void {
-					$this->assertSame( $baseline, $this->snapshotFreshCronArray() );
+					$this->assertSame( $baseline, $this->snapshotCronArray() );
 					$this->assertTrue( \wp_schedule_single_event(
 						$timestamp,
 						$sentinelHook,
@@ -485,6 +485,10 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 	 * The restoration callback owns only the exact persistent state changed by
 	 * the exercise.
 	 *
+	 * WordPress's object cache is emptied after each rollback, as WordPress's own test case empties it between
+	 * tests. Otherwise it goes on describing rows the rollback removed, and update_option() on an option it
+	 * wrongly believes is stored updates no row and reports nothing.
+	 *
 	 * @return mixed
 	 */
 	protected function runWithPersistentDatabaseMutation( callable $exercise, callable $restoration ) {
@@ -507,6 +511,7 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		try {
 			$this->executeRequiredDatabaseStatement( 'SAVEPOINT shield_persistent_mutation_contract' );
 			$this->executeRequiredDatabaseStatement( 'ROLLBACK' );
+			self::flush_cache();
 			\remove_filter( 'query', $createHook, (int)\has_filter( 'query', $createHook ) );
 			\remove_filter( 'query', $dropHook, (int)\has_filter( 'query', $dropHook ) );
 			try {
@@ -518,6 +523,7 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 
 			try {
 				$this->executeRequiredDatabaseStatement( 'ROLLBACK' );
+				self::flush_cache();
 				$restoration();
 				$this->executeRequiredDatabaseStatement( 'COMMIT' );
 			}

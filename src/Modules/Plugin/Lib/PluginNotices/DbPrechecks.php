@@ -13,9 +13,9 @@ class DbPrechecks extends Base {
 				'text'      => [
 					sprintf(
 						'%s %s',
-						__( "The Shield database needs to be repaired as certain features won't be available without a valid database.", 'wp-simple-firewall' ),
+						esc_html__( "The Shield database needs to be repaired as certain features won't be available without a valid database.", 'wp-simple-firewall' ),
 						sprintf( '<button type="button" data-notice_action="auto_db_repair" class="shield_admin_notice_action shield-button-link text-white">%s</button>',
-							__( 'Run Database Repair', 'wp-simple-firewall' )
+							esc_html__( 'Run Database Repair', 'wp-simple-firewall' )
 						)
 					)
 				],

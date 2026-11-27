@@ -104,6 +104,7 @@ class EventStrings {
 			'attempt_deactivation'         => [
 				'name'  => __( 'Unauthorized Deactivation Attempt', 'wp-simple-firewall' ),
 				'audit' => [
+					/* translators: %s: plugin name */
 					sprintf( __( 'An attempt to deactivate the %s plugin by a non-admin was intercepted.', 'wp-simple-firewall' ), $labels->Name ),
 				],
 			],
@@ -435,20 +436,26 @@ class EventStrings {
 				],
 			],
 			'suresend_fail'                => [
+				/* translators: %s: name of the email sending feature */
 				'name'  => sprintf( __( '%s Fail', 'wp-simple-firewall' ), $sureSend ),
 				'audit' => [
+					/* translators: %s: name of the email sending feature. Keep {{slug}} and {{email}} unchanged: the activity log fills them in. */
 					sprintf( __( "Failed to send email (type: {{slug}}) to '{{email}}' using %s.", 'wp-simple-firewall' ), $sureSend ),
 				],
 			],
 			'suresend_success'             => [
+				/* translators: %s: name of the email sending feature */
 				'name'  => sprintf( __( '%s Success', 'wp-simple-firewall' ), $sureSend ),
 				'audit' => [
+					/* translators: %s: name of the email sending feature. Keep {{slug}} and {{email}} unchanged: the activity log fills them in. */
 					sprintf( __( "Successfully sent email (type: {{slug}}) to '{{email}}' using %s.", 'wp-simple-firewall' ), $sureSend ),
 				],
 			],
 			'ade_check_option_disabled'    => [
+				/* translators: %s: name of the bot detection feature */
 				'name'  => sprintf( __( '%s Check Invalid (Module)', 'wp-simple-firewall' ), $silentCaptcha ),
 				'audit' => [
+					/* translators: %s: name of the bot detection feature */
 					sprintf( __( 'A %s Bot Check was performed on a visitor but the Bot-blocking option is disabled in settings.', 'wp-simple-firewall' ), $silentCaptcha ),
 					__( "The visitor was allowed to pass the checks since they couldn't be applied.", 'wp-simple-firewall' ),
 				],
@@ -534,8 +541,10 @@ class EventStrings {
 				],
 			],
 			'bottrack_notbot'              => [
+				/* translators: %s: name of the bot detection feature */
 				'name'  => sprintf( __( '%s Registration', 'wp-simple-firewall' ), $silentCaptcha ),
 				'audit' => [
+					/* translators: %s: name of the bot detection feature */
 					sprintf( __( 'Visitor registered using %s.', 'wp-simple-firewall' ), $silentCaptcha ),
 				],
 			],

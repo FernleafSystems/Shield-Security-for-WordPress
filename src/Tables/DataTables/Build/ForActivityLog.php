@@ -33,7 +33,6 @@ class ForActivityLog extends Base {
 				'className'      => 'rid',
 				'orderable'      => false,
 				'searchable'     => true,
-				'search_builder' => true,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => false,
@@ -45,7 +44,6 @@ class ForActivityLog extends Base {
 				'className'      => 'event',
 				'orderable'      => false,
 				'searchable'     => true,
-				'search_builder' => true,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => true
@@ -74,17 +72,15 @@ class ForActivityLog extends Base {
 				],
 			],
 			'level'      => [
-				'data'               => 'level',
-				'title'              => __( 'Level', 'wp-simple-firewall' ),
-				'className'          => 'level',
-				'orderable'          => false,
-				'searchable'         => true,
-				'search_builder'     => true,
-				'visible'            => false,
-				'searchPanes'        => [
+				'data'        => 'level',
+				'title'       => __( 'Level', 'wp-simple-firewall' ),
+				'className'   => 'level',
+				'orderable'   => false,
+				'searchable'  => true,
+				'visible'     => false,
+				'searchPanes' => [
 					'show' => false
 				],
-				'searchBuilderTitle' => __( 'Severity', 'wp-simple-firewall' )
 			],
 			'ip'         => [
 				'data'           => 'ip',
@@ -92,7 +88,6 @@ class ForActivityLog extends Base {
 				'className'      => 'ip',
 				'orderable'      => false,
 				'searchable'     => true,
-				'search_builder' => true,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => false,
@@ -104,7 +99,6 @@ class ForActivityLog extends Base {
 				'className'      => 'identity',
 				'orderable'      => false,
 				'searchable'     => true,
-				'search_builder' => true,
 				'visible'        => true,
 				'searchPanes'    => [
 					'show' => false,
@@ -116,7 +110,6 @@ class ForActivityLog extends Base {
 				'className'      => 'uid',
 				'orderable'      => false,
 				'searchable'     => false,
-				'search_builder' => true,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => false,
@@ -128,7 +121,6 @@ class ForActivityLog extends Base {
 				'className'      => 'user',
 				'orderable'      => false,
 				'searchable'     => true,
-				'search_builder' => false,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => false,

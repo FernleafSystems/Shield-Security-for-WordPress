@@ -7,6 +7,11 @@ use Symfony\Component\Filesystem\Path;
 
 class SourceStaticAnalysisLane {
 
+	/**
+	 * Path characters per PHPStan run, counting a space and quotes per path.
+	 */
+	private const MAX_PATH_CHARS_PER_RUN = 6000;
+
 	private ProcessRunner $processRunner;
 
 	private SourceSetupCacheCoordinator $setupCacheCoordinator;
@@ -57,9 +62,37 @@ class SourceStaticAnalysisLane {
 			'--memory-limit=2G',
 		];
 
-		return $this->processRunner->runForExitCode(
-			\array_merge( $command, $phpStanPaths ),
-			$rootDir
-		);
+		foreach ( $this->pathBatches( $phpStanPaths ) as $batch ) {
+			$exitCode = $this->processRunner->runForExitCode( \array_merge( $command, $batch ), $rootDir );
+			if ( $exitCode !== 0 ) {
+				return $exitCode;
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * Windows runs commands through cmd.exe, which refuses a command line over 8191 characters without any output.
+	 * Explicit paths are therefore analysed in batches short enough to leave room for the rest of the command.
+	 * No paths means one run over the configured paths.
+	 * @param string[] $paths
+	 * @return string[][]
+	 */
+	private function pathBatches( array $paths ) :array {
+		$batches = [];
+		$batch = [];
+		$length = 0;
+		foreach ( $paths as $path ) {
+			$pathLength = \strlen( $path ) + 3;
+			if ( !empty( $batch ) && $length + $pathLength > self::MAX_PATH_CHARS_PER_RUN ) {
+				$batches[] = $batch;
+				$batch = [];
+				$length = 0;
+			}
+			$batch[] = $path;
+			$length += $pathLength;
+		}
+		$batches[] = $batch;
+		return $batches;
 	}
 }

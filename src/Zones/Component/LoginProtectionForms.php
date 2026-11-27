@@ -38,6 +38,7 @@ class LoginProtectionForms extends Base {
 		}
 		if ( !empty( $state[ 'unprotected_providers' ] ) ) {
 			$status[ 'exp' ][] = $this->explanationFixedBy( sprintf(
+				/* translators: %s: comma-separated list of login form providers */
 				__( "Some installed third-party login forms aren't protected: %s", 'wp-simple-firewall' ),
 				\implode( ', ', $state[ 'unprotected_providers' ] )
 			), 'user_form_providers' );

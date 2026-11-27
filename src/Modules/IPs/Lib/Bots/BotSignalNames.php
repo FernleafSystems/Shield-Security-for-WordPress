@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
+\defined( 'ABSPATH' ) || exit();
+
 // Upgrade bridge for the moved silentCAPTCHA signal component.
 if ( !\class_exists( __NAMESPACE__.'\\BotSignalNames', false ) ) {
 	\class_alias(

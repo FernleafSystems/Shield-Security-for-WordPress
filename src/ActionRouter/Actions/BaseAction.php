@@ -74,17 +74,20 @@ abstract class BaseAction extends DynPropertiesClass {
 		$con = self::con();
 		$thisReq = $con->this_req;
 		if ( !$thisReq->request_bypasses_all_restrictions && $thisReq->is_ip_blocked && !$this->canBypassIpAddressBlock() ) {
-			throw new IpBlockedException( sprintf( __( 'IP Address blocked so cannot process action: %s', 'wp-simple-firewall' ), static::SLUG ) );
+			/* translators: %s: identifier of the action */
+			throw new IpBlockedException( sprintf( __( 'IP Address blocked so cannot process action: %s', 'wp-simple-firewall' ), static::SLUG ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX responses show it as text, and render() escapes it when printing.
 		}
 
 		$WPU = Services::WpUsers();
 		if ( $this->isUserAuthRequired()
 			 && ( !$WPU->isUserLoggedIn() || !user_can( $WPU->getCurrentWpUser(), $this->getMinimumUserAuthCapability() ) ) ) {
-			throw new UserAuthRequiredException( sprintf( __( 'Must be logged-in to execute this action: %s', 'wp-simple-firewall' ), static::SLUG ) );
+			/* translators: %s: identifier of the action */
+			throw new UserAuthRequiredException( sprintf( __( 'Must be logged-in to execute this action: %s', 'wp-simple-firewall' ), static::SLUG ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX responses show it as text, and render() discards it.
 		}
 
 		if ( !$thisReq->is_security_admin && $this->isSecurityAdminRequired() ) {
-			throw new SecurityAdminRequiredException( sprintf( __( 'Security admin required for action: %s', 'wp-simple-firewall' ), static::SLUG ) );
+			/* translators: %s: identifier of the action */
+			throw new SecurityAdminRequiredException( sprintf( __( 'Security admin required for action: %s', 'wp-simple-firewall' ), static::SLUG ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Not shown: AJAX replaces it with a standard message, and render() shows the restricted page instead.
 		}
 	}
 
@@ -158,7 +161,7 @@ abstract class BaseAction extends DynPropertiesClass {
 	protected function checkAvailableData() {
 		$missing = \array_diff( \array_unique( $this->getRequiredDataKeys() ), \array_keys( $this->action_data ) );
 		if ( !empty( $missing ) ) {
-			throw new ActionException( sprintf( 'Missing action (%s) data for the following keys: %s', static::SLUG, \implode( ', ', $missing ) ) );
+			throw new ActionException( sprintf( 'Missing action (%s) data for the following keys: %s', static::SLUG, \implode( ', ', $missing ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX responses show it as text, and render() escapes it when printing.
 		}
 	}
 

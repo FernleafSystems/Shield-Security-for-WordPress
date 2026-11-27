@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\CrowdSecSignals\Ops as CrowdsecS
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecConstants;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\EventsListener {
 
@@ -43,7 +44,7 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 						$value = Services::Request()->ip();
 						break;
 					default:
-						error_log( 'not a supported scope: '.$scope );
+						ErrorLog::write( 'not a supported scope: '.$scope );
 						continue( 2 );
 				}
 

@@ -237,19 +237,19 @@ class SiteSyncStatusBuilder {
 
 	public function registrationLabel( string $status ) :string {
 		return [
-				   SitesDB::STATUS_ACTIVE  => $this->text( 'Active' ),
-				   SitesDB::STATUS_DELETED => $this->text( 'Inactive' ),
+				   SitesDB::STATUS_ACTIVE  => __( 'Active', 'wp-simple-firewall' ),
+				   SitesDB::STATUS_DELETED => __( 'Inactive', 'wp-simple-firewall' ),
 			   ][ $status ] ?? $this->formatKey( $status );
 	}
 
 	public function queueLabel( string $queueStatus ) :string {
 		return [
-				   SitesDB::QUEUE_IDLE           => $this->text( 'Idle' ),
-				   SitesDB::QUEUE_QUEUED         => $this->text( 'Queued' ),
-				   SitesDB::QUEUE_PROCESSING     => $this->text( 'Processing' ),
-				   SitesDB::QUEUE_WAITING_EXPORT => $this->text( 'Waiting for export' ),
-				   SitesDB::QUEUE_PENDING_INVITE => $this->text( 'Pending invite' ),
-				   SitesDB::QUEUE_PENDING_CONNECTION => $this->text( 'Pending connection' ),
+				   SitesDB::QUEUE_IDLE           => __( 'Idle', 'wp-simple-firewall' ),
+				   SitesDB::QUEUE_QUEUED         => __( 'Queued', 'wp-simple-firewall' ),
+				   SitesDB::QUEUE_PROCESSING     => __( 'Processing', 'wp-simple-firewall' ),
+				   SitesDB::QUEUE_WAITING_EXPORT => __( 'Waiting for export', 'wp-simple-firewall' ),
+				   SitesDB::QUEUE_PENDING_INVITE => __( 'Pending invite', 'wp-simple-firewall' ),
+				   SitesDB::QUEUE_PENDING_CONNECTION => __( 'Pending connection', 'wp-simple-firewall' ),
 			   ][ $queueStatus ] ?? $this->formatKey( $queueStatus );
 	}
 
@@ -272,11 +272,11 @@ class SiteSyncStatusBuilder {
 
 	public function stateLabel( string $state ) :string {
 		return [
-				   self::STATE_INACTIVE     => $this->text( 'Inactive' ),
-				   self::STATE_PROBLEM      => $this->text( 'Problem' ),
-				   self::STATE_PENDING      => $this->text( 'Pending' ),
-				   self::STATE_WORKING      => $this->text( 'Export served' ),
-				   self::STATE_NEVER_SYNCED => $this->text( 'Never Synced' ),
+				   self::STATE_INACTIVE     => __( 'Inactive', 'wp-simple-firewall' ),
+				   self::STATE_PROBLEM      => __( 'Problem', 'wp-simple-firewall' ),
+				   self::STATE_PENDING      => __( 'Pending', 'wp-simple-firewall' ),
+				   self::STATE_WORKING      => __( 'Export served', 'wp-simple-firewall' ),
+				   self::STATE_NEVER_SYNCED => __( 'Never Synced', 'wp-simple-firewall' ),
 			   ][ $state ] ?? $this->formatKey( $state );
 	}
 
@@ -292,9 +292,9 @@ class SiteSyncStatusBuilder {
 			$this->detailsButtonHtml( $detailsHtml ),
 			$this->escHtml( $reason ),
 			$this->escHtml( \sprintf( '%s: %s | %s: %s',
-				$this->text( 'Last export request' ),
+				__( 'Last export request', 'wp-simple-firewall' ),
 				$lastRequest,
-				$this->text( 'Last export' ),
+				__( 'Last export', 'wp-simple-firewall' ),
 				$lastExport
 			) )
 		);
@@ -302,26 +302,26 @@ class SiteSyncStatusBuilder {
 
 	private function buildDetailsHtml( Record $record, string $state, array $diagnostics ) :string {
 		$rows = [
-			$this->detailRow( $this->text( 'Current state' ), $this->stateLabel( $state ) ),
-			$this->detailRow( $this->text( 'Import ID' ), $this->importIDPresenter()->displayValue( $record->import_id ) ),
-			$this->detailRow( $this->text( 'Last ping attempt' ), $this->formatTimestamp( $record->last_ping_attempt_at ) ),
-			$this->detailRow( $this->text( 'Last notification dispatch attempt' ), $this->formatTimestamp( $record->last_ping_success_at ) ),
-			$this->detailRow( $this->text( 'Last ping failure' ), $this->formatTimestamp( $record->last_ping_failure_at ) ),
-			$this->detailRow( $this->text( 'Ping HTTP result' ), $record->last_ping_http_code > 0 ? (string)$record->last_ping_http_code : $this->text( 'None recorded' ) ),
-			$this->detailRow( $this->text( 'Ping details' ), $this->displayError( $record->last_ping_error ) ),
-			$this->detailRow( $this->text( 'Last export request' ), $this->formatTimestamp( $record->last_export_request_at ) ),
-			$this->detailRow( $this->text( 'Last export served' ), $this->formatTimestamp( $record->last_export_success_at ) ),
-			$this->detailRow( $this->text( 'Last export failure' ), $this->formatTimestamp( $record->last_export_failure_at ) ),
-			$this->detailRow( $this->text( 'Last export result' ), $this->exportResultLabel( $record->last_export_result_code, $record->last_export_error ) ),
-			$this->detailRow( $this->text( 'Last export details' ), $this->displayExportError( $record ) ),
-			$this->detailRow( $this->text( 'Expected export by' ), $this->formatTimestamp( $record->expected_export_by ) ),
-			$this->detailRow( $this->text( 'Next ping due' ), $this->formatTimestamp( $record->next_ping_at ) ),
+			$this->detailRow( __( 'Current state', 'wp-simple-firewall' ), $this->stateLabel( $state ) ),
+			$this->detailRow( __( 'Import ID', 'wp-simple-firewall' ), $this->importIDPresenter()->displayValue( $record->import_id ) ),
+			$this->detailRow( __( 'Last ping attempt', 'wp-simple-firewall' ), $this->formatTimestamp( $record->last_ping_attempt_at ) ),
+			$this->detailRow( __( 'Last notification dispatch attempt', 'wp-simple-firewall' ), $this->formatTimestamp( $record->last_ping_success_at ) ),
+			$this->detailRow( __( 'Last ping failure', 'wp-simple-firewall' ), $this->formatTimestamp( $record->last_ping_failure_at ) ),
+			$this->detailRow( __( 'Ping HTTP result', 'wp-simple-firewall' ), $record->last_ping_http_code > 0 ? (string)$record->last_ping_http_code : __( 'None recorded', 'wp-simple-firewall' ) ),
+			$this->detailRow( __( 'Ping details', 'wp-simple-firewall' ), $this->displayError( $record->last_ping_error ) ),
+			$this->detailRow( __( 'Last export request', 'wp-simple-firewall' ), $this->formatTimestamp( $record->last_export_request_at ) ),
+			$this->detailRow( __( 'Last export served', 'wp-simple-firewall' ), $this->formatTimestamp( $record->last_export_success_at ) ),
+			$this->detailRow( __( 'Last export failure', 'wp-simple-firewall' ), $this->formatTimestamp( $record->last_export_failure_at ) ),
+			$this->detailRow( __( 'Last export result', 'wp-simple-firewall' ), $this->exportResultLabel( $record->last_export_result_code, $record->last_export_error ) ),
+			$this->detailRow( __( 'Last export details', 'wp-simple-firewall' ), $this->displayExportError( $record ) ),
+			$this->detailRow( __( 'Expected export by', 'wp-simple-firewall' ), $this->formatTimestamp( $record->expected_export_by ) ),
+			$this->detailRow( __( 'Next ping due', 'wp-simple-firewall' ), $this->formatTimestamp( $record->next_ping_at ) ),
 		];
 		$rows = \array_merge( $rows, $this->buildInvitationDetailsRows( $record ) );
 		foreach ( [
-			'notification' => $this->text( 'Latest notification' ),
-			'verification' => $this->text( 'Latest verification observation' ),
-			'export'       => $this->text( 'Latest export outcome' ),
+			'notification' => __( 'Latest notification', 'wp-simple-firewall' ),
+			'verification' => __( 'Latest verification observation', 'wp-simple-firewall' ),
+			'export'       => __( 'Latest export outcome', 'wp-simple-firewall' ),
 		] as $slot => $label ) {
 			$rows[] = $this->diagnosticDetailRow( $label, $diagnostics[ $slot ] );
 		}
@@ -332,35 +332,35 @@ class SiteSyncStatusBuilder {
 	private function summaryReason( Record $record, string $state ) :string {
 		switch ( $state ) {
 			case self::STATE_INACTIVE:
-				return $this->text( 'This site is no longer active for sync.' );
+				return __( 'This site is no longer active for sync.', 'wp-simple-firewall' );
 			case self::STATE_PROBLEM:
 				if ( $this->isExpiredWaitingExportProblem( $record ) ) {
-					return $this->text( 'No qualifying successful export was recorded within the existing grace period.' );
+					return __( 'No qualifying successful export was recorded within the existing grace period.', 'wp-simple-firewall' );
 				}
 				return $this->shortText( $this->currentFailureReason( $record ) );
 			case self::STATE_PENDING:
 				return $this->pendingReason( $record );
 			case self::STATE_WORKING:
-				return $this->text( 'The master served a settings export. Client application is unconfirmed.' );
+				return __( 'The master served a settings export. Client application is unconfirmed.', 'wp-simple-firewall' );
 			case self::STATE_NEVER_SYNCED:
 			default:
-				return $this->text( 'No settings export has been served yet.' );
+				return __( 'No settings export has been served yet.', 'wp-simple-firewall' );
 		}
 	}
 
 	private function pendingReason( Record $record ) :string {
 		switch ( $record->queue_status ) {
 			case SitesDB::QUEUE_PROCESSING:
-				return $this->text( 'A sync ping is currently being processed.' );
+				return __( 'A sync ping is currently being processed.', 'wp-simple-firewall' );
 			case SitesDB::QUEUE_WAITING_EXPORT:
-				return $this->text( 'Update notification sent; waiting for the client to request and download its settings.' );
+				return __( 'Update notification sent; waiting for the client to request and download its settings.', 'wp-simple-firewall' );
 			case SitesDB::QUEUE_PENDING_INVITE:
 			case SitesDB::QUEUE_PENDING_CONNECTION:
 				return $this->invitationReason( $record );
 			case SitesDB::QUEUE_QUEUED:
-				return $this->text( 'This site is queued for its next sync ping.' );
+				return __( 'This site is queued for its next sync ping.', 'wp-simple-firewall' );
 			default:
-				return $this->text( 'Sync work is pending.' );
+				return __( 'Sync work is pending.', 'wp-simple-firewall' );
 		}
 	}
 
@@ -369,30 +369,32 @@ class SiteSyncStatusBuilder {
 		$attempts = $invitation[ 'attempts_started' ];
 		switch ( $this->invitationStateForRecord( $record ) ) {
 			case self::INVITATION_STATE_QUEUED:
-				return $this->text( 'The invitation is queued to be sent.' );
+				return __( 'The invitation is queued to be sent.', 'wp-simple-firewall' );
 			case self::INVITATION_STATE_STARTED_RETRYABLE:
 				return \sprintf(
-					$this->text( 'Invitation attempt %1$s started, but its outcome is not recorded. The next attempt is eligible at %2$s.' ),
+					/* translators: %1$s: invitation attempt number, %2$s: date and time the next attempt is eligible */
+					__( 'Invitation attempt %1$s started, but its outcome is not recorded. The next attempt is eligible at %2$s.', 'wp-simple-firewall' ),
 					$attempts,
 					$this->formatTimestamp( $record->next_ping_at )
 				);
 			case self::INVITATION_STATE_RETRY_SCHEDULED:
 				return \sprintf(
-					$this->text( 'Invitation attempt %1$s failed. The next attempt is eligible at %2$s.' ),
+					/* translators: %1$s: invitation attempt number, %2$s: date and time the next attempt is eligible */
+					__( 'Invitation attempt %1$s failed. The next attempt is eligible at %2$s.', 'wp-simple-firewall' ),
 					$attempts,
 					$this->formatTimestamp( $record->next_ping_at )
 				);
 			case self::INVITATION_STATE_FINAL_SETTLEMENT:
-				return $this->text( 'The final invitation attempt started with no recorded outcome. No further invitation will be sent; pending work will close the cycle.' );
+				return __( 'The final invitation attempt started with no recorded outcome. No further invitation will be sent; pending work will close the cycle.', 'wp-simple-firewall' );
 			case self::INVITATION_STATE_RESPONSE_UNCONFIRMED:
-				return $this->text( 'The invitation received a response, but the connection is unconfirmed. Check the client for the invitation or an existing master connection. If it is already linked to this master, use Sync settings now on the client.' );
+				return __( 'The invitation received a response, but the connection is unconfirmed. Check the client for the invitation or an existing master connection. If it is already linked to this master, use Sync settings now on the client.', 'wp-simple-firewall' );
 			case self::INVITATION_STATE_EXHAUSTED_FAILURE:
-				return $this->text( 'Automatic invitation attempts are exhausted after a failure. Inspect and correct the failure before using Retry invitation to start a new cycle.' );
+				return __( 'Automatic invitation attempts are exhausted after a failure. Inspect and correct the failure before using Retry invitation to start a new cycle.', 'wp-simple-firewall' );
 			case self::INVITATION_STATE_EXHAUSTED_UNKNOWN:
-				return $this->text( 'The final invitation outcome is unknown and no further invitation will be sent. Check the client for an invitation or existing master connection before using Retry invitation. If it is already linked to this master, use Sync settings now on the client.' );
+				return __( 'The final invitation outcome is unknown and no further invitation will be sent. Check the client for an invitation or existing master connection before using Retry invitation. If it is already linked to this master, use Sync settings now on the client.', 'wp-simple-firewall' );
 			case self::INVITATION_STATE_PASSIVE:
 			default:
-				return $this->text( 'Waiting for this client to connect. No invitation result is recorded; use Retry invitation or connect from the client. If it is already linked to this master, use Sync settings now on the client.' );
+				return __( 'Waiting for this client to connect. No invitation result is recorded; use Retry invitation or connect from the client. If it is already linked to this master, use Sync settings now on the client.', 'wp-simple-firewall' );
 		}
 	}
 
@@ -406,11 +408,11 @@ class SiteSyncStatusBuilder {
 
 		$invitation = ( new InvitationMetadata() )->normalize( $record->meta );
 		return [
-			$this->detailRow( $this->text( 'Invitation state' ), $this->formatKey( $this->invitationStateForRecord( $record ) ) ),
-			$this->detailRow( $this->text( 'Invitation attempts' ), \sprintf( '%d / %d', $invitation[ 'attempts_started' ], InvitationMetadata::MAX_ATTEMPTS ) ),
-			$this->detailRow( $this->text( 'Last invitation attempt' ), $this->formatTimestamp( $invitation[ 'last_attempt_started_at' ] ?? 0 ) ),
-			$this->detailRow( $this->text( 'Invitation result' ), $invitation[ 'last_result' ] === null ? $this->text( 'None recorded' ) : $this->formatKey( $invitation[ 'last_result' ] ) ),
-			$this->detailRow( $this->text( 'Invitation HTTP result' ), $invitation[ 'last_http_status' ] === null ? $this->text( 'None recorded' ) : (string)$invitation[ 'last_http_status' ] ),
+			$this->detailRow( __( 'Invitation state', 'wp-simple-firewall' ), $this->formatKey( $this->invitationStateForRecord( $record ) ) ),
+			$this->detailRow( __( 'Invitation attempts', 'wp-simple-firewall' ), \sprintf( '%d / %d', $invitation[ 'attempts_started' ], InvitationMetadata::MAX_ATTEMPTS ) ),
+			$this->detailRow( __( 'Last invitation attempt', 'wp-simple-firewall' ), $this->formatTimestamp( $invitation[ 'last_attempt_started_at' ] ?? 0 ) ),
+			$this->detailRow( __( 'Invitation result', 'wp-simple-firewall' ), $invitation[ 'last_result' ] === null ? __( 'None recorded', 'wp-simple-firewall' ) : $this->formatKey( $invitation[ 'last_result' ] ) ),
+			$this->detailRow( __( 'Invitation HTTP result', 'wp-simple-firewall' ), $invitation[ 'last_http_status' ] === null ? __( 'None recorded', 'wp-simple-firewall' ) : (string)$invitation[ 'last_http_status' ] ),
 		];
 	}
 
@@ -422,7 +424,7 @@ class SiteSyncStatusBuilder {
 		if ( $latestFailure === 'ping' ) {
 			return $this->displayError( $record->last_ping_error );
 		}
-		return $this->text( 'The site has recorded sync failures and is waiting to retry.' );
+		return __( 'The site has recorded sync failures and is waiting to retry.', 'wp-simple-firewall' );
 	}
 
 	private function latestFailureType( Record $record ) :string {
@@ -444,29 +446,38 @@ class SiteSyncStatusBuilder {
 	private function lastExportRequestSummary( Record $record ) :string {
 		return $record->last_export_request_at > 0
 			? $this->formatTimestamp( $record->last_export_request_at )
-			: $this->text( 'Never' );
+			: __( 'Never', 'wp-simple-firewall' );
 	}
 
 	private function lastExportSummary( Record $record ) :string {
 		if ( $record->last_export_success_at > 0 && $record->last_export_success_at >= $record->last_export_failure_at ) {
-			return \sprintf( '%s (%s)', $this->text( 'served' ), $this->formatTimestamp( $record->last_export_success_at ) );
+			return \sprintf( '%s (%s)', __( 'served', 'wp-simple-firewall' ), $this->formatTimestamp( $record->last_export_success_at ) );
 		}
 		if ( $record->last_export_failure_at > 0 ) {
-			return \sprintf( '%s (%s)', $this->text( 'failed' ), $this->formatTimestamp( $record->last_export_failure_at ) );
+			return \sprintf( '%s (%s)', __( 'failed', 'wp-simple-firewall' ), $this->formatTimestamp( $record->last_export_failure_at ) );
 		}
-		return $this->text( 'Never' );
+		return __( 'Never', 'wp-simple-firewall' );
 	}
 
 	private function detailsButtonHtml( string $detailsHtml ) :string {
-		$label = $this->text( 'Details' );
-		$title = $this->text( 'Sync Details' );
+		$label = __( 'Details', 'wp-simple-firewall' );
+		$title = __( 'Sync Details', 'wp-simple-firewall' );
 		return \sprintf(
 			'<button type="button" class="btn btn-sm btn-link p-0 import-export-sync-details__trigger" aria-label="%s" data-bs-toggle="popover" data-shield-sync-details-trigger="1" data-shield-sync-details-title="%s" data-shield-sync-details="%s">%s</button>',
 			$this->escAttr( $title ),
-			$this->escAttr( $title ),
-			$this->escAttr( $detailsHtml ),
+			$this->htmlForDataAttribute( $this->escHtml( $title ) ),
+			$this->htmlForDataAttribute( $detailsHtml ),
 			$this->escHtml( $label )
 		);
+	}
+
+	/**
+	 * The popover reads these attributes and inserts their values as HTML. The browser decodes an attribute once,
+	 * so the HTML is encoded again here, entities and all: esc_attr() leaves existing entities as they are, which
+	 * would let the decoding undo the escaping inside the HTML.
+	 */
+	private function htmlForDataAttribute( string $html ) :string {
+		return \htmlspecialchars( $html, \ENT_QUOTES, 'UTF-8', true );
 	}
 
 	private function detailRow( string $label, string $value ) :string {
@@ -487,16 +498,16 @@ class SiteSyncStatusBuilder {
 				(string)$diagnostic[ 'observed_at_display' ],
 			];
 			if ( $diagnostic[ 'http_status' ] !== null ) {
-				$parts[] = \sprintf( '%s: %d', $this->text( 'HTTP status' ), $diagnostic[ 'http_status' ] );
+				$parts[] = \sprintf( '%s: %d', __( 'HTTP status', 'wp-simple-firewall' ), $diagnostic[ 'http_status' ] );
 			}
 			if ( $diagnostic[ 'eligible_at_display' ] !== null ) {
-				$parts[] = \sprintf( '%s: %s', $this->text( 'Eligible at' ), $diagnostic[ 'eligible_at_display' ] );
+				$parts[] = \sprintf( '%s: %s', __( 'Eligible at', 'wp-simple-firewall' ), $diagnostic[ 'eligible_at_display' ] );
 			}
 			if ( !empty( $diagnostic[ 'qualification' ] ) ) {
 				$parts[] = (string)$diagnostic[ 'qualification' ];
 			}
 			$parts[] = (string)$diagnostic[ 'explanation' ];
-			$parts[] = \sprintf( '%s: %s', $this->text( 'Next check' ), $diagnostic[ 'next_check' ] );
+			$parts[] = \sprintf( '%s: %s', __( 'Next check', 'wp-simple-firewall' ), $diagnostic[ 'next_check' ] );
 			$value = \implode( ' ', $parts );
 		}
 
@@ -516,13 +527,13 @@ class SiteSyncStatusBuilder {
 
 	private function displayError( string $error ) :string {
 		$error = \trim( $error );
-		return empty( $error ) ? $this->text( 'None recorded' ) : $error;
+		return empty( $error ) ? __( 'None recorded', 'wp-simple-firewall' ) : $error;
 	}
 
 	private function displayExportError( Record $record ) :string {
 		if ( $record->last_export_result_code === SitesDB::EXPORT_RESULT_TIMEOUT
 			 || $record->last_export_error === 'export_not_requested_before_grace_window' ) {
-			return $this->text( 'No qualifying successful export was recorded within the existing grace period.' );
+			return __( 'No qualifying successful export was recorded within the existing grace period.', 'wp-simple-firewall' );
 		}
 		return $this->displayError( $record->last_export_error );
 	}
@@ -530,10 +541,10 @@ class SiteSyncStatusBuilder {
 	private function exportResultLabel( string $resultCode, string $error ) :string {
 		if ( $resultCode === SitesDB::EXPORT_RESULT_TIMEOUT
 			 || $error === 'export_not_requested_before_grace_window' ) {
-			return $this->text( 'Export timeout' );
+			return __( 'Export timeout', 'wp-simple-firewall' );
 		}
 
-		return empty( $resultCode ) ? $this->text( 'None recorded' ) : $this->formatKey( $resultCode );
+		return empty( $resultCode ) ? __( 'None recorded', 'wp-simple-firewall' ) : $this->formatKey( $resultCode );
 	}
 
 	private function isExpiredWaitingExportProblem( Record $record ) :bool {
@@ -659,7 +670,7 @@ class SiteSyncStatusBuilder {
 
 	private function formatTimestamp( int $ts ) :string {
 		if ( $ts <= 0 ) {
-			return $this->text( 'Never' );
+			return __( 'Never', 'wp-simple-firewall' );
 		}
 
 		return \wp_date( 'Y-m-d H:i:s T', $ts );
@@ -672,10 +683,6 @@ class SiteSyncStatusBuilder {
 	private function shortText( string $text ) :string {
 		$text = \trim( $text );
 		return \strlen( $text ) > 160 ? \substr( $text, 0, 157 ).'...' : $text;
-	}
-
-	private function text( string $text ) :string {
-		return __( $text, 'wp-simple-firewall' );
 	}
 
 	private function escHtml( string $value ) :string {

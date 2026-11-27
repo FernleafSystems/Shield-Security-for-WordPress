@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MaintenanceItemIgnore,
 	MaintenanceItemUnignore
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\MaintenanceItemDetails;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -99,7 +100,8 @@ use FernleafSystems\Wordpress\Services\Services;
  *   target:string,
  *   cta:array{}|MaintenanceItemCta,
  *   toggle_action:array{}|MaintenanceUiAction,
- *   expansion:array{}|MaintenanceItemExpansion
+ *   expansion:array{}|MaintenanceItemExpansion,
+ *   drawer_json:string
  * }
  */
 class MaintenanceQueueItemDisplayNormalizer {
@@ -191,10 +193,13 @@ class MaintenanceQueueItemDisplayNormalizer {
 			$item[ 'cta' ] = [];
 			$item[ 'toggle_action' ] = [];
 			$item[ 'expansion' ] = [];
+			$item[ 'drawer_json' ] = '';
 			return $item;
 		}
 
 		$item[ 'cta' ] = $this->buildCta( $item );
+		// Every to-do explains itself in a drawer, opened from the name of any of its rows.
+		$item[ 'drawer_json' ] = MaintenanceItemDetails::requestJsonFor( $item[ 'key' ] );
 		$item[ 'toggle_action' ] = $this->buildToggleAction( $item, $state );
 		$item[ 'expansion' ] = $this->buildExpansion( $item, $state );
 		return $item;
@@ -211,6 +216,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 		switch ( $item[ 'key' ] ) {
 			case 'report_email':
 			case 'default_admin_user':
+			case 'admin_two_factor':
 				return $this->buildMappedCta( $href, $item[ 'action' ], $target );
 
 			case 'wp_updates':
@@ -545,8 +551,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 		$actionClass = $isIgnored ? MaintenanceItemUnignore::class : MaintenanceItemIgnore::class;
 		$label = $isIgnored ? __( 'Stop ignoring', 'wp-simple-firewall' ) : __( 'Ignore', 'wp-simple-firewall' );
 		$tooltip = $isIgnored
-			? __( 'Stop ignoring this maintenance item', 'wp-simple-firewall' )
-			: __( 'Ignore this maintenance item', 'wp-simple-firewall' );
+			? __( 'Stop ignoring this to-do', 'wp-simple-firewall' )
+			: __( 'Ignore this to-do', 'wp-simple-firewall' );
 		$ajaxAction = ActionData::Build( $actionClass, true, \array_filter( [
 			'maintenance_key' => $maintenanceKey,
 			'identifier'      => $identifier,
@@ -575,6 +581,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 	private function buildUpdateContext( string $currentVersion, string $availableVersion ) :string {
 		if ( $currentVersion !== '' && $availableVersion !== '' ) {
 			return \sprintf(
+				/* translators: %1$s: currently installed version, %2$s: available version */
 				__( 'Current: %1$s | Available: %2$s', 'wp-simple-firewall' ),
 				$currentVersion,
 				$availableVersion
@@ -588,12 +595,14 @@ class MaintenanceQueueItemDisplayNormalizer {
 
 	private function buildVersionContext( string $version ) :string {
 		return $version !== ''
+			/* translators: %s: version number */
 			? \sprintf( __( 'Version: %s', 'wp-simple-firewall' ), $version )
 			: __( 'Version unavailable', 'wp-simple-firewall' );
 	}
 
 	private function buildInlineVersionMeta( string $version ) :string {
 		return $version !== ''
+			/* translators: %s: version number */
 			? \sprintf( __( 'Version %s', 'wp-simple-firewall' ), $version )
 			: '';
 	}

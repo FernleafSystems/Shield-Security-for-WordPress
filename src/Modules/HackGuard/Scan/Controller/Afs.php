@@ -120,6 +120,16 @@ class Afs extends Base {
 			elseif ( $item->is_checksumfail && $CFH->isCoreFileHashValid( $item->path_full ) ) {
 				$changed = $updater->setItemRepaired( $item->VO->resultitem_id );
 			}
+			// A file the scan accepts as WordPress's original is neither unidentified nor unrecognised. This settles such
+			// findings even when no scan revisits them, such as those stored under a path spelling scans no longer use,
+			// or in an area that's no longer scanned. Malware findings are left for the malware scan to settle, and
+			// findings already resolved keep their resolution.
+			elseif ( ( $item->is_unidentified || $item->is_unrecognised )
+					 && !$item->is_mal
+					 && (int)$item->VO->resolved_at === 0
+					 && ( new Scans\Afs\Scans\WpCoreFile( $item->path_full ) )->isOriginalCoreFile() ) {
+				$changed = $updater->setItemCleanRescan( $item->VO->resultitem_id );
+			}
 		}
 		elseif ( $item->is_in_plugin || $item->is_in_theme ) {
 			try {

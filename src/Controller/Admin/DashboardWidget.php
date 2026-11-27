@@ -35,7 +35,7 @@ class DashboardWidget {
 		$con = self::con();
 		wp_add_dashboard_widget(
 			$con->prefix( 'dashboard_widget' ),
-			apply_filters( 'shield/dashboard_widget_title', sprintf( '%s: %s', $con->labels->Name, __( 'Actions Queue', 'wp-simple-firewall' ) ) ),
+			apply_filters( 'shield/dashboard_widget_title', esc_html( sprintf( '%s: %s', $con->labels->Name, __( 'Actions Queue', 'wp-simple-firewall' ) ) ) ),
 			function () {
 				echo sprintf(
 					'<div id="ShieldDashboardWidget" aria-busy="true"><div class="shield-dashboard-widget__loading">%s...</div></div>',

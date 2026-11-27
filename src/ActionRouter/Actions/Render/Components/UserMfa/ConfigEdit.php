@@ -21,7 +21,7 @@ class ConfigEdit extends UserMfaBase {
 		$currentUser = $WPU->getCurrentWpUser();
 		$requestedUserID = (int)( $this->action_data[ 'user_id' ] ?? 0 );
 		if ( $requestedUserID > 0 && $currentUser->ID !== $requestedUserID && !$WPU->isUserAdmin( $currentUser ) ) {
-			throw new ActionException( __( 'Invalid profile request.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'Invalid profile request.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Shown only through the action router (the user profile calls action_router->render()), which escapes exception messages when printing.
 		}
 
 		$user = $requestedUserID > 0 ? $WPU->getUserById( $requestedUserID ) : $currentUser;
@@ -40,13 +40,16 @@ class ConfigEdit extends UserMfaBase {
 			],
 			'strings' => [
 				'title'            => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
+				/* translators: %s: plugin name */
 				'provided_by'      => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $con->labels->Name ),
 				'currently_active' => __( 'Currently active MFA Providers on this profile are', 'wp-simple-firewall' ),
 				'remove_all'       => __( 'Remove All MFA Providers', 'wp-simple-firewall' ),
 				'remove_all_from'  => __( 'Remove All MFA Providers From This User Profile', 'wp-simple-firewall' ),
 				'remove_warning'   => __( "Certain providers may not be removed if they're enforced.", 'wp-simple-firewall' ),
 				'no_providers'     => __( 'There are no MFA providers active on this user account.', 'wp-simple-firewall' ),
+				/* translators: %s: plugin name */
 				'only_secadmin'    => sprintf( __( 'Only %s Security Admins may modify the MFA settings of another admin account.', 'wp-simple-firewall' ), $con->labels->Name ),
+				/* translators: %s: plugin name */
 				'authenticate'     => sprintf( __( 'You may authenticate with the %s Security Admin system and return here.', 'wp-simple-firewall' ), $con->labels->Name ),
 			],
 			'vars'    => [

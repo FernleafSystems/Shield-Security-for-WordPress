@@ -18,7 +18,7 @@ abstract class AbstractOtpProvider extends AbstractProvider {
 		}
 
 		if ( !$this->processOtp( $otp ) ) {
-			throw new OtpVerificationFailedException( $this->getProviderName() );
+			throw new OtpVerificationFailedException( $this->getProviderName() ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the message is the provider name; LoginIntentRequestCapture and MfaEmailAutoLogin catch it and never show it.
 		}
 
 		return true;

@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
+ * @phpstan-import-type ComponentGuidance from MeterComponentBase
  * @phpstan-type MaintenanceIssueState array{
  *   key:string,
  *   label:string,
@@ -108,6 +109,19 @@ class MaintenanceIssueStateProvider {
 		}
 
 		return $identifiers;
+	}
+
+	/**
+	 * A to-do's check explained, for its drawer; null when the key isn't a to-do's.
+	 * @return ComponentGuidance|null
+	 */
+	public function guidanceFor( string $key ) :?array {
+		foreach ( $this->getDefinitions() as $definition ) {
+			if ( $definition[ 'key' ] === $key ) {
+				return ( new $definition[ 'component_class' ]() )->guidance();
+			}
+		}
+		return null;
 	}
 
 	public function isKnownMaintenanceKey( string $key ) :bool {
@@ -412,8 +426,9 @@ class MaintenanceIssueStateProvider {
 		switch ( $key ) {
 			case 'wp_plugins_updates':
 				$description = \sprintf(
+					/* translators: %s: number of plugin updates */
 					_n(
-						'There is 1 plugin update waiting to be applied.',
+						'There is %s plugin update waiting to be applied.',
 						'There are %s plugin updates waiting to be applied.',
 						$activeCount,
 						'wp-simple-firewall'
@@ -424,8 +439,9 @@ class MaintenanceIssueStateProvider {
 
 			case 'wp_themes_updates':
 				$description = \sprintf(
+					/* translators: %s: number of theme updates */
 					_n(
-						'There is 1 theme update waiting to be applied.',
+						'There is %s theme update waiting to be applied.',
 						'There are %s theme updates waiting to be applied.',
 						$activeCount,
 						'wp-simple-firewall'
@@ -436,8 +452,9 @@ class MaintenanceIssueStateProvider {
 
 			case 'wp_plugins_inactive':
 				$description = \sprintf(
+					/* translators: %s: number of unused plugins */
 					_n(
-						'There is 1 unused plugin that should be uninstalled.',
+						'There is %s unused plugin that should be uninstalled.',
 						'There are %s unused plugins that should be uninstalled.',
 						$activeCount,
 						'wp-simple-firewall'
@@ -448,8 +465,9 @@ class MaintenanceIssueStateProvider {
 
 			case 'wp_themes_inactive':
 				$description = \sprintf(
+					/* translators: %s: number of unused themes */
 					_n(
-						'There is 1 unused theme that should be uninstalled.',
+						'There is %s unused theme that should be uninstalled.',
 						'There are %s unused themes that should be uninstalled.',
 						$activeCount,
 						'wp-simple-firewall'
@@ -473,6 +491,7 @@ class MaintenanceIssueStateProvider {
 	private function buildIgnoredDescription( int $ignoredCount, bool $supportsSubItems ) :string {
 		return $supportsSubItems
 			? \sprintf(
+				/* translators: %s: number of ignored items */
 				_n(
 					'%s item is currently ignored.',
 					'%s items are currently ignored.',
@@ -481,7 +500,7 @@ class MaintenanceIssueStateProvider {
 				),
 				$ignoredCount
 			)
-			: __( 'This maintenance item is currently ignored.', 'wp-simple-firewall' );
+			: __( 'This to-do is currently ignored.', 'wp-simple-firewall' );
 	}
 
 	/**

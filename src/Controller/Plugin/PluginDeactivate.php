@@ -11,7 +11,7 @@ class PluginDeactivate {
 	use PluginControllerConsumer;
 
 	public function run() {
-		do_action( self::con()->prefix( 'deactivate_plugin' ) );
+		do_action( self::con()->prefix( 'deactivate_plugin' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 		$this->purgeScans();
 		$this->deleteCrons();
 	}

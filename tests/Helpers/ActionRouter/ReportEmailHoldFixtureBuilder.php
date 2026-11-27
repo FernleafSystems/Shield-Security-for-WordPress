@@ -7,7 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * A fresh install with no report email chosen, so the report email hold is active. The site's setup guide progress
- * is reset and kept aside too, since a scenario may skip a step.
+ * is reset and kept aside too, since a scenario may skip a step. The guide starts minimised: on a fresh install
+ * it would otherwise open over the dashboard by itself, which is the setup guide's own scenario to cover.
  * @phpstan-type FixtureState array{options_snapshot:array<string,mixed>}
  */
 class ReportEmailHoldFixtureBuilder {
@@ -30,7 +31,7 @@ class ReportEmailHoldFixtureBuilder {
 			RuntimeTestState::controller()->opts
 				->optSet( 'installation_time', Services::Request()->ts() - 60 )
 				->optSet( 'block_send_email_address', '' )
-				->optSet( 'setup_guide_state', [] )
+				->optSet( 'setup_guide_state', [ 'minimised' => true ] )
 				->store();
 
 			return [

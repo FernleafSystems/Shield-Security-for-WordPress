@@ -21,6 +21,7 @@ import { LicenseHandler } from "../components/general/LicenseHandler";
 import { Merlin } from "../components/general/Merlin";
 import { SetupGuideBar } from "../components/general/SetupGuideBar";
 import { ProtectionLevelPicker } from "../components/general/ProtectionLevelPicker";
+import { ReportEmailStep } from "../components/general/ReportEmailStep";
 import { MiscHooks } from "../components/general/MiscHooks";
 import { OffCanvasService } from "../components/ui/OffCanvasService";
 import { OptionsHandler } from "../components/options/OptionsHandler";
@@ -102,6 +103,7 @@ export class AppMain extends AppBase {
 		this.components.merlin = ( 'merlin' in comps ) ? new Merlin( comps.merlin ) : null;
 		this.components.setup_guide_bar = new SetupGuideBar();
 		this.components.protection_level_picker = new ProtectionLevelPicker();
+		this.components.report_email_step = new ReportEmailStep();
 		this.components.misc_hooks = ( 'misc_hooks' in comps ) ? new MiscHooks( comps.misc_hooks ) : null;
 		this.components.mod_options = ( 'mod_options' in comps ) ? new OptionsHandler( comps.mod_options ) : null;
 		this.components.mode_panel_state = new ModePanelStateController();

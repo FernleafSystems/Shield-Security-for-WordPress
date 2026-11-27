@@ -41,7 +41,7 @@ class CommentSpamCon {
 	 * @return mixed
 	 */
 	public function clearCommentNotificationEmail( $emails ) {
-		$status = apply_filters( self::con()->prefix( 'cf_status' ), '' );
+		$status = apply_filters( self::con()->prefix( 'cf_status' ), '' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 		return \in_array( $status, [ 'reject', 'trash' ] ) ? [] : $emails;
 	}
 

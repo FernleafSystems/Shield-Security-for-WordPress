@@ -26,8 +26,10 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 		}
 		else {
 			$path = $leadingPath.$req->getPath();
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing -- Records the request as it arrived for Shield's request log: the encoded query is stored and redacted when shown, and whether there were parameters affects how long the entry is kept.
 			$query = empty( $_GET ) ? '' : \http_build_query( $_GET );
 			$hasParams = !empty( $_GET ) || !empty( $_POST );
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing
 		}
 
 		$isCron = false;

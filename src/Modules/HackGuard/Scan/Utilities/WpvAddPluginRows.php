@@ -44,10 +44,12 @@ class WpvAddPluginRows {
 
 		foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $file ) {
 			add_action( "after_plugin_row_$file", function ( $pluginFile ) {
+				// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by the action router, whose Twig templates escape their values.
 				echo self::con()->action_router->render( PluginVulnerabilityWarning::class, [
 					'plugin_file'   => $pluginFile,
 					'columns_count' => $this->colsCount
 				] );
+				// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 			}, 100 );
 		}
 	}
@@ -71,7 +73,7 @@ class WpvAddPluginRows {
 		$views[ 'vulnerable' ] = sprintf( "<a href='%s' %s>%s</a>",
 			add_query_arg( 'plugin_status', 'vulnerable', 'plugins.php' ),
 			( 'vulnerable' === $status ) ? ' class="current"' : '',
-			sprintf( '%s <span class="count">(%s)</span>', __( 'Vulnerable', 'wp-simple-firewall' ), number_format_i18n( $this->countVulnerablePlugins() ) )
+			sprintf( '%s <span class="count">(%s)</span>', esc_html__( 'Vulnerable', 'wp-simple-firewall' ), number_format_i18n( $this->countVulnerablePlugins() ) )
 		);
 		return $views;
 	}

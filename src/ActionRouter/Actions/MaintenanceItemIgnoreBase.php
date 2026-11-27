@@ -21,14 +21,14 @@ abstract class MaintenanceItemIgnoreBase extends BaseAction {
 		$key = \sanitize_key( $this->action_data[ 'maintenance_key' ] );
 
 		if ( !$provider->canBeIgnored( $key ) ) {
-			$this->fail( __( 'Invalid maintenance item.', 'wp-simple-firewall' ), self::ERROR_INVALID_KEY );
+			$this->fail( __( 'Invalid to-do.', 'wp-simple-firewall' ), self::ERROR_INVALID_KEY );
 			return;
 		}
 
 		$hasSubItems = $provider->supportsSubItems( $key );
 		$identifiers = $hasSubItems ? $this->requestedIdentifiers() : [ MaintenanceIssueStateProvider::SINGLETON_TOKEN ];
 		if ( $hasSubItems && ( empty( $identifiers ) || \in_array( '', $identifiers, true ) ) ) {
-			$this->fail( __( 'A specific maintenance item identifier is required.', 'wp-simple-firewall' ), self::ERROR_MISSING_IDENTIFIER );
+			$this->fail( __( 'A specific to-do identifier is required.', 'wp-simple-firewall' ), self::ERROR_MISSING_IDENTIFIER );
 			return;
 		}
 

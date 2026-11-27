@@ -135,6 +135,7 @@ yarn.lock text eol=lf
 # Tools
 /tools export-ignore
 /.npmrc export-ignore
+/.nvmrc export-ignore
 
 # CI/CD and version control
 /.github export-ignore
@@ -163,7 +164,7 @@ yarn.lock text eol=lf
 
 # Dependency management (runtime deps installed separately in package)
 # NOTE: composer.json is INCLUDED during copy (needed for composer install in packaging)
-# but removed from the final package by PluginPackager after all build steps complete.
+# and kept in the final package, as WordPress.org's Plugin Check expects it alongside vendor/.
 /composer.lock export-ignore
 /package.json export-ignore
 /package-lock.json export-ignore

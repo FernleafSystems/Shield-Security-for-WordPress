@@ -241,22 +241,60 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 			throw new \LogicException( 'Configure rows require a stable non-empty producer-owned key.' );
 		}
 
-		return [
-			'key'            => $key,
-			'title'          => \trim( $title ),
-			'enabled_status' => \trim( $enabledStatus ),
-			'note'           => \trim( $note ),
-			'explanations'   => \array_values( \array_filter( \array_map(
+		$scope = $this->buildConfigureRowScope(
+			$configScope[ 'zone_component_slugs' ] ?? [],
+			$configScope[ 'option_keys' ] ?? [],
+			(string)( $configScope[ 'config_item' ] ?? '' ),
+			(string)( $configScope[ 'title' ] ?? '' )
+		);
+		[ $enabledStatus, $explanations ] = $this->statusThisPlanCanActOn(
+			\trim( $enabledStatus ),
+			\array_values( \array_filter( \array_map(
 				static fn( $line ) :string => \trim( (string)$line ),
 				$explanations
 			) ) ),
-			'config_scope'   => $this->buildConfigureRowScope(
-				$configScope[ 'zone_component_slugs' ] ?? [],
-				$configScope[ 'option_keys' ] ?? [],
-				(string)( $configScope[ 'config_item' ] ?? '' ),
-				(string)( $configScope[ 'title' ] ?? '' )
-			),
+			$scope[ 'option_keys' ]
+		);
+
+		return [
+			'key'            => $key,
+			'title'          => \trim( $title ),
+			'enabled_status' => $enabledStatus,
+			'note'           => \trim( $note ),
+			'explanations'   => $explanations,
+			'config_scope'   => $scope,
 		];
+	}
+
+	/**
+	 * Configure only raises what the site can act on. A reason fixed by a setting outside the site's plan is left
+	 * out, and a row that then has no reasons left no longer needs attention. A row made up only of such settings
+	 * says nothing at all.
+	 * @param list<string> $explanations
+	 * @param list<string> $optionKeys
+	 * @return array{0:string,1:list<string>}
+	 */
+	private function statusThisPlanCanActOn( string $status, array $explanations, array $optionKeys ) :array {
+		$opts = self::con()->opts;
+		$inPlan = static fn( string $optionKey ) :bool => $opts->optHasAccess( $optionKey );
+
+		if ( !empty( $optionKeys ) && empty( \array_filter( $optionKeys, $inPlan ) ) ) {
+			return [ EnumEnabledStatus::NEUTRAL, [] ];
+		}
+
+		$kept = \array_values( \array_filter(
+			$explanations,
+			static function ( string $explanation ) use ( $inPlan ) :bool {
+				$fixedBy = self::$explanationOptionKeys[ $explanation ] ?? '';
+				return $fixedBy === '' || $inPlan( $fixedBy );
+			}
+		) );
+		if ( empty( $kept ) && !empty( $explanations )
+			 && \in_array( $status, [ EnumEnabledStatus::BAD, EnumEnabledStatus::OKAY ], true ) ) {
+			$status = EnumEnabledStatus::GOOD;
+		}
+
+		return [ $status, $kept ];
 	}
 
 	/**

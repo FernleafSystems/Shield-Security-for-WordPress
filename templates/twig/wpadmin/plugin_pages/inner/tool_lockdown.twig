@@ -121,7 +121,7 @@
 			<span class="shield-tool-row__icon is-critical"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i></span>
 		{% endif %}
 		<div>
-			<div class="shield-tool-row__title">{{ strings.you_at|format( '<code>' ~ vars.your_ip|e ~ '</code>' )|raw }}</div>
+			<div class="shield-tool-row__title">{{ strings.you_at|e|format( '<code>' ~ vars.your_ip|e ~ '</code>' )|raw }}</div>
 			<div class="shield-tool-row__desc">
 				{{ flags.your_ip_added ? strings.you_added : ( flags.is_your_ip_whitelisted ? strings.you_bypassed : strings.you_not_bypassed ) }}
 			</div>

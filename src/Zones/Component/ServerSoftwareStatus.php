@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\SystemPhpVersion;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\{
 	DbPasswordStrength,
 	SslStatus
@@ -26,9 +27,10 @@ class ServerSoftwareStatus extends Base {
 		$status = parent::status();
 		$status[ 'level' ] = EnumEnabledStatus::GOOD;
 
-		if ( !Services::Data()->getPhpVersionIsAtLeast( '7.4' ) ) {
+		if ( !Services::Data()->getPhpVersionIsAtLeast( SystemPhpVersion::MIN_VERSION ) ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
-			$status[ 'exp' ][] = sprintf( __( "PHP version should ideally be at least %s.", 'wp-simple-firewall' ), '7.4' );
+			/* translators: %s: PHP version number */
+			$status[ 'exp' ][] = sprintf( __( "PHP version should ideally be at least %s.", 'wp-simple-firewall' ), SystemPhpVersion::MIN_VERSION );
 		}
 		if ( SslStatus::Check() !== 'ssl_valid' ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;

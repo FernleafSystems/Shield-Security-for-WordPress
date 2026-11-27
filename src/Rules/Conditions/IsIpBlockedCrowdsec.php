@@ -11,6 +11,7 @@ class IsIpBlockedCrowdsec extends Base {
 	public const SLUG = 'is_ip_blocked_crowdsec';
 
 	public function getDescription() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( "Is the request IP on %s's CrowdSec block list.", 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 

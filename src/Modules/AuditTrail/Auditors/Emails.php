@@ -87,7 +87,7 @@ class Emails extends Base {
 
 	private function findEmailSenderBacktrace() :array {
 		$backtrace = [];
-		foreach ( \debug_backtrace( false ) as $item ) {
+		foreach ( \debug_backtrace( false ) as $item ) { // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Finds the code that called wp_mail() so the activity log can record which file sent the email; nothing is printed.
 			if ( 'wp_mail' === \strtolower( $item[ 'function' ] ) ) {
 				$backtrace = $item;
 				break;

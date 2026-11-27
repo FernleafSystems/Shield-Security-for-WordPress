@@ -112,15 +112,22 @@ class GoogleAuthProviderIntegrationTest extends ShieldIntegrationTestCase {
 	/**
 	 * @dataProvider invalidActivationOtpProvider
 	 */
-	public function test_invalid_activation_otp_fails_without_creating_record( string $otp ) :void {
+	public function test_invalid_activation_otp_fails_without_creating_record_and_the_right_code_can_follow( string $otp ) :void {
 		$user = \get_user_by( 'id', $this->createAdministratorUser() );
 		$provider = new GoogleAuth( $user );
 
-		$provider->resetSecret();
+		$secret = $provider->resetSecret();
 		$result = $provider->activateGA( $otp );
 
 		$this->assertFalse( $result->success );
 		$this->assertCount( 0, $this->loadRecordsForSlug( $user->ID, GoogleAuth::ProviderSlug() ) );
+		// The QR code already scanned is still good: a mistyped code doesn't mean scanning a new one.
+		$this->assertSame( $secret, (string)$this->requireController()->user_metas->for( $user )->ga_temp_secret );
+
+		$retry = $provider->activateGA( $this->calculateOtp( $secret ) );
+
+		$this->assertTrue( $retry->success, $retry->error_text );
+		$this->assertSame( $secret, $this->loadRecordsForSlug( $user->ID, GoogleAuth::ProviderSlug() )[ 0 ]->unique_id );
 		$this->assertEmpty( $this->requireController()->user_metas->for( $user )->ga_temp_secret );
 	}
 

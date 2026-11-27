@@ -40,7 +40,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   accessible_label:string,
  *   count:int,
  *   status:string,
- *   href:string
+ *   href:string,
+ *   ignored_text:string
  * }
  * @phpstan-type DashboardStrip array{
  *   overall:array{
@@ -48,7 +49,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *     icon_class:string,
  *     title:string,
  *     summary:string,
- *     accessible_label:string
+ *     accessible_label:string,
+ *     ignored_text:string
  *   },
  *   summaries:list<DashboardStripSummary>
  * }
@@ -83,6 +85,12 @@ class ActionsQueueCardDataBuilder {
 		'critical',
 	];
 
+	private ?ActionsQueueIgnoredCounter $ignoredCounter;
+
+	public function __construct( ?ActionsQueueIgnoredCounter $ignoredCounter = null ) {
+		$this->ignoredCounter = $ignoredCounter;
+	}
+
 	/**
 	 * @param AttentionQuery $attentionQuery
 	 * @return ActionsQueueCardData
@@ -115,6 +123,11 @@ class ActionsQueueCardDataBuilder {
 		$scanStatus = $this->localDashboardStatus( $zoneGroups[ 'scans' ] );
 		$maintenanceCount = $maintenance[ 'total' ];
 		$totalCount = $scanCount + $maintenanceCount;
+		// Ignored items count for nothing, so a group with nothing waiting says how many it's leaving out.
+		$scanIgnored = $scanCount === 0 ? $this->ignoredCounter()->securityIssues() : 0;
+		$maintenanceIgnored = $maintenanceCount === 0 ? $this->ignoredCounter()->toDos() : 0;
+		// "All Clear" is only said with nothing waiting in either group, which is when both were counted.
+		$overallIgnoredText = $totalCount === 0 ? $this->ignoredText( $scanIgnored + $maintenanceIgnored ) : '';
 
 		if ( $totalCount === 0 ) {
 			$status = 'good';
@@ -126,6 +139,7 @@ class ActionsQueueCardDataBuilder {
 			$title = __( 'Critical Action Required', 'wp-simple-firewall' );
 			$summary = $this->buildDashboardOverallSummary(
 				sprintf(
+					/* translators: %s: number of issues */
 					_n( '%s issue needs your attention.', '%s issues need your attention.', $totalCount, 'wp-simple-firewall' ),
 					$totalCount
 				)
@@ -136,17 +150,20 @@ class ActionsQueueCardDataBuilder {
 			$title = __( 'Review Recommended', 'wp-simple-firewall' );
 			$summary = $this->buildDashboardOverallSummary(
 				sprintf(
+					/* translators: %s: number of items */
 					_n( '%s item needs review.', '%s items need review.', $totalCount, 'wp-simple-firewall' ),
 					$totalCount
 				)
 			);
 		}
 		else {
+			// Only to-dos: nothing is wrong, and the card says so first rather than calling for action.
 			$status = 'warning';
-			$title = __( 'Maintenance Action Required', 'wp-simple-firewall' );
+			$title = __( 'No Security Issues', 'wp-simple-firewall' );
 			$summary = $this->buildDashboardOverallSummary(
 				sprintf(
-					_n( '%s maintenance item needs review.', '%s maintenance items need review.', $maintenanceCount, 'wp-simple-firewall' ),
+					/* translators: %s: number of to-dos */
+					_n( '%s to-do to review when you have time.', '%s to-dos to review when you have time.', $maintenanceCount, 'wp-simple-firewall' ),
 					$maintenanceCount
 				)
 			);
@@ -164,7 +181,8 @@ class ActionsQueueCardDataBuilder {
 				'icon_class'       => self::con()->svgs->iconClass( $iconMap[ $status ] ),
 				'title'            => $title,
 				'summary'          => $summary,
-				'accessible_label' => $title.' '.$summary,
+				'accessible_label' => \trim( $title.' '.$summary.' '.$overallIgnoredText ),
+				'ignored_text'     => $overallIgnoredText,
 			],
 			'summaries' => [
 				$this->buildDashboardStripSummary(
@@ -172,17 +190,28 @@ class ActionsQueueCardDataBuilder {
 					__( 'Security Issues', 'wp-simple-firewall' ),
 					$scanCount,
 					$scanStatus,
-					$href
+					$href,
+					$this->ignoredText( $scanIgnored )
 				),
 				$this->buildDashboardStripSummary(
 					'maintenance',
-					__( 'Maintenance', 'wp-simple-firewall' ),
+					__( 'To-dos', 'wp-simple-firewall' ),
 					$maintenanceCount,
 					$this->localDashboardStatus( $maintenance ),
-					$href
+					$href,
+					$this->ignoredText( $maintenanceIgnored )
 				),
 			],
 		];
+	}
+
+	private function ignoredText( int $count ) :string {
+		/* translators: %s: how many items are ignored */
+		return $count > 0 ? sprintf( __( '%s ignored', 'wp-simple-firewall' ), $count ) : '';
+	}
+
+	private function ignoredCounter() :ActionsQueueIgnoredCounter {
+		return $this->ignoredCounter ??= new ActionsQueueIgnoredCounter();
 	}
 
 	private function buildDashboardOverallSummary( string $default ) :string {
@@ -205,7 +234,8 @@ class ActionsQueueCardDataBuilder {
 		string $label,
 		int $count,
 		string $status,
-		string $href
+		string $href,
+		string $ignoredText
 	) :array {
 		$value = $this->buildDashboardStripSummaryValue( $id, $count, $status );
 		$summary = $this->buildDashboardStripSummaryDetail( $id, $count, $status );
@@ -215,10 +245,11 @@ class ActionsQueueCardDataBuilder {
 			'label'            => $label,
 			'value'            => $value,
 			'summary'          => $summary,
-			'accessible_label' => $label.' '.$value.' '.$summary,
+			'accessible_label' => \trim( $label.' '.$value.' '.$summary.' '.$ignoredText ),
 			'count'            => $count,
 			'status'           => $status,
 			'href'             => $href,
+			'ignored_text'     => $ignoredText,
 		];
 	}
 
@@ -232,19 +263,22 @@ class ActionsQueueCardDataBuilder {
 		// Security issues can be critical findings or items to review, such as critical files left unlocked; the
 		// status says which.
 		if ( $id === 'scans' ) {
+			/* translators: %s: number of issues */
 			return sprintf( _n( '%s issue', '%s issues', $count, 'wp-simple-firewall' ), $count );
 		}
 
 		return $status === 'critical'
-			? sprintf( _n( '%s critical maintenance item', '%s critical maintenance items', $count, 'wp-simple-firewall' ), $count )
-			: sprintf( _n( '%s item due', '%s items due', $count, 'wp-simple-firewall' ), $count );
+			/* translators: %s: number of critical to-dos */
+			? sprintf( _n( '%s critical to-do', '%s critical to-dos', $count, 'wp-simple-firewall' ), $count )
+			/* translators: %s: number of to-dos */
+			: sprintf( _n( '%s to-do', '%s to-dos', $count, 'wp-simple-firewall' ), $count );
 	}
 
 	private function buildDashboardStripSummaryDetail( string $id, int $count, string $status ) :string {
 		if ( $count < 1 ) {
 			return $id === 'scans'
-				? __( 'No active critical or warning items.', 'wp-simple-firewall' )
-				: __( 'No maintenance items require review.', 'wp-simple-firewall' );
+				? __( 'Nothing needs urgent action.', 'wp-simple-firewall' )
+				: __( 'Nothing to review.', 'wp-simple-firewall' );
 		}
 
 		if ( $id === 'scans' ) {
@@ -254,8 +288,8 @@ class ActionsQueueCardDataBuilder {
 		}
 
 		return $status === 'critical'
-			? __( 'Critical maintenance work needs review.', 'wp-simple-firewall' )
-			: __( 'Routine maintenance items require review.', 'wp-simple-firewall' );
+			? __( 'Critical to-dos need review.', 'wp-simple-firewall' )
+			: __( 'Routine items to review when you have time.', 'wp-simple-firewall' );
 	}
 
 	/**
@@ -296,6 +330,7 @@ class ActionsQueueCardDataBuilder {
 
 		return $queueSummary[ 'has_items' ]
 			? sprintf(
+				/* translators: %s: number of issues */
 				_n( '%s issue needs your attention.', '%s issues need your attention.', $queueSummary[ 'total_items' ], 'wp-simple-firewall' ),
 				$queueSummary[ 'total_items' ]
 			)
@@ -326,6 +361,7 @@ class ActionsQueueCardDataBuilder {
 		];
 		$indicatorText = $queueSummary[ 'has_items' ]
 			? sprintf(
+				/* translators: %s: number of issues */
 				_n( '%s issue needs attention', '%s issues need attention', $queueSummary[ 'total_items' ], 'wp-simple-firewall' ),
 				$queueSummary[ 'total_items' ]
 			)
@@ -402,7 +438,7 @@ class ActionsQueueCardDataBuilder {
 
 		return [
 			'key'        => 'maintenance',
-			'label'      => __( 'Maintenance Items', 'wp-simple-firewall' ),
+			'label'      => __( 'To-dos', 'wp-simple-firewall' ),
 			'icon_class' => self::con()->svgs->iconClass( 'wrench' ),
 			'severity'   => $count > 0 ? 'warning' : 'good',
 			'count'      => $count,
@@ -428,10 +464,12 @@ class ActionsQueueCardDataBuilder {
 
 		$parts = [];
 		if ( $counts[ 'critical' ] > 0 ) {
+			/* translators: %s: number of critical items */
 			$parts[] = sprintf( _n( '%s critical', '%s critical', $counts[ 'critical' ], 'wp-simple-firewall' ), $counts[ 'critical' ] );
 		}
 		if ( $counts[ 'warning' ] > 0 ) {
-			$parts[] = sprintf( _n( '%s warning', '%s warnings', $counts[ 'warning' ], 'wp-simple-firewall' ), $counts[ 'warning' ] );
+			/* translators: %s: number of to-dos */
+			$parts[] = sprintf( _n( '%s to-do', '%s to-dos', $counts[ 'warning' ], 'wp-simple-firewall' ), $counts[ 'warning' ] );
 		}
 
 		return empty( $parts ) ? '' : implode( ' - ', $parts );

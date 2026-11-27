@@ -150,6 +150,7 @@ class ScansVulnerabilitiesBuilder {
 				$count,
 				$this->buildVulnerableAssetActions( $asset ),
 				\sprintf(
+					/* translators: %s: number of known vulnerabilities */
 					_n( '%s known vulnerability needs review.', '%s known vulnerabilities need review.', $count, 'wp-simple-firewall' ),
 					$count
 				)
@@ -180,7 +181,7 @@ class ScansVulnerabilitiesBuilder {
 	 * @param 'plugin'|'theme'|'' $assetType
 	 * @return list<VulnerabilityItem>
 	 */
-	protected function buildIgnoredAbandonedItems( string $assetType = '' ) :array {
+	public function buildIgnoredAbandonedItems( string $assetType = '' ) :array {
 		try {
 			$results = self::con()->comps->scans->APC()->getAllResults()->getIgnored();
 		}

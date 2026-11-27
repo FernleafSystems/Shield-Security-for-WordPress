@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Events;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\NormaliseLogLevel;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class EventsService {
 
@@ -21,7 +22,8 @@ class EventsService {
 	public function fireEvent( string $event, array $meta = [] ) {
 		try {
 			if ( !$this->eventExists( $event ) ) {
-				throw new \Exception( sprintf( __( 'Event %s does not exist.', 'wp-simple-firewall' ), $event ) );
+				/* translators: %s: event name */
+				throw new \Exception( sprintf( __( 'Event %s does not exist.', 'wp-simple-firewall' ), $event ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: thrown inside fireEvent()'s own try block, which swallows it; never shown.
 			}
 			do_action(
 				'shield/event',
@@ -42,14 +44,15 @@ class EventsService {
 		$metaParams = \array_keys( $meta[ 'audit_params' ] ?? [] );
 
 		if ( empty( $def ) && !empty( $metaParams ) ) {
-			error_log( sprintf( __( 'WARNING: Event (%s) receives params but none are defined.', 'wp-simple-firewall' ), $event ) );
+			/* translators: %s: event name */
+			ErrorLog::write( sprintf( __( 'WARNING: Event (%s) receives params but none are defined.', 'wp-simple-firewall' ), $event ) );
 		}
 		elseif ( !empty( $def ) ) {
 
 			$missingParams = \array_diff( $def, $metaParams );
 			if ( !empty( $missingParams ) ) {
 				/* translators: %1$s: event, %2$s: missing parameters */
-				throw new \Exception( sprintf( __( 'Event (%1$s) definition has audit parameters that are not present: %2$s', 'wp-simple-firewall' ), $event, \implode( ', ', $missingParams ) ) );
+				throw new \Exception( sprintf( __( 'Event (%1$s) definition has audit parameters that are not present: %2$s', 'wp-simple-firewall' ), $event, \implode( ', ', $missingParams ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: verifyAuditParams() is only called by fireEvent(), which swallows it; never shown.
 			}
 
 			$extraMetaParams = \array_diff(
@@ -102,7 +105,8 @@ class EventsService {
 			$this->events = $this->normaliseEventLevels( $events );
 		}
 		if ( empty( $this->events ) ) {
-			error_log( sprintf( __( '%s event definitions are empty or not in the correct format.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
+			/* translators: %s: plugin name */
+			ErrorLog::write( sprintf( __( '%s event definitions are empty or not in the correct format.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 
 		try {
@@ -126,25 +130,25 @@ class EventsService {
 
 			$events = apply_filters( 'shield/events/custom_definitions', [] );
 			if ( !\is_array( $events ) ) {
-				throw new \Exception( __( "Custom events must be provided as an array. Please ensure the filter returns only an array.", 'wp-simple-firewall' ) );
+				throw new \Exception( __( "Custom events must be provided as an array. Please ensure the filter returns only an array.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: buildCustomEvents() is only called by getEvents(), which catches it and drops the custom events; never shown.
 			}
 
 			$events = \array_filter( $events );
 			foreach ( $events as $evtKey => $evtDef ) {
 				if ( !\is_array( $evtDef ) ) {
-					throw new \Exception( __( "All custom event definitions must be provided as arrays.", 'wp-simple-firewall' ) );
+					throw new \Exception( __( "All custom event definitions must be provided as arrays.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: buildCustomEvents() is only called by getEvents(), which catches it and drops the custom events; never shown.
 				}
 				if ( \is_numeric( $evtKey ) || !\preg_match( '#^custom_[a-z_]{1,43}$#', $evtKey ) ) {
-					throw new \Exception( __( "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores.", 'wp-simple-firewall' ) );
+					throw new \Exception( __( "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: buildCustomEvents() is only called by getEvents(), which catches it and drops the custom events; never shown.
 				}
 				if ( !isset( $evtDef[ 'strings' ] ) || !\is_array( $evtDef[ 'strings' ] ) ) {
-					throw new \Exception( __( "All custom events must supply an array of strings with key 'strings'.", 'wp-simple-firewall' ) );
+					throw new \Exception( __( "All custom events must supply an array of strings with key 'strings'.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: buildCustomEvents() is only called by getEvents(), which catches it and drops the custom events; never shown.
 				}
 				if ( empty( $evtDef[ 'strings' ][ 'name' ] ) || !\is_string( $evtDef[ 'strings' ][ 'name' ] ) ) {
-					throw new \Exception( __( "All custom events must supply a 'name' as a string within the 'strings' array.", 'wp-simple-firewall' ) );
+					throw new \Exception( __( "All custom events must supply a 'name' as a string within the 'strings' array.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: buildCustomEvents() is only called by getEvents(), which catches it and drops the custom events; never shown.
 				}
 				if ( empty( $evtDef[ 'strings' ][ 'audit' ] ) || !\is_array( $evtDef[ 'strings' ][ 'audit' ] ) ) {
-					throw new \Exception( __( "All custom events must supply an array of strings with key 'audit' to be displayed in the Activity Log to describe the event.", 'wp-simple-firewall' ) );
+					throw new \Exception( __( "All custom events must supply an array of strings with key 'audit' to be displayed in the Activity Log to describe the event.", 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: buildCustomEvents() is only called by getEvents(), which catches it and drops the custom events; never shown.
 				}
 
 				// Clean out the audit strings to ensure type consistency later.

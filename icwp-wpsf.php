@@ -10,6 +10,8 @@
  * Author URI: https://clk.shldscrty.com/bv
  * Requires at least: 5.7
  * Requires PHP: 7.4
+ * License: GPLv3
+ * License URI: http://www.gnu.org/licenses/gpl.html
  */
 
 /**
@@ -30,50 +32,50 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( defined( 'ABSPATH' ) ) {
-	if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
-		global $sIcwpWpsfPluginFile;
-		$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
-		include_once( dirname( __FILE__ ).'/unsupported.php' );
-	}
-	elseif ( @is_file( dirname( __FILE__ ).'/vendor/autoload.php' ) ) {
+if ( !\defined( 'ABSPATH' ) ) { exit(); }
 
-		try {
-			require_once( dirname( __FILE__ ).'/plugin_compatibility.php' );
+if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
+	global $sIcwpWpsfPluginFile;
+	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global read by unsupported.php; icwp is Shield's own long-standing prefix.
+	include_once( dirname( __FILE__ ).'/unsupported.php' );
+}
+elseif ( @is_file( dirname( __FILE__ ).'/vendor/autoload.php' ) ) {
 
-			add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
-			function icwp_wpsf_init() {
+	try {
+		require_once( dirname( __FILE__ ).'/plugin_compatibility.php' );
 
-				$shield = require __DIR__.'/vendor/autoload.php';
-				$prefixed = is_file( __DIR__.'/vendor_prefixed/autoload.php' ) ? require __DIR__.'/vendor_prefixed/autoload.php' : null;
+		add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
+		function icwp_wpsf_init() {
 
-				$rootFile = __FILE__;
-				require_once( dirname( __FILE__ ).'/plugin_init.php' );
+			$shield = require __DIR__.'/vendor/autoload.php';
+			$prefixed = is_file( __DIR__.'/vendor_prefixed/autoload.php' ) ? require __DIR__.'/vendor_prefixed/autoload.php' : null;
+
+			$rootFile = __FILE__;
+			require_once( dirname( __FILE__ ).'/plugin_init.php' );
+		}
+
+		register_activation_hook( __FILE__, 'icwp_wpsf_onactivate' );
+		function icwp_wpsf_onactivate() {
+			icwp_wpsf_init();
+			try {
+				\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller::GetInstance()->onWpActivatePlugin();
 			}
-
-			register_activation_hook( __FILE__, 'icwp_wpsf_onactivate' );
-			function icwp_wpsf_onactivate() {
-				icwp_wpsf_init();
-				try {
-					\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller::GetInstance()->onWpActivatePlugin();
-				}
-				catch ( \Exception|\Error $e ) {
-				}
+			catch ( \Exception|\Error $e ) {
 			}
 		}
-		catch ( \Exception $e ) {
-		}
 	}
-	else {
-		add_action( 'admin_notices', function () {
-			echo sprintf( '<div class="error"><h4>%s</h4><p>%s</p></div>',
-				'Shield Security Plugin - Broken Installation',
-				implode( '<br/>', [
-					'It appears the Shield Security plugin was not upgraded/installed correctly.',
-					"We check to ensure critical files are present in-case a faulty installation breaks your site.",
-					'Try refreshing this page, and if you continue to see this notice, we recommend that you reinstall the Shield Security plugin.'
-				] )
-			);
-		} );
+	catch ( \Exception $e ) {
 	}
+}
+else {
+	add_action( 'admin_notices', function () {
+		echo sprintf( '<div class="error"><h4>%s</h4><p>%s</p></div>',
+			'Shield Security Plugin - Broken Installation',
+			implode( '<br/>', [
+				'It appears the Shield Security plugin was not upgraded/installed correctly.',
+				"We check to ensure critical files are present in-case a faulty installation breaks your site.",
+				'Try refreshing this page, and if you continue to see this notice, we recommend that you reinstall the Shield Security plugin.'
+			] )
+		);
+	} );
 }

@@ -22,31 +22,34 @@ class FileScanning extends Base {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
 			$status[ 'exp' ][] = __( 'Automatic file scanning is disabled.', 'wp-simple-firewall' );
 		}
-		elseif ( !self::con()->cache_dir_handler->exists() ) {
+		elseif ( !self::con()->cache_dir_handler->exists()
+				 && ( self::con()->opts->optValueHasAccess( 'file_scan_areas', 'plugins' )
+					  || self::con()->opts->optValueHasAccess( 'file_scan_areas', 'themes' ) ) ) {
 			// Plugin and theme files are compared using copies kept in a temporary folder. The fix is a setting in
-			// another topic, so this is said about the file scanning panel as a whole.
+			// another topic, so this is said about the file scanning panel as a whole. It only matters to a site
+			// whose plan scans them.
 			$status[ 'exp' ][] = sprintf(
 				/* translators: %s: plugin name */
 				__( "Plugin and theme files can't be scanned because %s couldn't create a temporary folder.", 'wp-simple-firewall' ),
 				self::con()->labels->Name
 			);
 		}
-		if ( $states[ 'afs_enabled' ] && empty( \array_filter( \array_intersect_key(
-			$states[ 'scan_controls' ],
-			\array_filter(
-				$this->scanControlDefinitions(),
-				static fn( array $definition ) :bool => !empty( $definition[ 'is_primary' ] )
-			)
-		) ) ) ) {
-			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = $this->explanationFixedBy( __( 'No primary WordPress file coverage is enabled.', 'wp-simple-firewall' ), 'file_scan_areas' );
-		}
-
-		foreach ( $this->scanControlDefinitions() as $areaKey => $definition ) {
-			if ( empty( $states[ 'scan_controls' ][ $areaKey ] ) ) {
-				$status[ 'exp' ][] = $this->explanationFixedBy( $definition[ 'disabled_message' ], 'file_scan_areas' );
+		if ( $states[ 'afs_enabled' ] ) {
+			if ( empty( \array_filter( \array_intersect_key(
+				$states[ 'scan_controls' ],
+				\array_filter(
+					$this->scanControlDefinitions(),
+					static fn( array $definition ) :bool => !empty( $definition[ 'is_primary' ] )
+				)
+			) ) ) ) {
+				$status[ 'level' ] = EnumEnabledStatus::BAD;
+				$status[ 'exp' ][] = $this->explanationFixedBy( __( 'No primary WordPress file coverage is enabled.', 'wp-simple-firewall' ), 'file_scan_areas' );
+			}
+			elseif ( !empty( $this->unscannedAreasInPlan( $states[ 'scan_controls' ] ) ) ) {
+				$status[ 'exp' ][] = $this->explanationFixedBy( __( "It's recommended to scan all areas.", 'wp-simple-firewall' ), 'file_scan_areas' );
 			}
 		}
+
 		foreach ( $this->repairControlDefinitions() as $areaKey => $definition ) {
 			if ( empty( $states[ 'repair_controls' ][ $areaKey ] ) ) {
 				$status[ 'exp' ][] = $this->explanationFixedBy( $definition[ 'disabled_message' ], 'file_repair_areas' );
@@ -113,6 +116,20 @@ class FileScanning extends Base {
 			'scan_controls'    => $scanControls,
 			'repair_controls'  => $repairControls,
 		];
+	}
+
+	/**
+	 * The areas this site's plan lets it scan that aren't being scanned.
+	 * @param array<string,bool> $scanControls
+	 * @return list<string>
+	 */
+	private function unscannedAreasInPlan( array $scanControls ) :array {
+		$opts = self::con()->opts;
+		return \array_values( \array_filter(
+			\array_keys( $this->scanControlDefinitions() ),
+			static fn( string $areaKey ) :bool => !$scanControls[ $areaKey ]
+												  && $opts->optValueHasAccess( 'file_scan_areas', $areaKey )
+		) );
 	}
 
 	/**

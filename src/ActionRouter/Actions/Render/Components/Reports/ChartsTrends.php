@@ -24,6 +24,7 @@ class ChartsTrends extends Base {
 		return [
 			'selection_none'      => self::renderStrings()[ 'selection_none' ],
 			'selection_one'       => __( '1 event selected.', 'wp-simple-firewall' ),
+			/* translators: %s: number of events */
 			'selection_many'      => __( '%s events selected.', 'wp-simple-firewall' ),
 			'select_events_error' => __( 'Select at least one event to chart.', 'wp-simple-firewall' ),
 			'loading'             => __( 'Loading chart...', 'wp-simple-firewall' ),

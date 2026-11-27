@@ -217,7 +217,9 @@ class ImportExportController {
 		$validUrls = \array_values( \array_unique( $validUrls ) );
 		$invalidUrls = \array_values( \array_unique( $invalidUrls ) );
 		if ( !empty( $invalidUrls ) ) {
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: the authorise-URLs AJAX action returns it as JSON text.
 			throw new \RuntimeException( sprintf(
+				/* translators: %s: number of URLs */
 				_n(
 					'%s URL is invalid. Please provide normal HTTP or HTTPS site URLs only; localhost and private IP addresses are not allowed.',
 					'%s URLs are invalid. Please provide normal HTTP or HTTPS site URLs only; localhost and private IP addresses are not allowed.',
@@ -226,9 +228,10 @@ class ImportExportController {
 				),
 				\count( $invalidUrls )
 			) );
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 		if ( empty( $validUrls ) ) {
-			throw new \RuntimeException( __( 'Please provide at least one valid URL.', 'wp-simple-firewall' ) );
+			throw new \RuntimeException( __( 'Please provide at least one valid URL.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX actions return it as JSON text, background callers swallow it.
 		}
 
 		$activeRowsBefore = $repo->findByUrls( $validUrls );
@@ -242,7 +245,7 @@ class ImportExportController {
 			}
 
 			if ( !$repo->upsertPendingClientSite( $url, ImportExportSitesDB::SOURCE_MANUAL, $sendInvites ) ) {
-				throw new \RuntimeException( __( 'The site URL could not be authorised.', 'wp-simple-firewall' ) );
+				throw new \RuntimeException( __( 'The site URL could not be authorised.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX actions return it as JSON text, background callers swallow it.
 			}
 			$authorisedUrls[] = $url;
 		}
@@ -420,14 +423,14 @@ class ImportExportController {
 
 	private function assertSyncAvailable() :void {
 		if ( !$this->isSyncAvailable() ) {
-			throw new \RuntimeException( __( 'Import/export sync is not available on this plan.', 'wp-simple-firewall' ) );
+			throw new \RuntimeException( __( 'Import/export sync is not available on this plan.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX actions return it as JSON text, background callers swallow it.
 		}
 	}
 
 	private function assertSyncEnabled() :void {
 		$this->assertSyncAvailable();
 		if ( !self::con()->opts->optIs( 'importexport_enable', 'Y' ) ) {
-			throw new \RuntimeException( __( 'Import and export is not enabled.', 'wp-simple-firewall' ) );
+			throw new \RuntimeException( __( 'Import and export is not enabled.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX actions return it as JSON text, background callers swallow it.
 		}
 	}
 }

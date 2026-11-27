@@ -33,7 +33,7 @@ class ReadOriginalFileContent {
 		if ( empty( $lock->detected_at ) && empty( $lock->hash_current ) && $FS->exists( $lock->path ) ) {
 			return (string)$FS->getFileContent( $lock->path );
 		}
-		throw new \Exception( __( 'Cannot use original file.', 'wp-simple-firewall' ) );
+		throw new \Exception( __( 'Cannot use original file.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by ReadOriginalFileContent::run(), which falls back to the cache and API; never shown.
 	}
 
 	/**
@@ -47,7 +47,7 @@ class ReadOriginalFileContent {
 			$VO = ( new OpenSslEncryptVo() )->applyFromArray( \is_array( $decoded ) ? $decoded : [] );
 			$content = ( new DecryptFile() )->retrieve( $VO, (int)$lock->public_key_id );
 			if ( $content === null ) {
-				throw new \Exception( __( 'There was a problem decrypting the file contents.', 'wp-simple-firewall' ) );
+				throw new \Exception( __( 'There was a problem decrypting the file contents.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: the AJAX file locker diff returns it as text through CaptureAjaxAction, FileDownload (an ordinary action) passes it on only as sanitised notice text, and Restore and UpgradeLocks discard it.
 			}
 			wp_cache_set( $cacheKey, $content, self::con()->prefix( 'filelocker' ), 5 );
 		}

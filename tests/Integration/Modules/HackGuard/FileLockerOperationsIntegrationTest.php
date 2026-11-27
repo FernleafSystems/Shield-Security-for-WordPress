@@ -245,7 +245,7 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 			$this->assertNull( ( new GetFileLockCandidateDisplays() )->forFileKey( 'root_htaccess' ) );
 			$choice = $this->configureFileLockerChoices()[ 'root_htaccess' ];
 			$this->assertFalse( $choice[ 'is_available' ] );
-			// It's this site, not the licence, so there's no "available with" hover title.
+			// It's this site, not the plan, so there's no hover title saying the plan lacks it.
 			$this->assertSame( '', $choice[ 'unavailable_title' ] );
 		} );
 

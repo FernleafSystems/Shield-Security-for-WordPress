@@ -123,16 +123,16 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 		$con = self::con();
 
 		$navs = [
-			PluginNavs::NAV_DASHBOARD => __( 'Dashboard', 'wp-simple-firewall' ),
-			PluginNavs::NAV_SCANS     => __( 'Actions Queue', 'wp-simple-firewall' ),
-			PluginNavs::NAV_ACTIVITY  => __( 'Investigate', 'wp-simple-firewall' ),
-			PluginNavs::NAV_ZONES     => __( 'Configure', 'wp-simple-firewall' ),
-			PluginNavs::NAV_REPORTS   => __( 'Reports', 'wp-simple-firewall' ),
+			PluginNavs::NAV_DASHBOARD => esc_html__( 'Dashboard', 'wp-simple-firewall' ),
+			PluginNavs::NAV_SCANS     => esc_html__( 'Actions Queue', 'wp-simple-firewall' ),
+			PluginNavs::NAV_ACTIVITY  => esc_html__( 'Investigate', 'wp-simple-firewall' ),
+			PluginNavs::NAV_ZONES     => esc_html__( 'Configure', 'wp-simple-firewall' ),
+			PluginNavs::NAV_REPORTS   => esc_html__( 'Reports', 'wp-simple-firewall' ),
 		];
 		if ( !self::con()->isPremiumActive() ) {
 			$navs[ PluginNavs::NAV_LICENSE ] = sprintf(
 				'<span class="shield_highlighted_menu">%s</span>',
-				__( 'Get Pro Security', 'wp-simple-firewall' )
+				esc_html__( 'Get Pro Security', 'wp-simple-firewall' )
 			);
 		}
 
@@ -159,9 +159,11 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	}
 
 	public function displayModuleAdminPage() {
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by the action router, whose Twig templates escape their values.
 		echo self::con()->action_router->render(
 			Actions\Render\PageAdminPlugin::class,
 			( new Actions\Render\PageAdminPluginRouteResolver() )->buildAdminPageActionData( $this->action_data )
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }

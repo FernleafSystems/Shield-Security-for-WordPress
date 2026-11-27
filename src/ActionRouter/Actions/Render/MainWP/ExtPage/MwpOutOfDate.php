@@ -13,6 +13,7 @@ class MwpOutOfDate extends BaseSubPage {
 	protected function getRenderData() :array {
 		return [
 			'strings' => [
+				/* translators: %s: plugin name */
 				'update'      => sprintf( __( "The MainWP Security plugin doesn't meet %s's minimum requirements.", 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'min_version' => __( 'Minimum required MainWP server version', 'wp-simple-firewall' ),
 				'go_here'     => __( 'Go to WordPress Updates', 'wp-simple-firewall' ),

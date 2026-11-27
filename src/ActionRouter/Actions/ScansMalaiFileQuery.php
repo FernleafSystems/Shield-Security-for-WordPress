@@ -29,6 +29,7 @@ class ScansMalaiFileQuery extends BaseAction {
 			}
 			else {
 				try {
+					/* translators: %s: name of the malware scanner */
 					$msg = sprintf( '%s: %s', sprintf( __( '%s Status Report', 'wp-simple-firewall' ), 'MAL{ai}' ),
 						( new MalwareStatus() )->nameFromStatusLabel( $this->getMalaiStatus() ) );
 					$success = true;
@@ -55,7 +56,7 @@ class ScansMalaiFileQuery extends BaseAction {
 
 		$item = ( new RetrieveItems() )->byID( $this->fields()->positiveInt( 'rid' ) );
 		if ( !$item instanceof ResultItem ) {
-			throw new \Exception( __( 'The selected scan result is not a supported file item.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'The selected scan result is not a supported file item.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught by exec(), which returns it as the plain-text AJAX response message.
 		}
 		$path = ( new MalaiFileQueryEligibility() )->assertCanSubmitQuery( $item );
 

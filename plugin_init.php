@@ -49,8 +49,8 @@ class ICWP_WPSF_Shield_Security {
 Services::GetInstance();
 
 try {
-	$oICWP_Wpsf_Controller = Controller\Controller::GetInstance( $rootFile );
-	$oICWP_Wpsf = ICWP_WPSF_Shield_Security::GetInstance( $oICWP_Wpsf_Controller );
+	$oICWP_Wpsf_Controller = Controller\Controller::GetInstance( $rootFile ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Not a global: plugin_init.php is required from inside icwp_wpsf_init().
+	$oICWP_Wpsf = ICWP_WPSF_Shield_Security::GetInstance( $oICWP_Wpsf_Controller ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Long-standing global that stops the plugin loading twice; icwp is Shield's own prefix.
 	$oICWP_Wpsf->start();
 }
 catch ( Controller\Exceptions\VersionMismatchException $e ) {
@@ -63,11 +63,14 @@ catch ( Controller\Exceptions\PluginConfigInvalidException $e ) {
 	add_action( 'admin_notices', function () use ( $e ) {
 		echo sprintf( '<div class="notice error"><p>%s</p><p>%s</p></div>',
 			'Shield Security: Could not load the plugin modules configuration. Please refresh and if the problem persists, please reinstall the Shield plugin.',
-			$e->getMessage()
+			esc_html( $e->getMessage() )
 		);
 	} );
 }
 catch ( \Exception $e ) {
+	// Direct calls, not the ErrorLog helper: after a failed upgrade, Shield's own classes may be missing.
+	// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Last-resort report that the plugin failed to load.
 	error_log( 'Perhaps due to a failed upgrade, the Shield plugin failed to load certain component(s) - you should remove the plugin and reinstall.' );
 	error_log( $e->getMessage() );
+	// phpcs:enable WordPress.PHP.DevelopmentFunctions.error_log_error_log
 }

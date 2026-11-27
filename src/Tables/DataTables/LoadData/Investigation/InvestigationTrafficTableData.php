@@ -10,7 +10,7 @@ class InvestigationTrafficTableData extends BuildTrafficTableData {
 
 	protected function getTrafficUserDisplay( int $uid ) :string {
 		return $uid <= 0
-			? __( 'No', 'wp-simple-firewall' )
+			? esc_html__( 'No', 'wp-simple-firewall' )
 			: $this->getUserHref( $uid );
 	}
 }

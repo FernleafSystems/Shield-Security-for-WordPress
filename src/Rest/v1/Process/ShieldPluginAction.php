@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Utility\ExternalEntryGuard,
 	Utility\ResponseEnvelopeNormalizer
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class ShieldPluginAction extends Base {
 
@@ -39,7 +40,7 @@ class ShieldPluginAction extends Base {
 		}
 		catch ( \Throwable $e ) {
 			// A fault in the action, not a refusal. The request still gets a controlled response.
-			\error_log( \sprintf( 'Shield REST action %s failed: %s', $actionSlug, $e->getMessage() ) );
+			ErrorLog::write( \sprintf( 'Shield REST action %s failed: %s', $actionSlug, $e->getMessage() ) );
 			$data = [
 				'success' => false,
 			];

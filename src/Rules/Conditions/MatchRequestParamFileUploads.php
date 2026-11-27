@@ -15,7 +15,7 @@ class MatchRequestParamFileUploads extends MatchRequestParam {
 	protected function getRequestParamsToTest() :array {
 		return \array_filter( \array_map(
 			fn ( $file ) => $file[ 'name' ] ?? '',
-			!empty( $_FILES ) ? $_FILES : []
+			!empty( $_FILES ) ? $_FILES : [] // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Firewall rule condition that matches the names of uploaded files on any request, so there's no form nonce to check; the files themselves aren't touched.
 		) );
 	}
 }

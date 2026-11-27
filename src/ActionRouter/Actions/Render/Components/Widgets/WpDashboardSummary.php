@@ -22,6 +22,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildA
  *     status_label:string,
  *     subtitle:string,
  *     all_clear_message:string,
+ *     ignored:string,
  *     cta:string
  *   },
  *   vars:array{
@@ -70,6 +71,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				'status_label'      => $queueCard[ 'actions_lane' ][ 'indicator_text' ],
 				'subtitle'          => $queueCard[ 'subtitle' ],
 				'all_clear_message' => __( 'No security issues currently need attention.', 'wp-simple-firewall' ),
+				'ignored'           => $queueCard[ 'dashboard_strip' ][ 'overall' ][ 'ignored_text' ],
 				'cta'               => __( 'Open Actions Queue', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
@@ -105,6 +107,8 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 					? __( 'Shield has issues that need a Security Admin to review.', 'wp-simple-firewall' )
 					: __( 'No security issues currently need attention.', 'wp-simple-firewall' ),
 				'all_clear_message' => __( 'No security issues currently need attention.', 'wp-simple-firewall' ),
+				// Without Security Admin access, no detail of the queue is shown.
+				'ignored'           => '',
 				'cta'               => __( 'Open Shield', 'wp-simple-firewall' ),
 			],
 			'vars'    => [

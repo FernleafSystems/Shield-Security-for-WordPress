@@ -290,6 +290,7 @@ class ProfileRepository {
 			}
 
 			global $wpdb;
+			// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder -- Shield's own tables put in with sprintf() (the numbered slots are sprintf's, not prepare's), whose %% leaves the placeholders for prepare(); every value goes through prepare().
 			$affected = Services::WpDb()->doSql( $wpdb->prepare(
 				sprintf(
 					'UPDATE `%1$s` AS `sites`
@@ -302,6 +303,7 @@ class ProfileRepository {
 				$profileID,
 				Services::Request()->ts()
 			) );
+			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder
 			return \is_numeric( $affected ) ? (int)$affected : 0;
 		}
 		catch ( \Throwable $e ) {
@@ -390,6 +392,7 @@ class ProfileRepository {
 
 		try {
 			global $wpdb;
+			// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Shield's own table put in with sprintf(), whose %% leaves the placeholders for prepare(); every value goes through prepare().
 			Services::WpDb()->doSql( $wpdb->prepare(
 				sprintf(
 					'UPDATE `%s` SET `is_default`=0, `updated_at`=%%d WHERE `id`<>%%d AND `is_default`=1;',
@@ -398,6 +401,7 @@ class ProfileRepository {
 				Services::Request()->ts(),
 				$profileID
 			) );
+			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		}
 		catch ( \Throwable $e ) {
 		}

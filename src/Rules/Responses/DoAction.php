@@ -9,7 +9,7 @@ class DoAction extends Base {
 	public const SLUG = 'do_action';
 
 	public function execResponse() :void {
-		do_action( $this->p->hook );
+		do_action( $this->p->hook ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Fires the hook named in the rule's settings: a shield/ hook in Shield's own rules, or one an admin's custom rule names.
 	}
 
 	public function getParamsDef() :array {

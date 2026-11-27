@@ -458,7 +458,7 @@ class PluginNavs {
 			],
 			'maintenance' => [
 				'slug'  => 'maintenance',
-				'label' => __( 'Maintenance', 'wp-simple-firewall' ),
+				'label' => __( 'To-dos', 'wp-simple-firewall' ),
 				'icon'  => 'wrench',
 			],
 		];
@@ -675,6 +675,13 @@ class PluginNavs {
 				'key'                   => 'default_admin_user',
 				'zone'                  => 'maintenance',
 				'component_class'       => Component\DefaultAdminUser::class,
+				'availability_strategy' => 'always',
+				'drill_bucket'          => 'review',
+			],
+			[
+				'key'                   => 'admin_two_factor',
+				'zone'                  => 'maintenance',
+				'component_class'       => Component\AdminTwoFactor::class,
 				'availability_strategy' => 'always',
 				'drill_bucket'          => 'review',
 			],

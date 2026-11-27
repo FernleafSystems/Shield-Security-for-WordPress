@@ -41,6 +41,7 @@ class StringsSections {
 				];
 				break;
 			case 'section_bot_comment_spam_protection_filter' :
+				/* translators: %s: type of spam filter, such as Automatic Bot or Human */
 				$title = sprintf( __( '%s Comment SPAM Protection', 'wp-simple-firewall' ), __( 'Automatic Bot', 'wp-simple-firewall' ) );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Blocks 100% of all automated bot-generated comment SPAM.', 'wp-simple-firewall' ) ),
@@ -49,6 +50,7 @@ class StringsSections {
 				$short = __( 'Bot SPAM', 'wp-simple-firewall' );
 				break;
 			case 'section_human_spam_filter' :
+				/* translators: %s: type of spam filter, such as Automatic Bot or Human */
 				$title = sprintf( __( '%s Comment SPAM Protection', 'wp-simple-firewall' ), __( 'Human', 'wp-simple-firewall' ) );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.', 'wp-simple-firewall' ) ),
@@ -80,6 +82,7 @@ class StringsSections {
 				$title = __( 'Vulnerabilities Scanner', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Regularly scan your WordPress plugins and themes for known security vulnerabilities.', 'wp-simple-firewall' ) ),
+					/* translators: %s: feature name */
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Vulnerabilities Scanner', 'wp-simple-firewall' ) ) ),
 					__( 'Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities.', 'wp-simple-firewall' )
 				];
@@ -91,6 +94,7 @@ class StringsSections {
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ),
 						__( 'Monitor WordPress files and protect against malicious intrusion and hacking.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
+						/* translators: %s: feature name */
 						sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), $title ) )
 				];
 				break;
@@ -104,9 +108,11 @@ class StringsSections {
 				break;
 			case 'section_enable_plugin_feature_ips' :
 				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				/* translators: %s: module name */
 				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modStrings->getFor( EnumModules::IPS )[ 'name' ] );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.', 'wp-simple-firewall' ) ),
+					/* translators: %s: feature name */
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'IP Manager', 'wp-simple-firewall' ) ) )
 					.'<br />'.__( 'You should also carefully review the automatic black list settings.', 'wp-simple-firewall' )
 				];
@@ -116,6 +122,7 @@ class StringsSections {
 				$short = __( 'Auto Blocking Rules', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of offenses.', 'wp-simple-firewall' ) ),
+					/* translators: %s: feature name */
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Automatic IP Black List', 'wp-simple-firewall' ) ) ),
 					__( 'Offenses is simply a counter for the number of times a visitor does something bad.', 'wp-simple-firewall' )
 					.' '.sprintf(
@@ -138,6 +145,7 @@ class StringsSections {
 				break;
 			case 'section_silentcaptcha':
 				$short = $silentCaptcha;
+				/* translators: %s: brand name of the bot detection technology */
 				$title = sprintf( __( '%s AntiBot Technology', 'wp-simple-firewall' ), $silentCaptcha );
 				$summary = [];
 				break;
@@ -148,9 +156,11 @@ class StringsSections {
 				break;
 			case 'section_integrations':
 				$short = __( 'Integrations', 'wp-simple-firewall' );
+				/* translators: %s: plugin name */
 				$title = sprintf( __( 'Built-In %s Integrations', 'wp-simple-firewall' ), $name );
 				$summary = [
 					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
+						/* translators: %s: plugin name */
 						sprintf( __( '%s can automatically integrate with 3rd party plugins.', 'wp-simple-firewall' ), $name ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Only enable the integrations you require.', 'wp-simple-firewall' ) ),
 				];
@@ -167,7 +177,9 @@ class StringsSections {
 				$title = __( '3rd Party User Forms Bot Checking', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s %s', __( 'Summary', 'wp-simple-firewall' ),
+						/* translators: %s: plugin name */
 						sprintf( __( '%s can automatically protect 3rd party login and registration forms against Bots.', 'wp-simple-firewall' ), $name ),
+						/* translators: %s: brand name of the bot detection technology */
 						sprintf( __( 'It uses our exclusive %s Engine to reliably identify bots.', 'wp-simple-firewall' ), $silentCaptcha )
 					),
 					sprintf( '%s - %s (%s)', __( 'Recommendation', 'wp-simple-firewall' ),
@@ -247,8 +259,10 @@ class StringsSections {
 				break;
 			case 'section_global_security_options' :
 				$title = __( 'Global Security Plugin Disable', 'wp-simple-firewall' );
+				/* translators: %s: plugin name */
 				$short = sprintf( __( 'Disable %s', 'wp-simple-firewall' ), $name );
 				$summary = [
+					/* translators: %s: plugin name */
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Use this option to completely disable all active %s Protection.', 'wp-simple-firewall' ), $name ) ),
 				];
 				break;
@@ -271,6 +285,7 @@ class StringsSections {
 				$short = __( 'Reports', 'wp-simple-firewall' );
 				$summary = [
 					__( 'Receive alert digests for critical issues and informational reports for overall site status.', 'wp-simple-firewall' ),
+					/* translators: %s: email address */
 					sprintf( __( 'Your reporting email address is: %s', 'wp-simple-firewall' ),
 						'<code>'.self::con()->comps->opts_lookup->getReportEmail().'</code>' )
 					.' '.
@@ -309,6 +324,7 @@ class StringsSections {
 				$title = __( 'White Label', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ),
+						/* translators: %s: plugin name */
 						sprintf( __( 'Rename and re-brand the %s plugin for your client site installations.', 'wp-simple-firewall' ), $name )
 					),
 					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ),
@@ -329,9 +345,11 @@ class StringsSections {
 				break;
 			case 'section_enable_plugin_feature_user_accounts_management' :
 				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				/* translators: %s: module name */
 				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modStrings->getFor( EnumModules::USERS )[ 'name' ] );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.', 'wp-simple-firewall' ) ),
+					/* translators: %s: feature name */
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) )
 				];
 				break;
@@ -374,8 +392,8 @@ class StringsSections {
 				break;
 			default:
 				$def = $con->cfg->configuration->sections[ $key ];
-				$title = empty( $def[ 'title' ] ) ? __( 'No Title', 'wp-simple-firewall' ) : __( $def[ 'title' ], 'wp-simple-firewall' );
-				$short = empty( $def[ 'title_short' ] ) ? __( 'No Title', 'wp-simple-firewall' ) : __( $def[ 'title_short' ], 'wp-simple-firewall' );
+				$title = empty( $def[ 'title' ] ) ? __( 'No Title', 'wp-simple-firewall' ) : __( $def[ 'title' ], 'wp-simple-firewall' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- Section titles come from plugin.json, so they can't be literals here. The generated translations-strings-auto.php is how they reach the translation template.
+				$short = empty( $def[ 'title_short' ] ) ? __( 'No Title', 'wp-simple-firewall' ) : __( $def[ 'title_short' ], 'wp-simple-firewall' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- Section short titles come from plugin.json, so they can't be literals here. The generated translations-strings-auto.php is how they reach the translation template.
 				$summary = $def[ 'summary' ] ?? [];
 				break;
 		}

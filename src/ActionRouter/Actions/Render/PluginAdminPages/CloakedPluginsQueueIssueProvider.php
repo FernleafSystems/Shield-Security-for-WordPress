@@ -111,6 +111,7 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 				'status'            => $status,
 				'status_label'      => $this->standardStatusLabel( $status ),
 				'status_icon_class' => $this->standardStatusIconClass( $status ),
+				'is_ignored'        => false,
 			],
 		];
 	}
@@ -130,6 +131,16 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 				$this->ignoredFindings()
 			),
 		];
+	}
+
+	/**
+	 * How many cloaked plugins someone has ignored. Shield's own loader, which nobody ignored, isn't one.
+	 */
+	public function ignoredByUserCount() :int {
+		return \count( \array_filter(
+			$this->ignoredFindings(),
+			fn( CloakedPluginFinding $finding ) :bool => !$this->isShieldMuLoaderFinding( $finding )
+		) );
 	}
 
 	/**
@@ -171,6 +182,7 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 	private function descriptionForCount( int $count ) :string {
 		return $count > 0
 			? \sprintf(
+				/* translators: %s: number of cloaked plugins */
 				_n( '%s cloaked plugin detected.', '%s cloaked plugins detected.', $count, 'wp-simple-firewall' ),
 				$count
 			)
@@ -273,6 +285,7 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 
 	private function findingDescription( CloakedPluginFinding $finding ) :string {
 		return \sprintf(
+			/* translators: %s: plugin name or type */
 			__( '%s exists on disk, but WordPress is not listing it where expected.', 'wp-simple-firewall' ),
 			PluginType::label( $finding->entry->type )
 		);

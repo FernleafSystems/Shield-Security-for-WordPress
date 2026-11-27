@@ -135,7 +135,7 @@ class CacheDirHandler {
 				$assess = ( new AssessDirWrite( $this->pathForWordPressAbsoluteCheck( $dir ) ) )->test();
 				if ( \count( \array_filter( $assess ) ) !== 3 ) {
 					throw new \Exception( sprintf( 'Failed writeable assessment for cache dir: "%s"; Results: %s ',
-						$dir, var_export( $assess, true ) ) );
+						$dir, ErrorLog::describe( $assess ) ) );
 				}
 
 				$FS->touch( $flag );

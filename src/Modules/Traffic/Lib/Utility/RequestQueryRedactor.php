@@ -54,7 +54,7 @@ class RequestQueryRedactor {
 			$parts
 		) );
 
-		$filtered = \apply_filters( self::FILTER_REDACTED_QUERY, $redacted, $query, $sensitiveKeys );
+		$filtered = \apply_filters( self::FILTER_REDACTED_QUERY, $redacted, $query, $sensitiveKeys ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- The constant holds one of Shield's own shield/ hook names.
 		return \is_string( $filtered ) ? $filtered : $redacted;
 	}
 
@@ -101,7 +101,7 @@ class RequestQueryRedactor {
 	 * @return list<string>
 	 */
 	private function sensitiveKeys( string $query ) :array {
-		$keys = \apply_filters( self::FILTER_SENSITIVE_QUERY_KEYS, self::DEFAULT_SENSITIVE_KEYS, $query );
+		$keys = \apply_filters( self::FILTER_SENSITIVE_QUERY_KEYS, self::DEFAULT_SENSITIVE_KEYS, $query ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- The constant holds one of Shield's own shield/ hook names.
 		if ( !\is_array( $keys ) ) {
 			$keys = self::DEFAULT_SENSITIVE_KEYS;
 		}

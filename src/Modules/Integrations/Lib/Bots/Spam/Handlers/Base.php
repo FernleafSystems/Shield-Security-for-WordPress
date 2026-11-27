@@ -22,9 +22,14 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Int
 		);
 	}
 
+	/**
+	 * Shown to visitors by each form plugin, some as HTML and some as text, so the translation is stripped of
+	 * markup rather than escaped, which would show entities wherever it's treated as text.
+	 */
 	protected function getCommonSpamMessage() :string {
-		return sprintf( __( "This appears to be spam as it failed %s AntiBot protection checks.", 'wp-simple-firewall' ),
-			self::con()->labels->Name );
+		/* translators: %s: plugin name */
+		return wp_strip_all_tags( sprintf( __( "This appears to be spam as it failed %s AntiBot protection checks.", 'wp-simple-firewall' ),
+			self::con()->labels->Name ) );
 	}
 
 	protected function getCooldownContext() :string {

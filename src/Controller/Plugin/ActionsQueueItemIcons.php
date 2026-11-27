@@ -15,6 +15,7 @@ class ActionsQueueItemIcons {
 		'file-lock2'              => 'bi bi-file-lock2-fill',
 		'key-fill'                => 'bi bi-key-fill',
 		'person-fill-exclamation' => 'bi bi-person-fill-exclamation',
+		'person-fill-lock'        => 'bi bi-person-fill-lock',
 		'plug'                    => 'bi bi-plug-fill',
 		'shield-exclamation'      => 'bi bi-shield-exclamation',
 		'shield-lock-fill'        => 'bi bi-shield-lock-fill',
@@ -38,10 +39,22 @@ class ActionsQueueItemIcons {
 		'abandoned'         => 'archive',
 	];
 
+	/**
+	 * The queue's own icon follows its most severe item: an alert for anything critical, a ticked shield when
+	 * there's nothing to do, and otherwise a to-do list, as everything that isn't critical is a to-do.
+	 */
+	private const QUEUE_STATUS_ICON_CLASSES = [
+		'critical' => 'bi bi-exclamation-triangle-fill',
+		'good'     => 'bi bi-shield-fill-check',
+	];
+
+	private const QUEUE_TODO_ICON_CLASS = 'bi bi-clipboard-check-fill';
+
 	private const MAINTENANCE_ICONS = [
 		'report_email'           => 'envelope',
 		'wp_updates'             => 'wordpress',
 		'default_admin_user'     => 'person-fill-exclamation',
+		'admin_two_factor'       => 'person-fill-lock',
 		'wp_plugins_updates'     => 'plug',
 		'wp_plugins_inactive'    => 'plug',
 		'wp_themes_updates'      => 'brush',
@@ -51,6 +64,10 @@ class ActionsQueueItemIcons {
 		'system_lib_openssl'     => 'key-fill',
 		'wp_db_password'         => 'database-fill-lock',
 	];
+
+	public function iconClassForQueueStatus( string $status ) :string {
+		return self::QUEUE_STATUS_ICON_CLASSES[ $status ] ?? self::QUEUE_TODO_ICON_CLASS;
+	}
 
 	public function iconClassForKey( string $key ) :string {
 		return $this->iconClassForIcon( $this->iconForKey( $key ) );

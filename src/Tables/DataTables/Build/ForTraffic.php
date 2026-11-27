@@ -151,7 +151,6 @@ class ForTraffic extends Base {
 				'className'      => 'user',
 				'orderable'      => false,
 				'searchable'     => true,
-				'search_builder' => false,
 				'visible'        => false,
 				'searchPanes'    => [
 					'show' => false,

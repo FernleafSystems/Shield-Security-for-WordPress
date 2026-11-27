@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Step
 use FernleafSystems\Wordpress\Plugin\Shield\Profiles\CompareLevelWithCurrent;
 use FernleafSystems\Wordpress\Plugin\Shield\Profiles\Levels;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class ApplySecurityProfile extends Base {
 
@@ -16,8 +17,9 @@ class ApplySecurityProfile extends Base {
 
 		$level = \strtolower( $form[ 'security_profile' ] ?? '' );
 		if ( empty( $level ) ) {
-			$resp->success = true;
-			$resp->message = __( 'No profile was applied', 'wp-simple-firewall' );
+			// Nothing was chosen, so there's nothing to apply: saying it was done would be untrue.
+			$resp->success = false;
+			$resp->message = $resp->error = __( 'Choose a protection level to apply, or skip this step.', 'wp-simple-firewall' );
 		}
 		else {
 			try {
@@ -27,7 +29,7 @@ class ApplySecurityProfile extends Base {
 				$resp->message = sprintf( __( "Profile '%s' was applied.", 'wp-simple-firewall' ), $con->comps->security_profiles->meta( $level )[ 'title' ] );
 			}
 			catch ( \Exception $e ) {
-				error_log( $e->getMessage() );
+				ErrorLog::write( $e->getMessage() );
 				$resp->success = false;
 				$resp->message = $resp->error = __( 'An unsupported profile was selected', 'wp-simple-firewall' );
 			}
@@ -41,8 +43,9 @@ class ApplySecurityProfile extends Base {
 
 	/**
 	 * Each level is shown with what it would change on this site, so choosing one is a comparison of the site as
-	 * it is with the site as it would be, rather than of one level's list against another's. The level closest
-	 * to the site as it is starts chosen.
+	 * it is with the site as it would be, rather than of one level's list against another's. The recommended
+	 * level starts chosen, but only while it would make nothing on this site less strict: a level that loosens
+	 * what the site already has is never the one put forward, so then nothing starts chosen.
 	 */
 	protected function getStepRenderData() :array {
 		$profiles = self::con()->comps->security_profiles;
@@ -63,6 +66,10 @@ class ApplySecurityProfile extends Base {
 						? __( 'Matches your site now', 'wp-simple-firewall' )
 						/* translators: %s: number of settings */
 						: sprintf( _n( '%s setting changes', '%s settings change', $changes, 'wp-simple-firewall' ), $changes ),
+					// Said on the level's own card, so a level that loosens the site is plain before it's chosen.
+					'loosens'  => $comparison[ 'looser' ] === 0 ? ''
+						/* translators: %s: number of settings */
+						: sprintf( _n( 'Makes %s setting less strict', 'Makes %s settings less strict', $comparison[ 'looser' ], 'wp-simple-firewall' ), $comparison[ 'looser' ] ),
 					/* translators: %s: name of a protection level */
 					'compared' => sprintf( __( '%s compared with your site now', 'wp-simple-firewall' ), $title ),
 					'apply'    => $changes === 0
@@ -78,22 +85,22 @@ class ApplySecurityProfile extends Base {
 			];
 		}
 
-		$fewestChanges = \min( \array_column( $levels, 'changes' ) );
-		$closest = \current( \array_filter( $levels, static fn( array $level ) :bool => $level[ 'changes' ] === $fewestChanges ) )[ 'key' ];
+		$recommended = $levels[ Levels::MEDIUM ][ 'comparison' ][ 'looser' ] === 0 ? Levels::MEDIUM : '';
 
 		return [
 			'strings' => [
 				'step_title'   => __( 'Choose A Protection Level', 'wp-simple-firewall' ),
 				'intro'        => __( 'A level sets many options at once. Nothing changes until you apply it, and you can adjust any setting later in Configure.', 'wp-simple-firewall' ),
 				'levels_label' => __( 'Protection level', 'wp-simple-firewall' ),
-				'closest'      => __( 'Closest to your site now', 'wp-simple-firewall' ),
+				'recommended'  => __( 'Recommended to get started', 'wp-simple-firewall' ),
+				'choose_first' => __( 'Choose a level to apply', 'wp-simple-firewall' ),
 				/* translators: %s: number of settings */
 				'stricter'     => __( '%s stricter', 'wp-simple-firewall' ),
 				/* translators: %s: number of settings */
 				'looser'       => __( '%s less strict', 'wp-simple-firewall' ),
 				/* translators: %s: number of settings */
 				'unchanged'    => __( '%s unchanged', 'wp-simple-firewall' ),
-				'only_changes' => __( 'Only show what changes', 'wp-simple-firewall' ),
+				'show_unchanged' => __( 'Show or hide the settings that stay the same', 'wp-simple-firewall' ),
 				'col_setting'  => __( 'Setting', 'wp-simple-firewall' ),
 				'col_now'      => __( 'Current', 'wp-simple-firewall' ),
 				'col_after'    => __( 'New', 'wp-simple-firewall' ),
@@ -107,8 +114,8 @@ class ApplySecurityProfile extends Base {
 				'all_match'    => __( 'Your site already matches this level.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'levels'  => $levels,
-				'closest' => $closest,
+				'levels'      => $levels,
+				'recommended' => $recommended,
 			],
 		];
 	}

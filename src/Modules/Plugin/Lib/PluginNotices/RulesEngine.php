@@ -10,8 +10,9 @@ class RulesEngine extends Base {
 				'id'        => 'rules_engine_not_running',
 				'type'      => 'warning',
 				'text'      => [
-					sprintf( __( "%s's Rules Engine isn't running.", 'wp-simple-firewall' ), self::con()->labels->Name )
-					.' '.__( "If this message still appears after refreshing this page, please reinstall the plugin.", 'wp-simple-firewall' ),
+					/* translators: %s: plugin name */
+					sprintf( esc_html__( "%s's Rules Engine isn't running.", 'wp-simple-firewall' ), self::con()->labels->Name )
+					.' '.esc_html__( "If this message still appears after refreshing this page, please reinstall the plugin.", 'wp-simple-firewall' ),
 				],
 				'locations' => [
 					'shield_admin_top_page',

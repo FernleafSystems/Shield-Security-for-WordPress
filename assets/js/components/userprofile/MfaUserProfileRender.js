@@ -27,6 +27,11 @@ export class MfaUserProfileRender extends BaseComponent {
 		.bg( this._base_data.ajax.render_profile )
 		.then( ( resp ) => {
 			this.container.innerHTML = resp.data.html;
+			// These fields are sent as they're used, never with the WordPress profile form they're drawn inside.
+			// Left in that form, they make it differ from how it was first drawn, so WordPress warns of unsaved
+			// changes on leaving a page nobody has touched. An empty form attribute takes each out of the form.
+			this.container.querySelectorAll( 'input, select, textarea, button' )
+				.forEach( ( control ) => control.setAttribute( 'form', '' ) );
 			const providers = resp.data.render_data.vars.providers;
 			this.buildProviderHandlers( providers );
 			return resp;

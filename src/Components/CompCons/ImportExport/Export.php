@@ -195,7 +195,7 @@ class Export {
 		return [
 			'name'    => sprintf( 'shieldexport-%s-%s.json',
 				Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl() ),
-				date( 'Ymd_His' )
+				gmdate( 'Ymd_His' )
 			),
 			'content' => \implode( "\n", $this->toStandardArray() )
 		];

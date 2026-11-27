@@ -26,6 +26,7 @@ class BlockdownFormSubmit extends BaseAction {
 
 		try {
 			if ( !$con->caps->canSiteBlockdown() ) {
+				/* translators: %s: plugin name */
 				throw new \Exception( sprintf( __( 'Please upgrade your %s plan to make use of this feature.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 			}
 

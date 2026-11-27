@@ -90,23 +90,25 @@ class LegacyDashboardNotices extends Base {
 			'text'        => [
 				sprintf(
 					'<strong>%s</strong> %s %s',
-					sprintf( __( "Make %s even better by sharing usage info?", 'wp-simple-firewall' ), $name ),
-					sprintf( __( "We're hoping to understand how %s is configured and used.", 'wp-simple-firewall' ), $name ),
-					__( "We'd like to understand how effective it is on a global scale.", 'wp-simple-firewall' )
+					/* translators: %s: plugin name */
+					sprintf( esc_html__( "Make %s even better by sharing usage info?", 'wp-simple-firewall' ), $name ),
+					/* translators: %s: plugin name */
+					sprintf( esc_html__( "We're hoping to understand how %s is configured and used.", 'wp-simple-firewall' ), $name ),
+					esc_html__( "We'd like to understand how effective it is on a global scale.", 'wp-simple-firewall' )
 				),
 				sprintf(
 					'%s %s <a target="_blank" href="%s">%s</a>',
-					__( 'The data sent is always completely anonymous and we can never track you or your site.', 'wp-simple-firewall' ),
-					__( 'It can be turned-off at any time within the plugin options.', 'wp-simple-firewall' ),
+					esc_html__( 'The data sent is always completely anonymous and we can never track you or your site.', 'wp-simple-firewall' ),
+					esc_html__( 'It can be turned-off at any time within the plugin options.', 'wp-simple-firewall' ),
 					$con->plugin_urls->noncedPluginAction( PluginDumpTelemetry::class ),
-					__( 'Click to see the RAW data that would be sent', 'wp-simple-firewall' )
+					esc_html__( 'Click to see the RAW data that would be sent', 'wp-simple-firewall' )
 				),
 				sprintf(
 					'<button type="button" class="button button-primary me-3" id="icwpButtonPluginTrackingAgree">%s</button> <a target="_blank" href="%s" class="button me-3" id="icwpButtonPluginTrackingMore">%s</a> <button type="button" class="shield-button-link" id="icwpButtonPluginTrackingDisagree">%s</button>',
-					__( "Yes, I'd be happy share this info", 'wp-simple-firewall' ),
+					esc_html__( "Yes, I'd be happy share this info", 'wp-simple-firewall' ),
 					'https://clk.shldscrty.com/shieldtrackinginfo',
-					__( "I'd like to learn more, please", 'wp-simple-firewall' ),
-					__( "No, I don't want to help", 'wp-simple-firewall' )
+					esc_html__( "I'd like to learn more, please", 'wp-simple-firewall' ),
+					esc_html__( "No, I don't want to help", 'wp-simple-firewall' )
 				),
 			],
 			'locations'   => [
@@ -123,14 +125,15 @@ class LegacyDashboardNotices extends Base {
 			'text'        => [
 				sprintf(
 					'<strong>%s</strong> %s',
-					__( 'Can You Help Us With A Quick Review?', 'wp-simple-firewall' ),
-					sprintf( __( 'A lot of work goes into %s, and we need your help to spread the word about it. :)', 'wp-simple-firewall' ), self::con()->labels->Name )
+					esc_html__( 'Can You Help Us With A Quick Review?', 'wp-simple-firewall' ),
+					/* translators: %s: plugin name */
+					sprintf( esc_html__( 'A lot of work goes into %s, and we need your help to spread the word about it. :)', 'wp-simple-firewall' ), self::con()->labels->Name )
 				),
-				__( "Even just a 1-liner review that says you're happy with it, will help us immensely.", 'wp-simple-firewall' ),
+				esc_html__( "Even just a 1-liner review that says you're happy with it, will help us immensely.", 'wp-simple-firewall' ),
 				sprintf(
 					'<a href="%s" class="button button-primary" target="_blank">%s</a>',
 					'https://clk.shldscrty.com/wpsfreview',
-					__( 'Click to leave a review on WordPress.org ->', 'wp-simple-firewall' )
+					esc_html__( 'Click to leave a review on WordPress.org ->', 'wp-simple-firewall' )
 				),
 			],
 			'locations'   => [

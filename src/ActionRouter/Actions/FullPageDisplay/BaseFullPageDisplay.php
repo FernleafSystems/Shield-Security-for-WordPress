@@ -49,7 +49,7 @@ abstract class BaseFullPageDisplay extends BaseAction {
 
 	protected function pushContent() {
 		$payload = $this->response()->payload();
-		echo (string)( $payload[ 'render_output' ] ?? '' );
+		echo (string)( $payload[ 'render_output' ] ?? '' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Full page rendered by the action router, whose Twig templates escape their values.
 	}
 
 	protected function isCacheDisabled() :bool {
@@ -105,7 +105,7 @@ abstract class BaseFullPageDisplay extends BaseAction {
 	 */
 	protected function checkRenderTarget() :void {
 		if ( !$this->isAllowedRenderSlug( $this->fields()->string( 'render_slug' ) ) ) {
-			throw new ActionException( __( 'Invalid full page render target.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'Invalid full page render target.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Fixed text thrown only when the plugin's own code names a disallowed render target; callers escape it (esc_html) or discard it (CapturePluginAction).
 		}
 	}
 

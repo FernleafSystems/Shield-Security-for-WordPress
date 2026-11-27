@@ -65,36 +65,26 @@ class SectionRenderFallback {
 	}
 
 	public function renderFallback( string $sectionName, string $diagnostic = '' ) :string {
-		$section = $this->escape( $sectionName );
+		$section = esc_html( $sectionName );
 		$diagnostic = $this->sanitizeDiagnostic( $diagnostic );
 
 		return \sprintf(
 			'<div class="alert alert-warning mb-0 shield-ipanalyse-section-fallback" role="alert"><strong>%s</strong><div>%s</div>%s</div>',
-			$this->escape( $this->translate( 'This IP analysis section is unavailable.' ) ),
-			\sprintf( '%s: %s', $this->escape( $this->translate( 'Section' ) ), $section ),
+			esc_html__( 'This IP analysis section is unavailable.', 'wp-simple-firewall' ),
+			\sprintf( '%s: %s', esc_html__( 'Section', 'wp-simple-firewall' ), $section ),
 			$diagnostic === '' ? '' : \sprintf(
 				'<div class="small mt-2"><span class="fw-semibold">%s:</span> %s</div>',
-				$this->escape( $this->translate( 'Diagnostic' ) ),
+				esc_html__( 'Diagnostic', 'wp-simple-firewall' ),
 				$diagnostic
 			)
 		);
 	}
 
 	private function sanitizeDiagnostic( string $diagnostic ) :string {
-		$diagnostic = \trim( \strip_tags( $diagnostic ) );
+		$diagnostic = wp_strip_all_tags( $diagnostic );
 		if ( \strlen( $diagnostic ) > 500 ) {
 			$diagnostic = \substr( $diagnostic, 0, 497 ).'...';
 		}
-		return $this->escape( $diagnostic );
-	}
-
-	private function translate( string $text ) :string {
-		return \function_exists( '__' ) ? __( $text, 'wp-simple-firewall' ) : $text;
-	}
-
-	private function escape( string $text ) :string {
-		return \function_exists( 'esc_html' )
-			? esc_html( $text )
-			: \htmlspecialchars( $text, \ENT_QUOTES );
+		return esc_html( $diagnostic );
 	}
 }

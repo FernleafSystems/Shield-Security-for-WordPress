@@ -31,6 +31,7 @@ class DismissAdminNoticeTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'esc_url' )->alias( static fn( string $url ) :string => $url );
 		$this->servicesSnapshot = ServicesState::snapshot();
 	}
@@ -41,8 +42,8 @@ class DismissAdminNoticeTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_dismiss_php_future_minimum_stores_current_user_snooze_when_dismissible() :void {
-		$meta = $this->installEnvironment( '8.2.20' );
+	public function test_dismiss_php_future_minimum_stores_current_user_snooze() :void {
+		$meta = $this->installEnvironment( '8.1.29' );
 
 		$action = new DismissAdminNoticeTestDouble( [
 			'notice_id' => PhpFutureMinimum::ID,
@@ -55,8 +56,8 @@ class DismissAdminNoticeTest extends BaseUnitTest {
 		$this->assertSame( PhpFutureMinimum::ID, $payload[ 'notice_id' ] );
 	}
 
-	public function test_dismiss_php_future_minimum_does_not_snooze_non_dismissible_variant() :void {
-		$meta = $this->installEnvironment( '8.1.29' );
+	public function test_dismiss_php_future_minimum_does_not_snooze_when_the_notice_is_not_showing() :void {
+		$meta = $this->installEnvironment( '8.2.20' );
 
 		$action = new DismissAdminNoticeTestDouble( [
 			'notice_id' => PhpFutureMinimum::ID,
@@ -117,6 +118,14 @@ class DismissAdminNoticeControllerStub extends Controller {
 	public function __construct( object $adminNotices, object $userMetas ) {
 		$this->admin_notices = $adminNotices;
 		$this->user_metas = $userMetas;
+		// A site installed long ago: a new install's first day, when advice isn't shown, is the notice's own test.
+		$this->comps = (object)[
+			'opts_lookup' => new class {
+				public function getInstalledAt() :int {
+					return 1600000000;
+				}
+			},
+		];
 	}
 }
 

@@ -305,7 +305,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 		$this->assertSame( [ 'overall', 'summaries' ], \array_keys( $strip ) );
 		$this->assertSame(
-			[ 'status', 'icon_class', 'title', 'summary', 'accessible_label' ],
+			[ 'status', 'icon_class', 'title', 'summary', 'accessible_label', 'ignored_text' ],
 			\array_keys( $strip[ 'overall' ] )
 		);
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $strip[ 'summaries' ], 'id' ) );
@@ -373,7 +373,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertArrayNotHasKey( 'minimize', $liveMonitor );
 		$this->assertArrayNotHasKey( 'expand', $liveMonitor );
 		$this->assertSame(
-			[ 'dashboard_activity_chart_data_json', 'dashboard_activity_charts', 'dashboard_activity_charts_heading', 'dashboard_activity_charts_link', 'dashboard_activity_charts_href', 'dashboard_recent_events', 'dashboard_recent_events_heading', 'dashboard_recent_events_week_label', 'dashboard_recent_events_link', 'dashboard_recent_events_href', 'dashboard_recent_events_unrecorded_label', 'dashboard_launchpad_heading', 'dashboard_strip', 'launchpad', 'destination_cards', 'dashboard_task_guide', 'live_monitor' ],
+			[ 'dashboard_activity_chart_data_json', 'dashboard_activity_charts', 'dashboard_activity_charts_heading', 'dashboard_activity_charts_link', 'dashboard_activity_charts_href', 'dashboard_activity_charts_empty', 'dashboard_recent_events', 'dashboard_recent_events_heading', 'dashboard_recent_events_week_label', 'dashboard_recent_events_link', 'dashboard_recent_events_href', 'dashboard_recent_events_empty', 'dashboard_launchpad_heading', 'dashboard_strip', 'launchpad', 'destination_cards', 'dashboard_task_guide', 'dashboard_tour', 'live_monitor' ],
 			\array_keys( $renderData[ 'vars' ] ?? [] )
 		);
 		$chartData = \json_decode(

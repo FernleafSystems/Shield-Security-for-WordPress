@@ -28,11 +28,13 @@ class Insert extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Inser
 			);
 		}
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Shield's own log meta table (prefix plus a fixed name); each row of values was built with prepare() above.
 		return (bool)$wpdb->query( \sprintf(
 			'INSERT INTO `%s` (`log_ref`,`meta_key`,`meta_value`) VALUES %s',
 			$this->getDbH()->getTable(),
 			\implode( ',', $values )
 		) );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 	}
 
 	private function normaliseMetaValue( $metaValue ) :string {

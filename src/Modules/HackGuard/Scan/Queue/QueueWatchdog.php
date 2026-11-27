@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 /**
  * @phpstan-import-type ActiveScanStatus from \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus
@@ -200,7 +201,7 @@ class QueueWatchdog {
 			'last_process_at' => $now,
 			'meta'            => $scan->getRawData()[ 'meta' ],
 		] ) ) {
-			error_log( \sprintf(
+			ErrorLog::write( \sprintf(
 				'Shield scan recovery persistence failed: scan_id=%d phase=queued',
 				$scanID
 			) );

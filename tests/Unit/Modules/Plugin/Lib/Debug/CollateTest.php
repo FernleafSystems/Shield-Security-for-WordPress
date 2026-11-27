@@ -31,6 +31,8 @@ class CollateTest extends BaseUnitTest {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		// Like WordPress, this leaves existing entities alone.
+		Functions\when( 'esc_html' )->alias( static fn( $text ) :string => \htmlspecialchars( (string)$text, \ENT_QUOTES, 'UTF-8', false ) );
 		ServicesState::installItems( [
 			'service_request' => new UnitTestRequest( [], '203.0.113.10' ),
 		] );

@@ -181,7 +181,7 @@ class CloakedPluginsCon {
 		$status = (string)$req->query( 'plugin_status' );
 		$search = (string)$req->query( 's' );
 		foreach ( [ 'action', 'action2' ] as $key ) {
-			foreach ( [ $_GET[ $key ] ?? '', $_POST[ $key ] ?? '' ] as $action ) {
+			foreach ( [ $_GET[ $key ] ?? '', $_POST[ $key ] ?? '' ] as $action ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read only to tell whether a bulk action is under way, by comparing exactly with '' and '-1'. That decides whether cloaked plugin detection runs on this view; the values themselves aren't stored or shown.
 				if ( !\in_array( $action, [ '', '-1' ], true ) ) {
 					return false;
 				}

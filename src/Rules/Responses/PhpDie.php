@@ -10,7 +10,7 @@ class PhpDie extends Base {
 	public const SLUG = 'php_die';
 
 	public function execResponse() :void {
-		die( $this->p->message );
+		die( $this->p->message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Message an administrator wrote for the rule, which may be HTML; it also reaches plain-text clients, where escaping would show entities.
 	}
 
 	public function getParamsDef() :array {

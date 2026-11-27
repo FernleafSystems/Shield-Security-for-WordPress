@@ -18,7 +18,8 @@ class DailyCron extends BaseCron {
 	}
 
 	public function getFirstRunTimestamp() :int {
-		$hour = ( \rand( -3, 7 ) + 24 )%24;
+		// 21:00 to 07:00. wp_rand() returns absolute values, so the range can't start below zero.
+		$hour = wp_rand( 21, 31 )%24;
 		if ( $hour === 0 ) {
 			$hour += wp_rand( 1, 7 );
 		}
@@ -42,6 +43,6 @@ class DailyCron extends BaseCron {
 	 * Use the included action to hook into the plugin's daily cron
 	 */
 	public function runCron() {
-		do_action( self::con()->prefix( 'daily_cron' ) );
+		do_action( self::con()->prefix( 'daily_cron' ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 	}
 }

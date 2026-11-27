@@ -57,7 +57,7 @@ class CalendarIntervalWindowResolver {
 				$end = ( clone $intervalToReport )->endOfYear();
 				break;
 			default:
-				throw new \InvalidArgumentException( 'Unsupported calendar interval: '.$interval );
+				throw new \InvalidArgumentException( 'Unsupported calendar interval: '.$interval ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the interval is always a fixed plugin value and the message is never printed.
 		}
 
 		return $this->newWindow( $start, $end, $timezone );
@@ -89,7 +89,7 @@ class CalendarIntervalWindowResolver {
 				$end = ( clone $reference )->endOfYear();
 				break;
 			default:
-				throw new \InvalidArgumentException( 'Unsupported calendar interval: '.$interval );
+				throw new \InvalidArgumentException( 'Unsupported calendar interval: '.$interval ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the interval is always a fixed plugin value and the message is never printed.
 		}
 
 		return $this->newWindow( $start, $end, $timezone );
@@ -125,7 +125,7 @@ class CalendarIntervalWindowResolver {
 				$end = ( clone $intervalStart )->subYear()->endOfYear();
 				break;
 			default:
-				throw new \InvalidArgumentException( 'Unsupported calendar interval: '.$interval );
+				throw new \InvalidArgumentException( 'Unsupported calendar interval: '.$interval ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the interval is always a fixed plugin value and the message is never printed.
 		}
 
 		return $this->newWindow( $start, $end, $currentWindow->timezone );
@@ -160,7 +160,7 @@ class CalendarIntervalWindowResolver {
 
 	private function assertSupported( string $interval ) :void {
 		if ( !$this->isSupportedInterval( $interval ) ) {
-			throw new \InvalidArgumentException( 'Unsupported calendar interval: '.$interval );
+			throw new \InvalidArgumentException( 'Unsupported calendar interval: '.$interval ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the interval is always a fixed plugin value and the message is never printed.
 		}
 	}
 

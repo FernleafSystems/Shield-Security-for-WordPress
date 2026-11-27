@@ -67,7 +67,12 @@
 				{% endif %}
 				{# Folded, a lane with nothing in it says so in its heading; open, its body does. #}
 				{% if section.empty_text is not empty %}
-					<span class="actions-queue-section__summary is-folded-only">{{ section.empty_text }}</span>
+					<span class="actions-queue-section__summary is-folded-only">
+						{{ section.empty_text }}
+						{% if section.ignored_count > 0 %}
+							<span class="actions-queue-section__ignored"><i class="bi bi-eye-slash-fill" aria-hidden="true"></i>{{ strings.ignored_toggle|format( section.ignored_count ) }}</span>
+						{% endif %}
+					</span>
 				{% endif %}
 				{% if section.breakdown is not empty %}
 					<span class="actions-queue-section__breakdown">
@@ -85,6 +90,10 @@
 				{% if section.empty_text is not empty %}
 					<p class="actions-queue-section__empty">
 						<i class="bi bi-check-circle-fill" aria-hidden="true"></i>{{ section.empty_text }}
+						{# Nothing to do, but not nothing there: what's ignored is listed below, faded. #}
+						{% if section.ignored_count > 0 %}
+							<span class="actions-queue-section__ignored"><i class="bi bi-eye-slash-fill" aria-hidden="true"></i>{{ strings.ignored_toggle|format( section.ignored_count ) }}</span>
+						{% endif %}
 					</p>
 				{% endif %}
 				{#
@@ -93,20 +102,7 @@
 					so a heading never stands over nothing of its own.
 				#}
 				{% for box in section.boxes %}
-					{% if box.type == 'plain' %}
-						<div class="actions-queue-box">
-							{% for entry in box.entries %}
-								{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {
-									group: entry.group,
-									bucket_selection: entry.bucket_selection,
-									strings: strings,
-									collapsible: false,
-									two_columns: false,
-									alert_switch: null
-								} only %}
-							{% endfor %}
-						</div>
-					{% elseif box.type == 'group' %}
+					{% if box.type == 'group' %}
 						{# Only the kinds that can be left out of the queue have an alerts switch. #}
 						<div class="actions-queue-box" data-actions-queue-kind="{{ box.kind }}">
 							{% include '/wpadmin/components/actions_queue/landing_group_row.twig' with {

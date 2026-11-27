@@ -34,11 +34,30 @@ class WpPluginsUpdates extends Base {
 
 	public function descUnprotected() :string {
 		$count = $this->countUpdates();
-		return _n(
-			__( 'There is 1 plugin update waiting to be applied.', 'wp-simple-firewall' ),
-			sprintf( __( 'There are %s plugin updates waiting to be applied.', 'wp-simple-firewall' ), $count ),
+		return sprintf(
+			/* translators: %s: number of plugin updates */
+			_n( 'There is %s plugin update waiting to be applied.', 'There are %s plugin updates waiting to be applied.', $count, 'wp-simple-firewall' ),
 			$count
-		, 'wp-simple-firewall' );
+		);
+	}
+
+	public function guidance() :array {
+		return [
+			'checks'   => __( 'Shield asks WordPress which of your installed plugins have a newer version available.', 'wp-simple-firewall' ),
+			'why'      => [
+				__( 'Out-of-date plugins are one of the most common ways WordPress sites are broken into. Updates are how the security holes found in them are closed.', 'wp-simple-firewall' ),
+			],
+			'steps'    => [
+				__( "Take a backup of your site's files and database.", 'wp-simple-firewall' ),
+				__( 'Go to Plugins and update each plugin that shows an update. Updating one at a time makes it easy to tell which one caused a problem.', 'wp-simple-firewall' ),
+				__( 'Check that the main parts of your site still work.', 'wp-simple-firewall' ),
+			],
+			'who'      => __( 'Any administrator can do this.', 'wp-simple-firewall' ),
+			'practice' => [
+				__( 'Turn on auto-updates, from the Plugins page, for the plugins you trust.', 'wp-simple-firewall' ),
+				__( 'Replace a plugin that no longer gets updates with one that does.', 'wp-simple-firewall' ),
+			],
+		];
 	}
 
 	private function countUpdates() :int {

@@ -41,6 +41,7 @@ class AnonRestApiDisable {
 				$mStatus = new \WP_Error(
 					'shield_block_anon_restapi',
 					apply_filters( 'shield/anonymous_rest_api/disabled_message',
+						/* translators: %s: plugin name */
 						sprintf( __( 'Anonymous access to the WordPress REST API has been restricted by %s.', 'wp-simple-firewall' ), $con->labels->Name ),
 						$namespace
 					),

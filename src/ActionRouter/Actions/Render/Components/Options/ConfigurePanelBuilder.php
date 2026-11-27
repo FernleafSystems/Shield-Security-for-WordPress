@@ -147,6 +147,10 @@ class ConfigurePanelBuilder {
 			if ( !\is_array( $option ) ) {
 				continue;
 			}
+			// A switch outside the site's plan isn't running anything, whatever its default, so it's drawn off.
+			if ( $option[ 'unavailable' ] && $option[ 'type' ] === 'checkbox' ) {
+				$option[ 'value' ] = 'N';
+			}
 			$control = $layoutItem[ 'control' ];
 			if ( $control === 'segmented' && !$this->segmentsFitOneLine( $option ) ) {
 				$control = 'radios';
@@ -188,12 +192,24 @@ class ConfigurePanelBuilder {
 
 	/**
 	 * More about a setting, shown when asked for: its description, unless that only repeats the summary beside
-	 * it. The lines are the plugin's own strings and may hold links or code.
+	 * it. The lines are printed as HTML and keep only the markup they use, so their translations, and values such as
+	 * paths and role names, can't add anything else. No id or data attributes: Shield's scripts act on those.
 	 * @return list<string>
 	 */
 	private function details( array $option ) :array {
+		$allowed = [
+			'a'      => [ 'href' => true, 'target' => true, 'title' => true, 'class' => true ],
+			'br'     => [],
+			'code'   => [],
+			'em'     => [],
+			'li'     => [],
+			'p'      => [ 'class' => true ],
+			'span'   => [ 'class' => true, 'style' => true ],
+			'strong' => [],
+			'ul'     => [ 'style' => true ],
+		];
 		$lines = \array_values( \array_filter(
-			\array_map( static fn( $line ) :string => \trim( (string)$line ), $option[ 'description' ] ),
+			\array_map( static fn( $line ) :string => \trim( wp_kses( (string)$line, $allowed ) ), $option[ 'description' ] ),
 			static fn( string $line ) :bool => $line !== ''
 		) );
 		$plain = static fn( string $text ) :string => \strtolower( \trim( \wp_strip_all_tags( $text ), " .\t\n\r" ) );
@@ -208,7 +224,7 @@ class ConfigurePanelBuilder {
 		$width = 0;
 		foreach ( $option[ 'value_options' ] as $choice ) {
 			// Roughly 7px a character at the control's size, plus each segment's padding and border.
-			$width += \strlen( \strip_tags( \html_entity_decode( (string)$choice[ 'name' ] ) ) ) * 7 + 26;
+			$width += \strlen( wp_strip_all_tags( \html_entity_decode( (string)$choice[ 'name' ] ) ) ) * 7 + 26;
 		}
 		return $width <= 330;
 	}
@@ -241,7 +257,7 @@ class ConfigurePanelBuilder {
 			foreach ( $option[ 'value_options' ] as $value => $choice ) {
 				$stops[] = [
 					'value'        => (string)$value,
-					'label'        => \strip_tags( \html_entity_decode( (string)$choice[ 'name' ] ) ),
+					'label'        => wp_strip_all_tags( \html_entity_decode( (string)$choice[ 'name' ] ) ),
 					'is_available' => (bool)$choice[ 'is_available' ],
 				];
 			}
@@ -284,12 +300,19 @@ class ConfigurePanelBuilder {
 			return __( 'Off', 'wp-simple-firewall' );
 		}
 		$units = [
+			/* translators: %s: number of seconds */
 			'seconds'  => _n( '%s second', '%s seconds', $value, 'wp-simple-firewall' ),
+			/* translators: %s: number of minutes */
 			'minutes'  => _n( '%s minute', '%s minutes', $value, 'wp-simple-firewall' ),
+			/* translators: %s: number of hours */
 			'hours'    => _n( '%s hour', '%s hours', $value, 'wp-simple-firewall' ),
+			/* translators: %s: number of days */
 			'days'     => _n( '%s day', '%s days', $value, 'wp-simple-firewall' ),
+			/* translators: %s: number of comments */
 			'comments' => _n( '%s comment', '%s comments', $value, 'wp-simple-firewall' ),
+			/* translators: %s: number of offenses */
 			'offenses' => _n( '%s offense', '%s offenses', $value, 'wp-simple-firewall' ),
+			/* translators: %s: number of requests */
 			'requests' => _n( '%s request', '%s requests', $value, 'wp-simple-firewall' ),
 		];
 		return sprintf( $units[ $unit ] ?? '%s', number_format_i18n( $value ) );
@@ -298,7 +321,8 @@ class ConfigurePanelBuilder {
 	/**
 	 * Editable WordPress roles, plus any saved role no longer registered so saving keeps it.
 	 * Labels are escaped here: the chips template prints a label as HTML, as it does for choices from the spec.
-	 * @return list<array{value:string,label:string,is_on:bool}>
+	 * Every role can be chosen, so each carries the same availability a choice from the spec does.
+	 * @return list<array{value:string,label:string,is_on:bool,is_available:true,unavailable_title:''}>
 	 */
 	private function roleChoices( string $optionKey ) :array {
 		$selected = \array_map( 'strval', (array)self::con()->opts->optGet( $optionKey ) );
@@ -306,16 +330,20 @@ class ConfigurePanelBuilder {
 		$choices = [];
 		foreach ( $names as $role => $name ) {
 			$choices[] = [
-				'value' => (string)$role,
-				'label' => esc_html( translate_user_role( $name ) ),
-				'is_on' => \in_array( (string)$role, $selected, true ),
+				'value'             => (string)$role,
+				'label'             => esc_html( translate_user_role( $name ) ),
+				'is_on'             => \in_array( (string)$role, $selected, true ),
+				'is_available'      => true,
+				'unavailable_title' => '',
 			];
 		}
 		foreach ( \array_diff( $selected, \array_keys( $names ) ) as $role ) {
 			$choices[] = [
-				'value' => $role,
-				'label' => esc_html( $role ),
-				'is_on' => true,
+				'value'             => $role,
+				'label'             => esc_html( $role ),
+				'is_on'             => true,
+				'is_available'      => true,
+				'unavailable_title' => '',
 			];
 		}
 		return $choices;

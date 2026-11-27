@@ -35,8 +35,9 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', self::NOW ),
 		] );
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
-		Functions\when( 'esc_html' )->alias( static fn( $text ) :string => \htmlspecialchars( (string)$text, \ENT_QUOTES, 'UTF-8' ) );
-		Functions\when( 'esc_attr' )->alias( static fn( $text ) :string => \htmlspecialchars( (string)$text, \ENT_QUOTES, 'UTF-8' ) );
+		// Like WordPress, these leave existing entities alone rather than encoding them again.
+		Functions\when( 'esc_html' )->alias( static fn( $text ) :string => \htmlspecialchars( (string)$text, \ENT_QUOTES, 'UTF-8', false ) );
+		Functions\when( 'esc_attr' )->alias( static fn( $text ) :string => \htmlspecialchars( (string)$text, \ENT_QUOTES, 'UTF-8', false ) );
 		Functions\when( 'wp_date' )->alias( static fn( string $format, int $timestamp ) :string => \gmdate( $format, $timestamp ) );
 	}
 
@@ -440,6 +441,23 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( 'secret-import-id', $row[ 'actions' ] );
 		$this->assertStringContainsString( 'data-shield-sync-details-trigger="1"', $row[ 'sync_status' ] );
 		$this->assertStringContainsString( 'secret-import-id', $row[ 'sync_status' ] );
+	}
+
+	public function test_sync_details_popover_keeps_stored_error_text_escaped() :void {
+		$markup = '<img src=x onerror=alert(1)>';
+		$rows = ( new BuildImportExportSitesTableData() )->exportBuildTableRowsFromRawRecords( [
+			$this->record( [
+				'id'              => 7,
+				'queue_status'    => SitesDB::QUEUE_QUEUED,
+				'last_ping_error' => $markup,
+			] ),
+		] );
+
+		$this->assertSame( 1, \preg_match( '#data-shield-sync-details="([^"]*)"#', $rows[ 0 ][ 'sync_status' ], $matches ) );
+		// The browser decodes the attribute once, and the popover inserts the result as HTML.
+		$popoverHtml = \html_entity_decode( $matches[ 1 ], \ENT_QUOTES, 'UTF-8' );
+		$this->assertStringNotContainsString( $markup, $popoverHtml );
+		$this->assertStringContainsString( \htmlspecialchars( $markup, \ENT_QUOTES, 'UTF-8' ), $popoverHtml );
 	}
 
 	public function test_problem_table_row_includes_repair_action() :void {

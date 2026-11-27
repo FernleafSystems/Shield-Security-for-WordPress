@@ -48,8 +48,8 @@ class BlockTrafficRateLimitExceeded extends BaseBlock {
 
 	protected function getRestrictionDetailsBlurb() :array {
 		return [
-			__( "You have exceeded the site's traffic rate limiting parameters.", 'wp-simple-firewall' ),
-			__( "If you continue to exceed the rate limits, your IP address may be completely blocked from further access.", 'wp-simple-firewall' ),
+			esc_html__( "You have exceeded the site's traffic rate limiting parameters.", 'wp-simple-firewall' ),
+			esc_html__( "If you continue to exceed the rate limits, your IP address may be completely blocked from further access.", 'wp-simple-firewall' ),
 		];
 	}
 }

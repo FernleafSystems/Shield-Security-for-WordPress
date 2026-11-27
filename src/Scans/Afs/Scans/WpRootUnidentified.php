@@ -15,7 +15,7 @@ class WpRootUnidentified extends BaseScan {
 	 */
 	protected function runScan() :bool {
 		if ( $this->inRootDir() ) {
-			throw new Exceptions\WpRootFileUnidentifiedException( $this->pathFull );
+			throw new Exceptions\WpRootFileUnidentifiedException( $this->pathFull ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: the message is a file path, caught by FileScanner and turned into a scan result item, never shown.
 		}
 		return false;
 	}

@@ -345,6 +345,28 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( [], $provider->queueRows()[ 'ignored' ][ 0 ][ 'actions' ] );
+		// Nobody ignored it, so it isn't counted as ignored.
+		$this->assertSame( 0, $provider->ignoredByUserCount() );
+	}
+
+	public function test_only_plugins_someone_ignored_are_counted_as_ignored() :void {
+		$shieldLoader = $this->finding(
+			new PluginEntry( PluginType::MustUse, MUHandler::PLUGIN_FILE_NAME, 'Shield MU', '1.0', '/mu-plugins/'.MUHandler::PLUGIN_FILE_NAME ),
+			[ CloakReason::ShowAdvancedPlugins ],
+			true
+		);
+		$ignoredByUser = $this->finding(
+			new PluginEntry( PluginType::Standard, 'quiet/quiet.php', 'Quiet Plugin', '2.0.0', '/plugins/quiet/quiet.php' ),
+			[ CloakReason::PluginsList ],
+			false
+		);
+		$provider = new CloakedPluginsQueueIssueProviderTestDouble(
+			[],
+			[ $shieldLoader, $ignoredByUser ],
+			[ $shieldLoader->identityKey() ]
+		);
+
+		$this->assertSame( 1, $provider->ignoredByUserCount() );
 	}
 
 	public function test_active_shield_mu_has_no_ignore_queue_action() :void {

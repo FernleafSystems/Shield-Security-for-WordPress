@@ -19,7 +19,7 @@ class ScanResults extends ScanBase {
 			);
 		}
 		catch ( \InvalidArgumentException $e ) {
-			throw new ApiException( $e->getMessage(), 400 );
+			throw new ApiException( $e->getMessage(), 400 ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- REST response message, sent as JSON text.
 		}
 
 		return $findings[ 'results' ];

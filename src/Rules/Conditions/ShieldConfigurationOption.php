@@ -12,6 +12,7 @@ class ShieldConfigurationOption extends Base {
 	use Traits\TypeShield;
 
 	public function getDescription() :string {
+		/* translators: %s: plugin name */
 		return sprintf( __( 'Is The %s Option Value...', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
@@ -29,6 +30,7 @@ class ShieldConfigurationOption extends Base {
 		return [
 			'name'        => [
 				'type'         => Enum\EnumParameters::TYPE_STRING,
+				/* translators: %s: plugin name */
 				'label'        => sprintf( __( '%s Option Key', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'verify_regex' => '/^[a-zA-Z0-9_]+$/'
 			],

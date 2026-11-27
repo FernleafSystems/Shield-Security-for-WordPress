@@ -7,6 +7,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalaiEarlyRecheck;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class HandleUpgrade {
 
@@ -82,7 +83,7 @@ class HandleUpgrade {
 		if ( $result->hasFailures() ) {
 			$message = $result->getFailureLogMessage( [ Modules\HackGuard\Scan\StartScansResult::REASON_ALREADY_EXISTS ] );
 			if ( $message !== '' ) {
-				error_log( $message );
+				ErrorLog::write( $message );
 			}
 		}
 	}
@@ -183,7 +184,7 @@ class HandleUpgrade {
 			$callback();
 		}
 		catch ( \Throwable $e ) {
-			error_log( sprintf(
+			ErrorLog::write( sprintf(
 				'Shield upgrade side effect failed: %s: %s',
 				$context,
 				$e->getMessage()

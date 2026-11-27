@@ -18,7 +18,7 @@ class SecurityAdminRequestRemoveByEmail extends SecurityAdminBase {
 
 	protected function exec() {
 		if ( !self::con()->opts->optIs( 'allow_email_override', 'Y' ) ) {
-			throw new ActionException( __( 'Email override is not enabled.', 'wp-simple-firewall' ) );
+			throw new ActionException( __( 'Email override is not enabled.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX responses show it as text.
 		}
 
 		( new RemoveSecAdmin() )->sendConfirmationEmail();

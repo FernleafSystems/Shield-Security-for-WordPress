@@ -37,6 +37,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 
 	public function buildItemBadge( int $itemCount ) :string {
 		return \sprintf(
+			/* translators: %s: number of items */
 			_n( '%s item', '%s items', $itemCount, 'wp-simple-firewall' ),
 			$itemCount
 		);
@@ -44,6 +45,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 
 	public function buildLaneBadge( int $itemCount ) :string {
 		return \sprintf(
+			/* translators: %s: number of protections */
 			_n( '%s protection', '%s protections', $itemCount, 'wp-simple-firewall' ),
 			$itemCount
 		);
@@ -51,6 +53,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 
 	public function buildBucketFocusText( string $bucketLabel, int $itemCount ) :string {
 		return \sprintf(
+			/* translators: %1$s: name of the group of items, %2$s: number of items */
 			_n(
 				'%1$s has %2$s item that still needs attention.',
 				'%1$s has %2$s items that still need attention.',

@@ -130,12 +130,13 @@ class StaticToolDefinitions {
 			],
 			[
 				'id'           => 'tool_guidedsetup',
-				'title'        => __( 'Guided Setup', 'wp-simple-firewall' ),
+				// Named as the guide it opens is named everywhere else.
+				'title'        => __( 'Setup Guide', 'wp-simple-firewall' ),
 				'icon'         => 'compass',
 				'nav'          => PluginNavs::NAV_WIZARD,
 				'subnav'       => PluginNavs::SUBNAV_WIZARD_WELCOME,
 				'modes'        => [ PluginNavs::MODE_CONFIGURE ],
-				'search_text'  => __( 'Run Guided Setup Wizard', 'wp-simple-firewall' ),
+				'search_text'  => __( 'Open the Setup Guide', 'wp-simple-firewall' ),
 				'search_tokens'=> 'tool setup guide guided wizard',
 				'show_in_search' => true,
 			],

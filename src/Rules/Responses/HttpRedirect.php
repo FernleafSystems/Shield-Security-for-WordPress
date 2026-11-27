@@ -12,11 +12,21 @@ class HttpRedirect extends Base {
 			throw new \Exception( 'Redirection skipped to prevent infinite redirects.' );
 		}
 		\header( 'Cache-Control: no-store, no-cache' );
-		if ( \str_starts_with( $this->p->redirect_url, '/' ) ) {
-			wp_safe_redirect( $this->p->redirect_url, $this->p->status_code );
+		$url = $this->p->redirect_url;
+		if ( $this->p->isFilledFromRequest( 'redirect_url' ) ) {
+			// A visitor controls a destination filled in from the request, so it may only go to a host WordPress allows.
+			// One that isn't allowed is skipped, rather than sent to the admin area where the same rule could match again.
+			$url = wp_validate_redirect( $url, '' );
+			if ( $url === '' ) {
+				throw new \Exception( 'Redirection skipped: the destination filled in from the request is not an allowed host.' );
+			}
+			wp_safe_redirect( $url, $this->p->status_code );
+		}
+		elseif ( \str_starts_with( $url, '/' ) ) {
+			wp_safe_redirect( $url, $this->p->status_code );
 		}
 		else {
-			wp_redirect( $this->p->redirect_url, $this->p->status_code );
+			wp_redirect( $url, $this->p->status_code ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- An off-site address an administrator typed into the rule; local paths and addresses filled in from the request use wp_safe_redirect() above.
 		}
 		die();
 	}

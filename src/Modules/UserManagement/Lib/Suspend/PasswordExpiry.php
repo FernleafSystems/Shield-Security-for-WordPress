@@ -15,9 +15,9 @@ class PasswordExpiry extends Base {
 			$user = new \WP_Error(
 				self::con()->prefix( 'pass-expired' ),
 				\implode( ' ', [
-					__( 'Sorry, this account is suspended because the password has expired.', 'wp-simple-firewall' ),
-					__( 'Please reset your password to regain access.', 'wp-simple-firewall' ),
-					sprintf( '<a href="%s">%s &rarr;</a>', $this->getResetPasswordURL( 'password_expired' ), __( 'Reset', 'wp-simple-firewall' ) ),
+					esc_html__( 'Sorry, this account is suspended because the password has expired.', 'wp-simple-firewall' ),
+					esc_html__( 'Please reset your password to regain access.', 'wp-simple-firewall' ),
+					sprintf( '<a href="%s">%s &rarr;</a>', $this->getResetPasswordURL( 'password_expired' ), esc_html__( 'Reset', 'wp-simple-firewall' ) ),
 				] )
 			);
 		}

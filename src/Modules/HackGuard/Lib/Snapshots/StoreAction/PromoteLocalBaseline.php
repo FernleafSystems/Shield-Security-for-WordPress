@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpThemeVo
 };
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ErrorLog;
 
 class PromoteLocalBaseline extends BaseAction {
 
@@ -108,7 +109,7 @@ class PromoteLocalBaseline extends BaseAction {
 				$this->recordCompletedCheck( $original[ 'data' ], $original[ 'meta' ], $attemptedAt );
 			}
 			else {
-				error_log( 'Shield snapshot promotion could not restore the original local baseline.' );
+				ErrorLog::write( 'Shield snapshot promotion could not restore the original local baseline.' );
 			}
 			return false;
 		}
@@ -211,7 +212,7 @@ class PromoteLocalBaseline extends BaseAction {
 		}
 		catch ( \Throwable $e ) {
 			if ( !$writeAttempted ) {
-				error_log( 'Shield snapshot promotion could not persist its completed-check timestamp.' );
+				ErrorLog::write( 'Shield snapshot promotion could not persist its completed-check timestamp.' );
 				return;
 			}
 			try {
@@ -228,7 +229,7 @@ class PromoteLocalBaseline extends BaseAction {
 			catch ( \Throwable $restoreError ) {
 				unset( $restoreError );
 			}
-			error_log( 'Shield snapshot promotion could not persist its completed-check timestamp.' );
+			ErrorLog::write( 'Shield snapshot promotion could not persist its completed-check timestamp.' );
 		}
 	}
 

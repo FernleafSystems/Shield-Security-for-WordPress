@@ -24,6 +24,25 @@ class UnitTestScansAfsComponent {
 		$this->themesEnabled = $themesEnabled;
 	}
 
+	/**
+	 * The scanner's own switch, taken as on while any kind of file is scanned.
+	 */
+	public function isEnabled() :bool {
+		return !empty( $this->getFileScanAreas() );
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	public function getFileScanAreas() :array {
+		return \array_keys( \array_filter( [
+			'wp'          => $this->wpCoreEnabled,
+			'plugins'     => $this->pluginsEnabled,
+			'themes'      => $this->themesEnabled,
+			'malware_php' => $this->malwareEnabled,
+		] ) );
+	}
+
 	public function isEnabledMalwareScanPHP() :bool {
 		return $this->malwareEnabled;
 	}

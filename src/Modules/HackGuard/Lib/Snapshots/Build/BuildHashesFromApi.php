@@ -24,7 +24,7 @@ class BuildHashesFromApi {
 		FileHashAlgorithm::validate( $algorithm );
 		if ( $asset instanceof WpThemeVo
 			 && ( (bool)$asset->is_child || (bool)$asset->is_inactive_child ) ) {
-			throw new \Exception( __( 'Live hashes are not supported for child themes.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Live hashes are not supported for child themes.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: callers (StoreAction\Build, PromoteLocalBaseline) catch it and fall back, never shown.
 		}
 
 		if ( !$asset->isWpOrg() ) {
@@ -62,7 +62,7 @@ class BuildHashesFromApi {
 			}
 
 			if ( !$apiSupport ) {
-				throw new \Exception( __( 'Not a WordPress.org asset.', 'wp-simple-firewall' ) );
+				throw new \Exception( __( 'Not a WordPress.org asset.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: callers (StoreAction\Build, PromoteLocalBaseline) catch it and fall back, never shown.
 			}
 		}
 		return $this->retrieveForAsset( $asset, $algorithm );
@@ -114,7 +114,7 @@ class BuildHashesFromApi {
 				->getHashes( $asset->stylesheet, $asset->version, $algorithm );
 		}
 		else {
-			throw new \Exception( __( 'Not a supported asset type.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Not a supported asset type.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: callers (StoreAction\Build, PromoteLocalBaseline) catch it and fall back, never shown.
 		}
 
 		$hashes = ( new NormalizeHashMap() )->toScalarMapForAlgorithm( $hashes, $algorithm );

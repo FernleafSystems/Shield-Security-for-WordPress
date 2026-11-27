@@ -227,12 +227,14 @@ class ActionsQueueScanAssetCardsBuilder {
 	protected function buildQueueAssetStatText( int $fileCount, array $resultsDisplayOptions ) :string {
 		if ( $resultsDisplayOptions[ 'ignored_only' ] ) {
 			return \sprintf(
+				/* translators: %s: number of files */
 				_n( '%s ignored file is available for review', '%s ignored files are available for review', $fileCount, 'wp-simple-firewall' ),
 				$fileCount
 			);
 		}
 
 		return \sprintf(
+			/* translators: %s: number of files */
 			_n( '%s file needs review', '%s files need review', $fileCount, 'wp-simple-firewall' ),
 			$fileCount
 		);

@@ -49,6 +49,13 @@ for ( const route of [
 	} );
 }
 
+test( 'a setting outside the plan opens the shared modal from where its control would be', async ( { page } ) => {
+	await openShieldRoute( page, { nav: 'zones', nav_sub: 'overview', zone: 'code', row_key: 'file_locker' } );
+	const launcher = page.locator( '[data-configure-row-key="file_locker"] [data-option-key="file_locker"] [data-pro-upsell="1"]' );
+	await expect( launcher ).toBeVisible( { timeout: 20_000 } );
+	await expectUpgradeModal( page, launcher );
+} );
+
 test( 'file import remains usable while network sync prompts for an upgrade', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withImportExportFileFixture( async () => {
 		await openShieldRoute( page, { nav: 'tools', nav_sub: 'importexport' } );

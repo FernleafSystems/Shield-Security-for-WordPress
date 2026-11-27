@@ -191,7 +191,7 @@ class LicenseHandler {
 			}
 		}
 		else {
-			throw new \Exception( __( 'Please wait a short while before checking again.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Please wait a short while before checking again.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: LicenseLookup (AJAX), the REST LicenseCheck and WP-CLI show it as text; runAdhocLicenseCheck() ignores it.
 		}
 
 		return $this;

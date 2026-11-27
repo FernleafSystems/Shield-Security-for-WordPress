@@ -208,6 +208,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		}
 
 		$this->assertContains( 'default_admin_user', $maintenanceKeys );
+		$this->assertContains( 'admin_two_factor', $maintenanceKeys );
 	}
 
 	public function test_configure_tile_definitions_are_one_per_goal() :void {

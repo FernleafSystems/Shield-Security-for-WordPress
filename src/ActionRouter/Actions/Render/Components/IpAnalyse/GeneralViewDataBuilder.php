@@ -185,6 +185,7 @@ class GeneralViewDataBuilder {
 				'is_blocked'          => __( 'IP Blocked', 'wp-simple-firewall' ),
 				'is_bypass'           => __( 'Bypass Listed', 'wp-simple-firewall' ),
 				'ip_reputation'       => __( 'Local Reputation', 'wp-simple-firewall' ),
+				/* translators: %s: name of the ShieldNET reputation service */
 				'snapi_ip_reputation' => \sprintf( __( '%s Score', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'shieldnet' ) ),
 				'block_type'          => $rules[ 'is_blocked' ] ? Handler::GetTypeName( $rules[ 'block_type' ] ) : '',
 			],

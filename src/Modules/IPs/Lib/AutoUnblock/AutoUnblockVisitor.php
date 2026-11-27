@@ -18,10 +18,10 @@ class AutoUnblockVisitor extends BaseAutoUnblockShield {
 		parent::preUnblockChecks();
 
 		if ( ( $this->submission[ '_confirm' ] ?? '' ) !== 'Y' ) {
-			throw new \Exception( __( 'No confirmation checkbox.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'No confirmation checkbox.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by BaseAutoUnblock::processAutoUnblockRequest(), which returns false, never shown.
 		}
 		if ( !empty( $this->submission[ 'email' ] ) || !empty( $this->submission[ 'name' ] ) ) {
-			throw new \Exception( __( 'Oh so yummy.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Oh so yummy.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by BaseAutoUnblock::processAutoUnblockRequest(), which returns false, never shown.
 		}
 
 		return true;

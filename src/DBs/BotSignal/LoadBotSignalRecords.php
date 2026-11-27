@@ -18,7 +18,7 @@ class LoadBotSignalRecords {
 	public function loadRecord() :BotSignalRecord {
 		$raw = $this->selectRaw();
 		if ( empty( $raw ) ) {
-			throw new \Exception( __( 'No record', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'No record', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by BotSignalsRecord::retrieve(), which falls back to a new record; never shown.
 		}
 		return ( new BotSignalRecord() )->applyFromArray( $raw );
 	}

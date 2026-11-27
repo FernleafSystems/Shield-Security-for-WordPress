@@ -12,6 +12,8 @@
  * Usage: Run php extract_json_strings_for_translation.php to regenerate
  */
 
+if ( !\defined( 'ABSPATH' ) ) { exit(); }
+
 // @phpstan-ignore-next-line
 if ( false ) { // This ensures the code is never executed but is parsed for translation
 

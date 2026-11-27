@@ -42,7 +42,7 @@ class ZoneComponentConfigBehaviorTest extends BaseUnitTest {
 	public function test_build_canvas_body_passes_panel_and_context_through_to_options_form() :void {
 		$action = new ZoneComponentConfig( [
 			'zone_component_slug' => ModuleScans::Slug().','.ModuleSpam::Slug(),
-			'configure_panel'     => 'code:scan_schedule',
+			'configure_panel'     => 'code:file_scanning',
 			'form_context'        => 'expansion',
 		] );
 
@@ -58,7 +58,7 @@ class ZoneComponentConfigBehaviorTest extends BaseUnitTest {
 			],
 			$this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ] ?? []
 		);
-		$this->assertSame( 'code:scan_schedule', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'configure_panel' ] ?? '' );
+		$this->assertSame( 'code:file_scanning', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'configure_panel' ] ?? '' );
 		$this->assertSame( 'expansion', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'form_context' ] ?? '' );
 		$this->assertArrayNotHasKey( 'focus_option', $this->renderCapture->calls[ 0 ][ 'action_data' ] ?? [] );
 	}

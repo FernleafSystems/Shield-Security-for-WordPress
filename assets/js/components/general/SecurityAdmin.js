@@ -3,6 +3,7 @@ import { BaseComponent } from "../BaseComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldOverlay } from "../ui/ShieldOverlay";
 import { focusElement } from "../ui/ShieldA11y";
+import { Html } from "../../util/Html";
 
 export class SecurityAdmin extends BaseComponent {
 
@@ -157,6 +158,14 @@ export class SecurityAdmin extends BaseComponent {
 		if ( document.activeElement === null || document.activeElement === document.body ) {
 			focusElement( pinInput );
 		}
+
+		// Enter was pressed on a typed PIN before this script was listening (the restricted page notes it): send it.
+		if ( form.dataset.shieldSubmitAsked === '1' ) {
+			delete form.dataset.shieldSubmitAsked;
+			if ( pinInput.value.length > 0 ) {
+				form.requestSubmit();
+			}
+		}
 	}
 
 	handleSecAdminCheck( resp ) {
@@ -223,7 +232,8 @@ export class SecurityAdmin extends BaseComponent {
 	getRestrictedOptionNoticeHtml() {
 		return '<div style="clear:both"></div><div class="shield-restricted-option">' +
 			'<span class="dashicons dashicons-lock"></span>' +
-			this._base_data.strings.editing_restricted +
+			Html.Escape( this._base_data.strings.editing_restricted ) +
+			// Already HTML: built and escaped by SecurityAdminController::unlockLink().
 			' ' + this._base_data.strings.unlock_link +
 			'</div>';
 	};

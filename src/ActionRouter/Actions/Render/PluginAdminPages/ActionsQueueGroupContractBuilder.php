@@ -346,24 +346,28 @@ class ActionsQueueGroupContractBuilder {
 		switch ( $definitionKey ) {
 			case 'vulnerabilities':
 				return \sprintf(
+					/* translators: %s: number of plugins and themes */
 					_n( '%s plugin/theme contains known vulnerabilities.', '%s plugins/themes contain known vulnerabilities.', $itemCount, 'wp-simple-firewall' ),
 					$itemCount
 				);
 
 			case 'abandoned':
 				return \sprintf(
+					/* translators: %s: number of abandoned plugins and themes */
 					_n( '%s abandoned asset needs review.', '%s abandoned assets need review.', $itemCount, 'wp-simple-firewall' ),
 					$itemCount
 				);
 
 			case 'hidden_plugins':
 				return \sprintf(
+					/* translators: %s: number of cloaked plugins */
 					_n( '%s cloaked plugin needs review.', '%s cloaked plugins need review.', $itemCount, 'wp-simple-firewall' ),
 					$itemCount
 				);
 
 			case 'wordpress':
 				return \sprintf(
+					/* translators: %s: number of WordPress core files */
 					_n( '%s WordPress core file needs review.', '%s WordPress core files need review.', $itemCount, 'wp-simple-firewall' ),
 					$itemCount
 				);
@@ -371,30 +375,35 @@ class ActionsQueueGroupContractBuilder {
 			case 'plugins':
 			case 'themes':
 				return \sprintf(
+					/* translators: %s: number of files */
 					_n( '%s file needs review.', '%s files need review.', $itemCount, 'wp-simple-firewall' ),
 					$itemCount
 				);
 
 			case 'malware':
 				return \sprintf(
+					/* translators: %s: number of suspected malware results */
 					_n( '%s suspected malware result needs review.', '%s suspected malware results need review.', $itemCount, 'wp-simple-firewall' ),
 					$itemCount
 				);
 
 			case 'file_locker':
 				return \sprintf(
+					/* translators: %s: number of locked file changes */
 					_n( '%s locked file change needs review.', '%s locked file changes need review.', $itemCount, 'wp-simple-firewall' ),
 					$itemCount
 				);
 
 			case 'maintenance':
 				return \sprintf(
-					_n( '%s maintenance item needs review.', '%s maintenance items need review.', $itemCount, 'wp-simple-firewall' ),
+					/* translators: %s: number of to-do items */
+					_n( '%s to-do needs review.', '%s to-dos need review.', $itemCount, 'wp-simple-firewall' ),
 					$itemCount
 				);
 
 			default:
 				return \sprintf(
+					/* translators: %s: number of items */
 					_n( '%s item needs review.', '%s items need review.', $itemCount, 'wp-simple-firewall' ),
 					$itemCount
 				);
@@ -423,6 +432,7 @@ class ActionsQueueGroupContractBuilder {
 			case 'themes':
 			case 'malware':
 			case 'file_locker':
+				/* translators: %s: number of files */
 				$pattern = _n( 'View %s file', 'View %s files', $itemCount, 'wp-simple-firewall' );
 				break;
 
@@ -665,6 +675,7 @@ class ActionsQueueGroupContractBuilder {
 		if ( $activeCount > 0 ) {
 			return [
 				'summary'   => \sprintf(
+					/* translators: %s: number of active results */
 					_n(
 						'%s active result needs review. Ignored results are hidden from active Actions Queue work.',
 						'%s active results need review. Ignored results are hidden from active Actions Queue work.',
@@ -674,6 +685,7 @@ class ActionsQueueGroupContractBuilder {
 					\number_format_i18n( $activeCount )
 				),
 				'focus'     => \sprintf(
+					/* translators: %1$s: number of active results, %2$s: number of ignored results */
 					__( '%1$s active; %2$s ignored hidden from active work.', 'wp-simple-firewall' ),
 					\number_format_i18n( $activeCount ),
 					\number_format_i18n( $ignoredCount )
@@ -685,6 +697,7 @@ class ActionsQueueGroupContractBuilder {
 		return [
 			'summary'   => __( 'No active results remain in this group. Ignored results are hidden from active Actions Queue work.', 'wp-simple-firewall' ),
 			'focus'     => \sprintf(
+				/* translators: %s: number of ignored results */
 				_n(
 					'%s ignored result is available.',
 					'%s ignored results are available.',

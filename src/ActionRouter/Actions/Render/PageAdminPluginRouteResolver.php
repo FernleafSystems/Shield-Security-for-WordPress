@@ -35,7 +35,7 @@ class PageAdminPluginRouteResolver {
 		$subNav = $this->resolveSubNav( $actionData, $nav );
 		$delegateAction = PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ][ $subNav ][ 'handler' ] ?? '';
 		if ( empty( $delegateAction ) ) {
-			throw new ActionException( 'Unavailable nav handling: '.$nav.' '.$subNav );
+			throw new ActionException( 'Unavailable nav handling: '.$nav.' '.$subNav ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Shown only through the action router: AJAX responses show it as text, and render() escapes it when printing.
 		}
 
 		return [

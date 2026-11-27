@@ -33,14 +33,15 @@ class SearchHelp extends OffCanvasBase {
 	}
 
 	private function getSearchPrefixes() :array {
+		$defs = SearchTextParser::GetFilterDefinitions();
 		return \array_map(
 			fn( string $prefix, array $def ) => [
 				'prefix'      => $prefix.':',
-				'description' => __( $def[ 'description' ], 'wp-simple-firewall' ),
+				'description' => $def[ 'description' ],
 				'example'     => $def[ 'example' ],
 			],
-			\array_keys( SearchTextParser::GetFilterDefinitions() ),
-			\array_values( SearchTextParser::GetFilterDefinitions() )
+			\array_keys( $defs ),
+			\array_values( $defs )
 		);
 	}
 }

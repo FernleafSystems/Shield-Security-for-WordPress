@@ -85,6 +85,7 @@ class UserPasswordHandler {
 			] );
 			if ( !Services::WpGeneral()->isAjax() ) {
 				$this->redirectToResetPassword(
+					/* translators: %s: number of days */
 					sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ),
 						self::con()->opts->optGet( 'pass_expire' ) )
 				);
@@ -160,9 +161,9 @@ class UserPasswordHandler {
 				}
 
 				if ( $checksFailed ) {
-					$msg = __( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' );
+					$msg = esc_html__( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' );
 					if ( !empty( $failureMsg ) ) {
-						$msg .= sprintf( '<br/>%s: %s', __( 'Reason', 'wp-simple-firewall' ), $failureMsg );
+						$msg .= sprintf( '<br/>%s: %s', esc_html__( 'Reason', 'wp-simple-firewall' ), $failureMsg );
 					}
 					$wpErrors->add( 'shield_password_policy', $msg );
 					self::con()->comps->events->fireEvent( 'password_policy_block' );
@@ -199,8 +200,8 @@ class UserPasswordHandler {
 		if ( $score < self::con()->opts->optGet( 'pass_min_strength' ) ) {
 			throw new Exceptions\PasswordTooWeakException(
 				sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
-					$this->getPassStrengthName( $score ),
-					$this->getPassStrengthName( self::con()->opts->optGet( 'pass_min_strength' ) )
+					esc_html( $this->getPassStrengthName( $score ) ),
+					esc_html( $this->getPassStrengthName( self::con()->opts->optGet( 'pass_min_strength' ) ) )
 				)
 			);
 		}
@@ -254,22 +255,25 @@ class UserPasswordHandler {
 		}
 
 		if ( !empty( $error ) ) {
-			throw new Exceptions\PwnedApiFailedException( '[Pwned Password API Request] '.$error );
+			throw new Exceptions\PwnedApiFailedException( '[Pwned Password API Request] '.$error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: caught by UserPasswordHandler, which ignores the message when the Pwned API is unavailable.
 		}
 
 		$body = \strtoupper( \trim( $req->lastResponse->body ) )."\n";
 		if ( \preg_match( sprintf( '#%s:([0-9]+)\s#', \substr( $passwordSHA1, 5 ) ), $body, $matches ) ) {
 			$countPwned = (int)$matches[ 1 ];
+			// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Deliberate HTML shown only as a WP_Error message by checkPassword(): its text is escaped piece by piece, around the link markup.
 			throw new Exceptions\PasswordIsPwnedException(
 				\implode( ' ', [
-					__( 'Please supply a different password as this password has been pwned.', 'wp-simple-firewall' ),
+					esc_html__( 'Please supply a different password as this password has been pwned.', 'wp-simple-firewall' ),
 					sprintf( '(<a href="%s" target="_blank">%s</a>)',
-						'https://clk.shldscrty.com/la',
-						sprintf( _n( '%s time', '%s times', $countPwned, 'wp-simple-firewall' ), $countPwned )
+						esc_url( 'https://clk.shldscrty.com/la' ),
+						/* translators: %s: number of times the password has been seen in data breaches */
+						esc_html( sprintf( _n( '%s time', '%s times', $countPwned, 'wp-simple-firewall' ), $countPwned ) )
 					)
 				] ),
 				$countPwned
 			);
+			// phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
 		return 0;

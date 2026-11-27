@@ -3,13 +3,15 @@ const { ActionsQueuePage } = require( './support/actions-queue-page' );
 
 /**
  * While Shield holds its first scan alerts for a report email, choosing one leads Review next in the Actions Queue.
- * The item can't be ignored, and its link opens the setup guide on the report email step, even when that step was
- * skipped before. Either save on that step ends the hold, and the item goes.
+ * The item can't be ignored, and its link opens the setup guide on the report email step, which can't be skipped
+ * either. Either save on that step ends the hold, and the item goes.
  */
 
 const review = ( page ) => page.locator( '[data-actions-queue-section-key="review"]' );
 const reportEmailLink = ( page ) => review( page ).locator( 'a[href*="setup_step=report_email"]' );
 const reportEmailPane = ( page ) => page.locator( '#ShieldSetupGuide [data-setup-guide-pane="report_email"]' );
+// The step's second way of saving: the button that belongs to the form holding the "use the site admin email" choice.
+const useSiteAdminEmail = ( page ) => reportEmailPane( page ).locator( '[type="submit"][form^="ReportEmailUseAdmin"]' );
 
 async function openReviewSection( page ) {
 	await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
@@ -26,11 +28,14 @@ async function openReviewSection( page ) {
 	}
 }
 
-async function skipReportEmailStep( page ) {
+/**
+ * Where reports go has to be chosen: the step offers its two ways of saving, and no way of skipping it.
+ */
+async function expectReportEmailStepCannotBeSkipped( page ) {
 	await openShieldRoute( page, { nav: 'dashboard', nav_sub: 'overview', setup_guide: 'open' } );
 	await expect( reportEmailPane( page ) ).toBeVisible();
-	await reportEmailPane( page ).locator( '[data-setup-guide-skip="report_email"]' ).click();
-	await expect( reportEmailPane( page ) ).toBeHidden();
+	await expect( reportEmailPane( page ).locator( '[type="submit"]' ) ).toHaveCount( 2 );
+	await expect( reportEmailPane( page ).locator( '[data-setup-guide-skip], .skip-step' ) ).toHaveCount( 0 );
 }
 
 async function expectReportEmail( fixtureApi, expected ) {
@@ -42,7 +47,7 @@ async function expectReportEmail( fixtureApi, expected ) {
 
 test( 'the report email item leads Review next, cannot be ignored, and keeping the admin email ends it', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withReportEmailHoldFixture( async ( contract ) => {
-		await skipReportEmailStep( page );
+		await expectReportEmailStepCannotBeSkipped( page );
 		await openReviewSection( page );
 
 		await expect( review( page ).locator( '[data-actions-queue-box-toggle]' ).first() )
@@ -52,7 +57,7 @@ test( 'the report email item leads Review next, cannot be ignored, and keeping t
 
 		await reportEmailLink( page ).click();
 		await expect( reportEmailPane( page ) ).toBeVisible();
-		await reportEmailPane( page ).getByRole( 'button', { name: /Use the site admin email/ } ).click();
+		await useSiteAdminEmail( page ).click();
 		await expectReportEmail( fixtureApi, contract.site_admin_email );
 
 		await openReviewSection( page );
@@ -75,7 +80,8 @@ test( 'a report email saved in Configure completes the setup guide step on the s
 		const levelKey = await level.getAttribute( 'data-protection-level' );
 		await level.click();
 		await expect( guide.locator( `[data-protection-level="${levelKey}"]` ) ).toHaveAttribute( 'aria-pressed', 'true' );
-		await toggle.click();
+		await guide.locator( '.shield-setup-guide__leave > [data-setup-guide-minimise="1"]' ).click();
+		await expect( toggle ).toHaveAttribute( 'aria-expanded', 'false' );
 
 		const navigations = [];
 		page.on( 'framenavigated', ( frame ) => frame === page.mainFrame() && navigations.push( frame.url() ) );
@@ -98,8 +104,10 @@ test( 'a report email saved in Configure completes the setup guide step on the s
 } );
 
 test( 'a finished setup guide step can be gone over again from its own link', async ( { page, fixtureApi } ) => {
-	await fixtureApi.withReportEmailHoldFixture( async () => {
-		await skipReportEmailStep( page );
+	await fixtureApi.withReportEmailHoldFixture( async ( contract ) => {
+		await openShieldRoute( page, { nav: 'dashboard', nav_sub: 'overview', setup_guide: 'open' } );
+		await useSiteAdminEmail( page ).click();
+		await expectReportEmail( fixtureApi, contract.site_admin_email );
 
 		// A page that wasn't asked to show the guide draws a finished step without its form.
 		await openShieldRoute( page, { nav: 'dashboard', nav_sub: 'overview' } );
@@ -114,7 +122,7 @@ test( 'a finished setup guide step can be gone over again from its own link', as
 	} );
 } );
 
-test( 'the licence step is skipped from the setup guide by the skip link in its own wording', async ( { page, fixtureApi } ) => {
+test( 'the licence step has one way to skip it, beside its button', async ( { page, fixtureApi } ) => {
 	// The guide has a licence step only on a site without a licence.
 	await fixtureApi.withMerlinWelcomeFixture( () => fixtureApi.withReportEmailHoldFixture( async () => {
 		await openShieldRoute( page, { nav: 'dashboard', nav_sub: 'overview' } );
@@ -124,8 +132,12 @@ test( 'the licence step is skipped from the setup guide by the skip link in its 
 
 		await guide.locator( '[data-setup-guide-toggle="1"]' ).click();
 		await licenceStep.click();
-		await guide.locator( '[data-setup-guide-pane="license"] .skip-step' ).click();
-		await expect( licenceStep ).toHaveClass( /is-done/ );
+		// The wizard's own "skip to the next step" wording isn't shown in the guide.
+		const pane = guide.locator( '[data-setup-guide-pane="license"]' );
+		await expect( pane.locator( '.skip-step' ) ).toBeHidden();
+		await pane.locator( '.shield-setup-guide__actions [data-setup-guide-skip]' ).click();
+		await expect( licenceStep ).toHaveClass( /is-skipped/ );
+		await expect( licenceStep ).not.toHaveClass( /is-done/ );
 	} ) );
 } );
 
@@ -135,8 +147,8 @@ test( 'a typed report email saved from the queue link ends the hold', async ( { 
 		await reportEmailLink( page ).click();
 		await expect( reportEmailPane( page ) ).toBeVisible();
 
-		await reportEmailPane( page ).getByLabel( 'Report email' ).fill( 'agency@example.test' );
-		await reportEmailPane( page ).getByRole( 'button', { name: 'Save Report Email' } ).click();
+		await reportEmailPane( page ).locator( '[data-report-email-input="1"]' ).fill( 'agency@example.test' );
+		await reportEmailPane( page ).locator( '[data-report-email-save="1"]' ).click();
 		await expectReportEmail( fixtureApi, 'agency@example.test' );
 
 		await openReviewSection( page );

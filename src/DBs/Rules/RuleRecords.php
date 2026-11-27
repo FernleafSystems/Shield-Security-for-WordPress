@@ -15,7 +15,7 @@ class RuleRecords {
 		/** @var ?Ops\Record $record */
 		$record = $this->getSelector()->byId( $ID );
 		if ( !$record instanceof Ops\Record ) {
-			throw new \Exception( __( 'No such record ID', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'No such record ID', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Plain-text message: AJAX actions return it as JSON text or ignore it.
 		}
 		return $record;
 	}

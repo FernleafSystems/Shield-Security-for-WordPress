@@ -63,7 +63,8 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 
 				$data[ 'ip' ] = $this->log->ip;
 				$data[ 'offense' ] = $this->log->offense ? 'Offense' : 'Not Offense';
-				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
+				// Hidden columns still have their cells written as HTML.
+				$data[ 'rid' ] = $this->log->rid ?? esc_html__( 'Unknown', 'wp-simple-firewall' );
 				$data[ 'path' ] = empty( $this->log->path ) ? '-' : esc_html( $this->log->path );
 
 				$data[ 'country' ] = ( new LookupMeta() )
@@ -194,9 +195,9 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 		else {
 			$country = sprintf(
 				'<img class="icon-flag" src="%s" alt="%s" width="24px"/> %s',
-				sprintf( 'https://api.aptoweb.com/api/v1/country/flag/%s.svg', \strtolower( $code ) ),
-				$code,
-				$code
+				esc_url( sprintf( 'https://api.aptoweb.com/api/v1/country/flag/%s.svg', \strtolower( $code ) ) ),
+				esc_attr( $code ),
+				esc_html( $code )
 			);
 		}
 
@@ -208,22 +209,22 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 
 			$components = [
 				sprintf( '<div class="text-nowrap">%s: %s%s</div>',
-					__( 'IP', 'wp-simple-firewall' ),
+					esc_html__( 'IP', 'wp-simple-firewall' ),
 					$this->getIpAnalysisLink( $this->log->ip ),
-					$identity[ 0 ] === IpID::UNKNOWN ? '' : sprintf( ' (%s)', $identity[ 1 ] )
+					$identity[ 0 ] === IpID::UNKNOWN ? '' : sprintf( ' (%s)', esc_html( $identity[ 1 ] ) )
 				),
 			];
 
 			$info = $this->getIpInfo( $this->log->ip );
 			if ( !empty( $info ) ) {
-				$components[] = sprintf( '%s: %s', __( 'IP Status', 'wp-simple-firewall' ), $info );
+				$components[] = sprintf( '%s: %s', esc_html__( 'IP Status', 'wp-simple-firewall' ), $info );
 			}
-			$components[] = sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $this->getTrafficUserDisplay( $this->log->uid ) );
+			$components[] = sprintf( '%s: %s', esc_html__( 'Logged-In', 'wp-simple-firewall' ), $this->getTrafficUserDisplay( $this->log->uid ) );
 			if ( !empty( $country ) ) {
-				$components[] = sprintf( '%s: %s', __( 'Location', 'wp-simple-firewall' ), $country );
+				$components[] = sprintf( '%s: %s', esc_html__( 'Location', 'wp-simple-firewall' ), $country );
 			}
 			if ( !empty( $this->log->meta[ 'ua' ] ) ) {
-				$components[] = esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $this->log->meta[ 'ua' ] ) ) );
+				$components[] = esc_html( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $this->log->meta[ 'ua' ] ) );
 			}
 
 			$content = sprintf( '<div>%s</div>', \implode( '</div><div>', $components ) );
@@ -244,13 +245,13 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 		}
 
 		return sprintf( '<div>%s</div>', \implode( '</div><div>', [
-			sprintf( '%s: %s', __( 'Response', 'wp-simple-firewall' ),
+			sprintf( '%s: %s', esc_html__( 'Response', 'wp-simple-firewall' ),
 				sprintf( '<span class="badge text-bg-%s">%s</span>', $codeType, $this->log->code ) ),
-			sprintf( '%s: %s', __( 'Offense', 'wp-simple-firewall' ),
+			sprintf( '%s: %s', esc_html__( 'Offense', 'wp-simple-firewall' ),
 				sprintf(
 					'<span class="badge text-bg-%s">%s</span>',
 					@$this->log->offense ? 'danger' : 'info',
-					@$this->log->offense ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
+					@$this->log->offense ? esc_html__( 'Yes', 'wp-simple-firewall' ) : esc_html__( 'No', 'wp-simple-firewall' )
 				)
 			),
 		] ) );
@@ -278,11 +279,11 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 
 	protected function getTrafficUserDisplay( int $uid ) :string {
 		if ( $uid <= 0 ) {
-			$display = __( 'No', 'wp-simple-firewall' );
+			$display = esc_html__( 'No', 'wp-simple-firewall' );
 		}
 		else {
 			$user = $this->resolveUser( $uid );
-			$display = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) :
+			$display = empty( $user ) ? esc_html__( 'Unknown', 'wp-simple-firewall' ) :
 				sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
 					esc_url( Services::WpUsers()->getAdminUrl_ProfileEdit( $user ) ), esc_html( (string)$user->user_login ) );
 		}
@@ -300,16 +301,17 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 				$badgeTemplate = '<span class="badge text-bg-%s">%s</span>';
 				$ipRuleStatus = new IpRuleStatus( $ip );
 				if ( $ipRuleStatus->isBlocked() ) {
-					$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
+					$status = sprintf( $badgeTemplate, 'danger', esc_html__( 'Blocked', 'wp-simple-firewall' ) );
 				}
 				elseif ( $ipRuleStatus->isBypass() ) {
-					$status = sprintf( $badgeTemplate, 'success', __( 'Bypass', 'wp-simple-firewall' ) );
+					$status = sprintf( $badgeTemplate, 'success', esc_html__( 'Bypass', 'wp-simple-firewall' ) );
 				}
 				elseif ( $ipRuleStatus->isAutoBlacklisted() ) {
 					$offenses = $ipRuleStatus->getOffenses();
-					$offensesString = sprintf( _n( '%s offense', '%s offenses', $offenses, 'wp-simple-firewall' ), $offenses );
+					/* translators: %s: number of offenses */
+					$offensesString = esc_html( sprintf( _n( '%s offense', '%s offenses', $offenses, 'wp-simple-firewall' ), $offenses ) );
 					if ( $ipRuleStatus->isUnBlocked() ) {
-						$status = __( 'Unblocked', 'wp-simple-firewall' );
+						$status = esc_html__( 'Unblocked', 'wp-simple-firewall' );
 						if ( $offenses > 0 ) {
 							$status .= ' ('.$offensesString.')';
 						}

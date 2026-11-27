@@ -39,7 +39,7 @@ class BaseAction {
 	protected function getNewStore( bool $createWorkingDir = true ) :Snapshots\Store {
 		$workingDir = ( new Snapshots\HashesStorageDir() )->getTempDir( $createWorkingDir );
 		if ( empty( $workingDir ) ) {
-			throw new \Exception( __( 'Snapshot store directory is unavailable.', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Snapshot store directory is unavailable.', 'wp-simple-firewall' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal: callers (AssetCoordinator, ScheduleBuildAll, Cleanup, PromoteLocalBaseline) catch it and log or ignore it; never shown.
 		}
 		return ( new Snapshots\Store( $this->getAsset(), true ) )
 			->setWorkingDir( $workingDir );

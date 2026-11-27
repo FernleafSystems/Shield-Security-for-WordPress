@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\BuildOptionsForDisplay;
+
 /**
  * Lays out the Actions Queue landing: a section for each lane (Fix now, Review next), whether or not anything in
  * it needs action, then one for what's passing and one for what the plan doesn't cover or is turned off. Each
@@ -23,7 +25,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   icon_class:string
  * }
  * @phpstan-type LandingBox array{
- *   type:'shared'|'group'|'passing'|'plain',
+ *   type:'shared'|'group'|'passing',
  *   kind:string,
  *   heading:string,
  *   icon_class:string,
@@ -45,6 +47,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   selection_json:string,
  *   is_open:bool,
  *   empty_text:string,
+ *   ignored_count:int,
  *   boxes:list<LandingBox>,
  *   is_selected_tab:bool
  * }
@@ -97,22 +100,26 @@ class ActionsQueueLandingSectionsBuilder {
 					if ( $group[ 'is_pro_upsell' ] || $group[ 'enable_dialog_json' ] !== '' ) {
 						$notCoveredCandidates[] = $entry;
 					}
-					elseif ( $group[ 'detail_shell' ] === 'maintenance' && !empty( $group[ 'ignored_rows' ] ) ) {
-						// Ignored items stay in their lane, in a faded group of their own, so each can be restored.
-						// They count for nothing.
-						$laneEntries[] = $entry;
-						$activeKeys[] = $group[ 'key' ];
-					}
-					elseif ( $group[ 'status' ] === 'good' || $isHealthySection ) {
-						$passingCandidates[] = $entry;
-					}
-					else {
+					elseif ( $group[ 'status' ] !== 'good' && !$isHealthySection ) {
 						$laneEntries[] = $entry;
 						$toDoEntries[] = $entry;
 						$activeKeys[] = $group[ 'key' ];
 					}
+					elseif ( $this->countIgnored( $group ) > 0 ) {
+						// Nothing left to do only because it's all ignored: that isn't passing. The group stays in
+						// its lane, faded, so each item can be restored. It counts for nothing.
+						$laneEntries[] = $entry;
+						$activeKeys[] = $group[ 'key' ];
+					}
+					else {
+						$passingCandidates[] = $entry;
+					}
 				}
 			}
+			$ignoredCount = (int)\array_sum( \array_map(
+				fn( array $entry ) :int => $this->countIgnored( $entry[ 'group' ] ),
+				$laneEntries
+			) );
 
 			// A lane with nothing to do stays, in green with a zero, and says so: a lane that came and went would
 			// leave people wondering where it had gone. It starts folded, holding at most what was ignored. Of
@@ -133,6 +140,8 @@ class ActionsQueueLandingSectionsBuilder {
 				'selection_json' => $bucket[ 'selection' ][ 'selection_json' ],
 				'is_open'        => $isOpen,
 				'empty_text'     => $hasNothingToDo ? $this->emptyLaneText( $bucket[ 'key' ] ) : '',
+				// How many of the lane's items are ignored. A lane that says there's nothing to do says this too.
+				'ignored_count'  => $ignoredCount,
 				// Review next is the longest lane, so its boxes start folded to a heading and a count.
 				'boxes'          => $this->buildLaneBoxes( $laneEntries, $bucket[ 'key' ] === 'review' ),
 				// As tabs, the lane that starts open is the one showing first.
@@ -178,22 +187,7 @@ class ActionsQueueLandingSectionsBuilder {
 			$sections[] = $passingSection;
 		}
 		if ( !empty( $notCovered ) ) {
-			$sections[] = [
-				'key'            => 'not_covered',
-				'status'         => 'pro',
-				'label'          => __( 'Not covered', 'wp-simple-firewall' ),
-				'tab_label'      => __( 'Not covered', 'wp-simple-firewall' ),
-				'icon_class'     => 'bi bi-lock-fill',
-				'count'          => \count( $notCovered ),
-				'show_count'     => true,
-				'summary'        => \implode( ', ', \array_map( fn( array $e ) :string => $e[ 'group' ][ 'label' ], $notCovered ) ),
-				'breakdown'      => [],
-				'selection_json' => '',
-				'is_open'        => false,
-				'empty_text'     => '',
-				'boxes'          => [ $this->box( 'plain', '', '', '', false, $this->entries( $notCovered ) ) ],
-				'is_selected_tab' => false,
-			];
+			$sections[] = $this->buildNotCoveredSection( $notCovered );
 		}
 
 		// With nothing to do in any lane, none starts open, and the first section is the tab showing.
@@ -207,6 +201,19 @@ class ActionsQueueLandingSectionsBuilder {
 		return $bucketKey === 'critical'
 			? __( 'There are no items that require your immediate attention.', 'wp-simple-firewall' )
 			: __( 'There are no items that need to be reviewed.', 'wp-simple-firewall' );
+	}
+
+	/**
+	 * How many of a group's items someone has ignored: those with a way back. What Shield leaves out by itself,
+	 * such as its own loader among the cloaked plugins, isn't one of them.
+	 * @param GroupData $group
+	 */
+	private function countIgnored( array $group ) :int {
+		return \count( \array_filter(
+			\array_merge( $group[ 'maintenance_rows' ], $group[ 'ignored_rows' ] ),
+			fn( array $row ) :bool => $row[ 'is_ignored' ]
+									  && \in_array( 'unignore', \array_column( $row[ 'actions' ], 'kind' ), true )
+		) );
 	}
 
 	/**
@@ -347,7 +354,45 @@ class ActionsQueueLandingSectionsBuilder {
 			'selection_json' => '',
 			'is_open'        => false,
 			'empty_text'     => '',
+			'ignored_count'  => 0,
 			'boxes'          => $boxes,
+			'is_selected_tab' => false,
+		];
+	}
+
+	/**
+	 * What isn't being checked, in a box for each reason: what's switched off, which can be turned on from here,
+	 * then what the site's plan doesn't include. Only the second is a matter of upgrading, so the section takes
+	 * Pro's padlock and colour only when that is all it holds.
+	 * @param non-empty-list<HeadedEntry> $notCovered
+	 * @return LandingSection
+	 */
+	private function buildNotCoveredSection( array $notCovered ) :array {
+		$isSwitchedOff = fn( array $entry ) :bool => $entry[ 'group' ][ 'enable_dialog_json' ] !== '';
+		$switchedOff = \array_values( \array_filter( $notCovered, $isSwitchedOff ) );
+		$outsidePlan = \array_values( \array_filter( $notCovered, fn( array $entry ) :bool => !$isSwitchedOff( $entry ) ) );
+
+		return [
+			'key'            => 'not_covered',
+			'status'         => empty( $switchedOff ) ? 'pro' : 'neutral',
+			'label'          => __( 'Not covered', 'wp-simple-firewall' ),
+			'tab_label'      => __( 'Not covered', 'wp-simple-firewall' ),
+			'icon_class'     => empty( $switchedOff ) ? 'bi bi-lock-fill' : 'bi bi-slash-circle',
+			'count'          => \count( $notCovered ),
+			'show_count'     => true,
+			'summary'        => \implode( ', ', \array_map(
+				fn( array $entry ) :string => $entry[ 'group' ][ 'label' ],
+				\array_merge( $switchedOff, $outsidePlan )
+			) ),
+			'breakdown'      => [],
+			'selection_json' => '',
+			'is_open'        => false,
+			'empty_text'     => '',
+			'ignored_count'  => 0,
+			'boxes'          => \array_values( \array_filter( [
+				$this->box( 'shared', '', __( 'Switched off', 'wp-simple-firewall' ), 'bi bi-toggle-off', false, $this->entries( $switchedOff ) ),
+				$this->box( 'shared', '', BuildOptionsForDisplay::outsidePlanLabel(), 'bi bi-lock-fill', false, $this->entries( $outsidePlan ) ),
+			], fn( array $box ) :bool => !empty( $box[ 'entries' ] ) ) ),
 			'is_selected_tab' => false,
 		];
 	}
@@ -375,7 +420,7 @@ class ActionsQueueLandingSectionsBuilder {
 	}
 
 	/**
-	 * @param 'shared'|'group'|'passing'|'plain' $type
+	 * @param 'shared'|'group'|'passing' $type
 	 * @param list<LandingEntry> $entries
 	 * @param list<HealthyRow>   $rows
 	 * @return LandingBox

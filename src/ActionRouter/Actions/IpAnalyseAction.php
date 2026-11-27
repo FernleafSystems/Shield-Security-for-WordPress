@@ -67,6 +67,7 @@ class IpAnalyseAction extends BaseAction {
 				case 'block':
 					try {
 						if ( !\in_array( $ipKey, [ IpID::UNKNOWN, IpID::VISITOR ] ) ) {
+							/* translators: %s: name of the service the IP address belongs to */
 							throw new \Exception( sprintf( __( "IP can't be blocked from this page as it's a known service IP: %s", 'wp-simple-firewall' ), $ipName ) );
 						}
 						( new IpRules\AddRule() )
@@ -117,6 +118,7 @@ class IpAnalyseAction extends BaseAction {
 					$success = ( new BotSignalsRecord() )
 						->setIP( $ip )
 						->delete();
+					/* translators: %s: name of the bot detection feature */
 					$msg = $success ? sprintf( __( 'IP %s Score Reset.', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'silentcaptcha' ) )
 						: __( "IP NotBot Score couldn't be reset at this time.", 'wp-simple-firewall' );
 					break;

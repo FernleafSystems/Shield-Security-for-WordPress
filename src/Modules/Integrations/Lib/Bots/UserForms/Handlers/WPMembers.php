@@ -36,7 +36,7 @@ class WPMembers extends Base {
 	public function checkRegister_WM() {
 		if ( $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
 			global $wpmem_themsg;
-			$wpmem_themsg = $this->getErrorMessage();
+			$wpmem_themsg = $this->getErrorMessage(); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- WP-Members' own global for its registration error, set here to block a bot sign-up.
 		}
 	}
 }

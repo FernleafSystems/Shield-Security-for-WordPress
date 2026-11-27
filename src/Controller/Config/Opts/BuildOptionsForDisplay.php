@@ -31,6 +31,13 @@ class BuildOptionsForDisplay {
 		$this->sections = $sections;
 	}
 
+	/**
+	 * What a setting, a choice or a whole topic is labelled when the site's plan doesn't include it.
+	 */
+	public static function outsidePlanLabel() :string {
+		return __( 'Pro only', 'wp-simple-firewall' );
+	}
+
 	public function setValues( array $values ) :self {
 		$this->values = $values;
 		$this->valuesAreThisSite = false;
@@ -131,10 +138,10 @@ class BuildOptionsForDisplay {
 					$hasAccess = $opts->optValueHasAccess( $optDef[ 'key' ], (string)$valueOpt[ 'value_key' ] );
 
 					$converted[ $valueOpt[ 'value_key' ] ] = [
-						'name'              => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
+						'name'              => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ), // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- Option choice text comes from plugin.json, so it can't be a literal here.
 						'is_available'      => $hasAccess,
 						// Why a choice is unavailable, as a hover title: '' when there's nothing to add.
-						'unavailable_title' => $hasAccess ? '' : sprintf( __( 'Available with %s', 'wp-simple-firewall' ), $con->labels->Name ),
+						'unavailable_title' => $hasAccess ? '' : self::outsidePlanLabel(),
 					];
 
 					if ( $converted[ $valueOpt[ 'value_key' ] ][ 'is_available' ] ) {
@@ -280,11 +287,11 @@ class BuildOptionsForDisplay {
 				$option[ 'value' ] = $applicability->removeServerUnsupportedKeys( $fileLockerValue );
 				foreach ( \array_map( 'strval', \array_keys( $option[ 'value_options' ] ) ) as $fileKey ) {
 					if ( !$applicability->isServerSupported( $fileKey ) ) {
-						$option[ 'value_options' ][ $fileKey ][ 'name' ] .= sprintf( ' (%s)', __( 'IIS only', 'wp-simple-firewall' ) );
+						$option[ 'value_options' ][ $fileKey ][ 'name' ] .= sprintf( ' (%s)', esc_html__( 'IIS only', 'wp-simple-firewall' ) );
 						$option[ 'value_options' ][ $fileKey ][ 'is_available' ] = false;
 					}
 					elseif ( !$applicability->isApplicable( $fileKey ) ) {
-						$option[ 'value_options' ][ $fileKey ][ 'name' ] .= sprintf( ' (%s)', __( 'not found', 'wp-simple-firewall' ) );
+						$option[ 'value_options' ][ $fileKey ][ 'name' ] .= sprintf( ' (%s)', esc_html__( 'not found', 'wp-simple-firewall' ) );
 						// A selected file that's gone missing stays tickable, so saving keeps it (and its lock).
 						if ( !\in_array( $fileKey, $option[ 'value' ], true ) ) {
 							$option[ 'value_options' ][ $fileKey ][ 'is_available' ] = false;
@@ -303,23 +310,28 @@ class BuildOptionsForDisplay {
 				break;
 
 			case 'user_auto_recover':
-				$option[ 'value_options' ][ 'gasp' ][ 'name' ] = sprintf(
+				$option[ 'value_options' ][ 'gasp' ][ 'name' ] = esc_html( sprintf(
+					/* translators: %s: name of the silent CAPTCHA feature */
 					__( 'Protected By %s', 'wp-simple-firewall' ),
 					self::con()->labels->getBrandName( 'silentcaptcha' )
-				);
+				) );
 				break;
 
 			case 'file_scan_areas':
 				$option[ 'value_options' ][ 'wp' ][ 'name' ] = sprintf( '%s (%s)', esc_html( __( 'WP core files', 'wp-simple-firewall' ) ),
-					sprintf( __( 'excludes %s', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ) );
-				$option[ 'value_options' ][ 'wpcontent' ][ 'name' ] = sprintf( __( '%s directory', 'wp-simple-firewall' ), '<code>/wp-content/</code>' );
+					/* translators: %s: directory path, wrapped in code tags */
+					sprintf( esc_html__( 'excludes %s', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ) );
+				/* translators: %s: directory path, wrapped in code tags */
+				$option[ 'value_options' ][ 'wpcontent' ][ 'name' ] = sprintf( esc_html__( '%s directory', 'wp-simple-firewall' ), '<code>/wp-content/</code>' );
 				break;
 
 			case 'visitor_address_source':
 				$ipDetector = Services::IP()->getIpDetector();
 				foreach ( \array_keys( $option[ 'value_options' ] ) as $valKey ) {
 					if ( $valKey !== 'AUTO_DETECT_IP' ) {
-						$IPs = \implode( ', ', $ipDetector->getIpsFromSource( $valKey ) );
+						// The choice name is printed as HTML, and getIpsFromSource() returns each header entry as sent
+						// when only its "IP:port" form validates, so anything after the colon is escaped here.
+						$IPs = esc_html( \implode( ', ', $ipDetector->getIpsFromSource( $valKey ) ) );
 						if ( empty( $IPs ) ) {
 							unset( $option[ 'value_options' ][ $valKey ] );
 						}

@@ -83,7 +83,8 @@ class BlockIpAddressShield extends BaseBlock {
 						'request_failed' => __( 'Request Failed', 'wp-simple-firewall' ),
 					],
 				],
-			] ) )
+				// Printed inside a <script> block: encoding < and > keeps translated text from changing how it's parsed.
+			], \JSON_HEX_TAG ) )
 		];
 	}
 
@@ -97,7 +98,7 @@ class BlockIpAddressShield extends BaseBlock {
 
 	protected function getRestrictionDetailsBlurb() :array {
 		$blurb = \array_merge( [
-			__( "Too many requests from your IP address have triggered the site's automated defenses.", 'wp-simple-firewall' ),
+			esc_html__( "Too many requests from your IP address have triggered the site's automated defenses.", 'wp-simple-firewall' ),
 		], parent::getRestrictionDetailsBlurb() );
 		unset( $blurb[ 'activity_recorded' ] );
 		return $blurb;

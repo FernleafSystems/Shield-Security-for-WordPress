@@ -24,7 +24,7 @@ class MaintenanceAlertsTurnOff extends BaseAction {
 		if ( !( new MaintenanceIssueStateProvider() )->canBeLeftOut( $key ) ) {
 			$this->response()->setPayload( [
 				'page_reload' => false,
-				'message'     => __( 'Invalid maintenance item.', 'wp-simple-firewall' ),
+				'message'     => __( 'Invalid to-do.', 'wp-simple-firewall' ),
 			] )->setPayloadSuccess( false );
 			return;
 		}

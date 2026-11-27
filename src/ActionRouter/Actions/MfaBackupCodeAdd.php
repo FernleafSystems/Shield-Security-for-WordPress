@@ -25,6 +25,7 @@ class MfaBackupCodeAdd extends MfaUserConfigBase {
 		}
 		else {
 			$pass = \implode( '-', \str_split( $provider->resetSecret(), 5 ) );
+			/* translators: %s: backup login code */
 			$msg = sprintf( __( 'Your backup login code is: %s', 'wp-simple-firewall' ), $pass );
 			$success = true;
 		}

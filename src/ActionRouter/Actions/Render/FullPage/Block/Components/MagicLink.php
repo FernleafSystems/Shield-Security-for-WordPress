@@ -17,7 +17,7 @@ class MagicLink extends Base {
 	protected function getRenderData() :array {
 		$available = $this->hasActiveWPUser()
 					 && ( new AutoUnblockMagicLink() )->isUnblockAvailable()
-					 && apply_filters( self::con()->prefix( 'can_user_magic_link' ), true, $this->getActiveWPUser() );
+					 && apply_filters( self::con()->prefix( 'can_user_magic_link' ), true, $this->getActiveWPUser() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Prefixed at runtime: Controller::prefix() gives icwp-wpsf-<name>.
 		return [
 			'flags'   => [
 				'is_available' => $available,

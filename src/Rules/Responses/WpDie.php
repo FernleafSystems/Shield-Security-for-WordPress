@@ -11,7 +11,7 @@ class WpDie extends Base {
 	public const SLUG = 'wp_die';
 
 	public function execResponse() :void {
-		wp_die( $this->p->message );
+		wp_die( $this->p->message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Message an administrator wrote for the rule, which may be HTML; wp_die() serves it per response type, and its JSON and XML handlers expect it unescaped.
 	}
 
 	public function getParamsDef() :array {

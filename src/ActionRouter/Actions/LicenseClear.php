@@ -19,6 +19,7 @@ class LicenseClear extends LicenseBase {
 		$licHandler->deactivate( false );
 		$licHandler->clearLicense();
 		$this->response()->setPayload( [
+			/* translators: %s: plugin name */
 			'message'     => sprintf( __( '%s License Cleared', 'wp-simple-firewall' ), self::con()->labels->Name ),
 			'page_reload' => true,
 		] )->setPayloadSuccess( true );

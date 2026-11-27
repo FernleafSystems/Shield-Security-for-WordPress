@@ -19,15 +19,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\BuildOptionsF
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
-	PluginControllerInstaller
+	PluginControllerInstaller,
+	ServicesState
 };
+use FernleafSystems\Wordpress\Services\Utilities\DataManipulation;
 
 class OptionsFormForRenderDataTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
 
+	private array $servicesSnapshot = [];
+
 	protected function setUp() :void {
 		parent::setUp();
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::mergeItems( [
+			'service_datamanipulation' => new DataManipulation(),
+		] );
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'esc_attr' )->alias( static fn( $text ) => $text );
 		Functions\when( 'esc_html' )->alias( static fn( $text ) => $text );
@@ -36,6 +44,7 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 

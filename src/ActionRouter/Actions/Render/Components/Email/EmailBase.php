@@ -41,7 +41,7 @@ abstract class EmailBase extends Base {
 
 	protected function getHeaderData() :array {
 		return [
-			__( 'Hi !', 'wp-simple-firewall' ),
+			esc_html__( 'Hi !', 'wp-simple-firewall' ),
 			'',
 		];
 	}

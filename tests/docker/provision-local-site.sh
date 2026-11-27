@@ -71,26 +71,26 @@ if [ "${PROVISION_MODE}" != "core-only" ] && [ "${SITE_PROFILE}" = "test" ]; the
 			$all[ "values" ] = ( is_array( $all[ "values" ] ) ) ? $all[ "values" ] : [];
 		}
 
-		$now = time();
 		update_option( $optionName, $all );
-
-		$adminUser = get_user_by( "login", getenv( "SHIELD_LOCAL_SITE_ADMIN_USER" ) ?: "admin" );
-		if ( $adminUser instanceof WP_User ) {
-			$metaKeys = [
-				"icwp-wpsf-meta",
-				"icwp_wpsf-meta",
-				"icwp-meta",
-			];
-			foreach ( $metaKeys as $metaKey ) {
-				$userMeta = get_user_meta( (int)$adminUser->ID, $metaKey, true );
-				if ( !is_array( $userMeta ) ) {
-					$userMeta = [];
-				}
-				$userMeta[ "tours" ] = [ "dashboard_v22" => $now ];
-				update_user_meta( (int)$adminUser->ID, $metaKey, $userMeta );
-			}
-		}
 
 		shield_security_get_plugin()->getController()->db_con->loadAll();
 	' --allow-root
+fi
+
+# A site that tests drive is a new install, on which the setup guide would open over the dashboard by itself and
+# take the clicks meant for the page. Tests open pages to work with the page, so the guide starts minimised on the
+# local test site and on every browser lane. A new install is also scanned within minutes, which would change what
+# those pages show partway through a run, so that scan is called off. Other profiles can run a Shield from before
+# there was either.
+if [ "${PROVISION_MODE}" != "core-only" ]; then
+	case "${SITE_PROFILE}" in
+		test|browser-lane-*)
+			wp eval '
+				$con = shield_security_get_plugin()->getController();
+				( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SetupGuideState() )->minimise();
+				$con->opts->store();
+				wp_clear_scheduled_hook( $con->prefix( \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController::HOOK_FIRST_SCAN ) );
+			' --allow-root
+			;;
+	esac
 fi

@@ -1,17 +1,5 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator;
-
-class AssetCoordinatorTestLog {
-
-	public static array $messages = [];
-}
-
-function error_log( string $message ) :bool {
-	AssetCoordinatorTestLog::$messages[] = $message;
-	return true;
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Lib\AssetCoordinator;
 
 use Brain\Monkey\Functions;
@@ -21,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
 	Store
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ErrorLogCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -77,15 +66,16 @@ class AssetCoordinatorTest extends BaseUnitTest {
 	private AssetCoordinatorTestScans $scans;
 	private AssetCoordinatorTestCron $cron;
 	private Controller $controller;
+	private ErrorLogCapture $errorLog;
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->errorLog = ErrorLogCapture::start();
 		$this->resetHashesStorageDir();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->hadWpdb = \array_key_exists( 'wpdb', $GLOBALS );
 		$this->wpdbSnapshot = $GLOBALS[ 'wpdb' ] ?? null;
 		$GLOBALS[ 'wpdb' ] = new AssetCoordinatorTestWpdb();
-		\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages = [];
 		$this->request = new AssetCoordinatorTestRequest( 1700000000 );
 		$this->scans = new AssetCoordinatorTestScans();
 		$this->cron = new AssetCoordinatorTestCron( $this->scheduled );
@@ -111,6 +101,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			unset( $GLOBALS[ 'wpdb' ] );
 		}
 		$this->cleanupTrackedTempDirs();
+		$this->errorLog->stop();
 		parent::tearDown();
 	}
 
@@ -323,7 +314,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 
 		$this->assertSame( [ 'attempts' => 3, 'due_at' => 0 ], $this->assetRecord() );
 		$this->assertCount( 1, \array_filter(
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages,
+			$this->errorLog->messages(),
 			static fn( string $message ) :bool => \str_contains( $message, 'exhausted plugin:deleted/deleted.php' )
 		) );
 
@@ -495,7 +486,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertSame( [], $this->firedActions );
 		$this->assertContains(
 			'Shield scan-result notification readiness signal failed: Synthetic readiness failure.',
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages
+			$this->errorLog->messages()
 		);
 	}
 
@@ -514,7 +505,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertSame( [], $this->state()[ 'assets' ][ 'plugin' ] );
 		$this->assertContains(
 			'Shield scan-result notification readiness signal failed: Synthetic listener failure.',
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages
+			$this->errorLog->messages()
 		);
 	}
 
@@ -702,7 +693,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 
 		$this->assertSame( [ 'attempts' => 3, 'due_at' => 0 ], $this->state()[ 'wpv' ] );
 		$this->assertCount( 1, \array_filter(
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages,
+			$this->errorLog->messages(),
 			static fn( string $message ) :bool => \str_contains( $message, 'exhausted wpv' )
 		) );
 	}
@@ -732,7 +723,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			$this->state(),
 			\implode(
 				"\n",
-				\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages
+				$this->errorLog->messages()
 			)
 		);
 		$this->assertTrue( $this->state()[ 'build_missing_snapshots' ] );
@@ -951,7 +942,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertCount( 3, $this->legacyCronEvents() );
 		$this->assertContains(
 			'Shield asset coordinator state write failed.',
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages
+			$this->errorLog->messages()
 		);
 	}
 
@@ -983,11 +974,11 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertCount( 0, $db->queries );
 
 		$this->persistWrites = false;
-		\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages = [];
+		$this->errorLog->clear();
 		$this->assertFalse( $coordinator->enqueueAsset( 'theme', 'twentytwentyfive', 60 ) );
 		$this->assertArrayNotHasKey( 'twentytwentyfive', $this->state()[ 'assets' ][ 'theme' ] );
 		$this->assertSame( [ 'Shield asset coordinator state write failed.' ],
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+			$this->errorLog->messages() );
 		$this->assertCount( 1, $db->queries );
 	}
 
@@ -1015,7 +1006,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 
 		$this->assertTrue( ( new AssetCoordinator() )->enqueueAsset( 'plugin', 'akismet/akismet.php', 60 ) );
 		$this->assertSame( $persistedState, $this->options[ $this->optionKey() ] );
-		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertSame( [], $this->errorLog->messages() );
 		$this->assertCount( 1, $db->queries );
 	}
 
@@ -1037,7 +1028,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'timestamp' => 1700000060,
 			'args'      => [ 1700000060 ],
 		] ], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
-		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertSame( [], $this->errorLog->messages() );
 		$this->assertCount( 1, $db->queries );
 	}
 
@@ -1058,7 +1049,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'timestamp' => 1700000045,
 			'args'      => [ 1700000045 ],
 		] ], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
-		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertSame( [], $this->errorLog->messages() );
 	}
 
 	public function test_stale_option_cache_schedules_snapshot_build_after_raw_confirmed_write() :void {
@@ -1083,7 +1074,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'timestamp' => 1700000060,
 			'args'      => [ 1700000060 ],
 		] ], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
-		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertSame( [], $this->errorLog->messages() );
 	}
 
 	public function test_stale_option_cache_migrates_legacy_wpv_after_raw_confirmed_write() :void {
@@ -1106,7 +1097,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'timestamp' => 1700000015,
 			'args'      => [ 1700000015 ],
 		] ], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
-		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertSame( [], $this->errorLog->messages() );
 	}
 
 	public function test_stale_option_cache_migrates_legacy_wpv_with_later_cached_due() :void {
@@ -1140,7 +1131,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'timestamp' => 1700000015,
 			'args'      => [ 1700000015 ],
 		] ], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
-		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertSame( [], $this->errorLog->messages() );
 		$this->assertCount( 2, $db->queries );
 	}
 
@@ -1180,7 +1171,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'timestamp' => 1700000015,
 			'args'      => [ 1700000015 ],
 		] ], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
-		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertSame( [], $this->errorLog->messages() );
 		$this->assertCount( 2, $db->queries );
 	}
 
@@ -1213,7 +1204,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'args'      => [],
 		] ], $this->legacyCronEvents() );
 		$this->assertSame( [ 'Shield asset coordinator could not verify imported legacy work.' ],
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+			$this->errorLog->messages() );
 		$this->assertCount( 2, $db->queries );
 	}
 
@@ -1247,7 +1238,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'args'      => [ 'plugin', 'akismet/akismet.php', 0 ],
 		] ], $this->legacyCronEvents() );
 		$this->assertSame( [ 'Shield asset coordinator could not verify imported legacy work.' ],
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+			$this->errorLog->messages() );
 		$this->assertCount( 2, $db->queries );
 	}
 
@@ -1267,7 +1258,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		] ], $this->legacyCronEvents() );
 		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
 		$this->assertSame( [ 'Shield asset coordinator could not verify imported legacy work.' ],
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+			$this->errorLog->messages() );
 		$this->assertCount( 1, $db->queries );
 	}
 
@@ -1282,7 +1273,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 
 		$this->assertFalse( ( new AssetCoordinator() )->enqueueAsset( 'plugin', 'akismet/akismet.php', 60 ) );
 		$this->assertSame( [ 'Shield asset coordinator state write failed.' ],
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+			$this->errorLog->messages() );
 		$this->assertCount( 1, $db->queries );
 	}
 
@@ -1303,7 +1294,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 
 		$this->assertFalse( ( new AssetCoordinator() )->enqueueAsset( 'plugin', 'akismet/akismet.php', 60 ) );
 		$this->assertSame( [ 'Shield asset coordinator state write failed.' ],
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+			$this->errorLog->messages() );
 		$this->assertCount( 1, $db->queries );
 	}
 
@@ -1316,7 +1307,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 
 		$this->assertFalse( ( new AssetCoordinator() )->enqueueAsset( 'plugin', 'akismet/akismet.php', 60 ) );
 		$this->assertSame( [ 'Shield asset coordinator state write failed.' ],
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+			$this->errorLog->messages() );
 		$this->assertCount( 1, $db->queries );
 	}
 
