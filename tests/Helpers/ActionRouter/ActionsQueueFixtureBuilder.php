@@ -144,9 +144,11 @@ class ActionsQueueFixtureBuilder {
 	}
 
 	/**
+	 * Undoes everything a seed did, as far as it can.
 	 * @phpstan-param FixtureState $state
+	 * @return list<string> the files and directories it created that couldn't be removed
 	 */
-	public function cleanup( array $state ) :void {
+	public function cleanup( array $state ) :array {
 		RuntimeTestState::ensureDb( self::REQUIRED_DB_KEYS );
 		$con = RuntimeTestState::controller();
 
@@ -181,12 +183,10 @@ class ActionsQueueFixtureBuilder {
 		RuntimeTestState::restoreOptions(
 			\is_array( $state[ 'options_snapshot' ] ?? null ) ? $state[ 'options_snapshot' ] : []
 		);
-		$this->removeCloakedPluginFixtureFiles( $state );
-		foreach ( \is_array( $state[ 'core_fixture_paths' ] ?? null ) ? $state[ 'core_fixture_paths' ] : [] as $path ) {
-			if ( \is_file( $path ) ) {
-				@\unlink( $path );
-			}
-		}
+		$leftoverPaths = \array_merge(
+			$this->removeCloakedPluginFixtureFiles( $state ),
+			$this->removeFixturePaths( \is_array( $state[ 'core_fixture_paths' ] ?? null ) ? $state[ 'core_fixture_paths' ] : [] )
+		);
 		if ( \is_array( $state[ 'raw_option_stores' ] ?? null ) ) {
 			( new RawOptionStoreSnapshot() )->restore( $state[ 'raw_option_stores' ], 'Actions Queue cloaked fixture' );
 		}
@@ -195,6 +195,8 @@ class ActionsQueueFixtureBuilder {
 		\delete_site_transient( 'update_plugins' );
 		\wp_set_current_user( 0 );
 		RuntimeTestState::controller()->this_req->is_security_admin = false;
+
+		return $leftoverPaths;
 	}
 
 	/**
@@ -961,17 +963,35 @@ class ActionsQueueFixtureBuilder {
 
 	/**
 	 * @phpstan-param FixtureState $state
+	 * @return list<string> the paths that couldn't be removed
 	 */
-	private function removeCloakedPluginFixtureFiles( array $state ) :void {
-		foreach ( \array_reverse( \is_array( $state[ 'cloaked_plugin_paths' ] ?? null ) ? $state[ 'cloaked_plugin_paths' ] : [] ) as $path ) {
+	private function removeCloakedPluginFixtureFiles( array $state ) :array {
+		$leftoverPaths = $this->removeFixturePaths(
+			\is_array( $state[ 'cloaked_plugin_paths' ] ?? null ) ? $state[ 'cloaked_plugin_paths' ] : []
+		);
+		$this->cleanPluginsCache();
+		return $leftoverPaths;
+	}
+
+	/**
+	 * Removes files and directories a fixture created, last created first, so a directory is emptied before it goes.
+	 * @param list<string> $paths
+	 * @return list<string> the paths that couldn't be removed
+	 */
+	private function removeFixturePaths( array $paths ) :array {
+		$leftoverPaths = [];
+		foreach ( \array_reverse( $paths ) as $path ) {
 			if ( \is_file( $path ) ) {
 				@\unlink( $path );
 			}
 			elseif ( \is_dir( $path ) ) {
 				@\rmdir( $path );
 			}
+			if ( \file_exists( $path ) ) {
+				$leftoverPaths[] = $path;
+			}
 		}
-		$this->cleanPluginsCache();
+		return $leftoverPaths;
 	}
 
 	private function resetCloakedPluginFindingsCache() :void {
