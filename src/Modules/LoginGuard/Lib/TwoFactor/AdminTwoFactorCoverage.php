@@ -8,7 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  * Which of this site's administrators have two-factor authentication on their account.
  *
  * It's asked on each of the plugin's own pages and on the WordPress dashboard, so it looks people up only when
- * nothing cheaper settles the answer, and then all of them together.
+ * nothing cheaper settles the answer, and then all of them together. Each shortcut starts from the methods login
+ * offers, so it can't count a method that login doesn't ask for.
  */
 class AdminTwoFactorCoverage {
 
@@ -29,8 +30,9 @@ class AdminTwoFactorCoverage {
 	 * @return list<\WP_User> those with no two-factor method active on their account
 	 */
 	public function unprotectedAmong( array $users ) :array {
-		// Email required of a person's role covers them whatever else is true of them.
-		if ( !empty( $users ) && Provider\Email::ProviderEnabled() ) {
+		// Email required of a person's role covers them whatever else is true of them, while login offers it.
+		if ( !empty( $users ) && Provider\Email::ProviderEnabled()
+			 && self::con()->comps->mfa->isProviderOffered( Provider\Email::class ) ) {
 			$users = \array_values( \array_filter(
 				$users,
 				static fn( \WP_User $user ) :bool => !( new Provider\Email( $user ) )->isEnforced()
@@ -63,7 +65,7 @@ class AdminTwoFactorCoverage {
 				$can = true;
 			}
 			elseif ( $provider === Provider\Email::class ) {
-				$can = Provider\Email::ProviderEnabled() && self::con()->opts->optIs( 'email_any_user_set', 'Y' );
+				$can = Provider\Email::ProviderEnabled() && Provider\Email::AnyUserCanTurnOn();
 			}
 			elseif ( $provider !== Provider\BackupCodes::class ) {
 				$can = $provider::ProviderEnabled();

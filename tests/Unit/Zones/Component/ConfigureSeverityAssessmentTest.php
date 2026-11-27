@@ -14,6 +14,13 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\BuildFileFromFileKey;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FileLockKeyApplicability;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\{
+	BackupCodes,
+	Email,
+	GoogleAuth,
+	Passkey,
+	Yubikey
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
@@ -833,6 +840,57 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->assertCount( 1, $row[ 'explanations' ] ?? [] );
 	}
 
+	public function test_two_factor_rows_do_not_count_a_method_that_login_no_longer_offers() :void {
+		$this->installController( [
+			'enable_email_authentication' => 'Y',
+			'email_can_send_verified_at'  => 12345,
+			'email_any_user_set'          => 'Y',
+			'enable_google_authenticator' => 'Y',
+		], [
+			'mfa' => new class {
+				public function collateMfaProviderClasses() :array {
+					return [ GoogleAuth::class ];
+				}
+
+				public function isProviderOffered( string $provider ) :bool {
+					return $provider === GoogleAuth::class;
+				}
+			},
+		] );
+
+		$emailRow = $this->findConfigureRowByKey( new TwoFactorAuth(), 'two_factor_email' );
+		$generalRow = $this->findConfigureRowByKey( new TwoFactorAuth(), 'two_factor_general' );
+
+		// Email is on and delivery is verified, but login doesn't offer it, so only one method is usable.
+		$this->assertSame( EnumEnabledStatus::OKAY, $emailRow[ 'enabled_status' ] ?? null );
+		$this->assertCount( 1, $emailRow[ 'explanations' ] ?? [] );
+		$this->assertSame( EnumEnabledStatus::OKAY, $generalRow[ 'enabled_status' ] ?? null );
+	}
+
+	public function test_two_factor_otp_row_says_when_a_method_is_taken_out_even_while_another_works() :void {
+		// Yubikey is switched on but incomplete, and taken out as well: being taken out is what's said, as in the
+		// admin two-factor drawer.
+		$this->installController( [
+			'enable_google_authenticator' => 'Y',
+			'enable_yubikey'              => 'Y',
+		], [
+			'mfa' => new class {
+				public function collateMfaProviderClasses() :array {
+					return [ GoogleAuth::class ];
+				}
+
+				public function isProviderOffered( string $provider ) :bool {
+					return $provider === GoogleAuth::class;
+				}
+			},
+		] );
+
+		$row = $this->findConfigureRowByKey( new TwoFactorAuth(), 'two_factor_otp_passkeys' );
+
+		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
+		$this->assertCount( 1, $row[ 'explanations' ] ?? [] );
+	}
+
 	public function test_two_factor_otp_and_passkeys_row_is_good_when_an_otp_provider_is_usable() :void {
 		$this->installController( [
 			'enable_google_authenticator' => 'Y',
@@ -1179,7 +1237,11 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				},
 				'mfa' => new class {
 					public function collateMfaProviderClasses() :array {
-						return [ FakeEnabledMfaProvider::class, FakeEnabledMfaProvider::class ];
+						return [ Email::class, GoogleAuth::class, Yubikey::class, BackupCodes::class, Passkey::class ];
+					}
+
+					public function isProviderOffered( string $provider ) :bool {
+						return \in_array( $provider, $this->collateMfaProviderClasses(), true );
 					}
 				},
 				'zones' => new SecurityZonesCon(),
@@ -1486,12 +1548,5 @@ class FakeSpamForm {
 
 	public function getHandlerName() :string {
 		return 'Fake Spam Form';
-	}
-}
-
-class FakeEnabledMfaProvider {
-
-	public static function ProviderEnabled() :bool {
-		return true;
 	}
 }

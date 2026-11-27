@@ -27,8 +27,8 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  * @phpstan-type Viewer array{is_protected:bool, title:string, summary:string, setup_href:string}
  * @phpstan-type Admin array{name:string, login:string, is_viewer:bool, last_login:string, href:string}
  * @phpstan-type Method array{
- *   name:string, example:string, icon_class:string, is_enabled:bool, is_recommended:bool, status:string,
- *   is_pro_only:bool, configure_href:string, configure_label:string
+ *   name:string, example:string, icon_class:string, is_enabled:bool, is_taken_out:bool, is_recommended:bool,
+ *   status:string, is_pro_only:bool, configure_href:string, configure_label:string
  * }
  */
 class AdminTwoFactorDetails extends OffCanvasBase {
@@ -180,13 +180,18 @@ class AdminTwoFactorDetails extends OffCanvasBase {
 		/** @var class-string<AbstractShieldProvider> $provider */
 		foreach ( self::METHODS as $provider => [ $optKey, $iconClass ] ) {
 			$isSwitchedOn = $con->opts->optIs( $optKey, 'Y' );
+			// Switched on here, but another plugin or custom code has left it out of the methods login offers.
+			$isTakenOut = $isSwitchedOn && !$con->comps->mfa->isProviderOffered( $provider );
 			// Email that nobody is required or allowed to use is enabled in name only.
 			$isEmailForNobody = $provider === Email::class && $provider::ProviderEnabled()
-								&& empty( $this->rolesRequiredToUseEmail() ) && !$con->opts->optIs( 'email_any_user_set', 'Y' );
-			$isEnabled = $provider::ProviderEnabled() && !$isEmailForNobody;
+								&& empty( $this->rolesRequiredToUseEmail() ) && !Email::AnyUserCanTurnOn();
+			$isEnabled = !$isTakenOut && $provider::ProviderEnabled() && !$isEmailForNobody;
 
 			if ( $isEnabled ) {
 				$status = $this->enabledStatus( $provider );
+			}
+			elseif ( $isTakenOut ) {
+				$status = __( 'Turned on, but another plugin or custom code has removed it from the methods offered at login.', 'wp-simple-firewall' );
 			}
 			elseif ( $isEmailForNobody ) {
 				$status = __( 'Enabled, but no role is required to use it.', 'wp-simple-firewall' );
@@ -200,10 +205,12 @@ class AdminTwoFactorDetails extends OffCanvasBase {
 				'example'         => $provider === GoogleAuth::class ? GoogleAuth::ExampleApp() : '',
 				'icon_class'      => $iconClass,
 				'is_enabled'      => $isEnabled,
+				'is_taken_out'    => $isTakenOut,
 				'is_recommended'  => $provider === GoogleAuth::class,
 				'status'          => $status,
 				'is_pro_only'     => !$con->opts->optHasAccess( $optKey ),
-				'configure_href'  => $isEnabled ? ''
+				// Configure can't put back a method that something else has taken out.
+				'configure_href'  => ( $isEnabled || $isTakenOut ) ? ''
 					: $con->plugin_urls->cfgForOpt( $isEmailForNobody ? 'two_factor_auth_user_roles' : $optKey ),
 				'configure_label' => $isSwitchedOn ? __( 'Open in Configure', 'wp-simple-firewall' ) : __( 'Turn on in Configure', 'wp-simple-firewall' ),
 			];
@@ -224,7 +231,7 @@ class AdminTwoFactorDetails extends OffCanvasBase {
 		}
 
 		return wp_sprintf(
-			self::con()->opts->optIs( 'email_any_user_set', 'Y' )
+			Email::AnyUserCanTurnOn()
 				/* translators: %l: list of user roles, such as "Administrator and Editor" */
 				? __( 'Enabled for all users, and required for %l.', 'wp-simple-firewall' )
 				/* translators: %l: list of user roles, such as "Administrator and Editor" */

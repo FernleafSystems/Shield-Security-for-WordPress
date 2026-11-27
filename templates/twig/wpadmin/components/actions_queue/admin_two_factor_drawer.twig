@@ -73,9 +73,10 @@
 			<i class="bi bi-sliders" aria-hidden="true"></i>{{ strings.config }}
 		</div>
 		{% for method in vars.methods %}
-			<div class="actions-queue-row actions-queue-row--item{% if method.is_enabled %} actions-queue-row--good{% endif %}">
+			{# A method that's turned on here but taken out of login stands out, as nothing on this page explains it otherwise. #}
+			<div class="actions-queue-row actions-queue-row--item{% if method.is_enabled %} actions-queue-row--good{% elseif method.is_taken_out %} actions-queue-row--warning{% endif %}">
 				<span class="actions-queue-row__icon">
-					<i class="{{ method.is_enabled ? 'bi bi-check-lg' : method.icon_class }}" aria-hidden="true"></i>
+					<i class="{{ method.is_enabled ? 'bi bi-check-lg' : ( method.is_taken_out ? 'bi bi-exclamation-triangle' : method.icon_class ) }}" aria-hidden="true"></i>
 				</span>
 				<div class="actions-queue-row__copy">
 					<span class="actions-queue-row__title">
